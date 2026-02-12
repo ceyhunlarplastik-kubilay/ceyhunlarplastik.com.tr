@@ -1,5 +1,5 @@
 export * from "./createProductSupplierHandler"
 export * from "./deleteProductSupplierHandler"
 export * from "./getProductSupplierHandler"
-export * from "./listProductSuppliersHandler"
+export * from "./listProductsSuppliersHandler"
 export * from "./updateProductSupplierHandler"

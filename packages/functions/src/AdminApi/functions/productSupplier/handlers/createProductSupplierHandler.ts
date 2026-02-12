@@ -1,5 +1,5 @@
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { ICreateProductSupplierDependencies, ICreateProductSupplierEvent } from "@/functions/AdminApi/types/productSuppliers"
 
@@ -24,7 +24,7 @@ export const createProductSupplierHandler = ({ productSupplierRepository }: ICre
                     catalogCode,
                 })
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 201,
                 payload: { productSupplier },
             })

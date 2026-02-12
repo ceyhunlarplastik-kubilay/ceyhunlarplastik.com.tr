@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IListCategoriesDependencies, IListCategoriesEvent } from "@/functions/AdminApi/types/categories"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 
@@ -22,9 +22,12 @@ export const listCategoryHandler = ({ categoryRepository }: IListCategoriesDepen
                 order,
             })
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
-                payload: result,
+                payload: {
+                    data: result.data,
+                    meta: result.meta,
+                },
             })
         } catch (err: any) {
             console.error(err)

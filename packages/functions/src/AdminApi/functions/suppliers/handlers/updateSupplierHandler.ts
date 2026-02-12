@@ -1,6 +1,6 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IUpdateSupplierDependencies, IUpdateSupplierEvent } from "@/functions/AdminApi/types/suppliers"
 
 export const updateSupplierHandler = ({ supplierRepository }: IUpdateSupplierDependencies) => {
@@ -30,7 +30,7 @@ export const updateSupplierHandler = ({ supplierRepository }: IUpdateSupplierDep
         try {
             const supplier = await supplierRepository.updateSupplier(id, updateData)
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { supplier },
             })

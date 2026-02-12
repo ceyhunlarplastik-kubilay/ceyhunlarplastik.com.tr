@@ -1,5 +1,5 @@
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateCategoryDependencies, ICreateCategoryEvent } from "@/functions/AdminApi/types/categories"
 import { Prisma } from "@/prisma/generated/prisma/client"
 
@@ -24,7 +24,7 @@ export const createCategoryHandler = ({ categoryRepository }: ICreateCategoryDep
                 name,
             })
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 201,
                 payload: { category },
             })

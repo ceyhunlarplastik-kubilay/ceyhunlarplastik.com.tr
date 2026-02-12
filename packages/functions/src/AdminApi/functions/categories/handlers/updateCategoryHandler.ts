@@ -1,6 +1,6 @@
 import { Prisma } from "@/prisma/generated/prisma/client"
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IUpdateCategoryDependencies, IUpdateCategoryEvent } from "@/functions/AdminApi/types/categories"
 
 export const updateCategoryHandler = ({ categoryRepository }: IUpdateCategoryDependencies) => {
@@ -28,7 +28,7 @@ export const updateCategoryHandler = ({ categoryRepository }: IUpdateCategoryDep
         try {
             const category = await categoryRepository.updateCategory(id, updateData);
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { category },
             })

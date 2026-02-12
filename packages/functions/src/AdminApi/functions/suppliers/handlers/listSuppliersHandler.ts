@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { IListSuppliersDependencies, IListSuppliersEvent } from "@/functions/AdminApi/types/suppliers"
 
@@ -23,9 +23,12 @@ export const listSuppliersHandler = ({ supplierRepository }: IListSuppliersDepen
                 order,
             })
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
-                payload: result,
+                payload: {
+                    data: result.data,
+                    meta: result.meta,
+                },
             })
         } catch (err) {
             console.error(err)

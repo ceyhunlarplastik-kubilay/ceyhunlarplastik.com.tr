@@ -1,5 +1,5 @@
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IGetSupplierDependencies, IGetSupplierEvent } from "@/functions/AdminApi/types/suppliers"
 
 export const getSupplierHandler = ({ supplierRepository }: IGetSupplierDependencies) => {
@@ -13,7 +13,7 @@ export const getSupplierHandler = ({ supplierRepository }: IGetSupplierDependenc
 
             if (!supplier) throw new createError.NotFound("Supplier not found");
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { supplier },
             })

@@ -1,5 +1,5 @@
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IDeleteCategoryDependencies, IDeleteCategoryEvent } from "@/functions/AdminApi/types/categories"
 import { Prisma } from "@/prisma/generated/prisma/client"
 
@@ -12,7 +12,7 @@ export const deleteCategoryHandler = ({ categoryRepository }: IDeleteCategoryDep
         try {
             const category = await categoryRepository.deleteCategory(id);
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { category },
             })

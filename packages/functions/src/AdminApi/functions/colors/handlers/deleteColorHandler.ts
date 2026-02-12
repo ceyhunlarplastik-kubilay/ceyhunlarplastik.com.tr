@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IDeleteColorDependencies, IDeleteColorEvent } from "@/functions/AdminApi/types/colors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 
@@ -13,7 +13,7 @@ export const deleteColorHandler = ({ colorRepository }: IDeleteColorDependencies
             // Soft delete is handled in the prisma extension, so we don't need to filter by isActive here
             const color = await colorRepository.deleteColor(id);
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { color },
             })

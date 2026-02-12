@@ -1,5 +1,5 @@
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { IUpdateProductSupplierDependencies, IUpdateProductSupplierEvent } from "@/functions/AdminApi/types/productSuppliers"
 
@@ -30,7 +30,7 @@ export const updateProductSupplierHandler = ({ productSupplierRepository }: IUpd
     try {
       const productSupplier = await productSupplierRepository.updateProductSupplier(id, updateData);
 
-      return apiResponse({
+      return apiResponseDTO({
         statusCode: 200,
         payload: { productSupplier },
       })

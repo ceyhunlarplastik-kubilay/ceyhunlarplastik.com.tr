@@ -1,6 +1,6 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateSupplierDependencies, ICreateSupplierEvent } from "@/functions/AdminApi/types/suppliers"
 
 export const createSupplierHandler = ({ supplierRepository }: ICreateSupplierDependencies) => {
@@ -25,7 +25,7 @@ export const createSupplierHandler = ({ supplierRepository }: ICreateSupplierDep
                 ...(isActive !== undefined ? { isActive } : {}),
             })
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 201,
                 payload: { supplier },
             })

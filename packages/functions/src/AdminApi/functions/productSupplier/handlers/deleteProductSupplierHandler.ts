@@ -1,5 +1,5 @@
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { IDeleteProductSupplierDependencies, IDeleteProductSupplierEvent } from "@/functions/AdminApi/types/productSuppliers"
 
@@ -14,7 +14,7 @@ export const deleteProductSupplierHandler = ({ productSupplierRepository }: IDel
         try {
             const productSupplier = await productSupplierRepository.deleteProductSupplier(id);
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { productSupplier },
             })

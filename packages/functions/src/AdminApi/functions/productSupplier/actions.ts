@@ -4,7 +4,7 @@ import { productSupplierRepository } from "@/core/helpers/prisma/productSupplier
 import {
     createProductSupplierHandler,
     getProductSupplierHandler,
-    listProductSuppliersHandler,
+    listProductsSuppliersHandler,
     deleteProductSupplierHandler,
     updateProductSupplierHandler,
 } from "@/functions/AdminApi/functions/productSupplier/handlers";
@@ -57,12 +57,12 @@ export const getProductSupplier = lambdaHandler(
     }
 )
 
-export const listProductSuppliers = lambdaHandler(
+export const listProductsSuppliers = lambdaHandler(
     async (event) => {
         const deps: IListProductSuppliersDependencies = {
             productSupplierRepository: productSupplierRepository()
         }
-        return listProductSuppliersHandler(deps)
+        return listProductsSuppliersHandler(deps)
             (
                 event as IListProductSuppliersEvent
             )

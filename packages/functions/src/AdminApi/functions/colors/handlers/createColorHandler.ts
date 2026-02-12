@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateColorDependencies, ICreateColorEvent } from "@/functions/AdminApi/types/colors"
 import { ColorSystem } from "@/functions/AdminApi/types/colors"
 import { Prisma } from "@/prisma/generated/prisma/client"
@@ -54,7 +54,7 @@ export const createColorHandler = ({ colorRepository }: ICreateColorDependencies
                 rgbB: b,
             })
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 201,
                 payload: { color },
             })

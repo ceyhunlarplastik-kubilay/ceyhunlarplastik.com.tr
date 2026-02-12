@@ -1,11 +1,11 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IListProductSuppliersDependencies, IListProductSuppliersEvent } from "@/functions/AdminApi/types/productSuppliers"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 
 const ALLOWED_SORT_FIELDS = ["createdAt"] as const
 
-export const listProductSuppliersHandler = ({ productSupplierRepository }: IListProductSuppliersDependencies) => {
+export const listProductsSuppliersHandler = ({ productSupplierRepository }: IListProductSuppliersDependencies) => {
     return async (event: IListProductSuppliersEvent) => {
 
         const { page, limit } = normalizeListQuery(
@@ -22,9 +22,12 @@ export const listProductSuppliersHandler = ({ productSupplierRepository }: IList
                 limit,
             })
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
-                payload: result,
+                payload: {
+                    data: result.data,
+                    meta: result.meta,
+                },
             })
         } catch (err) {
             console.error(err);

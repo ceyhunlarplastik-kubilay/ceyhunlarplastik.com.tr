@@ -137,7 +137,7 @@ adminApi.route("PUT /suppliers/{id}", {
 }, { ...defaultAuthOptions });
 
 /*----------------------- PRODUCT SUPPLIERS -----------------------*/
-/* adminApi.route("POST /product-suppliers", {
+adminApi.route("POST /product-suppliers", {
     handler: `${folderPrefix}/productSuppliers/actions.createProductSupplier`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
@@ -148,7 +148,7 @@ adminApi.route("GET /product-suppliers/{id}", {
 }, { ...defaultAuthOptions });
 
 adminApi.route("GET /product-suppliers", {
-    handler: `${folderPrefix}/productSuppliers/actions.listProductSuppliers`,
+    handler: `${folderPrefix}/productSuppliers/actions.listProductsSuppliers`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
@@ -160,7 +160,7 @@ adminApi.route("PUT /product-suppliers/{id}", {
 adminApi.route("DELETE /product-suppliers/{id}", {
     handler: `${folderPrefix}/productSuppliers/actions.deleteProductSupplier`,
     ...defaultRouteOptions,
-}, { ...defaultAuthOptions }); */
+}, { ...defaultAuthOptions });
 
 
 /*----------------------- PRODUCTS -----------------------*/

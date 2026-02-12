@@ -1,5 +1,5 @@
 import createError, { HttpError } from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IGetCategoryDependencies, IGetCategoryEvent } from "@/functions/AdminApi/types/categories"
 
 export const getCategoryHandler = ({ categoryRepository }: IGetCategoryDependencies) => {
@@ -13,7 +13,7 @@ export const getCategoryHandler = ({ categoryRepository }: IGetCategoryDependenc
 
             if (!category) throw new createError.NotFound("Category not found");
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { category },
             })

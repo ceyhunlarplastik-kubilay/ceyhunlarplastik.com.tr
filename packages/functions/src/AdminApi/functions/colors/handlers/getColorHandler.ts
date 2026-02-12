@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IGetColorDependencies, IGetColorEvent } from "@/functions/AdminApi/types/colors"
 
 export const getColorHandler = ({ colorRepository }: IGetColorDependencies) => {
@@ -14,7 +14,7 @@ export const getColorHandler = ({ colorRepository }: IGetColorDependencies) => {
 
             if (!color) throw new createError.NotFound("Color not found");
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { color },
             })

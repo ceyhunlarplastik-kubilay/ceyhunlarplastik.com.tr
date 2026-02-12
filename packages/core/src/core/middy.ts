@@ -72,16 +72,18 @@ export const lambdaHandler = <TResponse = unknown>(
         .use(httpMultipartBodyParser({ disableContentTypeError: true }))
 
     /* ------------------------
-     * 5️⃣ Validation (opsiyonel)
+     * 5️⃣ REQUEST Validation (EARLY)
      * ------------------------ */
-
-    /* if (opts?.requestValidator) {
-        chain.use(
-            validator({
-                eventSchema: transpileSchema(opts.requestValidator)
+    if (opts?.requestValidator) {
+        chain.use(validator({
+            eventSchema: transpileSchema(opts.requestValidator, {
+                allErrors: true,
+                strict: true,
+                coerceTypes: "array",
+                useDefaults: "empty",
             })
-        )
-    } */
+        }))
+    }
 
     /* ------------------------
     * 6️⃣ AUTH (BURAYA)
@@ -104,21 +106,8 @@ export const lambdaHandler = <TResponse = unknown>(
         )
 
     /* ------------------------
-     * 8️⃣ Response
+     * 8️⃣ Response SERIALIZATION & VALIDATION
      * ------------------------ */
-    /* if (opts?.requestValidator || opts?.responseValidator) {
-        chain.use(validator({
-            eventSchema: opts.requestValidator ? transpileSchema(opts.requestValidator, {
-                allErrors: true,
-                strict: true,
-                coerceTypes: "array",
-                useDefaults: "empty",
-            }) : undefined,
-            responseSchema: opts.responseValidator ? transpileSchema(opts.responseValidator) : undefined,
-        }))
-    } */
-
-
     chain
         .use(httpContentEncoding())
         // Custom simple serializer to strictly ensure JSON stringification
@@ -132,24 +121,11 @@ export const lambdaHandler = <TResponse = unknown>(
         })
         .use(httpPartialResponse())
 
-    /* ------------------------
-     * 5️⃣ Validation (Moved to run before serialization on response)
-     * ------------------------ */
-    if (opts?.requestValidator || opts?.responseValidator) {
-        chain.use(
-            validator({
-                eventSchema: opts.requestValidator
-                    ? transpileSchema(opts.requestValidator, {
-                        allErrors: true,
-                        strict: true,
-                        coerceTypes: "array",
-                        useDefaults: "empty",
-                    }) : undefined,
-                responseSchema: opts.responseValidator
-                    ? transpileSchema(opts.responseValidator)
-                    : undefined,
-            })
-        )
+    // 9️⃣ RESPONSE Validation (LATE - before serialization on response path)
+    if (opts?.responseValidator) {
+        chain.use(validator({
+            responseSchema: transpileSchema(opts.responseValidator)
+        }))
     }
 
     /* ------------------------

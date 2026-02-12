@@ -1,6 +1,6 @@
 import { Prisma } from "@/prisma/generated/prisma/client"
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IUpdateColorDependencies, IUpdateColorEvent } from "@/functions/AdminApi/types/colors"
 
 const HEX_REGEX = /^#([0-9A-Fa-f]{6})$/
@@ -69,7 +69,7 @@ export const updateColorHandler = ({ colorRepository }: IUpdateColorDependencies
         try {
             const color = await colorRepository.updateColor(id, updateData);
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { color },
             })

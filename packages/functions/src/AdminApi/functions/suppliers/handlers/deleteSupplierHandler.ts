@@ -1,6 +1,6 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IDeleteSupplierDependencies, IDeleteSupplierEvent } from "@/functions/AdminApi/types/suppliers"
 
 export const deleteSupplierHandler = ({ supplierRepository }: IDeleteSupplierDependencies) => {
@@ -14,7 +14,7 @@ export const deleteSupplierHandler = ({ supplierRepository }: IDeleteSupplierDep
       // Soft delete via prisma extension
       const supplier = await supplierRepository.deleteSupplier(id)
 
-      return apiResponse({
+      return apiResponseDTO({
         statusCode: 200,
         payload: { supplier },
       })
