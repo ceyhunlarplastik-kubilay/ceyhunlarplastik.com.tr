@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo-template/core",
+  "name": "@ceyhunlarweb/core",
   "type": "module",
   "version": "0.0.0",
   "scripts": {
@@ -12,9 +12,38 @@
     ]
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.983.0",
+    "@aws-sdk/client-sfn": "^3.981.0",
+    "@middy/core": "^7.0.2",
+    "@middy/error-logger": "^7.0.2",
+    "@middy/event-normalizer": "^7.0.2",
+    "@middy/http-content-encoding": "^7.0.2",
+    "@middy/http-content-negotiation": "^7.0.2",
+    "@middy/http-cors": "^7.0.2",
+    "@middy/http-error-handler": "^7.0.2",
+    "@middy/http-event-normalizer": "^7.0.2",
+    "@middy/http-header-normalizer": "^7.0.2",
+    "@middy/http-json-body-parser": "^7.0.2",
+    "@middy/http-multipart-body-parser": "^7.0.2",
+    "@middy/http-partial-response": "^7.0.2",
+    "@middy/http-response-serializer": "^7.0.2",
+    "@middy/http-security-headers": "^7.0.2",
+    "@middy/http-urlencode-body-parser": "^7.0.2",
+    "@middy/http-urlencode-path-parser": "^7.0.2",
+    "@middy/input-output-logger": "^7.0.2",
+    "@middy/validator": "^7.0.2",
+    "@middy/warmup": "^7.0.2",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "prisma": "^7.3.0",
     "sst": "*"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.160",
+    "@types/http-errors": "^2.0.5",
+    "ajv-cmd": "^0.8.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "vitest": "^2"
   }
 }

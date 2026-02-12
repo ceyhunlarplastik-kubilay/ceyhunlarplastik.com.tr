@@ -1,0 +1,254 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+///////////////////////////////////////////////////////
+// USER
+///////////////////////////////////////////////////////
+
+model User {
+  id         String   @id @default(uuid())
+  cognitoSub String   @unique
+  email      String   @unique
+  identifier String
+  groups     String[]
+  isActive   Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+///////////////////////////////////////////////////////
+// COLOR
+///////////////////////////////////////////////////////
+
+model Color {
+  id       String      @id @default(uuid())
+  system   ColorSystem @default(RAL)
+  code     String
+  name     String
+  hex      String
+  rgbR     Int?
+  rgbG     Int?
+  rgbB     Int?
+  isActive Boolean     @default(true)
+
+  variants ProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([system, code])
+}
+
+enum ColorSystem {
+  RAL
+  PANTONE
+  NCS
+  CUSTOM
+}
+
+///////////////////////////////////////////////////////
+// CATEGORY
+///////////////////////////////////////////////////////
+
+model Category {
+  id   String @id @default(uuid())
+  code Int
+  name String
+
+  products Product[]
+  assets   Asset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code])
+}
+
+///////////////////////////////////////////////////////
+// PRODUCT (10.11)
+///////////////////////////////////////////////////////
+
+model Product {
+  id String @id @default(uuid())
+
+  code String // 10.11
+  name String
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  variants         ProductVariant[]
+  productSuppliers ProductSupplier[]
+  assets           Asset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code])
+  @@index([categoryId])
+}
+
+///////////////////////////////////////////////////////
+// PRODUCT VARIANT (10.11.B.V1)
+///////////////////////////////////////////////////////
+
+model ProductVariant {
+  id String @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // supplierCatalogCode String // B, C vs
+  productSupplierId String
+  productSupplier   ProductSupplier @relation(fields: [productSupplierId], references: [id], onDelete: Cascade)
+
+  versionCode String
+  fullCode    String @unique
+
+  colorId String?
+  color   Color?  @relation(fields: [colorId], references: [id])
+
+  materialId String?
+  material   Material? @relation(fields: [materialId], references: [id])
+
+  measurements ProductMeasurement[]
+  assets       Asset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productSupplierId, versionCode])
+  @@index([productId])
+  @@index([colorId])
+  @@index([materialId])
+}
+
+///////////////////////////////////////////////////////
+// MEASUREMENT TYPE
+///////////////////////////////////////////////////////
+
+model MeasurementType {
+  id   String  @id @default(uuid())
+  name String // Çap, Uzunluk, Kalınlık
+  code String // D, L, T, A
+  unit String? // mm, derece
+
+  measurements ProductMeasurement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code])
+}
+
+///////////////////////////////////////////////////////
+// PRODUCT MEASUREMENT
+///////////////////////////////////////////////////////
+
+model ProductMeasurement {
+  id String @id @default(uuid())
+
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  measurementTypeId String
+  measurementType   MeasurementType @relation(fields: [measurementTypeId], references: [id])
+
+  value Float
+  label String? // R1, R2, L1 gibi varyasyonlar
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([variantId, measurementTypeId, label])
+  @@index([variantId])
+  @@index([measurementTypeId])
+}
+
+model Supplier {
+  id String @id @default(uuid())
+
+  name     String
+  isActive Boolean @default(true)
+
+  productSuppliers ProductSupplier[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name])
+}
+
+model ProductSupplier {
+  id          String @id @default(uuid())
+  productId   String
+  supplierId  String
+  catalogCode String // "B", "C" ...
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  variants ProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, catalogCode]) // aynı üründe B bir kere olur
+  @@unique([productId, supplierId]) // aynı supplier ürüne bir kere bağlanır
+  @@index([productId])
+  @@index([supplierId])
+}
+
+model Material {
+  id String @id @default(uuid())
+
+  name String
+  code String? // PP, PE, PVC gibi
+
+  variants ProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name])
+}
+
+model Asset {
+  id String @id @default(uuid())
+
+  url  String
+  type AssetType
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+  PDF
+  TECHNICAL_DRAWING
+  CERTIFICATE
+}

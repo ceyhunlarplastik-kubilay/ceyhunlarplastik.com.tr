@@ -1,15 +1,26 @@
 {
-  "name": "monorepo-template",
+  "name": "ceyhunlarweb",
   "version": "0.0.0",
   "workspaces": [
     "packages/*"
   ],
-  "scripts": {},
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "dev:local": "npx sst dev --stage $LOCAL_STAGE",
+    "remove:local": "npx sst remove --stage $LOCAL_STAGE",
+    "deploy:dev": "npx sst deploy --stage dev",
+    "remove:dev": "npx sst remove --stage dev",
+    "deploy:prod": "npx sst deploy --stage prod",
+    "remove:prod": "npx sst remove --stage prod"
+  },
   "devDependencies": {
-    "@tsconfig/node22": "^22",
+    "@tsconfig/node22": "^22.0.0",
     "typescript": "^5"
   },
   "dependencies": {
-    "sst": "^3"
+    "sst": "^3",
+    "zod": "^4.3.6"
   }
 }

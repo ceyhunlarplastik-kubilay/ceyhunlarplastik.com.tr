@@ -1,1 +1,18 @@
-{}
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["packages/*"],
+      "@/core/*": ["packages/core/src/core/*"],
+      "@/prisma/*": ["packages/core/prisma/*"],
+      "@/functions/*": ["packages/functions/src/*"],
+      "@/scripts/*": ["packages/scripts/src/*"],
+      "@/frontend/*": ["packages/frontend/*"]
+    }
+  },
+  "include": ["packages/**/*", "infra/**/*", "sst.config.ts", "config.ts"]
+}

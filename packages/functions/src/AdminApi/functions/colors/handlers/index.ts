@@ -1,0 +1,5 @@
+export * from "./createColorHandler"
+export * from "./listColorsHandler"
+export * from "./deleteColorHandler"
+export * from "./updateColorHandler"
+export * from "./getColorHandler"

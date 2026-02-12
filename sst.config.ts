@@ -3,18 +3,23 @@
 export default $config({
   app(input) {
     return {
-      name: "monorepo-template",
-      removal: input?.stage === "production" ? "retain" : "remove",
-      protect: ["production"].includes(input?.stage),
+      name: "ceyhunlarweb",
+      removal: input?.stage === "prod" ? "retain" : "remove",
+      protect: ["prod"].includes(input?.stage),
       home: "aws",
     };
   },
   async run() {
-    const storage = await import("./infra/storage");
-    await import("./infra/api");
+    // const storage = await import("./infra/storage");
+    const { DATABASE_URL } = await import ("./infra/db");
+    await import ("./infra/PublicApi");
+    await import ("./infra/ProtectedApi");
+    await import ("./infra/AdminApi");
+    await import ("./infra/OwnerApi");
 
-    return {
+    /* return {
       MyBucket: storage.bucket.name,
-    };
+    }; */
+    return { DATABASE_URL };
   },
 });
