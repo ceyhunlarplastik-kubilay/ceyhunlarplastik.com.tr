@@ -196,7 +196,7 @@ export type ProductMeasurementGroupByOutputType = {
   variantId: string
   measurementTypeId: string
   value: number
-  label: string | null
+  label: string
   createdAt: Date
   updatedAt: Date
   _count: ProductMeasurementCountAggregateOutputType | null
@@ -229,7 +229,7 @@ export type ProductMeasurementWhereInput = {
   variantId?: Prisma.StringFilter<"ProductMeasurement"> | string
   measurementTypeId?: Prisma.StringFilter<"ProductMeasurement"> | string
   value?: Prisma.FloatFilter<"ProductMeasurement"> | number
-  label?: Prisma.StringNullableFilter<"ProductMeasurement"> | string | null
+  label?: Prisma.StringFilter<"ProductMeasurement"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductMeasurement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductMeasurement"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
@@ -241,7 +241,7 @@ export type ProductMeasurementOrderByWithRelationInput = {
   variantId?: Prisma.SortOrder
   measurementTypeId?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  label?: Prisma.SortOrderInput | Prisma.SortOrder
+  label?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   variant?: Prisma.ProductVariantOrderByWithRelationInput
@@ -257,7 +257,7 @@ export type ProductMeasurementWhereUniqueInput = Prisma.AtLeast<{
   variantId?: Prisma.StringFilter<"ProductMeasurement"> | string
   measurementTypeId?: Prisma.StringFilter<"ProductMeasurement"> | string
   value?: Prisma.FloatFilter<"ProductMeasurement"> | number
-  label?: Prisma.StringNullableFilter<"ProductMeasurement"> | string | null
+  label?: Prisma.StringFilter<"ProductMeasurement"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductMeasurement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductMeasurement"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
@@ -269,7 +269,7 @@ export type ProductMeasurementOrderByWithAggregationInput = {
   variantId?: Prisma.SortOrder
   measurementTypeId?: Prisma.SortOrder
   value?: Prisma.SortOrder
-  label?: Prisma.SortOrderInput | Prisma.SortOrder
+  label?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductMeasurementCountOrderByAggregateInput
@@ -287,7 +287,7 @@ export type ProductMeasurementScalarWhereWithAggregatesInput = {
   variantId?: Prisma.StringWithAggregatesFilter<"ProductMeasurement"> | string
   measurementTypeId?: Prisma.StringWithAggregatesFilter<"ProductMeasurement"> | string
   value?: Prisma.FloatWithAggregatesFilter<"ProductMeasurement"> | number
-  label?: Prisma.StringNullableWithAggregatesFilter<"ProductMeasurement"> | string | null
+  label?: Prisma.StringWithAggregatesFilter<"ProductMeasurement"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductMeasurement"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductMeasurement"> | Date | string
 }
@@ -295,7 +295,7 @@ export type ProductMeasurementScalarWhereWithAggregatesInput = {
 export type ProductMeasurementCreateInput = {
   id?: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   variant: Prisma.ProductVariantCreateNestedOneWithoutMeasurementsInput
@@ -307,7 +307,7 @@ export type ProductMeasurementUncheckedCreateInput = {
   variantId: string
   measurementTypeId: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -315,7 +315,7 @@ export type ProductMeasurementUncheckedCreateInput = {
 export type ProductMeasurementUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutMeasurementsNestedInput
@@ -327,7 +327,7 @@ export type ProductMeasurementUncheckedUpdateInput = {
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   measurementTypeId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -337,7 +337,7 @@ export type ProductMeasurementCreateManyInput = {
   variantId: string
   measurementTypeId: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -345,7 +345,7 @@ export type ProductMeasurementCreateManyInput = {
 export type ProductMeasurementUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -355,7 +355,7 @@ export type ProductMeasurementUncheckedUpdateManyInput = {
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   measurementTypeId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -509,7 +509,7 @@ export type FloatFieldUpdateOperationsInput = {
 export type ProductMeasurementCreateWithoutVariantInput = {
   id?: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   measurementType: Prisma.MeasurementTypeCreateNestedOneWithoutMeasurementsInput
@@ -519,7 +519,7 @@ export type ProductMeasurementUncheckedCreateWithoutVariantInput = {
   id?: string
   measurementTypeId: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -558,7 +558,7 @@ export type ProductMeasurementScalarWhereInput = {
   variantId?: Prisma.StringFilter<"ProductMeasurement"> | string
   measurementTypeId?: Prisma.StringFilter<"ProductMeasurement"> | string
   value?: Prisma.FloatFilter<"ProductMeasurement"> | number
-  label?: Prisma.StringNullableFilter<"ProductMeasurement"> | string | null
+  label?: Prisma.StringFilter<"ProductMeasurement"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductMeasurement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductMeasurement"> | Date | string
 }
@@ -566,7 +566,7 @@ export type ProductMeasurementScalarWhereInput = {
 export type ProductMeasurementCreateWithoutMeasurementTypeInput = {
   id?: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   variant: Prisma.ProductVariantCreateNestedOneWithoutMeasurementsInput
@@ -576,7 +576,7 @@ export type ProductMeasurementUncheckedCreateWithoutMeasurementTypeInput = {
   id?: string
   variantId: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -611,7 +611,7 @@ export type ProductMeasurementCreateManyVariantInput = {
   id?: string
   measurementTypeId: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -619,7 +619,7 @@ export type ProductMeasurementCreateManyVariantInput = {
 export type ProductMeasurementUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   measurementType?: Prisma.MeasurementTypeUpdateOneRequiredWithoutMeasurementsNestedInput
@@ -629,7 +629,7 @@ export type ProductMeasurementUncheckedUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   measurementTypeId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -638,7 +638,7 @@ export type ProductMeasurementUncheckedUpdateManyWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   measurementTypeId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -647,7 +647,7 @@ export type ProductMeasurementCreateManyMeasurementTypeInput = {
   id?: string
   variantId: string
   value: number
-  label?: string | null
+  label?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -655,7 +655,7 @@ export type ProductMeasurementCreateManyMeasurementTypeInput = {
 export type ProductMeasurementUpdateWithoutMeasurementTypeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutMeasurementsNestedInput
@@ -665,7 +665,7 @@ export type ProductMeasurementUncheckedUpdateWithoutMeasurementTypeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -674,7 +674,7 @@ export type ProductMeasurementUncheckedUpdateManyWithoutMeasurementTypeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
-  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  label?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -752,7 +752,7 @@ export type $ProductMeasurementPayload<ExtArgs extends runtime.Types.Extensions.
     variantId: string
     measurementTypeId: string
     value: number
-    label: string | null
+    label: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productMeasurement"]>

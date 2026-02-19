@@ -10,7 +10,9 @@ export const getUserHandler = ({ userRepository }: IGetUserDependencies) => {
       throw createError.BadRequest("Missing path parameter: id")
     }
 
-    const user = await userRepository.listUsers();
+    const user = await userRepository.getUserById(id);
+
+    console.log("USER: ", user);
 
     if (!user) {
       throw createError.NotFound("User not found")

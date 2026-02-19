@@ -4,7 +4,11 @@ import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginati
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
-import type { Product } from "@/prisma/generated/prisma/client"
+import { Prisma, Product } from "@/prisma/generated/prisma/client"
+
+export type ProductWithCategory = Prisma.ProductGetPayload<{
+    include: { category: true }
+}>
 
 export interface IPrismaProductRepository {
     listProducts(query: IPaginationQuery & { categoryId?: string }): Promise<{
@@ -16,6 +20,10 @@ export interface IPrismaProductRepository {
             totalPages: number
         }
     }>
+    getProduct(id: string): Promise<ProductWithCategory | null>
+    createProduct(data: Prisma.ProductCreateInput): Promise<Product>
+    updateProduct(id: string, data: Prisma.ProductUpdateInput): Promise<Product>
+    deleteProduct(id: string): Promise<Product>
 }
 
 export const productRepository = (): IPrismaProductRepository => {
@@ -66,7 +74,33 @@ export const productRepository = (): IPrismaProductRepository => {
         })
     }
 
+    const getProduct = async (id: string) =>
+        prisma.product.findUnique({
+            where: { id },
+            include: {
+                category: true,
+            },
+        })
+
+    const createProduct = async (data: Prisma.ProductCreateInput) =>
+        prisma.product.create({ data })
+
+    const updateProduct = async (id: string, data: Prisma.ProductUpdateInput) =>
+        prisma.product.update({
+            where: { id },
+            data,
+        })
+
+    const deleteProduct = async (id: string) =>
+        prisma.product.delete({
+            where: { id },
+        })
+
     return {
         listProducts,
+        getProduct,
+        createProduct,
+        updateProduct,
+        deleteProduct,
     }
 }

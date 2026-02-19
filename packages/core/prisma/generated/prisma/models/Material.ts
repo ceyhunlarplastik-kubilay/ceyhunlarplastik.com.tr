@@ -234,7 +234,7 @@ export type MaterialCreateInput = {
   code?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  variants?: Prisma.ProductVariantCreateNestedManyWithoutMaterialInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutMaterialsInput
 }
 
 export type MaterialUncheckedCreateInput = {
@@ -243,7 +243,7 @@ export type MaterialUncheckedCreateInput = {
   code?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutMaterialInput
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutMaterialsInput
 }
 
 export type MaterialUpdateInput = {
@@ -252,7 +252,7 @@ export type MaterialUpdateInput = {
   code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  variants?: Prisma.ProductVariantUpdateManyWithoutMaterialNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutMaterialsNestedInput
 }
 
 export type MaterialUncheckedUpdateInput = {
@@ -261,7 +261,7 @@ export type MaterialUncheckedUpdateInput = {
   code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutMaterialNestedInput
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutMaterialsNestedInput
 }
 
 export type MaterialCreateManyInput = {
@@ -288,9 +288,14 @@ export type MaterialUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MaterialNullableScalarRelationFilter = {
-  is?: Prisma.MaterialWhereInput | null
-  isNot?: Prisma.MaterialWhereInput | null
+export type MaterialListRelationFilter = {
+  every?: Prisma.MaterialWhereInput
+  some?: Prisma.MaterialWhereInput
+  none?: Prisma.MaterialWhereInput
+}
+
+export type MaterialOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type MaterialCountOrderByAggregateInput = {
@@ -317,20 +322,42 @@ export type MaterialMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type MaterialCreateNestedOneWithoutVariantsInput = {
-  create?: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput>
-  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutVariantsInput
-  connect?: Prisma.MaterialWhereUniqueInput
+export type MaterialCreateNestedManyWithoutVariantsInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput> | Prisma.MaterialCreateWithoutVariantsInput[] | Prisma.MaterialUncheckedCreateWithoutVariantsInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutVariantsInput | Prisma.MaterialCreateOrConnectWithoutVariantsInput[]
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
 }
 
-export type MaterialUpdateOneWithoutVariantsNestedInput = {
-  create?: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput>
-  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutVariantsInput
-  upsert?: Prisma.MaterialUpsertWithoutVariantsInput
-  disconnect?: Prisma.MaterialWhereInput | boolean
-  delete?: Prisma.MaterialWhereInput | boolean
-  connect?: Prisma.MaterialWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.MaterialUpdateToOneWithWhereWithoutVariantsInput, Prisma.MaterialUpdateWithoutVariantsInput>, Prisma.MaterialUncheckedUpdateWithoutVariantsInput>
+export type MaterialUncheckedCreateNestedManyWithoutVariantsInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput> | Prisma.MaterialCreateWithoutVariantsInput[] | Prisma.MaterialUncheckedCreateWithoutVariantsInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutVariantsInput | Prisma.MaterialCreateOrConnectWithoutVariantsInput[]
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+}
+
+export type MaterialUpdateManyWithoutVariantsNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput> | Prisma.MaterialCreateWithoutVariantsInput[] | Prisma.MaterialUncheckedCreateWithoutVariantsInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutVariantsInput | Prisma.MaterialCreateOrConnectWithoutVariantsInput[]
+  upsert?: Prisma.MaterialUpsertWithWhereUniqueWithoutVariantsInput | Prisma.MaterialUpsertWithWhereUniqueWithoutVariantsInput[]
+  set?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  disconnect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  delete?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  update?: Prisma.MaterialUpdateWithWhereUniqueWithoutVariantsInput | Prisma.MaterialUpdateWithWhereUniqueWithoutVariantsInput[]
+  updateMany?: Prisma.MaterialUpdateManyWithWhereWithoutVariantsInput | Prisma.MaterialUpdateManyWithWhereWithoutVariantsInput[]
+  deleteMany?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
+}
+
+export type MaterialUncheckedUpdateManyWithoutVariantsNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput> | Prisma.MaterialCreateWithoutVariantsInput[] | Prisma.MaterialUncheckedCreateWithoutVariantsInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutVariantsInput | Prisma.MaterialCreateOrConnectWithoutVariantsInput[]
+  upsert?: Prisma.MaterialUpsertWithWhereUniqueWithoutVariantsInput | Prisma.MaterialUpsertWithWhereUniqueWithoutVariantsInput[]
+  set?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  disconnect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  delete?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  update?: Prisma.MaterialUpdateWithWhereUniqueWithoutVariantsInput | Prisma.MaterialUpdateWithWhereUniqueWithoutVariantsInput[]
+  updateMany?: Prisma.MaterialUpdateManyWithWhereWithoutVariantsInput | Prisma.MaterialUpdateManyWithWhereWithoutVariantsInput[]
+  deleteMany?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
 }
 
 export type MaterialCreateWithoutVariantsInput = {
@@ -354,15 +381,31 @@ export type MaterialCreateOrConnectWithoutVariantsInput = {
   create: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput>
 }
 
-export type MaterialUpsertWithoutVariantsInput = {
+export type MaterialUpsertWithWhereUniqueWithoutVariantsInput = {
+  where: Prisma.MaterialWhereUniqueInput
   update: Prisma.XOR<Prisma.MaterialUpdateWithoutVariantsInput, Prisma.MaterialUncheckedUpdateWithoutVariantsInput>
   create: Prisma.XOR<Prisma.MaterialCreateWithoutVariantsInput, Prisma.MaterialUncheckedCreateWithoutVariantsInput>
-  where?: Prisma.MaterialWhereInput
 }
 
-export type MaterialUpdateToOneWithWhereWithoutVariantsInput = {
-  where?: Prisma.MaterialWhereInput
+export type MaterialUpdateWithWhereUniqueWithoutVariantsInput = {
+  where: Prisma.MaterialWhereUniqueInput
   data: Prisma.XOR<Prisma.MaterialUpdateWithoutVariantsInput, Prisma.MaterialUncheckedUpdateWithoutVariantsInput>
+}
+
+export type MaterialUpdateManyWithWhereWithoutVariantsInput = {
+  where: Prisma.MaterialScalarWhereInput
+  data: Prisma.XOR<Prisma.MaterialUpdateManyMutationInput, Prisma.MaterialUncheckedUpdateManyWithoutVariantsInput>
+}
+
+export type MaterialScalarWhereInput = {
+  AND?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
+  OR?: Prisma.MaterialScalarWhereInput[]
+  NOT?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
+  id?: Prisma.StringFilter<"Material"> | string
+  name?: Prisma.StringFilter<"Material"> | string
+  code?: Prisma.StringNullableFilter<"Material"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Material"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Material"> | Date | string
 }
 
 export type MaterialUpdateWithoutVariantsInput = {
@@ -374,6 +417,14 @@ export type MaterialUpdateWithoutVariantsInput = {
 }
 
 export type MaterialUncheckedUpdateWithoutVariantsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MaterialUncheckedUpdateManyWithoutVariantsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null

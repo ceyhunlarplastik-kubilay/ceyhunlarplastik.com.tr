@@ -1,5 +1,5 @@
 import config from "../config";
-import { rds } from "./db";
+import { vpc, rds } from "./db";
 
 const isPermanentStage = ['prod', 'dev'].includes($app.stage)
 
@@ -26,6 +26,7 @@ const userPool = new sst.aws.CognitoUserPool('CeyhunlarUserPool', {
         postConfirmation: {
             handler: `${folderPrefix}/triggers/postConfirmation.handler`,
             runtime: 'nodejs20.x',
+            vpc: vpc,
             link: [rds],
         }
     }

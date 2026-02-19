@@ -2,12 +2,14 @@ interface ENV {
     AWS_REGION: string | undefined;
     HOSTED_ZONE_ID: string | undefined;
     DOMAIN: string | undefined;
+    RDS_PASSWORD: string | undefined;
 }
 
 interface Config {
     AWS_REGION: string;
     HOSTED_ZONE_ID: string;
     DOMAIN: string;
+    RDS_PASSWORD: string;
 }
 
 const getConfig = (): ENV => {
@@ -15,6 +17,7 @@ const getConfig = (): ENV => {
         AWS_REGION: process.env.AWS_REGION,
         HOSTED_ZONE_ID: process.env.HOSTED_ZONE_ID,
         DOMAIN: process.env.DOMAIN,
+        RDS_PASSWORD: process.env.RDS_PASSWORD,
     };
 };
 

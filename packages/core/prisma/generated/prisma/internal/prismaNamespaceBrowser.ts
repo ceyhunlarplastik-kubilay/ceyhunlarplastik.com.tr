@@ -59,7 +59,7 @@ export const ModelName = {
   MeasurementType: 'MeasurementType',
   ProductMeasurement: 'ProductMeasurement',
   Supplier: 'Supplier',
-  ProductSupplier: 'ProductSupplier',
+  ProductVariantSupplier: 'ProductVariantSupplier',
   Material: 'Material',
   Asset: 'Asset'
 } as const
@@ -136,12 +136,13 @@ export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeo
 
 export const ProductVariantScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   productId: 'productId',
-  productSupplierId: 'productSupplierId',
   versionCode: 'versionCode',
+  supplierCode: 'supplierCode',
+  variantIndex: 'variantIndex',
   fullCode: 'fullCode',
   colorId: 'colorId',
-  materialId: 'materialId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -153,7 +154,8 @@ export const MeasurementTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
-  unit: 'unit',
+  baseUnit: 'baseUnit',
+  displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -185,16 +187,16 @@ export const SupplierScalarFieldEnum = {
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
 
 
-export const ProductSupplierScalarFieldEnum = {
+export const ProductVariantSupplierScalarFieldEnum = {
   id: 'id',
-  productId: 'productId',
+  variantId: 'variantId',
   supplierId: 'supplierId',
-  catalogCode: 'catalogCode',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ProductSupplierScalarFieldEnum = (typeof ProductSupplierScalarFieldEnum)[keyof typeof ProductSupplierScalarFieldEnum]
+export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
 
 
 export const MaterialScalarFieldEnum = {

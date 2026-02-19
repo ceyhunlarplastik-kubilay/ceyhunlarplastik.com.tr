@@ -90,9 +90,8 @@ model Product {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  variants         ProductVariant[]
-  productSuppliers ProductSupplier[]
-  assets           Asset[]
+  variants ProductVariant[]
+  assets   Asset[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,50 +107,57 @@ model Product {
 model ProductVariant {
   id String @id @default(uuid())
 
-  productId String
+  name      String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
 
-  // supplierCatalogCode String // B, C vs
-  productSupplierId String
-  productSupplier   ProductSupplier @relation(fields: [productSupplierId], references: [id], onDelete: Cascade)
+  versionCode  String
+  supplierCode String // 10.11.B
+  variantIndex Int // 1, 2, 3...
 
-  versionCode String
-  fullCode    String @unique
+  fullCode String @unique
 
   colorId String?
   color   Color?  @relation(fields: [colorId], references: [id])
 
-  materialId String?
-  material   Material? @relation(fields: [materialId], references: [id])
+  materials Material[]
 
   measurements ProductMeasurement[]
   assets       Asset[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  variantSuppliers ProductVariantSupplier[]
 
-  @@unique([productSupplierId, versionCode])
+  @@unique([productId, versionCode, variantIndex])
   @@index([productId])
   @@index([colorId])
-  @@index([materialId])
 }
 
 ///////////////////////////////////////////////////////
 // MEASUREMENT TYPE
 ///////////////////////////////////////////////////////
 
+enum MeasurementCode {
+  D // Diameter
+  L // Length
+  T // Thickness
+  A // Angle
+  W // Width
+  H // Height
+}
+
 model MeasurementType {
-  id   String  @id @default(uuid())
-  name String // Çap, Uzunluk, Kalınlık
-  code String // D, L, T, A
-  unit String? // mm, derece
+  id           String          @id @default(uuid())
+  name         String
+  code         MeasurementCode @unique
+  baseUnit     String // mm, degree, kg
+  displayOrder Int             @default(0)
 
   measurements ProductMeasurement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([code])
 }
 
 ///////////////////////////////////////////////////////
@@ -168,7 +174,7 @@ model ProductMeasurement {
   measurementType   MeasurementType @relation(fields: [measurementTypeId], references: [id])
 
   value Float
-  label String? // R1, R2, L1 gibi varyasyonlar
+  label String @default("")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -176,6 +182,7 @@ model ProductMeasurement {
   @@unique([variantId, measurementTypeId, label])
   @@index([variantId])
   @@index([measurementTypeId])
+  @@index([measurementTypeId, value])
 }
 
 model Supplier {
@@ -184,7 +191,7 @@ model Supplier {
   name     String
   isActive Boolean @default(true)
 
-  productSuppliers ProductSupplier[]
+  variantSuppliers ProductVariantSupplier[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -192,23 +199,22 @@ model Supplier {
   @@unique([name])
 }
 
-model ProductSupplier {
-  id          String @id @default(uuid())
-  productId   String
-  supplierId  String
-  catalogCode String // "B", "C" ...
+model ProductVariantSupplier {
+  id String @id @default(uuid())
 
-  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
-  variants ProductVariant[]
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  isActive Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([productId, catalogCode]) // aynı üründe B bir kere olur
-  @@unique([productId, supplierId]) // aynı supplier ürüne bir kere bağlanır
-  @@index([productId])
+  @@unique([variantId, supplierId])
+  @@index([variantId])
   @@index([supplierId])
 }
 
@@ -224,6 +230,14 @@ model Material {
   updatedAt DateTime @updatedAt
 
   @@unique([name])
+}
+
+enum AssetType {
+  IMAGE
+  VIDEO
+  PDF
+  TECHNICAL_DRAWING
+  CERTIFICATE
 }
 
 model Asset {
@@ -243,12 +257,4 @@ model Asset {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-enum AssetType {
-  IMAGE
-  VIDEO
-  PDF
-  TECHNICAL_DRAWING
-  CERTIFICATE
 }

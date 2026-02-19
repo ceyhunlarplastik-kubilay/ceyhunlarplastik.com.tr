@@ -80,10 +80,10 @@ export type ProductMeasurement = Prisma.ProductMeasurementModel
  */
 export type Supplier = Prisma.SupplierModel
 /**
- * Model ProductSupplier
+ * Model ProductVariantSupplier
  * 
  */
-export type ProductSupplier = Prisma.ProductSupplierModel
+export type ProductVariantSupplier = Prisma.ProductVariantSupplierModel
 /**
  * Model Material
  * 

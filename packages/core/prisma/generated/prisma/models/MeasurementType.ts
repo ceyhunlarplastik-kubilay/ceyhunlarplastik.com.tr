@@ -20,15 +20,26 @@ export type MeasurementTypeModel = runtime.Types.Result.DefaultSelection<Prisma.
 
 export type AggregateMeasurementType = {
   _count: MeasurementTypeCountAggregateOutputType | null
+  _avg: MeasurementTypeAvgAggregateOutputType | null
+  _sum: MeasurementTypeSumAggregateOutputType | null
   _min: MeasurementTypeMinAggregateOutputType | null
   _max: MeasurementTypeMaxAggregateOutputType | null
+}
+
+export type MeasurementTypeAvgAggregateOutputType = {
+  displayOrder: number | null
+}
+
+export type MeasurementTypeSumAggregateOutputType = {
+  displayOrder: number | null
 }
 
 export type MeasurementTypeMinAggregateOutputType = {
   id: string | null
   name: string | null
-  code: string | null
-  unit: string | null
+  code: $Enums.MeasurementCode | null
+  baseUnit: string | null
+  displayOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -36,8 +47,9 @@ export type MeasurementTypeMinAggregateOutputType = {
 export type MeasurementTypeMaxAggregateOutputType = {
   id: string | null
   name: string | null
-  code: string | null
-  unit: string | null
+  code: $Enums.MeasurementCode | null
+  baseUnit: string | null
+  displayOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,18 +58,28 @@ export type MeasurementTypeCountAggregateOutputType = {
   id: number
   name: number
   code: number
-  unit: number
+  baseUnit: number
+  displayOrder: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type MeasurementTypeAvgAggregateInputType = {
+  displayOrder?: true
+}
+
+export type MeasurementTypeSumAggregateInputType = {
+  displayOrder?: true
+}
+
 export type MeasurementTypeMinAggregateInputType = {
   id?: true
   name?: true
   code?: true
-  unit?: true
+  baseUnit?: true
+  displayOrder?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -66,7 +88,8 @@ export type MeasurementTypeMaxAggregateInputType = {
   id?: true
   name?: true
   code?: true
-  unit?: true
+  baseUnit?: true
+  displayOrder?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -75,7 +98,8 @@ export type MeasurementTypeCountAggregateInputType = {
   id?: true
   name?: true
   code?: true
-  unit?: true
+  baseUnit?: true
+  displayOrder?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -119,6 +143,18 @@ export type MeasurementTypeAggregateArgs<ExtArgs extends runtime.Types.Extension
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: MeasurementTypeAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: MeasurementTypeSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: MeasurementTypeMinAggregateInputType
@@ -149,6 +185,8 @@ export type MeasurementTypeGroupByArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   _count?: MeasurementTypeCountAggregateInputType | true
+  _avg?: MeasurementTypeAvgAggregateInputType
+  _sum?: MeasurementTypeSumAggregateInputType
   _min?: MeasurementTypeMinAggregateInputType
   _max?: MeasurementTypeMaxAggregateInputType
 }
@@ -156,11 +194,14 @@ export type MeasurementTypeGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 export type MeasurementTypeGroupByOutputType = {
   id: string
   name: string
-  code: string
-  unit: string | null
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder: number
   createdAt: Date
   updatedAt: Date
   _count: MeasurementTypeCountAggregateOutputType | null
+  _avg: MeasurementTypeAvgAggregateOutputType | null
+  _sum: MeasurementTypeSumAggregateOutputType | null
   _min: MeasurementTypeMinAggregateOutputType | null
   _max: MeasurementTypeMaxAggregateOutputType | null
 }
@@ -186,8 +227,9 @@ export type MeasurementTypeWhereInput = {
   NOT?: Prisma.MeasurementTypeWhereInput | Prisma.MeasurementTypeWhereInput[]
   id?: Prisma.StringFilter<"MeasurementType"> | string
   name?: Prisma.StringFilter<"MeasurementType"> | string
-  code?: Prisma.StringFilter<"MeasurementType"> | string
-  unit?: Prisma.StringNullableFilter<"MeasurementType"> | string | null
+  code?: Prisma.EnumMeasurementCodeFilter<"MeasurementType"> | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFilter<"MeasurementType"> | string
+  displayOrder?: Prisma.IntFilter<"MeasurementType"> | number
   createdAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
   measurements?: Prisma.ProductMeasurementListRelationFilter
@@ -197,7 +239,8 @@ export type MeasurementTypeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  unit?: Prisma.SortOrderInput | Prisma.SortOrder
+  baseUnit?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   measurements?: Prisma.ProductMeasurementOrderByRelationAggregateInput
@@ -205,12 +248,13 @@ export type MeasurementTypeOrderByWithRelationInput = {
 
 export type MeasurementTypeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  code?: string
+  code?: $Enums.MeasurementCode
   AND?: Prisma.MeasurementTypeWhereInput | Prisma.MeasurementTypeWhereInput[]
   OR?: Prisma.MeasurementTypeWhereInput[]
   NOT?: Prisma.MeasurementTypeWhereInput | Prisma.MeasurementTypeWhereInput[]
   name?: Prisma.StringFilter<"MeasurementType"> | string
-  unit?: Prisma.StringNullableFilter<"MeasurementType"> | string | null
+  baseUnit?: Prisma.StringFilter<"MeasurementType"> | string
+  displayOrder?: Prisma.IntFilter<"MeasurementType"> | number
   createdAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
   measurements?: Prisma.ProductMeasurementListRelationFilter
@@ -220,12 +264,15 @@ export type MeasurementTypeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  unit?: Prisma.SortOrderInput | Prisma.SortOrder
+  baseUnit?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MeasurementTypeCountOrderByAggregateInput
+  _avg?: Prisma.MeasurementTypeAvgOrderByAggregateInput
   _max?: Prisma.MeasurementTypeMaxOrderByAggregateInput
   _min?: Prisma.MeasurementTypeMinOrderByAggregateInput
+  _sum?: Prisma.MeasurementTypeSumOrderByAggregateInput
 }
 
 export type MeasurementTypeScalarWhereWithAggregatesInput = {
@@ -234,8 +281,9 @@ export type MeasurementTypeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.MeasurementTypeScalarWhereWithAggregatesInput | Prisma.MeasurementTypeScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"MeasurementType"> | string
   name?: Prisma.StringWithAggregatesFilter<"MeasurementType"> | string
-  code?: Prisma.StringWithAggregatesFilter<"MeasurementType"> | string
-  unit?: Prisma.StringNullableWithAggregatesFilter<"MeasurementType"> | string | null
+  code?: Prisma.EnumMeasurementCodeWithAggregatesFilter<"MeasurementType"> | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringWithAggregatesFilter<"MeasurementType"> | string
+  displayOrder?: Prisma.IntWithAggregatesFilter<"MeasurementType"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MeasurementType"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MeasurementType"> | Date | string
 }
@@ -243,8 +291,9 @@ export type MeasurementTypeScalarWhereWithAggregatesInput = {
 export type MeasurementTypeCreateInput = {
   id?: string
   name: string
-  code: string
-  unit?: string | null
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutMeasurementTypeInput
@@ -253,8 +302,9 @@ export type MeasurementTypeCreateInput = {
 export type MeasurementTypeUncheckedCreateInput = {
   id?: string
   name: string
-  code: string
-  unit?: string | null
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutMeasurementTypeInput
@@ -263,8 +313,9 @@ export type MeasurementTypeUncheckedCreateInput = {
 export type MeasurementTypeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutMeasurementTypeNestedInput
@@ -273,8 +324,9 @@ export type MeasurementTypeUpdateInput = {
 export type MeasurementTypeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutMeasurementTypeNestedInput
@@ -283,8 +335,9 @@ export type MeasurementTypeUncheckedUpdateInput = {
 export type MeasurementTypeCreateManyInput = {
   id?: string
   name: string
-  code: string
-  unit?: string | null
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -292,8 +345,9 @@ export type MeasurementTypeCreateManyInput = {
 export type MeasurementTypeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -301,8 +355,9 @@ export type MeasurementTypeUpdateManyMutationInput = {
 export type MeasurementTypeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -311,16 +366,22 @@ export type MeasurementTypeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  unit?: Prisma.SortOrder
+  baseUnit?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type MeasurementTypeAvgOrderByAggregateInput = {
+  displayOrder?: Prisma.SortOrder
 }
 
 export type MeasurementTypeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  unit?: Prisma.SortOrder
+  baseUnit?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -329,14 +390,23 @@ export type MeasurementTypeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   code?: Prisma.SortOrder
-  unit?: Prisma.SortOrder
+  baseUnit?: Prisma.SortOrder
+  displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type MeasurementTypeSumOrderByAggregateInput = {
+  displayOrder?: Prisma.SortOrder
 }
 
 export type MeasurementTypeScalarRelationFilter = {
   is?: Prisma.MeasurementTypeWhereInput
   isNot?: Prisma.MeasurementTypeWhereInput
+}
+
+export type EnumMeasurementCodeFieldUpdateOperationsInput = {
+  set?: $Enums.MeasurementCode
 }
 
 export type MeasurementTypeCreateNestedOneWithoutMeasurementsInput = {
@@ -356,8 +426,9 @@ export type MeasurementTypeUpdateOneRequiredWithoutMeasurementsNestedInput = {
 export type MeasurementTypeCreateWithoutMeasurementsInput = {
   id?: string
   name: string
-  code: string
-  unit?: string | null
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -365,8 +436,9 @@ export type MeasurementTypeCreateWithoutMeasurementsInput = {
 export type MeasurementTypeUncheckedCreateWithoutMeasurementsInput = {
   id?: string
   name: string
-  code: string
-  unit?: string | null
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -390,8 +462,9 @@ export type MeasurementTypeUpdateToOneWithWhereWithoutMeasurementsInput = {
 export type MeasurementTypeUpdateWithoutMeasurementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -399,8 +472,9 @@ export type MeasurementTypeUpdateWithoutMeasurementsInput = {
 export type MeasurementTypeUncheckedUpdateWithoutMeasurementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -440,7 +514,8 @@ export type MeasurementTypeSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   name?: boolean
   code?: boolean
-  unit?: boolean
+  baseUnit?: boolean
+  displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   measurements?: boolean | Prisma.MeasurementType$measurementsArgs<ExtArgs>
@@ -451,7 +526,8 @@ export type MeasurementTypeSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   name?: boolean
   code?: boolean
-  unit?: boolean
+  baseUnit?: boolean
+  displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["measurementType"]>
@@ -460,7 +536,8 @@ export type MeasurementTypeSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   name?: boolean
   code?: boolean
-  unit?: boolean
+  baseUnit?: boolean
+  displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["measurementType"]>
@@ -469,12 +546,13 @@ export type MeasurementTypeSelectScalar = {
   id?: boolean
   name?: boolean
   code?: boolean
-  unit?: boolean
+  baseUnit?: boolean
+  displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MeasurementTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "unit" | "createdAt" | "updatedAt", ExtArgs["result"]["measurementType"]>
+export type MeasurementTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "baseUnit" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["measurementType"]>
 export type MeasurementTypeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   measurements?: boolean | Prisma.MeasurementType$measurementsArgs<ExtArgs>
   _count?: boolean | Prisma.MeasurementTypeCountOutputTypeDefaultArgs<ExtArgs>
@@ -490,8 +568,9 @@ export type $MeasurementTypePayload<ExtArgs extends runtime.Types.Extensions.Int
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    code: string
-    unit: string | null
+    code: $Enums.MeasurementCode
+    baseUnit: string
+    displayOrder: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["measurementType"]>
@@ -920,8 +999,9 @@ export interface Prisma__MeasurementTypeClient<T, Null = never, ExtArgs extends 
 export interface MeasurementTypeFieldRefs {
   readonly id: Prisma.FieldRef<"MeasurementType", 'String'>
   readonly name: Prisma.FieldRef<"MeasurementType", 'String'>
-  readonly code: Prisma.FieldRef<"MeasurementType", 'String'>
-  readonly unit: Prisma.FieldRef<"MeasurementType", 'String'>
+  readonly code: Prisma.FieldRef<"MeasurementType", 'MeasurementCode'>
+  readonly baseUnit: Prisma.FieldRef<"MeasurementType", 'String'>
+  readonly displayOrder: Prisma.FieldRef<"MeasurementType", 'Int'>
   readonly createdAt: Prisma.FieldRef<"MeasurementType", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"MeasurementType", 'DateTime'>
 }

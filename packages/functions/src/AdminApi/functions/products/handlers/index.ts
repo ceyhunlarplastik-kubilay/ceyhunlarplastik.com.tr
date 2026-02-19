@@ -1,1 +1,5 @@
 export * from "./listProductsHandler"
+export * from "./createProductHandler"
+export * from "./getProductHandler"
+export * from "./updateProductHandler"
+export * from "./deleteProductHandler"

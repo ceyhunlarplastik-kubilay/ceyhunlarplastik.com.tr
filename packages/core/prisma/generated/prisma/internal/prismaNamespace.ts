@@ -392,7 +392,7 @@ export const ModelName = {
   MeasurementType: 'MeasurementType',
   ProductMeasurement: 'ProductMeasurement',
   Supplier: 'Supplier',
-  ProductSupplier: 'ProductSupplier',
+  ProductVariantSupplier: 'ProductVariantSupplier',
   Material: 'Material',
   Asset: 'Asset'
 } as const
@@ -410,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "color" | "category" | "product" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "productSupplier" | "material" | "asset"
+    modelProps: "user" | "color" | "category" | "product" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "productVariantSupplier" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1006,77 +1006,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ProductSupplier: {
-      payload: Prisma.$ProductSupplierPayload<ExtArgs>
-      fields: Prisma.ProductSupplierFieldRefs
+    ProductVariantSupplier: {
+      payload: Prisma.$ProductVariantSupplierPayload<ExtArgs>
+      fields: Prisma.ProductVariantSupplierFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ProductSupplierFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload> | null
+          args: Prisma.ProductVariantSupplierFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ProductSupplierFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>
+          args: Prisma.ProductVariantSupplierFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>
         }
         findFirst: {
-          args: Prisma.ProductSupplierFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload> | null
+          args: Prisma.ProductVariantSupplierFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ProductSupplierFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>
+          args: Prisma.ProductVariantSupplierFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>
         }
         findMany: {
-          args: Prisma.ProductSupplierFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>[]
+          args: Prisma.ProductVariantSupplierFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>[]
         }
         create: {
-          args: Prisma.ProductSupplierCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>
+          args: Prisma.ProductVariantSupplierCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>
         }
         createMany: {
-          args: Prisma.ProductSupplierCreateManyArgs<ExtArgs>
+          args: Prisma.ProductVariantSupplierCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ProductSupplierCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>[]
+          args: Prisma.ProductVariantSupplierCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>[]
         }
         delete: {
-          args: Prisma.ProductSupplierDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>
+          args: Prisma.ProductVariantSupplierDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>
         }
         update: {
-          args: Prisma.ProductSupplierUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>
+          args: Prisma.ProductVariantSupplierUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>
         }
         deleteMany: {
-          args: Prisma.ProductSupplierDeleteManyArgs<ExtArgs>
+          args: Prisma.ProductVariantSupplierDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ProductSupplierUpdateManyArgs<ExtArgs>
+          args: Prisma.ProductVariantSupplierUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ProductSupplierUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>[]
+          args: Prisma.ProductVariantSupplierUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>[]
         }
         upsert: {
-          args: Prisma.ProductSupplierUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductSupplierPayload>
+          args: Prisma.ProductVariantSupplierUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantSupplierPayload>
         }
         aggregate: {
-          args: Prisma.ProductSupplierAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductSupplier>
+          args: Prisma.ProductVariantSupplierAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductVariantSupplier>
         }
         groupBy: {
-          args: Prisma.ProductSupplierGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductSupplierGroupByOutputType>[]
+          args: Prisma.ProductVariantSupplierGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantSupplierGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ProductSupplierCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductSupplierCountAggregateOutputType> | number
+          args: Prisma.ProductVariantSupplierCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantSupplierCountAggregateOutputType> | number
         }
       }
     }
@@ -1323,12 +1323,13 @@ export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeo
 
 export const ProductVariantScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   productId: 'productId',
-  productSupplierId: 'productSupplierId',
   versionCode: 'versionCode',
+  supplierCode: 'supplierCode',
+  variantIndex: 'variantIndex',
   fullCode: 'fullCode',
   colorId: 'colorId',
-  materialId: 'materialId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1340,7 +1341,8 @@ export const MeasurementTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   code: 'code',
-  unit: 'unit',
+  baseUnit: 'baseUnit',
+  displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1372,16 +1374,16 @@ export const SupplierScalarFieldEnum = {
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
 
 
-export const ProductSupplierScalarFieldEnum = {
+export const ProductVariantSupplierScalarFieldEnum = {
   id: 'id',
-  productId: 'productId',
+  variantId: 'variantId',
   supplierId: 'supplierId',
-  catalogCode: 'catalogCode',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ProductSupplierScalarFieldEnum = (typeof ProductSupplierScalarFieldEnum)[keyof typeof ProductSupplierScalarFieldEnum]
+export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
 
 
 export const MaterialScalarFieldEnum = {
@@ -1499,6 +1501,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MeasurementCode'
+ */
+export type EnumMeasurementCodeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MeasurementCode'>
+    
+
+
+/**
+ * Reference to a field of type 'MeasurementCode[]'
+ */
+export type ListEnumMeasurementCodeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MeasurementCode[]'>
     
 
 
@@ -1632,7 +1648,7 @@ export type GlobalOmitConfig = {
   measurementType?: Prisma.MeasurementTypeOmit
   productMeasurement?: Prisma.ProductMeasurementOmit
   supplier?: Prisma.SupplierOmit
-  productSupplier?: Prisma.ProductSupplierOmit
+  productVariantSupplier?: Prisma.ProductVariantSupplierOmit
   material?: Prisma.MaterialOmit
   asset?: Prisma.AssetOmit
 }

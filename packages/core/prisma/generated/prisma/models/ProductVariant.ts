@@ -20,80 +20,104 @@ export type ProductVariantModel = runtime.Types.Result.DefaultSelection<Prisma.$
 
 export type AggregateProductVariant = {
   _count: ProductVariantCountAggregateOutputType | null
+  _avg: ProductVariantAvgAggregateOutputType | null
+  _sum: ProductVariantSumAggregateOutputType | null
   _min: ProductVariantMinAggregateOutputType | null
   _max: ProductVariantMaxAggregateOutputType | null
 }
 
+export type ProductVariantAvgAggregateOutputType = {
+  variantIndex: number | null
+}
+
+export type ProductVariantSumAggregateOutputType = {
+  variantIndex: number | null
+}
+
 export type ProductVariantMinAggregateOutputType = {
   id: string | null
+  name: string | null
   productId: string | null
-  productSupplierId: string | null
   versionCode: string | null
+  supplierCode: string | null
+  variantIndex: number | null
   fullCode: string | null
   colorId: string | null
-  materialId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type ProductVariantMaxAggregateOutputType = {
   id: string | null
+  name: string | null
   productId: string | null
-  productSupplierId: string | null
   versionCode: string | null
+  supplierCode: string | null
+  variantIndex: number | null
   fullCode: string | null
   colorId: string | null
-  materialId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type ProductVariantCountAggregateOutputType = {
   id: number
+  name: number
   productId: number
-  productSupplierId: number
   versionCode: number
+  supplierCode: number
+  variantIndex: number
   fullCode: number
   colorId: number
-  materialId: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type ProductVariantAvgAggregateInputType = {
+  variantIndex?: true
+}
+
+export type ProductVariantSumAggregateInputType = {
+  variantIndex?: true
+}
+
 export type ProductVariantMinAggregateInputType = {
   id?: true
+  name?: true
   productId?: true
-  productSupplierId?: true
   versionCode?: true
+  supplierCode?: true
+  variantIndex?: true
   fullCode?: true
   colorId?: true
-  materialId?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type ProductVariantMaxAggregateInputType = {
   id?: true
+  name?: true
   productId?: true
-  productSupplierId?: true
   versionCode?: true
+  supplierCode?: true
+  variantIndex?: true
   fullCode?: true
   colorId?: true
-  materialId?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type ProductVariantCountAggregateInputType = {
   id?: true
+  name?: true
   productId?: true
-  productSupplierId?: true
   versionCode?: true
+  supplierCode?: true
+  variantIndex?: true
   fullCode?: true
   colorId?: true
-  materialId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -137,6 +161,18 @@ export type ProductVariantAggregateArgs<ExtArgs extends runtime.Types.Extensions
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ProductVariantAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ProductVariantSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ProductVariantMinAggregateInputType
@@ -167,21 +203,26 @@ export type ProductVariantGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   _count?: ProductVariantCountAggregateInputType | true
+  _avg?: ProductVariantAvgAggregateInputType
+  _sum?: ProductVariantSumAggregateInputType
   _min?: ProductVariantMinAggregateInputType
   _max?: ProductVariantMaxAggregateInputType
 }
 
 export type ProductVariantGroupByOutputType = {
   id: string
+  name: string
   productId: string
-  productSupplierId: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId: string | null
-  materialId: string | null
   createdAt: Date
   updatedAt: Date
   _count: ProductVariantCountAggregateOutputType | null
+  _avg: ProductVariantAvgAggregateOutputType | null
+  _sum: ProductVariantSumAggregateOutputType | null
   _min: ProductVariantMinAggregateOutputType | null
   _max: ProductVariantMaxAggregateOutputType | null
 }
@@ -206,75 +247,81 @@ export type ProductVariantWhereInput = {
   OR?: Prisma.ProductVariantWhereInput[]
   NOT?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
   id?: Prisma.StringFilter<"ProductVariant"> | string
+  name?: Prisma.StringFilter<"ProductVariant"> | string
   productId?: Prisma.StringFilter<"ProductVariant"> | string
-  productSupplierId?: Prisma.StringFilter<"ProductVariant"> | string
   versionCode?: Prisma.StringFilter<"ProductVariant"> | string
+  supplierCode?: Prisma.StringFilter<"ProductVariant"> | string
+  variantIndex?: Prisma.IntFilter<"ProductVariant"> | number
   fullCode?: Prisma.StringFilter<"ProductVariant"> | string
   colorId?: Prisma.StringNullableFilter<"ProductVariant"> | string | null
-  materialId?: Prisma.StringNullableFilter<"ProductVariant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
-  productSupplier?: Prisma.XOR<Prisma.ProductSupplierScalarRelationFilter, Prisma.ProductSupplierWhereInput>
   color?: Prisma.XOR<Prisma.ColorNullableScalarRelationFilter, Prisma.ColorWhereInput> | null
-  material?: Prisma.XOR<Prisma.MaterialNullableScalarRelationFilter, Prisma.MaterialWhereInput> | null
+  materials?: Prisma.MaterialListRelationFilter
   measurements?: Prisma.ProductMeasurementListRelationFilter
   assets?: Prisma.AssetListRelationFilter
+  variantSuppliers?: Prisma.ProductVariantSupplierListRelationFilter
 }
 
 export type ProductVariantOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  productSupplierId?: Prisma.SortOrder
   versionCode?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  variantIndex?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   colorId?: Prisma.SortOrderInput | Prisma.SortOrder
-  materialId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
-  productSupplier?: Prisma.ProductSupplierOrderByWithRelationInput
   color?: Prisma.ColorOrderByWithRelationInput
-  material?: Prisma.MaterialOrderByWithRelationInput
+  materials?: Prisma.MaterialOrderByRelationAggregateInput
   measurements?: Prisma.ProductMeasurementOrderByRelationAggregateInput
   assets?: Prisma.AssetOrderByRelationAggregateInput
+  variantSuppliers?: Prisma.ProductVariantSupplierOrderByRelationAggregateInput
 }
 
 export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   fullCode?: string
-  productSupplierId_versionCode?: Prisma.ProductVariantProductSupplierIdVersionCodeCompoundUniqueInput
+  productId_versionCode_variantIndex?: Prisma.ProductVariantProductIdVersionCodeVariantIndexCompoundUniqueInput
   AND?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
   OR?: Prisma.ProductVariantWhereInput[]
   NOT?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
+  name?: Prisma.StringFilter<"ProductVariant"> | string
   productId?: Prisma.StringFilter<"ProductVariant"> | string
-  productSupplierId?: Prisma.StringFilter<"ProductVariant"> | string
   versionCode?: Prisma.StringFilter<"ProductVariant"> | string
+  supplierCode?: Prisma.StringFilter<"ProductVariant"> | string
+  variantIndex?: Prisma.IntFilter<"ProductVariant"> | number
   colorId?: Prisma.StringNullableFilter<"ProductVariant"> | string | null
-  materialId?: Prisma.StringNullableFilter<"ProductVariant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
-  productSupplier?: Prisma.XOR<Prisma.ProductSupplierScalarRelationFilter, Prisma.ProductSupplierWhereInput>
   color?: Prisma.XOR<Prisma.ColorNullableScalarRelationFilter, Prisma.ColorWhereInput> | null
-  material?: Prisma.XOR<Prisma.MaterialNullableScalarRelationFilter, Prisma.MaterialWhereInput> | null
+  materials?: Prisma.MaterialListRelationFilter
   measurements?: Prisma.ProductMeasurementListRelationFilter
   assets?: Prisma.AssetListRelationFilter
-}, "id" | "fullCode" | "productSupplierId_versionCode">
+  variantSuppliers?: Prisma.ProductVariantSupplierListRelationFilter
+}, "id" | "fullCode" | "productId_versionCode_variantIndex">
 
 export type ProductVariantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  productSupplierId?: Prisma.SortOrder
   versionCode?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  variantIndex?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   colorId?: Prisma.SortOrderInput | Prisma.SortOrder
-  materialId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductVariantCountOrderByAggregateInput
+  _avg?: Prisma.ProductVariantAvgOrderByAggregateInput
   _max?: Prisma.ProductVariantMaxOrderByAggregateInput
   _min?: Prisma.ProductVariantMinOrderByAggregateInput
+  _sum?: Prisma.ProductVariantSumOrderByAggregateInput
 }
 
 export type ProductVariantScalarWhereWithAggregatesInput = {
@@ -282,87 +329,104 @@ export type ProductVariantScalarWhereWithAggregatesInput = {
   OR?: Prisma.ProductVariantScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProductVariantScalarWhereWithAggregatesInput | Prisma.ProductVariantScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
+  name?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
   productId?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
-  productSupplierId?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
   versionCode?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
+  supplierCode?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
+  variantIndex?: Prisma.IntWithAggregatesFilter<"ProductVariant"> | number
   fullCode?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
   colorId?: Prisma.StringNullableWithAggregatesFilter<"ProductVariant"> | string | null
-  materialId?: Prisma.StringNullableWithAggregatesFilter<"ProductVariant"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariant"> | Date | string
 }
 
 export type ProductVariantCreateInput = {
   id?: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
-  productSupplier: Prisma.ProductSupplierCreateNestedOneWithoutVariantsInput
   color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
-  material?: Prisma.MaterialCreateNestedOneWithoutVariantsInput
+  materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantUncheckedCreateInput = {
   id?: string
+  name: string
   productId: string
-  productSupplierId: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId?: string | null
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
-  productSupplier?: Prisma.ProductSupplierUpdateOneRequiredWithoutVariantsNestedInput
   color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
-  material?: Prisma.MaterialUpdateOneWithoutVariantsNestedInput
+  materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantCreateManyInput = {
   id?: string
+  name: string
   productId: string
-  productSupplierId: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId?: string | null
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductVariantUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -370,12 +434,13 @@ export type ProductVariantUpdateManyMutationInput = {
 
 export type ProductVariantUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -390,45 +455,57 @@ export type ProductVariantOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ProductVariantProductSupplierIdVersionCodeCompoundUniqueInput = {
-  productSupplierId: string
+export type ProductVariantProductIdVersionCodeVariantIndexCompoundUniqueInput = {
+  productId: string
   versionCode: string
+  variantIndex: number
 }
 
 export type ProductVariantCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  productSupplierId?: Prisma.SortOrder
   versionCode?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  variantIndex?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   colorId?: Prisma.SortOrder
-  materialId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
+export type ProductVariantAvgOrderByAggregateInput = {
+  variantIndex?: Prisma.SortOrder
+}
+
 export type ProductVariantMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  productSupplierId?: Prisma.SortOrder
   versionCode?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  variantIndex?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   colorId?: Prisma.SortOrder
-  materialId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProductVariantMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  productSupplierId?: Prisma.SortOrder
   versionCode?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  variantIndex?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   colorId?: Prisma.SortOrder
-  materialId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ProductVariantSumOrderByAggregateInput = {
+  variantIndex?: Prisma.SortOrder
 }
 
 export type ProductVariantScalarRelationFilter = {
@@ -543,87 +620,55 @@ export type ProductVariantUpdateOneRequiredWithoutMeasurementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductVariantUpdateToOneWithWhereWithoutMeasurementsInput, Prisma.ProductVariantUpdateWithoutMeasurementsInput>, Prisma.ProductVariantUncheckedUpdateWithoutMeasurementsInput>
 }
 
-export type ProductVariantCreateNestedManyWithoutProductSupplierInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput> | Prisma.ProductVariantCreateWithoutProductSupplierInput[] | Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput | Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput[]
-  createMany?: Prisma.ProductVariantCreateManyProductSupplierInputEnvelope
+export type ProductVariantCreateNestedOneWithoutVariantSuppliersInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutVariantSuppliersInput, Prisma.ProductVariantUncheckedCreateWithoutVariantSuppliersInput>
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutVariantSuppliersInput
+  connect?: Prisma.ProductVariantWhereUniqueInput
+}
+
+export type ProductVariantUpdateOneRequiredWithoutVariantSuppliersNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutVariantSuppliersInput, Prisma.ProductVariantUncheckedCreateWithoutVariantSuppliersInput>
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutVariantSuppliersInput
+  upsert?: Prisma.ProductVariantUpsertWithoutVariantSuppliersInput
+  connect?: Prisma.ProductVariantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductVariantUpdateToOneWithWhereWithoutVariantSuppliersInput, Prisma.ProductVariantUpdateWithoutVariantSuppliersInput>, Prisma.ProductVariantUncheckedUpdateWithoutVariantSuppliersInput>
+}
+
+export type ProductVariantCreateNestedManyWithoutMaterialsInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialsInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput> | Prisma.ProductVariantCreateWithoutMaterialsInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput[]
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput[]
   connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
 }
 
-export type ProductVariantUncheckedCreateNestedManyWithoutProductSupplierInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput> | Prisma.ProductVariantCreateWithoutProductSupplierInput[] | Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput | Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput[]
-  createMany?: Prisma.ProductVariantCreateManyProductSupplierInputEnvelope
+export type ProductVariantUncheckedCreateNestedManyWithoutMaterialsInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialsInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput> | Prisma.ProductVariantCreateWithoutMaterialsInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput[]
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput[]
   connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
 }
 
-export type ProductVariantUpdateManyWithoutProductSupplierNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput> | Prisma.ProductVariantCreateWithoutProductSupplierInput[] | Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput | Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput[]
-  upsert?: Prisma.ProductVariantUpsertWithWhereUniqueWithoutProductSupplierInput | Prisma.ProductVariantUpsertWithWhereUniqueWithoutProductSupplierInput[]
-  createMany?: Prisma.ProductVariantCreateManyProductSupplierInputEnvelope
+export type ProductVariantUpdateManyWithoutMaterialsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialsInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput> | Prisma.ProductVariantCreateWithoutMaterialsInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput[]
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput[]
+  upsert?: Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialsInput | Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialsInput[]
   set?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
   disconnect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
   delete?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
   connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  update?: Prisma.ProductVariantUpdateWithWhereUniqueWithoutProductSupplierInput | Prisma.ProductVariantUpdateWithWhereUniqueWithoutProductSupplierInput[]
-  updateMany?: Prisma.ProductVariantUpdateManyWithWhereWithoutProductSupplierInput | Prisma.ProductVariantUpdateManyWithWhereWithoutProductSupplierInput[]
+  update?: Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialsInput | Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialsInput[]
+  updateMany?: Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialsInput | Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialsInput[]
   deleteMany?: Prisma.ProductVariantScalarWhereInput | Prisma.ProductVariantScalarWhereInput[]
 }
 
-export type ProductVariantUncheckedUpdateManyWithoutProductSupplierNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput> | Prisma.ProductVariantCreateWithoutProductSupplierInput[] | Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput | Prisma.ProductVariantCreateOrConnectWithoutProductSupplierInput[]
-  upsert?: Prisma.ProductVariantUpsertWithWhereUniqueWithoutProductSupplierInput | Prisma.ProductVariantUpsertWithWhereUniqueWithoutProductSupplierInput[]
-  createMany?: Prisma.ProductVariantCreateManyProductSupplierInputEnvelope
+export type ProductVariantUncheckedUpdateManyWithoutMaterialsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialsInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput> | Prisma.ProductVariantCreateWithoutMaterialsInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput[]
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialsInput[]
+  upsert?: Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialsInput | Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialsInput[]
   set?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
   disconnect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
   delete?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
   connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  update?: Prisma.ProductVariantUpdateWithWhereUniqueWithoutProductSupplierInput | Prisma.ProductVariantUpdateWithWhereUniqueWithoutProductSupplierInput[]
-  updateMany?: Prisma.ProductVariantUpdateManyWithWhereWithoutProductSupplierInput | Prisma.ProductVariantUpdateManyWithWhereWithoutProductSupplierInput[]
-  deleteMany?: Prisma.ProductVariantScalarWhereInput | Prisma.ProductVariantScalarWhereInput[]
-}
-
-export type ProductVariantCreateNestedManyWithoutMaterialInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialInput> | Prisma.ProductVariantCreateWithoutMaterialInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialInput[]
-  createMany?: Prisma.ProductVariantCreateManyMaterialInputEnvelope
-  connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-}
-
-export type ProductVariantUncheckedCreateNestedManyWithoutMaterialInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialInput> | Prisma.ProductVariantCreateWithoutMaterialInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialInput[]
-  createMany?: Prisma.ProductVariantCreateManyMaterialInputEnvelope
-  connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-}
-
-export type ProductVariantUpdateManyWithoutMaterialNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialInput> | Prisma.ProductVariantCreateWithoutMaterialInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialInput[]
-  upsert?: Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialInput | Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialInput[]
-  createMany?: Prisma.ProductVariantCreateManyMaterialInputEnvelope
-  set?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  disconnect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  delete?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  update?: Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialInput | Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialInput[]
-  updateMany?: Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialInput | Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialInput[]
-  deleteMany?: Prisma.ProductVariantScalarWhereInput | Prisma.ProductVariantScalarWhereInput[]
-}
-
-export type ProductVariantUncheckedUpdateManyWithoutMaterialNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialInput> | Prisma.ProductVariantCreateWithoutMaterialInput[] | Prisma.ProductVariantUncheckedCreateWithoutMaterialInput[]
-  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutMaterialInput | Prisma.ProductVariantCreateOrConnectWithoutMaterialInput[]
-  upsert?: Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialInput | Prisma.ProductVariantUpsertWithWhereUniqueWithoutMaterialInput[]
-  createMany?: Prisma.ProductVariantCreateManyMaterialInputEnvelope
-  set?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  disconnect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  delete?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  connect?: Prisma.ProductVariantWhereUniqueInput | Prisma.ProductVariantWhereUniqueInput[]
-  update?: Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialInput | Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialInput[]
-  updateMany?: Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialInput | Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialInput[]
+  update?: Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialsInput | Prisma.ProductVariantUpdateWithWhereUniqueWithoutMaterialsInput[]
+  updateMany?: Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialsInput | Prisma.ProductVariantUpdateManyWithWhereWithoutMaterialsInput[]
   deleteMany?: Prisma.ProductVariantScalarWhereInput | Prisma.ProductVariantScalarWhereInput[]
 }
 
@@ -645,28 +690,34 @@ export type ProductVariantUpdateOneWithoutAssetsNestedInput = {
 
 export type ProductVariantCreateWithoutColorInput = {
   id?: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
-  productSupplier: Prisma.ProductSupplierCreateNestedOneWithoutVariantsInput
-  material?: Prisma.MaterialCreateNestedOneWithoutVariantsInput
+  materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantUncheckedCreateWithoutColorInput = {
   id?: string
+  name: string
   productId: string
-  productSupplierId: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantCreateOrConnectWithoutColorInput = {
@@ -700,40 +751,47 @@ export type ProductVariantScalarWhereInput = {
   OR?: Prisma.ProductVariantScalarWhereInput[]
   NOT?: Prisma.ProductVariantScalarWhereInput | Prisma.ProductVariantScalarWhereInput[]
   id?: Prisma.StringFilter<"ProductVariant"> | string
+  name?: Prisma.StringFilter<"ProductVariant"> | string
   productId?: Prisma.StringFilter<"ProductVariant"> | string
-  productSupplierId?: Prisma.StringFilter<"ProductVariant"> | string
   versionCode?: Prisma.StringFilter<"ProductVariant"> | string
+  supplierCode?: Prisma.StringFilter<"ProductVariant"> | string
+  variantIndex?: Prisma.IntFilter<"ProductVariant"> | number
   fullCode?: Prisma.StringFilter<"ProductVariant"> | string
   colorId?: Prisma.StringNullableFilter<"ProductVariant"> | string | null
-  materialId?: Prisma.StringNullableFilter<"ProductVariant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
 }
 
 export type ProductVariantCreateWithoutProductInput = {
   id?: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  productSupplier: Prisma.ProductSupplierCreateNestedOneWithoutVariantsInput
   color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
-  material?: Prisma.MaterialCreateNestedOneWithoutVariantsInput
+  materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantUncheckedCreateWithoutProductInput = {
   id?: string
-  productSupplierId: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId?: string | null
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantCreateOrConnectWithoutProductInput = {
@@ -764,28 +822,34 @@ export type ProductVariantUpdateManyWithWhereWithoutProductInput = {
 
 export type ProductVariantCreateWithoutMeasurementsInput = {
   id?: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
-  productSupplier: Prisma.ProductSupplierCreateNestedOneWithoutVariantsInput
   color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
-  material?: Prisma.MaterialCreateNestedOneWithoutVariantsInput
+  materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantUncheckedCreateWithoutMeasurementsInput = {
   id?: string
+  name: string
   productId: string
-  productSupplierId: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId?: string | null
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantCreateOrConnectWithoutMeasurementsInput = {
@@ -806,158 +870,199 @@ export type ProductVariantUpdateToOneWithWhereWithoutMeasurementsInput = {
 
 export type ProductVariantUpdateWithoutMeasurementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
-  productSupplier?: Prisma.ProductSupplierUpdateOneRequiredWithoutVariantsNestedInput
   color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
-  material?: Prisma.MaterialUpdateOneWithoutVariantsNestedInput
+  materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateWithoutMeasurementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+}
+
+export type ProductVariantCreateWithoutVariantSuppliersInput = {
+  id?: string
+  name: string
+  versionCode: string
+  supplierCode: string
+  variantIndex: number
+  fullCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product: Prisma.ProductCreateNestedOneWithoutVariantsInput
+  color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
+  materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
+  measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
+  assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+}
+
+export type ProductVariantUncheckedCreateWithoutVariantSuppliersInput = {
+  id?: string
+  name: string
+  productId: string
+  versionCode: string
+  supplierCode: string
+  variantIndex: number
+  fullCode: string
+  colorId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
+  measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+}
+
+export type ProductVariantCreateOrConnectWithoutVariantSuppliersInput = {
+  where: Prisma.ProductVariantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutVariantSuppliersInput, Prisma.ProductVariantUncheckedCreateWithoutVariantSuppliersInput>
+}
+
+export type ProductVariantUpsertWithoutVariantSuppliersInput = {
+  update: Prisma.XOR<Prisma.ProductVariantUpdateWithoutVariantSuppliersInput, Prisma.ProductVariantUncheckedUpdateWithoutVariantSuppliersInput>
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutVariantSuppliersInput, Prisma.ProductVariantUncheckedCreateWithoutVariantSuppliersInput>
+  where?: Prisma.ProductVariantWhereInput
+}
+
+export type ProductVariantUpdateToOneWithWhereWithoutVariantSuppliersInput = {
+  where?: Prisma.ProductVariantWhereInput
+  data: Prisma.XOR<Prisma.ProductVariantUpdateWithoutVariantSuppliersInput, Prisma.ProductVariantUncheckedUpdateWithoutVariantSuppliersInput>
+}
+
+export type ProductVariantUpdateWithoutVariantSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  fullCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
+  color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
+  materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
+  measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+}
+
+export type ProductVariantUncheckedUpdateWithoutVariantSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  fullCode?: Prisma.StringFieldUpdateOperationsInput | string
+  colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
+  measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
 }
 
-export type ProductVariantCreateWithoutProductSupplierInput = {
+export type ProductVariantCreateWithoutMaterialsInput = {
   id?: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
-  material?: Prisma.MaterialCreateNestedOneWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
 }
 
-export type ProductVariantUncheckedCreateWithoutProductSupplierInput = {
+export type ProductVariantUncheckedCreateWithoutMaterialsInput = {
   id?: string
+  name: string
   productId: string
   versionCode: string
-  fullCode: string
-  colorId?: string | null
-  materialId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
-  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
-}
-
-export type ProductVariantCreateOrConnectWithoutProductSupplierInput = {
-  where: Prisma.ProductVariantWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput>
-}
-
-export type ProductVariantCreateManyProductSupplierInputEnvelope = {
-  data: Prisma.ProductVariantCreateManyProductSupplierInput | Prisma.ProductVariantCreateManyProductSupplierInput[]
-  skipDuplicates?: boolean
-}
-
-export type ProductVariantUpsertWithWhereUniqueWithoutProductSupplierInput = {
-  where: Prisma.ProductVariantWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProductVariantUpdateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedUpdateWithoutProductSupplierInput>
-  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedCreateWithoutProductSupplierInput>
-}
-
-export type ProductVariantUpdateWithWhereUniqueWithoutProductSupplierInput = {
-  where: Prisma.ProductVariantWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProductVariantUpdateWithoutProductSupplierInput, Prisma.ProductVariantUncheckedUpdateWithoutProductSupplierInput>
-}
-
-export type ProductVariantUpdateManyWithWhereWithoutProductSupplierInput = {
-  where: Prisma.ProductVariantScalarWhereInput
-  data: Prisma.XOR<Prisma.ProductVariantUpdateManyMutationInput, Prisma.ProductVariantUncheckedUpdateManyWithoutProductSupplierInput>
-}
-
-export type ProductVariantCreateWithoutMaterialInput = {
-  id?: string
-  versionCode: string
-  fullCode: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  product: Prisma.ProductCreateNestedOneWithoutVariantsInput
-  productSupplier: Prisma.ProductSupplierCreateNestedOneWithoutVariantsInput
-  color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
-  measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
-  assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
-}
-
-export type ProductVariantUncheckedCreateWithoutMaterialInput = {
-  id?: string
-  productId: string
-  productSupplierId: string
-  versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
 }
 
-export type ProductVariantCreateOrConnectWithoutMaterialInput = {
+export type ProductVariantCreateOrConnectWithoutMaterialsInput = {
   where: Prisma.ProductVariantWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialInput>
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialsInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput>
 }
 
-export type ProductVariantCreateManyMaterialInputEnvelope = {
-  data: Prisma.ProductVariantCreateManyMaterialInput | Prisma.ProductVariantCreateManyMaterialInput[]
-  skipDuplicates?: boolean
-}
-
-export type ProductVariantUpsertWithWhereUniqueWithoutMaterialInput = {
+export type ProductVariantUpsertWithWhereUniqueWithoutMaterialsInput = {
   where: Prisma.ProductVariantWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProductVariantUpdateWithoutMaterialInput, Prisma.ProductVariantUncheckedUpdateWithoutMaterialInput>
-  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialInput>
+  update: Prisma.XOR<Prisma.ProductVariantUpdateWithoutMaterialsInput, Prisma.ProductVariantUncheckedUpdateWithoutMaterialsInput>
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutMaterialsInput, Prisma.ProductVariantUncheckedCreateWithoutMaterialsInput>
 }
 
-export type ProductVariantUpdateWithWhereUniqueWithoutMaterialInput = {
+export type ProductVariantUpdateWithWhereUniqueWithoutMaterialsInput = {
   where: Prisma.ProductVariantWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProductVariantUpdateWithoutMaterialInput, Prisma.ProductVariantUncheckedUpdateWithoutMaterialInput>
+  data: Prisma.XOR<Prisma.ProductVariantUpdateWithoutMaterialsInput, Prisma.ProductVariantUncheckedUpdateWithoutMaterialsInput>
 }
 
-export type ProductVariantUpdateManyWithWhereWithoutMaterialInput = {
+export type ProductVariantUpdateManyWithWhereWithoutMaterialsInput = {
   where: Prisma.ProductVariantScalarWhereInput
-  data: Prisma.XOR<Prisma.ProductVariantUpdateManyMutationInput, Prisma.ProductVariantUncheckedUpdateManyWithoutMaterialInput>
+  data: Prisma.XOR<Prisma.ProductVariantUpdateManyMutationInput, Prisma.ProductVariantUncheckedUpdateManyWithoutMaterialsInput>
 }
 
 export type ProductVariantCreateWithoutAssetsInput = {
   id?: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
-  productSupplier: Prisma.ProductSupplierCreateNestedOneWithoutVariantsInput
   color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
-  material?: Prisma.MaterialCreateNestedOneWithoutVariantsInput
+  materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantUncheckedCreateWithoutAssetsInput = {
   id?: string
+  name: string
   productId: string
-  productSupplierId: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId?: string | null
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
 }
 
 export type ProductVariantCreateOrConnectWithoutAssetsInput = {
@@ -978,216 +1083,187 @@ export type ProductVariantUpdateToOneWithWhereWithoutAssetsInput = {
 
 export type ProductVariantUpdateWithoutAssetsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
-  productSupplier?: Prisma.ProductSupplierUpdateOneRequiredWithoutVariantsNestedInput
   color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
-  material?: Prisma.MaterialUpdateOneWithoutVariantsNestedInput
+  materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateWithoutAssetsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantCreateManyColorInput = {
   id?: string
+  name: string
   productId: string
-  productSupplierId: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductVariantUpdateWithoutColorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
-  productSupplier?: Prisma.ProductSupplierUpdateOneRequiredWithoutVariantsNestedInput
-  material?: Prisma.MaterialUpdateOneWithoutVariantsNestedInput
+  materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateWithoutColorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateManyWithoutColorInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductVariantCreateManyProductInput = {
   id?: string
-  productSupplierId: string
+  name: string
   versionCode: string
+  supplierCode: string
+  variantIndex: number
   fullCode: string
   colorId?: string | null
-  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductVariantUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productSupplier?: Prisma.ProductSupplierUpdateOneRequiredWithoutVariantsNestedInput
   color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
-  material?: Prisma.MaterialUpdateOneWithoutVariantsNestedInput
+  materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
 }
 
 export type ProductVariantUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ProductVariantCreateManyProductSupplierInput = {
-  id?: string
-  productId: string
-  versionCode: string
-  fullCode: string
-  colorId?: string | null
-  materialId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ProductVariantUpdateWithoutProductSupplierInput = {
+export type ProductVariantUpdateWithoutMaterialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
-  material?: Prisma.MaterialUpdateOneWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
 }
 
-export type ProductVariantUncheckedUpdateWithoutProductSupplierInput = {
+export type ProductVariantUncheckedUpdateWithoutMaterialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
-  fullCode?: Prisma.StringFieldUpdateOperationsInput | string
-  colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
-  assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
-}
-
-export type ProductVariantUncheckedUpdateManyWithoutProductSupplierInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
-  versionCode?: Prisma.StringFieldUpdateOperationsInput | string
-  fullCode?: Prisma.StringFieldUpdateOperationsInput | string
-  colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ProductVariantCreateManyMaterialInput = {
-  id?: string
-  productId: string
-  productSupplierId: string
-  versionCode: string
-  fullCode: string
-  colorId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ProductVariantUpdateWithoutMaterialInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  versionCode?: Prisma.StringFieldUpdateOperationsInput | string
-  fullCode?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
-  productSupplier?: Prisma.ProductSupplierUpdateOneRequiredWithoutVariantsNestedInput
-  color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
-  measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
-  assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
-}
-
-export type ProductVariantUncheckedUpdateWithoutMaterialInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
-  versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
 }
 
-export type ProductVariantUncheckedUpdateManyWithoutMaterialInput = {
+export type ProductVariantUncheckedUpdateManyWithoutMaterialsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productSupplierId?: Prisma.StringFieldUpdateOperationsInput | string
   versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1200,13 +1276,17 @@ export type ProductVariantUncheckedUpdateManyWithoutMaterialInput = {
  */
 
 export type ProductVariantCountOutputType = {
+  materials: number
   measurements: number
   assets: number
+  variantSuppliers: number
 }
 
 export type ProductVariantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  materials?: boolean | ProductVariantCountOutputTypeCountMaterialsArgs
   measurements?: boolean | ProductVariantCountOutputTypeCountMeasurementsArgs
   assets?: boolean | ProductVariantCountOutputTypeCountAssetsArgs
+  variantSuppliers?: boolean | ProductVariantCountOutputTypeCountVariantSuppliersArgs
 }
 
 /**
@@ -1217,6 +1297,13 @@ export type ProductVariantCountOutputTypeDefaultArgs<ExtArgs extends runtime.Typ
    * Select specific fields to fetch from the ProductVariantCountOutputType
    */
   select?: Prisma.ProductVariantCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProductVariantCountOutputType without action
+ */
+export type ProductVariantCountOutputTypeCountMaterialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MaterialWhereInput
 }
 
 /**
@@ -1233,111 +1320,115 @@ export type ProductVariantCountOutputTypeCountAssetsArgs<ExtArgs extends runtime
   where?: Prisma.AssetWhereInput
 }
 
+/**
+ * ProductVariantCountOutputType without action
+ */
+export type ProductVariantCountOutputTypeCountVariantSuppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductVariantSupplierWhereInput
+}
+
 
 export type ProductVariantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  name?: boolean
   productId?: boolean
-  productSupplierId?: boolean
   versionCode?: boolean
+  supplierCode?: boolean
+  variantIndex?: boolean
   fullCode?: boolean
   colorId?: boolean
-  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
-  productSupplier?: boolean | Prisma.ProductSupplierDefaultArgs<ExtArgs>
   color?: boolean | Prisma.ProductVariant$colorArgs<ExtArgs>
-  material?: boolean | Prisma.ProductVariant$materialArgs<ExtArgs>
+  materials?: boolean | Prisma.ProductVariant$materialsArgs<ExtArgs>
   measurements?: boolean | Prisma.ProductVariant$measurementsArgs<ExtArgs>
   assets?: boolean | Prisma.ProductVariant$assetsArgs<ExtArgs>
+  variantSuppliers?: boolean | Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>
   _count?: boolean | Prisma.ProductVariantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productVariant"]>
 
 export type ProductVariantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  name?: boolean
   productId?: boolean
-  productSupplierId?: boolean
   versionCode?: boolean
+  supplierCode?: boolean
+  variantIndex?: boolean
   fullCode?: boolean
   colorId?: boolean
-  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
-  productSupplier?: boolean | Prisma.ProductSupplierDefaultArgs<ExtArgs>
   color?: boolean | Prisma.ProductVariant$colorArgs<ExtArgs>
-  material?: boolean | Prisma.ProductVariant$materialArgs<ExtArgs>
 }, ExtArgs["result"]["productVariant"]>
 
 export type ProductVariantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  name?: boolean
   productId?: boolean
-  productSupplierId?: boolean
   versionCode?: boolean
+  supplierCode?: boolean
+  variantIndex?: boolean
   fullCode?: boolean
   colorId?: boolean
-  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
-  productSupplier?: boolean | Prisma.ProductSupplierDefaultArgs<ExtArgs>
   color?: boolean | Prisma.ProductVariant$colorArgs<ExtArgs>
-  material?: boolean | Prisma.ProductVariant$materialArgs<ExtArgs>
 }, ExtArgs["result"]["productVariant"]>
 
 export type ProductVariantSelectScalar = {
   id?: boolean
+  name?: boolean
   productId?: boolean
-  productSupplierId?: boolean
   versionCode?: boolean
+  supplierCode?: boolean
+  variantIndex?: boolean
   fullCode?: boolean
   colorId?: boolean
-  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductVariantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "productSupplierId" | "versionCode" | "fullCode" | "colorId" | "materialId" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
+export type ProductVariantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "productId" | "versionCode" | "supplierCode" | "variantIndex" | "fullCode" | "colorId" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
 export type ProductVariantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
-  productSupplier?: boolean | Prisma.ProductSupplierDefaultArgs<ExtArgs>
   color?: boolean | Prisma.ProductVariant$colorArgs<ExtArgs>
-  material?: boolean | Prisma.ProductVariant$materialArgs<ExtArgs>
+  materials?: boolean | Prisma.ProductVariant$materialsArgs<ExtArgs>
   measurements?: boolean | Prisma.ProductVariant$measurementsArgs<ExtArgs>
   assets?: boolean | Prisma.ProductVariant$assetsArgs<ExtArgs>
+  variantSuppliers?: boolean | Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>
   _count?: boolean | Prisma.ProductVariantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductVariantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
-  productSupplier?: boolean | Prisma.ProductSupplierDefaultArgs<ExtArgs>
   color?: boolean | Prisma.ProductVariant$colorArgs<ExtArgs>
-  material?: boolean | Prisma.ProductVariant$materialArgs<ExtArgs>
 }
 export type ProductVariantIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
-  productSupplier?: boolean | Prisma.ProductSupplierDefaultArgs<ExtArgs>
   color?: boolean | Prisma.ProductVariant$colorArgs<ExtArgs>
-  material?: boolean | Prisma.ProductVariant$materialArgs<ExtArgs>
 }
 
 export type $ProductVariantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductVariant"
   objects: {
     product: Prisma.$ProductPayload<ExtArgs>
-    productSupplier: Prisma.$ProductSupplierPayload<ExtArgs>
     color: Prisma.$ColorPayload<ExtArgs> | null
-    material: Prisma.$MaterialPayload<ExtArgs> | null
+    materials: Prisma.$MaterialPayload<ExtArgs>[]
     measurements: Prisma.$ProductMeasurementPayload<ExtArgs>[]
     assets: Prisma.$AssetPayload<ExtArgs>[]
+    variantSuppliers: Prisma.$ProductVariantSupplierPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    name: string
     productId: string
-    productSupplierId: string
     versionCode: string
+    supplierCode: string
+    variantIndex: number
     fullCode: string
     colorId: string | null
-    materialId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productVariant"]>
@@ -1735,11 +1826,11 @@ readonly fields: ProductVariantFieldRefs;
 export interface Prisma__ProductVariantClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  productSupplier<T extends Prisma.ProductSupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductSupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductSupplierClient<runtime.Types.Result.GetResult<Prisma.$ProductSupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   color<T extends Prisma.ProductVariant$colorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$colorArgs<ExtArgs>>): Prisma.Prisma__ColorClient<runtime.Types.Result.GetResult<Prisma.$ColorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  material<T extends Prisma.ProductVariant$materialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$materialArgs<ExtArgs>>): Prisma.Prisma__MaterialClient<runtime.Types.Result.GetResult<Prisma.$MaterialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  materials<T extends Prisma.ProductVariant$materialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$materialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   measurements<T extends Prisma.ProductVariant$measurementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$measurementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductMeasurementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assets<T extends Prisma.ProductVariant$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  variantSuppliers<T extends Prisma.ProductVariant$variantSuppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantSupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1770,12 +1861,13 @@ export interface Prisma__ProductVariantClient<T, Null = never, ExtArgs extends r
  */
 export interface ProductVariantFieldRefs {
   readonly id: Prisma.FieldRef<"ProductVariant", 'String'>
+  readonly name: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly productId: Prisma.FieldRef<"ProductVariant", 'String'>
-  readonly productSupplierId: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly versionCode: Prisma.FieldRef<"ProductVariant", 'String'>
+  readonly supplierCode: Prisma.FieldRef<"ProductVariant", 'String'>
+  readonly variantIndex: Prisma.FieldRef<"ProductVariant", 'Int'>
   readonly fullCode: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly colorId: Prisma.FieldRef<"ProductVariant", 'String'>
-  readonly materialId: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProductVariant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductVariant", 'DateTime'>
 }
@@ -2193,9 +2285,9 @@ export type ProductVariant$colorArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * ProductVariant.material
+ * ProductVariant.materials
  */
-export type ProductVariant$materialArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductVariant$materialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Material
    */
@@ -2209,6 +2301,11 @@ export type ProductVariant$materialArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.MaterialInclude<ExtArgs> | null
   where?: Prisma.MaterialWhereInput
+  orderBy?: Prisma.MaterialOrderByWithRelationInput | Prisma.MaterialOrderByWithRelationInput[]
+  cursor?: Prisma.MaterialWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MaterialScalarFieldEnum | Prisma.MaterialScalarFieldEnum[]
 }
 
 /**
@@ -2257,6 +2354,30 @@ export type ProductVariant$assetsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.AssetScalarFieldEnum | Prisma.AssetScalarFieldEnum[]
+}
+
+/**
+ * ProductVariant.variantSuppliers
+ */
+export type ProductVariant$variantSuppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductVariantSupplier
+   */
+  select?: Prisma.ProductVariantSupplierSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductVariantSupplier
+   */
+  omit?: Prisma.ProductVariantSupplierOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductVariantSupplierInclude<ExtArgs> | null
+  where?: Prisma.ProductVariantSupplierWhereInput
+  orderBy?: Prisma.ProductVariantSupplierOrderByWithRelationInput | Prisma.ProductVariantSupplierOrderByWithRelationInput[]
+  cursor?: Prisma.ProductVariantSupplierWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductVariantSupplierScalarFieldEnum | Prisma.ProductVariantSupplierScalarFieldEnum[]
 }
 
 /**

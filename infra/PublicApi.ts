@@ -1,5 +1,5 @@
 import config from "../config";
-import { rds } from "./db";
+import { vpc, rds } from "./db";
 const folderPrefix = 'packages/functions/src/PublicApi/functions';
 
 export const publicApi = new sst.aws.ApiGatewayV2("CeyhunlarPublicApi", {
@@ -30,7 +30,8 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
         // resources: ["arn:aws:dynamodb:eu-central-1:657914290529:table/portfolio-kubilay-kubilay-PortfolioTable-wzcszuuz"]
       }
     ] */
-    runtime: 'nodejs20.x',
+    runtime: 'nodejs22.x',
+    vpc: vpc,
     link: [rds],
 }
 

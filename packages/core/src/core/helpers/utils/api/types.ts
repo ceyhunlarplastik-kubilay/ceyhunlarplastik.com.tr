@@ -5,6 +5,14 @@ import {
   APIGatewayProxyEventV2,
 } from 'aws-lambda'
 
+export interface IAPIGatewayPaginationQuery {
+  page?: string
+  limit?: string
+  search?: string
+  sort?: string
+  order?: string
+}
+
 /* // Cognito ID Token tipleri
 export interface ICognitoIdTokenDecoded {
   sub: string
@@ -37,7 +45,6 @@ export interface ICognitoIdTokenDecoded {
   iss?: string
   exp?: number
 }
-
 
 // Authorizer + Claims tipi
 /* export interface IAPIGatewayEventRequestContextJWTAuthorizerWithClaims
@@ -76,6 +83,33 @@ export interface IAPIGatewayProxyEventWithUser<TBody = object>
   }
   user?: IAuthenticatedUser
 }
+
+// Update işlemleri için
+/* export interface IAPIGatewayProxyEventWithUserAndPathParametersAndBody<TBody = object>
+  extends Omit<APIGatewayProxyEventV2, 'requestContext' | 'body' | 'user' | 'pathParameters'> {
+  body: TBody
+  requestContext: APIGatewayEventRequestContextV2 & {
+    authorizer?: IAPIGatewayEventRequestContextJWTAuthorizerWithClaims
+  }
+  pathParameters: {
+    id: string
+  }
+  user: IAuthenticatedUser
+} */
+
+export interface IAPIGatewayProxyEventWithUserGeneric<TBody = unknown, TPath = unknown, TQuery = unknown> extends Omit<
+  APIGatewayProxyEventV2,
+  "body" | "pathParameters" | "queryStringParameters" | "requestContext" | "user"
+> {
+  body: TBody
+  pathParameters: TPath
+  queryStringParameters: TQuery
+  requestContext: APIGatewayEventRequestContextV2 & {
+    authorizer?: IAPIGatewayEventRequestContextJWTAuthorizerWithClaims
+  }
+  user: IAuthenticatedUser
+}
+
 
 export interface IApiResponseInput<TPayload> {
   statusCode: number

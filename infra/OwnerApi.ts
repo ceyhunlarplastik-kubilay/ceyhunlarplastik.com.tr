@@ -1,5 +1,5 @@
 import config from "../config";
-import { rds } from "./db";
+import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 
 const folderPrefix = "packages/functions/src/OwnerApi/functions";
@@ -40,6 +40,7 @@ const jwtAuthorizer = ownerApi.addAuthorizer({
  * ------------------------ */
 const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     runtime: "nodejs20.x",
+    vpc: vpc,
     link: [rds, userPool],
 };
 

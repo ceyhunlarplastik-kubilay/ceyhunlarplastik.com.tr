@@ -19,6 +19,18 @@ export const ColorSystem = {
 export type ColorSystem = (typeof ColorSystem)[keyof typeof ColorSystem]
 
 
+export const MeasurementCode = {
+  D: 'D',
+  L: 'L',
+  T: 'T',
+  A: 'A',
+  W: 'W',
+  H: 'H'
+} as const
+
+export type MeasurementCode = (typeof MeasurementCode)[keyof typeof MeasurementCode]
+
+
 export const AssetType = {
   IMAGE: 'IMAGE',
   VIDEO: 'VIDEO',
