@@ -16,21 +16,17 @@ import {
     listColorResponseValidator,
 } from "@/functions/AdminApi/validators/colors"
 import type {
-    ICreateColorDependencies,
+    IColorDependencies,
     ICreateColorEvent,
-    IListColorsDependencies,
     IListColorsEvent,
-    IGetColorDependencies,
     IGetColorEvent,
-    IDeleteColorDependencies,
     IDeleteColorEvent,
-    IUpdateColorDependencies,
     IUpdateColorEvent
 } from "@/functions/AdminApi/types/colors"
 
 export const createColor = lambdaHandler(
     async (event) => {
-        const deps: ICreateColorDependencies = {
+        const deps: IColorDependencies = {
             colorRepository: colorRepository()
         }
 
@@ -47,7 +43,7 @@ export const createColor = lambdaHandler(
 
 export const listColors = lambdaHandler(
     async (event) => {
-        const deps: IListColorsDependencies = {
+        const deps: IColorDependencies = {
             colorRepository: colorRepository()
         }
 
@@ -63,7 +59,7 @@ export const listColors = lambdaHandler(
 
 export const getColor = lambdaHandler(
     async (event) => {
-        const deps: IGetColorDependencies = {
+        const deps: IColorDependencies = {
             colorRepository: colorRepository()
         }
 
@@ -80,7 +76,7 @@ export const getColor = lambdaHandler(
 
 export const deleteColor = lambdaHandler(
     async (event) => {
-        const deps: IDeleteColorDependencies = {
+        const deps: IColorDependencies = {
             colorRepository: colorRepository()
         }
 
@@ -97,7 +93,7 @@ export const deleteColor = lambdaHandler(
 
 export const updateColor = lambdaHandler(
     async (event) => {
-        const deps: IUpdateColorDependencies = {
+        const deps: IColorDependencies = {
             colorRepository: colorRepository()
         }
         return updateColorHandler(deps)(

@@ -77,7 +77,7 @@ export const colorRepository = (): IPrismaColorRepository => {
     }
 
     const getColor = async (id: string) => {
-        return prisma.color.findUnique({
+        return prisma.color.findUniqueOrThrow({
             where: { id },
         })
     }

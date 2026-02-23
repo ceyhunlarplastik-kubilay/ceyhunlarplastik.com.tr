@@ -14,6 +14,8 @@ import {
     createProductVariantSupplierValidator,
     updateProductVariantSupplierValidator,
     idValidator,
+    productVariantSupplierResponseValidator,
+    listProductVariantSuppliersResponseValidator,
 } from "@/functions/AdminApi/validators/productVariantSuppliers"
 import type {
     IProductVariantSupplierDependencies,
@@ -39,6 +41,7 @@ export const createProductVariantSupplier = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: createProductVariantSupplierValidator,
+        responseValidator: productVariantSupplierResponseValidator,
     }
 )
 
@@ -51,6 +54,7 @@ export const getProductVariantSupplier = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        // responseValidator: productVariantSupplierResponseValidator,
     }
 )
 
@@ -63,6 +67,7 @@ export const listProductVariantSuppliers = lambdaHandler(
     },
     {
         auth: { requiredPermissionGroups: ["admin"] },
+        responseValidator: listProductVariantSuppliersResponseValidator,
     }
 )
 
@@ -87,5 +92,6 @@ export const updateProductVariantSupplier = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateProductVariantSupplierValidator,
+        responseValidator: productVariantSupplierResponseValidator,
     }
 )

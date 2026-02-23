@@ -1,24 +1,26 @@
 import createError from "http-errors"
-import { safeNumber } from "@/core/helpers/utils/number"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import {
-    IListMeasurementTypesDependencies,
-    IListMeasurementTypesEvent,
-} from "@/functions/AdminApi/types/measurementTypes"
+import { IMeasurementTypeDependencies, IListMeasurementTypesEvent } from "@/functions/AdminApi/types/measurementTypes"
+import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 
-export const listMeasurementTypesHandler = ({ measurementTypeRepository }: IListMeasurementTypesDependencies) => {
+const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt", "displayOrder"] as const
+
+export const listMeasurementTypesHandler = ({ measurementTypeRepository }: IMeasurementTypeDependencies) => {
     return async (event: IListMeasurementTypesEvent) => {
-        const { page, limit, search, sort, order } = event.queryStringParameters;
+        const { page, limit, search, sort, order } =
+            normalizeListQuery(event.queryStringParameters, {
+                allowedSortFields: ALLOWED_SORT_FIELDS,
+                defaultSort: "code",
+            })
 
         try {
-            const result =
-                await measurementTypeRepository.listMeasurementTypes({
-                    page: safeNumber(page),
-                    limit: safeNumber(limit),
-                    search,
-                    sort,
-                    order: order === "desc" ? "desc" : "asc",
-                })
+            const result = await measurementTypeRepository.listMeasurementTypes({
+                page,
+                limit,
+                search,
+                sort,
+                order,
+            })
 
             return apiResponseDTO({
                 statusCode: 200,

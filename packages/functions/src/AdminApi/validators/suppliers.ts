@@ -52,19 +52,21 @@ export const updateSupplierValidator = validatorWrapper(
 )
 
 // Response Validators
+export const supplierSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  isActive: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
 export const supplierResponseValidator = z.toJSONSchema(
   z.object({
     statusCode: z.number(),
     body: z.object({
       statusCode: z.number(),
       payload: z.object({
-        supplier: z.object({
-          id: z.uuid(),
-          name: z.string(),
-          isActive: z.boolean(),
-          createdAt: z.string(),
-          updatedAt: z.string(),
-        })
+        supplier: supplierSchema,
       })
     })
   }).loose()
@@ -76,15 +78,7 @@ export const listSuppliersResponseValidator = z.toJSONSchema(
     body: z.object({
       statusCode: z.number(),
       payload: z.object({
-        data: z.array(
-          z.object({
-            id: z.uuid(),
-            name: z.string(),
-            isActive: z.boolean(),
-            createdAt: z.string(),
-            updatedAt: z.string(),
-          })
-        ),
+        data: z.array(supplierSchema),
         meta: z.object({
           page: z.number(),
           limit: z.number(),

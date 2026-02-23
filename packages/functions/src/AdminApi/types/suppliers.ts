@@ -1,15 +1,9 @@
-import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
+import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 
 export interface ISupplierDependencies {
     supplierRepository: IPrismaSupplierRepository
 }
-
-export interface ICreateSupplierDependencies extends ISupplierDependencies { }
-export interface IListSuppliersDependencies extends ISupplierDependencies { }
-export interface IGetSupplierDependencies extends ISupplierDependencies { }
-export interface IUpdateSupplierDependencies extends ISupplierDependencies { }
-export interface IDeleteSupplierDependencies extends ISupplierDependencies { }
 
 export interface ICreateSupplierBody {
     name: string
@@ -17,20 +11,29 @@ export interface ICreateSupplierBody {
 }
 
 export type ICreateSupplierEvent =
-    IAPIGatewayProxyEventWithUser<ICreateSupplierBody>
+    IAPIGatewayProxyEventWithUserGeneric<ICreateSupplierBody>
 
-export interface IListSuppliersEvent extends IAPIGatewayProxyEventWithUser { }
+export type IListSuppliersEvent =
+    IAPIGatewayProxyEventWithUserGeneric<
+        {},
+        {},
+        {
+            page?: string
+            limit?: string
+            search?: string
+            sort?: string
+            order?: "asc" | "desc"
+        }
+    >
 
 export type IUpdateSupplierEvent =
-    IAPIGatewayProxyEventWithUser & {
-        pathParameters?: {
-            id: string
-        }
-        body: Partial<{
-            name?: string
-            isActive?: boolean
-        }>
-    }
+    IAPIGatewayProxyEventWithUserGeneric<
+        Partial<ICreateSupplierBody>,
+        { id: string }
+    >
 
-export interface IGetSupplierEvent extends IAPIGatewayProxyEventWithUser { }
-export interface IDeleteSupplierEvent extends IAPIGatewayProxyEventWithUser { }
+export type IGetSupplierEvent =
+    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+
+export type IDeleteSupplierEvent =
+    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>

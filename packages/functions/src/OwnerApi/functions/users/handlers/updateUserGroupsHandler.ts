@@ -9,61 +9,58 @@ const ALL_GROUPS = ["owner", "admin", "user"] as const;
 
 export const updateUserGroupsHandler =
   ({ cognitoRepository, userRepository, userPoolId }: IUpdateUserGroupsDependencies) =>
-  async (event: IUpdateUserGroupsEvent) => {
-    const requester = event.user!;
-    const targetUserId = event.pathParameters.id;
-    const { group: nextGroup } = event.body!;
+    async (event: IUpdateUserGroupsEvent) => {
+      const requester = event.user!;
+      const targetUserId = event.pathParameters.id;
+      const { group: nextGroup } = event.body!;
 
-    /* ---------- Guards ---------- */
+      /* ---------- Guards ---------- */
+      if (!requester.isOwner) throw createError.Forbidden("Only owners can change user roles");
 
-    if (!requester.isOwner) {
-      throw createError.Forbidden("Only owners can change user roles");
-    }
+      const user = await userRepository.getUserById(targetUserId);
+      if (!user) throw createError.NotFound("User not found");
 
-    const user = await userRepository.getUserById(targetUserId);
-    if (!user) throw createError.NotFound("User not found");
+      if (user.id === requester.id && nextGroup !== "owner") throw createError.Forbidden("Owner cannot remove own owner role");
 
-    if (user.id === requester.id && nextGroup !== "owner") {
-      throw createError.Forbidden("Owner cannot remove own owner role");
-    }
+      /* ---------- Cognito sync ---------- */
+      const currentGroups = user.groups;
 
-    /* ---------- Cognito sync ---------- */
+      const toAdd = nextGroup;
+      const toRemove = ALL_GROUPS.filter((g) => g !== nextGroup);
 
-    const currentGroups = user.groups;
+      console.log("toAdd", toAdd);
+      console.log("toRemove", toRemove);
 
-    const toAdd = nextGroup;
-    const toRemove = ALL_GROUPS.filter((g) => g !== nextGroup);
+      // remove other groups
+      for (const grp of toRemove) {
+        if (currentGroups.includes(grp)) {
+          await cognitoRepository.removeFromGroup(
+            userPoolId,
+            user.cognitoSub,
+            grp,
+          );
+        }
+      }
 
-    // remove other groups
-    for (const grp of toRemove) {
-      if (currentGroups.includes(grp)) {
-        await cognitoRepository.removeFromGroup(
+      // add new group if missing
+      if (!currentGroups.includes(toAdd)) {
+        await cognitoRepository.addToGroup(
           userPoolId,
           user.cognitoSub,
-          grp,
+          toAdd,
         );
       }
-    }
 
-    // add new group if missing
-    if (!currentGroups.includes(toAdd)) {
-      await cognitoRepository.addToGroup(
-        userPoolId,
-        user.cognitoSub,
-        toAdd,
-      );
-    }
+      /* ---------- Prisma projection ---------- */
 
-    /* ---------- Prisma projection ---------- */
+      await userRepository.updateGroups(user.id, [toAdd]);
 
-    await userRepository.updateGroups(user.id, [toAdd]);
-
-    return apiResponse({
-      statusCode: 200,
-      payload: {
-        success: true,
-        userId: user.id,
-        groups: [toAdd],
-      },
-    });
-  };
+      return apiResponse({
+        statusCode: 200,
+        payload: {
+          success: true,
+          userId: user.id,
+          groups: [toAdd],
+        },
+      });
+    };

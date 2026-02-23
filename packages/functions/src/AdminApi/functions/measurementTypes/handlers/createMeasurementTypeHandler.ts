@@ -1,7 +1,7 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { ICreateMeasurementTypeDependencies, ICreateMeasurementTypeEvent } from "@/functions/AdminApi/types/measurementTypes"
+import { IMeasurementTypeDependencies, ICreateMeasurementTypeEvent } from "@/functions/AdminApi/types/measurementTypes"
 
 /* export const createMeasurementTypeHandler = ({ measurementTypeRepository }: ICreateMeasurementTypeDependencies) => {
     return async (event: ICreateMeasurementTypeEvent) => {
@@ -46,18 +46,17 @@ import { ICreateMeasurementTypeDependencies, ICreateMeasurementTypeEvent } from 
     }
 } */
 
-export const createMeasurementTypeHandler = ({ measurementTypeRepository }: ICreateMeasurementTypeDependencies) => {
+export const createMeasurementTypeHandler = ({ measurementTypeRepository }: IMeasurementTypeDependencies) => {
     return async (event: ICreateMeasurementTypeEvent) => {
         const { name, code, baseUnit, displayOrder } = event.body;
 
         try {
-            const measurementType =
-                await measurementTypeRepository.createMeasurementType({
-                    name,
-                    code,
-                    baseUnit,
-                    displayOrder,
-                })
+            const measurementType = await measurementTypeRepository.createMeasurementType({
+                name,
+                code,
+                baseUnit,
+                displayOrder,
+            })
 
             return apiResponseDTO({
                 statusCode: 201,
@@ -65,21 +64,9 @@ export const createMeasurementTypeHandler = ({ measurementTypeRepository }: ICre
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err
-
-            if (err instanceof Prisma.PrismaClientKnownRequestError) {
-                if (err.code === "P2002") {
-                    throw new createError.Conflict(
-                        "Measurement type code already exists"
-                    )
-                }
-            }
-
-            console.error(err)
-            throw new createError.InternalServerError(
-                "Failed to create measurement type"
-            )
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") throw new createError.Conflict("Measurement type code already exists");
+            console.error(err);
+            throw new createError.InternalServerError("Failed to create measurement type");
         }
     }
 }
-
-

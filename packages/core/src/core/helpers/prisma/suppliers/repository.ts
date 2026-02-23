@@ -57,7 +57,7 @@ export const supplierRepository = (): IPrismaSupplierRepository => {
   return {
     listSuppliers,
     getSupplier: (id) =>
-      prisma.supplier.findUnique({ where: { id } }),
+      prisma.supplier.findUniqueOrThrow({ where: { id } }),
 
     createSupplier: (data) =>
       prisma.supplier.create({ data }),

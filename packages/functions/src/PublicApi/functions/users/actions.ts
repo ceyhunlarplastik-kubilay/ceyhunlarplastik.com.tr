@@ -1,18 +1,14 @@
 import { lambdaHandler } from "@/core/middy"
 import { userRepository } from "@/core/helpers/prisma/users/repository"
+import { getUserHandler, listUsersHandler } from "@/functions/PublicApi/functions/users/handlers"
+import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import {
-    createUserHandler,
-    getUserHandler,
-} from "@/functions/PublicApi/functions/users/handlers"
-
-import {
-    ICreateUserDependencies,
-    ICreateUserEvent,
     IGetUserDependencies,
     IGetUserEvent,
+    IListUsersDependencies,
 } from "@/functions/PublicApi/types/users"
 
-import { createUserValidator } from "@/functions/PublicApi/validators/users"
+import { idValidator, getUserResponseValidator, listUsersResponseValidator } from "@/functions/PublicApi/validators/users"
 
 export const getUser = lambdaHandler(
     async (event) => {
@@ -26,22 +22,23 @@ export const getUser = lambdaHandler(
     },
     {
         auth: false,
+        requestValidator: idValidator,
+        responseValidator: getUserResponseValidator
     }
 )
 
-export const createUser = lambdaHandler(
+export const listUsers = lambdaHandler(
     async (event) => {
-        const deps: ICreateUserDependencies = {
+        const deps: IListUsersDependencies = {
             userRepository: userRepository(),
         }
 
-        return createUserHandler(deps)(
-            event as ICreateUserEvent
+        return listUsersHandler(deps)(
+            event as APIGatewayProxyEventV2
         )
     },
     {
         auth: false,
-        requestValidator: createUserValidator,
+        responseValidator: listUsersResponseValidator
     }
 )
-

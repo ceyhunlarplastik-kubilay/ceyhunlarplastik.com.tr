@@ -21,11 +21,23 @@ export type ColorSystem = (typeof ColorSystem)[keyof typeof ColorSystem]
 
 export const MeasurementCode = {
   D: 'D',
+  D1: 'D1',
+  D2: 'D2',
+  R: 'R',
+  R1: 'R1',
+  R2: 'R2',
   L: 'L',
+  L1: 'L1',
+  L2: 'L2',
   T: 'T',
   A: 'A',
   W: 'W',
-  H: 'H'
+  H: 'H',
+  H1: 'H1',
+  H2: 'H2',
+  PT: 'PT',
+  M: 'M',
+  R_L: 'R_L'
 } as const
 
 export type MeasurementCode = (typeof MeasurementCode)[keyof typeof MeasurementCode]

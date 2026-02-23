@@ -41,6 +41,18 @@ export interface IPrismaProductVariantRepository {
     deleteProductVariant(id: string): Promise<ProductVariant>
 }
 
+const defaultInclude = {
+    product: true,
+    color: true,
+    materials: true,
+    variantSuppliers: {
+        include: { supplier: true }
+    },
+    measurements: {
+        include: { measurementType: true }
+    }
+} satisfies Prisma.ProductVariantInclude
+
 export const productVariantRepository = (): IPrismaProductVariantRepository => {
 
     const listProductVariants = async (query: IPaginationQuery & { productId?: string }) => {
@@ -74,21 +86,7 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                 orderBy,
                 skip,
                 take,
-                include: {
-                    product: true,
-                    color: true,
-                    materials: true,
-                    variantSuppliers: {
-                        include: {
-                            supplier: true
-                        }
-                    },
-                    measurements: {
-                        include: {
-                            measurementType: true
-                        }
-                    }
-                }
+                include: defaultInclude
             }),
             prisma.productVariant.count({ where: finalWhere }),
         ])
@@ -104,38 +102,29 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
     const getProductVariant = async (id: string) =>
         prisma.productVariant.findUnique({
             where: { id },
-            include: {
-                product: true,
-                color: true,
-                materials: true,
-                variantSuppliers: {
-                    include: {
-                        supplier: true
-                    }
-                },
-                measurements: {
-                    include: {
-                        measurementType: true
-                    }
-                }
-            }
+            include: defaultInclude
         })
 
     const countProductVariants = async (productId: string, versionCode: string) =>
         prisma.productVariant.count({ where: { productId, versionCode } })
 
     const createProductVariant = async (data: Prisma.ProductVariantCreateInput) =>
-        prisma.productVariant.create({ data })
+        prisma.productVariant.create({
+            data,
+            include: defaultInclude
+        })
 
     const updateProductVariant = async (id: string, data: Prisma.ProductVariantUpdateInput) =>
         prisma.productVariant.update({
             where: { id },
             data,
+            include: defaultInclude
         })
 
     const deleteProductVariant = async (id: string) =>
         prisma.productVariant.delete({
             where: { id },
+            include: defaultInclude,
         })
 
     return {

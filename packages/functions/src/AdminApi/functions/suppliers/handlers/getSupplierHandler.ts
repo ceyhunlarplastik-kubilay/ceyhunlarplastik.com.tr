@@ -1,17 +1,14 @@
 import createError, { HttpError } from "http-errors"
+import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { IGetSupplierDependencies, IGetSupplierEvent } from "@/functions/AdminApi/types/suppliers"
+import { ISupplierDependencies, IGetSupplierEvent } from "@/functions/AdminApi/types/suppliers"
 
-export const getSupplierHandler = ({ supplierRepository }: IGetSupplierDependencies) => {
+export const getSupplierHandler = ({ supplierRepository }: ISupplierDependencies) => {
     return async (event: IGetSupplierEvent) => {
-        const id = event.pathParameters?.id;
-
-        if (!id) throw new createError.BadRequest("Supplier id is required");
+        const { id } = event.pathParameters;
 
         try {
             const supplier = await supplierRepository.getSupplier(id);
-
-            if (!supplier) throw new createError.NotFound("Supplier not found");
 
             return apiResponseDTO({
                 statusCode: 200,
@@ -19,6 +16,7 @@ export const getSupplierHandler = ({ supplierRepository }: IGetSupplierDependenc
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") throw new createError.NotFound("Supplier not found");
             console.error(err);
             throw new createError.InternalServerError("Failed to get supplier");
         }

@@ -9,29 +9,24 @@ import {
     updateMeasurementTypeHandler,
 } from "@/functions/AdminApi/functions/measurementTypes/handlers";
 import {
+    idValidator,
     createMeasurementTypeValidator,
-    getMeasurementTypeValidator,
-    deleteMeasurementTypeValidator,
     updateMeasurementTypeValidator,
     measurementTypeResponseValidator,
     listMeasurementTypeResponseValidator,
 } from "@/functions/AdminApi/validators/measurementTypes"
 import type {
-    ICreateMeasurementTypeDependencies,
+    IMeasurementTypeDependencies,
     ICreateMeasurementTypeEvent,
-    IGetMeasurementTypeDependencies,
     IGetMeasurementTypeEvent,
-    IListMeasurementTypesDependencies,
     IListMeasurementTypesEvent,
-    IDeleteMeasurementTypeDependencies,
     IDeleteMeasurementTypeEvent,
-    IUpdateMeasurementTypeDependencies,
     IUpdateMeasurementTypeEvent,
 } from "@/functions/AdminApi/types/measurementTypes"
 
 export const createMeasurementType = lambdaHandler(
     async (event) => {
-        const deps: ICreateMeasurementTypeDependencies = {
+        const deps: IMeasurementTypeDependencies = {
             measurementTypeRepository: measurementTypeRepository()
         }
         return createMeasurementTypeHandler(deps)(
@@ -47,7 +42,7 @@ export const createMeasurementType = lambdaHandler(
 
 export const getMeasurementType = lambdaHandler(
     async (event) => {
-        const deps: IGetMeasurementTypeDependencies = {
+        const deps: IMeasurementTypeDependencies = {
             measurementTypeRepository: measurementTypeRepository()
         }
         return getMeasurementTypeHandler(deps)(
@@ -56,14 +51,14 @@ export const getMeasurementType = lambdaHandler(
     },
     {
         auth: { requiredPermissionGroups: ["admin"] },
-        requestValidator: getMeasurementTypeValidator,
+        requestValidator: idValidator,
         responseValidator: measurementTypeResponseValidator,
     }
 )
 
 export const listMeasurementTypes = lambdaHandler(
     async (event) => {
-        const deps: IListMeasurementTypesDependencies = {
+        const deps: IMeasurementTypeDependencies = {
             measurementTypeRepository: measurementTypeRepository()
         }
         return listMeasurementTypesHandler(deps)
@@ -79,7 +74,7 @@ export const listMeasurementTypes = lambdaHandler(
 
 export const deleteMeasurementType = lambdaHandler(
     async (event) => {
-        const deps: IDeleteMeasurementTypeDependencies = {
+        const deps: IMeasurementTypeDependencies = {
             measurementTypeRepository: measurementTypeRepository()
         }
         return deleteMeasurementTypeHandler(deps)(
@@ -88,14 +83,14 @@ export const deleteMeasurementType = lambdaHandler(
     },
     {
         auth: { requiredPermissionGroups: ["admin"] },
-        requestValidator: deleteMeasurementTypeValidator,
+        requestValidator: idValidator,
         responseValidator: measurementTypeResponseValidator,
     }
 )
 
 export const updateMeasurementType = lambdaHandler(
     async (event) => {
-        const deps: IUpdateMeasurementTypeDependencies = {
+        const deps: IMeasurementTypeDependencies = {
             measurementTypeRepository: measurementTypeRepository()
         }
         return updateMeasurementTypeHandler(deps)(

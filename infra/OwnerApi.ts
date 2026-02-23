@@ -39,7 +39,7 @@ const jwtAuthorizer = ownerApi.addAuthorizer({
  * Default Lambda Route options
  * ------------------------ */
 const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
-    runtime: "nodejs20.x",
+    runtime: "nodejs22.x",
     vpc: vpc,
     link: [rds, userPool],
 };

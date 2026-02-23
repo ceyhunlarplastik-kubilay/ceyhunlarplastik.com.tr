@@ -139,12 +139,24 @@ model ProductVariant {
 ///////////////////////////////////////////////////////
 
 enum MeasurementCode {
-  D // Diameter
-  L // Length
-  T // Thickness
-  A // Angle
-  W // Width
-  H // Height
+  D // Diameter (Çap) / Metrik (D)
+  D1 // Metrik (D1)
+  D2 // Metrik (D2)
+  R // Radius (R) / Çap (R)
+  R1 // Çap (R1)
+  R2 // Çap (R2)
+  L // Length (Uzunluk)
+  L1 // Uzunluk (L1)
+  L2 // Uzunluk (L2)
+  T // Thickness (Kalınlık)
+  A // Angle (Açı)
+  W // Width (Genişlik)
+  H // Height (Yükseklik) / Ürün Yüksekliği
+  H1 // Ürün Yüksekliği (H1)
+  H2 // Civata Uzunluğu (H2)
+  PT // Profile Thickness (Profil Kalınlığı)
+  M // Metric thread size (M8, M6...)
+  R_L // R-L
 }
 
 model MeasurementType {

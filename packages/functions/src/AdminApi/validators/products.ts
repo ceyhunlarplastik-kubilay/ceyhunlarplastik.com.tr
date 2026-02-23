@@ -1,6 +1,29 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+// --- Shared Schemas ---
+const categorySchema = z.object({
+    id: z.uuid(),
+    code: z.number(),
+    name: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+
+const productSchema = z.object({
+    id: z.uuid(),
+    code: z.string(),
+    name: z.string(),
+    categoryId: z.uuid(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    category: categorySchema, // ✅ BUNU EKLEDİK
+})
+
+/* ===========================
+   REQUEST VALIDATORS
+=========================== */
+
 export const createProductValidator = validatorWrapper(
     z.object({
         body: z.object({
@@ -40,4 +63,38 @@ export const idValidator = validatorWrapper(
     {
         requiredRootFields: ["pathParameters"],
     }
+)
+
+/* ===========================
+   RESPONSE VALIDATORS
+=========================== */
+
+export const listProductsResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(productSchema),
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                }),
+            }),
+        }),
+    }).loose()
+)
+
+export const productResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                product: productSchema,
+            }),
+        }),
+    }).loose()
 )

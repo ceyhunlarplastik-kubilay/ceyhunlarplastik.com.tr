@@ -15,10 +15,7 @@ export const deleteProductHandler = ({ productRepository }: Pick<IProductDepende
                 payload: { product: deleted },
             })
         } catch (err: any) {
-            if (err instanceof Prisma.PrismaClientKnownRequestError) {
-                if (err.code === "P2025") throw new createError.NotFound("Product not found");
-            }
-            console.error(err);
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") throw new createError.NotFound("Product not found");
             throw new createError.InternalServerError("Failed to delete product");
         }
     }

@@ -26,11 +26,7 @@ export const createProductHandler = ({ productRepository, categoryRepository }: 
                 payload: { product },
             })
         } catch (err: any) {
-            if (err instanceof HttpError) throw err;
-            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-                throw new createError.Conflict("Product code already exists");
-            }
-            console.error(err);
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") throw new createError.Conflict("Product code already exists");
             throw new createError.InternalServerError("Failed to create product");
         }
     }

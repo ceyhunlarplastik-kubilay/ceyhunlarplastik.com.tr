@@ -43,7 +43,6 @@ export const productMeasurementRepository = (): IPrismaProductMeasurementReposit
                 skip,
                 take,
                 include: {
-                    variant: true,
                     measurementType: true,
                 },
             }),
@@ -59,26 +58,36 @@ export const productMeasurementRepository = (): IPrismaProductMeasurementReposit
     }
 
     const getProductMeasurement = async (id: string) =>
-        prisma.productMeasurement.findUnique({
+        prisma.productMeasurement.findUniqueOrThrow({
             where: { id },
             include: {
-                variant: true,
                 measurementType: true,
             },
         })
 
     const createProductMeasurement = async (data: Prisma.ProductMeasurementCreateInput) =>
-        prisma.productMeasurement.create({ data })
+        prisma.productMeasurement.create({
+            data,
+            include: {
+                measurementType: true,
+            },
+        })
 
     const updateProductMeasurement = async (id: string, data: Prisma.ProductMeasurementUpdateInput) =>
         prisma.productMeasurement.update({
             where: { id },
             data,
+            include: {
+                measurementType: true,
+            },
         })
 
     const deleteProductMeasurement = async (id: string) =>
         prisma.productMeasurement.delete({
             where: { id },
+            include: {
+                measurementType: true,
+            },
         })
 
     const listMeasurementsByVariant = async (variantId: string) =>

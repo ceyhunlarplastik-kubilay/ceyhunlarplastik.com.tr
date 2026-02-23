@@ -3,6 +3,14 @@ import { vpc, rds } from "./db";
 const folderPrefix = 'packages/functions/src/PublicApi/functions';
 
 export const publicApi = new sst.aws.ApiGatewayV2("CeyhunlarPublicApi", {
+    transform: {
+        stage: (args) => {
+            args.defaultRouteSettings = {
+                throttlingRateLimit: 100,
+                throttlingBurstLimit: 200,
+            };
+        }
+    },
     domain:
         $app.stage === "prod"
             ? {
@@ -35,11 +43,101 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     link: [rds],
 }
 
+/*----------------------- USERS -----------------------*/
 publicApi.route('GET /users/{id}', {
     handler: `${folderPrefix}/users/actions.getUser`,
     ...defaultOptions,
 })
-publicApi.route('POST /users', {
-    handler: `${folderPrefix}/users/actions.createUser`,
+publicApi.route('GET /users', {
+    handler: `${folderPrefix}/users/actions.listUsers`,
     ...defaultOptions,
 })
+
+/*----------------------- CATEGORIES -----------------------*/
+publicApi.route("GET /categories/{id}", {
+    handler: `${folderPrefix}/categories/actions.getCategory`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /categories", {
+    handler: `${folderPrefix}/categories/actions.listCategories`,
+    ...defaultOptions,
+});
+
+/*----------------------- COLORS -----------------------*/
+publicApi.route("GET /colors/{id}", {
+    handler: `${folderPrefix}/colors/actions.getColor`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /colors", {
+    handler: `${folderPrefix}/colors/actions.listColors`,
+    ...defaultOptions,
+});
+
+/*----------------------- SUPPLIERS -----------------------*/
+publicApi.route("GET /suppliers/{id}", {
+    handler: `${folderPrefix}/suppliers/actions.getSupplier`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /suppliers", {
+    handler: `${folderPrefix}/suppliers/actions.listSuppliers`,
+    ...defaultOptions,
+});
+
+/*----------------------- MEASUREMENT TYPES -----------------------*/
+publicApi.route("GET /measurement-types/{id}", {
+    handler: `${folderPrefix}/measurementTypes/actions.getMeasurementType`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /measurement-types", {
+    handler: `${folderPrefix}/measurementTypes/actions.listMeasurementTypes`,
+    ...defaultOptions,
+});
+
+/*----------------------- PRODUCT VARIANT SUPPLIERS -----------------------*/
+publicApi.route("GET /product-variant-suppliers", {
+    handler: `${folderPrefix}/productVariantSuppliers/actions.listProductVariantSuppliers`,
+    ...defaultOptions
+});
+
+publicApi.route("GET /product-variant-suppliers/{id}", {
+    handler: `${folderPrefix}/productVariantSuppliers/actions.getProductVariantSupplier`,
+    ...defaultOptions
+});
+
+/*----------------------- PRODUCT VARIANTS -----------------------*/
+publicApi.route("GET /product-variants", {
+    handler: `${folderPrefix}/productVariants/actions.listProductVariants`,
+    ...defaultOptions
+});
+
+publicApi.route("GET /product-variants/{id}", {
+    handler: `${folderPrefix}/productVariants/actions.getProductVariant`,
+    ...defaultOptions
+});
+
+/*----------------------- PRODUCT MEASUREMENTS -----------------------*/
+publicApi.route("GET /product-measurements", {
+    handler: `${folderPrefix}/productMeasurements/actions.listProductMeasurements`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /product-measurements/{id}", {
+    handler: `${folderPrefix}/productMeasurements/actions.getProductMeasurement`,
+    ...defaultOptions,
+});
+/*----------------------- PRODUCTS -----------------------*/
+publicApi.route("GET /products", {
+    handler: `${folderPrefix}/products/actions.listProducts`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /products/{id}", {
+    handler: `${folderPrefix}/products/actions.getProduct`,
+    ...defaultOptions,
+});
+/*----------------------- MATERIALS -----------------------*/
+/*----------------------- ASSETS -----------------------*/

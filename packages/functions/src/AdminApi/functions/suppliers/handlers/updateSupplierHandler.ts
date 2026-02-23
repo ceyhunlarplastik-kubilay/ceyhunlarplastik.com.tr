@@ -1,15 +1,14 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { IUpdateSupplierDependencies, IUpdateSupplierEvent } from "@/functions/AdminApi/types/suppliers"
+import { ISupplierDependencies, IUpdateSupplierEvent } from "@/functions/AdminApi/types/suppliers"
 
-export const updateSupplierHandler = ({ supplierRepository }: IUpdateSupplierDependencies) => {
+export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependencies) => {
     return async (event: IUpdateSupplierEvent) => {
 
-        const id = event.pathParameters?.id
-        const body = event.body
+        const { id } = event.pathParameters;
+        const body = event.body;
 
-        if (!id) throw new createError.BadRequest("Supplier ID is required");
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least one field must be provided");
 
         const allowedFields = ["name", "isActive"] as const
@@ -20,7 +19,7 @@ export const updateSupplierHandler = ({ supplierRepository }: IUpdateSupplierDep
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`);
 
-        const { name, isActive } = body
+        const { name, isActive } = body;
 
         const updateData: Prisma.SupplierUpdateInput = {
             ...(name !== undefined && { name }),

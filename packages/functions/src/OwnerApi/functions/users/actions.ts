@@ -5,10 +5,10 @@ import { userRepository } from "@/core/helpers/prisma/users/repository"
 import { updateUserGroupsHandler } from "./handlers"
 import { addUserToGroupValidator } from "@/functions/OwnerApi/validators/users"
 
-import type { IUpdateUserGroupsEvent } from "@/functions/AdminApi/types/users"
+import type { IUpdateUserGroupsEvent } from "@/functions/OwnerApi/types/users"
 
 export const updateUserGroups = lambdaHandler(
-    async (event) => 
+    async (event) =>
         updateUserGroupsHandler({
             cognitoRepository: cognitoUserRepository(),
             userRepository: userRepository(),

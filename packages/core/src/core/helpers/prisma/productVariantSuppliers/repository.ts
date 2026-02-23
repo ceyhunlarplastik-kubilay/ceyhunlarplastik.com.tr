@@ -73,7 +73,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
     }
 
     const getProductVariantSupplier = async (id: string) =>
-        prisma.productVariantSupplier.findUnique({
+        prisma.productVariantSupplier.findUniqueOrThrow({
             where: { id },
             include: {
                 variant: true,
@@ -118,6 +118,10 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                     return tx.productVariantSupplier.update({
                         where: { id },
                         data,
+                        include: {
+                            supplier: true,
+                            variant: true,
+                        }
                     });
                 });
             }
@@ -126,6 +130,10 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
         return prisma.productVariantSupplier.update({
             where: { id },
             data,
+            include: {
+                supplier: true,
+                variant: true,
+            }
         })
     }
 

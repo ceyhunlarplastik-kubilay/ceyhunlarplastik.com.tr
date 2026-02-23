@@ -18,6 +18,7 @@ export interface IVariantSupplierInput {
 
 export interface ICreateProductVariantBody {
     productId: string
+    variantIndex: number
     suppliers: IVariantSupplierInput[]
     versionCode: string
     supplierCode: string

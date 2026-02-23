@@ -17,21 +17,17 @@ import {
     listSuppliersResponseValidator,
 } from "@/functions/AdminApi/validators/suppliers"
 import type {
-    ICreateSupplierDependencies,
+    ISupplierDependencies,
     ICreateSupplierEvent,
-    IGetSupplierDependencies,
     IGetSupplierEvent,
-    IListSuppliersDependencies,
     IListSuppliersEvent,
-    IDeleteSupplierDependencies,
     IDeleteSupplierEvent,
-    IUpdateSupplierDependencies,
     IUpdateSupplierEvent,
 } from "@/functions/AdminApi/types/suppliers"
 
 export const createSupplier = lambdaHandler(
     async (event) => {
-        const deps: ICreateSupplierDependencies = {
+        const deps: ISupplierDependencies = {
             supplierRepository: supplierRepository()
         }
         return createSupplierHandler(deps)(
@@ -47,7 +43,7 @@ export const createSupplier = lambdaHandler(
 
 export const getSupplier = lambdaHandler(
     async (event) => {
-        const deps: IGetSupplierDependencies = {
+        const deps: ISupplierDependencies = {
             supplierRepository: supplierRepository()
         }
         return getSupplierHandler(deps)(
@@ -63,7 +59,7 @@ export const getSupplier = lambdaHandler(
 
 export const listSuppliers = lambdaHandler(
     async (event) => {
-        const deps: IListSuppliersDependencies = {
+        const deps: ISupplierDependencies = {
             supplierRepository: supplierRepository()
         }
         return listSuppliersHandler(deps)
@@ -79,7 +75,7 @@ export const listSuppliers = lambdaHandler(
 
 export const deleteSupplier = lambdaHandler(
     async (event) => {
-        const deps: IDeleteSupplierDependencies = {
+        const deps: ISupplierDependencies = {
             supplierRepository: supplierRepository()
         }
         return deleteSupplierHandler(deps)(
@@ -95,7 +91,7 @@ export const deleteSupplier = lambdaHandler(
 
 export const updateSupplier = lambdaHandler(
     async (event) => {
-        const deps: IUpdateSupplierDependencies = {
+        const deps: ISupplierDependencies = {
             supplierRepository: supplierRepository()
         }
         return updateSupplierHandler(deps)(

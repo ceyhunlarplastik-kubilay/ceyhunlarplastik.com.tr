@@ -1,4 +1,4 @@
-import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
+import { IAPIGatewayProxyEventWithUser, IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repository"
 
 export interface ICreateCategoryBody {
@@ -23,11 +23,7 @@ export type IListCategoriesEvent =
     }
 
 export type IGetCategoryEvent =
-    IAPIGatewayProxyEventWithUser & {
-        pathParameters?: {
-            id: string
-        }
-    }
+    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
 export type IDeleteCategoryEvent =
     IAPIGatewayProxyEventWithUser & {

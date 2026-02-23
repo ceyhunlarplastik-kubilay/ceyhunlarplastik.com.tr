@@ -54,10 +54,7 @@ export const updateProductHandler = ({ productRepository, categoryRepository }: 
                 payload: { product: updated },
             })
         } catch (err: any) {
-            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-                throw new createError.Conflict("Product code already exists");
-            }
-            console.error(err);
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") throw new createError.Conflict("Product code already exists");
             throw new createError.InternalServerError("Failed to update product");
         }
     }

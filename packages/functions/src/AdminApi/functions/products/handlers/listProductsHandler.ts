@@ -13,7 +13,7 @@ export const listProductsHandler =
     ({ productRepository }: IListProductsDependencies) =>
         async (event: IListProductsEvent) => {
 
-            const query = event.queryStringParameters ?? {}
+            const query = event.queryStringParameters ?? {};
 
             const { page, limit, search, sort, order } =
                 normalizeListQuery(query, {
@@ -39,9 +39,6 @@ export const listProductsHandler =
                     },
                 })
             } catch (err) {
-                console.error(err)
-                throw new createError.InternalServerError(
-                    "An error occurred while listing products"
-                )
+                throw new createError.InternalServerError("An error occurred while listing products");
             }
         }

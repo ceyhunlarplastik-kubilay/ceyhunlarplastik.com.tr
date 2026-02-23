@@ -1,6 +1,6 @@
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { ICreateColorDependencies, ICreateColorEvent } from "@/functions/AdminApi/types/colors"
+import { IColorDependencies, ICreateColorEvent } from "@/functions/AdminApi/types/colors"
 import { ColorSystem } from "@/functions/AdminApi/types/colors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 
@@ -24,9 +24,9 @@ function hexToRgb(hex: string) {
     return { r, g, b };
 }
 
-export const createColorHandler = ({ colorRepository }: ICreateColorDependencies) => {
+export const createColorHandler = ({ colorRepository }: IColorDependencies) => {
     return async (event: ICreateColorEvent) => {
-        const body = event.body
+        const body = event.body;
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least  one field must be provided");
 
@@ -59,6 +59,7 @@ export const createColorHandler = ({ colorRepository }: ICreateColorDependencies
                 payload: { color },
             })
         } catch (err: any) {
+            if (err instanceof HttpError) throw err;
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
                 if (err.code === "P2002") throw new createError.Conflict(`Color with system ${system} and code ${code} already exists`)
             }

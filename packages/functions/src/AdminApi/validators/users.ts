@@ -1,5 +1,5 @@
 import { z, ZodType } from "zod"
-// import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
 /* export const addUserToGroupValidator = validatorWrapper(
     z.object({
@@ -37,4 +37,33 @@ export const listUsersResponseValidator = z.toJSONSchema(
             })
         })
     }).loose()
+)
+
+export const getUserResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                user: z.object({
+                    id: z.uuid(),
+                    email: z.string(),
+                    identifier: z.string(),
+                    createdAt: z.string(),
+                    updatedAt: z.string(),
+                })
+            })
+        })
+    }).loose()
+)
+
+export const idValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
 )

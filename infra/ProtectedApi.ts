@@ -43,7 +43,7 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
         // resources: ["arn:aws:dynamodb:eu-central-1:657914290529:table/portfolio-kubilay-kubilay-PortfolioTable-wzcszuuz"]
       }
     ] */
-    runtime: 'nodejs20.x',
+    runtime: 'nodejs22.x',
     vpc: vpc,
     link: [rds],
 }

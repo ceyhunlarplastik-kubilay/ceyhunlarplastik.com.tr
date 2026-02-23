@@ -57,7 +57,7 @@ export const userRepository = (): IPrismaUserRepository => {
   }
 
   const getUserById = async (id: string) => {
-    return prisma.user.findUnique({
+    return prisma.user.findUniqueOrThrow({
       where: { id },
     })
   }

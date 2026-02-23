@@ -1,13 +1,11 @@
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { IDeleteColorDependencies, IDeleteColorEvent } from "@/functions/AdminApi/types/colors"
+import { IColorDependencies, IDeleteColorEvent } from "@/functions/AdminApi/types/colors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 
-export const deleteColorHandler = ({ colorRepository }: IDeleteColorDependencies) => {
+export const deleteColorHandler = ({ colorRepository }: IColorDependencies) => {
     return async (event: IDeleteColorEvent) => {
-        const id = event.pathParameters?.id;
-
-        if (!id) throw new createError.BadRequest("Color ID is required");
+        const { id } = event.pathParameters;
 
         try {
             // Soft delete is handled in the prisma extension, so we don't need to filter by isActive here
@@ -18,6 +16,7 @@ export const deleteColorHandler = ({ colorRepository }: IDeleteColorDependencies
                 payload: { color },
             })
         } catch (err: any) {
+            if (err instanceof HttpError) throw err;
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
                 if (err.code === "P2024") throw new createError.NotFound(`Color not found`);
             }

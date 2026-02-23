@@ -60,25 +60,28 @@ export const updateColorValidator = validatorWrapper(
 )
 
 // Response Validators
+const colorSchema = z.object({
+    id: z.uuid(),
+    system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
+    code: z.number(),
+    name: z.string(),
+    hex: z_hex,
+    rgbR: z.number().min(0).max(255).optional(),
+    rgbG: z.number().min(0).max(255).optional(),
+    rgbB: z.number().min(0).max(255).optional(),
+    isActive: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+
+
 export const colorResponseValidator = z.toJSONSchema(
     z.object({
         statusCode: z.number(),
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                color: z.object({
-                    id: z.uuid(),
-                    system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
-                    code: z.number(),
-                    name: z.string(),
-                    hex: z_hex,
-                    rgbR: z.number().min(0).max(255).optional(),
-                    rgbG: z.number().min(0).max(255).optional(),
-                    rgbB: z.number().min(0).max(255).optional(),
-                    isActive: z.boolean(),
-                    createdAt: z.string(),
-                    updatedAt: z.string(),
-                })
+                color: colorSchema
             })
         })
     }).loose()
@@ -90,21 +93,7 @@ export const listColorResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                data: z.array(
-                    z.object({
-                        id: z.uuid(),
-                        system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
-                        code: z.number(),
-                        name: z.string(),
-                        hex: z_hex,
-                        rgbR: z.number().min(0).max(255).optional(),
-                        rgbG: z.number().min(0).max(255).optional(),
-                        rgbB: z.number().min(0).max(255).optional(),
-                        isActive: z.boolean(),
-                        createdAt: z.string(),
-                        updatedAt: z.string(),
-                    })
-                ),
+                data: z.array(colorSchema),
                 meta: z.object({
                     page: z.number(),
                     limit: z.number(),

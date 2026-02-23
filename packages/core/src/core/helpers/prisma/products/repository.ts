@@ -75,7 +75,7 @@ export const productRepository = (): IPrismaProductRepository => {
     }
 
     const getProduct = async (id: string) =>
-        prisma.product.findUnique({
+        prisma.product.findUniqueOrThrow({
             where: { id },
             include: {
                 category: true,
@@ -83,17 +83,28 @@ export const productRepository = (): IPrismaProductRepository => {
         })
 
     const createProduct = async (data: Prisma.ProductCreateInput) =>
-        prisma.product.create({ data })
+        prisma.product.create({
+            data,
+            include: {
+                category: true,
+            },
+        })
 
     const updateProduct = async (id: string, data: Prisma.ProductUpdateInput) =>
         prisma.product.update({
             where: { id },
             data,
+            include: {
+                category: true,
+            },
         })
 
     const deleteProduct = async (id: string) =>
         prisma.product.delete({
             where: { id },
+            include: {
+                category: true,
+            },
         })
 
     return {

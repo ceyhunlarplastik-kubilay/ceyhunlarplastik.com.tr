@@ -103,6 +103,11 @@ adminApi.route("GET /users", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /users/{id}", {
+    handler: `${folderPrefix}/users/actions.getUser`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- CATEGORIES -----------------------*/
 adminApi.route("POST /categories", {
     handler: `${folderPrefix}/categories/actions.createCategory`,

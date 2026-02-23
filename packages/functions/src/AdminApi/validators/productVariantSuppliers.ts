@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { supplierSchema } from "@/functions/AdminApi/validators/suppliers"
 
 export const createProductVariantSupplierValidator = validatorWrapper(
     z.object({
@@ -40,4 +41,59 @@ export const idValidator = validatorWrapper(
     {
         requiredRootFields: ["pathParameters"],
     }
+)
+
+// Response Validators 
+const variantSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    productId: z.uuid(),
+    versionCode: z.string(),
+    supplierCode: z.string(),
+    variantIndex: z.number(),
+    fullCode: z.string(),
+    colorId: z.uuid().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+
+export const productVariantSupplierSchema = z.object({
+    id: z.uuid(),
+    variantId: z.uuid(),
+    supplierId: z.uuid(),
+    isActive: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    variant: variantSchema,
+    supplier: supplierSchema,
+})
+
+export const productVariantSupplierResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                productVariantSupplier: productVariantSupplierSchema
+            })
+        })
+    }).loose()
+)
+
+export const listProductVariantSuppliersResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(productVariantSupplierSchema),
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                })
+            })
+        })
+    }).loose()
 )

@@ -1,7 +1,7 @@
+import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
-import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { IUpdateColorDependencies, IUpdateColorEvent } from "@/functions/AdminApi/types/colors"
+import { IColorDependencies, IUpdateColorEvent } from "@/functions/AdminApi/types/colors"
 
 const HEX_REGEX = /^#([0-9A-Fa-f]{6})$/
 
@@ -16,12 +16,11 @@ function hexToRgb(hex: string) {
     }
 }
 
-export const updateColorHandler = ({ colorRepository }: IUpdateColorDependencies) => {
+export const updateColorHandler = ({ colorRepository }: IColorDependencies) => {
     return async (event: IUpdateColorEvent) => {
-        const id = event.pathParameters?.id;
+        const { id } = event.pathParameters;
         const body = event.body;
 
-        if (!id) throw new createError.BadRequest("Color ID is required");
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least  one field must be provided");
 
         const allowedFields = ["system", "code", "name", "hex"] as const
@@ -74,6 +73,7 @@ export const updateColorHandler = ({ colorRepository }: IUpdateColorDependencies
                 payload: { color },
             })
         } catch (err: any) {
+            if (err instanceof HttpError) throw err;
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
                 if (err.code === "P2025") throw new createError.NotFound("Color not found")
                 else if (err.code === "P2002") throw new createError.Conflict("Color with the same system and code already exist")

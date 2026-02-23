@@ -1,7 +1,7 @@
-import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
+import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaColorRepository } from "@/core/helpers/prisma/colors/repository"
 
-export type IGetColorEvent = IAPIGatewayProxyEventWithUser
+export type IGetColorEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
 export enum ColorSystem {
     RAL = "RAL",
@@ -18,51 +18,29 @@ export interface ICreateColorBody {
 }
 
 export type ICreateColorEvent =
-    IAPIGatewayProxyEventWithUser<ICreateColorBody>
-
-export interface IListColorsQueryParams {
-    page?: string
-    limit?: string
-    search?: string
-    sort?: "code" | "name" | "createdAt"
-    order?: "asc" | "desc"
-}
-
+    IAPIGatewayProxyEventWithUserGeneric<ICreateColorBody>
 
 export type IListColorsEvent =
-    IAPIGatewayProxyEventWithUser & {
-        queryStringParameters?: IListColorsQueryParams
-    }
-
-export type IDeleteColorEvent =
-    IAPIGatewayProxyEventWithUser & {
-        pathParameters?: {
-            id: string
+    IAPIGatewayProxyEventWithUserGeneric<
+        {},
+        {},
+        {
+            page?: string
+            limit?: string
+            search?: string
+            sort?: string
+            order?: "asc" | "desc"
         }
-    }
+    >
+
+export type IDeleteColorEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
 export type IUpdateColorEvent =
-    IAPIGatewayProxyEventWithUser & {
-        pathParameters?: {
-            id: string 
-        }
-        body: Partial<{
-            system: ColorSystem
-            code: string
-            name: string
-            hex: string
-        }>
-    }
+    IAPIGatewayProxyEventWithUserGeneric<
+        Partial<ICreateColorBody>,
+        { id: string }
+    >
 
-
-export interface IGetColorDependencies {
+export interface IColorDependencies {
     colorRepository: IPrismaColorRepository
 }
-
-export interface IListColorsDependencies extends IGetColorDependencies { }
-
-export interface ICreateColorDependencies extends IGetColorDependencies { }
-
-export interface IDeleteColorDependencies extends IGetColorDependencies { }
-
-export interface IUpdateColorDependencies extends IGetColorDependencies { }

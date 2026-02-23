@@ -9,15 +9,6 @@ export type IGetMeEvent = IAPIGatewayProxyEventWithUser;
 
 export type IMePermissionsEvent = IAPIGatewayProxyEventWithUser;
 
-/* export interface ICreateUserBody {
-  first_name: string
-  last_name?: string
-  email: string
-}
-
-export type ICreateUserEvent =
-  IAPIGatewayProxyEventWithUser<ICreateUserBody> */
-
 export interface IListUsersDependencies {
   userRepository: IPrismaUserRepository
 }
@@ -29,5 +20,3 @@ export interface IGetUserDependencies {
 export interface IGetMeDependencies {
   userRepository: IPrismaUserRepository;
 }
-
-// export interface ICreateUserDependencies extends IGetUserDependencies { }

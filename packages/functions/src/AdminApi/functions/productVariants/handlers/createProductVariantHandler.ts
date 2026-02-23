@@ -5,7 +5,7 @@ import { IProductVariantDependencies, ICreateProductVariantEvent } from "@/funct
 
 export const createProductVariantHandler = ({ productVariantRepository, productRepository, supplierRepository, materialRepository }: IProductVariantDependencies) => {
     return async (event: ICreateProductVariantEvent) => {
-        const { productId, suppliers, versionCode, supplierCode, name, colorId, materialIds } = event.body;
+        const { productId, variantIndex, suppliers, versionCode, supplierCode, name, colorId, materialIds } = event.body;
 
         try {
             const product = await productRepository.getProduct(productId)
@@ -24,10 +24,6 @@ export const createProductVariantHandler = ({ productVariantRepository, productR
                     throw new createError.BadRequest("Only one supplier can be active for a variant");
                 }
             }
-
-            // Auto-generate variantIndex: count existing variants for same product + versionCode, then +1
-            const existingCount = await productVariantRepository.countProductVariants(productId, versionCode);
-            const variantIndex = existingCount + 1;
 
             // Generate fullCode: <ProductCode>.<SupplierCode>.<VersionCode>.<VariantIndex>
             // e.g. 1.9.A.V1.1

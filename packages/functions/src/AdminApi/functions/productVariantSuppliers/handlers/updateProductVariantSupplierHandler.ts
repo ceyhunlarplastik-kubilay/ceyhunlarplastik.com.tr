@@ -1,4 +1,4 @@
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductVariantSupplierDependencies, IUpdateProductVariantSupplierEvent } from "@/functions/AdminApi/types/productVariantSuppliers"

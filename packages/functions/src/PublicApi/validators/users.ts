@@ -33,20 +33,58 @@ import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
  * @param options.requiredBodyFields - Body içindeki alanlardan required yapılacaklar (opsiyonel)
  */
 
-const z_name = z.string().min(2).max(300)
-const z_email = z.email().min(5).max(300)
-
-const createUserSchema = z.object({
-  body: z
-    .object({
-      first_name: z_name,
-      last_name: z_name.optional(),
-      email: z_email,
+export const listUsersResponseValidator = z.toJSONSchema(
+  z.object({
+    statusCode: z.number(),
+    body: z.object({
+      statusCode: z.number(),
+      payload: z.object({
+        data: z.array(
+          z.object({
+            id: z.uuid(),
+            email: z.string(),
+            identifier: z.string(),
+            createdAt: z.string(),
+            updatedAt: z.string(),
+          })
+        ),
+        meta: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        })
+      })
     })
-    .strict(),
-})
+  }).loose()
+)
 
-export const createUserValidator = validatorWrapper(createUserSchema, {
-  requiredRootFields: ['body'],
-  requiredBodyFields: ['email', 'first_name'],
-})
+export const getUserResponseValidator = z.toJSONSchema(
+  z.object({
+    statusCode: z.number(),
+    body: z.object({
+      statusCode: z.number(),
+      payload: z.object({
+        user: z.object({
+          id: z.uuid(),
+          email: z.string(),
+          identifier: z.string(),
+          createdAt: z.string(),
+          updatedAt: z.string(),
+        })
+      })
+    })
+  }).loose()
+)
+
+
+export const idValidator = validatorWrapper(
+  z.object({
+    pathParameters: z.object({
+      id: z.uuid(),
+    }),
+  }),
+  {
+    requiredRootFields: ["pathParameters"],
+  }
+)

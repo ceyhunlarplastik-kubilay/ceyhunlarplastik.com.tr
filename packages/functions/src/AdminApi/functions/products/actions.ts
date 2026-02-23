@@ -10,7 +10,13 @@ import {
     deleteProductHandler
 } from "@/functions/AdminApi/functions/products/handlers";
 
-import { createProductValidator, updateProductValidator, idValidator } from "@/functions/AdminApi/validators/products"
+import {
+    createProductValidator,
+    updateProductValidator,
+    idValidator,
+    listProductsResponseValidator,
+    productResponseValidator,
+} from "@/functions/AdminApi/validators/products"
 
 import type {
     IListProductsEvent,
@@ -26,7 +32,8 @@ export const listProducts = lambdaHandler(
             productRepository: productRepository(),
         })(event as IListProductsEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] }
+        auth: { requiredPermissionGroups: ["admin"] },
+        responseValidator: listProductsResponseValidator,
     }
 )
 
@@ -39,6 +46,7 @@ export const createProduct = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: createProductValidator,
+        responseValidator: productResponseValidator,
     }
 )
 
@@ -50,6 +58,7 @@ export const getProduct = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: productResponseValidator,
     }
 )
 
@@ -62,6 +71,7 @@ export const updateProduct = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateProductValidator,
+        responseValidator: productResponseValidator,
     }
 )
 
@@ -73,5 +83,6 @@ export const deleteProduct = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: productResponseValidator,
     }
 )

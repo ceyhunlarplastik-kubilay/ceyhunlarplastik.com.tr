@@ -5,12 +5,6 @@ export interface IMeasurementTypeDependencies {
     measurementTypeRepository: IPrismaMeasurementTypeRepository
 }
 
-export interface ICreateMeasurementTypeDependencies extends IMeasurementTypeDependencies { }
-export interface IListMeasurementTypesDependencies extends IMeasurementTypeDependencies { }
-export interface IGetMeasurementTypeDependencies extends IMeasurementTypeDependencies { }
-export interface IUpdateMeasurementTypeDependencies extends IMeasurementTypeDependencies { }
-export interface IDeleteMeasurementTypeDependencies extends IMeasurementTypeDependencies { }
-
 export interface ICreateMeasurementTypeBody {
     name: string
     code: "D" | "L" | "T" | "A" | "W" | "H"
@@ -27,7 +21,7 @@ export type IListMeasurementTypesEvent = IAPIGatewayProxyEventWithUserGeneric<
     IAPIGatewayPaginationQuery
 >
 
-export type IUpdateMeasurementTypeEvent = IAPIGatewayProxyEventWithUserGeneric<
+/* export type IUpdateMeasurementTypeEvent = IAPIGatewayProxyEventWithUserGeneric<
     {
         name?: string
         code?: "D" | "L" | "T" | "A" | "W" | "H"
@@ -36,6 +30,12 @@ export type IUpdateMeasurementTypeEvent = IAPIGatewayProxyEventWithUserGeneric<
     }, {
         id: string
     }, {}
+> */
+
+
+export type IUpdateMeasurementTypeEvent = IAPIGatewayProxyEventWithUserGeneric<
+    Partial<ICreateMeasurementTypeBody>,
+    { id: string }
 >
 
 export type IGetMeasurementTypeEvent = IAPIGatewayProxyEventWithUserGeneric<

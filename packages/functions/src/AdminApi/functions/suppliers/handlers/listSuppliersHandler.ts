@@ -1,11 +1,11 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
-import { IListSuppliersDependencies, IListSuppliersEvent } from "@/functions/AdminApi/types/suppliers"
+import { ISupplierDependencies, IListSuppliersEvent } from "@/functions/AdminApi/types/suppliers"
 
 const ALLOWED_SORT_FIELDS = ["name", "createdAt"] as const
 
-export const listSuppliersHandler = ({ supplierRepository }: IListSuppliersDependencies) => {
+export const listSuppliersHandler = ({ supplierRepository }: ISupplierDependencies) => {
     return async (event: IListSuppliersEvent) => {
 
         const { page, limit, search, sort, order } =
@@ -31,8 +31,8 @@ export const listSuppliersHandler = ({ supplierRepository }: IListSuppliersDepen
                 },
             })
         } catch (err) {
-            console.error(err)
-            throw new createError.InternalServerError("Failed to list suppliers")
+            console.error(err);
+            throw new createError.InternalServerError("Failed to list suppliers");
         }
     }
 }

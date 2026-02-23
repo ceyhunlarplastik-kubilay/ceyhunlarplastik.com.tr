@@ -7,9 +7,7 @@ export interface IProductDependencies {
     categoryRepository: IPrismaCategoryRepository
 }
 
-export interface IListProductsDependencies {
-    productRepository: IPrismaProductRepository
-}
+export interface IListProductsDependencies { productRepository: IPrismaProductRepository }
 
 export interface ICreateProductBody {
     code: string
@@ -17,31 +15,23 @@ export interface ICreateProductBody {
     categoryId: string
 }
 
-export type ICreateProductEvent =
-    IAPIGatewayProxyEventWithUserGeneric<ICreateProductBody>
+export type ICreateProductEvent = IAPIGatewayProxyEventWithUserGeneric<ICreateProductBody>
 
-export type IUpdateProductEvent =
-    IAPIGatewayProxyEventWithUserGeneric<
-        Partial<ICreateProductBody>,
-        { id: string }
-    >
+export type IUpdateProductEvent = IAPIGatewayProxyEventWithUserGeneric<Partial<ICreateProductBody>, { id: string }>
 
-export type IGetProductEvent =
-    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+export type IGetProductEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
-export type IDeleteProductEvent =
-    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+export type IDeleteProductEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
-export type IListProductsEvent =
-    IAPIGatewayProxyEventWithUserGeneric<
-        {},
-        {},
-        {
-            page?: string
-            limit?: string
-            search?: string
-            sort?: string
-            order?: "asc" | "desc"
-            categoryId?: string
-        }
-    >
+export type IListProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    {},
+    {
+        page?: string
+        limit?: string
+        search?: string
+        sort?: string
+        order?: "asc" | "desc"
+        categoryId?: string
+    }
+>

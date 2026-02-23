@@ -16,18 +16,7 @@ export const createMeasurementTypeValidator = validatorWrapper(
     }
 )
 
-export const getMeasurementTypeValidator = validatorWrapper(
-    z.object({
-        pathParameters: z.object({
-            id: z.uuid(),
-        })
-    }),
-    {
-        requiredRootFields: ["pathParameters"],
-    }
-)
-
-export const deleteMeasurementTypeValidator = validatorWrapper(
+export const idValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
             id: z.uuid(),

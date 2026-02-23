@@ -57,7 +57,7 @@ export const measurementTypeRepository = (): IPrismaMeasurementTypeRepository =>
     return {
         listMeasurementTypes,
         getMeasurementType: (id) =>
-            prisma.measurementType.findUnique({ where: { id } }),
+            prisma.measurementType.findUniqueOrThrow({ where: { id } }),
 
         createMeasurementType: (data) =>
             prisma.measurementType.create({ data }),

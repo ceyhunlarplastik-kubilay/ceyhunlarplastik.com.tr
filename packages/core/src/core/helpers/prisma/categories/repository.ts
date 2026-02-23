@@ -67,7 +67,7 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
     }
 
     const getCategory = async (id: string) => {
-        return prisma.category.findUnique({
+        return prisma.category.findUniqueOrThrow({
             where: { id },
         })
     }

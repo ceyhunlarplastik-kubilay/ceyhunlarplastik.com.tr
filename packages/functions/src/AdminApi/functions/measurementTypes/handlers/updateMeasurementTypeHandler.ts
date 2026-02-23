@@ -1,9 +1,9 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { IUpdateMeasurementTypeDependencies, IUpdateMeasurementTypeEvent } from "@/functions/AdminApi/types/measurementTypes"
+import { IMeasurementTypeDependencies, IUpdateMeasurementTypeEvent } from "@/functions/AdminApi/types/measurementTypes"
 
-export const updateMeasurementTypeHandler = ({ measurementTypeRepository }: IUpdateMeasurementTypeDependencies) => {
+export const updateMeasurementTypeHandler = ({ measurementTypeRepository }: IMeasurementTypeDependencies) => {
     return async (event: IUpdateMeasurementTypeEvent) => {
 
         const { id } = event.pathParameters;
@@ -30,4 +30,3 @@ export const updateMeasurementTypeHandler = ({ measurementTypeRepository }: IUpd
         }
     }
 }
-
