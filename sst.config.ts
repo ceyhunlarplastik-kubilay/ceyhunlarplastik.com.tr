@@ -11,11 +11,12 @@ export default $config({
   },
   async run() {
     // const storage = await import("./infra/storage");
-    const { DATABASE_URL } = await import ("./infra/db");
-    await import ("./infra/PublicApi");
-    await import ("./infra/ProtectedApi");
-    await import ("./infra/AdminApi");
-    await import ("./infra/OwnerApi");
+    const { DATABASE_URL } = await import("./infra/db");
+    await import("./infra/PublicApi");
+    await import("./infra/ProtectedApi");
+    await import("./infra/AdminApi");
+    await import("./infra/OwnerApi");
+    await import("./infra/frontend");
 
     /* return {
       MyBucket: storage.bucket.name,

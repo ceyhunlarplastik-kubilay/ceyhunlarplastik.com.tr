@@ -6,6 +6,10 @@
 
 declare module "sst" {
   export interface Resource {
+    "Ceyhunlar-Frontend": {
+      "type": "sst.aws.Nextjs"
+      "url": string
+    }
     "CeyhunlarAdminApi": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string

@@ -1,7 +1,7 @@
 import config from "../config";
 import { vpc, rds } from "./db";
 
-const isPermanentStage = ['prod', 'dev'].includes($app.stage)
+const isPermanentStage = ['prod', 'dev'].includes($app.stage);
 
 // Helper functions
 const getFrontendDomain = () => {
@@ -11,7 +11,10 @@ const getFrontendDomain = () => {
 }
 
 const getBaseUrl = () => (isPermanentStage ? `https://${getFrontendDomain()}` : 'http://localhost:3000')
-const getCallbackUrls = () => [`${getBaseUrl()}/api/auth/callback/cognito`]
+const getCallbackUrls = () => {
+    const base = getBaseUrl()
+    return [`${base}/api/auth/callback/cognito`]
+}
 const getLogoutUrls = () => [getBaseUrl()]
 
 const folderPrefix = 'packages/functions/src/Cognito/functions';
@@ -89,6 +92,15 @@ if (isPermanentStage) {
             ],
         })
     })
+} else {
+    // ✅ Local / preview stage'lerde Hosted UI için Amazon domain prefix oluştur
+    userPool.id.apply((id) => {
+        new aws.cognito.UserPoolDomain("CeyhunlarUserPoolDomainLocal", {
+            userPoolId: id,
+            // domain prefix (tam domain değil) — AWS otomatik: https://<prefix>.auth.<region>.amazoncognito.com
+            domain: `ceyhunlar-${$app.stage}`,
+        });
+    });
 }
 
 // User Pool Client
@@ -107,7 +119,8 @@ const userPoolClient = userPool.addClient('CeyhunlarClient', {
             ],
             callbackUrls: getCallbackUrls(),
             logoutUrls: getLogoutUrls(),
-            generateSecret: false,
+            // generateSecret: false,
+            generateSecret: true,
             supportedIdentityProviders: ['COGNITO'],
             explicitAuthFlows: [
                 'ALLOW_USER_SRP_AUTH', // Secure Remote Password

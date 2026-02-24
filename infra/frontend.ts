@@ -1,32 +1,54 @@
 import config from "../config";
+import { userPool, userPoolClient } from "./cognito";
 // import { publicBucket } from "./storage";
 // import { appRouter } from "./router";
 
 export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
-    path: "packages/frontend",
+  path: "packages/frontend",
 
-    // ✅ Router BURADA
-    /* router: appRouter
-      ? {
-        instance: appRouter,
-      }
-      : undefined,
-  
-    link: [publicBucket], */
+  // ✅ Router BURADA
+  /* router: appRouter
+    ? {
+      instance: appRouter,
+    }
+    : undefined, */
 
-    environment: {
-        STAGE: $app.stage,
-        DOMAIN: config.DOMAIN,
-        /* CLERK_SECRET_KEY: config.CLERK_SECRET_KEY,
-        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: config.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-        GOOGLE_EMAIL: config.GOOGLE_EMAIL,
-        GOOGLE_APP_PASSWORD: config.GOOGLE_APP_PASSWORD,
-        GOOGLE_CLIENT_EMAIL: config.GOOGLE_CLIENT_EMAIL,
-        GOOGLE_PRIVATE_KEY: config.GOOGLE_PRIVATE_KEY,
-        MONGO_URI: config.MONGO_URI,
-        MONGO_GEO_URI: config.MONGO_GEO_URI,
-        SPREADSHEET_ID: config.SPREADSHEET_ID,
-        NEXT_PUBLIC_BUCKET_NAME: publicBucket.name,
-        TURKIYE_API_URL: config.TURKIYE_API_URL, */
-    },
+  // link: [userPool, userPoolClient],
+
+  environment: {
+    STAGE: $app.stage,
+    DOMAIN: config.DOMAIN,
+    REGION: config.AWS_REGION,
+    NEXTAUTH_URL: $app.stage === "prod"
+      ? `https://${config.DOMAIN}`
+      : $app.stage === "dev"
+        ? `https://dev.${config.DOMAIN}`
+        : "http://localhost:3000",
+    NEXTAUTH_SECRET: "generate-a-random-secret", // Should ideally be in sst.Secret but hardcoded for local demo
+    COGNITO_CLIENT_ID: userPoolClient.id,
+    COGNITO_CLIENT_SECRET: userPoolClient.secret,
+    COGNITO_ISSUER: $interpolate`https://cognito-idp.${config.AWS_REGION}.amazonaws.com/${userPool.id}`,
+    COGNITO_DOMAIN: $app.stage === "prod"
+      ? `auth.${config.DOMAIN}`
+      : $app.stage === "dev"
+        ? `auth-dev.${config.DOMAIN}`
+        : `ceyhunlar-${$app.stage}.auth.${config.AWS_REGION}.amazoncognito.com`,
+  }
 });
+
+// for permanent stages
+/* new aws.lambda.Permission("AllowPublicInvokeFunction", {
+  function: frontend.nodes.server!.name,
+  principal: "*",
+  action: "lambda:InvokeFunction",
+  statementId: "AllowPublicAccessViaFunctionUrl",
+}); */
+
+if ($app.stage === "prod" || $app.stage === "dev") {
+  new aws.lambda.Permission("AllowPublicInvokeFunction", {
+    function: frontend.nodes.server!.name,
+    principal: "*",
+    action: "lambda:InvokeFunction",
+    statementId: "AllowPublicAccessViaFunctionUrl",
+  });
+}
