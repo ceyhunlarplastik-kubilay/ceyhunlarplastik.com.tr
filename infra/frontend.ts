@@ -49,7 +49,7 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   statementId: "AllowPublicAccessViaFunctionUrl",
 }); */
 
-if ($app.stage === "prod" || $app.stage === "dev") {
+if ($app.stage === "prod" || $app.stage === "dev" || $app.stage === "test-1") {
   new aws.lambda.Permission("AllowPublicInvokeFunction", {
     function: frontend.nodes.server!.name,
     principal: "*",

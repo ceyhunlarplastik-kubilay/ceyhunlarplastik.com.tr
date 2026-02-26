@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCategories } from "@/hooks/categories/useCategory";
+// import { useCategories } from "@/hooks/categories/useCategory";
+import { useCategories } from "@/features/public/categories/hooks/useCategories";
 import { Phone, MapPin } from "lucide-react";
 import { SiFacebook, SiInstagram, SiYoutube } from "react-icons/si";
 import { ProductRequestDialog } from "@/components/dialogs/ProductRequestDialog";
@@ -119,9 +120,9 @@ export function Footer() {
 
                         <ul className="space-y-1.5 text-white/70 w-full">
                             {data?.slice(0, 5).map((category) => (
-                                <li key={category._id}>
+                                <li key={category.id}>
                                     <Link
-                                        href={`/category/${category._id}`}
+                                        href={`/category/${category.id}`}
                                         className="flex items-center justify-center gap-2 lg:justify-start hover:text-white transition"
                                     >
                                         {/* CODE */}
