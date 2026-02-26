@@ -67,6 +67,16 @@ new aws.wafv2.WebAclAssociation("AdminApiWebAclAssociation", {
     webAclArn: webAcl.arn,
 }); */
 
+
+/*✅ Şu anki yapı için ID Token kullanmak mantıklı
+Ama industry best practice olarak:
+API için Access Token önerilir.
+AWS tarafında daha doğru kurulum:
+audiences kaldırılır
+token_use = access doğrulanır
+client_id kontrol edilir
+Ama bu ileri seviye iyileştirme. Şimdilik ID token ile devam etmek problem değil. */
+
 /* ------------------------
  * JWT Authorizer (Cognito)
  * ------------------------ */

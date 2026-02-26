@@ -31,23 +31,3 @@ export const config = {
         "/admin/:path*"
     ]
 }
-
-/* import { withAuth } from "next-auth/middleware"
-
-// Next.js 16+ conventions use `proxy` either as default export or named `proxy` export.
-export const proxy = withAuth({
-    callbacks: {
-        authorized({ req, token }) {
-            // "token" varsa kullanıcı aktiftir
-            return !!token;
-        }
-    }
-})
-
-export default proxy;
-
-export const config = {
-    // Tüm /protected ile başlayan endpoint ve route sayfalarını koruma altına al
-    matcher: ["/protected/:path*"]
-}
- */

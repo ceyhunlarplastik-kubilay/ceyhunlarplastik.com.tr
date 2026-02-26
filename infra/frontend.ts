@@ -2,6 +2,8 @@ import config from "../config";
 import { userPool, userPoolClient } from "./cognito";
 // import { publicBucket } from "./storage";
 // import { appRouter } from "./router";
+import { publicApi } from "./PublicApi";
+import { adminApi } from "./AdminApi";
 
 export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
@@ -33,6 +35,9 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
       : $app.stage === "dev"
         ? `auth-dev.${config.DOMAIN}`
         : `ceyhunlar-${$app.stage}.auth.${config.AWS_REGION}.amazoncognito.com`,
+    NEXT_PUBLIC_API_URL: publicApi.url,
+    NEXT_PUBLIC_ADMIN_API_URL: adminApi.url,
+
   }
 });
 
