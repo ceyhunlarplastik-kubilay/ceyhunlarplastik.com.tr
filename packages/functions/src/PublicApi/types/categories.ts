@@ -4,8 +4,9 @@ import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repo
 export interface ICategoryDependencies {
     categoryRepository: IPrismaCategoryRepository
 }
-export type IGetCategoryEvent =
-    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+export type IGetCategoryEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+
+export type IGetCategoryBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }>
 
 export type IListCategoriesEvent =
     IAPIGatewayProxyEventWithUserGeneric<

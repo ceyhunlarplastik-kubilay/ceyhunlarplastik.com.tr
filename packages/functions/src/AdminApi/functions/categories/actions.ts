@@ -4,12 +4,14 @@ import {
     createCategoryHandler,
     listCategoryHandler,
     getCategoryHandler,
+    getCategoryBySlugHandler,
     deleteCategoryHandler,
     updateCategoryHandler,
 } from "@/functions/AdminApi/functions/categories/handlers";
 import {
     createCategoryValidator,
     getCategoryValidator,
+    slugValidator,
     deleteCategoryValidator,
     updateCategoryValidator,
     categoryResponseValidator,
@@ -22,6 +24,7 @@ import type {
     IListCategoriesEvent,
     IGetCategoryDependencies,
     IGetCategoryEvent,
+    IGetCategoryBySlugEvent,
     IDeleteCategoryDependencies,
     IDeleteCategoryEvent,
     IUpdateCategoryDependencies,
@@ -73,6 +76,23 @@ export const getCategory = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: getCategoryValidator,
+        responseValidator: categoryResponseValidator,
+    }
+)
+
+export const getCategoryBySlug = lambdaHandler(
+    async (event) => {
+        const deps: IGetCategoryDependencies = {
+            categoryRepository: categoryRepository()
+        }
+
+        return getCategoryBySlugHandler(deps)(
+            event as IGetCategoryBySlugEvent
+        )
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        requestValidator: slugValidator,
         responseValidator: categoryResponseValidator,
     }
 )

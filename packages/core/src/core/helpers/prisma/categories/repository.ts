@@ -18,6 +18,7 @@ export interface IPrismaCategoryRepository {
         }
     }>
     getCategory(id: string): Promise<Category | null>
+    getCategoryBySlug(slug: string): Promise<Category | null>
     createCategory(data: Prisma.CategoryCreateInput): Promise<Category>
     updateCategory(id: string, data: Prisma.CategoryUpdateInput): Promise<Category>
     deleteCategory(id: string): Promise<Category>
@@ -72,6 +73,12 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
         })
     }
 
+    const getCategoryBySlug = async (slug: string) => {
+        return prisma.category.findUniqueOrThrow({
+            where: { slug },
+        })
+    }
+
     const createCategory = async (data: Prisma.CategoryCreateInput) => {
         return prisma.category.create({ data })
     }
@@ -92,6 +99,7 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
     return {
         listCategories,
         getCategory,
+        getCategoryBySlug,
         createCategory,
         updateCategory,
         deleteCategory,

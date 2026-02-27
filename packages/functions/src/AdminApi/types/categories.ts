@@ -6,8 +6,7 @@ export interface ICreateCategoryBody {
     name: string
 }
 
-export type ICreateCategoryEvent =
-    IAPIGatewayProxyEventWithUser<ICreateCategoryBody>
+export type ICreateCategoryEvent = IAPIGatewayProxyEventWithUser<ICreateCategoryBody>
 
 export interface IListCategoriesQueryParams {
     page?: string
@@ -22,15 +21,11 @@ export type IListCategoriesEvent =
         queryStringParameters?: IListCategoriesQueryParams
     }
 
-export type IGetCategoryEvent =
-    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+export type IGetCategoryEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
-export type IDeleteCategoryEvent =
-    IAPIGatewayProxyEventWithUser & {
-        pathParameters?: {
-            id: string
-        }
-    }
+export type IGetCategoryBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }>
+
+export type IDeleteCategoryEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
 export type IUpdateCategoryEvent =
     IAPIGatewayProxyEventWithUser & {

@@ -67,6 +67,7 @@ model Category {
   id   String @id @default(uuid())
   code Int
   name String
+  slug String @unique
 
   products Product[]
   assets   Asset[]

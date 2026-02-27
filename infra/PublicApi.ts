@@ -64,6 +64,11 @@ publicApi.route("GET /categories", {
     ...defaultOptions,
 });
 
+publicApi.route("GET /categories/slug/{slug}", {
+    handler: `${folderPrefix}/categories/actions.getCategoryBySlug`,
+    ...defaultOptions,
+});
+
 /*----------------------- COLORS -----------------------*/
 publicApi.route("GET /colors/{id}", {
     handler: `${folderPrefix}/colors/actions.getColor`,

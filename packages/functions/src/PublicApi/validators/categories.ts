@@ -12,6 +12,26 @@ export const idValidator = validatorWrapper(
     }
 )
 
+export const slugValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            slug: z.string(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
+)
+
+export const categorySchema = z.object({
+    id: z.uuid(),
+    code: z.number(),
+    name: z.string(),
+    slug: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+
 // Response Validators
 export const categoryResponseValidator = z.toJSONSchema(
     z.object({
@@ -19,13 +39,7 @@ export const categoryResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                category: z.object({
-                    id: z.uuid(),
-                    code: z.number(),
-                    name: z.string(),
-                    createdAt: z.string(),
-                    updatedAt: z.string(),
-                })
+                category: categorySchema
             })
         })
     }).loose()
@@ -37,15 +51,7 @@ export const listCategoryResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                data: z.array(
-                    z.object({
-                        id: z.uuid(),
-                        code: z.number(),
-                        name: z.string(),
-                        createdAt: z.string(),
-                        updatedAt: z.string(),
-                    })
-                ),
+                data: z.array(categorySchema),
                 meta: z.object({
                     page: z.number(),
                     limit: z.number(),

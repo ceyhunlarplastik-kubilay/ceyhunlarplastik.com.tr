@@ -129,6 +129,11 @@ adminApi.route("GET /categories/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /categories/slug/{slug}", {
+    handler: `${folderPrefix}/categories/actions.getCategoryBySlug`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /categories", {
     handler: `${folderPrefix}/categories/actions.listCategories`,
     ...defaultRouteOptions,

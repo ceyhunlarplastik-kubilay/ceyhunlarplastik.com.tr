@@ -1,4 +1,5 @@
 import { Prisma } from "@/prisma/generated/prisma/client"
+import slugify from "slugify"
 import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IUpdateCategoryDependencies, IUpdateCategoryEvent } from "@/functions/AdminApi/types/categories"
@@ -21,7 +22,7 @@ export const updateCategoryHandler = ({ categoryRepository }: IUpdateCategoryDep
         const { name } = body;
         // Object Spread
         const updateData: Prisma.CategoryUpdateInput = {
-            ...(name !== undefined ? { name } : {}),
+            ...(name !== undefined ? { name, slug: slugify(name, { lower: true, strict: true, locale: "tr" }) } : {}),
             // ...(name !== undefined && { name }),
         }
 

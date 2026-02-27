@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { categorySchema } from "@/functions/PublicApi/validators/categories";
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
 export const idValidator = validatorWrapper(
@@ -24,14 +25,6 @@ export const slugValidator = validatorWrapper(
 )
 
 // --- Shared schemas (recommended) ---
-const categorySchema = z.object({
-    id: z.uuid(),
-    code: z.number(),
-    name: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-})
-
 const productSchema = z.object({
     id: z.uuid(),
     code: z.string(),

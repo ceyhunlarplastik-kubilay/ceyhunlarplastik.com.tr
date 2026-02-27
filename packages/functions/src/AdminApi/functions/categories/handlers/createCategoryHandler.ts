@@ -1,4 +1,5 @@
 import createError, { HttpError } from "http-errors"
+import slugify from "slugify"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateCategoryDependencies, ICreateCategoryEvent } from "@/functions/AdminApi/types/categories"
 import { Prisma } from "@/prisma/generated/prisma/client"
@@ -22,6 +23,7 @@ export const createCategoryHandler = ({ categoryRepository }: ICreateCategoryDep
             const category = await categoryRepository.createCategory({
                 code,
                 name,
+                slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
             })
 
             return apiResponseDTO({
