@@ -6,6 +6,7 @@ import {
     listProductsHandler,
     createProductHandler,
     getProductHandler,
+    getProductBySlugHandler,
     updateProductHandler,
     deleteProductHandler
 } from "@/functions/AdminApi/functions/products/handlers";
@@ -14,6 +15,7 @@ import {
     createProductValidator,
     updateProductValidator,
     idValidator,
+    slugValidator,
     listProductsResponseValidator,
     productResponseValidator,
 } from "@/functions/AdminApi/validators/products"
@@ -22,6 +24,7 @@ import type {
     IListProductsEvent,
     ICreateProductEvent,
     IGetProductEvent,
+    IGetProductBySlugEvent,
     IUpdateProductEvent,
     IDeleteProductEvent,
 } from "@/functions/AdminApi/types/products"
@@ -58,6 +61,18 @@ export const getProduct = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: productResponseValidator,
+    }
+)
+
+export const getProductBySlug = lambdaHandler(
+    async (event) =>
+        getProductBySlugHandler({
+            productRepository: productRepository(),
+        })(event as IGetProductBySlugEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        requestValidator: slugValidator,
         responseValidator: productResponseValidator,
     }
 )

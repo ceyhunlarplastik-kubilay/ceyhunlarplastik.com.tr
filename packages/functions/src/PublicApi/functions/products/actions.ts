@@ -1,9 +1,9 @@
 import { lambdaHandler } from "@/core/middy"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
 import { categoryRepository } from "@/core/helpers/prisma/categories/repository"
-import { listProductsHandler, getProductHandler } from "@/functions/PublicApi/functions/products/handlers"
-import { idValidator, listProductsResponseValidator, productResponseValidator } from "@/functions/PublicApi/validators/products"
-import type { IListProductsEvent, IGetProductEvent } from "@/functions/PublicApi/types/products"
+import { listProductsHandler, getProductHandler, getProductBySlugHandler } from "@/functions/PublicApi/functions/products/handlers"
+import { idValidator, slugValidator, listProductsResponseValidator, productResponseValidator } from "@/functions/PublicApi/validators/products"
+import type { IListProductsEvent, IGetProductEvent, IGetProductBySlugEvent } from "@/functions/PublicApi/types/products"
 
 export const listProducts = lambdaHandler(
     async (event) =>
@@ -25,6 +25,18 @@ export const getProduct = lambdaHandler(
     {
         auth: false,
         requestValidator: idValidator,
+        responseValidator: productResponseValidator,
+    }
+)
+
+export const getProductBySlug = lambdaHandler(
+    async (event) =>
+        getProductBySlugHandler({
+            productRepository: productRepository(),
+        })(event as IGetProductBySlugEvent),
+    {
+        auth: false,
+        requestValidator: slugValidator,
         responseValidator: productResponseValidator,
     }
 )

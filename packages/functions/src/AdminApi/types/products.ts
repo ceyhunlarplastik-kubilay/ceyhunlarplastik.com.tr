@@ -21,6 +21,8 @@ export type IUpdateProductEvent = IAPIGatewayProxyEventWithUserGeneric<Partial<I
 
 export type IGetProductEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
+export type IGetProductBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }>
+
 export type IDeleteProductEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
 export type IListProductsEvent = IAPIGatewayProxyEventWithUserGeneric<

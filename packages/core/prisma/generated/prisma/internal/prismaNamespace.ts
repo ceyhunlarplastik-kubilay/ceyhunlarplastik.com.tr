@@ -1313,6 +1313,7 @@ export const ProductScalarFieldEnum = {
   id: 'id',
   code: 'code',
   name: 'name',
+  slug: 'slug',
   categoryId: 'categoryId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -9,6 +9,8 @@ export interface IProductDependencies {
 
 export type IGetProductEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
+export type IGetProductBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }>
+
 export type IListProductsEvent =
     IAPIGatewayProxyEventWithUserGeneric<
         {},

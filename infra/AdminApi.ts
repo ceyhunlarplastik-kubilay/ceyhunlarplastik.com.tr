@@ -354,6 +354,11 @@ adminApi.route("DELETE /products/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /products/slug/{slug}", {
+    handler: `${folderPrefix}/products/actions.getProductBySlug`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
 /*----------------------- MATERIALS -----------------------*/
 adminApi.route("GET /materials", {
     handler: `${folderPrefix}/materials/actions.listMaterials`,

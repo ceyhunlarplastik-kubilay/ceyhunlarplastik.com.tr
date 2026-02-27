@@ -86,6 +86,7 @@ model Product {
 
   code String // 10.11
   name String
+  slug String @unique
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)

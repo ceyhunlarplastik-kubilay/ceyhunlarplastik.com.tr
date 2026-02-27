@@ -7,6 +7,8 @@ const isPermanentStage = ['prod', 'dev'].includes($app.stage);
 const getFrontendDomain = () => {
     if ($app.stage === 'prod') return config.DOMAIN
     if ($app.stage === 'dev') return `dev.${config.DOMAIN}`
+    // if ($app.stage === 'test-1') return $interpolate`${frontend.nodes.cdn?.domainUrl}`
+    if ($app.stage === 'test-1') return "d32mxh4ylm3z1k.cloudfront.net"
     return 'localhost:3000'
 }
 

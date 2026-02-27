@@ -139,5 +139,10 @@ publicApi.route("GET /products/{id}", {
     handler: `${folderPrefix}/products/actions.getProduct`,
     ...defaultOptions,
 });
+
+publicApi.route("GET /products/slug/{slug}", {
+    handler: `${folderPrefix}/products/actions.getProductBySlug`,
+    ...defaultOptions,
+})
 /*----------------------- MATERIALS -----------------------*/
 /*----------------------- ASSETS -----------------------*/

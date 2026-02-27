@@ -1,4 +1,5 @@
-import createError, { HttpError } from "http-errors"
+import createError from "http-errors"
+import slugify from "slugify"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductDependencies, ICreateProductEvent } from "@/functions/AdminApi/types/products"
@@ -18,6 +19,7 @@ export const createProductHandler = ({ productRepository, categoryRepository }: 
             const product = await productRepository.createProduct({
                 code,
                 name,
+                slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
                 category: { connect: { id: categoryId } },
             })
 

@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
+import slugify from "slugify"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductDependencies, IUpdateProductEvent } from "@/functions/AdminApi/types/products"
 
@@ -47,6 +48,7 @@ export const updateProductHandler = ({ productRepository, categoryRepository }: 
             const updated = await productRepository.updateProduct(id, {
                 ...body,
                 ...(body.categoryId && { category: { connect: { id: body.categoryId } } }),
+                ...(body.name && { slug: slugify(body.name, { lower: true, strict: true, locale: "tr" }) }),
             });
 
             return apiResponseDTO({
@@ -54,7 +56,12 @@ export const updateProductHandler = ({ productRepository, categoryRepository }: 
                 payload: { product: updated },
             })
         } catch (err: any) {
-            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") throw new createError.Conflict("Product code already exists");
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+                const targets = (err.meta?.target as string[] | undefined) ?? [];
+                if (targets.includes("code")) throw new createError.Conflict("Product code already exists");
+                if (targets.includes("slug")) throw new createError.Conflict("Product slug already exists");
+                throw new createError.Conflict("Unique constraint failed");
+            }
             throw new createError.InternalServerError("Failed to update product");
         }
     }

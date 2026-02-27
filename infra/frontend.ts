@@ -25,7 +25,9 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
       ? `https://${config.DOMAIN}`
       : $app.stage === "dev"
         ? `https://dev.${config.DOMAIN}`
-        : "http://localhost:3000",
+        : $app.stage === "test-1"
+          ? "https://d32mxh4ylm3z1k.cloudfront.net"
+          : "http://localhost:3000",
     NEXTAUTH_SECRET: "generate-a-random-secret", // Should ideally be in sst.Secret but hardcoded for local demo
     COGNITO_CLIENT_ID: userPoolClient.id,
     COGNITO_CLIENT_SECRET: userPoolClient.secret,

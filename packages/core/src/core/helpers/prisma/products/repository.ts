@@ -21,6 +21,7 @@ export interface IPrismaProductRepository {
         }
     }>
     getProduct(id: string): Promise<ProductWithCategory | null>
+    getProductBySlug(slug: string): Promise<ProductWithCategory | null>
     createProduct(data: Prisma.ProductCreateInput): Promise<Product>
     updateProduct(id: string, data: Prisma.ProductUpdateInput): Promise<Product>
     deleteProduct(id: string): Promise<Product>
@@ -82,6 +83,14 @@ export const productRepository = (): IPrismaProductRepository => {
             },
         })
 
+    const getProductBySlug = async (slug: string) =>
+        prisma.product.findUniqueOrThrow({
+            where: { slug },
+            include: {
+                category: true,
+            },
+        })
+
     const createProduct = async (data: Prisma.ProductCreateInput) =>
         prisma.product.create({
             data,
@@ -110,6 +119,7 @@ export const productRepository = (): IPrismaProductRepository => {
     return {
         listProducts,
         getProduct,
+        getProductBySlug,
         createProduct,
         updateProduct,
         deleteProduct,

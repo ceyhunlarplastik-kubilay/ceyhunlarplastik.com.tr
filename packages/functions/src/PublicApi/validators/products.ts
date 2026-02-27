@@ -12,6 +12,17 @@ export const idValidator = validatorWrapper(
     }
 )
 
+export const slugValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            slug: z.string(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
+)
+
 // --- Shared schemas (recommended) ---
 const categorySchema = z.object({
     id: z.uuid(),
@@ -25,6 +36,7 @@ const productSchema = z.object({
     id: z.uuid(),
     code: z.string(),
     name: z.string(),
+    slug: z.string(),
     categoryId: z.uuid(),
     createdAt: z.string(),
     updatedAt: z.string(),
