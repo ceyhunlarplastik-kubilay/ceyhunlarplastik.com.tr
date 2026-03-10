@@ -105,7 +105,8 @@ export const getCategoryBySlug = lambdaHandler(
 export const deleteCategory = lambdaHandler(
     async (event) => {
         const deps: IDeleteCategoryDependencies = {
-            categoryRepository: categoryRepository()
+            categoryRepository: categoryRepository(),
+            assetRepository: assetRepository(),
         }
 
         return deleteCategoryHandler(deps)(

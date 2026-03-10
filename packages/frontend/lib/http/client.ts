@@ -1,15 +1,29 @@
 import axios from "axios";
-import { endpoints } from "./endpoints";
 import { getSession } from "next-auth/react";
+import { endpoints } from "@/lib/http/endpoints";
+import { handleApiError } from "@/lib/http/error-handler"
 
 // Sonra ileride admin çağrılarında Authorization: Bearer <access_token> eklemek için interceptor koyarız.
 function createClient(baseURL: string) {
-    return axios.create({
+    /* return axios.create({
+        baseURL,
+        // cross-origin + cookie auth kullanmıyoruz şimdilik:
+        withCredentials: false,
+        timeout: 20_000,
+    }); */
+    const client = axios.create({
         baseURL,
         // cross-origin + cookie auth kullanmıyoruz şimdilik:
         withCredentials: false,
         timeout: 20_000,
     });
+
+    client.interceptors.response.use(
+        (res) => res,
+        (error) => handleApiError(error)
+    );
+
+    return client;
 }
 
 export const publicApiClient = createClient(endpoints.publicApi);

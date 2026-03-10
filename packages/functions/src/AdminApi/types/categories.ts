@@ -68,6 +68,7 @@ export interface ICreateCategoryDependencies {
 
 export interface IDeleteCategoryDependencies {
     categoryRepository: IPrismaCategoryRepository,
+    assetRepository: IPrismaAssetRepository,
 }
 
 // export interface IUpdateCategoryDependencies extends IGetCategoryDependencies { }

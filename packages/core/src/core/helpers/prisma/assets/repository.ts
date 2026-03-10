@@ -16,6 +16,7 @@ export interface IPrismaAssetRepository {
         }
     }>
     getAsset(id: string): Promise<Asset | null>
+    listAssetsByCategoryId(categoryId: string): Promise<Asset[]>
     createAsset(data: Prisma.AssetCreateInput): Promise<Asset>
     updateAsset(id: string, data: Prisma.AssetUpdateInput): Promise<Asset>
     deleteAsset(id: string): Promise<Asset>
@@ -73,6 +74,11 @@ export const assetRepository = (): IPrismaAssetRepository => {
             }
         })
 
+    const listAssetsByCategoryId = async (categoryId: string) =>
+        prisma.asset.findMany({
+            where: { categoryId },
+        })
+
     const createAsset = async (data: Prisma.AssetCreateInput) =>
         prisma.asset.create({ data })
 
@@ -125,6 +131,7 @@ export const assetRepository = (): IPrismaAssetRepository => {
     return {
         listAssets,
         getAsset,
+        listAssetsByCategoryId,
         createAsset,
         updateAsset,
         deleteAsset,

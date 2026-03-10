@@ -95,7 +95,7 @@ export const updateCategoryValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            name: z.string().min(2).max(100),
+            name: z.string().min(2).max(100).optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),
             assetKey: z.string().optional(),
@@ -104,7 +104,6 @@ export const updateCategoryValidator = validatorWrapper(
     }),
     {
         requiredRootFields: ["pathParameters", "body"],
-        requiredBodyFields: ["name"],
     }
 )
 
@@ -150,6 +149,6 @@ export const createCategoryAssetUploadValidator = validatorWrapper(
     }),
     {
         requiredRootFields: ["body"],
-        requiredBodyFields: ["categorySlug", "assetType", "fileName", "contentType"],
+        requiredBodyFields: ["categorySlug", "assetRole", "fileName", "contentType"]
     }
 )

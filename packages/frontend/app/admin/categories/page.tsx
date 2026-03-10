@@ -1,7 +1,7 @@
-import { getCategories } from "@/features/admin/categories/server/getCategories";
-import { CategoriesTable } from "@/features/admin/categories/components/CategoriesTable";
+"use client"
 
-export default async function CategoriesPage() {
-    const categories = await getCategories();
-    return <CategoriesTable initialData={categories} />;
+import { CategoriesPageClient } from "@/features/admin/categories/components/CategoriesPageClient"
+
+export default function CategoriesPage() {
+    return <CategoriesPageClient />
 }
