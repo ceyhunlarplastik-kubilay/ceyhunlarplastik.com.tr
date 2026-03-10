@@ -1,20 +1,53 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
-export const categorySchema = z.object({
+const assetTypeEnum = z.enum([
+    "IMAGE",
+    "VIDEO",
+    "PDF",
+    "TECHNICAL_DRAWING",
+    "CERTIFICATE",
+]);
+
+const assetRoleEnum = z.enum([
+    "PRIMARY",
+    "ANIMATION",
+    "GALLERY",
+    "DOCUMENT",
+    "TECHNICAL_DRAWING",
+    "CERTIFICATE",
+])
+
+export const assetSchema = z.object({
     id: z.uuid(),
-    code: z.number(),
-    name: z.string(),
-    slug: z.string(),
+    key: z.string(),
+    mimeType: z.string(),
+    type: assetTypeEnum,
+    role: assetRoleEnum,
+    url: z.string(), // ✅ runtime generated
     createdAt: z.string(),
     updatedAt: z.string(),
 })
+
+export const categorySchema = z.object({
+    id: z.uuid(),
+    code: z.number().optional(),
+    name: z.string().optional(),
+    slug: z.string().optional(),
+    assets: z.array(assetSchema).optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+}).loose();
 
 export const createCategoryValidator = validatorWrapper(
     z.object({
         body: z.object({
             code: z.coerce.number().int().positive(),
             name: z.string().min(2).max(100),
+            assetType: assetTypeEnum.optional(),
+            assetRole: assetRoleEnum.optional(),
+            assetKey: z.string().optional(),
+            mimeType: z.string().optional(),
         }),
     }),
     {
@@ -63,6 +96,10 @@ export const updateCategoryValidator = validatorWrapper(
         }),
         body: z.object({
             name: z.string().min(2).max(100),
+            assetType: assetTypeEnum.optional(),
+            assetRole: assetRoleEnum.optional(),
+            assetKey: z.string().optional(),
+            mimeType: z.string().optional(),
         }),
     }),
     {
@@ -100,4 +137,19 @@ export const listCategoryResponseValidator = z.toJSONSchema(
             })
         })
     }).loose()
+)
+
+export const createCategoryAssetUploadValidator = validatorWrapper(
+    z.object({
+        body: z.object({
+            categorySlug: z.string().min(1),
+            assetRole: assetRoleEnum,
+            fileName: z.string().min(1),
+            contentType: z.string().min(1),
+        }),
+    }),
+    {
+        requiredRootFields: ["body"],
+        requiredBodyFields: ["categorySlug", "assetType", "fileName", "contentType"],
+    }
 )

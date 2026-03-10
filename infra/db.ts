@@ -7,13 +7,12 @@ export const vpc = new sst.aws.Vpc("MyVpc", {
 
 export const rds = new sst.aws.Postgres("MyPostgres", {
   vpc,
-  // instance: "db.t4g.micro",
   instance: "t4g.micro",
-  multiAz: false, // Todo: true yap
+  multiAz: false, // Todo: true yap, maliyete bakılacak
   storage: "20 GB", // Todo: konuşulacak
   // password: "password", // Todo: s3 secret manager ile saklanacak
   // TIP: The RDS Proxy allows serverless environments to reliably connect to RDS.
-  proxy: true,
+  proxy: false, // Todo: true yap, maliyeti göz önüne alarak. Aylık yaklaşık 25 $.
   password: config.RDS_PASSWORD,
   dev: {
     username: "postgres",

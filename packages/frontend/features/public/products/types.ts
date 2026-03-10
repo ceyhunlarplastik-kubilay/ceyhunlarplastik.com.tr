@@ -1,3 +1,4 @@
+import type { ApiEnvelope } from "@/lib/http/types";
 import type { Category } from "@/features/public/categories/types";
 
 export type Product = {
@@ -9,4 +10,13 @@ export type Product = {
     createdAt: string;
     updatedAt: string;
     category?: Category;
+    assets?: any[];
 };
+
+
+export type ProductGetPayload = {
+    product: Product;
+};
+
+// export type ListCategoriesResponse = ApiEnvelope<CategoriesListPayload>;
+export type GetProductResponse = ApiEnvelope<ProductGetPayload>;

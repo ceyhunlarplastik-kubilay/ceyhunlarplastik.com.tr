@@ -14,7 +14,7 @@ const NavigationGroup = dynamic(
     { ssr: false }
 );
 
-export function Navbar() {
+export function Navbar({ categories = [] }: { categories?: any[] }) {
     const [isVisible, setIsVisible] = useState(true);
     const [mobileOpen, setMobileOpen] = useState(false);
     const lastScrollY = useRef(0);
@@ -58,7 +58,7 @@ export function Navbar() {
                 ref={ref}
             >
                 <NavigationHeader isVisible={isVisible} setMobileOpen={setMobileOpen}>
-                    <NavigationGroup />
+                    <NavigationGroup categories={categories} />
                 </NavigationHeader>
             </motion.div>
 

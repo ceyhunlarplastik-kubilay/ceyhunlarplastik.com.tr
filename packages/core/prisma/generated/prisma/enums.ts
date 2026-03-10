@@ -52,3 +52,15 @@ export const AssetType = {
 } as const
 
 export type AssetType = (typeof AssetType)[keyof typeof AssetType]
+
+
+export const AssetRole = {
+  PRIMARY: 'PRIMARY',
+  ANIMATION: 'ANIMATION',
+  GALLERY: 'GALLERY',
+  DOCUMENT: 'DOCUMENT',
+  TECHNICAL_DRAWING: 'TECHNICAL_DRAWING',
+  CERTIFICATE: 'CERTIFICATE'
+} as const
+
+export type AssetRole = (typeof AssetRole)[keyof typeof AssetRole]

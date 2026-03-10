@@ -19,9 +19,7 @@ type ListCategoriesApiResponse = {
 export async function getCategories(): Promise<Category[]> {
     const session = await auth();
 
-    if (!session?.idToken) {
-        throw new Error("Unauthorized");
-    }
+    if (!session?.idToken) throw new Error("Unauthorized");
 
     const res = await axios.get<ListCategoriesApiResponse>(
         `${process.env.NEXT_PUBLIC_ADMIN_API_URL}/categories`,

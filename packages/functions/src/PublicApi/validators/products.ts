@@ -2,6 +2,47 @@ import { z } from "zod"
 import { categorySchema } from "@/functions/PublicApi/validators/categories";
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const assetTypeEnum = z.enum([
+    "IMAGE",
+    "VIDEO",
+    "PDF",
+    "TECHNICAL_DRAWING",
+    "CERTIFICATE",
+]);
+
+const assetRoleEnum = z.enum([
+    "PRIMARY",
+    "ANIMATION",
+    "GALLERY",
+    "DOCUMENT",
+    "TECHNICAL_DRAWING",
+    "CERTIFICATE",
+])
+
+export const assetSchema = z.object({
+    id: z.uuid(),
+    key: z.string(),
+    mimeType: z.string(),
+    type: assetTypeEnum,
+    role: assetRoleEnum,
+    url: z.string(), // ✅ runtime generated
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+
+// --- Shared Schemas ---
+const productSchema = z.object({
+    id: z.uuid(),
+    code: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    categoryId: z.uuid(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    category: categorySchema,
+    assets: z.array(assetSchema),
+})
+
 export const idValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
@@ -23,18 +64,6 @@ export const slugValidator = validatorWrapper(
         requiredRootFields: ["pathParameters"],
     }
 )
-
-// --- Shared schemas (recommended) ---
-const productSchema = z.object({
-    id: z.uuid(),
-    code: z.string(),
-    name: z.string(),
-    slug: z.string(),
-    categoryId: z.uuid(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    category: categorySchema,
-})
 
 // Response Validators
 export const listProductsResponseValidator = z.toJSONSchema(
@@ -62,6 +91,25 @@ export const productResponseValidator = z.toJSONSchema(
             statusCode: z.number(),
             payload: z.object({
                 product: productSchema,
+            }),
+        }),
+    }).loose()
+)
+
+export const productVariantTableResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(z.any()), // Can be refined later
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                    columns: z.array(z.string()),
+                }),
             }),
         }),
     }).loose()

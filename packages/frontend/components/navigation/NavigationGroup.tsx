@@ -10,8 +10,9 @@ import { CatalogNavigationItem } from "@/components/navigation/CatalogNavigation
 import { CategoryNavigationItem } from "@/components/navigation/CategoryNavigationItem";
 import { ServicesNavigationItem } from "@/components/navigation/ServicesNavigationItem";
 import { SupportNavigationItem } from "@/components/navigation/SupportNavigationItem";
+import type { Category } from "@/features/public/categories/types";
 
-export const NavigationGroup = () => {
+export const NavigationGroup = ({ categories }: { categories: Category[] }) => {
     return (
         // CENTER NAVIGATION - Transform-free centering to support fixed dropdowns
         <div className="absolute inset-0 hidden lg:flex items-center justify-center pointer-events-none">
@@ -22,7 +23,7 @@ export const NavigationGroup = () => {
                         <CorporateNavigationItem />
 
                         {/* KATEGORİLER - Full width mega menu */}
-                        <CategoryNavigationItem />
+                        <CategoryNavigationItem categories={categories} />
 
                         {/* HİZMETLER */}
                         <ServicesNavigationItem />

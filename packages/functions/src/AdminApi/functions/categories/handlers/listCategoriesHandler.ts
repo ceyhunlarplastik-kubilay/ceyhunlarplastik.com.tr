@@ -2,6 +2,7 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IListCategoriesDependencies, IListCategoriesEvent } from "@/functions/AdminApi/types/categories"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
+import { mapCategoryWithAssets } from "@/core/helpers/assets/mapCategoryWithAssets"
 
 const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt"] as const
 
@@ -25,7 +26,7 @@ export const listCategoryHandler = ({ categoryRepository }: IListCategoriesDepen
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: result.data,
+                    data: result.data.map(mapCategoryWithAssets),
                     meta: result.meta,
                 },
             })

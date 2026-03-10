@@ -1,14 +1,18 @@
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
-import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
-import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
 import { IPrismaMaterialRepository } from "@/core/helpers/prisma/materials/repository"
 import { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/repository"
+import { IPrismaMeasurementTypeRepository } from "@/core/helpers/prisma/measurementTypes/repository"
+import { IPrismaColorRepository } from "@/core/helpers/prisma/colors/repository"
+import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
+import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
 
 export interface IProductVariantDependencies {
     productVariantRepository: IPrismaProductVariantRepository
     productRepository: IPrismaProductRepository
     materialRepository: IPrismaMaterialRepository
     supplierRepository: IPrismaSupplierRepository
+    measurementTypeRepository: IPrismaMeasurementTypeRepository
+    colorRepository: IPrismaColorRepository
 }
 
 export interface IVariantSupplierInput {
@@ -25,6 +29,11 @@ export interface ICreateProductVariantBody {
     name: string
     colorId?: string
     materialIds?: string[]
+    measurements?: {
+        measurementTypeId: string
+        value: number
+        label: string
+    }[]
 }
 
 export type ICreateProductVariantEvent =
@@ -52,5 +61,6 @@ export type IListProductVariantsEvent =
             search?: string
             sort?: string
             order?: "asc" | "desc"
+            productId?: string
         }
     >

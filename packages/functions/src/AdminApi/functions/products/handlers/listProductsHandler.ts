@@ -1,6 +1,7 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
+import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 
 import {
     IListProductsDependencies,
@@ -34,7 +35,7 @@ export const listProductsHandler =
                 return apiResponseDTO({
                     statusCode: 200,
                     payload: {
-                        data: result.data,
+                        data: result.data.map(mapProductWithAssets),
                         meta: result.meta,
                     },
                 })

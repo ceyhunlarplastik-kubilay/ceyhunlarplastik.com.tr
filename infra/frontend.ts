@@ -1,7 +1,7 @@
 import config from "../config";
 import { userPool, userPoolClient } from "./cognito";
-// import { publicBucket } from "./storage";
-// import { appRouter } from "./router";
+import { publicBucket } from "./storage";
+import { appRouter } from "./router";
 import { publicApi } from "./PublicApi";
 import { adminApi } from "./AdminApi";
 
@@ -9,13 +9,13 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
 
   // ✅ Router BURADA
-  /* router: appRouter
+  router: appRouter
     ? {
       instance: appRouter,
     }
-    : undefined, */
+    : undefined,
 
-  // link: [userPool, userPoolClient],
+  // link: [publicBucket],
 
   environment: {
     STAGE: $app.stage,
@@ -39,7 +39,21 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
         : `ceyhunlar-${$app.stage}.auth.${config.AWS_REGION}.amazoncognito.com`,
     NEXT_PUBLIC_API_URL: publicApi.url,
     NEXT_PUBLIC_ADMIN_API_URL: adminApi.url,
-
+    NEXT_PUBLIC_BUCKET_NAME: publicBucket.name,
+    // ✅ presign helper public url üretmek için
+    // ÖRN: ASSET_PUBLIC_BASE_URL: publicBucket.cdnUrl,
+    /* ASSET_PUBLIC_BASE_URL:
+      $app.stage === "prod"
+        ? `https://cdn.${config.DOMAIN}`
+        : $app.stage === "dev"
+          ? `https://dev.${config.DOMAIN}`
+          : `https://${publicBucket.name}.s3.amazonaws.com`, */
+    ASSET_PUBLIC_BASE_URL:
+      $app.stage === "prod"
+        ? `https://cdn.${config.DOMAIN}`
+        : $app.stage === "dev"
+          ? `https://dev.${config.DOMAIN}`
+          : $interpolate`https://${publicBucket.name}.s3.amazonaws.com`
   }
 });
 

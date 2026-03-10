@@ -3,5 +3,5 @@ import { CategoriesTable } from "@/features/admin/categories/components/Categori
 
 export default async function CategoriesPage() {
     const categories = await getCategories();
-    return <CategoriesTable data={categories} />;
+    return <CategoriesTable initialData={categories} />;
 }

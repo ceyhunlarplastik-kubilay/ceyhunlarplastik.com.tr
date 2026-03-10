@@ -3,6 +3,8 @@ import { productVariantRepository } from "@/core/helpers/prisma/productVariants/
 import { productRepository } from "@/core/helpers/prisma/products/repository";
 import { materialRepository } from "@/core/helpers/prisma/materials/repository";
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository";
+import { measurementTypeRepository } from "@/core/helpers/prisma/measurementTypes/repository";
+import { colorRepository } from "@/core/helpers/prisma/colors/repository";
 
 import {
     createProductVariantHandler,
@@ -10,6 +12,8 @@ import {
     listProductVariantsHandler,
     deleteProductVariantHandler,
     updateProductVariantHandler,
+    getProductVariantReferencesHandler,
+    getProductVariantTableHandler,
 } from "@/functions/AdminApi/functions/productVariants/handlers"
 import {
     createProductVariantValidator,
@@ -32,6 +36,8 @@ const getDeps = (): IProductVariantDependencies => ({
     productRepository: productRepository(),
     materialRepository: materialRepository(),
     supplierRepository: supplierRepository(),
+    measurementTypeRepository: measurementTypeRepository(),
+    colorRepository: colorRepository(),
 })
 
 export const createProductVariant = lambdaHandler(
@@ -96,5 +102,25 @@ export const updateProductVariant = lambdaHandler(
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateProductVariantValidator,
         responseValidator: productVariantResponseValidator,
+    }
+)
+
+export const getProductVariantReferences = lambdaHandler(
+    async () => {
+        return getProductVariantReferencesHandler(getDeps())()
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+    }
+)
+
+export const getProductVariantTable = lambdaHandler(
+    async (event) => {
+        return getProductVariantTableHandler(getDeps())(
+            event as IListProductVariantsEvent
+        )
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
     }
 )

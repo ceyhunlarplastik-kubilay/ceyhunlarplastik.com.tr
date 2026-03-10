@@ -214,8 +214,10 @@ export type MaterialScalarFieldEnum = (typeof MaterialScalarFieldEnum)[keyof typ
 
 export const AssetScalarFieldEnum = {
   id: 'id',
-  url: 'url',
+  key: 'key',
+  mimeType: 'mimeType',
   type: 'type',
+  role: 'role',
   categoryId: 'categoryId',
   productId: 'productId',
   variantId: 'variantId',

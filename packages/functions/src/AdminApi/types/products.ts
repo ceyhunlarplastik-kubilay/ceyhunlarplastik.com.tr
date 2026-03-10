@@ -1,11 +1,19 @@
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
 import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repository"
+import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository";
+import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 
 export interface IProductDependencies {
     productRepository: IPrismaProductRepository
     categoryRepository: IPrismaCategoryRepository
 }
+
+export interface ICreateProductDependencies extends IProductDependencies {
+    assetRepository: IPrismaAssetRepository
+}
+
+export interface IUpdateProductDependencies extends ICreateProductDependencies { }
 
 export interface IListProductsDependencies { productRepository: IPrismaProductRepository }
 
@@ -13,6 +21,10 @@ export interface ICreateProductBody {
     code: string
     name: string
     categoryId: string
+    assetType?: AssetType
+    assetRole?: AssetRole
+    assetKey?: string
+    mimeType?: string
 }
 
 export type ICreateProductEvent = IAPIGatewayProxyEventWithUserGeneric<ICreateProductBody>
@@ -37,3 +49,16 @@ export type IListProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
         categoryId?: string
     }
 >
+
+
+
+
+export interface ICreateProductAssetUploadBody {
+    productSlug: string
+    assetRole: string
+    fileName: string
+    contentType: string
+}
+
+export type ICreateProductAssetUploadEvent =
+    IAPIGatewayProxyEventWithUserGeneric<ICreateProductAssetUploadBody>

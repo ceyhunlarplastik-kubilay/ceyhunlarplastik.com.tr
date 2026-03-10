@@ -1,6 +1,7 @@
 import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
+import { publicBucket } from "./storage";
 
 const folderPrefix = "packages/functions/src/AdminApi/functions";
 
@@ -95,7 +96,16 @@ const jwtAuthorizer = adminApi.addAuthorizer({
 const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     runtime: "nodejs22.x",
     vpc: vpc,
-    link: [rds, userPool],
+    link: [rds, userPool, publicBucket],
+    environment: {
+        BUCKET_NAME: publicBucket.name,
+        ASSET_PUBLIC_BASE_URL:
+            $app.stage === "prod"
+                ? `https://cdn.${config.DOMAIN}`
+                : $app.stage === "dev"
+                    ? `https://dev.${config.DOMAIN}`
+                    : $interpolate`https://${publicBucket.name}.s3.amazonaws.com`
+    }
 };
 
 // 🔁 reusable auth config
@@ -148,6 +158,11 @@ adminApi.route("PUT /categories/{id}", {
     handler: `${folderPrefix}/categories/actions.updateCategory`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
+
+adminApi.route("POST /categories/assets/presign", {
+    handler: `${folderPrefix}/categories/actions.createCategoryAssetUpload`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
 
 /*----------------------- COLORS -----------------------*/
 adminApi.route("POST /colors", {
@@ -287,6 +302,16 @@ adminApi.route("GET /product-variants", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /product-variants/references", {
+    handler: `${folderPrefix}/productVariants/actions.getProductVariantReferences`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /product-variants/table", {
+    handler: `${folderPrefix}/productVariants/actions.getProductVariantTable`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /product-variants/{id}", {
     handler: `${folderPrefix}/productVariants/actions.getProductVariant`,
     ...defaultRouteOptions,
@@ -361,6 +386,11 @@ adminApi.route("DELETE /products/{id}", {
 
 adminApi.route("GET /products/slug/{slug}", {
     handler: `${folderPrefix}/products/actions.getProductBySlug`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("POST /products/assets/presign", {
+    handler: `${folderPrefix}/products/actions.createProductAssetUpload`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions })
 

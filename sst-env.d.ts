@@ -35,6 +35,10 @@ declare module "sst" {
       "id": string
       "type": "sst.aws.CognitoUserPool"
     }
+    "CeyhunlarWebBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "MyPostgres": {
       "database": string
       "host": string

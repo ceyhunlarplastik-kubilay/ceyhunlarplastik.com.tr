@@ -1,5 +1,6 @@
 import { lambdaHandler } from "@/core/middy"
 import { categoryRepository } from "@/core/helpers/prisma/categories/repository"
+import { assetRepository } from "@/core/helpers/prisma/assets/repository"
 import {
     createCategoryHandler,
     listCategoryHandler,
@@ -7,6 +8,7 @@ import {
     getCategoryBySlugHandler,
     deleteCategoryHandler,
     updateCategoryHandler,
+    createCategoryAssetUploadHandler,
 } from "@/functions/AdminApi/functions/categories/handlers";
 import {
     createCategoryValidator,
@@ -16,6 +18,7 @@ import {
     updateCategoryValidator,
     categoryResponseValidator,
     listCategoryResponseValidator,
+    createCategoryAssetUploadValidator
 } from "@/functions/AdminApi/validators/categories"
 import type {
     ICreateCategoryDependencies,
@@ -28,13 +31,15 @@ import type {
     IDeleteCategoryDependencies,
     IDeleteCategoryEvent,
     IUpdateCategoryDependencies,
-    IUpdateCategoryEvent
+    IUpdateCategoryEvent,
+    ICreateCategoryAssetUploadEvent,
 } from "@/functions/AdminApi/types/categories"
 
 export const createCategory = lambdaHandler(
     async (event) => {
         const deps: ICreateCategoryDependencies = {
-            categoryRepository: categoryRepository()
+            categoryRepository: categoryRepository(),
+            assetRepository: assetRepository()
         }
 
         return createCategoryHandler(deps)(
@@ -116,7 +121,8 @@ export const deleteCategory = lambdaHandler(
 export const updateCategory = lambdaHandler(
     async (event) => {
         const deps: IUpdateCategoryDependencies = {
-            categoryRepository: categoryRepository()
+            categoryRepository: categoryRepository(),
+            assetRepository: assetRepository(),
         }
         return updateCategoryHandler(deps)(
             event as IUpdateCategoryEvent
@@ -125,5 +131,17 @@ export const updateCategory = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateCategoryValidator,
+    }
+)
+
+export const createCategoryAssetUpload = lambdaHandler(
+    async (event) => {
+        return createCategoryAssetUploadHandler()(
+            event as ICreateCategoryAssetUploadEvent
+        )
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        requestValidator: createCategoryAssetUploadValidator,
     }
 )

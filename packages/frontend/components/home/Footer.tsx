@@ -121,7 +121,7 @@ export function Footer() {
                             {data?.slice(0, 5).map((category) => (
                                 <li key={category.id}>
                                     <Link
-                                        href={`/category/${category.id}`}
+                                        href={`/urun-kategori/${category.slug}`}
                                         className="flex items-center justify-center gap-2 lg:justify-start hover:text-white transition"
                                     >
                                         {/* CODE */}
@@ -137,7 +137,7 @@ export function Footer() {
 
                             <li className="pt-1 text-center lg:text-left">
                                 <Link
-                                    href="/categories"
+                                    href="/urunler"
                                     className="text-white/50 hover:text-white transition"
                                 >
                                     Tüm Ürünler

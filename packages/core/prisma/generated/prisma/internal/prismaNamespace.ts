@@ -1401,8 +1401,10 @@ export type MaterialScalarFieldEnum = (typeof MaterialScalarFieldEnum)[keyof typ
 
 export const AssetScalarFieldEnum = {
   id: 'id',
-  url: 'url',
+  key: 'key',
+  mimeType: 'mimeType',
   type: 'type',
+  role: 'role',
   categoryId: 'categoryId',
   productId: 'productId',
   variantId: 'variantId',
@@ -1545,6 +1547,20 @@ export type EnumAssetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'AssetType[]'
  */
 export type ListEnumAssetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AssetRole'
+ */
+export type EnumAssetRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetRole'>
+    
+
+
+/**
+ * Reference to a field of type 'AssetRole[]'
+ */
+export type ListEnumAssetRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetRole[]'>
     
 
 /**

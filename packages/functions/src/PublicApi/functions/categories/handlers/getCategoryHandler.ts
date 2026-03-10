@@ -2,6 +2,7 @@ import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICategoryDependencies, IGetCategoryEvent } from "@/functions/PublicApi/types/categories"
+import { mapCategoryWithAssets } from "@/core/helpers/assets/mapCategoryWithAssets"
 
 export const getCategoryHandler = ({ categoryRepository }: ICategoryDependencies) => {
     return async (event: IGetCategoryEvent) => {
@@ -12,7 +13,7 @@ export const getCategoryHandler = ({ categoryRepository }: ICategoryDependencies
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: { category },
+                payload: { category: mapCategoryWithAssets(category) },
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err

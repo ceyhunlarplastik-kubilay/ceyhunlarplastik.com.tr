@@ -4,6 +4,7 @@ import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 const productSchema = z.object({
     id: z.string(),
     code: z.string(),
+    slug: z.string(),
     name: z.string(),
     categoryId: z.string(),
     createdAt: z.string(),
@@ -12,10 +13,11 @@ const productSchema = z.object({
 
 const colorSchema = z.object({
     id: z.string(),
-    system: z.string(),
+    system: z.string().optional(),
     code: z.string(),
     name: z.string(),
-    hex: z.string(),
+    hexCode: z.string().optional(),
+    hex: z.string().optional(),
     rgbR: z.number().nullable(),
     rgbG: z.number().nullable(),
     rgbB: z.number().nullable(),
@@ -28,6 +30,7 @@ const materialSchema = z.object({
     id: z.string(),
     name: z.string(),
     code: z.string().nullable(),
+    isActive: z.boolean().optional(),
     createdAt: z.string(),
     updatedAt: z.string(),
 })
@@ -110,6 +113,11 @@ export const createProductVariantValidator = validatorWrapper(
             name: z.string().min(1),
             colorId: z.uuid().optional(),
             materialIds: z.array(z.uuid()).optional(),
+            measurements: z.array(z.object({
+                measurementTypeId: z.uuid(),
+                value: z.number(),
+                label: z.string().optional(),
+            })).optional(),
         }),
     }),
     {
@@ -132,6 +140,11 @@ export const updateProductVariantValidator = validatorWrapper(
             name: z.string().min(1).optional(),
             colorId: z.uuid().optional(),
             materialIds: z.array(z.uuid()).optional(),
+            measurements: z.array(z.object({
+                measurementTypeId: z.uuid(),
+                value: z.number(),
+                label: z.string().optional(),
+            })).optional(),
         }),
     }),
     {

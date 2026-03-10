@@ -1,5 +1,6 @@
 import config from "../config";
 import { vpc, rds } from "./db";
+import { publicBucket } from "./storage";
 const folderPrefix = 'packages/functions/src/PublicApi/functions';
 
 export const publicApi = new sst.aws.ApiGatewayV2("CeyhunlarPublicApi", {
@@ -41,6 +42,14 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     runtime: 'nodejs22.x',
     vpc: vpc,
     link: [rds],
+    environment: {
+        ASSET_PUBLIC_BASE_URL:
+            $app.stage === "prod"
+                ? `https://cdn.${config.DOMAIN}`
+                : $app.stage === "dev"
+                    ? `https://dev.${config.DOMAIN}`
+                    : $interpolate`https://${publicBucket.name}.s3.amazonaws.com`
+    }
 }
 
 /*----------------------- USERS -----------------------*/
@@ -147,6 +156,11 @@ publicApi.route("GET /products/{id}", {
 
 publicApi.route("GET /products/slug/{slug}", {
     handler: `${folderPrefix}/products/actions.getProductBySlug`,
+    ...defaultOptions,
+})
+
+publicApi.route("GET /products/{id}/variant-table", {
+    handler: `${folderPrefix}/products/actions.getProductVariantTable`,
     ...defaultOptions,
 })
 /*----------------------- MATERIALS -----------------------*/

@@ -1,9 +1,15 @@
 import { IAPIGatewayProxyEventWithUser, IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repository"
+import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository";
+import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 
 export interface ICreateCategoryBody {
     code: number
     name: string
+    assetType?: AssetType
+    assetRole?: AssetRole
+    assetKey?: string
+    mimeType?: string
 }
 
 export type ICreateCategoryEvent = IAPIGatewayProxyEventWithUser<ICreateCategoryBody>
@@ -35,18 +41,48 @@ export type IUpdateCategoryEvent =
         body: Partial<{
             code: string
             name: string
+            assetKey?: string
+            assetRole?: AssetRole
+            mimeType?: string
+            assetType?: AssetType
         }>
     }
 
 
 export interface IGetCategoryDependencies {
-    categoryRepository: IPrismaCategoryRepository
+    categoryRepository: IPrismaCategoryRepository,
 }
 
-export interface IListCategoriesDependencies extends IGetCategoryDependencies { }
+// export interface IListCategoriesDependencies extends IGetCategoryDependencies { }
 
-export interface ICreateCategoryDependencies extends IGetCategoryDependencies { }
+export interface IListCategoriesDependencies {
+    categoryRepository: IPrismaCategoryRepository,
+}
 
-export interface IDeleteCategoryDependencies extends IGetCategoryDependencies { }
+export interface ICreateCategoryDependencies {
+    categoryRepository: IPrismaCategoryRepository
+    assetRepository: IPrismaAssetRepository
+}
 
-export interface IUpdateCategoryDependencies extends IGetCategoryDependencies { }
+// export interface IDeleteCategoryDependencies extends IGetCategoryDependencies { }
+
+export interface IDeleteCategoryDependencies {
+    categoryRepository: IPrismaCategoryRepository,
+}
+
+// export interface IUpdateCategoryDependencies extends IGetCategoryDependencies { }
+
+export interface IUpdateCategoryDependencies {
+    categoryRepository: IPrismaCategoryRepository,
+    assetRepository: IPrismaAssetRepository,
+}
+
+// ✅ Presign request
+export interface ICreateCategoryAssetUploadBody {
+    categorySlug: string
+    assetRole: AssetRole
+    fileName: string
+    contentType: string
+}
+
+export type ICreateCategoryAssetUploadEvent = IAPIGatewayProxyEventWithUserGeneric<Partial<ICreateCategoryAssetUploadBody>, {}>

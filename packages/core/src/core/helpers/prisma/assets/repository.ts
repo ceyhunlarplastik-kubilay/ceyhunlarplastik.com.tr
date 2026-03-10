@@ -3,7 +3,7 @@ import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQ
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
-import { Prisma, Asset, AssetType } from "@/prisma/generated/prisma/client"
+import { Prisma, Asset, AssetType, AssetRole } from "@/prisma/generated/prisma/client"
 
 export interface IPrismaAssetRepository {
     listAssets(query: IPaginationQuery): Promise<{
@@ -19,6 +19,9 @@ export interface IPrismaAssetRepository {
     createAsset(data: Prisma.AssetCreateInput): Promise<Asset>
     updateAsset(id: string, data: Prisma.AssetUpdateInput): Promise<Asset>
     deleteAsset(id: string): Promise<Asset>
+    deleteCategoryAssetsByType(categoryId: string, type: AssetType): Promise<Prisma.BatchPayload>
+    unsetCategoryPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
+    unsetProductPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
 }
 
 export const assetRepository = (): IPrismaAssetRepository => {
@@ -33,7 +36,7 @@ export const assetRepository = (): IPrismaAssetRepository => {
             page,
             limit,
         } = buildPaginationQuery<Asset>(query, {
-            searchableFields: ["url"],
+            searchableFields: ["key"],
             defaultSort: "createdAt",
         })
 
@@ -83,6 +86,41 @@ export const assetRepository = (): IPrismaAssetRepository => {
         prisma.asset.delete({
             where: { id },
         })
+    const deleteCategoryAssetsByType = async (
+        categoryId: string,
+        type: AssetType
+    ) => {
+        return prisma.asset.deleteMany({
+            where: {
+                categoryId,
+                type,
+            },
+        })
+    }
+
+    const unsetCategoryPrimaryAssets = async (categoryId: string) => {
+        return prisma.asset.updateMany({
+            where: {
+                categoryId,
+                role: "PRIMARY",
+            },
+            data: {
+                role: "GALLERY",
+            },
+        })
+    }
+
+    const unsetProductPrimaryAssets = async (productId: string) => {
+        return prisma.asset.updateMany({
+            where: {
+                productId,
+                role: "PRIMARY",
+            },
+            data: {
+                role: "GALLERY",
+            },
+        })
+    }
 
     return {
         listAssets,
@@ -90,5 +128,8 @@ export const assetRepository = (): IPrismaAssetRepository => {
         createAsset,
         updateAsset,
         deleteAsset,
+        deleteCategoryAssetsByType,
+        unsetCategoryPrimaryAssets,
+        unsetProductPrimaryAssets
     }
 }

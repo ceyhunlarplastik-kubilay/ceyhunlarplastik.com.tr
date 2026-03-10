@@ -1,6 +1,7 @@
 import { lambdaHandler } from "@/core/middy"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
 import { categoryRepository } from "@/core/helpers/prisma/categories/repository"
+import { assetRepository } from "@/core/helpers/prisma/assets/repository"
 
 import {
     listProductsHandler,
@@ -8,7 +9,8 @@ import {
     getProductHandler,
     getProductBySlugHandler,
     updateProductHandler,
-    deleteProductHandler
+    deleteProductHandler,
+    createProductAssetUploadHandler,
 } from "@/functions/AdminApi/functions/products/handlers";
 
 import {
@@ -18,6 +20,7 @@ import {
     slugValidator,
     listProductsResponseValidator,
     productResponseValidator,
+    createProductAssetUploadValidator,
 } from "@/functions/AdminApi/validators/products"
 
 import type {
@@ -27,6 +30,7 @@ import type {
     IGetProductBySlugEvent,
     IUpdateProductEvent,
     IDeleteProductEvent,
+    ICreateProductAssetUploadEvent,
 } from "@/functions/AdminApi/types/products"
 
 export const listProducts = lambdaHandler(
@@ -45,6 +49,7 @@ export const createProduct = lambdaHandler(
         createProductHandler({
             productRepository: productRepository(),
             categoryRepository: categoryRepository(),
+            assetRepository: assetRepository(),
         })(event as ICreateProductEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
@@ -82,6 +87,7 @@ export const updateProduct = lambdaHandler(
         updateProductHandler({
             productRepository: productRepository(),
             categoryRepository: categoryRepository(),
+            assetRepository: assetRepository(),
         })(event as IUpdateProductEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
@@ -99,5 +105,17 @@ export const deleteProduct = lambdaHandler(
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
         responseValidator: productResponseValidator,
+    }
+)
+
+export const createProductAssetUpload = lambdaHandler(
+    async (event) => {
+        return createProductAssetUploadHandler()(
+            event as ICreateProductAssetUploadEvent
+        )
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        requestValidator: createProductAssetUploadValidator,
     }
 )

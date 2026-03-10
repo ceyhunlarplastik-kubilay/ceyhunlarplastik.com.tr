@@ -5,7 +5,7 @@ import { IProductVariantDependencies, ICreateProductVariantEvent } from "@/funct
 
 export const createProductVariantHandler = ({ productVariantRepository, productRepository, supplierRepository, materialRepository }: IProductVariantDependencies) => {
     return async (event: ICreateProductVariantEvent) => {
-        const { productId, variantIndex, suppliers, versionCode, supplierCode, name, colorId, materialIds } = event.body;
+        const { productId, variantIndex, suppliers, versionCode, supplierCode, name, colorId, materialIds, measurements } = event.body;
 
         try {
             const product = await productRepository.getProduct(productId)
@@ -48,6 +48,16 @@ export const createProductVariantHandler = ({ productVariantRepository, productR
                         create: suppliers.map(sup => ({
                             supplier: { connect: { id: sup.id } },
                             isActive: sup.isActive ?? false
+                        }))
+                    }
+                }),
+                // Create measurements inline
+                ...(measurements && measurements.length > 0 && {
+                    measurements: {
+                        create: measurements.map((m: { measurementTypeId: string; value: number; label: string }) => ({
+                            measurementType: { connect: { id: m.measurementTypeId } },
+                            value: m.value,
+                            label: m.label,
                         }))
                     }
                 })

@@ -6,7 +6,7 @@ import { IProductVariantDependencies, IListProductVariantsEvent } from "@/functi
 export const listProductVariantsHandler = ({ productVariantRepository }: IProductVariantDependencies) => {
     return async (event: IListProductVariantsEvent) => {
 
-        const { page, limit, search, sort, order } = event.queryStringParameters ?? {};
+        const { page, limit, search, sort, order, productId } = event.queryStringParameters ?? {};
 
         try {
             const result = await productVariantRepository.listProductVariants({
@@ -15,6 +15,7 @@ export const listProductVariantsHandler = ({ productVariantRepository }: IProduc
                 search,
                 sort,
                 order,
+                productId,
             })
 
             return apiResponseDTO({

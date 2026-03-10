@@ -62,6 +62,7 @@ export const productRepository = (): IPrismaProductRepository => {
                 take,
                 include: {
                     category: true,
+                    assets: true,
                 }
             }),
             prisma.product.count({ where: finalWhere }),
@@ -80,6 +81,7 @@ export const productRepository = (): IPrismaProductRepository => {
             where: { id },
             include: {
                 category: true,
+                assets: true,
             },
         })
 
@@ -88,6 +90,7 @@ export const productRepository = (): IPrismaProductRepository => {
             where: { slug },
             include: {
                 category: true,
+                assets: true,
             },
         })
 
@@ -96,6 +99,7 @@ export const productRepository = (): IPrismaProductRepository => {
             data,
             include: {
                 category: true,
+                assets: true,
             },
         })
 
@@ -105,6 +109,7 @@ export const productRepository = (): IPrismaProductRepository => {
             data,
             include: {
                 category: true,
+                assets: true,
             },
         })
 
@@ -113,6 +118,7 @@ export const productRepository = (): IPrismaProductRepository => {
             where: { id },
             include: {
                 category: true,
+                assets: true,
             },
         })
 

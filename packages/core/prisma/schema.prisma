@@ -254,11 +254,24 @@ enum AssetType {
   CERTIFICATE
 }
 
+enum AssetRole {
+  PRIMARY
+  ANIMATION
+  GALLERY
+  DOCUMENT
+  TECHNICAL_DRAWING
+  CERTIFICATE
+}
+
+// kaldırıldı
+// isPrimary Boolean   @default(false)
 model Asset {
   id String @id @default(uuid())
 
-  url  String
-  type AssetType
+  key      String // S3 key
+  mimeType String // image/png, image/gif, application/pdf
+  type     AssetType
+  role     AssetRole
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -271,4 +284,8 @@ model Asset {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([productId])
+  @@index([variantId])
 }

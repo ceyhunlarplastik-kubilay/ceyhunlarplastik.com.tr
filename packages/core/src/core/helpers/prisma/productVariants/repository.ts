@@ -39,6 +39,7 @@ export interface IPrismaProductVariantRepository {
     createProductVariant(data: Prisma.ProductVariantCreateInput): Promise<ProductVariant>
     updateProductVariant(id: string, data: Prisma.ProductVariantUpdateInput): Promise<ProductVariant>
     deleteProductVariant(id: string): Promise<ProductVariant>
+    getProductVariantTableData(productId: string): Promise<any[]>
 }
 
 const defaultInclude = {
@@ -127,6 +128,21 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             include: defaultInclude,
         })
 
+    const getProductVariantTableData = async (productId: string) => {
+        return prisma.productVariant.findMany({
+            where: { productId },
+            include: {
+                color: true,
+                materials: true,
+                measurements: {
+                    include: {
+                        measurementType: true
+                    }
+                }
+            }
+        })
+    }
+
     return {
         listProductVariants,
         getProductVariant,
@@ -134,5 +150,6 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
         createProductVariant,
         updateProductVariant,
         deleteProductVariant,
+        getProductVariantTableData,
     }
 }

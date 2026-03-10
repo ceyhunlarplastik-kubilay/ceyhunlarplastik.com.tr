@@ -5,7 +5,7 @@ import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginati
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
-import type { Category } from "@/prisma/generated/prisma/client"
+import type { Category, Asset } from "@/prisma/generated/prisma/client"
 
 export interface IPrismaCategoryRepository {
     listCategories(query: IPaginationQuery): Promise<{
@@ -22,6 +22,30 @@ export interface IPrismaCategoryRepository {
     createCategory(data: Prisma.CategoryCreateInput): Promise<Category>
     updateCategory(id: string, data: Prisma.CategoryUpdateInput): Promise<Category>
     deleteCategory(id: string): Promise<Category>
+}
+
+function mapAsset(asset: Asset) {
+    return {
+        id: asset.id,
+        key: asset.key,
+        mimeType: asset.mimeType,
+        type: asset.type,
+        role: asset.role,
+        createdAt: asset.createdAt,
+        updatedAt: asset.updatedAt,
+    }
+}
+
+function mapCategory(category: Category & { assets: Asset[] }) {
+    return {
+        id: category.id,
+        code: category.code,
+        name: category.name,
+        slug: category.slug,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        assets: category.assets?.map(mapAsset) ?? [],
+    }
 }
 
 export const categoryRepository = (): IPrismaCategoryRepository => {
@@ -55,38 +79,51 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
                 orderBy,
                 skip,
                 take,
+                include: { assets: true },
             }),
             prisma.category.count({ where: finalWhere }),
         ])
 
-        return buildPaginationResponse(data, {
+        /* return buildPaginationResponse(data, {
             page,
             limit,
             total,
             totalPages: Math.ceil(total / limit),
-        })
+        }) */
+        return buildPaginationResponse(
+            data.map(mapCategory),
+            {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+            }
+        )
     }
 
     const getCategory = async (id: string) => {
         return prisma.category.findUniqueOrThrow({
             where: { id },
+            include: { assets: true },
         })
     }
 
     const getCategoryBySlug = async (slug: string) => {
         return prisma.category.findUniqueOrThrow({
             where: { slug },
+            include: { assets: true },
         })
     }
 
     const createCategory = async (data: Prisma.CategoryCreateInput) => {
-        return prisma.category.create({ data })
+        return prisma.category.create({ data, include: { assets: true } })
     }
 
     const updateCategory = async (id: string, data: Prisma.CategoryUpdateInput) => {
         return prisma.category.update({
             where: { id },
             data,
+            include: { assets: true },
         })
     }
 
