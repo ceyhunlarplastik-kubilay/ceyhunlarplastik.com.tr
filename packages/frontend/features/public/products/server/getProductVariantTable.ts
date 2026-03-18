@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable";
 
 function getPublicApiBaseUrl() {
     const url = process.env.NEXT_PUBLIC_API_URL;
@@ -8,30 +9,41 @@ function getPublicApiBaseUrl() {
     return url;
 }
 
-export async function getProductVariantTable(productId: string) {
+type GetProductVariantTableApiResponse = {
+    statusCode: number
+    payload: {
+        data: VariantTableData[]
+    }
+}
+
+export async function getProductVariantTable(productId: string): Promise<VariantTableData[]> {
     const baseURL = getPublicApiBaseUrl();
 
     try {
-        const res = await axios.get(
+        const res = await axios.get<GetProductVariantTableApiResponse>(
             `/products/${productId}/variant-table`,
             {
                 baseURL,
                 timeout: 20_000,
+                params: {
+                    limit: 500,
+                },
             }
         );
 
         return res.data?.payload?.data ?? [];
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as { response?: { status?: number; data?: unknown }; message?: string }
         // Return empty array on not found
-        if (error?.response?.status === 404) {
+        if (err?.response?.status === 404) {
             return [];
         }
 
         console.error("getProductVariantTable error:", {
             productId,
-            status: error?.response?.status,
-            data: error?.response?.data,
-            message: error?.message,
+            status: err?.response?.status,
+            data: err?.response?.data,
+            message: err?.message,
         });
 
         return [];

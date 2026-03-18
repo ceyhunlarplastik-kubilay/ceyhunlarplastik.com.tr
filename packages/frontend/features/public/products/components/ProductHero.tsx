@@ -5,6 +5,8 @@ import { motion } from "motion/react"
 import { Dialog, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
+import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
+
 type Props = {
     product: any
 }
@@ -82,17 +84,20 @@ export default function ProductHero({ product }: Props) {
                     </h1>
 
                     <p className="text-neutral-500 mt-2">
-                        Ürün Kodu: {product.code}
+                        Katalog Kodu: {product.code}
                     </p>
 
                 </div>
 
-                <p className="text-neutral-600 leading-relaxed">
+                {/* 🔥 ATTRIBUTE BADGES */}
+                <ProductAttributeBadges
+                    attributeValues={product.attributeValues}
+                />
 
+                <p className="text-neutral-600 leading-relaxed">
                     Bu ürün grubuna ait farklı ölçü seçeneklerini aşağıdaki tabloda
                     inceleyebilirsiniz. Teknik çizimler ve ürün animasyonu
                     aşağıda yer almaktadır.
-
                 </p>
 
             </div>

@@ -14,7 +14,11 @@ import {
 } from "@/components/dialogs/schemas";
 import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
 
-export function CatalogRequestDialog() {
+type Props = {
+    className?: string;
+};
+
+export function CatalogRequestDialog({ className }: Props) {
     const defaultValues: CatalogRequestValues = {
         companyName: "",
         fullName: "",
@@ -29,7 +33,9 @@ export function CatalogRequestDialog() {
             schema={catalogRequestSchema}
             defaultValues={defaultValues}
             trigger={
-                <button className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-white transition">
+                <button
+                    className={`flex items-center gap-2 transition ${className ?? "text-white/70 hover:text-white"}`}
+                >
                     <BookOpen className="h-3.5 w-3.5 text-[var(--color-brand)]" />
                     Katalog Talep Et
                 </button>

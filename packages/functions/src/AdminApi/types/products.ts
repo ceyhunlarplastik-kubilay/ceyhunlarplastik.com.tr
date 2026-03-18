@@ -25,6 +25,7 @@ export interface ICreateProductBody {
     assetRole?: AssetRole
     assetKey?: string
     mimeType?: string
+    attributeValueIds?: string[]
 }
 
 export type ICreateProductEvent = IAPIGatewayProxyEventWithUserGeneric<ICreateProductBody>

@@ -1,10 +1,31 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const measurementCodeValues = [
+    "D",
+    "D1",
+    "D2",
+    "R",
+    "R1",
+    "R2",
+    "L",
+    "L1",
+    "L2",
+    "T",
+    "A",
+    "W",
+    "H",
+    "H1",
+    "H2",
+    "PT",
+    "M",
+    "R_L",
+] as const
+
 export const createMeasurementTypeValidator = validatorWrapper(
     z.object({
         body: z.object({
-            code: z.enum(["D", "L", "T", "A", "W", "H"]),
+            code: z.enum(measurementCodeValues),
             name: z.string().min(2).max(100),
             baseUnit: z.string().min(1).max(20),
             displayOrder: z.number().int().optional().default(0),
@@ -33,7 +54,7 @@ export const updateMeasurementTypeValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            code: z.enum(["D", "L", "T", "A", "W", "H"]).optional(),
+            code: z.enum(measurementCodeValues).optional(),
             name: z.string().min(2).max(100).optional(),
             baseUnit: z.string().min(1).max(20).optional(),
             displayOrder: z.number().int().optional(),

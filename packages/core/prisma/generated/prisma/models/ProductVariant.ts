@@ -286,7 +286,7 @@ export type ProductVariantOrderByWithRelationInput = {
 export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   fullCode?: string
-  productId_versionCode_variantIndex?: Prisma.ProductVariantProductIdVersionCodeVariantIndexCompoundUniqueInput
+  productId_supplierCode_versionCode_variantIndex?: Prisma.ProductVariantProductIdSupplierCodeVersionCodeVariantIndexCompoundUniqueInput
   AND?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
   OR?: Prisma.ProductVariantWhereInput[]
   NOT?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
@@ -304,7 +304,7 @@ export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   measurements?: Prisma.ProductMeasurementListRelationFilter
   assets?: Prisma.AssetListRelationFilter
   variantSuppliers?: Prisma.ProductVariantSupplierListRelationFilter
-}, "id" | "fullCode" | "productId_versionCode_variantIndex">
+}, "id" | "fullCode" | "productId_supplierCode_versionCode_variantIndex">
 
 export type ProductVariantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -455,8 +455,9 @@ export type ProductVariantOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ProductVariantProductIdVersionCodeVariantIndexCompoundUniqueInput = {
+export type ProductVariantProductIdSupplierCodeVersionCodeVariantIndexCompoundUniqueInput = {
   productId: string
+  supplierCode: string
   versionCode: string
   variantIndex: number
 }

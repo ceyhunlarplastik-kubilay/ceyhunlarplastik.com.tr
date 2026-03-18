@@ -1,4 +1,4 @@
-import { prisma } from "@/core/db/prisma"
+/* import { prisma } from "@/core/db/prisma"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
@@ -120,6 +120,141 @@ export const productRepository = (): IPrismaProductRepository => {
                 category: true,
                 assets: true,
             },
+        })
+
+    return {
+        listProducts,
+        getProduct,
+        getProductBySlug,
+        createProduct,
+        updateProduct,
+        deleteProduct,
+    }
+}
+ */
+
+import { prisma } from "@/core/db/prisma"
+import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
+import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
+import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
+
+import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import { Prisma, Product } from "@/prisma/generated/prisma/client"
+
+export type ProductWithRelations = Prisma.ProductGetPayload<{
+    include: {
+        category: true
+        assets: true
+        attributeValues: {
+            include: {
+                attribute: true
+            }
+        }
+    }
+}>
+
+export interface IPrismaProductRepository {
+    listProducts(query: IPaginationQuery & { categoryId?: string }): Promise<{
+        data: ProductWithRelations[]
+        meta: {
+            page: number
+            limit: number
+            total: number
+            totalPages: number
+        }
+    }>
+    getProduct(id: string): Promise<ProductWithRelations>
+    getProductBySlug(slug: string): Promise<ProductWithRelations>
+    createProduct(data: Prisma.ProductCreateInput): Promise<ProductWithRelations>
+    updateProduct(id: string, data: Prisma.ProductUpdateInput): Promise<ProductWithRelations>
+    deleteProduct(id: string): Promise<ProductWithRelations>
+}
+
+export const productRepository = (): IPrismaProductRepository => {
+
+    const baseInclude = {
+        category: true,
+        assets: true,
+        attributeValues: {
+            include: {
+                attribute: true
+            }
+        }
+    } satisfies Prisma.ProductInclude
+
+    const listProducts = async (query: IPaginationQuery & { categoryId?: string }) => {
+
+        const filterWhere = buildFilterQuery<Product>(query, [
+            "name",
+            "code",
+        ])
+
+        const {
+            where,
+            orderBy,
+            skip,
+            take,
+            page,
+            limit,
+        } = buildPaginationQuery<Product>(query, {
+            searchableFields: ["name", "code"],
+            defaultSort: "code",
+        })
+
+        const finalWhere: Prisma.ProductWhereInput = {
+            ...where,
+            ...filterWhere,
+            ...(query.categoryId && { categoryId: query.categoryId }),
+        }
+
+        const [data, total] = await Promise.all([
+            prisma.product.findMany({
+                where: finalWhere,
+                orderBy,
+                skip,
+                take,
+                include: baseInclude
+            }),
+            prisma.product.count({ where: finalWhere }),
+        ])
+
+        return buildPaginationResponse(data, {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        })
+    }
+
+    const getProduct = (id: string) =>
+        prisma.product.findUniqueOrThrow({
+            where: { id },
+            include: baseInclude
+        })
+
+    const getProductBySlug = (slug: string) =>
+        prisma.product.findUniqueOrThrow({
+            where: { slug },
+            include: baseInclude
+        })
+
+    const createProduct = (data: Prisma.ProductCreateInput) =>
+        prisma.product.create({
+            data,
+            include: baseInclude
+        })
+
+    const updateProduct = (id: string, data: Prisma.ProductUpdateInput) =>
+        prisma.product.update({
+            where: { id },
+            data,
+            include: baseInclude
+        })
+
+    const deleteProduct = (id: string) =>
+        prisma.product.delete({
+            where: { id },
+            include: baseInclude
         })
 
     return {

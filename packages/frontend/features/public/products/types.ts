@@ -11,6 +11,7 @@ export type Product = {
     updatedAt: string;
     category?: Category;
     assets?: any[];
+    attributeValues?: any[];
 };
 
 

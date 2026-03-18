@@ -73,5 +73,7 @@ export function mapProductWithAssets(product: any) {
         // galleryImages: gallery,
         // documents,
         // technicalDrawings,
+
+        attributeValues: product.attributeValues ?? [],
     }
 }

@@ -58,6 +58,8 @@ export default async function ProductPage({ params }: PageProps) {
                 breadcrumbs={[
                     { label: "Ana Sayfa", href: "/" },
                     { label: "Ürünler", href: "/urunler" },
+                    /* { label: product.category.name, href: `/kategori/${product.category.slug}` }, */
+                    { label: product.category?.name || "Kategori Yok", href: product.category?.slug ? `/urun-kategori/${product.category.slug}` : "/" },
                     { label: product.name }
                 ]}
             />

@@ -15,7 +15,11 @@ import {
 } from "@/components/dialogs/schemas";
 import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
 
-export function ProductRequestDialog() {
+type Props = {
+    className?: string;
+};
+
+export function ProductRequestDialog({ className }: Props) {
     const defaultValues: ProductRequestValues = {
         companyName: "",
         fullName: "",
@@ -31,7 +35,9 @@ export function ProductRequestDialog() {
             schema={productRequestSchema}
             defaultValues={defaultValues}
             trigger={
-                <button className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-white transition">
+                <button
+                    className={`flex items-center gap-2 transition ${className ?? "text-white/70 hover:text-white"}`}
+                >
                     <FileText className="h-3.5 w-3.5 text-[var(--color-brand)]" />
                     Ürün Talep Et
                 </button>

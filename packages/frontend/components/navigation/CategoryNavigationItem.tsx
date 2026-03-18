@@ -18,7 +18,7 @@ export function CategoryNavigationItem({
 
     return (
         <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-base font-medium bg-transparent">
+            <NavigationMenuTrigger className="nav-pill text-base font-medium bg-transparent">
                 Kategoriler
             </NavigationMenuTrigger>
 

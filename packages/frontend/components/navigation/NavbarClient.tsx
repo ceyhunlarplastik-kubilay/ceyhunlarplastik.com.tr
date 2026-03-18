@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { MobileMenu } from "@/components/navigation/MobileMenu";
+import { TopBar } from "@/components/navigation/TopBar";
 import type { Category } from "@/features/public/categories/types";
 
 const NavigationGroup = dynamic(
@@ -55,17 +56,23 @@ export function NavbarClient({ categories }: { categories: Category[] }) {
                 initial={{ y: 0 }}
                 animate={{ y: isVisible ? 0 : "-100%" }}
                 transition={{ duration: 0.35, ease: "easeInOut" }}
-                className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-sm shadow-sm"
+                className="fixed top-0 left-0 right-0 z-50"
                 ref={ref}
             >
-                <NavigationHeader isVisible={isVisible} setMobileOpen={setMobileOpen}>
-                    <NavigationGroup categories={categories} />
-                </NavigationHeader>
+
+                {/* TOP BAR */}
+                <TopBar />
+
+                {/* MAIN NAVBAR */}
+                {/* <div className="bg-background/70 backdrop-blur-sm shadow-sm"> */}
+                <div className="bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 border-b border-neutral-200/60 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+                    <NavigationHeader isVisible={isVisible} setMobileOpen={setMobileOpen}>
+                        <NavigationGroup categories={categories} />
+                    </NavigationHeader>
+                </div>
+
             </motion.div>
 
-            {/* =============================
-          iOS SAFARI STYLE MOBILE MENU
-          ============================= */}
             <MobileMenu setMobileOpen={setMobileOpen} mobileOpen={mobileOpen} />
         </>
     );

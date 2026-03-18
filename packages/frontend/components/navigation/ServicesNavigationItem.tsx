@@ -11,7 +11,7 @@ import { serviceItems } from "@/constants/services";
 export function ServicesNavigationItem() {
     return (
         <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-base font-medium bg-transparent">
+            <NavigationMenuTrigger className="nav-pill text-base font-medium bg-transparent">
                 Hizmetler
             </NavigationMenuTrigger>
             <NavigationMenuContent>

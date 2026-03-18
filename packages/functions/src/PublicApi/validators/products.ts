@@ -2,7 +2,7 @@ import { z } from "zod"
 import { categorySchema } from "@/functions/PublicApi/validators/categories";
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
-const assetTypeEnum = z.enum([
+export const assetTypeEnum = z.enum([
     "IMAGE",
     "VIDEO",
     "PDF",
@@ -10,7 +10,7 @@ const assetTypeEnum = z.enum([
     "CERTIFICATE",
 ]);
 
-const assetRoleEnum = z.enum([
+export const assetRoleEnum = z.enum([
     "PRIMARY",
     "ANIMATION",
     "GALLERY",
@@ -18,6 +18,26 @@ const assetRoleEnum = z.enum([
     "TECHNICAL_DRAWING",
     "CERTIFICATE",
 ])
+
+export const attributeValueSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    slug: z.string(),
+    attributeId: z.uuid(),
+    displayOrder: z.number(),
+    isActive: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    attribute: z.object({
+        id: z.uuid(),
+        code: z.string(),
+        name: z.string(),
+        displayOrder: z.number(),
+        isActive: z.boolean(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+    })
+})
 
 export const assetSchema = z.object({
     id: z.uuid(),
@@ -31,7 +51,7 @@ export const assetSchema = z.object({
 })
 
 // --- Shared Schemas ---
-const productSchema = z.object({
+export const productSchema = z.object({
     id: z.uuid(),
     code: z.string(),
     name: z.string(),
@@ -41,7 +61,8 @@ const productSchema = z.object({
     updatedAt: z.string(),
     category: categorySchema,
     assets: z.array(assetSchema),
-})
+    attributeValues: z.array(attributeValueSchema)
+}).loose()
 
 export const idValidator = validatorWrapper(
     z.object({

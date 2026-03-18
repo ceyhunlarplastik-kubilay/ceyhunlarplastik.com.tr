@@ -16,7 +16,7 @@ export function CatalogNavigationItem({
 }) {
     return (
         <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-base font-medium bg-transparent">
+            <NavigationMenuTrigger className="nav-pilltext-base font-medium bg-transparent">
                 {title}
             </NavigationMenuTrigger>
             <NavigationMenuContent>

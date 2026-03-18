@@ -1,27 +1,29 @@
-import { auth } from "@/lib/auth/auth";
-import { redirect } from "next/navigation";
+import Link from "next/link"
+import { auth } from "@/lib/auth/auth"
+import { redirect } from "next/navigation"
+
+import { AdminSidebar } from "@/components/admin/AdminSidebar"
 
 export default async function AdminLayout({
     children,
 }: {
-    children: React.ReactNode;
+    children: React.ReactNode
 }) {
-    const session = await auth();
+    const session = await auth()
 
-    console.log(session);
+    if (!session) redirect("/api/auth/signin")
 
-    // login değilse
-    if (!session) redirect("/api/auth/signin");
+    const groups = session.user?.groups ?? []
+    const allowed = groups.includes("admin") || groups.includes("owner")
 
-    const groups = session.user?.groups ?? [];
-    const allowed = groups.includes("admin") || groups.includes("owner");
-
-    if (!allowed) redirect("/?unauthorized=1");
+    if (!allowed) redirect("/?unauthorized=1")
 
     return (
-        <div className="min-h-screen bg-neutral-50">
-            {/* burada sonra sidebar/header koyarsın */}
-            {children}
+        <div className="min-h-screen flex bg-neutral-50">
+            <AdminSidebar />
+            <main className="flex-1 p-6">
+                {children}
+            </main>
         </div>
-    );
+    )
 }

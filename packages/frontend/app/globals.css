@@ -126,6 +126,55 @@
     }
   }
 
+  /* =========================================
+   LINK UNDERLINE ANIMATION
+========================================= */
+
+  .link-underline {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0%;
+    height: 1px;
+    background: var(--color-brand);
+    transition: width 0.25s ease;
+  }
+
+  .link-underline:hover::after {
+    width: 100%;
+  }
+
+  /* ========================================
+   NAVBAR HOVER PILL
+======================================== */
+
+  .nav-pill {
+    position: relative;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: color 0.2s ease;
+  }
+
+  .nav-pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.04);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-pill:hover::before {
+    opacity: 1;
+  }
 
 
 

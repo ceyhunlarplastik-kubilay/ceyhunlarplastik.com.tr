@@ -1,25 +1,37 @@
 import { z } from "zod"
 import { categorySchema } from "@/functions/AdminApi/validators/categories"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { assetTypeEnum, assetRoleEnum, productSchema } from "@/functions/PublicApi/validators/products"
 
-const assetTypeEnum = z.enum([
+/* const assetTypeEnum = z.enum([
     "IMAGE",
     "VIDEO",
     "PDF",
     "TECHNICAL_DRAWING",
     "CERTIFICATE",
-]);
+]); */
 
-const assetRoleEnum = z.enum([
+/* const assetRoleEnum = z.enum([
     "PRIMARY",
     "ANIMATION",
     "GALLERY",
     "DOCUMENT",
     "TECHNICAL_DRAWING",
     "CERTIFICATE",
-])
+]) */
 
-export const assetSchema = z.object({
+/* const attributeValueSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    slug: z.string(),
+    attribute: z.object({
+        id: z.uuid(),
+        name: z.string(),
+        code: z.string(),
+    })
+}) */
+
+/* export const assetSchema = z.object({
     id: z.uuid(),
     key: z.string(),
     mimeType: z.string(),
@@ -28,10 +40,10 @@ export const assetSchema = z.object({
     url: z.string(), // ✅ runtime generated
     createdAt: z.string(),
     updatedAt: z.string(),
-})
+}) */
 
 // --- Shared Schemas ---
-const productSchema = z.object({
+/* const productSchema = z.object({
     id: z.uuid(),
     code: z.string(),
     name: z.string(),
@@ -41,7 +53,8 @@ const productSchema = z.object({
     updatedAt: z.string().optional(),
     category: categorySchema.optional(),
     assets: z.array(assetSchema).optional(),
-}).loose();
+    attributeValues: z.array(attributeValueSchema).optional(),
+}).loose() */
 
 /* ===========================
    REQUEST VALIDATORS
@@ -57,6 +70,7 @@ export const createProductValidator = validatorWrapper(
             assetRole: assetRoleEnum.optional(),
             assetKey: z.string().optional(),
             mimeType: z.string().optional(),
+            attributeValueIds: z.array(z.uuid()).optional(),
         }),
     }),
     {
@@ -78,6 +92,7 @@ export const updateProductValidator = validatorWrapper(
             assetRole: assetRoleEnum.optional(),
             assetKey: z.string().optional(),
             mimeType: z.string().optional(),
+            attributeValueIds: z.array(z.uuid()).optional(),
         }),
     }),
     {

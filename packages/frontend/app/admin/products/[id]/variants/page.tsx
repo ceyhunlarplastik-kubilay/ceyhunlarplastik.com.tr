@@ -1,40 +1,21 @@
-import { notFound } from "next/navigation";
-import { adminServerClient } from "@/lib/http/serverClient";
-import { getVariantReferences } from "@/features/admin/productVariants/server/getVariantReferences";
-import { getProductVariants } from "@/features/admin/productVariants/server/getProductVariants";
-import { ProductVariantsManager } from "@/features/admin/productVariants/components/ProductVariantsManager";
-import type { Product } from "@/features/public/products/types";
+"use client"
 
-type Props = {
-    params: Promise<{ id: string }>;
-};
+import { useParams } from "next/navigation"
 
-export default async function ProductVariantsPage({ params }: Props) {
-    const { id } = await params;
+import { ProductVariantsManager } from "@/features/admin/productVariants/components/ProductVariantsManager"
 
-    const client = await adminServerClient();
+export default function ProductVariantsPage() {
+    const params = useParams<{ id: string | string[] }>()
+    const rawId = params?.id
+    const productId = Array.isArray(rawId) ? rawId[0] : rawId
 
-    let product: Product | null = null;
-    try {
-        const res = await client.get<any>(`/products/${id}`);
-        product = res.data?.payload?.product ?? null;
-    } catch (error) {
-        console.error("Failed to fetch product:", error);
-        notFound();
+    if (!productId) {
+        return (
+            <div className="p-6 text-sm text-red-500">
+                Ürün bilgisi bulunamadı.
+            </div>
+        )
     }
 
-    if (!product) notFound();
-
-    const [variants, references] = await Promise.all([
-        getProductVariants(id),
-        getVariantReferences(),
-    ]);
-
-    return (
-        <ProductVariantsManager
-            product={product}
-            initialVariants={variants}
-            references={references}
-        />
-    );
+    return <ProductVariantsManager productId={productId} />
 }

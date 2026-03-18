@@ -394,6 +394,66 @@ adminApi.route("POST /products/assets/presign", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions })
 
+/*----------------------- PRODUCT ATTRIBUTES -----------------------*/
+adminApi.route("GET /product-attributes", {
+    handler: `${folderPrefix}/productAttributes/actions.listProductAttributes`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /product-attributes", {
+    handler: `${folderPrefix}/productAttributes/actions.createProductAttribute`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /product-attributes/{id}", {
+    handler: `${folderPrefix}/productAttributes/actions.getProductAttribute`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /product-attributes/{id}", {
+    handler: `${folderPrefix}/productAttributes/actions.updateProductAttribute`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /product-attributes/{id}", {
+    handler: `${folderPrefix}/productAttributes/actions.deleteProductAttribute`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+/*----------------------- PRODUCT ATTRIBUTE VALUES -----------------------*/
+adminApi.route("GET /product-attribute-values", {
+    handler: `${folderPrefix}/productAttributeValues/actions.listProductAttributeValues`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /product-attribute-values", {
+    handler: `${folderPrefix}/productAttributeValues/actions.createProductAttributeValue`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /product-attribute-values/{id}", {
+    handler: `${folderPrefix}/productAttributeValues/actions.getProductAttributeValue`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /product-attribute-values/{id}", {
+    handler: `${folderPrefix}/productAttributeValues/actions.updateProductAttributeValue`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /product-attribute-values/{id}", {
+    handler: `${folderPrefix}/productAttributeValues/actions.deleteProductAttributeValue`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+/*----------------------- PRODUCT ATTRIBUTES WITH VALUES -----------------------*/
+/* ⚡ BONUS (çok önemli – seni uçurur)
+🔥 Filter için özel endpoint (opsiyonel ama öneririm) */
+adminApi.route("GET /product-attributes/with-values", {
+    handler: `${folderPrefix}/productAttributes/actions.listAttributesWithValues`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- MATERIALS -----------------------*/
 adminApi.route("GET /materials", {
     handler: `${folderPrefix}/materials/actions.listMaterials`,

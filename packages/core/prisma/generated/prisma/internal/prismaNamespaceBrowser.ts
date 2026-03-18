@@ -55,6 +55,8 @@ export const ModelName = {
   Color: 'Color',
   Category: 'Category',
   Product: 'Product',
+  ProductAttribute: 'ProductAttribute',
+  ProductAttributeValue: 'ProductAttributeValue',
   ProductVariant: 'ProductVariant',
   MeasurementType: 'MeasurementType',
   ProductMeasurement: 'ProductMeasurement',
@@ -134,6 +136,33 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const ProductAttributeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  displayOrder: 'displayOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
+
+
+export const ProductAttributeValueScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  attributeId: 'attributeId',
+  displayOrder: 'displayOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductAttributeValueScalarFieldEnum = (typeof ProductAttributeValueScalarFieldEnum)[keyof typeof ProductAttributeValueScalarFieldEnum]
 
 
 export const ProductVariantScalarFieldEnum = {

@@ -12,7 +12,7 @@ import { iconItems } from "@/constants/icons";
 export const SupportNavigationItem = () => {
     return (
         <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-base font-medium bg-transparent">
+            <NavigationMenuTrigger className="nav-pill text-base font-medium bg-transparent">
                 Destek
             </NavigationMenuTrigger>
             <NavigationMenuContent>

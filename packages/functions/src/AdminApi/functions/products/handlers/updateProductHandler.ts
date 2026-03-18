@@ -102,7 +102,7 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
         const body = event.body;
 
         // 🔥 asset alanlarını ayır
-        const { assetType, assetRole, assetKey, mimeType, ...productData } = body;
+        const { assetType, assetRole, assetKey, mimeType, attributeValueIds, categoryId, ...productData } = body;
 
         try {
 
@@ -110,14 +110,14 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
             if (!existing) throw new createError.NotFound("Product not found");
 
             // Validation: Ensure product code starts with category code
-            if (productData.code || productData.categoryId) {
+            if (productData.code || categoryId) {
 
                 const targetCode = productData.code || existing.code;
                 let targetCategoryCode: number;
 
-                if (productData.categoryId) {
+                if (categoryId) {
 
-                    const category = await categoryRepository.getCategory(productData.categoryId);
+                    const category = await categoryRepository.getCategory(categoryId);
                     if (!category) throw new createError.NotFound("Category not found");
 
                     targetCategoryCode = category.code;
@@ -150,15 +150,24 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
 
                 ...productData,
 
-                ...(productData.categoryId && {
-                    category: { connect: { id: productData.categoryId } }
+                ...(categoryId && {
+                    category: { connect: { id: categoryId } }
                 }),
 
                 ...(productData.name && {
-                    slug: slugify(productData.name, { lower: true, strict: true, locale: "tr" })
+                    slug: slugify(productData.name, {
+                        lower: true,
+                        strict: true,
+                        locale: "tr"
+                    })
                 }),
 
-            });
+                ...(attributeValueIds !== undefined && {
+                    attributeValues: {
+                        set: attributeValueIds.map((id: string) => ({ id }))
+                    }
+                })
+            })
 
             // 🔥 asset lifecycle
             if (assetType && assetKey && mimeType) {
