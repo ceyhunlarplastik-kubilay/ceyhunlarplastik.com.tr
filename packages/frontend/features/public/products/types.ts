@@ -21,3 +21,13 @@ export type ProductGetPayload = {
 
 // export type ListCategoriesResponse = ApiEnvelope<CategoriesListPayload>;
 export type GetProductResponse = ApiEnvelope<ProductGetPayload>;
+
+export type ListProductsResponse = ApiEnvelope<{
+    data: Product[];
+    meta: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+}>;

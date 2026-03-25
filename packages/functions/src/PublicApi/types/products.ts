@@ -27,6 +27,8 @@ export type IListProductsEvent =
             sort?: string
             order?: "asc" | "desc"
             categoryId?: string
+            category?: string
+            attributeValueIds?: string
         }
     >
 

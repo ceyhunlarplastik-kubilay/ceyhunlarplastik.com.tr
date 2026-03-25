@@ -11,7 +11,7 @@ export type ProductWithCategory = Prisma.ProductGetPayload<{
 }>
 
 export interface IPrismaProductRepository {
-    listProducts(query: IPaginationQuery & { categoryId?: string }): Promise<{
+    listProducts(query: IPaginationQuery & { categoryId?: string; category?: string }): Promise<{
         data: Product[]
         meta: {
             page: number
@@ -29,7 +29,7 @@ export interface IPrismaProductRepository {
 
 export const productRepository = (): IPrismaProductRepository => {
 
-    const listProducts = async (query: IPaginationQuery & { categoryId?: string }) => {
+    const listProducts = async (query: IPaginationQuery & { categoryId?: string; category?: string }) => {
 
         const filterWhere = buildFilterQuery<Product>(query, [
             "name",
@@ -154,7 +154,7 @@ export type ProductWithRelations = Prisma.ProductGetPayload<{
 }>
 
 export interface IPrismaProductRepository {
-    listProducts(query: IPaginationQuery & { categoryId?: string }): Promise<{
+    listProducts(query: IPaginationQuery & { categoryId?: string; category?: string }): Promise<{
         data: ProductWithRelations[]
         meta: {
             page: number
@@ -182,7 +182,7 @@ export const productRepository = (): IPrismaProductRepository => {
         }
     } satisfies Prisma.ProductInclude
 
-    const listProducts = async (query: IPaginationQuery & { categoryId?: string }) => {
+    const listProducts = async (query: IPaginationQuery & { categoryId?: string; category?: string }) => {
 
         const filterWhere = buildFilterQuery<Product>(query, [
             "name",
@@ -205,6 +205,24 @@ export const productRepository = (): IPrismaProductRepository => {
             ...where,
             ...filterWhere,
             ...(query.categoryId && { categoryId: query.categoryId }),
+            ...(query.category && {
+                category: {
+                    slug: query.category
+                }
+            }),
+
+            ...(query.attributeFilters?.length && {
+                AND: query.attributeFilters.map(([attrCode, value]) => ({
+                    attributeValues: {
+                        some: {
+                            slug: value,
+                            attribute: {
+                                code: attrCode
+                            }
+                        }
+                    }
+                }))
+            })
         }
 
         const [data, total] = await Promise.all([

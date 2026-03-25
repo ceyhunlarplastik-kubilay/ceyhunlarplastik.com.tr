@@ -1,10 +1,21 @@
 import axios from "axios"
 import { toast } from "sonner"
 
+function notifyError(message: string) {
+    if (typeof window === "undefined") {
+        console.error(`[HTTP] ${message}`)
+        return
+    }
+
+    if (typeof toast?.error === "function") {
+        toast.error(message)
+    }
+}
+
 export function handleApiError(error: unknown) {
 
     if (!axios.isAxiosError(error)) {
-        toast.error("Beklenmeyen bir hata oluştu")
+        notifyError("Beklenmeyen bir hata oluştu")
         return Promise.reject(error)
     }
 
@@ -17,23 +28,23 @@ export function handleApiError(error: unknown) {
         "Bir hata oluştu"
 
     if (status === 401) {
-        toast.error("Yetkisiz erişim")
+        notifyError("Yetkisiz erişim")
     }
 
     else if (status === 403) {
-        toast.error("Bu işlem için yetkiniz yok")
+        notifyError("Bu işlem için yetkiniz yok")
     }
 
     else if (status === 404) {
-        toast.error("Kayıt bulunamadı")
+        notifyError("Kayıt bulunamadı")
     }
 
     else if (status === 500) {
-        toast.error("Sunucu hatası")
+        notifyError("Sunucu hatası")
     }
 
     else {
-        toast.error(message)
+        notifyError(message)
     }
 
     return Promise.reject(error)

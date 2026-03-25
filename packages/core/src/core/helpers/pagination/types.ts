@@ -4,6 +4,8 @@ export interface IPaginationQuery {
     search?: string
     sort?: string
     order?: "asc" | "desc"
+    attributeValueIds?: string[]
+    attributeFilters?: [string, string][]
 }
 
 export interface IPaginationMeta {

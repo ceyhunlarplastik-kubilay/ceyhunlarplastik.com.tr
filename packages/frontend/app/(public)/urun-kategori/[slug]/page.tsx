@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { getCategoryBySlug } from "@/features/public/categories/server/getCategoryBySlug";
 import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory";
@@ -58,6 +59,17 @@ export default async function CategoryPage(
                     { label: category.name }
                 ]}
             />
+
+            <Link
+                href={`/urunler/filtre?category=${category.slug}`}
+                className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
+                style={{
+                    background: "var(--color-brand)",
+                    color: "var(--color-brand-foreground)",
+                }}
+            >
+                Filtreleyerek İncele
+            </Link>
 
             {/* CATEGORY PRODUCTS GRID */}
             <section className="mx-auto max-w-7xl px-6 py-20">

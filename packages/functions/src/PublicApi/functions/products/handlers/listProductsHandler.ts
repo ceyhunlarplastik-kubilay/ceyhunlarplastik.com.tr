@@ -12,6 +12,50 @@ export const listProductsHandler =
 
             const query = event.queryStringParameters ?? {}
 
+            /* const attributeFilters = Object.entries(query).filter(
+                ([key]) =>
+                    !["page", "limit", "search", "sort", "order", "categoryId"].includes(key)
+            ); */
+            const attributeValueIds =
+                typeof query.attributeValueIds === "string"
+                    ? query.attributeValueIds.split(",")
+                    : Array.isArray(query.attributeValueIds)
+                        ? query.attributeValueIds
+                        : []
+            /* const attributeFilters = await Promise.all(
+                Object.entries(query)
+                    .filter(([key]) =>
+                        !["page", "limit", "search", "sort", "order", "categoryId"].includes(key)
+                    )
+                    .map(async ([code, value]) => {
+
+                        const slugs = typeof value === "string"
+                            ? value.split(",")
+                            : []
+
+                        // 🔥 attribute value id bul
+                        const values = await attributeValueRepository.findBySlugs(slugs)
+
+                        return {
+                            code,
+                            valueIds: values.map(v => v.id)
+                        }
+                    })
+            ) */
+            const attributeFilters = Object.entries(query).filter(
+                ([key]) =>
+                    ![
+                        "page",
+                        "limit",
+                        "search",
+                        "sort",
+                        "order",
+                        "categoryId",
+                        "category" // 🔥 BUNU EKLE
+                    ].includes(key)
+            )
+
+
             const { page, limit, search, sort, order } =
                 normalizeListQuery(event.queryStringParameters, {
                     allowedSortFields: ALLOWED_SORT_FIELDS,
@@ -26,6 +70,9 @@ export const listProductsHandler =
                     sort,
                     order,
                     categoryId: query.categoryId,
+                    category: query.category,
+                    attributeFilters,
+                    attributeValueIds
                 })
 
                 return apiResponseDTO({

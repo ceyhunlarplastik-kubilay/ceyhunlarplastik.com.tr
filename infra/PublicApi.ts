@@ -165,3 +165,14 @@ publicApi.route("GET /products/{id}/variant-table", {
 })
 /*----------------------- MATERIALS -----------------------*/
 /*----------------------- ASSETS -----------------------*/
+
+/*----------------------- PRODUCT ATTRIBUTE VALUES -----------------------*/
+publicApi.route("GET /product-attributes/with-values", {
+    handler: `${folderPrefix}/productAttributes/actions.listAttributesWithValues`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /product-attribute-values", {
+    handler: `${folderPrefix}/productAttributeValues/actions.listProductAttributeValues`,
+    ...defaultOptions,
+});

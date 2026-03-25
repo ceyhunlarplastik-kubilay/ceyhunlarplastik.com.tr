@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
+// import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
+import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
 import { AttributeHeader } from "@/features/admin/productAttributes/components/AttributeHeader"
 
 export default async function Page() {

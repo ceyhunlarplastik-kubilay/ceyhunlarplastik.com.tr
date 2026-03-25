@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react"
 import { Badge } from "@/components/ui/badge"
+import { useRouter } from "next/navigation"
 
 type Props = {
     attributeValues: any[]
@@ -22,6 +23,8 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
         acc[key].push(val)
         return acc
     }, {})
+
+    const router = useRouter();
 
     return (
         <div className="space-y-4">
@@ -66,6 +69,14 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                 />
 
                                 <Badge
+                                    onClick={() => {
+                                        const params = new URLSearchParams()
+
+                                        // 🔥 attribute code + value slug
+                                        params.set(val.attribute.code, val.slug)
+
+                                        router.push(`/urunler/filtre?${params.toString()}`)
+                                    }}
                                     className="
             relative
             text-xs
