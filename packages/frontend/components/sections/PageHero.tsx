@@ -31,7 +31,7 @@ export function PageHero({
     backgroundImage = "/logos/title-bg.webp",
 }: PageHeroProps) {
     return (
-        <section
+        <header
             className="
         relative
         h-[100px]
@@ -112,6 +112,6 @@ export function PageHero({
                     </motion.div>
                 )}
             </div>
-        </section>
+        </header>
     );
 }

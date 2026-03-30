@@ -176,7 +176,9 @@
     opacity: 1;
   }
 
-
+  .font-heading {
+    font-family: var(--font-heading);
+  }
 
   /* @import "tailwindcss";
 @import "tw-animate-css";

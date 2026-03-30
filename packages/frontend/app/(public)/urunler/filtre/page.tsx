@@ -13,20 +13,37 @@ import { PageHero } from "@/components/sections/PageHero";
 
 export default async function Page({ searchParams }: any) {
 
+    const resolvedParams = await searchParams;
+    const categorySlug = resolvedParams?.category;
     const categories = await getCategories()
     const attributes = await getAttributesForFilter()
+
+    let title = "Tüm Ürünler";
+    let breadcrumbs = [
+        { label: "Ana Sayfa", href: "/" },
+        { label: "Tüm Ürünler" }
+    ];
+
+    if (categorySlug) {
+        const selectedCategory = categories.find((c: any) => c.slug === categorySlug);
+        if (selectedCategory) {
+            title = `${selectedCategory.name} Filtreleme`;
+            breadcrumbs = [
+                { label: "Ana Sayfa", href: "/" },
+                { label: "Ürün Kategorileri", href: "/urunler" },
+                { label: selectedCategory.name, href: `/urun-kategori/${selectedCategory.slug}` },
+                { label: "Filtreleme" }
+            ];
+        }
+    }
 
     return (
         <main>
 
             {/* HERO */}
             <PageHero
-                title="Tüm ürünler"
-                breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Ürünler", href: "/urunler" },
-                    { label: "Tüm ürünler" }
-                ]}
+                title={title}
+                breadcrumbs={breadcrumbs}
             />
 
             {/* FILTER + PRODUCTS */}

@@ -9,7 +9,8 @@ import { CorporateNavigationItem } from "@/components/navigation/CorporateNaviga
 import { CatalogNavigationItem } from "@/components/navigation/CatalogNavigationItem";
 import { CategoryNavigationItem } from "@/components/navigation/CategoryNavigationItem";
 import { ServicesNavigationItem } from "@/components/navigation/ServicesNavigationItem";
-import { SupportNavigationItem } from "@/components/navigation/SupportNavigationItem";
+/* import { SupportNavigationItem } from "@/components/navigation/SupportNavigationItem"; */
+import { ContactNavigationItem } from "@/components/navigation/Contact";
 import type { Category } from "@/features/public/categories/types";
 
 export const NavigationGroup = ({ categories }: { categories: Category[] }) => {
@@ -32,7 +33,10 @@ export const NavigationGroup = ({ categories }: { categories: Category[] }) => {
                         <CatalogNavigationItem title="Kataloglar" items={catalogItems} />
 
                         {/* DESTEK */}
-                        <SupportNavigationItem />
+                        {/* <SupportNavigationItem /> */}
+
+                        {/* İLETİŞİM */}
+                        <ContactNavigationItem />
                     </NavigationMenuList>
                 </NavigationMenu>
             </div>

@@ -33,23 +33,35 @@ const fadeUp: Variants = {
 /* Component */
 /* ------------------------------------------------------------------ */
 
-export function Enviroment() {
+export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
     return (
-        <section className="relative isolate overflow-hidden">
+        <section
+            className={`
+                relative isolate overflow-hidden
+                ${fullScreen ? "min-h-[calc(100vh-var(--navbar-height))]" : ""}
+            `}
+        >
             {/* Background image */}
             <div
                 className="absolute inset-0 -z-10 bg-center bg-no-repeat"
                 style={{
                     backgroundImage: "url(/logos/nature.jpg)",
-                    backgroundSize: "110%", // zoom-out
+                    // backgroundSize: "110%", // zoom-out
+                    backgroundSize: "cover", // zoom-out
                 }}
             />
 
             {/* Dark overlay */}
-            <div className="absolute inset-0 -z-10 bg-black/55" />
+            <div className="absolute inset-0 -z-10 bg-black/45" />
 
             {/* Content */}
-            <div className="mx-auto max-w-6xl px-6 min-h-[520px] lg:min-h-[600px] flex items-center justify-center text-center">
+            <div
+                className={`
+                    mx-auto max-w-6xl px-6
+                    ${fullScreen ? "h-[calc(100vh-var(--navbar-height))]" : "min-h-[520px] lg:min-h-[600px]"}
+                    flex items-center justify-center text-center
+                `}
+            >
                 <motion.div
                     variants={container}
                     initial="hidden"
@@ -61,20 +73,57 @@ export function Enviroment() {
                     <span className="absolute -top-6 -left-6 h-8 w-8 border-l-2 border-t-2 border-white/70" />
                     <span className="absolute -bottom-6 -right-6 h-8 w-8 border-r-2 border-b-2 border-white/70" />
 
-                    {/* Title */}
-                    <motion.h2
-                        variants={fadeUp}
-                        className="text-4xl md:text-5xl font-bold tracking-wide text-white"
-                    >
-                        DOĞA DOSTU
-                    </motion.h2>
+                    <div className="w-full max-w-2xl mx-auto">
 
-                    <motion.h3
-                        variants={fadeUp}
-                        className="mt-2 text-3xl md:text-4xl font-light tracking-[0.35em] text-white"
-                    >
-                        ÜRETİM
-                    </motion.h3>
+                        {/* DOĞA */}
+                        <motion.div
+                            variants={fadeUp}
+                            className="w-full text-left pl-2 md:pl-6"
+                        >
+                            <h2 className="
+      font-heading
+      text-5xl md:text-6xl lg:text-7xl
+      font-light
+      text-white
+    ">
+                                DOĞA
+                            </h2>
+                        </motion.div>
+
+                        {/* DOSTU */}
+                        <motion.div
+                            variants={fadeUp}
+                            className="w-full text-center -mt-2"
+                        >
+                            <h2 className="
+      font-heading
+      text-6xl md:text-7xl lg:text-[110px]
+      font-extrabold
+      text-white
+      leading-none
+      [text-shadow:0_10px_40px_rgba(0,0,0,0.5)]
+    ">
+                                DOSTU
+                            </h2>
+                        </motion.div>
+
+                        {/* ÜRETİM */}
+                        <motion.div
+                            variants={fadeUp}
+                            className="w-full text-right pr-2 md:pr-6"
+                        >
+                            <h2 className="
+      font-heading
+      text-4xl md:text-5xl lg:text-6xl
+      font-light
+      tracking-[0.25em]
+      text-white/90
+    ">
+                                ÜRETİM
+                            </h2>
+                        </motion.div>
+
+                    </div>
 
                     {/* Subtitle */}
                     <motion.p

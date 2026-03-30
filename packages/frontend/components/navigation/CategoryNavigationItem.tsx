@@ -36,6 +36,7 @@ export function CategoryNavigationItem({
                                         title={category.name}
                                         code={category.code}
                                         href={`/urun-kategori/${category.slug}`}
+                                        // href={`/urunler/filtre?category=${category.slug}`}
                                         imageStatic={primaryImage ?? "/categories/img/1.jpg"}
                                         imageAnimated={animatedImage ?? "/categories/gif/1.gif"}
                                         asNavigationItem

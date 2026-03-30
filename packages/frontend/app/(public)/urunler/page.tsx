@@ -5,7 +5,7 @@ import { PageHero } from "@/components/sections/PageHero"
 import { CategoryCard } from "@/components/navigation/CategoryCard"
 
 export const metadata: Metadata = {
-    title: "Ürünler | Ceyhunlar Plastik",
+    title: "Ürün Kategorileri | Ceyhunlar Plastik",
     description:
         "Ceyhunlar Plastik ürün kategorilerini inceleyin. Bakalit tutamaklar, plastik ürünler ve daha fazlası.",
     alternates: {
@@ -21,10 +21,10 @@ export default async function ProductsPage() {
         <main>
 
             <PageHero
-                title="Ürünler"
+                title="Ürün Kategorileri"
                 breadcrumbs={[
                     { label: "Ana Sayfa", href: "/" },
-                    { label: "Ürünler" }
+                    { label: "Ürün Kategorileri" }
                 ]}
             />
 

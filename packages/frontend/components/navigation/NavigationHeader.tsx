@@ -29,7 +29,7 @@ export const NavigationHeader = ({
                 {/* <NavigationGroup /> */}
 
                 {/* RIGHT ACTIONS - Placeholder for future use (e.g. Search, Cart, Login) */}
-                <NavigationContactButton setMobileOpen={setMobileOpen} />
+                {/* <NavigationContactButton setMobileOpen={setMobileOpen} /> */}
             </div>
         </header>
     );

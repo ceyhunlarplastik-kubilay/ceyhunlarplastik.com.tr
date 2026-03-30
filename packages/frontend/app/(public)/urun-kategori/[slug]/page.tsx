@@ -55,24 +55,29 @@ export default async function CategoryPage(
                 title={category.name}
                 breadcrumbs={[
                     { label: "Ana Sayfa", href: "/" },
-                    { label: "Ürünler", href: "/urunler" },
+                    { label: "Ürün Kategorileri", href: "/urunler" },
                     { label: category.name }
                 ]}
             />
 
-            <Link
-                href={`/urunler/filtre?category=${category.slug}`}
-                className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium"
-                style={{
-                    background: "var(--color-brand)",
-                    color: "var(--color-brand-foreground)",
-                }}
-            >
-                Filtreleyerek İncele
-            </Link>
-
             {/* CATEGORY PRODUCTS GRID */}
             <section className="mx-auto max-w-7xl px-6 py-20">
+
+                <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <h2 className="text-lg font-semibold text-neutral-900">
+                        {category.name} Ürünleri
+                    </h2>
+                    <Link
+                        href={`/urunler/filtre?category=${category.slug}`}
+                        className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+                        style={{
+                            background: "var(--color-brand)",
+                            color: "var(--color-brand-foreground)",
+                        }}
+                    >
+                        Tüm Ürünler
+                    </Link>
+                </div>
 
                 {products.length === 0 && (
                     <div className="flex flex-col items-center justify-center text-center py-20 bg-neutral-50/50 rounded-2xl border border-dashed border-neutral-200">
