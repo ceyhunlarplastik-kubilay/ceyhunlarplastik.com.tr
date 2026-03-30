@@ -212,16 +212,22 @@ export const productRepository = (): IPrismaProductRepository => {
             }),
 
             ...(query.attributeFilters?.length && {
-                AND: query.attributeFilters.map(([attrCode, value]) => ({
-                    attributeValues: {
-                        some: {
-                            slug: value,
-                            attribute: {
-                                code: attrCode
+                AND: query.attributeFilters.map(([attrCode, value]) => {
+                    const values = typeof value === "string" ? value.split(",") : []
+
+                    return {
+                        attributeValues: {
+                            some: {
+                                attribute: {
+                                    code: attrCode
+                                },
+                                slug: {
+                                    in: values
+                                }
                             }
                         }
                     }
-                }))
+                })
             })
         }
 
