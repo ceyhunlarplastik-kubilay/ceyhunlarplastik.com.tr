@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ClientsMarquee } from "./ClientsMarquee";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const WORDS = ["teamwork", "precision", "engineering", "reliability"];
+const WORDS = ["Arge ve Prototipleme", "3D Baskı ve Tarama", "Talaşlı İmalat", "Seri Üretim"];
 
 export function HeroSection() {
     const [index, setIndex] = useState(0);
@@ -36,10 +37,11 @@ export function HeroSection() {
                         <div>
                             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-tight">
                                 <span className="inline-flex items-baseline gap-3">
-                                    <span>Global</span>
+                                    {/* <span>Global</span> */}
 
                                     {/* Animated word container */}
-                                    <span className="relative inline-block min-w-[11ch] overflow-hidden text-brand align-bottom">
+                                    {/* <span className="relative inline-block min-w-[11ch] overflow-hidden text-brand align-bottom"> */}
+                                    <span className="relative inline-block w-[22ch] overflow-hidden text-brand align-bottom">
                                         <span className="invisible" aria-hidden="true">
                                             {WORDS[index]}
                                         </span>
@@ -50,7 +52,7 @@ export function HeroSection() {
                                                 animate={{ y: 0 }}
                                                 exit={{ y: "-100%" }}
                                                 transition={{ duration: 0.5, ease: "easeOut" }}
-                                                className="absolute inset-0"
+                                                className="absolute inset-0 flex items-center"
                                             >
                                                 {WORDS[index]}
                                             </motion.span>
@@ -58,7 +60,7 @@ export function HeroSection() {
                                     </span>
                                 </span>
                                 <br />
-                                plastic solutions
+                                Plastik Çözümler
                             </h1>
 
                             <motion.p
@@ -67,8 +69,10 @@ export function HeroSection() {
                                 transition={{ delay: 0.4 }}
                                 className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground"
                             >
-                                High-precision plastic component manufacturing with scalable
-                                production, certified materials and engineering excellence.
+                                Prototiplemeden seri üretime kadar tüm süreçleri tek çatı altında
+                                yöneten Ceyhunlar Plastik; plastik, kauçuk ve bakalit ürünlerde
+                                yüksek kalite, mühendislik gücü ve geniş ürün yelpazesiyle
+                                endüstriyel ihtiyaçlarınıza güvenilir çözümler sunar.
                             </motion.p>
 
                             <motion.div
@@ -77,12 +81,16 @@ export function HeroSection() {
                                 transition={{ delay: 0.6 }}
                                 className="mt-10 flex flex-wrap gap-4"
                             >
-                                <Button variant="brand" size="lg">
-                                    Contact us
+                                <Button asChild variant="brand" size="lg">
+                                    <Link href="/urunler/filtre">
+                                        Ürünlerimizi İnceleyin
+                                    </Link>
                                 </Button>
 
-                                <Button variant="outline" size="lg">
-                                    View products
+                                <Button asChild variant="outline" size="lg">
+                                    <Link href="/iletisim">
+                                        Teklif Alın
+                                    </Link>
                                 </Button>
                             </motion.div>
                         </div>
@@ -105,11 +113,19 @@ export function HeroSection() {
                             >
                                 <div className="absolute inset-0 z-10 bg-gradient-to-tr from-black/20 via-transparent to-transparent" />
 
-                                <Image
+                                {/* <Image
                                     loader={() =>
                                         "https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=2152&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                                     }
                                     src="https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=2152&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt="Plastic manufacturing"
+                                    fill
+                                    priority
+                                    className="object-cover"
+                                /> */}
+                                {/* packages/frontend/public/favicon-5312.png */}
+                                <Image
+                                    src="/favicon-5312.png"
                                     alt="Plastic manufacturing"
                                     fill
                                     priority

@@ -1,6 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { NavigationMenuItem } from "@/components/ui/navigation-menu";
+
+export const CatalogNavigationItem = () => {
+    return (
+        <NavigationMenuItem>
+            <Link
+                href="/kataloglar"
+                className="nav-pill text-base font-medium"
+            >
+                Kataloglar
+            </Link>
+        </NavigationMenuItem>
+    );
+};
+
+/* "use client";
+
+import Link from "next/link";
 import {
     NavigationMenuContent,
     NavigationMenuItem,
@@ -41,3 +59,4 @@ export function CatalogNavigationItem({
         </NavigationMenuItem>
     );
 }
+ */

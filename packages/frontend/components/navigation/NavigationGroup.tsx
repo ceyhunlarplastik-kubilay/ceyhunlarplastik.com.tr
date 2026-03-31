@@ -30,7 +30,8 @@ export const NavigationGroup = ({ categories }: { categories: Category[] }) => {
                         <ServicesNavigationItem />
 
                         {/* KATALOGLAR */}
-                        <CatalogNavigationItem title="Kataloglar" items={catalogItems} />
+                        <CatalogNavigationItem />
+                        {/* <CatalogNavigationItem title="Kataloglar" items={catalogItems} /> */}
 
                         {/* DESTEK */}
                         {/* <SupportNavigationItem /> */}
