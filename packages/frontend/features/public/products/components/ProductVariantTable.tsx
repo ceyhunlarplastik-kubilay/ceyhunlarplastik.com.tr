@@ -1,10 +1,25 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Palette, Ruler, Layers3 } from "lucide-react"
+import { Palette, Ruler, Layers3, Hash } from "lucide-react"
+import Link from "next/link"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ButtonShine } from "@/components/ui/button-shine"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import {
+    buildMeasurementKey,
+    formatMeasurementValue,
+    toMeasurementLabel,
+} from "@/features/public/products/utils/measurement"
 
 export type MeasurementTypeDetails = {
     id: string
@@ -51,50 +66,15 @@ type GroupedMeasurementOption = {
     measurements: VariantMeasurement[]
     colors: VariantColor[]
     materials: VariantMaterial[]
+    fullCodes: string[]
 }
 
 interface ProductVariantTableProps {
     variants: VariantTableData[]
+    productSlug: string
 }
 
-function normalizeNumeric(value: number): string {
-    if (!Number.isFinite(value)) return String(value)
-    return Number.parseFloat(value.toFixed(6)).toString()
-}
-
-function formatMeasurementValue(measurement: VariantMeasurement): string {
-    const code = measurement.measurementType.code
-    const label = measurement.label?.trim()
-
-    if ((code === "D" || code === "M") && label) {
-        return label.toUpperCase().startsWith("M") ? label.toUpperCase() : `M${label}`
-    }
-
-    if (label) return label
-    return normalizeNumeric(measurement.value)
-}
-
-function buildMeasurementKey(measurements: VariantMeasurement[]): string {
-    return [...measurements]
-        .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder)
-        .map(
-            (measurement) =>
-                `${measurement.measurementType.id}:${normalizeNumeric(measurement.value)}`
-        )
-        .join("|")
-}
-
-function toMeasurementLabel(measurements: VariantMeasurement[]): string {
-    return [...measurements]
-        .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder)
-        .map(
-            (measurement) =>
-                `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}`
-        )
-        .join(" · ")
-}
-
-export default function ProductVariantTable({ variants }: ProductVariantTableProps) {
+export default function ProductVariantTable({ variants, productSlug }: ProductVariantTableProps) {
     const options = useMemo<GroupedMeasurementOption[]>(() => {
         const groups = new Map<string, GroupedMeasurementOption>()
 
@@ -111,6 +91,7 @@ export default function ProductVariantTable({ variants }: ProductVariantTablePro
                     ),
                     colors: variant.color ? [variant.color] : [],
                     materials: [...variant.materials],
+                    fullCodes: [variant.fullCode],
                 })
                 continue
             }
@@ -124,6 +105,10 @@ export default function ProductVariantTable({ variants }: ProductVariantTablePro
                     existing.materials.push(material)
                 }
             }
+
+            if (!existing.fullCodes.includes(variant.fullCode)) {
+                existing.fullCodes.push(variant.fullCode)
+            }
         }
 
         return Array.from(groups.values()).sort((a, b) => {
@@ -136,6 +121,17 @@ export default function ProductVariantTable({ variants }: ProductVariantTablePro
     const [selectedKey, setSelectedKey] = useState<string>("")
 
     const selected = options.find((option) => option.key === selectedKey) ?? options[0]
+    const measurementColumns = useMemo(() => {
+        const map = new Map<string, MeasurementTypeDetails>()
+
+        for (const option of options) {
+            for (const measurement of option.measurements) {
+                map.set(measurement.measurementType.id, measurement.measurementType)
+            }
+        }
+
+        return Array.from(map.values()).sort((a, b) => a.displayOrder - b.displayOrder)
+    }, [options])
 
     if (!options.length) {
         return (
@@ -157,24 +153,81 @@ export default function ProductVariantTable({ variants }: ProductVariantTablePro
             <div className="grid gap-5 p-5 lg:grid-cols-[1.3fr_1fr]">
                 <div className="space-y-2">
                     <p className="text-xs font-medium text-neutral-500">Ölçü Seçenekleri</p>
-                    <div className="max-h-[380px] overflow-y-auto pr-1 space-y-2">
-                        {options.map((option) => {
-                            const isActive = selected?.key === option.key
+                    <div className="max-h-[420px] overflow-auto rounded-xl border border-neutral-200">
+                        <Table>
+                            <TableHeader className="sticky top-0 bg-neutral-50 z-10">
+                                <TableRow>
+                                    {measurementColumns.map((column) => (
+                                        <TableHead key={column.id}>
+                                            {column.code}
+                                        </TableHead>
+                                    ))}
+                                    <TableHead className="text-center">Renk</TableHead>
+                                    <TableHead className="text-center">Ham Madde</TableHead>
+                                    <TableHead className="text-center">Kod</TableHead>
+                                    <TableHead className="text-right pr-4">Detay</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {options.map((option) => {
+                                    const isActive = selected?.key === option.key
 
-                            return (
-                                <Button
-                                    key={option.key}
-                                    type="button"
-                                    variant={isActive ? "default" : "outline"}
-                                    className="w-full justify-start h-auto py-2.5 px-3 text-left"
-                                    onClick={() => setSelectedKey(option.key)}
-                                >
-                                    <span className="text-sm leading-relaxed whitespace-normal break-words">
-                                        {option.label}
-                                    </span>
-                                </Button>
-                            )
-                        })}
+                                    return (
+                                        <TableRow
+                                            key={option.key}
+                                            data-state={isActive ? "selected" : undefined}
+                                            className="cursor-pointer"
+                                            onClick={() => setSelectedKey(option.key)}
+                                        >
+                                            {measurementColumns.map((column) => {
+                                                const measurement = option.measurements.find(
+                                                    (item) => item.measurementType.id === column.id
+                                                )
+
+                                                if (!measurement) {
+                                                    return (
+                                                        <TableCell
+                                                            key={`${option.key}-${column.id}`}
+                                                            className="text-neutral-300"
+                                                        >
+                                                            -
+                                                        </TableCell>
+                                                    )
+                                                }
+
+                                                const hasUnit =
+                                                    measurement.measurementType.baseUnit &&
+                                                    measurement.measurementType.code !== "D" &&
+                                                    measurement.measurementType.code !== "M"
+
+                                                return (
+                                                    <TableCell key={`${option.key}-${column.id}`} className="font-medium">
+                                                        {formatMeasurementValue(measurement)}
+                                                        {hasUnit ? ` ${measurement.measurementType.baseUnit}` : ""}
+                                                    </TableCell>
+                                                )
+                                            })}
+                                            <TableCell className="text-center">{option.colors.length}</TableCell>
+                                            <TableCell className="text-center">{option.materials.length}</TableCell>
+                                            <TableCell className="text-center">{option.fullCodes.length}</TableCell>
+                                            <TableCell className="text-right pr-4">
+                                                <div className="flex justify-end">
+                                                    <ButtonShine
+                                                        href={{
+                                                            pathname: `/urun/${productSlug}/varyantlar`,
+                                                            query: { m: option.key },
+                                                        }}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        Varyantları Göster
+                                                    </ButtonShine>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })}
+                            </TableBody>
+                        </Table>
                     </div>
                 </div>
 
@@ -191,13 +244,32 @@ export default function ProductVariantTable({ variants }: ProductVariantTablePro
                                     {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
                                     {formatMeasurementValue(measurement)}
                                     {measurement.measurementType.baseUnit &&
-                                    measurement.measurementType.code !== "D" &&
-                                    measurement.measurementType.code !== "M"
+                                        measurement.measurementType.code !== "D" &&
+                                        measurement.measurementType.code !== "M"
                                         ? ` ${measurement.measurementType.baseUnit}`
                                         : ""}
                                 </Badge>
                             ))}
                         </div>
+                    </div>
+
+                    <div className="rounded-xl border border-neutral-200 p-4">
+                        <div className="flex items-center gap-2 text-neutral-700 mb-3">
+                            <Hash className="w-4 h-4" />
+                            <p className="text-sm font-medium">Mevcut Varyant Kodları</p>
+                        </div>
+
+                        {selected.fullCodes.length === 0 ? (
+                            <p className="text-sm text-neutral-400">Bu ölçü için varyant kodu bulunamadı.</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {selected.fullCodes.map((fullCode) => (
+                                    <Badge key={fullCode} variant="outline" className="font-mono">
+                                        {fullCode}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="rounded-xl border border-neutral-200 p-4">

@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: PageProps) {
 
             <section className="mx-auto max-w-7xl px-6 pb-24">
 
-                <ProductVariantTable variants={variants} />
+                <ProductVariantTable variants={variants} productSlug={product.slug} />
 
             </section>
 
