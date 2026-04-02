@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useForm, Controller } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
 
 import {
     Dialog,
@@ -12,13 +14,37 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { useUpdateProduct } from "@/features/admin/products/hooks/useUpdateProduct"
+import {
+    Field,
+    FieldError,
+    FieldGroup,
+    FieldLabel,
+} from "@/components/ui/field"
 
-import type { Product } from "@/features/public/products/types"
-import type { Category } from "@/features/public/categories/types"
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupText,
+    InputGroupTextarea,
+} from "@/components/ui/input-group"
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+import { useUpdateProduct } from "@/features/admin/products/hooks/useUpdateProduct"
 
 import { ProductAssetManager } from "@/features/admin/products/components/asset/ProductAssetManager"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
+
+import { productFormSchema, ProductFormValues } from "../schema/productFormSchema"
+
+import type { Product } from "@/features/public/products/types"
+import type { Category } from "@/features/public/categories/types"
 
 type Props = {
     product: Product
@@ -29,67 +55,169 @@ type Props = {
 }
 
 export function EditProductDialog({
-
     product,
     open,
     onOpenChange,
     categories,
     onUpdated
-
 }: Props) {
 
     const updateMutation = useUpdateProduct()
 
-    const [name, setName] = useState(product.name)
-    const [code, setCode] = useState(product.code)
-    const [categoryId, setCategoryId] = useState(product.categoryId)
-    const [attributeValueIds, setAttributeValueIds] = useState<string[]>(
-        product.attributeValues?.map(v => v.id) ?? []
-    )
+    const form = useForm<ProductFormValues>({
+        resolver: zodResolver(productFormSchema),
+        defaultValues: {
+            name: product.name,
+            code: product.code,
+            description: product.description ?? "",
+            categoryId: product.categoryId,
+            attributeValueIds: product.attributeValues?.map(v => v.id) ?? [],
+        },
+    })
 
-    async function handleSave() {
+    /* async function onSubmit(data: ProductFormValues) {
+        console.log("FORM DATA:", data) // 👈 EKLE
         const updated = await updateMutation.mutateAsync({
             id: product.id,
-            name,
-            code,
-            categoryId,
-            attributeValueIds
+            ...data
         })
         onUpdated(updated)
+    } */
+
+    async function onSubmit(data: ProductFormValues) {
+        try {
+            const updated = await updateMutation.mutateAsync({
+                id: product.id,
+                ...data
+            })
+
+            toast.success("Ürün güncellendi")
+
+            onUpdated(updated)
+
+        } catch (err) {
+            toast.error("Güncelleme başarısız")
+        }
     }
 
     return (
-
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-6xl">
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Ürün Düzenle</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-12 gap-6">
-                    <div className="col-span-4 space-y-4">
-                        <Input
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        />
-                        <Input
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                        />
-                        <ProductAttributeSelect
-                            value={attributeValueIds}
-                            onChange={setAttributeValueIds}
-                        />
-                        <Button onClick={handleSave}>
-                            Kaydet
-                        </Button>
+
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <div className="grid grid-cols-12 gap-6">
+
+                        {/* LEFT */}
+                        <div className="col-span-4">
+                            <FieldGroup>
+
+                                <Controller
+                                    name="name"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel>Ürün Adı</FieldLabel>
+                                            <Input {...field} />
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="code"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel>Kod</FieldLabel>
+                                            <Input {...field} />
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="categoryId"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <Field data-invalid={fieldState.invalid}>
+                                            <FieldLabel>Kategori</FieldLabel>
+
+                                            <Select
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="Kategori seç" />
+                                                </SelectTrigger>
+
+                                                <SelectContent>
+                                                    {categories.map(cat => (
+                                                        <SelectItem key={cat.id} value={cat.id}>
+                                                            {cat.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+
+                                            {fieldState.error && (
+                                                <FieldError errors={[fieldState.error]} />
+                                            )}
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="description"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel>Açıklama</FieldLabel>
+
+                                            <InputGroup>
+                                                <InputGroupTextarea
+                                                    {...field}
+                                                    rows={4}
+                                                    className="min-h-[120px]"
+                                                />
+                                                <InputGroupAddon align="block-end">
+                                                    <InputGroupText>
+                                                        {field.value?.length ?? 0}/500
+                                                    </InputGroupText>
+                                                </InputGroupAddon>
+                                            </InputGroup>
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="attributeValueIds"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <ProductAttributeSelect
+                                            value={field.value ?? []}
+                                            onChange={field.onChange}
+                                        />
+                                    )}
+                                />
+
+                                <Button type="submit" disabled={updateMutation.isPending}>
+                                    {updateMutation.isPending ? "Kaydediliyor..." : "Kaydet"}
+                                </Button>
+
+                            </FieldGroup>
+                        </div>
+
+                        {/* RIGHT */}
+                        <div className="col-span-8">
+                            <ProductAssetManager
+                                product={product}
+                                refetchProduct={async () => location.reload()}
+                            />
+                        </div>
+
                     </div>
-                    <div className="col-span-8">
-                        <ProductAssetManager
-                            product={product}
-                            refetchProduct={async () => location.reload()}
-                        />
-                    </div>
-                </div>
+                </form>
             </DialogContent>
         </Dialog>
     )

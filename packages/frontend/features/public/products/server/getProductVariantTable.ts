@@ -1,51 +1,18 @@
-import axios from "axios";
-import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable";
+import { publicServerClient } from "@/lib/http/serverClient";
+import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable"
+import type { ApiEnvelope } from "@/lib/http/types";
 
-function getPublicApiBaseUrl() {
-    const url = process.env.NEXT_PUBLIC_API_URL;
-    if (!url) {
-        throw new Error("NEXT_PUBLIC_API_URL is not defined");
-    }
-    return url;
-}
+export type ProductsVariantTableListPayload = {
+    data: VariantTableData[];
+};
 
-type GetProductVariantTableApiResponse = {
-    statusCode: number
-    payload: {
-        data: VariantTableData[]
-    }
-}
+export type ListProductsVariantTableResponse = ApiEnvelope<ProductsVariantTableListPayload>;
 
 export async function getProductVariantTable(productId: string): Promise<VariantTableData[]> {
-    const baseURL = getPublicApiBaseUrl();
+    const res = await publicServerClient().get<ListProductsVariantTableResponse>(
+        `/products/${productId}/variant-table`,
+        { params: { limit: 500 } }
+    );
 
-    try {
-        const res = await axios.get<GetProductVariantTableApiResponse>(
-            `/products/${productId}/variant-table`,
-            {
-                baseURL,
-                timeout: 20_000,
-                params: {
-                    limit: 500,
-                },
-            }
-        );
-
-        return res.data?.payload?.data ?? [];
-    } catch (error: unknown) {
-        const err = error as { response?: { status?: number; data?: unknown }; message?: string }
-        // Return empty array on not found
-        if (err?.response?.status === 404) {
-            return [];
-        }
-
-        console.error("getProductVariantTable error:", {
-            productId,
-            status: err?.response?.status,
-            data: err?.response?.data,
-            message: err?.message,
-        });
-
-        return [];
-    }
+    return res.data.payload.data ?? [];
 }

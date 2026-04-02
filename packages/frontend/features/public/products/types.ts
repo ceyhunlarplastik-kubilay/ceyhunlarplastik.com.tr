@@ -6,6 +6,7 @@ export type Product = {
     code: string;
     name: string;
     slug: string;
+    description?: string | null;
     categoryId: string;
     createdAt: string;
     updatedAt: string;

@@ -48,7 +48,7 @@ export function MotionDialog({
     return (
         <DialogContent
             forceMount
-            className="border-none bg-transparent p-0 shadow-none"
+            className="border-none bg-transparent p-0 shadow-none w-full max-w-3xl p-6 sm:p-8"
         >
             <motion.div
                 initial="hidden"

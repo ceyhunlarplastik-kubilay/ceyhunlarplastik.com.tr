@@ -104,10 +104,38 @@ export function Footer() {
                     <div>
                         <h4 className="mb-3 text-sm font-semibold text-white">Hizmetler</h4>
                         <ul className="space-y-1.5 text-white/70">
-                            <li>Ar-Ge ve Prototipleme</li>
-                            <li>3D Baskı ve Tarama</li>
-                            <li>Talaşlı İmalat</li>
-                            <li>Seri Üretim</li>
+                            <li>
+                                <Link
+                                    href="/arge-ve-prototipleme"
+                                    className="hover:text-[var(--color-brand)]"
+                                >
+                                    Ar-Ge ve Prototipleme
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/3d-baski-ve-tarama"
+                                    className="hover:text-[var(--color-brand)]"
+                                >
+                                    3D Baskı ve Tarama
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/talasli-imalat"
+                                    className="hover:text-[var(--color-brand)]"
+                                >
+                                    Talaşlı İmalat
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/seri-uretim"
+                                    className="hover:text-[var(--color-brand)]"
+                                >
+                                    Seri Üretim
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 

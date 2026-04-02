@@ -1,4 +1,4 @@
-import { publicApiClient } from "@/lib/http/client"
+import { publicServerClient } from "@/lib/http/serverClient"
 import type { Product } from "@/features/public/products/types"
 import type { ApiEnvelope } from "@/lib/http/types"
 
@@ -26,12 +26,29 @@ export async function getFilteredProducts(
         })
     )
 
-    const res = await publicApiClient.get<FilteredProductsResponse>("/products", {
-        params: cleanParams,
-    })
+    try {
+        const res = await publicServerClient().get<FilteredProductsResponse>("/products", {
+            params: cleanParams,
+        })
 
-    return (
-        res.data.payload ?? {
+        return (
+            res.data.payload ?? {
+                data: [],
+                meta: {
+                    page: 1,
+                    limit: 12,
+                    total: 0,
+                    totalPages: 0,
+                },
+            }
+        )
+    } catch (error: any) {
+        console.error("getFilteredProducts error:", {
+            status: error?.response?.status,
+            code: error?.code,
+            message: error?.message,
+        })
+        return {
             data: [],
             meta: {
                 page: 1,
@@ -40,5 +57,5 @@ export async function getFilteredProducts(
                 totalPages: 0,
             },
         }
-    )
+    }
 }

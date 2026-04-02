@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "motion/react";
 import AnimatedLetter from "@/components/ui/AnimatedLetter";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ export default function ServicesBentoGrid() {
                     <ServiceCard
                         title="Ar-Ge ve Prototipleme"
                         description="Projenizin numune ve seri üretim öncesinde, ileri çizim ve analiz teknolojilerimizle geliştirilmesi sağlanır."
+                        href="/arge-ve-prototipleme"
                         image="/services/rd.jpg" // Placeholder
                         className="h-[400px] lg:h-full"
                         priority
@@ -25,11 +27,13 @@ export default function ServicesBentoGrid() {
                         <ServiceCard
                             title="3D Baskı ve Tarama"
                             description="Ar-Ge süreci tamamlanan projeleriniz, gerektiğinde taranarak CAD modellemesi yapılır ve 3D baskı ile prototiplenir."
+                            href="/3d-baski-ve-tarama"
                             image="/services/3d-printer.jpg" // Placeholder
                         />
                         <ServiceCard
                             title="Talaşlı İmalat"
                             description="Ar-Ge, Analiz ve Prototiplemesi tamamlanan ürünlerinizin seri üretiminin yapılması adına Kalıphane bölümümüzde kalıpların hazırlanması."
+                            href="/talasli-imalat"
                             image="/services/cnc-1.jpg" // Placeholder
                         />
                     </div>
@@ -40,24 +44,28 @@ export default function ServicesBentoGrid() {
                     <ServiceCard
                         title="Seri Üretim Metal"
                         description="Metal seri imalat kalıpları tamamlanan parçalar, preshane bölümümüzde yüksek hassasiyetle metal seri üretim sürecine alınmaktadır."
+                        href="/seri-uretim#metal"
                         image="/services/cnc-3.jpg"
                         className="h-[400px]"
                     />
                     <ServiceCard
                         title="Seri Üretim Plastik"
                         description="Seri imalat kalıpları tamamlanan plastik parçalar, enjeksiyon, şişirme ve ekstrüzyon yöntemleriyle seri üretime alınır."
+                        href="/seri-uretim#plastic"
                         image="/services/serial-production.jpg"
                         className="h-[400px]"
                     />
                     <ServiceCard
                         title="Seri Üretim Kauçuk"
                         description="Seri imalat kalıpları tamamlanan kauçuk parçaların hidrolik pres bölümümüzde seri üretiminin yapılması."
+                        href="/seri-uretim#rubber"
                         image="/services/rubber-parts-16x9.jpg"
                         className="h-[400px]"
                     />
                     <ServiceCard
                         title="Seri Üretim Bakalit"
                         description="Seri imalat kalıpları tamamlanan bakalit parçaların bakalit enjeksiyon bölümümüzde seri üretimlerinin yapılması."
+                        href="/seri-uretim#bakelite"
                         image="/services/rubber-parts-16x9.jpg"
                         className="h-[400px]"
                     />
@@ -73,6 +81,7 @@ interface ServiceCardProps {
     image: string;
     title: string;
     description: string;
+    href?: string;
     className?: string;
     priority?: boolean;
 }
@@ -81,6 +90,7 @@ function ServiceCard({
     image,
     title,
     description,
+    href,
     className,
     priority = false,
 }: ServiceCardProps) {
@@ -96,27 +106,29 @@ function ServiceCard({
             transition={{ duration: 0.3 }}
             className={cn(
                 "group relative overflow-hidden rounded-xl bg-neutral-900",
+                href && "cursor-pointer", // UX
                 className
             )}
         >
+            {href ? (
+                <Link href={href} className="absolute inset-0 z-20" />
+            ) : null}
+
             {/* Background Image */}
             <div className="absolute inset-0">
                 <Image
                     src={image}
                     alt={title}
                     fill
-                    /* className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-40" */
-                    className=" object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                    className="object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
                     sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
                     priority={priority}
                 />
-                {/* Gradient Overlay for Text Readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
             </div>
 
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col justify-between p-5 text-white">
-                {/* Title Top */}
                 <h3 className="text-2xl md:text-3xl font-semibold tracking-tight flex flex-wrap">
                     {title.split("").map((char, i) => (
                         <AnimatedLetter
@@ -127,7 +139,6 @@ function ServiceCard({
                     ))}
                 </h3>
 
-                {/* Description Bottom */}
                 <p className="text-sm md:text-base text-gray-200 leading-relaxed opacity-90">
                     {description}
                 </p>

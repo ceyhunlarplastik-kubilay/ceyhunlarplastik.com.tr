@@ -20,6 +20,7 @@ export interface IListProductsDependencies { productRepository: IPrismaProductRe
 export interface ICreateProductBody {
     code: string
     name: string
+    description?: string
     categoryId: string
     assetType?: AssetType
     assetRole?: AssetRole

@@ -65,6 +65,8 @@ export function AboutSection() {
                             description="Ekibimizin bilgi birikimi ve yetkinliği, sunduğumuz çözümlerin kalitesini ve güvenilirliğini garanti eder."
                             ctaPrimary="Hakkımızda"
                             ctaSecondary="İletişim"
+                            ctaPrimaryHref="/hakkimizda"
+                            ctaSecondaryHref="/iletisim"
                             className="h-full shadow-2xl"
                         />
                     </motion.div>

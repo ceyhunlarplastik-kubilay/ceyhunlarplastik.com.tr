@@ -8,6 +8,7 @@ import type { CreateProductResponse } from "./types"
 type Params = {
     code: string
     name: string
+    description?: string
     categoryId: string
     assetType?: AssetType
     assetRole?: AssetRole
@@ -19,6 +20,7 @@ type Params = {
 export async function createProduct({
     code,
     name,
+    description,
     categoryId,
     assetType,
     assetRole,
@@ -31,6 +33,7 @@ export async function createProduct({
         {
             code,
             name,
+            description,
             categoryId,
             assetType,
             assetRole,

@@ -57,7 +57,7 @@ export function ProductsSection() {
                             <MarqueeItem
                                 key={`row1-${item.id}`}
                                 item={{
-                                    href: `/category/${item.id}`,
+                                    href: `/urun-kategori/${item.slug}`,
                                     title: item.name,
                                     src: `/categories/img/${item.code}.jpg`,
                                 }}
@@ -71,7 +71,7 @@ export function ProductsSection() {
                             <MarqueeItem
                                 key={`row2-${item.id}`}
                                 item={{
-                                    href: `/category/${item.id}`,
+                                    href: `/urun-kategori/${item.slug}`,
                                     title: item.name,
                                     src: `/categories/img/${item.code}.jpg`,
                                 }}
@@ -85,7 +85,7 @@ export function ProductsSection() {
                             <MarqueeItem
                                 key={`row3-${item.id}`}
                                 item={{
-                                    href: `/category/${item.id}`,
+                                    href: `/urun-kategori/${item.slug}`,
                                     title: item.name,
                                     src: `/categories/img/${item.code}.jpg`,
                                 }}

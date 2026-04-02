@@ -1,4 +1,4 @@
-import axios from "axios";
+import { publicServerClient } from "@/lib/http/serverClient";
 import type { Product } from "@/features/public/products/types";
 
 type GetProductBySlugApiResponse = {
@@ -8,27 +8,11 @@ type GetProductBySlugApiResponse = {
     };
 };
 
-function getPublicApiBaseUrl() {
-    const url = process.env.NEXT_PUBLIC_API_URL;
-    if (!url) {
-        throw new Error("NEXT_PUBLIC_API_URL is not defined");
-    }
-    return url;
-}
-
 export async function getProductBySlug(
     slug: string
 ): Promise<Product | null> {
-    const baseURL = getPublicApiBaseUrl();
-
     try {
-        const res = await axios.get<GetProductBySlugApiResponse>(
-            `/products/slug/${slug}`,
-            {
-                baseURL,
-                timeout: 20_000,
-            }
-        );
+        const res = await publicServerClient().get<GetProductBySlugApiResponse>(`/products/slug/${slug}`);
 
         return res.data?.payload?.product ?? null;
     } catch (error: any) {

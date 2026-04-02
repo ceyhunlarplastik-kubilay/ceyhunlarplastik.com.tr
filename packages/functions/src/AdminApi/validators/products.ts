@@ -65,6 +65,7 @@ export const createProductValidator = validatorWrapper(
         body: z.object({
             code: z.string().min(1),
             name: z.string().min(1),
+            description: z.string().optional(),
             categoryId: z.uuid(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),
@@ -87,6 +88,7 @@ export const updateProductValidator = validatorWrapper(
         body: z.object({
             code: z.string().min(1).optional(),
             name: z.string().min(1).optional(),
+            description: z.string().optional(),
             categoryId: z.uuid().optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),

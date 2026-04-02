@@ -94,10 +94,32 @@ export default function ProductHero({ product }: Props) {
                     attributeValues={product.attributeValues}
                 />
 
-                <p className="text-neutral-600 leading-relaxed">
-                    Bu ürün grubuna ait farklı ölçü seçeneklerini aşağıdaki tabloda
-                    inceleyebilirsiniz. Teknik çizimler ve ürün animasyonu
-                    aşağıda yer almaktadır.
+                {product.description && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="
+            relative
+            rounded-xl
+            border border-neutral-200
+            bg-gradient-to-br from-neutral-50 to-white
+            p-5
+            shadow-sm
+        "
+                    >
+                        {/* 🔥 SOL ACCENT BAR */}
+                        <div className="absolute left-0 top-0 h-full w-1 bg-brand rounded-l-xl" />
+
+                        {/* CONTENT */}
+                        <p className="text-neutral-700 leading-relaxed text-sm sm:text-base pl-3">
+                            {product.description}
+                        </p>
+                    </motion.div>
+                )}
+
+                <p className="text-neutral-500 text-sm">
+                    Teknik detaylar ve ölçü seçeneklerini aşağıdan inceleyebilirsiniz.
                 </p>
 
             </div>

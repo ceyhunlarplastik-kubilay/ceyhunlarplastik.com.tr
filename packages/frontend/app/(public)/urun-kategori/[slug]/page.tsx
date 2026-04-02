@@ -41,11 +41,12 @@ export default async function CategoryPage(
 
     const { slug } = await params
 
-    const category = await getCategoryBySlug(slug)
+    const [category, products] = await Promise.all([
+        getCategoryBySlug(slug),
+        getProductsByCategory(slug, "slug"),
+    ])
 
     if (!category) notFound()
-
-    const products = await getProductsByCategory(category.id)
 
     return (
         <main>

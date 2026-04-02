@@ -10,6 +10,7 @@ type Params = {
 
     code?: string
     name?: string
+    description?: string
     categoryId?: string
 
     assetType?: AssetType
@@ -23,6 +24,7 @@ export async function updateProduct({
     id,
     code,
     name,
+    description,
     categoryId,
     assetType,
     assetRole,
@@ -35,6 +37,7 @@ export async function updateProduct({
         {
             code,
             name,
+            description,
             categoryId,
             assetType,
             assetRole,

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,13 @@ interface InfoCardProps {
     image: string;
     title: string;
     description: string;
+
     ctaPrimary?: string;
     ctaSecondary?: string;
+
+    ctaPrimaryHref?: string;
+    ctaSecondaryHref?: string;
+
     className?: string;
 }
 
@@ -19,6 +25,8 @@ export function InfoCard({
     description,
     ctaPrimary,
     ctaSecondary,
+    ctaPrimaryHref,
+    ctaSecondaryHref,
     className,
 }: InfoCardProps) {
     return (
@@ -67,21 +75,35 @@ export function InfoCard({
                 {/* ACTIONS */}
                 {(ctaPrimary || ctaSecondary) && (
                     <div className="mt-10 flex flex-wrap gap-4">
-                        {ctaPrimary && (
-                            <Button variant="brand" size="lg" className="text-lg px-8 py-6">
-                                {ctaPrimary}
+
+                        {/* PRIMARY CTA */}
+                        {ctaPrimary && ctaPrimaryHref && (
+                            <Button
+                                asChild
+                                variant="brand"
+                                size="lg"
+                                className="text-lg px-8 py-6"
+                            >
+                                <Link href={ctaPrimaryHref}>
+                                    {ctaPrimary}
+                                </Link>
                             </Button>
                         )}
 
-                        {ctaSecondary && (
+                        {/* SECONDARY CTA */}
+                        {ctaSecondary && ctaSecondaryHref && (
                             <Button
+                                asChild
                                 variant="outline"
                                 size="lg"
                                 className="text-white text-lg px-8 py-6 bg-white/10 border-white/60 hover:bg-white/15 hover:text-white"
                             >
-                                {ctaSecondary}
+                                <Link href={ctaSecondaryHref}>
+                                    {ctaSecondary}
+                                </Link>
                             </Button>
                         )}
+
                     </div>
                 )}
             </div>

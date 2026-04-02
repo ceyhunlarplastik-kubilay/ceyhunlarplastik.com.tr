@@ -7,7 +7,7 @@ import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets
 
 export const createProductHandler = ({ productRepository, categoryRepository, assetRepository }: ICreateProductDependencies) => {
     return async (event: ICreateProductEvent) => {
-        const { code, name, categoryId, attributeValueIds, assetType, assetRole, assetKey, mimeType } = event.body;
+        const { code, name, description, categoryId, attributeValueIds, assetType, assetRole, assetKey, mimeType } = event.body;
 
         try {
             const category = await categoryRepository.getCategory(categoryId)
@@ -20,6 +20,7 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
             let product = await productRepository.createProduct({
                 code,
                 name,
+                description,
                 slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
                 category: { connect: { id: categoryId } },
                 // 🔥 CORE LOGIC

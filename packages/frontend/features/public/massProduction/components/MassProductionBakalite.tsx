@@ -20,7 +20,7 @@ const fadeUp = {
 export function MassProductionBakalite() {
     return (
         <>
-            <section className="py-20">
+            <section id="bakelite" className="py-20">
                 <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-stretch">
 
                     {/* TEXT */}

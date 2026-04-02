@@ -59,6 +59,7 @@ export function mapProductWithAssets(product: any) {
         code: product.code,
         name: product.name,
         slug: product.slug,
+        description: product.description ?? null,
         categoryId: product.categoryId,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,

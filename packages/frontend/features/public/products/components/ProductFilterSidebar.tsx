@@ -29,6 +29,7 @@ type Category = {
     id: string
     name: string
     slug: string
+    code: string
 }
 
 type AttributeValue = {
@@ -143,7 +144,7 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                                                 : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
                                         ].join(" ")}
                                     >
-                                        {cat.name}
+                                        {cat.code}. {cat.name}
                                     </button>
                                 )
                             })}
