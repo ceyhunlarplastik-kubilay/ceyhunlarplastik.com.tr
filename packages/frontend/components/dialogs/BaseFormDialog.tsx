@@ -42,6 +42,11 @@ export function BaseFormDialog<TFieldValues extends FieldValues>({
     onSubmitted,
 }: BaseFormDialogProps<TFieldValues>) {
     const [open, setOpen] = React.useState(false);
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const form = useForm<TFieldValues>({
         resolver: zodResolver(schema as any),
@@ -73,6 +78,12 @@ export function BaseFormDialog<TFieldValues extends FieldValues>({
             toast.error("Bir hata oluştu", { id: toastId });
         }
     };
+
+    // Prevent Radix-generated ids from causing SSR/CSR hydration mismatch
+    // in navbar/topbar usage where client-only components can shift id order.
+    if (!mounted) {
+        return <>{trigger}</>;
+    }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

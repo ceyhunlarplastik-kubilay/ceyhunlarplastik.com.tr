@@ -29,13 +29,14 @@ type Category = {
     id: string
     name: string
     slug: string
-    code: string
+    code: string | number
 }
 
 type AttributeValue = {
     id: string
     name: string
     slug: string
+    parentValueId?: string | null
 }
 
 type Attribute = {
@@ -59,8 +60,7 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
         category,
         attributes: storeAttributes,
         setCategory,
-        toggleAttribute,
-        toQueryString,
+        setAttributes,
         setFromUrl,
     } = useFilterStore()
 
@@ -69,20 +69,85 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
         setFromUrl(new URLSearchParams(searchParams.toString()))
     }, [searchParams])
 
-    function updateUrl() {
+    function pushStateToUrl(nextCategory: string | undefined, nextAttributes: Record<string, string[]>) {
+        const params = new URLSearchParams()
+        if (nextCategory) params.set("category", nextCategory)
+        params.set("page", "1")
+        params.set("limit", String(useFilterStore.getState().limit))
+
+        Object.entries(nextAttributes).forEach(([key, values]) => {
+            if (values.length > 0) params.set(key, values.join(","))
+        })
+
         startTransition(() => {
-            router.replace(`/urunler/filtre?${toQueryString()}`, { scroll: false })
+            router.replace(`/urunler/filtre?${params.toString()}`, { scroll: false })
         })
     }
 
     function handleCategory(slug: string) {
-        setCategory(category === slug ? undefined : slug)
-        updateUrl()
+        const nextCategory = category === slug ? undefined : slug
+        setCategory(nextCategory)
+        pushStateToUrl(nextCategory, useFilterStore.getState().attributes)
     }
 
     function handleAttribute(code: string, slug: string) {
-        toggleAttribute(code, slug)
-        updateUrl()
+        const current = useFilterStore.getState().attributes
+        const next: Record<string, string[]> = { ...current }
+        const list = next[code] ?? []
+
+        next[code] = list.includes(slug)
+            ? list.filter((value) => value !== slug)
+            : [...list, slug]
+
+        const localAttributeMap = new Map(attributes.map((attr) => [attr.code, attr]))
+        const sectorValues = localAttributeMap.get("sector")?.values ?? []
+        const productionGroupValues = localAttributeMap.get("production_group")?.values ?? []
+        const usageAreaValues = localAttributeMap.get("usage_area")?.values ?? []
+
+        const selectedSectorIds = new Set(
+            (next["sector"] ?? [])
+                .map((selectedSlug) => sectorValues.find((v) => v.slug === selectedSlug)?.id)
+                .filter((id): id is string => Boolean(id))
+        )
+
+        const allowedProductionGroupSlugs =
+            selectedSectorIds.size > 0
+                ? new Set(
+                    productionGroupValues
+                        .filter((value) => value.parentValueId && selectedSectorIds.has(value.parentValueId))
+                        .map((value) => value.slug)
+                )
+                : null
+
+        if (allowedProductionGroupSlugs) {
+            next["production_group"] = (next["production_group"] ?? []).filter((value) =>
+                allowedProductionGroupSlugs.has(value)
+            )
+        }
+
+        const selectedProductionGroupIds = new Set(
+            (next["production_group"] ?? [])
+                .map((selectedSlug) => productionGroupValues.find((v) => v.slug === selectedSlug)?.id)
+                .filter((id): id is string => Boolean(id))
+        )
+
+        const allowedUsageAreaSlugs =
+            selectedProductionGroupIds.size > 0
+                ? new Set(
+                    usageAreaValues
+                        .filter((value) => value.parentValueId && selectedProductionGroupIds.has(value.parentValueId))
+                        .map((value) => value.slug)
+                )
+                : null
+
+        if (allowedUsageAreaSlugs) {
+            next["usage_area"] = (next["usage_area"] ?? []).filter((value) =>
+                allowedUsageAreaSlugs.has(value)
+            )
+        }
+
+        setAttributes(next)
+        pushStateToUrl(category, next)
     }
 
     function clearAll() {
@@ -94,6 +159,50 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
     const hasActiveFilters = useMemo(() => {
         return category || Object.keys(storeAttributes).length > 0
     }, [category, storeAttributes])
+
+    const attributeMap = useMemo(() => {
+        return new Map(attributes.map((attr) => [attr.code, attr]))
+    }, [attributes])
+
+    const orderedAttributes = useMemo(() => {
+        const priorityCodes = ["sector", "production_group", "usage_area"]
+        const seen = new Set<string>()
+
+        const prioritized = priorityCodes
+            .map((code) => attributes.find((attr) => attr.code === code))
+            .filter((attr): attr is Attribute => Boolean(attr))
+            .map((attr) => {
+                seen.add(attr.id)
+                return attr
+            })
+
+        const rest = attributes.filter((attr) => !seen.has(attr.id))
+
+        return [...prioritized, ...rest]
+    }, [attributes])
+
+    const selectedSectorSlugs = storeAttributes["sector"] ?? []
+    const selectedProductionGroupSlugs = storeAttributes["production_group"] ?? []
+
+    const selectedSectorIds = useMemo(() => {
+        const sectorValues = attributeMap.get("sector")?.values ?? []
+        const slugToId = new Map(sectorValues.map((value) => [value.slug, value.id]))
+        return selectedSectorSlugs
+            .map((slug) => slugToId.get(slug))
+            .filter((id): id is string => Boolean(id))
+    }, [attributeMap, selectedSectorSlugs])
+
+    const selectedProductionGroupIds = useMemo(() => {
+        const groupValues = attributeMap.get("production_group")?.values ?? []
+        const slugToId = new Map(groupValues.map((value) => [value.slug, value.id]))
+        return selectedProductionGroupSlugs
+            .map((slug) => slugToId.get(slug))
+            .filter((id): id is string => Boolean(id))
+    }, [attributeMap, selectedProductionGroupSlugs])
+
+    // NOTE:
+    // Hierarchical pruning is handled inside handleAttribute to avoid
+    // URL<->state effect loops while preserving sector->production_group->usage_area rules.
 
     return (
         <aside className="sticky top-24">
@@ -152,8 +261,14 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                     </section>
 
                     {/* ATTRIBUTES */}
-                    {attributes.map((attr) => {
-                        const values = attr.values ?? []
+                    {orderedAttributes.map((attr) => {
+                        const baseValues = attr.values ?? []
+                        const values =
+                            attr.code === "production_group" && selectedSectorIds.length > 0
+                                ? baseValues.filter((value) => value.parentValueId && selectedSectorIds.includes(value.parentValueId))
+                                : attr.code === "usage_area" && selectedProductionGroupIds.length > 0
+                                    ? baseValues.filter((value) => value.parentValueId && selectedProductionGroupIds.includes(value.parentValueId))
+                                    : baseValues
                         const selected = storeAttributes[attr.code] ?? []
 
                         const isLarge = values.length > 8

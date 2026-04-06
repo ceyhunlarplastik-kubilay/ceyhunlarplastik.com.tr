@@ -1,5 +1,5 @@
 "use client"
-
+import { useState } from "react"
 import { motion } from "motion/react"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
@@ -25,11 +25,27 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
     }, {})
 
     const router = useRouter();
+    const [expanded, setExpanded] = useState(false)
+
+    const preferredOrder = ["sector", "production_group", "usage_area"]
+    const entries = Object.entries(grouped).sort(([aName, aValues], [bName, bValues]) => {
+        const aCode = (aValues as any[])?.[0]?.attribute?.code ?? ""
+        const bCode = (bValues as any[])?.[0]?.attribute?.code ?? ""
+        const ai = preferredOrder.indexOf(aCode)
+        const bi = preferredOrder.indexOf(bCode)
+
+        if (ai !== -1 && bi !== -1) return ai - bi
+        if (ai !== -1) return -1
+        if (bi !== -1) return 1
+        return aName.localeCompare(bName, "tr")
+    })
+
+    const visibleEntries = expanded ? entries : entries.slice(0, 2)
 
     return (
         <div className="space-y-4">
 
-            {Object.entries(grouped).map(([attributeName, values], i) => (
+            {visibleEntries.map(([attributeName, values], i) => (
 
                 <motion.div
                     key={attributeName}
@@ -46,7 +62,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                     </p>
 
                     {/* VALUES */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
 
                         {(values as any[]).map((val) => (
 
@@ -80,7 +96,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                     className="
             relative
             text-xs
-            px-3 py-1
+            px-2 py-0.5
             rounded-full
             border
             backdrop-blur-sm
@@ -107,6 +123,15 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                 </motion.div>
 
             ))}
+
+            {entries.length > 2 && (
+                <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="text-xs text-[var(--color-brand)] hover:underline"
+                >
+                    {expanded ? "Daha az göster" : `+${entries.length - 2} daha`}
+                </button>
+            )}
 
         </div>
     )

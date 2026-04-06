@@ -9,6 +9,7 @@ const productAttributeFilterSchema = z.object({
             id: z.uuid(),
             name: z.string(),
             slug: z.string(),
+            parentValueId: z.uuid().nullable().optional(),
         })
     ),
 })

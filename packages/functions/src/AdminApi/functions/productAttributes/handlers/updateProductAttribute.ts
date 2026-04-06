@@ -1,4 +1,4 @@
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductAttributeDependencies, IUpdateProductAttributeEvent } from "@/functions/AdminApi/types/productAttributes"
@@ -19,6 +19,7 @@ export const updateProductAttributeHandler = ({ productAttributeRepository }: IP
                 payload: { attribute: updated },
             })
         } catch (err: any) {
+            if (err instanceof HttpError) throw err;
             if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
                 throw new createError.Conflict("Product attribute name already exists");
             }

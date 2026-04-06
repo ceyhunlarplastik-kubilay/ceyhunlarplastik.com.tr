@@ -6,7 +6,8 @@ export const createProductAttributeValueValidator = validatorWrapper(
         body: z.object({
             name: z.string().min(1),
             attributeId: z.uuid(),
-            displayOrder: z.number().optional()
+            displayOrder: z.number().optional(),
+            parentValueId: z.uuid().nullable().optional(),
         })
     }),
     {
@@ -22,7 +23,8 @@ export const updateProductAttributeValueValidator = validatorWrapper(
         }),
         body: z.object({
             name: z.string().optional(),
-            displayOrder: z.number().optional()
+            displayOrder: z.number().optional(),
+            parentValueId: z.uuid().nullable().optional(),
         })
     }),
     {

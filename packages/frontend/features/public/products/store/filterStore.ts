@@ -8,6 +8,7 @@ type Store = {
 
     setCategory: (c?: string) => void
     toggleAttribute: (code: string, value: string) => void
+    setAttributes: (attrs: Record<string, string[]>) => void
     setPage: (p: number) => void
 
     toQueryString: () => string
@@ -34,6 +35,8 @@ export const useFilterStore = create<Store>((set, get) => ({
 
         set({ attributes: attrs, page: 1 })
     },
+
+    setAttributes: (attributes) => set({ attributes, page: 1 }),
 
     setPage: (page) => set({ page }),
 

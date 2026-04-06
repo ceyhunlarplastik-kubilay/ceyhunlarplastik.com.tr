@@ -4,10 +4,12 @@ import type { Metadata } from "next"
 import { PageHero } from "@/components/sections/PageHero"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
+import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory"
 
 import ProductHero from "@/features/public/products/components/ProductHero"
 import ProductMediaRow from "@/features/public/products/components/ProductMediaRow"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
+import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 
 export const revalidate = 60
 
@@ -49,6 +51,10 @@ export default async function ProductPage({ params }: PageProps) {
     if (!product) notFound()
 
     const variants = await getProductVariantTable(product.id)
+    const productsByCategory = await getProductsByCategory(product.categoryId, "id")
+    const similarProducts = productsByCategory
+        .filter((item) => item.id !== product.id)
+        .slice(0, 12)
 
     return (
         <main>
@@ -67,16 +73,23 @@ export default async function ProductPage({ params }: PageProps) {
             <section className="mx-auto max-w-7xl px-6 py-16">
 
                 {/* PRODUCT HERO */}
-                <ProductHero product={product} />
+                <div id="product-hero">
+                    <ProductHero product={product} />
+                </div>
 
                 {/* MEDIA ROW */}
-                <ProductMediaRow product={product} />
+                <div id="product-media">
+                    <ProductMediaRow product={product} />
+                </div>
 
             </section>
 
             <section className="mx-auto max-w-7xl px-6 pb-24">
 
-                <ProductVariantTable variants={variants} productSlug={product.slug} />
+                <div id="product-variants">
+                    <ProductVariantTable variants={variants} productSlug={product.slug} />
+                </div>
+                <SimilarProductsRow products={similarProducts} />
 
             </section>
 

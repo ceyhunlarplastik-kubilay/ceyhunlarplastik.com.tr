@@ -5,8 +5,12 @@ export const proxy = withAuth({
         authorized({ token, req }) {
             const { pathname } = req.nextUrl;
 
-            // Login değilse hiçbir protected alana giremesin
+            // Token yoksa veya refresh hatası varsa → re-login
             if (!token) return false;
+
+            // Refresh token geçersiz olduysa (Cognito'dan invalid_grant geldi)
+            // false döndürmek NextAuth'un kullanıcıyı signin'e yönlendirmesini tetikler
+            if ((token as any).error === "RefreshTokenError") return false;
 
             // /admin ile başlıyorsa role kontrolü yap
             if (pathname.startsWith("/admin")) {

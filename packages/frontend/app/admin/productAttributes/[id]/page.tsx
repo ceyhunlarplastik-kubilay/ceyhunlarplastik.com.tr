@@ -27,7 +27,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
             {/* VALUES MANAGER */}
             <div className="max-w-xl">
-                <ProductAttributeValuesManager attributeId={attribute.id} />
+                <ProductAttributeValuesManager
+                    attributeId={attribute.id}
+                    attributeCode={attribute.code}
+                />
             </div>
 
         </div>

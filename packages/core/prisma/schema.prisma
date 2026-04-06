@@ -129,6 +129,10 @@ model ProductAttributeValue {
   attributeId String
   attribute   ProductAttribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
 
+  parentValueId String?
+  parentValue   ProductAttributeValue?  @relation("AttributeValueHierarchy", fields: [parentValueId], references: [id], onDelete: SetNull)
+  childValues   ProductAttributeValue[] @relation("AttributeValueHierarchy")
+
   // 🔥 MANY TO MANY
   products Product[]
 
@@ -140,6 +144,7 @@ model ProductAttributeValue {
 
   @@unique([attributeId, name])
   @@index([attributeId])
+  @@index([parentValueId])
 }
 
 ///////////////////////////////////////////////////////

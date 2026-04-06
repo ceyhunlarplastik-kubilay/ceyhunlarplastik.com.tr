@@ -1,5 +1,6 @@
 import { lambdaHandler } from "@/core/middy"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+import { productAttributeRepository } from "@/core/helpers/prisma/productAttributes/repository"
 
 import {
     createProductAttributeValueHandler,
@@ -17,7 +18,8 @@ import {
 export const createProductAttributeValue = lambdaHandler(
     async (event) => {
         return createProductAttributeValueHandler({
-            productAttributeValueRepository: productAttributeValueRepository()
+            productAttributeValueRepository: productAttributeValueRepository(),
+            productAttributeRepository: productAttributeRepository(),
         })(event as any)
     },
     {
@@ -29,7 +31,8 @@ export const createProductAttributeValue = lambdaHandler(
 export const listProductAttributeValues = lambdaHandler(
     async (event) => {
         return listProductAttributeValuesHandler({
-            productAttributeValueRepository: productAttributeValueRepository()
+            productAttributeValueRepository: productAttributeValueRepository(),
+            productAttributeRepository: productAttributeRepository(),
         })(event as any)
     },
     {
@@ -42,7 +45,8 @@ export const listProductAttributeValues = lambdaHandler(
 export const getProductAttributeValue = lambdaHandler(
     async (event) => {
         return listProductAttributeValuesHandler({
-            productAttributeValueRepository: productAttributeValueRepository()
+            productAttributeValueRepository: productAttributeValueRepository(),
+            productAttributeRepository: productAttributeRepository(),
         })(event as any)
     },
     {
@@ -53,7 +57,8 @@ export const getProductAttributeValue = lambdaHandler(
 export const updateProductAttributeValue = lambdaHandler(
     async (event) => {
         return updateProductAttributeValueHandler({
-            productAttributeValueRepository: productAttributeValueRepository()
+            productAttributeValueRepository: productAttributeValueRepository(),
+            productAttributeRepository: productAttributeRepository(),
         })(event as any)
     },
     {
@@ -65,7 +70,8 @@ export const updateProductAttributeValue = lambdaHandler(
 export const deleteProductAttributeValue = lambdaHandler(
     async (event) => {
         return deleteProductAttributeValueHandler({
-            productAttributeValueRepository: productAttributeValueRepository()
+            productAttributeValueRepository: productAttributeValueRepository(),
+            productAttributeRepository: productAttributeRepository(),
         })(event as any)
     },
     {

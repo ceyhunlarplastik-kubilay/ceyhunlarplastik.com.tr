@@ -24,6 +24,7 @@ export const attributeValueSchema = z.object({
     name: z.string(),
     slug: z.string(),
     attributeId: z.uuid(),
+    parentValueId: z.uuid().nullable().optional(),
     displayOrder: z.number(),
     isActive: z.boolean(),
     createdAt: z.string(),
@@ -36,8 +37,8 @@ export const attributeValueSchema = z.object({
         isActive: z.boolean(),
         createdAt: z.string(),
         updatedAt: z.string(),
-    })
-})
+    }).loose()
+}).loose()
 
 export const assetSchema = z.object({
     id: z.uuid(),
@@ -48,7 +49,7 @@ export const assetSchema = z.object({
     url: z.string(), // ✅ runtime generated
     createdAt: z.string(),
     updatedAt: z.string(),
-})
+}).loose()
 
 // --- Shared Schemas ---
 export const productSchema = z.object({

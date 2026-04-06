@@ -6,6 +6,7 @@ import { Dialog, DialogTitle, DialogContent, DialogTrigger } from "@/components/
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
+import ProductQuickNav from "@/features/public/products/components/ProductQuickNav"
 
 type Props = {
     product: any
@@ -78,16 +79,15 @@ export default function ProductHero({ product }: Props) {
             <div className="space-y-6">
 
                 <div>
-
                     <h1 className="text-3xl font-semibold tracking-tight">
                         {product.name}
                     </h1>
-
                     <p className="text-neutral-500 mt-2">
                         Katalog Kodu: {product.code}
                     </p>
-
                 </div>
+
+                <ProductQuickNav />
 
                 {/* 🔥 ATTRIBUTE BADGES */}
                 <ProductAttributeBadges

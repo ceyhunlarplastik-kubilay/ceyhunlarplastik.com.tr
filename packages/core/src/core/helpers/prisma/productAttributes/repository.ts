@@ -12,6 +12,7 @@ type ProductAttributeForFilter = {
         id: string
         name: string
         slug: string
+        parentValueId: string | null
     }[]
 }
 
@@ -101,6 +102,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                         id: true,
                         name: true,
                         slug: true,
+                        parentValueId: true,
                     },
                     orderBy: { displayOrder: "asc" }
                 }

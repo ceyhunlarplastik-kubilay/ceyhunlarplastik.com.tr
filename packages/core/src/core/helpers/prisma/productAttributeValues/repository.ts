@@ -1,8 +1,24 @@
 import { prisma } from "@/core/db/prisma"
 import { Prisma, ProductAttributeValue } from "@/prisma/generated/prisma/client"
 
+export type ProductAttributeValueWithParent = Prisma.ProductAttributeValueGetPayload<{
+    include: { parentValue: true }
+}>
+
+export type ProductAttributeValueWithAttribute = Prisma.ProductAttributeValueGetPayload<{
+    include: {
+        attribute: true
+        parentValue: {
+            include: {
+                attribute: true
+            }
+        }
+    }
+}>
+
 export interface IPrismaProductAttributeValueRepository {
-    listValues(attributeId: string): Promise<ProductAttributeValue[]>
+    listValues(attributeId: string): Promise<ProductAttributeValueWithParent[]>
+    getValueById(id: string): Promise<ProductAttributeValueWithAttribute | null>
     createValue(data: Prisma.ProductAttributeValueCreateInput): Promise<ProductAttributeValue>
     updateValue(id: string, data: Prisma.ProductAttributeValueUpdateInput): Promise<ProductAttributeValue>
     deleteValue(id: string): Promise<ProductAttributeValue>
@@ -18,7 +34,23 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
             },
             orderBy: {
                 displayOrder: "asc"
-            }
+            },
+            include: {
+                parentValue: true,
+            },
+        })
+
+    const getValueById = (id: string) =>
+        prisma.productAttributeValue.findUnique({
+            where: { id },
+            include: {
+                attribute: true,
+                parentValue: {
+                    include: {
+                        attribute: true,
+                    },
+                },
+            },
         })
 
     const createValue = (data: Prisma.ProductAttributeValueCreateInput) =>
@@ -39,6 +71,7 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
 
     return {
         listValues,
+        getValueById,
         createValue,
         updateValue,
         deleteValue

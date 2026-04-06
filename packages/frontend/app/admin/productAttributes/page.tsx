@@ -1,11 +1,20 @@
 import Link from "next/link"
-// import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
-import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
+import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
 import { AttributeHeader } from "@/features/admin/productAttributes/components/AttributeHeader"
 
-export default async function Page() {
+export default async function Page({
+    searchParams,
+}: {
+    searchParams: Promise<{ code?: string }>
+}) {
 
+    const params = await searchParams
+    const selectedCode = params?.code?.trim()
     const attributes = await getAttributesForFilter()
+    const hierarchyCodes = new Set(["sector", "production_group", "usage_area"])
+    const filteredAttributes = selectedCode
+        ? attributes.filter((attribute) => attribute.code === selectedCode)
+        : attributes
 
     return (
         <div className="p-6 space-y-6">
@@ -16,7 +25,7 @@ export default async function Page() {
             {/* LIST */}
             <div className="grid gap-4">
 
-                {attributes.map(attr => (
+                {filteredAttributes.map(attr => (
 
                     <Link
                         key={attr.id}
@@ -32,6 +41,11 @@ export default async function Page() {
                                 <p className="text-xs text-neutral-500">
                                     {attr.code}
                                 </p>
+                                {hierarchyCodes.has(attr.code) && (
+                                    <p className="text-[11px] text-amber-700">
+                                        Hiyerarsik alan (parent/child destekli)
+                                    </p>
+                                )}
                             </div>
 
                             <span className="text-xs text-neutral-400">
@@ -42,6 +56,12 @@ export default async function Page() {
                     </Link>
 
                 ))}
+
+                {filteredAttributes.length === 0 && (
+                    <p className="text-sm text-neutral-500">
+                        Seçilen koda ait özellik bulunamadı.
+                    </p>
+                )}
 
             </div>
 

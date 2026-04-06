@@ -13,6 +13,7 @@ import {
     Settings,
     Menu,
     ChevronLeft,
+    ChevronDown,
 } from "lucide-react"
 
 const navItems = [
@@ -36,6 +37,13 @@ const navItems = [
         label: "Özellikler",
         icon: Settings,
     },
+]
+
+const attributeSubItems = [
+    { href: "/admin/productAttributes", label: "Tüm Özellikler" },
+    { href: "/admin/productAttributes?code=sector", label: "Sector" },
+    { href: "/admin/productAttributes?code=production_group", label: "Production Group" },
+    { href: "/admin/productAttributes?code=usage_area", label: "Usage Area" },
 ]
 
 function NavItem({
@@ -86,6 +94,8 @@ function NavItem({
 export function AdminSidebar() {
     const [collapsed, setCollapsed] = useState(false)
     const [mobileOpen, setMobileOpen] = useState(false)
+    const pathname = usePathname()
+    const [attributesOpen, setAttributesOpen] = useState(pathname.startsWith("/admin/productAttributes"))
 
     return (
         <>
@@ -116,11 +126,57 @@ export function AdminSidebar() {
 
                         <nav className="flex flex-col gap-2">
                             {navItems.map((item) => (
-                                <NavItem
-                                    key={item.href}
-                                    {...item}
-                                    collapsed={false}
-                                />
+                                <div key={item.href}>
+                                    {item.href === "/admin/productAttributes" ? (
+                                        <div className="space-y-1">
+                                            <button
+                                                onClick={() => setAttributesOpen((open) => !open)}
+                                                className={cn(
+                                                    "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all",
+                                                    pathname.startsWith(item.href)
+                                                        ? "bg-brand text-white shadow-md"
+                                                        : "text-neutral-600 hover:bg-neutral-100"
+                                                )}
+                                            >
+                                                <item.icon className="w-5 h-5 shrink-0" />
+                                                <span className="whitespace-nowrap">{item.label}</span>
+                                                <ChevronDown
+                                                    className={cn(
+                                                        "w-4 h-4 ml-auto transition-transform",
+                                                        attributesOpen && "rotate-180"
+                                                    )}
+                                                />
+                                            </button>
+
+                                            <AnimatePresence>
+                                                {attributesOpen && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: "auto" }}
+                                                        exit={{ opacity: 0, height: 0 }}
+                                                        className="ml-6 flex flex-col gap-1 overflow-hidden"
+                                                    >
+                                                        {attributeSubItems.map((subItem) => (
+                                                            <Link
+                                                                key={subItem.href}
+                                                                href={subItem.href}
+                                                                onClick={() => setMobileOpen(false)}
+                                                                className="text-xs text-neutral-600 hover:text-neutral-900 px-2 py-1 rounded-md hover:bg-neutral-100"
+                                                            >
+                                                                {subItem.label}
+                                                            </Link>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+                                    ) : (
+                                        <NavItem
+                                            {...item}
+                                            collapsed={false}
+                                        />
+                                    )}
+                                </div>
                             ))}
                         </nav>
                     </motion.div>
@@ -160,11 +216,56 @@ export function AdminSidebar() {
                 {/* NAV */}
                 <nav className="flex flex-col gap-2">
                     {navItems.map((item) => (
-                        <NavItem
-                            key={item.href}
-                            {...item}
-                            collapsed={collapsed}
-                        />
+                        <div key={item.href}>
+                            {item.href === "/admin/productAttributes" && !collapsed ? (
+                                <div className="space-y-1">
+                                    <button
+                                        onClick={() => setAttributesOpen((open) => !open)}
+                                        className={cn(
+                                            "w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all",
+                                            pathname.startsWith(item.href)
+                                                ? "bg-brand text-white shadow-md"
+                                                : "text-neutral-600 hover:bg-neutral-100"
+                                        )}
+                                    >
+                                        <item.icon className="w-5 h-5 shrink-0" />
+                                        <span className="whitespace-nowrap">{item.label}</span>
+                                        <ChevronDown
+                                            className={cn(
+                                                "w-4 h-4 ml-auto transition-transform",
+                                                attributesOpen && "rotate-180"
+                                            )}
+                                        />
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {attributesOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: "auto" }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="ml-8 flex flex-col gap-1 overflow-hidden"
+                                            >
+                                                {attributeSubItems.map((subItem) => (
+                                                    <Link
+                                                        key={subItem.href}
+                                                        href={subItem.href}
+                                                        className="text-xs text-neutral-600 hover:text-neutral-900 px-2 py-1 rounded-md hover:bg-neutral-100"
+                                                    >
+                                                        {subItem.label}
+                                                    </Link>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            ) : (
+                                <NavItem
+                                    {...item}
+                                    collapsed={collapsed}
+                                />
+                            )}
+                        </div>
                     ))}
                 </nav>
 

@@ -109,6 +109,13 @@ export const authOptions: NextAuthOptions = {
 
             if (session.user) {
                 (session.user as any).groups = token.groups || [];
+                // name & image NextAuth'un CognitoProvider'ından gelir; token'da tutulur
+                if (!session.user.name && token.name) {
+                    session.user.name = token.name as string;
+                }
+                if (!session.user.image && token.picture) {
+                    session.user.image = token.picture as string;
+                }
             }
 
             return session;

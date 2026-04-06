@@ -157,6 +157,7 @@ export const ProductAttributeValueScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   attributeId: 'attributeId',
+  parentValueId: 'parentValueId',
   displayOrder: 'displayOrder',
   isActive: 'isActive',
   createdAt: 'createdAt',

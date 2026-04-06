@@ -148,6 +148,16 @@ export type ProductWithRelations = Prisma.ProductGetPayload<{
         attributeValues: {
             include: {
                 attribute: true
+                parentValue: {
+                    include: {
+                        attribute: true
+                        parentValue: {
+                            include: {
+                                attribute: true
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -177,7 +187,17 @@ export const productRepository = (): IPrismaProductRepository => {
         assets: true,
         attributeValues: {
             include: {
-                attribute: true
+                attribute: true,
+                parentValue: {
+                    include: {
+                        attribute: true,
+                        parentValue: {
+                            include: {
+                                attribute: true,
+                            },
+                        },
+                    },
+                },
             }
         }
     } satisfies Prisma.ProductInclude
@@ -201,6 +221,85 @@ export const productRepository = (): IPrismaProductRepository => {
             defaultSort: "code",
         })
 
+        const buildAttributeWhere = (attrCode: string, rawValue: unknown): Prisma.ProductWhereInput | null => {
+            const values = typeof rawValue === "string"
+                ? rawValue.split(",").map((v) => v.trim()).filter(Boolean)
+                : []
+
+            if (values.length === 0) return null
+
+            if (attrCode === "sector") {
+                return {
+                    attributeValues: {
+                        some: {
+                            OR: [
+                                {
+                                    attribute: { code: "sector" },
+                                    slug: { in: values },
+                                },
+                                {
+                                    attribute: { code: "production_group" },
+                                    parentValue: {
+                                        attribute: { code: "sector" },
+                                        slug: { in: values },
+                                    },
+                                },
+                                {
+                                    attribute: { code: "usage_area" },
+                                    parentValue: {
+                                        attribute: { code: "production_group" },
+                                        parentValue: {
+                                            attribute: { code: "sector" },
+                                            slug: { in: values },
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                }
+            }
+
+            if (attrCode === "production_group") {
+                return {
+                    attributeValues: {
+                        some: {
+                            OR: [
+                                {
+                                    attribute: { code: "production_group" },
+                                    slug: { in: values },
+                                },
+                                {
+                                    attribute: { code: "usage_area" },
+                                    parentValue: {
+                                        attribute: { code: "production_group" },
+                                        slug: { in: values },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                }
+            }
+
+            return {
+                attributeValues: {
+                    some: {
+                        attribute: {
+                            code: attrCode,
+                        },
+                        slug: {
+                            in: values,
+                        },
+                    },
+                },
+            }
+        }
+
+        const attributeWhereClauses = (query.attributeFilters ?? [])
+            .map(([attrCode, value]) => buildAttributeWhere(attrCode, value))
+            .filter((clause): clause is Prisma.ProductWhereInput => Boolean(clause))
+
         const finalWhere: Prisma.ProductWhereInput = {
             ...where,
             ...filterWhere,
@@ -210,25 +309,9 @@ export const productRepository = (): IPrismaProductRepository => {
                     slug: query.category
                 }
             }),
-
-            ...(query.attributeFilters?.length && {
-                AND: query.attributeFilters.map(([attrCode, value]) => {
-                    const values = typeof value === "string" ? value.split(",") : []
-
-                    return {
-                        attributeValues: {
-                            some: {
-                                attribute: {
-                                    code: attrCode
-                                },
-                                slug: {
-                                    in: values
-                                }
-                            }
-                        }
-                    }
-                })
-            })
+            ...(attributeWhereClauses.length > 0 && {
+                AND: attributeWhereClauses,
+            }),
         }
 
         const [data, total] = await Promise.all([

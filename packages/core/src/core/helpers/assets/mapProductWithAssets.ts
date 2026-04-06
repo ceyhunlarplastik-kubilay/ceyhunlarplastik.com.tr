@@ -45,6 +45,37 @@ function mapAsset(asset: any) {
     }
 }
 
+function enrichHierarchyAttributeValues(attributeValues: any[]) {
+    const result: any[] = []
+    const seen = new Set<string>()
+
+    const pushValue = (value: any) => {
+        if (!value?.id || !value?.attribute?.code) return
+        const key = `${value.attribute.code}:${value.id}`
+        if (seen.has(key)) return
+        seen.add(key)
+        result.push(value)
+    }
+
+    for (const value of attributeValues ?? []) {
+        pushValue(value)
+
+        if (value?.attribute?.code === "production_group" && value?.parentValue) {
+            pushValue(value.parentValue)
+        }
+
+        if (value?.attribute?.code === "usage_area" && value?.parentValue) {
+            pushValue(value.parentValue)
+
+            if (value.parentValue?.parentValue) {
+                pushValue(value.parentValue.parentValue)
+            }
+        }
+    }
+
+    return result
+}
+
 export function mapProductWithAssets(product: any) {
 
     const assets = product.assets?.map(mapAsset) ?? []
@@ -75,6 +106,6 @@ export function mapProductWithAssets(product: any) {
         // documents,
         // technicalDrawings,
 
-        attributeValues: product.attributeValues ?? [],
+        attributeValues: enrichHierarchyAttributeValues(product.attributeValues ?? []),
     }
 }

@@ -5,6 +5,7 @@ export type AttributeValue = {
     name: string
     slug: string
     displayOrder?: number
+    parentValueId?: string | null
 }
 
 export type ProductAttribute = {
