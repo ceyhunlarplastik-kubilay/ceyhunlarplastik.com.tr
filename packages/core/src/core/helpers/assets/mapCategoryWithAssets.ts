@@ -19,6 +19,7 @@ export function mapCategoryWithAssets(category: any) {
         code: category.code,
         name: category.name,
         slug: category.slug,
+        allowedAttributeValueIds: category.allowedAttributeValueIds ?? [],
         createdAt: category.createdAt,
         updatedAt: category.updatedAt,
         assets: category.assets?.map(mapAsset) ?? [],

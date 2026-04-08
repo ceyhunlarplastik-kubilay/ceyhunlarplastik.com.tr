@@ -16,6 +16,8 @@ export const assetRoleEnum = z.enum([
     "GALLERY",
     "DOCUMENT",
     "TECHNICAL_DRAWING",
+    "MODEL_3D",
+    "ASSEMBLY_VIDEO",
     "CERTIFICATE",
 ])
 

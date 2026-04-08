@@ -82,7 +82,8 @@ export function HeroSection() {
                                 className="mt-10 flex flex-wrap gap-4"
                             >
                                 <Button asChild variant="brand" size="lg">
-                                    <Link href="/urunler/filtre">
+                                    {/* <Link href="/urunler/filtre"> */}
+                                    <Link href="/urunler">
                                         Ürünlerimizi İnceleyin
                                     </Link>
                                 </Button>

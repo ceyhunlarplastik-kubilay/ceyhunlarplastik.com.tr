@@ -45,6 +45,8 @@ const assetRoleEnum = z.enum([
     "GALLERY",
     "DOCUMENT",
     "TECHNICAL_DRAWING",
+    "MODEL_3D",
+    "ASSEMBLY_VIDEO",
     "CERTIFICATE",
 ])
 
@@ -64,6 +66,7 @@ export const categorySchema = z.object({
     code: z.number(),
     name: z.string(),
     slug: z.string(),
+    allowedAttributeValueIds: z.array(z.string()).optional(),
     assets: z.array(assetSchema).optional(),
     createdAt: z.string(),
     updatedAt: z.string(),

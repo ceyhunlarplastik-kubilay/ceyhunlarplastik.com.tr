@@ -8,6 +8,7 @@ import type { CreateCategoryResponse } from "./types"
 type Params = {
     code: number
     name: string
+    allowedAttributeValueIds?: string[]
 
     assetType?: AssetType
     assetRole?: AssetRole
@@ -19,6 +20,7 @@ type Params = {
 export async function createCategory({
     code,
     name,
+    allowedAttributeValueIds,
     assetType,
     assetRole,
     assetKey,
@@ -31,6 +33,7 @@ export async function createCategory({
             {
                 code,
                 name,
+                allowedAttributeValueIds,
                 assetType,
                 assetRole,
                 assetKey,

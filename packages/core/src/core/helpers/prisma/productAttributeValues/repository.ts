@@ -11,6 +11,11 @@ export type ProductAttributeValueWithAttribute = Prisma.ProductAttributeValueGet
         parentValue: {
             include: {
                 attribute: true
+                parentValue: {
+                    include: {
+                        attribute: true
+                    }
+                }
             }
         }
     }
@@ -48,6 +53,11 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
                 parentValue: {
                     include: {
                         attribute: true,
+                        parentValue: {
+                            include: {
+                                attribute: true,
+                            },
+                        },
                     },
                 },
             },

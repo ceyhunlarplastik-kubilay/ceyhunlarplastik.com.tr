@@ -36,7 +36,7 @@ export async function getFilteredProducts(
                 data: [],
                 meta: {
                     page: 1,
-                    limit: 12,
+                    limit: 20,
                     total: 0,
                     totalPages: 0,
                 },
@@ -52,7 +52,7 @@ export async function getFilteredProducts(
             data: [],
             meta: {
                 page: 1,
-                limit: 12,
+                limit: 20,
                 total: 0,
                 totalPages: 0,
             },

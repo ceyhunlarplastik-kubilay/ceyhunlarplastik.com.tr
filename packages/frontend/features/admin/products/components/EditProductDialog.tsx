@@ -37,10 +37,8 @@ import {
 } from "@/components/ui/select"
 
 import { useUpdateProduct } from "@/features/admin/products/hooks/useUpdateProduct"
-
 import { ProductAssetManager } from "@/features/admin/products/components/asset/ProductAssetManager"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
-
 import { productFormSchema, ProductFormValues } from "../schema/productFormSchema"
 
 import type { Product } from "@/features/public/products/types"
@@ -61,7 +59,6 @@ export function EditProductDialog({
     categories,
     onUpdated
 }: Props) {
-
     const updateMutation = useUpdateProduct()
 
     const form = useForm<ProductFormValues>({
@@ -71,18 +68,12 @@ export function EditProductDialog({
             code: product.code,
             description: product.description ?? "",
             categoryId: product.categoryId,
-            attributeValueIds: product.attributeValues?.map(v => v.id) ?? [],
+            attributeValueIds: product.attributeValues?.map((v) => v.id) ?? [],
         },
     })
 
-    /* async function onSubmit(data: ProductFormValues) {
-        console.log("FORM DATA:", data) // 👈 EKLE
-        const updated = await updateMutation.mutateAsync({
-            id: product.id,
-            ...data
-        })
-        onUpdated(updated)
-    } */
+    const selectedCategoryId = form.watch("categoryId")
+    const selectedCategory = categories.find((category) => category.id === selectedCategoryId)
 
     async function onSubmit(data: ProductFormValues) {
         try {
@@ -92,10 +83,8 @@ export function EditProductDialog({
             })
 
             toast.success("Ürün güncellendi")
-
             onUpdated(updated)
-
-        } catch (err) {
+        } catch {
             toast.error("Güncelleme başarısız")
         }
     }
@@ -109,11 +98,8 @@ export function EditProductDialog({
 
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="grid grid-cols-12 gap-6">
-
-                        {/* LEFT */}
                         <div className="col-span-4">
                             <FieldGroup>
-
                                 <Controller
                                     name="name"
                                     control={form.control}
@@ -142,27 +128,19 @@ export function EditProductDialog({
                                     render={({ field, fieldState }) => (
                                         <Field data-invalid={fieldState.invalid}>
                                             <FieldLabel>Kategori</FieldLabel>
-
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={field.onChange}
-                                            >
+                                            <Select value={field.value} onValueChange={field.onChange}>
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Kategori seç" />
                                                 </SelectTrigger>
-
                                                 <SelectContent>
-                                                    {categories.map(cat => (
+                                                    {categories.map((cat) => (
                                                         <SelectItem key={cat.id} value={cat.id}>
                                                             {cat.name}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-
-                                            {fieldState.error && (
-                                                <FieldError errors={[fieldState.error]} />
-                                            )}
+                                            {fieldState.error && <FieldError errors={[fieldState.error]} />}
                                         </Field>
                                     )}
                                 />
@@ -173,17 +151,10 @@ export function EditProductDialog({
                                     render={({ field }) => (
                                         <Field>
                                             <FieldLabel>Açıklama</FieldLabel>
-
                                             <InputGroup>
-                                                <InputGroupTextarea
-                                                    {...field}
-                                                    rows={4}
-                                                    className="min-h-[120px]"
-                                                />
+                                                <InputGroupTextarea {...field} rows={4} className="min-h-[120px]" />
                                                 <InputGroupAddon align="block-end">
-                                                    <InputGroupText>
-                                                        {field.value?.length ?? 0}/500
-                                                    </InputGroupText>
+                                                    <InputGroupText>{field.value?.length ?? 0}/500</InputGroupText>
                                                 </InputGroupAddon>
                                             </InputGroup>
                                         </Field>
@@ -197,6 +168,7 @@ export function EditProductDialog({
                                         <ProductAttributeSelect
                                             value={field.value ?? []}
                                             onChange={field.onChange}
+                                            allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
                                         />
                                     )}
                                 />
@@ -204,21 +176,19 @@ export function EditProductDialog({
                                 <Button type="submit" disabled={updateMutation.isPending}>
                                     {updateMutation.isPending ? "Kaydediliyor..." : "Kaydet"}
                                 </Button>
-
                             </FieldGroup>
                         </div>
 
-                        {/* RIGHT */}
                         <div className="col-span-8">
                             <ProductAssetManager
                                 product={product}
                                 refetchProduct={async () => location.reload()}
                             />
                         </div>
-
                     </div>
                 </form>
             </DialogContent>
         </Dialog>
     )
 }
+

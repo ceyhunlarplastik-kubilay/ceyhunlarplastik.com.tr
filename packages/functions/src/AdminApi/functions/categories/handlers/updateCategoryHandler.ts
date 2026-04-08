@@ -17,7 +17,7 @@ export const updateCategoryHandler = ({
         if (!body || Object.keys(body).length === 0)
             throw new createError.BadRequest("At least one field must be provided")
 
-        const allowedFields = ["name", "assetType", "assetRole", "assetKey", "mimeType"] as const
+        const allowedFields = ["name", "allowedAttributeValueIds", "assetType", "assetRole", "assetKey", "mimeType"] as const
 
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
@@ -28,18 +28,21 @@ export const updateCategoryHandler = ({
                 `Invalid fields provided: ${invalidFields.join(", ")}`
             )
 
-        const { name, assetType, assetRole, assetKey, mimeType } = body
+        const { name, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
 
         const updateData: Prisma.CategoryUpdateInput = {
             ...(name !== undefined && {
                 name,
                 slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
             }),
+            ...(allowedAttributeValueIds !== undefined && {
+                allowedAttributeValueIds,
+            }),
         }
 
         try {
             // 1️⃣ Category update
-            let category = await categoryRepository.updateCategory(id, updateData)
+            let category = await categoryRepository.updateCategory(id, updateData as any)
 
             // 2️⃣ Yeni asset geldiyse lifecycle yönetimi
             if (assetType && assetKey && mimeType) {

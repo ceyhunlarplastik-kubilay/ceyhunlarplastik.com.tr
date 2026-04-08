@@ -314,16 +314,46 @@ export const productRepository = (): IPrismaProductRepository => {
             }),
         }
 
-        const [data, total] = await Promise.all([
-            prisma.product.findMany({
+        const naturalCodeCompare = (a: string, b: string) =>
+            a.localeCompare(b, "tr", {
+                numeric: true,
+                sensitivity: "base",
+            })
+
+        const sortByCode = (query.sort ?? "code") === "code"
+        const sortDirection: "asc" | "desc" = query.order === "desc" ? "desc" : "asc"
+
+        let data: ProductWithRelations[] = []
+        let total = 0
+
+        if (sortByCode) {
+            const all = await prisma.product.findMany({
                 where: finalWhere,
-                orderBy,
-                skip,
-                take,
-                include: baseInclude
-            }),
-            prisma.product.count({ where: finalWhere }),
-        ])
+                include: baseInclude,
+            })
+
+            all.sort((left, right) => {
+                const cmp = naturalCodeCompare(left.code, right.code)
+                return sortDirection === "desc" ? -cmp : cmp
+            })
+
+            total = all.length
+            data = all.slice(skip, skip + take)
+        } else {
+            const [pagedData, counted] = await Promise.all([
+                prisma.product.findMany({
+                    where: finalWhere,
+                    orderBy,
+                    skip,
+                    take,
+                    include: baseInclude,
+                }),
+                prisma.product.count({ where: finalWhere }),
+            ])
+
+            data = pagedData
+            total = counted
+        }
 
         return buildPaginationResponse(data, {
             page,

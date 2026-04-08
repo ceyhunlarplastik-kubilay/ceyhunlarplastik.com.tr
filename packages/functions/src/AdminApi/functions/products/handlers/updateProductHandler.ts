@@ -88,14 +88,38 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
  */
 
 
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import slugify from "slugify"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateProductDependencies, IUpdateProductEvent } from "@/functions/AdminApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 
-export const updateProductHandler = ({ productRepository, categoryRepository, assetRepository }: ICreateProductDependencies) => {
+function isAttributeValueAllowedWithParents(
+    allowedIds: Set<string>,
+    value: {
+        id: string
+        parentValueId?: string | null
+        parentValue?: {
+            id: string
+            parentValueId?: string | null
+            parentValue?: {
+                id: string
+                parentValueId?: string | null
+            } | null
+        } | null
+    } | null
+) {
+    if (!value?.id) return false
+    if (allowedIds.has(value.id)) return true
+    if (value.parentValueId && allowedIds.has(value.parentValueId)) return true
+    if (value.parentValue?.id && allowedIds.has(value.parentValue.id)) return true
+    if (value.parentValue?.parentValueId && allowedIds.has(value.parentValue.parentValueId)) return true
+    if (value.parentValue?.parentValue?.id && allowedIds.has(value.parentValue.parentValue.id)) return true
+    return false
+}
+
+export const updateProductHandler = ({ productRepository, categoryRepository, assetRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
     return async (event: IUpdateProductEvent) => {
 
         const { id } = event.pathParameters;
@@ -142,6 +166,27 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
                     throw new createError.BadRequest(
                         `Product code must start with category code ${targetCategoryCode}`
                     );
+                }
+            }
+
+            const targetCategory =
+                categoryId
+                    ? await categoryRepository.getCategory(categoryId)
+                    : (existing.category as any)
+
+            if (!targetCategory) throw new createError.NotFound("Category not found")
+
+            const allowedAttributeValueIds = (targetCategory as any).allowedAttributeValueIds as string[] | undefined
+            if (attributeValueIds !== undefined && allowedAttributeValueIds && allowedAttributeValueIds.length > 0) {
+                const allowedSet = new Set(allowedAttributeValueIds)
+                const valueDetails = await Promise.all(
+                    attributeValueIds.map((valueId) => productAttributeValueRepository.getValueById(valueId))
+                )
+                const invalidAttributeValueIds = attributeValueIds.filter((valueId, index) =>
+                    !isAttributeValueAllowedWithParents(allowedSet, valueDetails[index] as any)
+                )
+                if (invalidAttributeValueIds.length > 0) {
+                    throw new createError.BadRequest("Some selected attribute values are not allowed for this category")
                 }
             }
 
@@ -193,12 +238,16 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
             })
 
         } catch (err: any) {
+            if (err instanceof HttpError) throw err
 
-            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-                const targets = (err.meta?.target as string[] | undefined) ?? [];
-                if (targets.includes("code")) throw new createError.Conflict("Product code already exists");
-                if (targets.includes("slug")) throw new createError.Conflict("Product slug already exists");
-                throw new createError.Conflict("Unique constraint failed");
+            if (err instanceof Prisma.PrismaClientKnownRequestError) {
+                if (err.code === "P2002") {
+                    const targets = (err.meta?.target as string[] | undefined) ?? [];
+                    if (targets.includes("code")) throw new createError.Conflict("Product code already exists");
+                    if (targets.includes("slug")) throw new createError.Conflict("Product slug already exists");
+                    throw new createError.Conflict("Unique constraint failed");
+                }
+                if (err.code === "P2025") throw new createError.NotFound("Product or category not found");
             }
             throw new createError.InternalServerError("Failed to update product");
         }

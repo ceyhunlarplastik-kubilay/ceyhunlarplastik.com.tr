@@ -11,11 +11,12 @@ import { useRouter } from "next/navigation"
 type Props = {
     page: number
     totalPages: number
+    basePath?: string
 }
 
-export default function ProductFilterPagination({ page, totalPages }: Props) {
+export default function ProductFilterPagination({ page, totalPages, basePath = "/urunler/filtre" }: Props) {
     const router = useRouter()
-    const [isPending, startTransition] = useTransition()
+    const [, startTransition] = useTransition()
 
     const { setPage, toQueryString } = useFilterStore()
 
@@ -25,7 +26,7 @@ export default function ProductFilterPagination({ page, totalPages }: Props) {
         setPage(pageNum)
 
         startTransition(() => {
-            router.replace(`/urunler/filtre?${toQueryString()}`)
+            router.replace(`${basePath}?${toQueryString()}`)
         })
     }
 

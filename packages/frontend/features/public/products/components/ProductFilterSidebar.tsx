@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useTransition, useEffect } from "react"
+import { useMemo, useTransition, useEffect, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "motion/react"
 import { Check, ChevronsUpDown, Loader2, Search, X } from "lucide-react"
@@ -30,6 +30,7 @@ type Category = {
     name: string
     slug: string
     code: string | number
+    allowedAttributeValueIds?: string[]
 }
 
 type AttributeValue = {
@@ -49,9 +50,18 @@ type Attribute = {
 type Props = {
     categories: Category[]
     attributes: Attribute[]
+    hideCategoryFilter?: boolean
+    fixedCategorySlug?: string
+    basePath?: string
 }
 
-export default function ProductFilterSidebar({ categories, attributes }: Props) {
+export default function ProductFilterSidebar({
+    categories,
+    attributes,
+    hideCategoryFilter = false,
+    fixedCategorySlug,
+    basePath = "/urunler/filtre",
+}: Props) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [isPending, startTransition] = useTransition()
@@ -64,14 +74,45 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
         setFromUrl,
     } = useFilterStore()
 
-    // 🔥 URL → STORE SYNC
     useEffect(() => {
         setFromUrl(new URLSearchParams(searchParams.toString()))
-    }, [searchParams])
+    }, [searchParams, setFromUrl])
 
-    function pushStateToUrl(nextCategory: string | undefined, nextAttributes: Record<string, string[]>) {
+    useEffect(() => {
+        if (!fixedCategorySlug) return
+        if (category === fixedCategorySlug) return
+        setCategory(fixedCategorySlug)
+    }, [fixedCategorySlug, category, setCategory])
+
+    const scopedCategorySlug = fixedCategorySlug ?? category
+    const scopedAllowedValueIds = useMemo(() => {
+        if (!scopedCategorySlug) return null
+        const targetCategory = categories.find((item) => item.slug === scopedCategorySlug)
+        if (!targetCategory) return null
+        if (targetCategory.allowedAttributeValueIds === undefined) return null
+        return new Set(targetCategory.allowedAttributeValueIds)
+    }, [categories, scopedCategorySlug])
+
+    const categoryScopedAttributes = useMemo(() => {
+        if (!scopedAllowedValueIds) return attributes
+        return attributes
+            .map((attribute) => {
+                return {
+                    ...attribute,
+                    values: (attribute.values ?? []).filter((value) => {
+                        if (scopedAllowedValueIds.has(value.id)) return true
+                        if (value.parentValueId && scopedAllowedValueIds.has(value.parentValueId)) return true
+                        return false
+                    }),
+                }
+            })
+            .filter((attribute) => (attribute.values?.length ?? 0) > 0)
+    }, [attributes, scopedAllowedValueIds])
+
+    const pushStateToUrl = useCallback((nextCategory: string | undefined, nextAttributes: Record<string, string[]>) => {
         const params = new URLSearchParams()
-        if (nextCategory) params.set("category", nextCategory)
+        const effectiveCategory = fixedCategorySlug ?? nextCategory
+        if (effectiveCategory) params.set("category", effectiveCategory)
         params.set("page", "1")
         params.set("limit", String(useFilterStore.getState().limit))
 
@@ -80,11 +121,42 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
         })
 
         startTransition(() => {
-            router.replace(`/urunler/filtre?${params.toString()}`, { scroll: false })
+            router.replace(`${basePath}?${params.toString()}`, { scroll: false })
         })
-    }
+    }, [basePath, fixedCategorySlug, router, startTransition])
+
+    const categoryScopedAttributeMap = useMemo(
+        () => new Map(categoryScopedAttributes.map((attribute) => [attribute.code, attribute])),
+        [categoryScopedAttributes]
+    )
+
+    useEffect(() => {
+        const currentAttributes = useFilterStore.getState().attributes
+        const normalized: Record<string, string[]> = {}
+        let changed = false
+
+        Object.entries(currentAttributes).forEach(([code, selectedSlugs]) => {
+            const attribute = categoryScopedAttributeMap.get(code)
+            if (!attribute) {
+                if (selectedSlugs.length > 0) changed = true
+                return
+            }
+
+            const allowedSlugs = new Set((attribute.values ?? []).map((value) => value.slug))
+            const filtered = selectedSlugs.filter((slug) => allowedSlugs.has(slug))
+            if (filtered.length !== selectedSlugs.length) changed = true
+
+            if (filtered.length > 0) normalized[code] = filtered
+        })
+
+        if (!changed) return
+
+        setAttributes(normalized)
+        pushStateToUrl(fixedCategorySlug ?? category, normalized)
+    }, [categoryScopedAttributeMap, fixedCategorySlug, category, setAttributes, pushStateToUrl])
 
     function handleCategory(slug: string) {
+        if (hideCategoryFilter) return
         const nextCategory = category === slug ? undefined : slug
         setCategory(nextCategory)
         pushStateToUrl(nextCategory, useFilterStore.getState().attributes)
@@ -99,7 +171,7 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
             ? list.filter((value) => value !== slug)
             : [...list, slug]
 
-        const localAttributeMap = new Map(attributes.map((attr) => [attr.code, attr]))
+        const localAttributeMap = new Map(categoryScopedAttributes.map((attr) => [attr.code, attr]))
         const sectorValues = localAttributeMap.get("sector")?.values ?? []
         const productionGroupValues = localAttributeMap.get("production_group")?.values ?? []
         const usageAreaValues = localAttributeMap.get("usage_area")?.values ?? []
@@ -151,8 +223,13 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
     }
 
     function clearAll() {
+        if (fixedCategorySlug) {
+            setAttributes({})
+            pushStateToUrl(fixedCategorySlug, {})
+            return
+        }
         startTransition(() => {
-            router.replace("/urunler/filtre", { scroll: false })
+            router.replace(basePath, { scroll: false })
         })
     }
 
@@ -161,28 +238,27 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
     }, [category, storeAttributes])
 
     const attributeMap = useMemo(() => {
-        return new Map(attributes.map((attr) => [attr.code, attr]))
-    }, [attributes])
+        return new Map(categoryScopedAttributes.map((attr) => [attr.code, attr]))
+    }, [categoryScopedAttributes])
 
     const orderedAttributes = useMemo(() => {
         const priorityCodes = ["sector", "production_group", "usage_area"]
         const seen = new Set<string>()
 
         const prioritized = priorityCodes
-            .map((code) => attributes.find((attr) => attr.code === code))
+            .map((code) => categoryScopedAttributes.find((attr) => attr.code === code))
             .filter((attr): attr is Attribute => Boolean(attr))
             .map((attr) => {
                 seen.add(attr.id)
                 return attr
             })
 
-        const rest = attributes.filter((attr) => !seen.has(attr.id))
-
+        const rest = categoryScopedAttributes.filter((attr) => !seen.has(attr.id))
         return [...prioritized, ...rest]
-    }, [attributes])
+    }, [categoryScopedAttributes])
 
-    const selectedSectorSlugs = storeAttributes["sector"] ?? []
-    const selectedProductionGroupSlugs = storeAttributes["production_group"] ?? []
+    const selectedSectorSlugs = useMemo(() => storeAttributes["sector"] ?? [], [storeAttributes])
+    const selectedProductionGroupSlugs = useMemo(() => storeAttributes["production_group"] ?? [], [storeAttributes])
 
     const selectedSectorIds = useMemo(() => {
         const sectorValues = attributeMap.get("sector")?.values ?? []
@@ -200,18 +276,11 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
             .filter((id): id is string => Boolean(id))
     }, [attributeMap, selectedProductionGroupSlugs])
 
-    // NOTE:
-    // Hierarchical pruning is handled inside handleAttribute to avoid
-    // URL<->state effect loops while preserving sector->production_group->usage_area rules.
-
     return (
         <aside className="sticky top-24">
             <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
-
-                {/* HEADER */}
                 <div className="flex items-center justify-between border-b px-5 py-4">
                     <h2 className="text-base font-semibold">Filtreler</h2>
-
                     {hasActiveFilters && (
                         <Button size="sm" variant="ghost" onClick={clearAll}>
                             <X className="w-4 h-4 mr-1" />
@@ -220,7 +289,6 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                     )}
                 </div>
 
-                {/* LOADING BAR */}
                 {isPending && (
                     <motion.div
                         className="h-1"
@@ -231,36 +299,33 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                 )}
 
                 <div className="space-y-6 p-5">
+                    {!hideCategoryFilter && (
+                        <section>
+                            <h3 className="text-xs font-semibold mb-3 text-neutral-500 uppercase tracking-wide">
+                                Kategoriler
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                                {categories.map((cat) => {
+                                    const active = category === cat.slug
+                                    return (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => handleCategory(cat.slug)}
+                                            className={[
+                                                "px-3 py-1.5 rounded-full text-xs font-medium transition",
+                                                active
+                                                    ? "bg-[var(--color-brand)] text-white shadow-sm"
+                                                    : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                                            ].join(" ")}
+                                        >
+                                            {cat.code}. {cat.name}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </section>
+                    )}
 
-                    {/* CATEGORY */}
-                    <section>
-                        <h3 className="text-xs font-semibold mb-3 text-neutral-500 uppercase tracking-wide">
-                            Kategoriler
-                        </h3>
-
-                        <div className="flex flex-wrap gap-2">
-                            {categories.map((cat) => {
-                                const active = category === cat.slug
-
-                                return (
-                                    <button
-                                        key={cat.id}
-                                        onClick={() => handleCategory(cat.slug)}
-                                        className={[
-                                            "px-3 py-1.5 rounded-full text-xs font-medium transition",
-                                            active
-                                                ? "bg-[var(--color-brand)] text-white shadow-sm"
-                                                : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-                                        ].join(" ")}
-                                    >
-                                        {cat.code}. {cat.name}
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    </section>
-
-                    {/* ATTRIBUTES */}
                     {orderedAttributes.map((attr) => {
                         const baseValues = attr.values ?? []
                         const values =
@@ -269,8 +334,8 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                                 : attr.code === "usage_area" && selectedProductionGroupIds.length > 0
                                     ? baseValues.filter((value) => value.parentValueId && selectedProductionGroupIds.includes(value.parentValueId))
                                     : baseValues
-                        const selected = storeAttributes[attr.code] ?? []
 
+                        const selected = storeAttributes[attr.code] ?? []
                         const isLarge = values.length > 8
 
                         return (
@@ -282,34 +347,22 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                                 {isLarge ? (
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full justify-between rounded-xl h-10 px-3"
-                                            >
+                                            <Button variant="outline" className="w-full justify-between rounded-xl h-10 px-3">
                                                 <span className="truncate text-left">
-                                                    {selected.length > 0
-                                                        ? `${selected.length} seçim`
-                                                        : `${attr.name} seç`}
+                                                    {selected.length > 0 ? `${selected.length} seçim` : `${attr.name} seç`}
                                                 </span>
-
                                                 <ChevronsUpDown className="w-4 h-4 opacity-60" />
                                             </Button>
                                         </PopoverTrigger>
-
-                                        <PopoverContent
-                                            className="w-[320px] p-0 rounded-2xl border shadow-lg"
-                                            align="start"
-                                        >
+                                        <PopoverContent className="w-[320px] p-0 rounded-2xl border shadow-lg" align="start">
                                             <Command>
                                                 <CommandInput placeholder="Ara..." />
                                                 <CommandList>
                                                     <CommandEmpty>Bulunamadı</CommandEmpty>
-
                                                     <CommandGroup>
                                                         <ScrollArea className="h-64">
                                                             {values.map((val) => {
                                                                 const checked = selected.includes(val.slug)
-
                                                                 return (
                                                                     <CommandItem
                                                                         key={val.id}
@@ -320,12 +373,8 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                                                                             <Checkbox checked={checked} />
                                                                             <span className="text-sm">{val.name}</span>
                                                                         </div>
-
                                                                         {checked && (
-                                                                            <motion.div
-                                                                                initial={{ scale: 0.6, opacity: 0 }}
-                                                                                animate={{ scale: 1, opacity: 1 }}
-                                                                            >
+                                                                            <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
                                                                                 <Check className="w-4 h-4 text-[var(--color-brand)]" />
                                                                             </motion.div>
                                                                         )}
@@ -341,7 +390,6 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                                 ) : (
                                     values.map((val) => {
                                         const checked = selected.includes(val.slug)
-
                                         return (
                                             <Label
                                                 key={val.id}
@@ -349,9 +397,7 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                                             >
                                                 <Checkbox
                                                     checked={checked}
-                                                    onCheckedChange={() =>
-                                                        handleAttribute(attr.code, val.slug)
-                                                    }
+                                                    onCheckedChange={() => handleAttribute(attr.code, val.slug)}
                                                 />
                                                 {val.name}
                                             </Label>
@@ -362,12 +408,10 @@ export default function ProductFilterSidebar({ categories, attributes }: Props) 
                         )
                     })}
 
-                    {/* STATUS */}
                     <div className="text-sm text-neutral-500 flex gap-2 items-center">
                         {isPending ? <Loader2 className="animate-spin w-4 h-4" /> : <Search className="w-4 h-4" />}
                         {isPending ? "Filtreleniyor..." : "Hazır"}
                     </div>
-
                 </div>
             </div>
         </aside>

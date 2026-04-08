@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
 import { getCategoryBySlug } from "@/features/public/categories/server/getCategoryBySlug";
-import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory";
+import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter";
 import { PageHero } from "@/components/sections/PageHero";
-import { ProductCard } from "@/components/navigation/ProductCard";
+import ProductFilterSidebar from "@/features/public/products/components/ProductFilterSidebar";
+import ProductFilterList from "@/features/public/products/components/ProductFilterList";
 
 export const revalidate = 60; // ISR
 
@@ -41,12 +41,27 @@ export default async function CategoryPage(
 
     const { slug } = await params
 
-    const [category, products] = await Promise.all([
+    const [category, attributes] = await Promise.all([
         getCategoryBySlug(slug),
-        getProductsByCategory(slug, "slug"),
+        getAttributesForFilter(),
     ])
 
     if (!category) notFound()
+
+    const allowedIds = new Set(category.allowedAttributeValueIds ?? [])
+    const filteredAttributes = attributes
+        .map((attribute) => {
+            if (allowedIds.size === 0) return { ...attribute, values: [] }
+            return {
+                ...attribute,
+                values: (attribute.values ?? []).filter((value) => {
+                    if (allowedIds.has(value.id)) return true
+                    if (value.parentValueId && allowedIds.has(value.parentValueId)) return true
+                    return false
+                }),
+            }
+        })
+        .filter((attribute) => (attribute.values?.length ?? 0) > 0)
 
     return (
         <main>
@@ -61,66 +76,36 @@ export default async function CategoryPage(
                 ]}
             />
 
-            {/* CATEGORY PRODUCTS GRID */}
-            <section className="mx-auto max-w-7xl px-6 py-20">
+            <section className="mx-auto max-w-7xl px-6 py-12 grid grid-cols-12 gap-8">
+                <aside className="col-span-3">
+                    <ProductFilterSidebar
+                        categories={[]}
+                        attributes={filteredAttributes}
+                        hideCategoryFilter
+                        fixedCategorySlug={category.slug}
+                        basePath={`/urun-kategori/${category.slug}`}
+                    />
 
-                <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <h2 className="text-lg font-semibold text-neutral-900">
-                        {category.name} Ürünleri
-                    </h2>
-                    <Link
-                        href={`/urunler/filtre?category=${category.slug}`}
-                        className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-                        style={{
-                            background: "var(--color-brand)",
-                            color: "var(--color-brand-foreground)",
-                        }}
-                    >
-                        Tüm Ürünler
-                    </Link>
-                </div>
+                    {/* <div className="mt-4">
+                        <Link
+                            href={`/urunler/filtre?category=${category.slug}`}
+                            className="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+                            style={{
+                                background: "var(--color-brand)",
+                                color: "var(--color-brand-foreground)",
+                            }}
+                        >
+                            Gelişmiş Filtreye Git
+                        </Link>
+                    </div> */}
+                </aside>
 
-                {products.length === 0 && (
-                    <div className="flex flex-col items-center justify-center text-center py-20 bg-neutral-50/50 rounded-2xl border border-dashed border-neutral-200">
-                        <p className="text-lg font-medium text-neutral-900">Bu kategoriye ait ürün bulunamadı</p>
-                        <p className="text-sm text-neutral-500 mt-2">Bu ürün grubuna ait içerikler yakında eklenecektir.</p>
-                    </div>
-                )}
-
-                <ul
-                    className="
-                        grid gap-6
-                        grid-cols-2
-                        sm:grid-cols-3
-                        md:grid-cols-4
-                        lg:grid-cols-6
-                    "
-                >
-                    {products.map((product: any) => {
-                        // Resim Seçimi
-                        const primaryAsset = product.assets?.find((a: any) => a.role === "PRIMARY");
-                        const animatedAsset = product.assets?.find((a: any) => a.role === "ANIMATION");
-                        const fallbackAsset = product.assets?.find((a: any) => a.type === "IMAGE");
-
-                        const staticImg = primaryAsset?.url || fallbackAsset?.url || "/placeholder.webp";
-                        const animImg = animatedAsset?.url;
-
-                        return (
-                            <li key={product.id}>
-                                <ProductCard
-                                    title={product.name}
-                                    code={product.code}
-                                    href={`/urun/${product.slug}`}
-                                    imageStatic={staticImg}
-                                    imageAnimated={animImg}
-                                >
-                                    {product.name}
-                                </ProductCard>
-                            </li>
-                        )
-                    })}
-                </ul>
-
+                <section className="col-span-9">
+                    <ProductFilterList
+                        fixedCategorySlug={category.slug}
+                        basePath={`/urun-kategori/${category.slug}`}
+                    />
+                </section>
             </section>
 
         </main>

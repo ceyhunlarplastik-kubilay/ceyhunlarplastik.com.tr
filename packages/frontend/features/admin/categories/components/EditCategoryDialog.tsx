@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { CategoryAssetManager } from "./CategoryAssetManager";
+import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect";
 
 import type { Category } from "@/features/public/categories/types";
 
@@ -49,6 +50,9 @@ export function EditCategoryDialog({
 
     const [category, setCategory] = useState<Category>(initialCategory);
     const [saving, setSaving] = useState(false);
+    const [allowedAttributeValueIds, setAllowedAttributeValueIds] = useState<string[]>(
+        initialCategory.allowedAttributeValueIds ?? []
+    );
 
     const authHeader = useMemo(() => {
         if (!session?.idToken) return null;
@@ -76,6 +80,7 @@ export function EditCategoryDialog({
             setCategory(updated);
             onUpdated(updated);
             form.reset({ name: updated.name });
+            setAllowedAttributeValueIds(updated.allowedAttributeValueIds ?? []);
         } catch (err) {
             console.error(err);
             toast.error("Kategori yenilenemedi");
@@ -90,13 +95,17 @@ export function EditCategoryDialog({
 
             const res = await axios.put(
                 `${process.env.NEXT_PUBLIC_ADMIN_API_URL}/categories/${category.id}`,
-                { name: data.name },
+                {
+                    name: data.name,
+                    allowedAttributeValueIds,
+                },
                 { headers: authHeader }
             );
 
             const updated = res.data.payload.category;
 
             setCategory(updated);
+            setAllowedAttributeValueIds(updated.allowedAttributeValueIds ?? []);
             onUpdated(updated);
 
             toast.success("Kategori güncellendi");
@@ -183,6 +192,14 @@ export function EditCategoryDialog({
                             </div>
 
                         </form>
+
+                        <div className="rounded-xl border p-4 bg-neutral-50 space-y-3">
+                            <h3 className="font-medium text-sm">İzinli Attribute Değerleri</h3>
+                            <ProductAttributeSelect
+                                value={allowedAttributeValueIds}
+                                onChange={setAllowedAttributeValueIds}
+                            />
+                        </div>
 
                     </div>
 

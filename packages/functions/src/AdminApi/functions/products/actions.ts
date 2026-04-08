@@ -2,6 +2,7 @@ import { lambdaHandler } from "@/core/middy"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
 import { categoryRepository } from "@/core/helpers/prisma/categories/repository"
 import { assetRepository } from "@/core/helpers/prisma/assets/repository"
+import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 
 import {
     listProductsHandler,
@@ -50,6 +51,7 @@ export const createProduct = lambdaHandler(
             productRepository: productRepository(),
             categoryRepository: categoryRepository(),
             assetRepository: assetRepository(),
+            productAttributeValueRepository: productAttributeValueRepository(),
         })(event as ICreateProductEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
@@ -88,6 +90,7 @@ export const updateProduct = lambdaHandler(
             productRepository: productRepository(),
             categoryRepository: categoryRepository(),
             assetRepository: assetRepository(),
+            productAttributeValueRepository: productAttributeValueRepository(),
         })(event as IUpdateProductEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },

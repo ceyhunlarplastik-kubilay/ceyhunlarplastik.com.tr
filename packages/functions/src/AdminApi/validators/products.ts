@@ -169,6 +169,8 @@ export const createProductAssetUploadValidator = validatorWrapper(
                 "GALLERY",
                 "DOCUMENT",
                 "TECHNICAL_DRAWING",
+                "MODEL_3D",
+                "ASSEMBLY_VIDEO",
                 "CERTIFICATE",
             ]),
             fileName: z.string(),

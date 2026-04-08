@@ -89,11 +89,6 @@ export default function ProductHero({ product }: Props) {
 
                 <ProductQuickNav />
 
-                {/* 🔥 ATTRIBUTE BADGES */}
-                <ProductAttributeBadges
-                    attributeValues={product.attributeValues}
-                />
-
                 {product.description && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -118,10 +113,15 @@ export default function ProductHero({ product }: Props) {
                     </motion.div>
                 )}
 
-                <p className="text-neutral-500 text-sm">
+                {/* 🔥 ATTRIBUTE BADGES */}
+                <ProductAttributeBadges
+                    attributeValues={product.attributeValues}
+                />
+
+                {/*                 <p className="text-neutral-500 text-sm">
                     Teknik detaylar ve ölçü seçeneklerini aşağıdan inceleyebilirsiniz.
                 </p>
-
+ */}
             </div>
 
         </div>

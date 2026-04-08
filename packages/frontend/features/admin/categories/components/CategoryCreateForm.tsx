@@ -17,6 +17,7 @@ import type { Category } from "@/features/public/categories/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect";
 
 type Props = {
     onCreated: (category: Category) => void;
@@ -51,6 +52,7 @@ export function CategoryCreateForm({ onCreated }: Props) {
     const [assetRole, setAssetRole] = useState<AssetRole>("PRIMARY");
 
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [allowedAttributeValueIds, setAllowedAttributeValueIds] = useState<string[]>([]);
 
     const accept = useMemo(
         () => getAcceptByType(assetType),
@@ -99,6 +101,7 @@ export function CategoryCreateForm({ onCreated }: Props) {
         const category = await createMutation.mutateAsync({
             code: data.code,
             name: data.name,
+            allowedAttributeValueIds,
             assetType,
             assetRole,
             assetKey,
@@ -110,6 +113,7 @@ export function CategoryCreateForm({ onCreated }: Props) {
         form.reset();
         setFile(null);
         setUploadProgress(0);
+        setAllowedAttributeValueIds([]);
     };
 
     return (
@@ -175,6 +179,14 @@ export function CategoryCreateForm({ onCreated }: Props) {
                 </Button>
 
             </form>
+
+            <div className="space-y-2">
+                <div className="text-sm font-medium">Kategoriye İzinli Attribute Değerleri</div>
+                <ProductAttributeSelect
+                    value={allowedAttributeValueIds}
+                    onChange={setAllowedAttributeValueIds}
+                />
+            </div>
 
             {uploadProgress > 0 && uploadProgress < 100 && (
                 <div className="pt-2">

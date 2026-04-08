@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import Image from "next/image"
 
 import { PageHero } from "@/components/sections/PageHero"
 import ProductVariantDetailsTable from "@/features/public/products/components/ProductVariantDetailsTable"
@@ -32,6 +33,8 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
             ?.slice()
             .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder) ?? []
 
+    const primaryAsset = product.assets?.find((asset) => asset?.role === "PRIMARY")
+
     return (
         <main>
             <PageHero
@@ -46,6 +49,32 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
             />
 
             <section className="mx-auto max-w-7xl px-6 py-12 space-y-6">
+                <div className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-5 md:grid-cols-[220px_1fr]">
+                    <div className="relative aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+                        {primaryAsset?.url ? (
+                            <Image
+                                src={primaryAsset.url}
+                                alt={product.name}
+                                fill
+                                className="object-contain"
+                                sizes="(min-width: 768px) 220px, 100vw"
+                            />
+                        ) : (
+                            <div className="flex h-full items-center justify-center text-sm text-neutral-400">
+                                Görsel bulunamadı
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <h2 className="text-xl font-semibold text-neutral-900">{product.name}</h2>
+                        <p className="text-sm text-neutral-500">Katalog Kodu: {product.code}</p>
+                        {product.description && (
+                            <p className="text-sm leading-6 text-neutral-700">{product.description}</p>
+                        )}
+                    </div>
+                </div>
+
                 <ProductVariantDetailsTable
                     variants={filtered}
                     selectedMeasurements={selectedMeasurements}

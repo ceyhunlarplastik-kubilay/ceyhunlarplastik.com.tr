@@ -22,6 +22,8 @@ const ROLE_OPTIONS: AssetRole[] = [
     "GALLERY",
     "DOCUMENT",
     "TECHNICAL_DRAWING",
+    "MODEL_3D",
+    "ASSEMBLY_VIDEO",
     "CERTIFICATE",
 ];
 

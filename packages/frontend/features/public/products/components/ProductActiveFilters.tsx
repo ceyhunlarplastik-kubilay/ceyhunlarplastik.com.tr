@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { X } from "lucide-react"
 
-export default function ProductActiveFilters() {
+export default function ProductActiveFilters({ basePath = "/urunler/filtre" }: { basePath?: string }) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -30,7 +30,7 @@ export default function ProductActiveFilters() {
             }
         }
 
-        router.replace(`/urunler/filtre?${params.toString()}`)
+        router.replace(`${basePath}?${params.toString()}`)
     }
 
     return (

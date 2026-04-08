@@ -11,21 +11,22 @@ export const createCategoryHandler = ({ categoryRepository, assetRepository }: I
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least  one field must be provided");
 
-        const allowedFields = ["code", "name", "assetType", "assetRole", "assetKey", "mimeType"] as const
+        const allowedFields = ["code", "name", "allowedAttributeValueIds", "assetType", "assetRole", "assetKey", "mimeType"] as const
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
         )
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`)
 
-        const { code, name, assetType, assetRole, assetKey, mimeType } = body
+        const { code, name, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
         const slug = slugify(name, { lower: true, strict: true, locale: "tr" })
         try {
             let category = await categoryRepository.createCategory({
                 code,
                 name,
-                slug
-            })
+                slug,
+                ...(allowedAttributeValueIds && { allowedAttributeValueIds }),
+            } as any)
 
             // ✅ Asset kaydı: client S3'e upload ettiyse sadece DB kaydı oluştur
             if (assetType && assetKey && mimeType) {

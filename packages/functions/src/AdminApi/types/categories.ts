@@ -6,6 +6,7 @@ import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 export interface ICreateCategoryBody {
     code: number
     name: string
+    allowedAttributeValueIds?: string[]
     assetType?: AssetType
     assetRole?: AssetRole
     assetKey?: string
@@ -41,6 +42,7 @@ export type IUpdateCategoryEvent =
         body: Partial<{
             code: string
             name: string
+            allowedAttributeValueIds?: string[]
             assetKey?: string
             assetRole?: AssetRole
             mimeType?: string

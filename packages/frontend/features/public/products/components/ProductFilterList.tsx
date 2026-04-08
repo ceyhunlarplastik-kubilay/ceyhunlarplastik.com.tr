@@ -1,21 +1,30 @@
 "use client"
 
 import { ProductCard } from "@/components/navigation/ProductCard"
+import type { Product } from "@/features/public/products/types"
 import { useProducts } from "../hooks/useProducts"
 import { useFilterStore } from "../store/filterStore"
 import ProductFilterPagination from "./ProductFilterPagination"
 import ProductGridSkeleton from "./ProductGridSkeleton"
 import ProductActiveFilters from "./ProductActiveFilters"
 
-export default function ProductFilterList() {
+export default function ProductFilterList({
+    fixedCategorySlug,
+    basePath = "/urunler/filtre",
+}: {
+    fixedCategorySlug?: string
+    basePath?: string
+}) {
     const { category, attributes, page, limit } = useFilterStore()
 
-    const params: Record<string, any> = {
+    const params: Record<string, string | number> = {
         page,
         limit,
     }
 
-    if (category) {
+    if (fixedCategorySlug) {
+        params.category = fixedCategorySlug
+    } else if (category) {
         params.category = category
     }
 
@@ -50,7 +59,7 @@ export default function ProductFilterList() {
         <div className="space-y-6">
 
             {/* ACTIVE FILTERS */}
-            <ProductActiveFilters />
+            <ProductActiveFilters basePath={basePath} />
 
             {/* HEADER */}
             <div className="flex items-center justify-between rounded-2xl border px-4 py-3">
@@ -71,9 +80,9 @@ export default function ProductFilterList() {
 
             {/* GRID */}
             <ul className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {products.map((product: any) => {
-                    const primary = product.assets?.find((a: any) => a.role === "PRIMARY")
-                    const fallback = product.assets?.find((a: any) => a.type === "IMAGE")
+                {products.map((product: Product) => {
+                    const primary = product.assets?.find((a: { role?: string }) => a.role === "PRIMARY")
+                    const fallback = product.assets?.find((a: { type?: string }) => a.type === "IMAGE")
 
                     const img = primary?.url || fallback?.url || "/placeholder.webp"
 
@@ -95,6 +104,7 @@ export default function ProductFilterList() {
                 <ProductFilterPagination
                     page={meta.page}
                     totalPages={meta.totalPages}
+                    basePath={basePath}
                 />
             )}
         </div>

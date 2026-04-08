@@ -6,10 +6,9 @@ import { QualitySection } from "@/components/home/QualitySection";
 import { ProcessAndContactSection } from "@/components/home/ProcessAndContactSection";
 import { Enviroment } from "@/components/home/Enviroment";
 import { HomeToasts } from "@/components/home/HomeToasts";
-import ProductAssistant from "@/components/home/ProductAssistant"
+import ProductAssistantModal from "@/components/home/ProductAssistantModal"
 // import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
 import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
-import { getCategories } from "@/features/public/categories/server/getCategories"
 
 export default async function Home({
     searchParams,
@@ -21,7 +20,6 @@ export default async function Home({
     const error = typeof params?.error === "string" ? params.error : undefined;
 
     const attributes = await getAttributesForFilter()
-    const categories = await getCategories()
 
     return (
         <div className="min-h-screen">
@@ -36,10 +34,7 @@ export default async function Home({
                 <QualitySection />
                 <ProcessAndContactSection />
                 <Enviroment />
-                <ProductAssistant
-                    attributes={attributes}
-                    categories={categories}
-                />
+                <ProductAssistantModal attributes={attributes} />
             </main>
         </div>
     );

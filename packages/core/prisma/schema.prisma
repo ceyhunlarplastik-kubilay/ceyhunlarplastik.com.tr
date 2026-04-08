@@ -68,6 +68,7 @@ model Category {
   code Int
   name String
   slug String @unique
+  allowedAttributeValueIds String[] @default([])
 
   products Product[]
   assets   Asset[]
@@ -305,6 +306,8 @@ enum AssetRole {
   GALLERY
   DOCUMENT
   TECHNICAL_DRAWING
+  MODEL_3D
+  ASSEMBLY_VIDEO
   CERTIFICATE
 }
 

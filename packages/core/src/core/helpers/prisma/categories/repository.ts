@@ -42,6 +42,7 @@ function mapCategory(category: Category & { assets: Asset[] }) {
         code: category.code,
         name: category.name,
         slug: category.slug,
+        allowedAttributeValueIds: (category as any).allowedAttributeValueIds ?? [],
         createdAt: category.createdAt,
         updatedAt: category.updatedAt,
         assets: category.assets?.map(mapAsset) ?? [],

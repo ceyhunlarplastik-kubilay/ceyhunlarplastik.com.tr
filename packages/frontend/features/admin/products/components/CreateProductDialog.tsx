@@ -70,6 +70,8 @@ export function CreateProductDialog({
             attributeValueIds: [],
         },
     })
+    const selectedCategoryId = form.watch("categoryId")
+    const selectedCategory = categories.find((category) => category.id === selectedCategoryId)
 
     /*     async function onSubmit(data: ProductFormValues) {
             console.log("FORM DATA:", data) // 👈 EKLE
@@ -88,7 +90,7 @@ export function CreateProductDialog({
             onOpenChange(false)
             form.reset()
 
-        } catch (err: any) {
+        } catch {
             toast.error("Ürün oluşturulamadı")
         }
     }
@@ -197,6 +199,7 @@ export function CreateProductDialog({
                                 <ProductAttributeSelect
                                     value={field.value ?? []}
                                     onChange={field.onChange}
+                                    allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
                                 />
                             )}
                         />

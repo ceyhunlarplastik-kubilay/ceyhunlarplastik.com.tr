@@ -1,5 +1,4 @@
 import { adminApiClient } from "@/lib/http/client"
-import type { Product } from "@/features/public/products/types"
 import type { ListProductsResponse } from "./types"
 
 export type GetProductsParams = {
@@ -13,10 +12,10 @@ export type GetProductsParams = {
 
 export async function getProducts(
     params?: GetProductsParams
-): Promise<Product[]> {
+): Promise<ListProductsResponse["payload"]> {
     const res = await adminApiClient.get<ListProductsResponse>(
         "/products",
         { params }
     )
-    return res.data.payload.data ?? []
+    return res.data.payload
 }

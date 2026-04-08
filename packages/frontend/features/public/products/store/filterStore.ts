@@ -19,7 +19,7 @@ export const useFilterStore = create<Store>((set, get) => ({
     category: undefined,
     attributes: {},
     page: 1,
-    limit: 12,
+    limit: 20,
 
     setCategory: (category) => set({ category, page: 1 }),
 
@@ -67,7 +67,7 @@ export const useFilterStore = create<Store>((set, get) => ({
         set({
             category: params.get("category") ?? undefined,
             page: Number(params.get("page") ?? 1),
-            limit: Number(params.get("limit") ?? 12),
+            limit: Number(params.get("limit") ?? 20),
             attributes: attrs,
         })
     },

@@ -8,7 +8,12 @@ import { getProductsByCategory } from "@/features/public/products/server/getProd
 
 import ProductHero from "@/features/public/products/components/ProductHero"
 import ProductMediaRow from "@/features/public/products/components/ProductMediaRow"
+import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
+import Product3DModelSection from "@/features/public/products/components/Product3DModelSection"
+import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
+import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
+import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 
 export const revalidate = 60
@@ -70,7 +75,7 @@ export default async function ProductPage({ params }: PageProps) {
                 ]}
             />
 
-            <section className="mx-auto max-w-7xl px-6 py-16">
+            <section className="mx-auto max-w-7xl px-6 py-6">
 
                 {/* PRODUCT HERO */}
                 <div id="product-hero">
@@ -78,9 +83,9 @@ export default async function ProductPage({ params }: PageProps) {
                 </div>
 
                 {/* MEDIA ROW */}
-                <div id="product-media">
+                {/* <div id="product-media">
                     <ProductMediaRow product={product} />
-                </div>
+                </div> */}
 
             </section>
 
@@ -88,6 +93,19 @@ export default async function ProductPage({ params }: PageProps) {
 
                 <div id="product-variants">
                     <ProductVariantTable variants={variants} productSlug={product.slug} />
+                </div>
+                <ProductUsageAreasTable product={product} />
+                <div id="product-technical-drawing">
+                    <ProductTechnicalDrawingSection product={product} />
+                </div>
+                <div id="product-3d-model">
+                    <Product3DModelSection product={product} />
+                </div>
+                <div id="product-assembly-video">
+                    <ProductAssemblyVideoSection product={product} />
+                </div>
+                <div id="product-certificate">
+                    <ProductCertificateSection product={product} />
                 </div>
                 <SimilarProductsRow products={similarProducts} />
 

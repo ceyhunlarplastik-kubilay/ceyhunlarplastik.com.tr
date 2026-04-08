@@ -5,59 +5,92 @@ import { useAttributesForFilter } from "../hooks/useAttributesForFilter"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 type Props = {
     value: string[]
     onChange: (value: string[]) => void
+    allowedAttributeValueIds?: string[]
 }
 
-export function ProductAttributeSelect({ value, onChange }: Props) {
-
+export function ProductAttributeSelect({ value, onChange, allowedAttributeValueIds }: Props) {
     const { data, isLoading } = useAttributesForFilter()
-    const orderedAttributes = useMemo(() => {
+    const hasRestriction = allowedAttributeValueIds !== undefined
+
+    const allowedSet = useMemo(
+        () => (hasRestriction ? new Set(allowedAttributeValueIds ?? []) : null),
+        [allowedAttributeValueIds, hasRestriction]
+    )
+
+    const scopedAttributes = useMemo(() => {
         const attrs = data ?? []
+        if (!hasRestriction || !allowedSet) return attrs
+
+        return attrs
+            .map((attribute) => {
+                return {
+                    ...attribute,
+                    values: (attribute.values ?? []).filter((v) => {
+                        if (allowedSet.has(v.id)) return true
+                        if (v.parentValueId && allowedSet.has(v.parentValueId)) return true
+                        return false
+                    }),
+                }
+            })
+            .filter((attribute) => (attribute.values?.length ?? 0) > 0)
+    }, [data, allowedSet, hasRestriction])
+
+    const orderedAttributes = useMemo(() => {
         const priority = ["sector", "production_group", "usage_area"]
         const seen = new Set<string>()
 
         const prioritized = priority
-            .map((code) => attrs.find((attr) => attr.code === code))
-            .filter((attr): attr is (typeof attrs)[number] => Boolean(attr))
+            .map((code) => scopedAttributes.find((attr) => attr.code === code))
+            .filter((attr): attr is (typeof scopedAttributes)[number] => Boolean(attr))
             .map((attr) => {
                 seen.add(attr.id)
                 return attr
             })
 
-        const rest = attrs.filter((attr) => !seen.has(attr.id))
+        const rest = scopedAttributes.filter((attr) => !seen.has(attr.id))
         return [...prioritized, ...rest]
-    }, [data])
+    }, [scopedAttributes])
 
     const selectedIds = useMemo(() => new Set(value), [value])
+    const multiAttributeCodes = useMemo(
+        () => new Set(["sector", "production_group", "usage_area"]),
+        []
+    )
+
     const valuesById = useMemo(() => {
-        const map = new Map<string, { id: string; slug: string; parentValueId?: string | null; attributeCode: string }>()
-        for (const attribute of data ?? []) {
+        const map = new Map<string, { attributeCode: string }>()
+        for (const attribute of scopedAttributes) {
             for (const val of attribute.values ?? []) {
-                map.set(val.id, {
-                    id: val.id,
-                    slug: val.slug,
-                    parentValueId: val.parentValueId ?? null,
-                    attributeCode: attribute.code,
-                })
+                map.set(val.id, { attributeCode: attribute.code })
             }
         }
         return map
-    }, [data])
+    }, [scopedAttributes])
 
     const sectorAttribute = useMemo(
-        () => (data ?? []).find((attr) => attr.code === "sector"),
-        [data]
+        () => scopedAttributes.find((attr) => attr.code === "sector"),
+        [scopedAttributes]
     )
+
     const productionGroupAttribute = useMemo(
-        () => (data ?? []).find((attr) => attr.code === "production_group"),
-        [data]
+        () => scopedAttributes.find((attr) => attr.code === "production_group"),
+        [scopedAttributes]
     )
+
     const usageAreaAttribute = useMemo(
-        () => (data ?? []).find((attr) => attr.code === "usage_area"),
-        [data]
+        () => scopedAttributes.find((attr) => attr.code === "usage_area"),
+        [scopedAttributes]
     )
 
     const selectedSectorIds = useMemo(
@@ -90,6 +123,19 @@ export function ProductAttributeSelect({ value, onChange }: Props) {
 
     function normalizeSelection(next: string[]) {
         const nextSet = new Set(next)
+
+        // Non-hierarchical attributes should have only one selected value.
+        for (const attribute of scopedAttributes) {
+            if (multiAttributeCodes.has(attribute.code)) continue
+
+            const selectedInAttribute = (attribute.values ?? [])
+                .filter((v) => nextSet.has(v.id))
+                .map((v) => v.id)
+
+            for (const duplicateId of selectedInAttribute.slice(1)) {
+                nextSet.delete(duplicateId)
+            }
+        }
 
         const nextSelectedSectorIds = (sectorAttribute?.values ?? [])
             .filter((v) => nextSet.has(v.id))
@@ -135,74 +181,77 @@ export function ProductAttributeSelect({ value, onChange }: Props) {
     }
 
     function toggle(valId: string) {
-        if (value.includes(valId)) {
-            onChange(normalizeSelection(value.filter(v => v !== valId)))
-        } else {
-            onChange(normalizeSelection([...value, valId]))
+        if (value.includes(valId)) onChange(normalizeSelection(value.filter((v) => v !== valId)))
+        else onChange(normalizeSelection([...value, valId]))
+    }
+
+    function setSingle(attributeCode: string, nextValueId: string) {
+        const nextSet = new Set(value)
+
+        for (const [id, meta] of valuesById.entries()) {
+            if (meta.attributeCode === attributeCode) nextSet.delete(id)
         }
+
+        if (nextValueId !== "__none") nextSet.add(nextValueId)
+        onChange(normalizeSelection([...nextSet]))
     }
 
-    if (isLoading) {
-        return <p className="text-sm text-neutral-500">Yükleniyor...</p>
-    }
-
-    if (!data?.length) {
-        return <p className="text-sm text-neutral-500">Attribute bulunamadı</p>
-    }
+    if (isLoading) return <p className="text-sm text-neutral-500">Yükleniyor...</p>
+    if (!scopedAttributes.length) return <p className="text-sm text-neutral-500">Attribute bulunamadı</p>
 
     return (
         <ScrollArea className="h-[300px] pr-2">
             <div className="space-y-6">
+                {orderedAttributes.map((attribute) => {
+                    const attributeValues = attribute.values ?? []
+                    const values =
+                        attribute.code === "production_group"
+                            ? visibleProductionGroups
+                            : attribute.code === "usage_area"
+                                ? visibleUsageAreas
+                                : attributeValues
+                    const isMulti = multiAttributeCodes.has(attribute.code)
+                    const selectedForAttribute = values.find((val) => selectedIds.has(val.id))?.id
 
-                {orderedAttributes.map(attribute => (
-
-                    <div key={attribute.id} className="space-y-2">
-                        {(() => {
-                            const attributeValues = attribute.values ?? []
-                            return (
-                                <>
-
-                                    {/* ATTRIBUTE TITLE */}
-                                    <div className="text-sm font-semibold text-neutral-800">
-                                        {attribute.name}
-                                    </div>
-
-                                    {/* VALUES */}
-                                    <div className="grid grid-cols-2 gap-2">
-
-                                        {(attribute.code === "production_group"
-                                            ? visibleProductionGroups
-                                            : attribute.code === "usage_area"
-                                                ? visibleUsageAreas
-                                                : attributeValues
-                                        ).map(val => {
-
-                                            const checked = value.includes(val.id)
-
-                                            return (
-                                                <Label
-                                                    key={val.id}
-                                                    className="flex items-center gap-2 border rounded-lg px-2 py-1.5 cursor-pointer hover:bg-neutral-50"
-                                                >
-                                                    <Checkbox
-                                                        checked={checked}
-                                                        onCheckedChange={() => toggle(val.id)}
-                                                    />
-                                                    <span className="text-sm">
-                                                        {val.name}
-                                                    </span>
-                                                </Label>
-                                            )
-                                        })}
-
-                                    </div>
-                                </>
-                            )
-                        })()}
-                    </div>
-
-                ))}
-
+                    return (
+                        <div key={attribute.id} className="space-y-2">
+                            <div className="text-sm font-semibold text-neutral-800">{attribute.name}</div>
+                            {isMulti ? (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {values.map((val) => {
+                                        const checked = value.includes(val.id)
+                                        return (
+                                            <Label
+                                                key={val.id}
+                                                className="flex items-center gap-2 border rounded-lg px-2 py-1.5 cursor-pointer hover:bg-neutral-50"
+                                            >
+                                                <Checkbox checked={checked} onCheckedChange={() => toggle(val.id)} />
+                                                <span className="text-sm">{val.name}</span>
+                                            </Label>
+                                        )
+                                    })}
+                                </div>
+                            ) : (
+                                <Select
+                                    value={selectedForAttribute ?? "__none"}
+                                    onValueChange={(nextValue) => setSingle(attribute.code, nextValue)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder={`${attribute.name} seç`} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="__none">Seçilmedi</SelectItem>
+                                        {values.map((val) => (
+                                            <SelectItem key={val.id} value={val.id}>
+                                                {val.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        </div>
+                    )
+                })}
             </div>
         </ScrollArea>
     )

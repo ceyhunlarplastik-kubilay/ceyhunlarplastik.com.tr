@@ -15,6 +15,8 @@ const assetRoleEnum = z.enum([
     "GALLERY",
     "DOCUMENT",
     "TECHNICAL_DRAWING",
+    "MODEL_3D",
+    "ASSEMBLY_VIDEO",
     "CERTIFICATE",
 ])
 
@@ -34,6 +36,7 @@ export const categorySchema = z.object({
     code: z.number().optional(),
     name: z.string().optional(),
     slug: z.string().optional(),
+    allowedAttributeValueIds: z.array(z.string()).optional(),
     assets: z.array(assetSchema).optional(),
     createdAt: z.string().optional(),
     updatedAt: z.string().optional(),
@@ -44,6 +47,7 @@ export const createCategoryValidator = validatorWrapper(
         body: z.object({
             code: z.coerce.number().int().positive(),
             name: z.string().min(2).max(100),
+            allowedAttributeValueIds: z.array(z.uuid()).optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),
             assetKey: z.string().optional(),
@@ -96,6 +100,7 @@ export const updateCategoryValidator = validatorWrapper(
         }),
         body: z.object({
             name: z.string().min(2).max(100).optional(),
+            allowedAttributeValueIds: z.array(z.uuid()).optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),
             assetKey: z.string().optional(),

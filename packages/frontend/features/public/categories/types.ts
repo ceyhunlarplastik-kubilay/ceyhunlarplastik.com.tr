@@ -5,6 +5,7 @@ export type Category = {
     code: number
     name: string
     slug: string
+    allowedAttributeValueIds?: string[]
     assets?: Asset[]
     createdAt: string
     updatedAt: string

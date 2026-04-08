@@ -2,6 +2,7 @@ import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/t
 import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
 import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repository"
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository";
+import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository";
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 
 export interface IProductDependencies {
@@ -11,6 +12,7 @@ export interface IProductDependencies {
 
 export interface ICreateProductDependencies extends IProductDependencies {
     assetRepository: IPrismaAssetRepository
+    productAttributeValueRepository: IPrismaProductAttributeValueRepository
 }
 
 export interface IUpdateProductDependencies extends ICreateProductDependencies { }
