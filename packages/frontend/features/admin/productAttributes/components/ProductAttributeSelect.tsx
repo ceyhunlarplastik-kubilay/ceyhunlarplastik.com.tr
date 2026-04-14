@@ -17,9 +17,15 @@ type Props = {
     value: string[]
     onChange: (value: string[]) => void
     allowedAttributeValueIds?: string[]
+    singleSelectNonHierarchy?: boolean
 }
 
-export function ProductAttributeSelect({ value, onChange, allowedAttributeValueIds }: Props) {
+export function ProductAttributeSelect({
+    value,
+    onChange,
+    allowedAttributeValueIds,
+    singleSelectNonHierarchy = false,
+}: Props) {
     const { data, isLoading } = useAttributesForFilter()
     const hasRestriction = allowedAttributeValueIds !== undefined
 
@@ -124,16 +130,18 @@ export function ProductAttributeSelect({ value, onChange, allowedAttributeValueI
     function normalizeSelection(next: string[]) {
         const nextSet = new Set(next)
 
-        // Non-hierarchical attributes should have only one selected value.
-        for (const attribute of scopedAttributes) {
-            if (multiAttributeCodes.has(attribute.code)) continue
+        if (singleSelectNonHierarchy) {
+            // Product forms: non-hierarchical attributes are single-select.
+            for (const attribute of scopedAttributes) {
+                if (multiAttributeCodes.has(attribute.code)) continue
 
-            const selectedInAttribute = (attribute.values ?? [])
-                .filter((v) => nextSet.has(v.id))
-                .map((v) => v.id)
+                const selectedInAttribute = (attribute.values ?? [])
+                    .filter((v) => nextSet.has(v.id))
+                    .map((v) => v.id)
 
-            for (const duplicateId of selectedInAttribute.slice(1)) {
-                nextSet.delete(duplicateId)
+                for (const duplicateId of selectedInAttribute.slice(1)) {
+                    nextSet.delete(duplicateId)
+                }
             }
         }
 
@@ -210,7 +218,7 @@ export function ProductAttributeSelect({ value, onChange, allowedAttributeValueI
                             : attribute.code === "usage_area"
                                 ? visibleUsageAreas
                                 : attributeValues
-                    const isMulti = multiAttributeCodes.has(attribute.code)
+                    const isMulti = !singleSelectNonHierarchy || multiAttributeCodes.has(attribute.code)
                     const selectedForAttribute = values.find((val) => selectedIds.has(val.id))?.id
 
                     return (

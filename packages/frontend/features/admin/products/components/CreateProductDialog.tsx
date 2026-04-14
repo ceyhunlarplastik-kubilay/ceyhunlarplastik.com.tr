@@ -200,6 +200,7 @@ export function CreateProductDialog({
                                     value={field.value ?? []}
                                     onChange={field.onChange}
                                     allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
+                                    singleSelectNonHierarchy
                                 />
                             )}
                         />

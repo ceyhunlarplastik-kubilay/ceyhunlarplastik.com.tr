@@ -169,6 +169,7 @@ export function EditProductDialog({
                                             value={field.value ?? []}
                                             onChange={field.onChange}
                                             allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
+                                            singleSelectNonHierarchy
                                         />
                                     )}
                                 />
@@ -191,4 +192,3 @@ export function EditProductDialog({
         </Dialog>
     )
 }
-
