@@ -41,7 +41,7 @@ The `infra/` directory splits AWS infrastructure into logical files:
 Set the following in the **root `.env`** file (not `packages/core/.env`):
 
 ```bash
-AWS_REGION="eu-central-1"
+AWS_REGION="eu-west-1"
 HOSTED_ZONE_ID="your-route53-hosted-zone-id"
 DOMAIN="yourdomain.com"
 RDS_PASSWORD="your-strong-rds-password"

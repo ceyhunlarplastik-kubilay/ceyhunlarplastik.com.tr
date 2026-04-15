@@ -36,7 +36,7 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
       {
         actions: ["dynamodb:Query", "dynamodb:GetItem","dynamodb:PutItem", "states:StartExecution"],
         resources: [table.arn]
-        // resources: ["arn:aws:dynamodb:eu-central-1:657914290529:table/portfolio-kubilay-kubilay-PortfolioTable-wzcszuuz"]
+        // resources: ["arn:aws:dynamodb:eu-west-1:657914290529:table/portfolio-kubilay-kubilay-PortfolioTable-wzcszuuz"]
       }
     ] */
     runtime: 'nodejs22.x',

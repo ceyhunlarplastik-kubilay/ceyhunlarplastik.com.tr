@@ -72,6 +72,7 @@ export function AssetPreviewPanel({
             )}
             <div className="flex flex-wrap gap-2">
                 <Button
+                    type="button"
                     size="sm"
                     variant="outline"
                     onClick={() => window.open(currentAsset.url)}
@@ -80,6 +81,7 @@ export function AssetPreviewPanel({
                     Aç
                 </Button>
                 <Button
+                    type="button"
                     size="sm"
                     variant="outline"
                     onClick={copy}
@@ -88,6 +90,7 @@ export function AssetPreviewPanel({
                     URL Kopyala
                 </Button>
                 <Button
+                    type="button"
                     size="sm"
                     variant="destructive"
                     onClick={handleDelete}

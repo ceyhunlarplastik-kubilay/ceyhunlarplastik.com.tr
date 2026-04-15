@@ -7,7 +7,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 
 const cognitoClient = new CognitoIdentityProviderClient({
-    region: config.AWS_REGION || "eu-central-1",
+    region: config.AWS_REGION || "eu-west-1",
 })
 
 export interface ICognitoUserRepository {

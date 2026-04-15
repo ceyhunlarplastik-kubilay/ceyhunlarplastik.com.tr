@@ -78,6 +78,7 @@ export function AssetGrid({
                         )}
                         {/* DELETE */}
                         <button
+                            type="button"
                             className="absolute top-2 right-2 bg-white rounded-full p-1 shadow opacity-0 group-hover:opacity-100 transition"
                             onClick={(e) => {
                                 e.stopPropagation()

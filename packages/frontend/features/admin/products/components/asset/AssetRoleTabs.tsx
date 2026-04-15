@@ -34,6 +34,7 @@ export function AssetRoleTabs({
                 return (
 
                     <button
+                        type="button"
                         key={role}
                         onClick={() => setActiveRole(role)}
                         className={`px-3 py-1.5 rounded-lg border text-sm transition 
