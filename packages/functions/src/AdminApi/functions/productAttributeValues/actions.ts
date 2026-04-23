@@ -1,18 +1,21 @@
 import { lambdaHandler } from "@/core/middy"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { productAttributeRepository } from "@/core/helpers/prisma/productAttributes/repository"
+import { assetRepository } from "@/core/helpers/prisma/assets/repository"
 
 import {
     createProductAttributeValueHandler,
     listProductAttributeValuesHandler,
     updateProductAttributeValueHandler,
-    deleteProductAttributeValueHandler
+    deleteProductAttributeValueHandler,
+    createProductAttributeValueAssetUploadHandler,
 } from "./handlers"
 
 import {
     createProductAttributeValueValidator,
     updateProductAttributeValueValidator,
-    idValidator
+    idValidator,
+    createProductAttributeValueAssetUploadValidator,
 } from "@/functions/AdminApi/validators/productAttributeValues"
 
 export const createProductAttributeValue = lambdaHandler(
@@ -20,6 +23,7 @@ export const createProductAttributeValue = lambdaHandler(
         return createProductAttributeValueHandler({
             productAttributeValueRepository: productAttributeValueRepository(),
             productAttributeRepository: productAttributeRepository(),
+            assetRepository: assetRepository(),
         })(event as any)
     },
     {
@@ -33,6 +37,7 @@ export const listProductAttributeValues = lambdaHandler(
         return listProductAttributeValuesHandler({
             productAttributeValueRepository: productAttributeValueRepository(),
             productAttributeRepository: productAttributeRepository(),
+            assetRepository: assetRepository(),
         })(event as any)
     },
     {
@@ -47,6 +52,7 @@ export const getProductAttributeValue = lambdaHandler(
         return listProductAttributeValuesHandler({
             productAttributeValueRepository: productAttributeValueRepository(),
             productAttributeRepository: productAttributeRepository(),
+            assetRepository: assetRepository(),
         })(event as any)
     },
     {
@@ -59,6 +65,7 @@ export const updateProductAttributeValue = lambdaHandler(
         return updateProductAttributeValueHandler({
             productAttributeValueRepository: productAttributeValueRepository(),
             productAttributeRepository: productAttributeRepository(),
+            assetRepository: assetRepository(),
         })(event as any)
     },
     {
@@ -72,10 +79,23 @@ export const deleteProductAttributeValue = lambdaHandler(
         return deleteProductAttributeValueHandler({
             productAttributeValueRepository: productAttributeValueRepository(),
             productAttributeRepository: productAttributeRepository(),
+            assetRepository: assetRepository(),
         })(event as any)
     },
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator
+    }
+)
+
+export const createProductAttributeValueAssetUpload = lambdaHandler(
+    async (event) => {
+        return createProductAttributeValueAssetUploadHandler({
+            productAttributeValueRepository: productAttributeValueRepository(),
+        })(event as any)
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        requestValidator: createProductAttributeValueAssetUploadValidator,
     }
 )

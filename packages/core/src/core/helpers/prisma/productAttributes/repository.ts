@@ -3,6 +3,7 @@ import { Prisma, ProductAttribute } from "@/prisma/generated/prisma/client"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
 
 type ProductAttributeForFilter = {
     id: string
@@ -13,6 +14,14 @@ type ProductAttributeForFilter = {
         name: string
         slug: string
         parentValueId: string | null
+        assets: {
+            id: string
+            key: string
+            mimeType: string
+            type: string
+            role: string
+            url: string
+        }[]
     }[]
 }
 
@@ -90,7 +99,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
     }
 
     const listAttributesForFilter = async () => {
-        return prisma.productAttribute.findMany({
+        const attributes = await prisma.productAttribute.findMany({
             where: { isActive: true },
             select: {
                 id: true,
@@ -103,12 +112,33 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                         name: true,
                         slug: true,
                         parentValueId: true,
+                        assets: {
+                            select: {
+                                id: true,
+                                key: true,
+                                mimeType: true,
+                                type: true,
+                                role: true,
+                            },
+                            orderBy: { createdAt: "desc" }
+                        }
                     },
                     orderBy: { displayOrder: "asc" }
                 }
             },
             orderBy: { displayOrder: "asc" }
         })
+
+        return attributes.map((attribute) => ({
+            ...attribute,
+            values: attribute.values.map((value) => ({
+                ...value,
+                assets: value.assets.map((asset) => ({
+                    ...asset,
+                    url: buildAssetUrl(asset.key),
+                })),
+            })),
+        }))
     }
 
     const getProductAttribute = (id: string) =>

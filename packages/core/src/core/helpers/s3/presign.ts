@@ -141,3 +141,37 @@ export async function generateProductAssetUpload({
         url: buildPublicUrl(key),
     }
 }
+
+export async function generateProductAttributeValueAssetUpload({
+    attributeCode,
+    valueSlug,
+    assetRole,
+    fileName,
+    contentType,
+}: {
+    attributeCode: string
+    valueSlug: string
+    assetRole: string
+    fileName: string
+    contentType: string
+}) {
+    const safeName = sanitizeFileName(fileName)
+    const ext = safeName.includes(".") ? safeName.split(".").pop() : undefined
+    const uuid = randomUUID()
+    const folder = getFolderByRole(assetRole)
+    const key = `product-attribute-values/${attributeCode}/${valueSlug}/${folder}/${uuid}${ext ? `.${ext}` : ""}`
+
+    const cmd = new PutObjectCommand({
+        Bucket: process.env.BUCKET_NAME!,
+        Key: key,
+        ContentType: contentType,
+    })
+
+    const uploadUrl = await getSignedUrl(s3, cmd, { expiresIn: 60 })
+
+    return {
+        uploadUrl,
+        key,
+        url: buildPublicUrl(key),
+    }
+}

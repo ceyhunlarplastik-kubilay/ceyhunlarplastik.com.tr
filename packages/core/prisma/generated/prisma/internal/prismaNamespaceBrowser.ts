@@ -57,6 +57,8 @@ export const ModelName = {
   Product: 'Product',
   ProductAttribute: 'ProductAttribute',
   ProductAttributeValue: 'ProductAttributeValue',
+  Customer: 'Customer',
+  WebRequest: 'WebRequest',
   ProductVariant: 'ProductVariant',
   MeasurementType: 'MeasurementType',
   ProductMeasurement: 'ProductMeasurement',
@@ -88,6 +90,7 @@ export const UserScalarFieldEnum = {
   email: 'email',
   identifier: 'identifier',
   groups: 'groups',
+  supplierId: 'supplierId',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -168,6 +171,37 @@ export const ProductAttributeValueScalarFieldEnum = {
 export type ProductAttributeValueScalarFieldEnum = (typeof ProductAttributeValueScalarFieldEnum)[keyof typeof ProductAttributeValueScalarFieldEnum]
 
 
+export const CustomerScalarFieldEnum = {
+  id: 'id',
+  companyName: 'companyName',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  note: 'note',
+  sectorValueId: 'sectorValueId',
+  productionGroupValueId: 'productionGroupValueId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const WebRequestScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  message: 'message',
+  items: 'items',
+  status: 'status'
+} as const
+
+export type WebRequestScalarFieldEnum = (typeof WebRequestScalarFieldEnum)[keyof typeof WebRequestScalarFieldEnum]
+
+
 export const ProductVariantScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -226,6 +260,8 @@ export const ProductVariantSupplierScalarFieldEnum = {
   variantId: 'variantId',
   supplierId: 'supplierId',
   isActive: 'isActive',
+  price: 'price',
+  currency: 'currency',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -253,6 +289,7 @@ export const AssetScalarFieldEnum = {
   categoryId: 'categoryId',
   productId: 'productId',
   variantId: 'variantId',
+  productAttributeValueId: 'productAttributeValueId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -266,6 +303,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -282,4 +326,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

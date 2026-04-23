@@ -1,8 +1,8 @@
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IAssetDependencies, IUpdateAssetEvent } from "@/functions/AdminApi/types/assets"
 
-export const updateAssetHandler = ({ assetRepository, categoryRepository, productRepository, productVariantRepository }: IAssetDependencies) => {
+export const updateAssetHandler = ({ assetRepository, categoryRepository, productRepository, productVariantRepository, productAttributeValueRepository }: IAssetDependencies) => {
     return async (event: IUpdateAssetEvent) => {
         const { id } = event.pathParameters;
         const body = event.body;
@@ -23,19 +23,27 @@ export const updateAssetHandler = ({ assetRepository, categoryRepository, produc
                 const variant = await productVariantRepository.getProductVariant(body.variantId);
                 if (!variant) throw new createError.NotFound("ProductVariant not found");
             }
+            if (body.productAttributeValueId) {
+                const value = await productAttributeValueRepository.getValueById(body.productAttributeValueId);
+                if (!value) throw new createError.NotFound("ProductAttributeValue not found");
+            }
 
+            const { url, key, categoryId, productId, variantId, productAttributeValueId, ...rest } = body
             const updated = await assetRepository.updateAsset(id, {
-                ...body,
-                ...(body.categoryId && { category: { connect: { id: body.categoryId } } }),
-                ...(body.productId && { product: { connect: { id: body.productId } } }),
-                ...(body.variantId && { variant: { connect: { id: body.variantId } } }),
-            });
+                ...rest,
+                ...(url || key ? { key: key ?? url } : {}),
+                ...(categoryId && { category: { connect: { id: categoryId } } }),
+                ...(productId && { product: { connect: { id: productId } } }),
+                ...(variantId && { variant: { connect: { id: variantId } } }),
+                ...(productAttributeValueId && { productAttributeValueId }),
+            } as any);
 
             return apiResponseDTO({
                 statusCode: 200,
                 payload: { asset: updated },
             })
         } catch (err: any) {
+            if (err instanceof HttpError) throw err
             console.error(err);
             throw new createError.InternalServerError("Failed to update asset");
         }

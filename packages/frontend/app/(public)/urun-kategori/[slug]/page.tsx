@@ -62,6 +62,7 @@ export default async function CategoryPage(
             }
         })
         .filter((attribute) => (attribute.values?.length ?? 0) > 0)
+        .filter((attribute) => !["sector", "production_group", "usage_area"].includes(attribute.code))
 
     return (
         <main>

@@ -21,6 +21,44 @@ const ROLE_HIERARCHY = {
 } as const;
 
 type Role = keyof typeof ROLE_HIERARCHY;
+const KNOWN_GROUPS = ["owner", "admin", "supplier", "user"] as const;
+
+const normalizeGroups = (groups: string[]): string[] => {
+  const cleaned = groups
+    .map((group) => group.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (cleaned.length === 1) {
+    const merged = cleaned[0];
+    const extracted = KNOWN_GROUPS.filter((group) => merged.includes(group));
+    if (extracted.length > 1) return extracted;
+  }
+
+  return Array.from(new Set(cleaned));
+};
+
+const parseCognitoGroups = (rawGroups: unknown): string[] => {
+  if (Array.isArray(rawGroups)) {
+    return normalizeGroups(rawGroups
+      .filter((group): group is string => typeof group === "string")
+      .map((group) => group.trim().toLowerCase())
+      .filter(Boolean));
+  }
+
+  if (typeof rawGroups !== "string") return [];
+
+  const normalized = rawGroups
+    .replace(/]\s*\[/g, ",")
+    .replace(/[\[\]"]/g, "")
+    .trim();
+
+  if (!normalized) return [];
+
+  return normalizeGroups(normalized
+    .split(/[,\s]+/)
+    .map((group) => group.trim().toLowerCase())
+    .filter(Boolean));
+};
 
 const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
   const { requiredPermissionGroups, optional } = opts || {};
@@ -54,20 +92,8 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
     }
 
     const rawGroups = claims["cognito:groups"];
-    let cognitoGroups: string[] = [];
-
-    if (cognitoGroups.length === 0) {
-      cognitoGroups = ["user"];
-    }
-
-    if (Array.isArray(rawGroups)) {
-      cognitoGroups = rawGroups;
-    } else if (typeof rawGroups === "string") {
-      cognitoGroups = rawGroups
-        .replace(/[\[\]\s]/g, "")
-        .split(",")
-        .filter(Boolean);
-    }
+    const parsedGroups = parseCognitoGroups(rawGroups);
+    const cognitoGroups = parsedGroups.length > 0 ? parsedGroups : ["user"];
 
     // console.log("PARSED GROUPS:", cognitoGroups);
 
@@ -113,25 +139,41 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
       identifier: user.identifier,
       email: user.email,
       groups: user.groups,
+      supplierId: user.supplierId,
       isOwner: user.groups.includes("owner"),
       isAdmin: user.groups.includes("admin"),
+      isSupplier: user.groups.includes("supplier"),
     };
 
     // 🔐 Role check
     if (requiredPermissionGroups?.length) {
-      const userMaxRoleLevel = Math.max(
-        ...event.user!.groups.map((g) =>
-          ROLE_HIERARCHY[g as Role] ?? 0
-        )
+      const coreRoles = new Set<Role>(["owner", "admin", "user"]);
+      const userGroups = event.user.groups;
+
+      const hasDirectGroupMatch = requiredPermissionGroups.some((group) =>
+        userGroups.includes(group)
       );
 
-      const requiredMaxRoleLevel = Math.max(
-        ...requiredPermissionGroups.map((g) =>
-          ROLE_HIERARCHY[g as Role] ?? 0
-        )
+      const coreRequired = requiredPermissionGroups.filter((group) =>
+        coreRoles.has(group as Role)
+      ) as Role[];
+
+      const userCoreMaxRoleLevel = Math.max(
+        0,
+        ...userGroups
+          .filter((group): group is Role => coreRoles.has(group as Role))
+          .map((group) => ROLE_HIERARCHY[group])
       );
 
-      if (userMaxRoleLevel < requiredMaxRoleLevel) {
+      const requiredCoreMaxRoleLevel = coreRequired.length
+        ? Math.max(...coreRequired.map((group) => ROLE_HIERARCHY[group]))
+        : 0;
+
+      const hasHierarchyMatch =
+        coreRequired.length > 0 &&
+        userCoreMaxRoleLevel >= requiredCoreMaxRoleLevel;
+
+      if (!hasDirectGroupMatch && !hasHierarchyMatch) {
         throw createError.Forbidden("User does not have permission");
       }
     }

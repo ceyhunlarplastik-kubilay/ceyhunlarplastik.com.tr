@@ -1,6 +1,62 @@
 import { getServerSession, NextAuthOptions } from "next-auth";
 import CognitoProvider from "next-auth/providers/cognito";
 
+const KNOWN_GROUPS = ["owner", "admin", "supplier", "user"] as const
+
+function normalizeGroups(groups: string[]): string[] {
+    const cleaned = groups
+        .map((group) => group.trim().toLowerCase())
+        .filter(Boolean)
+
+    if (cleaned.length === 1) {
+        const merged = cleaned[0]
+        const extracted = KNOWN_GROUPS.filter((group) => merged.includes(group))
+        if (extracted.length > 1) return extracted
+    }
+
+    return Array.from(new Set(cleaned))
+}
+
+function parseCognitoGroups(rawGroups: unknown): string[] {
+    if (Array.isArray(rawGroups)) {
+        return normalizeGroups(rawGroups
+            .filter((group): group is string => typeof group === "string")
+            .map((group) => group.trim().toLowerCase())
+            .filter(Boolean))
+    }
+
+    if (typeof rawGroups !== "string") return []
+
+    const normalized = rawGroups
+        .replace(/]\s*\[/g, ",")
+        .replace(/[\[\]"]/g, "")
+        .trim()
+
+    if (!normalized) return []
+
+    return normalizeGroups(normalized
+        .split(/[,\s]+/)
+        .map((group) => group.trim().toLowerCase())
+        .filter(Boolean))
+}
+
+function parseGroupsFromIdToken(idToken: unknown): string[] {
+    if (typeof idToken !== "string" || !idToken) return []
+
+    try {
+        const parts = idToken.split(".")
+        if (parts.length < 2) return []
+
+        const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/")
+        const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4)
+        const payload = JSON.parse(Buffer.from(padded, "base64").toString("utf-8")) as Record<string, unknown>
+
+        return parseCognitoGroups(payload["cognito:groups"])
+    } catch {
+        return []
+    }
+}
+
 /**
  * Cognito token endpoint üzerinden refresh token ile yeni tokenlar alır.
  */
@@ -61,6 +117,11 @@ export const authOptions: NextAuthOptions = {
                 token.accessToken = account.access_token;
                 token.refreshToken = account.refresh_token;
                 token.expiresAt = account.expires_at; // epoch seconds
+
+                const fromAccountToken = parseGroupsFromIdToken(account.id_token)
+                if (fromAccountToken.length > 0) {
+                    token.groups = fromAccountToken
+                }
             }
 
             // ✅ groups: sadece profile geldiğinde güncelle, yoksa mevcut token'daki groups'u koru
@@ -70,9 +131,17 @@ export const authOptions: NextAuthOptions = {
                         ? (profile as any)["cognito:groups"]
                         : undefined;
 
-                token.groups = Array.isArray(rawGroups)
-                    ? rawGroups.filter((x): x is string => typeof x === "string")
-                    : [];
+                const parsed = parseCognitoGroups(rawGroups)
+                if (parsed.length > 0) {
+                    token.groups = parsed
+                }
+            }
+
+            if (!Array.isArray(token.groups) || token.groups.length === 0) {
+                const fromToken = parseGroupsFromIdToken(token.idToken)
+                if (fromToken.length > 0) {
+                    token.groups = fromToken
+                }
             }
 
             // ✅ Token henüz expire olmadıysa olduğu gibi dön
@@ -93,6 +162,10 @@ export const authOptions: NextAuthOptions = {
                 token.idToken = refreshed.idToken;
                 token.accessToken = refreshed.accessToken;
                 token.expiresAt = refreshed.expiresAt;
+                const fromRefreshedToken = parseGroupsFromIdToken(refreshed.idToken)
+                if (fromRefreshedToken.length > 0) {
+                    token.groups = fromRefreshedToken
+                }
                 token.error = undefined;
             } catch (err) {
                 console.error("Token refresh failed:", err);
@@ -108,7 +181,7 @@ export const authOptions: NextAuthOptions = {
             (session as any).error = token.error;
 
             if (session.user) {
-                (session.user as any).groups = token.groups || [];
+                (session.user as any).groups = Array.isArray(token.groups) ? token.groups : [];
                 // name & image NextAuth'un CognitoProvider'ından gelir; token'da tutulur
                 if (!session.user.name && token.name) {
                     session.user.name = token.name as string;

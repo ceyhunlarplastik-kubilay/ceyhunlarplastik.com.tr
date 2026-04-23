@@ -93,6 +93,7 @@ export default function ProductFilterList({
                                 code={product.code}
                                 href={`/urun/${product.slug}`}
                                 imageStatic={img}
+                                attributeValues={product.attributeValues}
                             />
                         </li>
                     )

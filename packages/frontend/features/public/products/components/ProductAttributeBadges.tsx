@@ -12,88 +12,88 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
 
     if (!attributeValues || attributeValues.length === 0) return null
 
-    // 🔥 group by attribute
     const grouped = attributeValues.reduce((acc: any, val: any) => {
-        const key = val.attribute.name
-
-        if (!acc[key]) {
-            acc[key] = []
+        const code = val.attribute?.code ?? val.attribute?.name ?? "other"
+        if (!acc[code]) {
+            acc[code] = {
+                attributeName: val.attribute?.name ?? "Özellik",
+                values: [],
+            }
         }
-
-        acc[key].push(val)
+        acc[code].values.push(val)
         return acc
     }, {})
 
     const router = useRouter();
-    const [expanded, setExpanded] = useState(false)
+    const [usageAreasExpanded, setUsageAreasExpanded] = useState(false)
 
-    const preferredOrder = ["sector", "production_group", "usage_area"]
-    const entries = Object.entries(grouped).sort(([aName, aValues], [bName, bValues]) => {
-        const aCode = (aValues as any[])?.[0]?.attribute?.code ?? ""
-        const bCode = (bValues as any[])?.[0]?.attribute?.code ?? ""
-        const ai = preferredOrder.indexOf(aCode)
-        const bi = preferredOrder.indexOf(bCode)
-
-        if (ai !== -1 && bi !== -1) return ai - bi
-        if (ai !== -1) return -1
-        if (bi !== -1) return 1
-        return aName.localeCompare(bName, "tr")
+    const specialCodes = ["sector", "production_group", "usage_area"]
+    const allEntries = Object.entries(grouped).sort(([aCode, aData], [bCode, bData]) => {
+        const aSpecial = specialCodes.includes(aCode)
+        const bSpecial = specialCodes.includes(bCode)
+        if (aSpecial !== bSpecial) return aSpecial ? 1 : -1
+        return ((aData as any).attributeName ?? "").localeCompare((bData as any).attributeName ?? "", "tr")
     })
 
-    const visibleEntries = expanded ? entries : entries.slice(0, 2)
+    const normalEntries = allEntries.filter(([code]) => !specialCodes.includes(code))
+    const specialEntries = specialCodes
+        .map((code) => [code, grouped[code]] as const)
+        .filter(([, group]) => Boolean(group))
+
+    const visibleNormalEntries = normalEntries
 
     return (
         <div className="space-y-4">
 
-            {visibleEntries.map(([attributeName, values], i) => (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                {visibleNormalEntries.map(([attributeCode, group], i) => (
 
-                <motion.div
-                    key={attributeName}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="space-y-2"
-                >
+                    <motion.div
+                        key={attributeCode}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="inline-flex items-center gap-2"
+                    >
 
-                    {/* ATTRIBUTE TITLE */}
-                    <p
-                        className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                        {attributeName}
-                    </p>
+                        {/* ATTRIBUTE TITLE */}
+                        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 whitespace-nowrap">
+                            {(group as any).attributeName}
+                        </p>
 
-                    {/* VALUES */}
-                    <div className="flex flex-wrap gap-1.5">
+                        {/* VALUES */}
+                        <div className="flex flex-wrap items-center gap-1">
 
-                        {(values as any[]).map((val) => (
+                            {((group as any).values as any[]).map((val) => (
 
-                            <motion.div
-                                key={val.id}
-                                whileHover={{ scale: 1.08, y: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="relative group"
-                            >
-                                {/* glow */}
-                                <div
-                                    className="
+                                <motion.div
+                                    key={val.id}
+                                    whileHover={{ scale: 1.08, y: -2 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="relative group"
+                                >
+                                    {/* glow */}
+                                    <div
+                                        className="
             absolute inset-0 rounded-full
             opacity-0 group-hover:opacity-100
             blur-md transition
         "
-                                    style={{
-                                        background: "var(--color-brand)",
-                                    }}
-                                />
+                                        style={{
+                                            background: "var(--color-brand)",
+                                        }}
+                                    />
 
-                                <Badge
-                                    onClick={() => {
-                                        const params = new URLSearchParams()
+                                    <Badge
+                                        onClick={() => {
+                                            const params = new URLSearchParams()
 
-                                        // 🔥 attribute code + value slug
-                                        params.set(val.attribute.code, val.slug)
+                                            // 🔥 attribute code + value slug
+                                            params.set(val.attribute.code, val.slug)
 
-                                        router.push(`/urunler/filtre?${params.toString()}`)
-                                    }}
-                                    className="
+                                            router.push(`/urunler/filtre?${params.toString()}`)
+                                        }}
+                                        className="
             relative
             text-xs
             px-2 py-0.5
@@ -103,34 +103,82 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
             transition-all
             duration-200
 
-            bg-white/80
-            text-[var(--color-brand)]
-            border-[var(--color-brand)]/40
+            bg-[var(--color-brand)]
+            text-[var(--color-brand-foreground)]
+            border-[var(--color-brand)]/80
 
-            hover:bg-[var(--color-brand)]
-            hover:text-[var(--color-brand-foreground)]
+            hover:bg-white
+            hover:text-[var(--color-brand)]
             hover:border-[var(--color-brand)]
         "
-                                >
-                                    {val.name}
-                                </Badge>
-                            </motion.div>
+                                    >
+                                        {val.name}
+                                    </Badge>
+                                </motion.div>
 
-                        ))}
+                            ))}
 
-                    </div>
+                        </div>
 
-                </motion.div>
+                    </motion.div>
 
-            ))}
+                ))}
+            </div>
 
-            {entries.length > 2 && (
-                <button
-                    onClick={() => setExpanded(!expanded)}
-                    className="text-xs text-[var(--color-brand)] hover:underline"
-                >
-                    {expanded ? "Daha az göster" : `+${entries.length - 2} daha`}
-                </button>
+            {specialEntries.length > 0 && (
+                <div className="space-y-3 border-t border-neutral-200 pt-3">
+                    {specialEntries.map(([attributeCode, group], index) => (
+                        <motion.div
+                            key={attributeCode}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.04 }}
+                            className="space-y-1.5"
+                        >
+                            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
+                                {(group as any).attributeName}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {(((group as any).values as any[]) ?? [])
+                                    .slice(
+                                        0,
+                                        attributeCode === "usage_area" && !usageAreasExpanded
+                                            ? 5
+                                            : undefined
+                                    )
+                                    .map((val) => (
+                                    <Badge
+                                        key={val.id}
+                                        onClick={() => {
+                                            const params = new URLSearchParams()
+                                            params.set(val.attribute.code, val.slug)
+                                            router.push(`/urunler/filtre?${params.toString()}`)
+                                        }}
+                                        className="
+                                            cursor-pointer rounded-full border border-[var(--color-brand)]/75
+                                            bg-[var(--color-brand)]/10 px-2 py-0.5 text-xs
+                                            text-[var(--color-brand)] transition-colors
+                                            hover:bg-[var(--color-brand)] hover:text-[var(--color-brand-foreground)]
+                                        "
+                                    >
+                                        {val.name}
+                                    </Badge>
+                                ))}
+                            </div>
+                            {attributeCode === "usage_area" &&
+                                ((group as any).values as any[]).length > 5 && (
+                                    <button
+                                        onClick={() => setUsageAreasExpanded((prev) => !prev)}
+                                        className="text-xs text-[var(--color-brand)] hover:underline"
+                                    >
+                                        {usageAreasExpanded
+                                            ? "Daha az göster"
+                                            : `+${((group as any).values as any[]).length - 5} daha fazla`}
+                                    </button>
+                                )}
+                        </motion.div>
+                    ))}
+                </div>
             )}
 
         </div>

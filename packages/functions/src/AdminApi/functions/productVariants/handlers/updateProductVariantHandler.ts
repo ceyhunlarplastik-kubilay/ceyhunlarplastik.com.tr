@@ -74,6 +74,8 @@ export const updateProductVariantHandler = ({
                         create: suppliers.map((sup) => ({
                             supplier: { connect: { id: sup.id } },
                             isActive: sup.isActive ?? false,
+                            ...(sup.price !== undefined && { price: sup.price }),
+                            ...(sup.currency && { currency: sup.currency.toUpperCase() }),
                         })),
                     },
                 }),

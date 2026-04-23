@@ -2,9 +2,12 @@
 
 import { useMemo, useState } from "react"
 import { Palette, Ruler, Layers3, Hash } from "lucide-react"
+import Link from "next/link"
+import { useSession } from "next-auth/react"
 
 import { Badge } from "@/components/ui/badge"
 import { ButtonShine } from "@/components/ui/button-shine"
+import { Button } from "@/components/ui/button"
 import {
     Table,
     TableBody,
@@ -18,6 +21,7 @@ import {
     formatMeasurementValue,
     toMeasurementLabel,
 } from "@/features/public/products/utils/measurement"
+import { formatColorLabel } from "@/lib/color/formatColorLabel"
 
 export type MeasurementTypeDetails = {
     id: string
@@ -48,6 +52,17 @@ export type VariantMaterial = {
     code?: string | null
 }
 
+export type VariantSupplier = {
+    id: string
+    isActive?: boolean
+    currency?: string | null
+    price?: number | string | { s?: number; e?: number; d?: number[] } | null
+    supplier: {
+        id: string
+        name: string
+    }
+}
+
 export type VariantTableData = {
     id: string
     name: string
@@ -56,6 +71,7 @@ export type VariantTableData = {
     measurements: VariantMeasurement[]
     color?: VariantColor | null
     materials: VariantMaterial[]
+    variantSuppliers?: VariantSupplier[]
 }
 
 type GroupedMeasurementOption = {
@@ -64,15 +80,64 @@ type GroupedMeasurementOption = {
     measurements: VariantMeasurement[]
     colors: VariantColor[]
     materials: VariantMaterial[]
+    suppliers: Array<{
+        supplierId: string
+        supplierName: string
+        priceText: string
+        currency: string
+        isActive: boolean
+    }>
+    minPrice?: {
+        value: number
+        currency: string
+    }
     fullCodes: string[]
 }
 
 interface ProductVariantTableProps {
     variants: VariantTableData[]
     productSlug: string
+    technicalDrawing?: React.ReactNode
+    productId: string
 }
 
-export default function ProductVariantTable({ variants, productSlug }: ProductVariantTableProps) {
+function decimalLikeToText(
+    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
+) {
+    if (value === null || value === undefined) return ""
+    if (typeof value === "number") return value.toFixed(2)
+    if (typeof value === "string") return value
+
+    const sign = value.s === -1 ? "-" : ""
+    const digits = Array.isArray(value.d) ? value.d.join("") : ""
+    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
+    if (!digits) return ""
+
+    if (exponent >= digits.length - 1) {
+        return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
+    }
+    if (exponent < 0) {
+        return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
+    }
+    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
+}
+
+function decimalLikeToNumber(
+    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
+) {
+    const text = decimalLikeToText(value)
+    if (!text || text === "-") return null
+    const parsed = Number(text)
+    return Number.isFinite(parsed) ? parsed : null
+}
+
+export default function ProductVariantTable({
+    variants,
+    productSlug,
+    technicalDrawing,
+    productId,
+}: ProductVariantTableProps) {
+    const { data: session } = useSession()
     const options = useMemo<GroupedMeasurementOption[]>(() => {
         const groups = new Map<string, GroupedMeasurementOption>()
 
@@ -89,6 +154,23 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
                     ),
                     colors: variant.color ? [variant.color] : [],
                     materials: [...variant.materials],
+                    suppliers: (variant.variantSuppliers ?? []).map((item) => ({
+                        supplierId: item.supplier.id,
+                        supplierName: item.supplier.name,
+                        priceText: decimalLikeToText(item.price),
+                        currency: item.currency ?? "TRY",
+                        isActive: Boolean(item.isActive),
+                    })),
+                    minPrice: (() => {
+                        const priced = (variant.variantSuppliers ?? [])
+                            .map((item) => ({
+                                value: decimalLikeToNumber(item.price),
+                                currency: item.currency ?? "TRY",
+                            }))
+                            .filter((item): item is { value: number; currency: string } => item.value !== null)
+                        if (!priced.length) return undefined
+                        return priced.reduce((min, cur) => (cur.value < min.value ? cur : min))
+                    })(),
                     fullCodes: [variant.fullCode],
                 })
                 continue
@@ -102,6 +184,38 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
                 if (!existing.materials.find((item) => item.id === material.id)) {
                     existing.materials.push(material)
                 }
+            }
+
+            for (const supplier of variant.variantSuppliers ?? []) {
+                const next = {
+                    supplierId: supplier.supplier.id,
+                    supplierName: supplier.supplier.name,
+                    priceText: decimalLikeToText(supplier.price),
+                    currency: supplier.currency ?? "TRY",
+                    isActive: Boolean(supplier.isActive),
+                }
+                const exists = existing.suppliers.find(
+                    (item) =>
+                        item.supplierId === next.supplierId &&
+                        item.priceText === next.priceText &&
+                        item.currency === next.currency
+                )
+                if (!exists) {
+                    existing.suppliers.push(next)
+                }
+            }
+
+            const allPriced = existing.suppliers
+                .map((item) => ({
+                    value: Number(item.priceText),
+                    currency: item.currency,
+                }))
+                .filter((item) => Number.isFinite(item.value))
+
+            if (allPriced.length > 0) {
+                existing.minPrice = allPriced.reduce((min, cur) =>
+                    cur.value < min.value ? cur : min
+                )
             }
 
             if (!existing.fullCodes.includes(variant.fullCode)) {
@@ -119,6 +233,9 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
     const [selectedKey, setSelectedKey] = useState<string>("")
 
     const selected = options.find((option) => option.key === selectedKey) ?? options[0]
+    const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
+    const canManageVariants = groups.includes("owner") || groups.includes("admin")
+    const adminVariantsUrl = `/admin/products/${productId}/variants`
     const measurementColumns = useMemo(() => {
         const map = new Map<string, MeasurementTypeDetails>()
 
@@ -140,30 +257,32 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
     }
 
     return (
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
-            <div className="border-b border-neutral-100 px-5 py-4">
-                <h2 className="text-lg font-semibold text-neutral-900">Ölçü ve Seçenekler</h2>
-                <p className="text-sm text-neutral-500 mt-1">
+        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+            <div className="border-b border-neutral-100 px-4 py-3">
+                <h2 className="text-base font-semibold text-neutral-900">Ölçü ve Seçenekler</h2>
+                <p className="mt-1 text-xs text-neutral-500">
                     Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz.
                 </p>
             </div>
 
-            <div className="grid gap-5 p-5 lg:grid-cols-[1.3fr_1fr]">
-                <div className="space-y-2">
+            <div className="grid gap-3 p-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,1fr)]">
+                <div className="space-y-1.5">
                     <p className="text-xs font-medium text-neutral-500">Ölçü Seçenekleri</p>
-                    <div className="max-h-[420px] overflow-auto rounded-xl border border-neutral-200">
-                        <Table>
-                            <TableHeader className="sticky top-0 bg-neutral-50 z-10">
+                    <div className="max-h-[860px] overflow-x-auto overflow-y-auto rounded-lg border border-neutral-200">
+                        <Table className="min-w-[760px] [&_td]:px-1.5 [&_td]:py-1 [&_td]:text-xs [&_th]:h-7 [&_th]:px-1.5 [&_th]:py-1 [&_th]:text-[11px] [&_tr]:leading-tight">
+                            <TableHeader className="sticky top-0 z-20 bg-neutral-50">
                                 <TableRow>
                                     {measurementColumns.map((column) => (
-                                        <TableHead key={column.id}>
+                                        <TableHead key={column.id} className="sticky top-0 z-20 bg-neutral-50 font-semibold">
                                             {column.code}
                                         </TableHead>
                                     ))}
-                                    <TableHead className="text-center">Renk</TableHead>
-                                    <TableHead className="text-center">Ham Madde</TableHead>
-                                    <TableHead className="text-center">Kod</TableHead>
-                                    <TableHead className="text-right pr-4">Detay</TableHead>
+                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Renk</TableHead>
+                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Ham Madde</TableHead>
+                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Tedarikçi</TableHead>
+                                    {/* <TableHead className="text-center">Fiyat</TableHead> */}
+                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Kod</TableHead>
+                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 px-1 text-right font-semibold">Detay</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -199,7 +318,7 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
                                                     measurement.measurementType.code !== "M"
 
                                                 return (
-                                                    <TableCell key={`${option.key}-${column.id}`} className="font-medium">
+                                                    <TableCell key={`${option.key}-${column.id}`} className="font-medium text-neutral-800">
                                                         {formatMeasurementValue(measurement)}
                                                         {hasUnit ? ` ${measurement.measurementType.baseUnit}` : ""}
                                                     </TableCell>
@@ -207,18 +326,41 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
                                             })}
                                             <TableCell className="text-center">{option.colors.length}</TableCell>
                                             <TableCell className="text-center">{option.materials.length}</TableCell>
+                                            <TableCell className="text-center">{option.suppliers.length}</TableCell>
+                                            {/* <TableCell className="text-center">
+                                                {option.minPrice
+                                                    ? `${option.minPrice.value.toFixed(2)} ${option.minPrice.currency}`
+                                                    : "-"}
+                                            </TableCell> */}
                                             <TableCell className="text-center">{option.fullCodes.length}</TableCell>
-                                            <TableCell className="text-right pr-4">
-                                                <div className="flex justify-end">
+                                            {/* <TableCell className="px-1 text-right"> */}
+                                            <TableCell className="px-0 pr-1 text-right align-middle">
+                                                {/* <div className="flex items-center justify-end gap-0.5"> */}
+                                                <div className="flex items-center justify-end gap-0.5 leading-none">
                                                     <ButtonShine
                                                         href={{
                                                             pathname: `/urun/${productSlug}/varyantlar`,
                                                             query: { m: option.key },
                                                         }}
                                                         onClick={(e) => e.stopPropagation()}
+                                                        className="h-6 px-1.5 text-[10px]"
+                                                    /* className="h-6 px-1 text-[10px]" */
                                                     >
                                                         Varyantları Göster
                                                     </ButtonShine>
+                                                    {canManageVariants && adminVariantsUrl ? (
+                                                        <Button
+                                                            asChild
+                                                            size="sm"
+                                                            className="h-6 bg-red-600 px-1.5 text-[10px] text-white hover:bg-red-700"
+                                                            /* className="h-6 px-1 text-[10px]" */
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <Link href={adminVariantsUrl} target="_blank" rel="noopener noreferrer">
+                                                                Adminde Aç
+                                                            </Link>
+                                                        </Button>
+                                                    ) : null}
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -229,7 +371,13 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
                     </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
+                    {technicalDrawing ? (
+                        <div className="w-full overflow-hidden rounded-lg border border-neutral-200 p-2">
+                            {technicalDrawing}
+                        </div>
+                    ) : null}
+
                     <div className="rounded-xl border border-neutral-200 p-4">
                         <div className="flex items-center gap-2 text-neutral-700 mb-3">
                             <Ruler className="w-4 h-4" />
@@ -250,6 +398,26 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
                             ))}
                         </div>
                     </div>
+
+                    {/* <div className="rounded-xl border border-neutral-200 p-4">
+                        <div className="flex items-center gap-2 text-neutral-700 mb-3">
+                            <Hash className="w-4 h-4" />
+                            <p className="text-sm font-medium">Tedarikçi Fiyatları</p>
+                        </div>
+
+                        {selected.suppliers.length === 0 ? (
+                            <p className="text-sm text-neutral-400">Bu ölçü için tedarikçi fiyat bilgisi bulunamadı.</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {selected.suppliers.map((item) => (
+                                    <Badge key={`${item.supplierId}-${item.priceText}-${item.currency}`} variant="outline">
+                                        {item.supplierName}: {item.priceText || "-"} {item.currency}
+                                        {item.isActive ? " (aktif)" : ""}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                    </div> */}
 
                     <div className="rounded-xl border border-neutral-200 p-4">
                         <div className="flex items-center gap-2 text-neutral-700 mb-3">
@@ -289,7 +457,7 @@ export default function ProductVariantTable({ variants, productSlug }: ProductVa
                                             className="w-3 h-3 rounded-full border border-neutral-300"
                                             style={{ backgroundColor: color.hex || "#ddd" }}
                                         />
-                                        {color.name}
+                                        {formatColorLabel(color)}
                                     </span>
                                 ))}
                             </div>

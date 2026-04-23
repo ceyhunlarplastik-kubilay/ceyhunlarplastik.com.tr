@@ -6,7 +6,11 @@ import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { MobileMenu } from "@/components/navigation/MobileMenu";
 import { TopBar } from "@/components/navigation/TopBar";
+import CustomerLeadDialog from "@/components/home/CustomerLeadDialog";
+import { MobileHamburgerButton } from "@/components/navigation/MobileHamburgerButton";
+import { InquiryCartNavItem } from "@/components/navigation/InquiryCartNavItem";
 import type { Category } from "@/features/public/categories/types";
+import type { ProductAttribute } from "@/features/public/productAttributes/types";
 
 const NavigationGroup = dynamic(
     () =>
@@ -16,13 +20,22 @@ const NavigationGroup = dynamic(
     { ssr: false }
 );
 
-export function NavbarClient({ categories }: { categories: Category[] }) {
+export function NavbarClient({
+    categories,
+    attributes,
+}: {
+    categories: Category[];
+    attributes: ProductAttribute[];
+}) {
     const [isVisible, setIsVisible] = useState(true);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [isCustomerLeadOpen, setIsCustomerLeadOpen] = useState(false);
     const lastScrollY = useRef(0);
     const { scrollY } = useScroll();
 
     useMotionValueEvent(scrollY, "change", (latest) => {
+        if (isCustomerLeadOpen) return;
+
         const previous = lastScrollY.current;
         const diff = latest - previous;
 
@@ -66,14 +79,38 @@ export function NavbarClient({ categories }: { categories: Category[] }) {
                 {/* MAIN NAVBAR */}
                 {/* <div className="bg-background/70 backdrop-blur-sm shadow-sm"> */}
                 <div className="bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 border-b border-neutral-200/60 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-                    <NavigationHeader isVisible={isVisible} setMobileOpen={setMobileOpen}>
+                    <NavigationHeader
+                        isVisible={isVisible}
+                        rightActions={
+                            <>
+                                <div className="hidden lg:flex items-center gap-3 z-20">
+                                    <InquiryCartNavItem />
+                                    <CustomerLeadDialog
+                                        attributes={attributes}
+                                        onDialogOpenChange={setIsCustomerLeadOpen}
+                                    />
+                                </div>
+                                <div className="lg:hidden z-20">
+                                    <div className="flex items-center gap-2">
+                                        <InquiryCartNavItem className="h-10 px-3 text-[11px]" />
+                                        <MobileHamburgerButton setMobileOpen={setMobileOpen} />
+                                    </div>
+                                </div>
+                            </>
+                        }
+                    >
                         <NavigationGroup categories={categories} />
                     </NavigationHeader>
                 </div>
 
             </motion.div>
 
-            <MobileMenu setMobileOpen={setMobileOpen} mobileOpen={mobileOpen} />
+            <MobileMenu
+                setMobileOpen={setMobileOpen}
+                mobileOpen={mobileOpen}
+                categories={categories}
+                attributes={attributes}
+            />
         </>
     );
 }

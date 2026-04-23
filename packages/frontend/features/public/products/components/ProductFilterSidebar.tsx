@@ -192,9 +192,14 @@ export default function ProductFilterSidebar({
                 : null
 
         if (allowedProductionGroupSlugs) {
-            next["production_group"] = (next["production_group"] ?? []).filter((value) =>
-                allowedProductionGroupSlugs.has(value)
-            )
+            if (code === "sector") {
+                // Sector seçildiğinde bağlı üretim gruplarını default seçili getir.
+                next["production_group"] = Array.from(allowedProductionGroupSlugs)
+            } else {
+                next["production_group"] = (next["production_group"] ?? []).filter((value) =>
+                    allowedProductionGroupSlugs.has(value)
+                )
+            }
         }
 
         const selectedProductionGroupIds = new Set(
@@ -213,9 +218,21 @@ export default function ProductFilterSidebar({
                 : null
 
         if (allowedUsageAreaSlugs) {
-            next["usage_area"] = (next["usage_area"] ?? []).filter((value) =>
-                allowedUsageAreaSlugs.has(value)
-            )
+            if (code === "sector") {
+                // Sector seçildiğinde bağlı kullanım alanlarını da default seçili getir.
+                next["usage_area"] = Array.from(allowedUsageAreaSlugs)
+            } else {
+                next["usage_area"] = (next["usage_area"] ?? []).filter((value) =>
+                    allowedUsageAreaSlugs.has(value)
+                )
+            }
+        } else if (code === "sector") {
+            next["usage_area"] = []
+        }
+
+        if (code === "sector" && selectedSectorIds.size === 0) {
+            next["production_group"] = []
+            next["usage_area"] = []
         }
 
         setAttributes(next)

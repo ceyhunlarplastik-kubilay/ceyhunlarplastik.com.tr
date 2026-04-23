@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import { NavigationHeader } from "@/components/navigation/NavigationHeader";
 import { MobileMenu } from "@/components/navigation/MobileMenu";
+import { MobileHamburgerButton } from "@/components/navigation/MobileHamburgerButton";
 
 const NavigationGroup = dynamic(
     () =>
@@ -57,7 +58,10 @@ export function Navbar({ categories = [] }: { categories?: any[] }) {
                 className="fixed top-0 left-0 right-0 z-50 bg-background/70 backdrop-blur-sm shadow-sm"
                 ref={ref}
             >
-                <NavigationHeader isVisible={isVisible} setMobileOpen={setMobileOpen}>
+                <NavigationHeader
+                    isVisible={isVisible}
+                    rightActions={<MobileHamburgerButton setMobileOpen={setMobileOpen} />}
+                >
                     <NavigationGroup categories={categories} />
                 </NavigationHeader>
             </motion.div>

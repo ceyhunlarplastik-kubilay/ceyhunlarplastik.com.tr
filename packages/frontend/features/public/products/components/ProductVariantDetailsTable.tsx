@@ -20,12 +20,28 @@ import { formatMeasurementValue } from "@/features/public/products/utils/measure
 interface ProductVariantDetailsTableProps {
     variants: VariantTableData[]
     selectedMeasurements: VariantMeasurement[]
+    technicalDrawing?: React.ReactNode
+    productName: string
+    categoryName?: string
 }
 
 export default function ProductVariantDetailsTable({
     variants,
     selectedMeasurements,
+    technicalDrawing,
+    productName,
+    categoryName,
 }: ProductVariantDetailsTableProps) {
+    const measurementColumns = Array.from(
+        variants
+            .flatMap((variant) => variant.measurements)
+            .reduce((map, measurement) => {
+                map.set(measurement.measurementType.id, measurement.measurementType)
+                return map
+            }, new Map<string, VariantMeasurement["measurementType"]>())
+            .values()
+    ).sort((a, b) => a.displayOrder - b.displayOrder)
+
     return (
         <div className="space-y-6">
             <motion.div
@@ -34,23 +50,33 @@ export default function ProductVariantDetailsTable({
                 transition={{ duration: 0.25 }}
                 className="rounded-xl border border-neutral-200 bg-white p-4"
             >
-                <p className="text-sm font-medium text-neutral-700 mb-3">Seçilen Ölçü</p>
-                <div className="flex flex-wrap gap-2">
-                    {selectedMeasurements.length === 0 ? (
-                        <p className="text-sm text-neutral-400">Geçerli bir ölçü seçimi bulunamadı.</p>
-                    ) : (
-                        selectedMeasurements.map((measurement) => (
-                            <Badge key={measurement.id} variant="secondary">
-                                {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
-                                {formatMeasurementValue(measurement)}
-                                {measurement.measurementType.baseUnit &&
-                                measurement.measurementType.code !== "D" &&
-                                measurement.measurementType.code !== "M"
-                                    ? ` ${measurement.measurementType.baseUnit}`
-                                    : ""}
-                            </Badge>
-                        ))
-                    )}
+                <div className="grid gap-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                    <div>
+                        <p className="mb-3 text-sm font-medium text-neutral-700">Seçilen Ölçü</p>
+                        <div className="flex flex-col items-start gap-2">
+                            {selectedMeasurements.length === 0 ? (
+                                <p className="text-sm text-neutral-400">Geçerli bir ölçü seçimi bulunamadı.</p>
+                            ) : (
+                                selectedMeasurements.map((measurement) => (
+                                    <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-left">
+                                        {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
+                                        {formatMeasurementValue(measurement)}
+                                        {measurement.measurementType.baseUnit &&
+                                        measurement.measurementType.code !== "D" &&
+                                        measurement.measurementType.code !== "M"
+                                            ? ` ${measurement.measurementType.baseUnit}`
+                                            : ""}
+                                    </Badge>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="min-w-0 overflow-hidden rounded-lg border border-neutral-200 p-2">
+                        {technicalDrawing ?? (
+                            <p className="p-2 text-sm text-neutral-400">Teknik çizim bulunamadı.</p>
+                        )}
+                    </div>
                 </div>
             </motion.div>
 
@@ -63,7 +89,9 @@ export default function ProductVariantDetailsTable({
                 <div className="border-b border-neutral-100 px-4 py-3">
                     <h2 className="text-base font-semibold text-neutral-900">Varyantlar</h2>
                     <p className="text-sm text-neutral-500 mt-1">
-                        Seçilen ölçüye ait tüm varyantlar aşağıda listelenir.
+                        {categoryName
+                            ? `${categoryName} kategorisindeki ${productName} ürün modelini inceliyorsunuz. Seçtiğiniz ölçüye uygun varyantları aşağıda karşılaştırabilirsiniz.`
+                            : `${productName} ürün modelini inceliyorsunuz. Seçtiğiniz ölçüye uygun varyantları aşağıda karşılaştırabilirsiniz.`}
                     </p>
                 </div>
 
@@ -74,6 +102,11 @@ export default function ProductVariantDetailsTable({
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Full Code</TableHead>
+                                {measurementColumns.map((column) => (
+                                    <TableHead key={column.id}>
+                                        {column.name} ({column.code})
+                                    </TableHead>
+                                ))}
                                 <TableHead>Versiyon</TableHead>
                                 <TableHead>Renk</TableHead>
                                 <TableHead>Ham Madde</TableHead>
@@ -89,6 +122,33 @@ export default function ProductVariantDetailsTable({
                                     className="border-b last:border-0"
                                 >
                                     <TableCell className="font-mono">{variant.fullCode}</TableCell>
+                                    {measurementColumns.map((column) => {
+                                        const measurement = variant.measurements.find(
+                                            (item) => item.measurementType.id === column.id
+                                        )
+
+                                        if (!measurement) {
+                                            return (
+                                                <TableCell key={`${variant.id}-${column.id}`} className="text-neutral-400">
+                                                    -
+                                                </TableCell>
+                                            )
+                                        }
+
+                                        const withUnit =
+                                            measurement.measurementType.baseUnit &&
+                                            measurement.measurementType.code !== "D" &&
+                                            measurement.measurementType.code !== "M"
+                                                ? ` ${measurement.measurementType.baseUnit}`
+                                                : ""
+
+                                        return (
+                                            <TableCell key={`${variant.id}-${column.id}`} className="text-xs text-neutral-700">
+                                                {formatMeasurementValue(measurement)}
+                                                {withUnit}
+                                            </TableCell>
+                                        )
+                                    })}
                                     <TableCell>{variant.versionCode}</TableCell>
                                     <TableCell>
                                         {variant.color ? (

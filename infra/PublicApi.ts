@@ -172,6 +172,16 @@ publicApi.route("GET /product-attributes/with-values", {
     ...defaultOptions,
 });
 
+publicApi.route("POST /customers", {
+    handler: `${folderPrefix}/customers/actions.createCustomer`,
+    ...defaultOptions,
+});
+
+publicApi.route("POST /web-requests", {
+    handler: `${folderPrefix}/webRequests/actions.createWebRequest`,
+    ...defaultOptions,
+});
+
 publicApi.route("GET /product-attribute-values", {
     handler: `${folderPrefix}/productAttributeValues/actions.listProductAttributeValues`,
     ...defaultOptions,

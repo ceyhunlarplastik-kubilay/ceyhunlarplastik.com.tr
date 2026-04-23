@@ -10,6 +10,16 @@ const productAttributeFilterSchema = z.object({
             name: z.string(),
             slug: z.string(),
             parentValueId: z.uuid().nullable().optional(),
+            assets: z.array(
+                z.object({
+                    id: z.uuid(),
+                    key: z.string(),
+                    mimeType: z.string(),
+                    type: z.string(),
+                    role: z.string(),
+                    url: z.string(),
+                }).loose()
+            ).optional(),
         })
     ),
 })

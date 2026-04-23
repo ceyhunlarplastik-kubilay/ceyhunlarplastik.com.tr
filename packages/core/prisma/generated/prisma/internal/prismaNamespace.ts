@@ -390,6 +390,8 @@ export const ModelName = {
   Product: 'Product',
   ProductAttribute: 'ProductAttribute',
   ProductAttributeValue: 'ProductAttributeValue',
+  Customer: 'Customer',
+  WebRequest: 'WebRequest',
   ProductVariant: 'ProductVariant',
   MeasurementType: 'MeasurementType',
   ProductMeasurement: 'ProductMeasurement',
@@ -412,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "productVariantSupplier" | "material" | "asset"
+    modelProps: "user" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "customer" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "productVariantSupplier" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -857,6 +859,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductAttributeValueCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductAttributeValueCountAggregateOutputType> | number
+        }
+      }
+    }
+    Customer: {
+      payload: Prisma.$CustomerPayload<ExtArgs>
+      fields: Prisma.CustomerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>
+        }
+        update: {
+          args: Prisma.CustomerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomer>
+        }
+        groupBy: {
+          args: Prisma.CustomerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerCountAggregateOutputType> | number
+        }
+      }
+    }
+    WebRequest: {
+      payload: Prisma.$WebRequestPayload<ExtArgs>
+      fields: Prisma.WebRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WebRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WebRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.WebRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WebRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>
+        }
+        findMany: {
+          args: Prisma.WebRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>[]
+        }
+        create: {
+          args: Prisma.WebRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>
+        }
+        createMany: {
+          args: Prisma.WebRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WebRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.WebRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>
+        }
+        update: {
+          args: Prisma.WebRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.WebRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WebRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WebRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.WebRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.WebRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWebRequest>
+        }
+        groupBy: {
+          args: Prisma.WebRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WebRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WebRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WebRequestCountAggregateOutputType> | number
         }
       }
     }
@@ -1423,6 +1573,7 @@ export const UserScalarFieldEnum = {
   email: 'email',
   identifier: 'identifier',
   groups: 'groups',
+  supplierId: 'supplierId',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1503,6 +1654,37 @@ export const ProductAttributeValueScalarFieldEnum = {
 export type ProductAttributeValueScalarFieldEnum = (typeof ProductAttributeValueScalarFieldEnum)[keyof typeof ProductAttributeValueScalarFieldEnum]
 
 
+export const CustomerScalarFieldEnum = {
+  id: 'id',
+  companyName: 'companyName',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  note: 'note',
+  sectorValueId: 'sectorValueId',
+  productionGroupValueId: 'productionGroupValueId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const WebRequestScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  message: 'message',
+  items: 'items',
+  status: 'status'
+} as const
+
+export type WebRequestScalarFieldEnum = (typeof WebRequestScalarFieldEnum)[keyof typeof WebRequestScalarFieldEnum]
+
+
 export const ProductVariantScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1561,6 +1743,8 @@ export const ProductVariantSupplierScalarFieldEnum = {
   variantId: 'variantId',
   supplierId: 'supplierId',
   isActive: 'isActive',
+  price: 'price',
+  currency: 'currency',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1588,6 +1772,7 @@ export const AssetScalarFieldEnum = {
   categoryId: 'categoryId',
   productId: 'productId',
   variantId: 'variantId',
+  productAttributeValueId: 'productAttributeValueId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1601,6 +1786,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1617,6 +1809,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1689,6 +1890,34 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'WebRequestStatus'
+ */
+export type EnumWebRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WebRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'WebRequestStatus[]'
+ */
+export type ListEnumWebRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WebRequestStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'MeasurementCode'
  */
 export type EnumMeasurementCodeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MeasurementCode'>
@@ -1713,6 +1942,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -1844,6 +2087,8 @@ export type GlobalOmitConfig = {
   product?: Prisma.ProductOmit
   productAttribute?: Prisma.ProductAttributeOmit
   productAttributeValue?: Prisma.ProductAttributeValueOmit
+  customer?: Prisma.CustomerOmit
+  webRequest?: Prisma.WebRequestOmit
   productVariant?: Prisma.ProductVariantOmit
   measurementType?: Prisma.MeasurementTypeOmit
   productMeasurement?: Prisma.ProductMeasurementOmit

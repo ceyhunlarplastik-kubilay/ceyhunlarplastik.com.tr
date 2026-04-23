@@ -7,6 +7,7 @@ const ALLOWED_SORT_FIELDS = ["createdAt"] as const
 
 export const listProductVariantSuppliersHandler = ({ productVariantSupplierRepository }: IProductVariantSupplierDependencies) => {
     return async (event: IListProductVariantSuppliersEvent) => {
+        const query = event.queryStringParameters ?? {}
         const { page, limit, search, sort, order } =
             normalizeListQuery(event.queryStringParameters, {
                 allowedSortFields: ALLOWED_SORT_FIELDS,
@@ -20,6 +21,8 @@ export const listProductVariantSuppliersHandler = ({ productVariantSupplierRepos
                 search,
                 sort,
                 order,
+                ...(query.variantId && { variantId: query.variantId }),
+                ...(query.supplierId && { supplierId: query.supplierId }),
             })
 
             return apiResponseDTO({

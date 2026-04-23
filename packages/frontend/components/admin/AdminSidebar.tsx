@@ -11,6 +11,9 @@ import {
     Boxes,
     Folder,
     Settings,
+    Truck,
+    Users,
+    ClipboardList,
     Menu,
     ChevronLeft,
     ChevronDown,
@@ -37,13 +40,33 @@ const navItems = [
         label: "Özellikler",
         icon: Settings,
     },
+    {
+        href: "/admin/users",
+        label: "Kullanıcılar",
+        icon: Users,
+    },
+    {
+        href: "/admin/suppliers",
+        label: "Tedarikçiler",
+        icon: Truck,
+    },
+    {
+        href: "/admin/customers",
+        label: "Müşteriler",
+        icon: Users,
+    },
+    {
+        href: "/admin/web-requests",
+        label: "Web Talepleri",
+        icon: ClipboardList,
+    }
 ]
 
 const attributeSubItems = [
     { href: "/admin/productAttributes", label: "Tüm Özellikler" },
-    { href: "/admin/productAttributes?code=sector", label: "Sector" },
-    { href: "/admin/productAttributes?code=production_group", label: "Production Group" },
-    { href: "/admin/productAttributes?code=usage_area", label: "Usage Area" },
+    { href: "/admin/productAttributes?code=sector", label: "Sektör" },
+    { href: "/admin/productAttributes?code=production_group", label: "Üretim Grubu" },
+    { href: "/admin/productAttributes?code=usage_area", label: "Endüstriyel Kullanım Alanı" },
 ]
 
 function NavItem({

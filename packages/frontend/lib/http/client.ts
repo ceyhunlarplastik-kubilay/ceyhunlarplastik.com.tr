@@ -28,11 +28,23 @@ function createClient(baseURL: string) {
 
 export const publicApiClient = createClient(endpoints.publicApi);
 export const adminApiClient = createClient(endpoints.adminApi);
+export const protectedApiClient = createClient(endpoints.protectedApi);
 
 // ✅ Admin isteklerine Authorization ekle
 adminApiClient.interceptors.request.use(async (config) => {
     const session = await getSession();
 
+    const idToken = (session as any)?.idToken;
+
+    if (idToken) {
+        config.headers?.set("Authorization", `Bearer ${idToken}`);
+    }
+
+    return config;
+});
+
+protectedApiClient.interceptors.request.use(async (config) => {
+    const session = await getSession();
     const idToken = (session as any)?.idToken;
 
     if (idToken) {

@@ -1,15 +1,21 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const prismaDecimalSchema = z.object({
+    s: z.number(),
+    e: z.number(),
+    d: z.array(z.number()),
+}).loose()
+
 const productSchema = z.object({
     id: z.string(),
     code: z.string(),
-    slug: z.string(),
+    slug: z.string().optional(),
     name: z.string(),
     categoryId: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-})
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+}).loose()
 
 const colorSchema = z.object({
     id: z.string(),
@@ -29,29 +35,31 @@ const colorSchema = z.object({
 const materialSchema = z.object({
     id: z.string(),
     name: z.string(),
-    code: z.string().nullable(),
+    code: z.string().nullable().optional(),
     isActive: z.boolean().optional(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-})
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+}).loose()
 
 const supplierSchema = z.object({
     id: z.string(),
     name: z.string(),
-    isActive: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-})
+    isActive: z.boolean().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+}).loose()
 
 const variantSupplierSchema = z.object({
     id: z.string(),
     variantId: z.string(),
     supplierId: z.string(),
     isActive: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    price: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
+    currency: z.string().nullable().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
     supplier: supplierSchema,
-})
+}).loose()
 
 const measurementTypeSchema = z.object({
     id: z.string(),
@@ -59,9 +67,9 @@ const measurementTypeSchema = z.object({
     code: z.string(),
     baseUnit: z.string(),
     displayOrder: z.number(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-})
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+}).loose()
 
 const measurementSchema = z.object({
     id: z.string(),
@@ -69,10 +77,10 @@ const measurementSchema = z.object({
     measurementTypeId: z.string(),
     value: z.number(),
     label: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
     measurementType: measurementTypeSchema,
-})
+}).loose()
 
 
 export const productVariantSchema = z.object({
@@ -94,12 +102,14 @@ export const productVariantSchema = z.object({
     materials: z.array(materialSchema),
     variantSuppliers: z.array(variantSupplierSchema),
     measurements: z.array(measurementSchema),
-})
+}).loose()
 
 
 const createVariantSupplierInputSchema = z.object({
     id: z.uuid(), // supplier id
     isActive: z.boolean().optional(),
+    price: z.number().nonnegative().optional(),
+    currency: z.string().min(3).max(3).optional(),
 })
 
 export const createProductVariantValidator = validatorWrapper(
@@ -132,20 +142,27 @@ export const updateProductVariantValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            productId: z.uuid().optional(),
-            variantIndex: z.number().int().min(1).optional(),
-            suppliers: z.array(createVariantSupplierInputSchema).optional(),
+            productId: z.string().optional(),
+            variantIndex: z.coerce.number().int().min(1).optional(),
+            suppliers: z.array(
+                z.object({
+                    id: z.string().min(1),
+                    isActive: z.boolean().optional(),
+                    price: z.union([z.number(), z.coerce.number()]).optional(),
+                    currency: z.string().min(3).max(3).optional(),
+                }).loose()
+            ).optional(),
             versionCode: z.string().regex(/^V[0-9]+$/).optional(),
             supplierCode: z.string().regex(/^[A-Z]$/).optional(),
             name: z.string().min(1).optional(),
-            colorId: z.uuid().optional(),
-            materialIds: z.array(z.uuid()).optional(),
+            colorId: z.string().optional(),
+            materialIds: z.array(z.string()).optional(),
             measurements: z.array(z.object({
-                measurementTypeId: z.uuid(),
-                value: z.number(),
+                measurementTypeId: z.string().min(1),
+                value: z.union([z.number(), z.coerce.number()]),
                 label: z.string().optional(),
-            })).optional(),
-        }),
+            }).loose()).optional(),
+        }).loose(),
     }),
     {
         requiredRootFields: ["pathParameters", "body"],

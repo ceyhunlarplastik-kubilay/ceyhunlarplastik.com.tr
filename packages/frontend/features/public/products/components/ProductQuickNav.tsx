@@ -17,7 +17,7 @@ import { PlayIcon } from "@/components/ui/play-icon"
 
 const items = [
     { icon: SettingsIcon, label: "Ölçü ve Seçenekler", target: "product-variants", href: "#product-variants" },
-    { icon: BoxesIcon, label: "Endüstriyel Alanlar", target: "usage-area-table", href: "#usage-area-table" },
+    { icon: BoxesIcon, label: "Kullanıldığı Endüstriyel Alanlar", target: "usage-area-table", href: "#usage-area-table" },
     { icon: FolderOpenIcon, label: "Teknik Çizim", target: "product-technical-drawing", href: "#product-technical-drawing" },
     /* { icon: LayoutGridIcon, label: "3D Model", target: "product-3d-model", href: "#product-3d-model" }, */
     { icon: BoxIcon, label: "3D Model", target: "product-3d-model", href: "#product-3d-model" },

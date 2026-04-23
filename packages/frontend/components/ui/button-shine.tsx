@@ -11,6 +11,9 @@ type Props = {
     variant?: "default" | "outline" | "brand"
     className?: string
     onClick?: (e: React.MouseEvent) => void
+    type?: "button" | "submit" | "reset"
+    disabled?: boolean
+    ariaLabel?: string
 }
 
 export function ButtonShine({
@@ -20,6 +23,9 @@ export function ButtonShine({
     variant = "outline",
     className,
     onClick,
+    type = "button",
+    disabled = false,
+    ariaLabel,
 }: Props) {
     if (href) {
         return (
@@ -28,6 +34,9 @@ export function ButtonShine({
                 size={size}
                 variant={variant}
                 onClick={onClick}
+                type={type}
+                disabled={disabled}
+                aria-label={ariaLabel}
                 className={`
                     relative overflow-hidden
                     bg-[var(--color-brand)] text-white
@@ -54,6 +63,9 @@ export function ButtonShine({
             size={size}
             variant={variant}
             onClick={onClick}
+            type={type}
+            disabled={disabled}
+            aria-label={ariaLabel}
             className={`
                 relative overflow-hidden
                 bg-[var(--color-brand)] text-white

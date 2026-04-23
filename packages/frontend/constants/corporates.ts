@@ -12,7 +12,7 @@ export const corporateItems = [
     {
         title: "İnsan Kaynakları",
         description: "Kariyer fırsatları ve çalışan değerlerimiz.",
-        href: "/insan-kaynaklari"
+        href: "/ik"
     },
     {
         title: "Öneri & Şikayet",

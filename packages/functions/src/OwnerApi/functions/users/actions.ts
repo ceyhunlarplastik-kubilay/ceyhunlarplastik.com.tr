@@ -2,6 +2,7 @@ import { Resource } from "sst";
 import { lambdaHandler } from "@/core/middy"
 import { cognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { userRepository } from "@/core/helpers/prisma/users/repository"
+import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { updateUserGroupsHandler } from "./handlers"
 import { addUserToGroupValidator } from "@/functions/OwnerApi/validators/users"
 
@@ -12,6 +13,7 @@ export const updateUserGroups = lambdaHandler(
         updateUserGroupsHandler({
             cognitoRepository: cognitoUserRepository(),
             userRepository: userRepository(),
+            supplierRepository: supplierRepository(),
             userPoolId: Resource.CeyhunlarUserPool.id,
         })(event as IUpdateUserGroupsEvent),
     {

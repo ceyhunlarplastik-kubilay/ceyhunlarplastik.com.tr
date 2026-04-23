@@ -11,6 +11,7 @@ const ATTRIBUTE_CODES = {
 
 export const updateProductAttributeValueHandler = ({
     productAttributeValueRepository,
+    assetRepository,
 }: IProductAttributeValueDependencies) => {
     return async (event: IUpdateProductAttributeValueEvent) => {
         const { id } = event.pathParameters
@@ -64,6 +65,21 @@ export const updateProductAttributeValueHandler = ({
                         : { disconnect: true }
                 }),
             })
+
+            const { assetType, assetRole, assetKey, mimeType } = body
+            if (assetType && assetKey && mimeType) {
+                if ((assetRole ?? "PRIMARY") === "PRIMARY") {
+                    await assetRepository.unsetProductAttributeValuePrimaryAssets(id)
+                }
+
+                await assetRepository.createAsset({
+                    key: assetKey,
+                    mimeType,
+                    type: assetType,
+                    role: assetRole ?? "PRIMARY",
+                    productAttributeValueId: id,
+                } as any)
+            }
 
             return apiResponseDTO({
                 statusCode: 200,

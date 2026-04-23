@@ -5,14 +5,14 @@ import type {
   IUpdateUserGroupsEvent,
 } from "@/functions/OwnerApi/types/users";
 
-const ALL_GROUPS = ["owner", "admin", "user"] as const;
+const ALL_GROUPS = ["owner", "admin", "user", "supplier"] as const;
 
 export const updateUserGroupsHandler =
-  ({ cognitoRepository, userRepository, userPoolId }: IUpdateUserGroupsDependencies) =>
+  ({ cognitoRepository, userRepository, supplierRepository, userPoolId }: IUpdateUserGroupsDependencies) =>
     async (event: IUpdateUserGroupsEvent) => {
       const requester = event.user!;
       const targetUserId = event.pathParameters.id;
-      const { group: nextGroup } = event.body!;
+      const { group: nextGroup, supplierId } = event.body!;
 
       /* ---------- Guards ---------- */
       if (!requester.isOwner) throw createError.Forbidden("Only owners can change user roles");
@@ -21,6 +21,16 @@ export const updateUserGroupsHandler =
       if (!user) throw createError.NotFound("User not found");
 
       if (user.id === requester.id && nextGroup !== "owner") throw createError.Forbidden("Owner cannot remove own owner role");
+
+      if (nextGroup === "supplier") {
+        if (!supplierId) {
+          throw createError.BadRequest("supplierId is required for supplier group");
+        }
+        const supplier = await supplierRepository.getSupplier(supplierId);
+        if (!supplier) {
+          throw createError.NotFound("Supplier not found");
+        }
+      }
 
       /* ---------- Cognito sync ---------- */
       const currentGroups = user.groups;
@@ -53,7 +63,11 @@ export const updateUserGroupsHandler =
 
       /* ---------- Prisma projection ---------- */
 
-      await userRepository.updateGroups(user.id, [toAdd]);
+      await userRepository.updateGroupsAndSupplier(
+        user.id,
+        [toAdd],
+        nextGroup === "supplier" ? supplierId : null
+      );
 
       return apiResponse({
         statusCode: 200,

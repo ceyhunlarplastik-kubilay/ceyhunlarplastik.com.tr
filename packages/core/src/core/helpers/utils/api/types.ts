@@ -68,10 +68,12 @@ export interface IAuthenticatedUser {
   identifier: string
   email: string
   groups: string[]
+  supplierId?: string | null
 
   // ✅ derived flags
   isOwner: boolean
   isAdmin: boolean
+  isSupplier: boolean
 }
 
 // Lambda event tipi (hem authenticated hem anonymous destekler)

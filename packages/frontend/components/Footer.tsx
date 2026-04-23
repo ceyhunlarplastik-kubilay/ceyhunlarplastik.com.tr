@@ -169,7 +169,7 @@ export function Footer() {
                                     href="/urunler/filtre"
                                     className="text-white/50 hover:text-white transition"
                                 >
-                                    Tüm Ürünler
+                                    Sektörel Ürünler
                                 </Link>
                             </li>
                         </ul>

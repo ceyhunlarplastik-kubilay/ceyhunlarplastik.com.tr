@@ -47,7 +47,9 @@ export const createProductVariantHandler = ({ productVariantRepository, productR
                     variantSuppliers: {
                         create: suppliers.map(sup => ({
                             supplier: { connect: { id: sup.id } },
-                            isActive: sup.isActive ?? false
+                            isActive: sup.isActive ?? false,
+                            ...(sup.price !== undefined && { price: sup.price }),
+                            ...(sup.currency && { currency: sup.currency.toUpperCase() }),
                         }))
                     }
                 }),

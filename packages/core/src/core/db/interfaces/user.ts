@@ -4,5 +4,6 @@ export interface IUser {
   email: string
   identifier: string
   groups: string[]
+  supplierId?: string | null
   isActive: boolean
 }

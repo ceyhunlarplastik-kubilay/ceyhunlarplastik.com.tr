@@ -1,6 +1,12 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const prismaDecimalSchema = z.object({
+    s: z.number(),
+    e: z.number(),
+    d: z.array(z.number()),
+}).loose()
+
 export const idValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
@@ -57,10 +63,12 @@ const variantSupplierSchema = z.object({
     variantId: z.string(),
     supplierId: z.string(),
     isActive: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    price: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
+    currency: z.string().nullable().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
     supplier: supplierSchema,
-})
+}).loose()
 
 const measurementTypeSchema = z.object({
     id: z.string(),

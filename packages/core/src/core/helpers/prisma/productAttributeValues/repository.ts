@@ -2,7 +2,7 @@ import { prisma } from "@/core/db/prisma"
 import { Prisma, ProductAttributeValue } from "@/prisma/generated/prisma/client"
 
 export type ProductAttributeValueWithParent = Prisma.ProductAttributeValueGetPayload<{
-    include: { parentValue: true }
+    include: { parentValue: true, assets: true }
 }>
 
 export type ProductAttributeValueWithAttribute = Prisma.ProductAttributeValueGetPayload<{
@@ -18,6 +18,7 @@ export type ProductAttributeValueWithAttribute = Prisma.ProductAttributeValueGet
                 }
             }
         }
+        assets: true
     }
 }>
 
@@ -42,6 +43,7 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
             },
             include: {
                 parentValue: true,
+                assets: true,
             },
         })
 
@@ -60,6 +62,7 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
                         },
                     },
                 },
+                assets: true,
             },
         })
 

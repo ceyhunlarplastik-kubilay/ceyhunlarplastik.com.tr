@@ -31,6 +31,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { Badge } from "@/components/ui/badge"
+import { formatColorLabel } from "@/lib/color/formatColorLabel"
 
 import { useCreateProductVariant } from "@/features/admin/productVariants/hooks/useCreateProductVariant"
 import { useUpdateProductVariant } from "@/features/admin/productVariants/hooks/useUpdateProductVariant"
@@ -63,6 +64,11 @@ const variantSchema = z.object({
     materialIds: z.array(z.string()).default([]),
     supplierIds: z.array(z.string()).default([]),
     primarySupplierId: z.string().optional().default(""),
+    supplierPricing: z.array(z.object({
+        supplierId: z.string(),
+        price: z.string().optional().default(""),
+        currency: z.string().optional().default("TRY"),
+    })).default([]),
     measurements: z.array(measurementSchema).default([]),
 })
 
@@ -124,7 +130,44 @@ type Props = {
     variant?: ProductVariant | null
 }
 
+function parseDecimalLikeToString(
+    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
+) {
+    if (value === null || value === undefined) return ""
+    if (typeof value === "number") return String(value)
+    if (typeof value === "string") return value
+
+    const sign = value.s === -1 ? "-" : ""
+    const digits = Array.isArray(value.d) ? value.d.join("") : ""
+    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
+    if (!digits) return ""
+
+    if (exponent >= digits.length - 1) {
+        const zeros = "0".repeat(exponent - (digits.length - 1))
+        return `${sign}${digits}${zeros}`
+    }
+
+    if (exponent < 0) {
+        const zeros = "0".repeat(Math.abs(exponent) - 1)
+        return `${sign}0.${zeros}${digits}`
+    }
+
+    const intPart = digits.slice(0, exponent + 1)
+    const fracPart = digits.slice(exponent + 1)
+    return `${sign}${intPart}.${fracPart}`
+}
+
 function getDefaultValues(variant?: ProductVariant | null): VariantFormValues {
+    const supplierPricing =
+        variant?.variantSuppliers.map((supplier) => ({
+            supplierId: supplier.supplier.id,
+            price:
+                supplier.price === undefined || supplier.price === null
+                    ? ""
+                    : parseDecimalLikeToString(supplier.price),
+            currency: supplier.currency ?? "TRY",
+        })) ?? []
+
     return {
         name: variant?.name ?? "",
         versionCode: variant?.versionCode ?? "V1",
@@ -136,6 +179,7 @@ function getDefaultValues(variant?: ProductVariant | null): VariantFormValues {
             variant?.variantSuppliers.map((supplier) => supplier.supplier.id) ?? [],
         primarySupplierId:
             variant?.variantSuppliers.find((supplier) => supplier.isActive)?.supplier.id ?? "",
+        supplierPricing,
         measurements:
             variant?.measurements.map((measurement) => ({
                 measurementTypeId: measurement.measurementType.id,
@@ -191,6 +235,7 @@ function SingleCombobox<T extends { id: string; name: string }>({
     items,
     onCreate,
     onPlusClick,
+    getItemLabel,
 }: {
     label: string
     placeholder: string
@@ -199,14 +244,16 @@ function SingleCombobox<T extends { id: string; name: string }>({
     items: T[]
     onCreate?: (name: string) => Promise<T>
     onPlusClick?: () => void
+    getItemLabel?: (item: T) => string
 }) {
     const [open, setOpen] = useState(false)
     const [creating, setCreating] = useState(false)
     const [newName, setNewName] = useState("")
     const [query, setQuery] = useState("")
 
+    const getLabel = (item: T) => getItemLabel?.(item) ?? item.name
     const filtered = items.filter((item) =>
-        item.name.toLowerCase().includes(query.toLowerCase())
+        getLabel(item).toLowerCase().includes(query.toLowerCase())
     )
 
     const handleCreate = async () => {
@@ -256,7 +303,7 @@ function SingleCombobox<T extends { id: string; name: string }>({
                         role="combobox"
                         className="w-full justify-between font-normal text-sm h-9"
                     >
-                        {value?.name ?? (
+                        {value ? getLabel(value) : (
                             <span className="text-neutral-400">{placeholder}</span>
                         )}
                         <ChevronDown className="w-4 h-4 ml-2 shrink-0 text-neutral-400" />
@@ -290,7 +337,7 @@ function SingleCombobox<T extends { id: string; name: string }>({
                                             className={`mr-2 w-4 h-4 ${value?.id === item.id ? "opacity-100" : "opacity-0"
                                                 }`}
                                         />
-                                        {item.name}
+                                        {getLabel(item)}
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
@@ -541,12 +588,12 @@ export function CreateVariantDialog({
         useState<MeasurementTypeReference | null>(null)
 
     const form = useForm<VariantFormValues>({
-        resolver: zodResolver(variantSchema),
+        resolver: zodResolver(variantSchema) as any,
         defaultValues: getDefaultValues(variant),
     })
 
     const measurementTypeForm = useForm<MeasurementTypeCreateValues>({
-        resolver: zodResolver(measurementTypeCreateSchema),
+        resolver: zodResolver(measurementTypeCreateSchema) as any,
         defaultValues: {
             code: "D",
             name: "",
@@ -555,7 +602,7 @@ export function CreateVariantDialog({
     })
 
     const colorCreateForm = useForm<ColorCreateValues>({
-        resolver: zodResolver(colorCreateSchema),
+        resolver: zodResolver(colorCreateSchema) as any,
         defaultValues: {
             system: "CUSTOM",
             code: "",
@@ -565,7 +612,7 @@ export function CreateVariantDialog({
     })
 
     const materialCreateForm = useForm<MaterialCreateValues>({
-        resolver: zodResolver(materialCreateSchema),
+        resolver: zodResolver(materialCreateSchema) as any,
         defaultValues: {
             name: "",
             code: "",
@@ -573,7 +620,7 @@ export function CreateVariantDialog({
     })
 
     const supplierCreateForm = useForm<SupplierCreateValues>({
-        resolver: zodResolver(supplierCreateSchema),
+        resolver: zodResolver(supplierCreateSchema) as any,
         defaultValues: {
             name: "",
             isActive: true,
@@ -591,6 +638,10 @@ export function CreateVariantDialog({
     const primarySupplierId = useWatch({
         control: form.control,
         name: "primarySupplierId",
+    })
+    const supplierPricing = useWatch({
+        control: form.control,
+        name: "supplierPricing",
     })
     const measurements = useWatch({ control: form.control, name: "measurements" })
     const supplierCode = useWatch({ control: form.control, name: "supplierCode" })
@@ -650,10 +701,20 @@ export function CreateVariantDialog({
             return Array.from(map.values())
         }
 
+        const variantSuppliersAsReferences: SupplierReference[] =
+            (variant?.variantSuppliers ?? []).map((item) => ({
+                id: item.supplier.id,
+                name: item.supplier.name,
+                isActive: true,
+            }))
+
         return {
             colors: mergeById(references.colors, localReferences.colors),
             materials: mergeById(references.materials, localReferences.materials),
-            suppliers: mergeById(references.suppliers, localReferences.suppliers),
+            suppliers: mergeById(
+                mergeById(references.suppliers, variantSuppliersAsReferences),
+                localReferences.suppliers
+            ),
             measurementTypes: mergeById(
                 references.measurementTypes,
                 localReferences.measurementTypes
@@ -672,6 +733,14 @@ export function CreateVariantDialog({
         (supplierIds ?? []).includes(supplier.id)
     )
 
+    const supplierPricingById = useMemo(() => {
+        const map = new Map<string, { supplierId: string; price?: string; currency?: string }>()
+        for (const item of supplierPricing ?? []) {
+            map.set(item.supplierId, item)
+        }
+        return map
+    }, [supplierPricing])
+
     const usedMeasurementTypeIds = new Set(
         (measurements ?? []).map((measurement) => measurement.measurementTypeId)
     )
@@ -679,6 +748,21 @@ export function CreateVariantDialog({
     const availableMeasurementTypes = referenceState.measurementTypes.filter(
         (measurementType) => !usedMeasurementTypeIds.has(measurementType.id)
     )
+
+    useEffect(() => {
+        const selectedIds = supplierIds ?? []
+        const current = form.getValues("supplierPricing") ?? []
+        const next = selectedIds.map((supplierId) => {
+            const existing = current.find((item) => item.supplierId === supplierId)
+            return {
+                supplierId,
+                price: existing?.price ?? "",
+                currency: existing?.currency ?? "TRY",
+            }
+        })
+
+        form.setValue("supplierPricing", next, { shouldDirty: false })
+    }, [form, supplierIds])
 
     const isEdit = mode === "edit" && Boolean(variant)
     const isSaving = createMutation.isPending || updateMutation.isPending
@@ -823,6 +907,24 @@ export function CreateVariantDialog({
             })
         }
 
+        const supplierPricingById = new Map(
+            (values.supplierPricing ?? []).map((item) => [item.supplierId, item])
+        )
+
+        for (const supplierId of values.supplierIds) {
+            const rawPrice = supplierPricingById.get(supplierId)?.price?.trim() ?? ""
+            if (!rawPrice) continue
+
+            const parsedPrice = Number(rawPrice.replace(",", "."))
+            if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+                form.setError("supplierPricing", {
+                    type: "manual",
+                    message: "Tedarikçi fiyatları 0 veya pozitif sayı olmalıdır.",
+                })
+                return
+            }
+        }
+
         const payload = {
             productId,
             name: values.name,
@@ -832,6 +934,16 @@ export function CreateVariantDialog({
             colorId: values.colorId || undefined,
             materialIds: values.materialIds,
             suppliers: values.supplierIds.map((id) => ({
+                ...(() => {
+                    const priceInput = supplierPricingById.get(id)?.price?.trim() ?? ""
+                    const parsed = priceInput ? Number(priceInput.replace(",", ".")) : undefined
+                    return {
+                        ...(parsed !== undefined && Number.isFinite(parsed) ? { price: parsed } : {}),
+                        ...(supplierPricingById.get(id)?.currency
+                            ? { currency: supplierPricingById.get(id)?.currency?.toUpperCase() }
+                            : {}),
+                    }
+                })(),
                 id,
                 isActive: (values.primarySupplierId || values.supplierIds[0] || "") === id,
             })),
@@ -959,6 +1071,7 @@ export function CreateVariantDialog({
                         }}
                         items={referenceState.colors}
                         onPlusClick={() => setColorCreateOpen(true)}
+                        getItemLabel={(color) => formatColorLabel(color)}
                     />
 
                     <MultiCombobox<MaterialReference>
@@ -982,7 +1095,7 @@ export function CreateVariantDialog({
                         value={selectedSuppliers}
                         onChange={(items) => {
                             const nextIds = items.map((item) => item.id)
-                            const currentPrimary = form.getValues("primarySupplierId")
+                            const currentPrimary = form.getValues("primarySupplierId") || ""
                             const resolvedPrimary =
                                 nextIds.includes(currentPrimary) ? currentPrimary : (nextIds[0] ?? "")
 
@@ -1018,6 +1131,83 @@ export function CreateVariantDialog({
                             <p className="text-[11px] text-neutral-500">
                                 Bu seçim backend&apos;de aktif tedarikçiyi belirler.
                             </p>
+                        </div>
+                    )}
+
+                    {selectedSuppliers.length > 0 && (
+                        <div className="space-y-2">
+                            <Label className="text-xs text-neutral-500">Tedarikçi Fiyatları</Label>
+                            <div className="rounded-lg border border-neutral-200 overflow-hidden">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-neutral-50 border-b border-neutral-200">
+                                        <tr>
+                                            <th className="text-left px-3 py-2 text-xs font-semibold text-neutral-600">Tedarikçi</th>
+                                            <th className="text-left px-3 py-2 text-xs font-semibold text-neutral-600 w-40">Fiyat</th>
+                                            <th className="text-left px-3 py-2 text-xs font-semibold text-neutral-600 w-32">Para Birimi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {selectedSuppliers.map((supplier) => {
+                                            const pricing = supplierPricingById.get(supplier.id)
+                                            return (
+                                                <tr key={supplier.id} className="border-t border-neutral-100">
+                                                    <td className="px-3 py-2 text-neutral-700">{supplier.name}</td>
+                                                    <td className="px-3 py-2">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="decimal"
+                                                            placeholder="örn. 3.10"
+                                                            value={pricing?.price ?? ""}
+                                                            onChange={(e) => {
+                                                                const normalized = e.target.value.replace(",", ".")
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, price: normalized }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-8"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 py-2">
+                                                        <select
+                                                            value={pricing?.currency ?? "TRY"}
+                                                            onChange={(e) => {
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, currency: e.target.value }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
+                                                        >
+                                                            <option value="TRY">TRY</option>
+                                                            <option value="USD">USD</option>
+                                                            <option value="EUR">EUR</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p className="text-[11px] text-neutral-500">
+                                Boş bırakılan fiyatlar API&apos;ye gönderilmez. Girilen değerler tedarikçi-varyant fiyatına kaydedilir.
+                            </p>
+                            {form.formState.errors.supplierPricing?.message && (
+                                <p className="text-xs text-red-500">
+                                    {form.formState.errors.supplierPricing.message}
+                                </p>
+                            )}
                         </div>
                     )}
 

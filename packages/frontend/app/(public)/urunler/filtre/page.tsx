@@ -15,13 +15,15 @@ export default async function Page({ searchParams }: any) {
 
     const resolvedParams = await searchParams;
     const categorySlug = resolvedParams?.category;
-    const categories = await getCategories()
-    const attributes = await getAttributesForFilter()
+    const [categories, attributes] = await Promise.all([
+        getCategories(),
+        getAttributesForFilter(),
+    ])
 
-    let title = "Tüm Ürünler";
+    let title = "Sektörel Ürünler";
     let breadcrumbs = [
         { label: "Ana Sayfa", href: "/" },
-        { label: "Tüm Ürünler" }
+        { label: "Sektörel Ürünler" }
     ];
 
     if (categorySlug) {

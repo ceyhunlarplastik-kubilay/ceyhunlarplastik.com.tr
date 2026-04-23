@@ -128,6 +128,27 @@ adminApi.route("GET /users/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("PUT /users/{id}/supplier", {
+    handler: `${folderPrefix}/users/actions.updateUserSupplier`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+/*----------------------- CUSTOMERS -----------------------*/
+adminApi.route("GET /customers", {
+    handler: `${folderPrefix}/customers/actions.listCustomers`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /web-requests", {
+    handler: `${folderPrefix}/webRequests/actions.listWebRequests`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /web-requests/{id}/status", {
+    handler: `${folderPrefix}/webRequests/actions.updateWebRequestStatus`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- CATEGORIES -----------------------*/
 adminApi.route("POST /categories", {
     handler: `${folderPrefix}/categories/actions.createCategory`,
@@ -443,6 +464,11 @@ adminApi.route("PUT /product-attribute-values/{id}", {
 
 adminApi.route("DELETE /product-attribute-values/{id}", {
     handler: `${folderPrefix}/productAttributeValues/actions.deleteProductAttributeValue`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /product-attribute-values/assets/presign", {
+    handler: `${folderPrefix}/productAttributeValues/actions.createProductAttributeValueAssetUpload`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 

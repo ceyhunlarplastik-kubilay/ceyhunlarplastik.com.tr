@@ -70,6 +70,16 @@ export type ProductAttribute = Prisma.ProductAttributeModel
  */
 export type ProductAttributeValue = Prisma.ProductAttributeValueModel
 /**
+ * Model Customer
+ * 
+ */
+export type Customer = Prisma.CustomerModel
+/**
+ * Model WebRequest
+ * 
+ */
+export type WebRequest = Prisma.WebRequestModel
+/**
  * Model ProductVariant
  * 
  */

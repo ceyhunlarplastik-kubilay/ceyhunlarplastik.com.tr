@@ -27,4 +27,13 @@ export const appRouter =
 
 if (appRouter) {
     appRouter.routeBucket("/categories", publicBucket);
+    appRouter.routeBucket("/products", publicBucket);
+    appRouter.routeBucket("/product-variants", publicBucket);
+    appRouter.routeBucket("/product-variant-suppliers", publicBucket);
+    appRouter.routeBucket("/product-variant-measurements", publicBucket);
+    appRouter.routeBucket("/product-variant-assets", publicBucket);
+    appRouter.routeBucket("/product-variant-materials", publicBucket);
+    appRouter.routeBucket("/product-variant-colors", publicBucket);
+    appRouter.routeBucket("/product-variant-suppliers", publicBucket);
+    appRouter.routeBucket("/product-variant-suppliers", publicBucket);
 }

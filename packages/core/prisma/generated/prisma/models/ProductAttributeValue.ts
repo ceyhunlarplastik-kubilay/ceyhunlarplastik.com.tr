@@ -252,6 +252,10 @@ export type ProductAttributeValueWhereInput = {
   parentValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
   childValues?: Prisma.ProductAttributeValueListRelationFilter
   products?: Prisma.ProductListRelationFilter
+  assets?: Prisma.AssetListRelationFilter
+  customerSectors?: Prisma.CustomerListRelationFilter
+  customerProductionGroups?: Prisma.CustomerListRelationFilter
+  customerUsageAreas?: Prisma.CustomerListRelationFilter
 }
 
 export type ProductAttributeValueOrderByWithRelationInput = {
@@ -268,6 +272,10 @@ export type ProductAttributeValueOrderByWithRelationInput = {
   parentValue?: Prisma.ProductAttributeValueOrderByWithRelationInput
   childValues?: Prisma.ProductAttributeValueOrderByRelationAggregateInput
   products?: Prisma.ProductOrderByRelationAggregateInput
+  assets?: Prisma.AssetOrderByRelationAggregateInput
+  customerSectors?: Prisma.CustomerOrderByRelationAggregateInput
+  customerProductionGroups?: Prisma.CustomerOrderByRelationAggregateInput
+  customerUsageAreas?: Prisma.CustomerOrderByRelationAggregateInput
 }
 
 export type ProductAttributeValueWhereUniqueInput = Prisma.AtLeast<{
@@ -288,6 +296,10 @@ export type ProductAttributeValueWhereUniqueInput = Prisma.AtLeast<{
   parentValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
   childValues?: Prisma.ProductAttributeValueListRelationFilter
   products?: Prisma.ProductListRelationFilter
+  assets?: Prisma.AssetListRelationFilter
+  customerSectors?: Prisma.CustomerListRelationFilter
+  customerProductionGroups?: Prisma.CustomerListRelationFilter
+  customerUsageAreas?: Prisma.CustomerListRelationFilter
 }, "id" | "attributeId_name">
 
 export type ProductAttributeValueOrderByWithAggregationInput = {
@@ -334,6 +346,10 @@ export type ProductAttributeValueCreateInput = {
   parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
   childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
   products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueUncheckedCreateInput = {
@@ -348,6 +364,10 @@ export type ProductAttributeValueUncheckedCreateInput = {
   updatedAt?: Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueUpdateInput = {
@@ -362,6 +382,10 @@ export type ProductAttributeValueUpdateInput = {
   parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
   childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
   products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateInput = {
@@ -376,6 +400,10 @@ export type ProductAttributeValueUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueCreateManyInput = {
@@ -614,6 +642,92 @@ export type ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInpu
   deleteMany?: Prisma.ProductAttributeValueScalarWhereInput | Prisma.ProductAttributeValueScalarWhereInput[]
 }
 
+export type ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerSectorsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerSectorsInput>
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerSectorsInput
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput
+}
+
+export type ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerProductionGroupsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerProductionGroupsInput>
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerProductionGroupsInput
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput
+}
+
+export type ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput> | Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput[] | Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput[]
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput[]
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+}
+
+export type ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput> | Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput[] | Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput[]
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput[]
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+}
+
+export type ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerSectorsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerSectorsInput>
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerSectorsInput
+  upsert?: Prisma.ProductAttributeValueUpsertWithoutCustomerSectorsInput
+  disconnect?: Prisma.ProductAttributeValueWhereInput | boolean
+  delete?: Prisma.ProductAttributeValueWhereInput | boolean
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductAttributeValueUpdateToOneWithWhereWithoutCustomerSectorsInput, Prisma.ProductAttributeValueUpdateWithoutCustomerSectorsInput>, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerSectorsInput>
+}
+
+export type ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerProductionGroupsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerProductionGroupsInput>
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerProductionGroupsInput
+  upsert?: Prisma.ProductAttributeValueUpsertWithoutCustomerProductionGroupsInput
+  disconnect?: Prisma.ProductAttributeValueWhereInput | boolean
+  delete?: Prisma.ProductAttributeValueWhereInput | boolean
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductAttributeValueUpdateToOneWithWhereWithoutCustomerProductionGroupsInput, Prisma.ProductAttributeValueUpdateWithoutCustomerProductionGroupsInput>, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerProductionGroupsInput>
+}
+
+export type ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput> | Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput[] | Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput[]
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput[]
+  upsert?: Prisma.ProductAttributeValueUpsertWithWhereUniqueWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueUpsertWithWhereUniqueWithoutCustomerUsageAreasInput[]
+  set?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  disconnect?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  delete?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  update?: Prisma.ProductAttributeValueUpdateWithWhereUniqueWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueUpdateWithWhereUniqueWithoutCustomerUsageAreasInput[]
+  updateMany?: Prisma.ProductAttributeValueUpdateManyWithWhereWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueUpdateManyWithWhereWithoutCustomerUsageAreasInput[]
+  deleteMany?: Prisma.ProductAttributeValueScalarWhereInput | Prisma.ProductAttributeValueScalarWhereInput[]
+}
+
+export type ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput> | Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput[] | Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput[]
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput[]
+  upsert?: Prisma.ProductAttributeValueUpsertWithWhereUniqueWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueUpsertWithWhereUniqueWithoutCustomerUsageAreasInput[]
+  set?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  disconnect?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  delete?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput | Prisma.ProductAttributeValueWhereUniqueInput[]
+  update?: Prisma.ProductAttributeValueUpdateWithWhereUniqueWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueUpdateWithWhereUniqueWithoutCustomerUsageAreasInput[]
+  updateMany?: Prisma.ProductAttributeValueUpdateManyWithWhereWithoutCustomerUsageAreasInput | Prisma.ProductAttributeValueUpdateManyWithWhereWithoutCustomerUsageAreasInput[]
+  deleteMany?: Prisma.ProductAttributeValueScalarWhereInput | Prisma.ProductAttributeValueScalarWhereInput[]
+}
+
+export type ProductAttributeValueCreateNestedOneWithoutAssetsInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutAssetsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutAssetsInput>
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutAssetsInput
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput
+}
+
+export type ProductAttributeValueUpdateOneWithoutAssetsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutAssetsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutAssetsInput>
+  connectOrCreate?: Prisma.ProductAttributeValueCreateOrConnectWithoutAssetsInput
+  upsert?: Prisma.ProductAttributeValueUpsertWithoutAssetsInput
+  disconnect?: Prisma.ProductAttributeValueWhereInput | boolean
+  delete?: Prisma.ProductAttributeValueWhereInput | boolean
+  connect?: Prisma.ProductAttributeValueWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductAttributeValueUpdateToOneWithWhereWithoutAssetsInput, Prisma.ProductAttributeValueUpdateWithoutAssetsInput>, Prisma.ProductAttributeValueUncheckedUpdateWithoutAssetsInput>
+}
+
 export type ProductAttributeValueCreateWithoutProductsInput = {
   id?: string
   name: string
@@ -625,6 +739,10 @@ export type ProductAttributeValueCreateWithoutProductsInput = {
   attribute: Prisma.ProductAttributeCreateNestedOneWithoutValuesInput
   parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
   childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueUncheckedCreateWithoutProductsInput = {
@@ -638,6 +756,10 @@ export type ProductAttributeValueUncheckedCreateWithoutProductsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueCreateOrConnectWithoutProductsInput = {
@@ -687,6 +809,10 @@ export type ProductAttributeValueCreateWithoutAttributeInput = {
   parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
   childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
   products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueUncheckedCreateWithoutAttributeInput = {
@@ -700,6 +826,10 @@ export type ProductAttributeValueUncheckedCreateWithoutAttributeInput = {
   updatedAt?: Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueCreateOrConnectWithoutAttributeInput = {
@@ -739,6 +869,10 @@ export type ProductAttributeValueCreateWithoutChildValuesInput = {
   attribute: Prisma.ProductAttributeCreateNestedOneWithoutValuesInput
   parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
   products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueUncheckedCreateWithoutChildValuesInput = {
@@ -752,6 +886,10 @@ export type ProductAttributeValueUncheckedCreateWithoutChildValuesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueCreateOrConnectWithoutChildValuesInput = {
@@ -770,6 +908,10 @@ export type ProductAttributeValueCreateWithoutParentValueInput = {
   attribute: Prisma.ProductAttributeCreateNestedOneWithoutValuesInput
   childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
   products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueUncheckedCreateWithoutParentValueInput = {
@@ -783,6 +925,10 @@ export type ProductAttributeValueUncheckedCreateWithoutParentValueInput = {
   updatedAt?: Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
 }
 
 export type ProductAttributeValueCreateOrConnectWithoutParentValueInput = {
@@ -817,6 +963,10 @@ export type ProductAttributeValueUpdateWithoutChildValuesInput = {
   attribute?: Prisma.ProductAttributeUpdateOneRequiredWithoutValuesNestedInput
   parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
   products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateWithoutChildValuesInput = {
@@ -830,6 +980,10 @@ export type ProductAttributeValueUncheckedUpdateWithoutChildValuesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUpsertWithWhereUniqueWithoutParentValueInput = {
@@ -848,6 +1002,313 @@ export type ProductAttributeValueUpdateManyWithWhereWithoutParentValueInput = {
   data: Prisma.XOR<Prisma.ProductAttributeValueUpdateManyMutationInput, Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueInput>
 }
 
+export type ProductAttributeValueCreateWithoutCustomerSectorsInput = {
+  id?: string
+  name: string
+  slug: string
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attribute: Prisma.ProductAttributeCreateNestedOneWithoutValuesInput
+  parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
+  childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
+}
+
+export type ProductAttributeValueUncheckedCreateWithoutCustomerSectorsInput = {
+  id?: string
+  name: string
+  slug: string
+  attributeId: string
+  parentValueId?: string | null
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
+}
+
+export type ProductAttributeValueCreateOrConnectWithoutCustomerSectorsInput = {
+  where: Prisma.ProductAttributeValueWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerSectorsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerSectorsInput>
+}
+
+export type ProductAttributeValueCreateWithoutCustomerProductionGroupsInput = {
+  id?: string
+  name: string
+  slug: string
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attribute: Prisma.ProductAttributeCreateNestedOneWithoutValuesInput
+  parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
+  childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
+}
+
+export type ProductAttributeValueUncheckedCreateWithoutCustomerProductionGroupsInput = {
+  id?: string
+  name: string
+  slug: string
+  attributeId: string
+  parentValueId?: string | null
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
+}
+
+export type ProductAttributeValueCreateOrConnectWithoutCustomerProductionGroupsInput = {
+  where: Prisma.ProductAttributeValueWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerProductionGroupsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerProductionGroupsInput>
+}
+
+export type ProductAttributeValueCreateWithoutCustomerUsageAreasInput = {
+  id?: string
+  name: string
+  slug: string
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attribute: Prisma.ProductAttributeCreateNestedOneWithoutValuesInput
+  parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
+  childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+}
+
+export type ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput = {
+  id?: string
+  name: string
+  slug: string
+  attributeId: string
+  parentValueId?: string | null
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductAttributeValueInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+}
+
+export type ProductAttributeValueCreateOrConnectWithoutCustomerUsageAreasInput = {
+  where: Prisma.ProductAttributeValueWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput>
+}
+
+export type ProductAttributeValueUpsertWithoutCustomerSectorsInput = {
+  update: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutCustomerSectorsInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerSectorsInput>
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerSectorsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerSectorsInput>
+  where?: Prisma.ProductAttributeValueWhereInput
+}
+
+export type ProductAttributeValueUpdateToOneWithWhereWithoutCustomerSectorsInput = {
+  where?: Prisma.ProductAttributeValueWhereInput
+  data: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutCustomerSectorsInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerSectorsInput>
+}
+
+export type ProductAttributeValueUpdateWithoutCustomerSectorsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attribute?: Prisma.ProductAttributeUpdateOneRequiredWithoutValuesNestedInput
+  parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
+  childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
+}
+
+export type ProductAttributeValueUncheckedUpdateWithoutCustomerSectorsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  attributeId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
+}
+
+export type ProductAttributeValueUpsertWithoutCustomerProductionGroupsInput = {
+  update: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutCustomerProductionGroupsInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerProductionGroupsInput>
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerProductionGroupsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerProductionGroupsInput>
+  where?: Prisma.ProductAttributeValueWhereInput
+}
+
+export type ProductAttributeValueUpdateToOneWithWhereWithoutCustomerProductionGroupsInput = {
+  where?: Prisma.ProductAttributeValueWhereInput
+  data: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutCustomerProductionGroupsInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerProductionGroupsInput>
+}
+
+export type ProductAttributeValueUpdateWithoutCustomerProductionGroupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attribute?: Prisma.ProductAttributeUpdateOneRequiredWithoutValuesNestedInput
+  parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
+  childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
+}
+
+export type ProductAttributeValueUncheckedUpdateWithoutCustomerProductionGroupsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  attributeId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
+}
+
+export type ProductAttributeValueUpsertWithWhereUniqueWithoutCustomerUsageAreasInput = {
+  where: Prisma.ProductAttributeValueWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerUsageAreasInput>
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedCreateWithoutCustomerUsageAreasInput>
+}
+
+export type ProductAttributeValueUpdateWithWhereUniqueWithoutCustomerUsageAreasInput = {
+  where: Prisma.ProductAttributeValueWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutCustomerUsageAreasInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutCustomerUsageAreasInput>
+}
+
+export type ProductAttributeValueUpdateManyWithWhereWithoutCustomerUsageAreasInput = {
+  where: Prisma.ProductAttributeValueScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductAttributeValueUpdateManyMutationInput, Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasInput>
+}
+
+export type ProductAttributeValueCreateWithoutAssetsInput = {
+  id?: string
+  name: string
+  slug: string
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attribute: Prisma.ProductAttributeCreateNestedOneWithoutValuesInput
+  parentValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutChildValuesInput
+  childValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductCreateNestedManyWithoutAttributeValuesInput
+  customerSectors?: Prisma.CustomerCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerCreateNestedManyWithoutUsageAreaValuesInput
+}
+
+export type ProductAttributeValueUncheckedCreateWithoutAssetsInput = {
+  id?: string
+  name: string
+  slug: string
+  attributeId: string
+  parentValueId?: string | null
+  displayOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutParentValueInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutAttributeValuesInput
+  customerSectors?: Prisma.CustomerUncheckedCreateNestedManyWithoutSectorValueInput
+  customerProductionGroups?: Prisma.CustomerUncheckedCreateNestedManyWithoutProductionGroupValueInput
+  customerUsageAreas?: Prisma.CustomerUncheckedCreateNestedManyWithoutUsageAreaValuesInput
+}
+
+export type ProductAttributeValueCreateOrConnectWithoutAssetsInput = {
+  where: Prisma.ProductAttributeValueWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutAssetsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutAssetsInput>
+}
+
+export type ProductAttributeValueUpsertWithoutAssetsInput = {
+  update: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutAssetsInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutAssetsInput>
+  create: Prisma.XOR<Prisma.ProductAttributeValueCreateWithoutAssetsInput, Prisma.ProductAttributeValueUncheckedCreateWithoutAssetsInput>
+  where?: Prisma.ProductAttributeValueWhereInput
+}
+
+export type ProductAttributeValueUpdateToOneWithWhereWithoutAssetsInput = {
+  where?: Prisma.ProductAttributeValueWhereInput
+  data: Prisma.XOR<Prisma.ProductAttributeValueUpdateWithoutAssetsInput, Prisma.ProductAttributeValueUncheckedUpdateWithoutAssetsInput>
+}
+
+export type ProductAttributeValueUpdateWithoutAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attribute?: Prisma.ProductAttributeUpdateOneRequiredWithoutValuesNestedInput
+  parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
+  childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
+}
+
+export type ProductAttributeValueUncheckedUpdateWithoutAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  attributeId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
+}
+
 export type ProductAttributeValueUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -859,6 +1320,10 @@ export type ProductAttributeValueUpdateWithoutProductsInput = {
   attribute?: Prisma.ProductAttributeUpdateOneRequiredWithoutValuesNestedInput
   parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
   childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateWithoutProductsInput = {
@@ -872,6 +1337,10 @@ export type ProductAttributeValueUncheckedUpdateWithoutProductsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateManyWithoutProductsInput = {
@@ -908,6 +1377,10 @@ export type ProductAttributeValueUpdateWithoutAttributeInput = {
   parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
   childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
   products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateWithoutAttributeInput = {
@@ -921,6 +1394,10 @@ export type ProductAttributeValueUncheckedUpdateWithoutAttributeInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateManyWithoutAttributeInput = {
@@ -956,6 +1433,10 @@ export type ProductAttributeValueUpdateWithoutParentValueInput = {
   attribute?: Prisma.ProductAttributeUpdateOneRequiredWithoutValuesNestedInput
   childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
   products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateWithoutParentValueInput = {
@@ -969,6 +1450,10 @@ export type ProductAttributeValueUncheckedUpdateWithoutParentValueInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+  customerUsageAreas?: Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput
 }
 
 export type ProductAttributeValueUncheckedUpdateManyWithoutParentValueInput = {
@@ -976,6 +1461,52 @@ export type ProductAttributeValueUncheckedUpdateManyWithoutParentValueInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   attributeId?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductAttributeValueUpdateWithoutCustomerUsageAreasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attribute?: Prisma.ProductAttributeUpdateOneRequiredWithoutValuesNestedInput
+  parentValue?: Prisma.ProductAttributeValueUpdateOneWithoutChildValuesNestedInput
+  childValues?: Prisma.ProductAttributeValueUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUpdateManyWithoutProductionGroupValueNestedInput
+}
+
+export type ProductAttributeValueUncheckedUpdateWithoutCustomerUsageAreasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  attributeId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutParentValueNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutAttributeValuesNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductAttributeValueNestedInput
+  customerSectors?: Prisma.CustomerUncheckedUpdateManyWithoutSectorValueNestedInput
+  customerProductionGroups?: Prisma.CustomerUncheckedUpdateManyWithoutProductionGroupValueNestedInput
+}
+
+export type ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  attributeId?: Prisma.StringFieldUpdateOperationsInput | string
+  parentValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -990,11 +1521,19 @@ export type ProductAttributeValueUncheckedUpdateManyWithoutParentValueInput = {
 export type ProductAttributeValueCountOutputType = {
   childValues: number
   products: number
+  assets: number
+  customerSectors: number
+  customerProductionGroups: number
+  customerUsageAreas: number
 }
 
 export type ProductAttributeValueCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   childValues?: boolean | ProductAttributeValueCountOutputTypeCountChildValuesArgs
   products?: boolean | ProductAttributeValueCountOutputTypeCountProductsArgs
+  assets?: boolean | ProductAttributeValueCountOutputTypeCountAssetsArgs
+  customerSectors?: boolean | ProductAttributeValueCountOutputTypeCountCustomerSectorsArgs
+  customerProductionGroups?: boolean | ProductAttributeValueCountOutputTypeCountCustomerProductionGroupsArgs
+  customerUsageAreas?: boolean | ProductAttributeValueCountOutputTypeCountCustomerUsageAreasArgs
 }
 
 /**
@@ -1021,6 +1560,34 @@ export type ProductAttributeValueCountOutputTypeCountProductsArgs<ExtArgs extend
   where?: Prisma.ProductWhereInput
 }
 
+/**
+ * ProductAttributeValueCountOutputType without action
+ */
+export type ProductAttributeValueCountOutputTypeCountAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssetWhereInput
+}
+
+/**
+ * ProductAttributeValueCountOutputType without action
+ */
+export type ProductAttributeValueCountOutputTypeCountCustomerSectorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
+ * ProductAttributeValueCountOutputType without action
+ */
+export type ProductAttributeValueCountOutputTypeCountCustomerProductionGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
+ * ProductAttributeValueCountOutputType without action
+ */
+export type ProductAttributeValueCountOutputTypeCountCustomerUsageAreasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
+}
+
 
 export type ProductAttributeValueSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1036,6 +1603,10 @@ export type ProductAttributeValueSelect<ExtArgs extends runtime.Types.Extensions
   parentValue?: boolean | Prisma.ProductAttributeValue$parentValueArgs<ExtArgs>
   childValues?: boolean | Prisma.ProductAttributeValue$childValuesArgs<ExtArgs>
   products?: boolean | Prisma.ProductAttributeValue$productsArgs<ExtArgs>
+  assets?: boolean | Prisma.ProductAttributeValue$assetsArgs<ExtArgs>
+  customerSectors?: boolean | Prisma.ProductAttributeValue$customerSectorsArgs<ExtArgs>
+  customerProductionGroups?: boolean | Prisma.ProductAttributeValue$customerProductionGroupsArgs<ExtArgs>
+  customerUsageAreas?: boolean | Prisma.ProductAttributeValue$customerUsageAreasArgs<ExtArgs>
   _count?: boolean | Prisma.ProductAttributeValueCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productAttributeValue"]>
 
@@ -1085,6 +1656,10 @@ export type ProductAttributeValueInclude<ExtArgs extends runtime.Types.Extension
   parentValue?: boolean | Prisma.ProductAttributeValue$parentValueArgs<ExtArgs>
   childValues?: boolean | Prisma.ProductAttributeValue$childValuesArgs<ExtArgs>
   products?: boolean | Prisma.ProductAttributeValue$productsArgs<ExtArgs>
+  assets?: boolean | Prisma.ProductAttributeValue$assetsArgs<ExtArgs>
+  customerSectors?: boolean | Prisma.ProductAttributeValue$customerSectorsArgs<ExtArgs>
+  customerProductionGroups?: boolean | Prisma.ProductAttributeValue$customerProductionGroupsArgs<ExtArgs>
+  customerUsageAreas?: boolean | Prisma.ProductAttributeValue$customerUsageAreasArgs<ExtArgs>
   _count?: boolean | Prisma.ProductAttributeValueCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductAttributeValueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1103,6 +1678,10 @@ export type $ProductAttributeValuePayload<ExtArgs extends runtime.Types.Extensio
     parentValue: Prisma.$ProductAttributeValuePayload<ExtArgs> | null
     childValues: Prisma.$ProductAttributeValuePayload<ExtArgs>[]
     products: Prisma.$ProductPayload<ExtArgs>[]
+    assets: Prisma.$AssetPayload<ExtArgs>[]
+    customerSectors: Prisma.$CustomerPayload<ExtArgs>[]
+    customerProductionGroups: Prisma.$CustomerPayload<ExtArgs>[]
+    customerUsageAreas: Prisma.$CustomerPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1512,6 +2091,10 @@ export interface Prisma__ProductAttributeValueClient<T, Null = never, ExtArgs ex
   parentValue<T extends Prisma.ProductAttributeValue$parentValueArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttributeValue$parentValueArgs<ExtArgs>>): Prisma.Prisma__ProductAttributeValueClient<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   childValues<T extends Prisma.ProductAttributeValue$childValuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttributeValue$childValuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   products<T extends Prisma.ProductAttributeValue$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttributeValue$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assets<T extends Prisma.ProductAttributeValue$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttributeValue$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerSectors<T extends Prisma.ProductAttributeValue$customerSectorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttributeValue$customerSectorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerProductionGroups<T extends Prisma.ProductAttributeValue$customerProductionGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttributeValue$customerProductionGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerUsageAreas<T extends Prisma.ProductAttributeValue$customerUsageAreasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttributeValue$customerUsageAreasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2010,6 +2593,102 @@ export type ProductAttributeValue$productsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
+}
+
+/**
+ * ProductAttributeValue.assets
+ */
+export type ProductAttributeValue$assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Asset
+   */
+  select?: Prisma.AssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Asset
+   */
+  omit?: Prisma.AssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssetInclude<ExtArgs> | null
+  where?: Prisma.AssetWhereInput
+  orderBy?: Prisma.AssetOrderByWithRelationInput | Prisma.AssetOrderByWithRelationInput[]
+  cursor?: Prisma.AssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssetScalarFieldEnum | Prisma.AssetScalarFieldEnum[]
+}
+
+/**
+ * ProductAttributeValue.customerSectors
+ */
+export type ProductAttributeValue$customerSectorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
+}
+
+/**
+ * ProductAttributeValue.customerProductionGroups
+ */
+export type ProductAttributeValue$customerProductionGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
+}
+
+/**
+ * ProductAttributeValue.customerUsageAreas
+ */
+export type ProductAttributeValue$customerUsageAreasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
 }
 
 /**

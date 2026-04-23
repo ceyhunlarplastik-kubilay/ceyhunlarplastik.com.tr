@@ -13,6 +13,8 @@ export interface ICreateProductVariantSupplierBody {
     variantId: string
     supplierId: string
     isActive?: boolean
+    price?: number
+    currency?: string
 }
 
 export type ICreateProductVariantSupplierEvent =

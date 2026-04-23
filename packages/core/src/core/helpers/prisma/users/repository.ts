@@ -21,6 +21,7 @@ export interface IPrismaUserRepository {
   getUserByCognitoSub(sub: string): Promise<IUser | null>
   createUser(data: Prisma.UserCreateInput): Promise<IUser>
   updateGroups(id: string, groups: string[]): Promise<IUser>
+  updateGroupsAndSupplier(id: string, groups: string[], supplierId?: string | null): Promise<IUser>
 }
 
 export const userRepository = (): IPrismaUserRepository => {
@@ -79,11 +80,26 @@ export const userRepository = (): IPrismaUserRepository => {
     })
   }
 
+  const updateGroupsAndSupplier = async (
+    id: string,
+    groups: string[],
+    supplierId?: string | null
+  ) => {
+    return prisma.user.update({
+      where: { id },
+      data: {
+        groups,
+        ...(supplierId !== undefined ? { supplierId } : {}),
+      },
+    })
+  }
+
   return {
     listUsers,
     getUserById,
     getUserByCognitoSub,
     createUser,
     updateGroups,
+    updateGroupsAndSupplier,
   }
 }

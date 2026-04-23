@@ -58,6 +58,13 @@ const userGroup = new aws.cognito.UserGroup('CeyhunlarUsers', {
     precedence: 3,
 });
 
+const supplierGroup = new aws.cognito.UserGroup('CeyhunlarSuppliers', {
+    userPoolId: userPool.id,
+    name: 'supplier',
+    description: 'Supplier users',
+    precedence: 4,
+});
+
 if (isPermanentStage) {
     const hostedZoneId = config.HOSTED_ZONE_ID
 

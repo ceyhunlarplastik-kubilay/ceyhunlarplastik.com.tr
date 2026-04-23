@@ -1,14 +1,13 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { motion, AnimatePresence } from "motion/react"
 import { Sparkles, X, ArrowRight, CheckCircle2 } from "lucide-react"
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import type { ProductAttribute } from "@/features/public/productAttributes/types"
@@ -18,6 +17,11 @@ type AttributeValue = {
     name: string
     slug: string
     parentValueId?: string | null
+    assets?: {
+        id: string
+        role: string
+        url: string
+    }[]
 }
 
 type Props = {
@@ -27,8 +31,7 @@ type Props = {
 const STEP_TITLES = [
     "Karşılama",
     "Sektör",
-    "Üretim Grubu",
-    "Kullanım Alanı",
+    "Üretim Grubu ve Kullanım Alanı",
 ]
 
 export default function ProductAssistantModal({ attributes }: Props) {
@@ -42,6 +45,9 @@ export default function ProductAssistantModal({ attributes }: Props) {
     const [selectedUsageAreaSlugs, setSelectedUsageAreaSlugs] = useState<string[]>([])
 
     const [query, setQuery] = useState("")
+    const [activeProductionGroupSlug, setActiveProductionGroupSlug] = useState<string | null>(null)
+    const usageScrollRef = useRef<HTMLDivElement | null>(null)
+    const productionSectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
     const attrsByCode = useMemo(
         () => new Map(attributes.map((attribute) => [attribute.code, attribute])),
@@ -72,35 +78,47 @@ export default function ProductAssistantModal({ attributes }: Props) {
     )
 
     const selectedSectorId = selectedSectorSlug ? sectorBySlug.get(selectedSectorSlug)?.id : undefined
-    const selectedProductionGroupId = selectedProductionGroupSlug
-        ? productionGroupBySlug.get(selectedProductionGroupSlug)?.id
-        : undefined
-
     const visibleProductionGroups = useMemo(() => {
         if (!selectedSectorId) return productionGroupValues
         return productionGroupValues.filter((value) => value.parentValueId === selectedSectorId)
     }, [productionGroupValues, selectedSectorId])
 
-    const visibleUsageAreas = useMemo(() => {
-        if (!selectedProductionGroupId) return usageAreaValues
-        return usageAreaValues.filter((value) => value.parentValueId === selectedProductionGroupId)
-    }, [usageAreaValues, selectedProductionGroupId])
-
-    const filteredUsageAreas = useMemo(() => {
+    const usageAreasByProductionGroup = useMemo(() => {
         const normalized = query.trim().toLowerCase()
-        if (!normalized) return visibleUsageAreas
-        return visibleUsageAreas.filter((value) => value.name.toLowerCase().includes(normalized))
-    }, [visibleUsageAreas, query])
+        const result = new Map<string, AttributeValue[]>()
+        for (const group of visibleProductionGroups) {
+            const values = usageAreaValues.filter((value) => value.parentValueId === group.id)
+            const filtered = normalized
+                ? values.filter((value) => value.name.toLowerCase().includes(normalized))
+                : values
+            result.set(group.slug, filtered)
+        }
+        return result
+    }, [visibleProductionGroups, usageAreaValues, query])
+
+    const totalFilteredUsageAreaCount = useMemo(() => {
+        let total = 0
+        for (const values of usageAreasByProductionGroup.values()) total += values.length
+        return total
+    }, [usageAreasByProductionGroup])
 
     function handleSelectSector(slug: string) {
         setSelectedSectorSlug(slug)
         setSelectedProductionGroupSlug(null)
+        setActiveProductionGroupSlug(null)
         setSelectedUsageAreaSlugs([])
+        setQuery("")
+        setTimeout(() => setStep(2), 140)
     }
 
     function handleSelectProductionGroup(slug: string) {
         setSelectedProductionGroupSlug(slug)
-        setSelectedUsageAreaSlugs([])
+        setActiveProductionGroupSlug(slug)
+        const section = productionSectionRefs.current[slug]
+        const scrollContainer = usageScrollRef.current
+        if (!section || !scrollContainer) return
+        const top = section.offsetTop - 8
+        scrollContainer.scrollTo({ top, behavior: "smooth" })
     }
 
     function toggleUsageArea(slug: string) {
@@ -109,8 +127,14 @@ export default function ProductAssistantModal({ attributes }: Props) {
         )
     }
 
+    function getValueImageUrl(value: AttributeValue) {
+        if (!value.assets?.length) return null
+        const primary = value.assets.find((asset) => asset.role === "PRIMARY")
+        return primary?.url ?? value.assets[0]?.url ?? null
+    }
+
     function goNext() {
-        setStep((prev) => Math.min(prev + 1, 3))
+        setStep((prev) => Math.min(prev + 1, 2))
     }
 
     function goBack() {
@@ -121,6 +145,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
         setOpen(false)
         setStep(0)
         setQuery("")
+        setActiveProductionGroupSlug(null)
     }
 
     function goToFilter() {
@@ -137,9 +162,40 @@ export default function ProductAssistantModal({ attributes }: Props) {
 
     const canContinue = step === 1
         ? Boolean(selectedSectorSlug)
-        : step === 2
-            ? Boolean(selectedProductionGroupSlug)
-            : true
+        : true
+
+    useEffect(() => {
+        if (step !== 2) return
+        if (!visibleProductionGroups.length) return
+        const current = selectedProductionGroupSlug ?? activeProductionGroupSlug
+        if (current && visibleProductionGroups.some((value) => value.slug === current)) return
+        const first = visibleProductionGroups[0]?.slug ?? null
+        setSelectedProductionGroupSlug(first)
+        setActiveProductionGroupSlug(first)
+    }, [step, visibleProductionGroups, selectedProductionGroupSlug, activeProductionGroupSlug])
+
+    useEffect(() => {
+        if (step !== 2) return
+        const container = usageScrollRef.current
+        if (!container) return
+
+        const onScroll = () => {
+            const threshold = container.scrollTop + 24
+            let nextActive: string | null = activeProductionGroupSlug
+            for (const group of visibleProductionGroups) {
+                const el = productionSectionRefs.current[group.slug]
+                if (!el) continue
+                if (el.offsetTop <= threshold) nextActive = group.slug
+            }
+            if (nextActive && nextActive !== activeProductionGroupSlug) {
+                setActiveProductionGroupSlug(nextActive)
+            }
+        }
+
+        container.addEventListener("scroll", onScroll, { passive: true })
+        onScroll()
+        return () => container.removeEventListener("scroll", onScroll)
+    }, [step, visibleProductionGroups, activeProductionGroupSlug])
 
     return (
         <>
@@ -190,7 +246,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent
                     showCloseButton={false}
-                    className="w-[min(700px,calc(100vw-1.5rem))] h-[min(82vh,640px)] p-0 overflow-hidden rounded-2xl border-neutral-200"
+                    className="w-[min(1020px,calc(100vw-1.5rem))] h-[min(88vh,760px)] p-0 overflow-hidden rounded-2xl border-neutral-200"
                 >
                     <DialogTitle className="sr-only">Ürün Asistanı</DialogTitle>
                     <div className="flex h-full flex-col">
@@ -212,8 +268,8 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                     <X className="h-4 w-4" />
                                 </button>
                             </div>
-                            <div className="mt-3 grid grid-cols-4 gap-1">
-                                {[0, 1, 2, 3].map((index) => (
+                            <div className="mt-3 grid grid-cols-3 gap-1">
+                                {[0, 1, 2].map((index) => (
                                     <div key={index} className="h-1 rounded-full bg-white/25">
                                         <motion.div
                                             className="h-full rounded-full bg-white"
@@ -297,7 +353,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                             </Button>
                                         </div>
                                     </motion.div>
-                                    )}
+                                )}
 
                                 {step === 1 && (
                                     <motion.div
@@ -305,26 +361,44 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className="flex h-full flex-col gap-4"
+                                        className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
                                     >
                                         <div>
                                             <h3 className="text-lg font-semibold">Faaliyet sektörünüzü seçin</h3>
                                             <p className="text-sm text-neutral-500">Tek seçim yapın.</p>
                                         </div>
-                                        <ScrollArea className="h-full pr-2">
-                                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                        <ScrollArea type="always" scrollHideDelay={0} className="h-[430px] rounded-lg border border-neutral-200/70 p-2 pr-3">
+                                            <div className="grid grid-cols-2 gap-2 pb-2 md:grid-cols-3 lg:grid-cols-4">
                                                 {sectorValues.map((value) => (
                                                     <button
                                                         key={value.id}
                                                         onClick={() => handleSelectSector(value.slug)}
                                                         className={cn(
-                                                            "rounded-xl border px-4 py-3 text-left text-sm transition",
+                                                            "group overflow-hidden rounded-xl border text-left text-sm transition",
                                                             selectedSectorSlug === value.slug
-                                                                ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)]"
-                                                                : "border-neutral-200 hover:border-neutral-300"
+                                                                ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)] shadow-sm"
+                                                                : "border-neutral-200 hover:border-neutral-300 hover:shadow-sm"
                                                         )}
                                                     >
-                                                        {value.name}
+                                                        <div className="relative aspect-square w-full bg-neutral-100">
+                                                            {getValueImageUrl(value) ? (
+                                                                <Image
+                                                                    src={getValueImageUrl(value)!}
+                                                                    alt={value.name}
+                                                                    fill
+                                                                    loading="lazy"
+                                                                    sizes="(max-width: 768px) 40vw, (max-width: 1200px) 22vw, 16vw"
+                                                                    className="object-contain p-1 transition duration-300 group-hover:scale-105"
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                                                                    Görsel yok
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="px-3 py-2">
+                                                            <p className="line-clamp-2 text-xs font-medium sm:text-sm">{value.name}</p>
+                                                        </div>
                                                     </button>
                                                 ))}
                                             </div>
@@ -334,27 +408,28 @@ export default function ProductAssistantModal({ attributes }: Props) {
 
                                 {step === 2 && (
                                     <motion.div
-                                        key="group"
+                                        key="group-usage"
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className="flex h-full flex-col gap-4"
+                                        className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
                                     >
                                         <div>
-                                            <h3 className="text-lg font-semibold">Üretim grubunuzu seçin</h3>
-                                            <p className="text-sm text-neutral-500">Sektöre bağlı seçenekler listelenir.</p>
+                                            <h3 className="text-lg font-semibold">Üretim grubunuzu ve kullanım alanınızı seçin</h3>
+                                            <p className="text-sm text-neutral-500">Üretim gruplarına tıklayarak ilgili kullanım alanlarına hızlıca geçebilirsiniz.</p>
                                         </div>
-                                        <ScrollArea className="h-full pr-2">
-                                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
+                                        <ScrollArea type="always" scrollHideDelay={0} className="rounded-lg border border-neutral-200/70 px-2 py-2">
+                                            <div className="flex min-w-max items-center gap-2 pb-2">
                                                 {visibleProductionGroups.map((value) => (
                                                     <button
                                                         key={value.id}
                                                         onClick={() => handleSelectProductionGroup(value.slug)}
                                                         className={cn(
-                                                            "rounded-xl border px-4 py-3 text-left text-sm transition",
-                                                            selectedProductionGroupSlug === value.slug
+                                                            "whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition sm:text-sm",
+                                                            (activeProductionGroupSlug ?? selectedProductionGroupSlug) === value.slug
                                                                 ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)]"
-                                                                : "border-neutral-200 hover:border-neutral-300"
+                                                                : "border-neutral-200 hover:border-neutral-300 text-neutral-700"
                                                         )}
                                                     >
                                                         {value.name}
@@ -362,49 +437,83 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                 ))}
                                             </div>
                                         </ScrollArea>
-                                    </motion.div>
-                                )}
 
-                                {step === 3 && (
-                                    <motion.div
-                                        key="usage"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        className="flex h-full flex-col gap-4"
-                                    >
-                                        <div>
-                                            <h3 className="text-lg font-semibold">Kullanım alanlarını seçin</h3>
-                                            <p className="text-sm text-neutral-500">Birden fazla seçim yapabilirsiniz.</p>
+                                        <div className="relative">
+                                            <input
+                                                value={query}
+                                                onChange={(e) => setQuery(e.target.value)}
+                                                placeholder="Kullanım alanı ara..."
+                                                className="h-10 w-full rounded-xl border border-neutral-200 px-3 text-sm outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
+                                            />
                                         </div>
 
-                                        <Command className="rounded-xl border">
-                                            <CommandInput
-                                                value={query}
-                                                onValueChange={setQuery}
-                                                placeholder="Kullanım alanı ara..."
-                                            />
-                                            <CommandList>
-                                                <CommandEmpty>Sonuç bulunamadı.</CommandEmpty>
-                                                <CommandGroup>
-                                                    <ScrollArea className="h-[280px]">
-                                                        {filteredUsageAreas.map((value) => {
-                                                            const checked = selectedUsageAreaSlugs.includes(value.slug)
-                                                            return (
-                                                                <CommandItem
-                                                                    key={value.id}
-                                                                    onSelect={() => toggleUsageArea(value.slug)}
-                                                                    className="flex items-center justify-between"
-                                                                >
-                                                                    <span className="text-sm">{value.name}</span>
-                                                                    <Checkbox checked={checked} />
-                                                                </CommandItem>
-                                                            )
-                                                        })}
-                                                    </ScrollArea>
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
+                                        <div
+                                            ref={usageScrollRef}
+                                            className="h-[320px] overflow-y-auto rounded-xl border border-neutral-200"
+                                        >
+                                            <div className="space-y-5 p-3">
+                                                    {visibleProductionGroups.map((group) => {
+                                                        const usageValues = usageAreasByProductionGroup.get(group.slug) ?? []
+                                                        if (usageValues.length === 0) return null
+
+                                                        return (
+                                                            <div
+                                                                key={group.id}
+                                                                ref={(el) => {
+                                                                    productionSectionRefs.current[group.slug] = el
+                                                                }}
+                                                                className="space-y-2 scroll-mt-2"
+                                                            >
+                                                                <h4 className="text-sm font-semibold text-neutral-700">{group.name}</h4>
+                                                                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+                                                                    {usageValues.map((value) => {
+                                                                        const checked = selectedUsageAreaSlugs.includes(value.slug)
+                                                                        return (
+                                                                            <button
+                                                                                key={value.id}
+                                                                                type="button"
+                                                                                onClick={() => toggleUsageArea(value.slug)}
+                                                                                className={cn(
+                                                                                    "group overflow-hidden rounded-xl border text-left transition",
+                                                                                    checked
+                                                                                        ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)]"
+                                                                                        : "border-neutral-200 hover:border-neutral-300"
+                                                                                )}
+                                                                            >
+                                                                                <div className="relative aspect-square w-full bg-neutral-100">
+                                                                                    {getValueImageUrl(value) ? (
+                                                                                        <Image
+                                                                                            src={getValueImageUrl(value)!}
+                                                                                            alt={value.name}
+                                                                                            fill
+                                                                                            loading="lazy"
+                                                                                            sizes="(max-width: 768px) 36vw, (max-width: 1200px) 18vw, 12vw"
+                                                                                            className="object-contain p-1 transition duration-300 group-hover:scale-105"
+                                                                                        />
+                                                                                    ) : (
+                                                                                        <div className="flex h-full w-full items-center justify-center text-[11px] text-neutral-500">
+                                                                                            Görsel yok
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="flex items-center justify-between px-2 py-1.5">
+                                                                                    <p className="line-clamp-2 text-[11px] font-medium leading-4">{value.name}</p>
+                                                                                    {checked && <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--color-brand)]" />}
+                                                                                </div>
+                                                                            </button>
+                                                                        )
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                    {totalFilteredUsageAreaCount === 0 && (
+                                                        <p className="px-1 py-6 text-center text-sm text-neutral-500">
+                                                            Sonuç bulunamadı.
+                                                        </p>
+                                                    )}
+                                            </div>
+                                        </div>
 
                                         {selectedUsageAreaSlugs.length > 0 && (
                                             <div className="flex flex-wrap gap-2">
@@ -430,7 +539,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                     Geri
                                 </Button>
 
-                                {step < 3 ? (
+                                {step < 2 ? (
                                     <Button
                                         onClick={goNext}
                                         disabled={!canContinue}

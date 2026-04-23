@@ -39,6 +39,8 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
             variantSuppliers: variant.variantSuppliers.map(vs => ({
                 id: vs.id,
                 isActive: vs.isActive,
+                price: vs.price,
+                currency: vs.currency,
                 supplier: {
                     id: vs.supplier.id,
                     name: vs.supplier.name,

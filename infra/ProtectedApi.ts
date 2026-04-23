@@ -1,10 +1,19 @@
 import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
+import { publicBucket } from "./storage";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
 export const protectedApi = new sst.aws.ApiGatewayV2("CeyhunlarProtectedApi", {
+    transform: {
+        stage: (args) => {
+            args.defaultRouteSettings = {
+                throttlingRateLimit: 100,
+                throttlingBurstLimit: 200,
+            };
+        }
+    },
     domain:
         $app.stage === "prod"
             ? {
@@ -45,7 +54,16 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     ] */
     runtime: 'nodejs22.x',
     vpc: vpc,
-    link: [rds],
+    link: [rds, userPool, publicBucket],
+    environment: {
+        BUCKET_NAME: publicBucket.name,
+        ASSET_PUBLIC_BASE_URL:
+            $app.stage === "prod"
+                ? `https://cdn.${config.DOMAIN}`
+                : $app.stage === "dev"
+                    ? `https://dev.${config.DOMAIN}`
+                    : $interpolate`https://${publicBucket.name}.s3.amazonaws.com`
+    }
 }
 
 // 🔁 reusable auth config
@@ -98,5 +116,17 @@ protectedApi.route('POST /colors', {
 
 protectedApi.route('PATCH /colors/{id}', {
     handler: `${folderPrefix}/colors/actions.updateColor`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+/*----------------------- SUPPLIER VARIANT PRICES -----------------------*/
+
+protectedApi.route('GET /supplier/variant-prices', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.listSupplierVariantPrices`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /supplier/variant-prices/{id}', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.updateSupplierVariantPrice`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });

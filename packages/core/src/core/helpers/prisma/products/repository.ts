@@ -327,18 +327,38 @@ export const productRepository = (): IPrismaProductRepository => {
         let total = 0
 
         if (sortByCode) {
-            const all = await prisma.product.findMany({
+            // Natural code sort için önce hafif payload (id+code) çek, sonra sadece sayfalı veriyi include ile al.
+            const allCodes = await prisma.product.findMany({
                 where: finalWhere,
-                include: baseInclude,
+                select: {
+                    id: true,
+                    code: true,
+                },
             })
 
-            all.sort((left, right) => {
+            allCodes.sort((left, right) => {
                 const cmp = naturalCodeCompare(left.code, right.code)
                 return sortDirection === "desc" ? -cmp : cmp
             })
 
-            total = all.length
-            data = all.slice(skip, skip + take)
+            total = allCodes.length
+
+            const pagedIds = allCodes.slice(skip, skip + take).map((item) => item.id)
+            if (pagedIds.length === 0) {
+                data = []
+            } else {
+                const pagedData = await prisma.product.findMany({
+                    where: { id: { in: pagedIds } },
+                    include: baseInclude,
+                })
+
+                const orderMap = new Map(pagedIds.map((id, index) => [id, index]))
+                data = pagedData.sort(
+                    (left, right) =>
+                        (orderMap.get(left.id) ?? Number.MAX_SAFE_INTEGER) -
+                        (orderMap.get(right.id) ?? Number.MAX_SAFE_INTEGER)
+                )
+            }
         } else {
             const [pagedData, counted] = await Promise.all([
                 prisma.product.findMany({

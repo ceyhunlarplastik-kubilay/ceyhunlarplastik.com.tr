@@ -3,6 +3,8 @@ import Image from "next/image"
 
 import { PageHero } from "@/components/sections/PageHero"
 import ProductVariantDetailsTable from "@/features/public/products/components/ProductVariantDetailsTable"
+import ProductVariantHeaderActions from "@/features/public/products/components/ProductVariantHeaderActions"
+import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
 import { buildMeasurementKey } from "@/features/public/products/utils/measurement"
@@ -32,6 +34,10 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
         filtered[0]?.measurements
             ?.slice()
             .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder) ?? []
+    const selectedVariant = filtered[0]
+    const resolvedVariantKey =
+        measurementKey ??
+        (selectedVariant ? buildMeasurementKey(selectedVariant.measurements) : "all")
 
     const primaryAsset = product.assets?.find((asset) => asset?.role === "PRIMARY")
 
@@ -48,16 +54,16 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
                 ]}
             />
 
-            <section className="mx-auto max-w-7xl px-6 py-12 space-y-6">
-                <div className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-5 md:grid-cols-[220px_1fr]">
-                    <div className="relative aspect-square overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+            <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 space-y-6">
+                <div className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 lg:grid-cols-2 lg:gap-8">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm">
                         {primaryAsset?.url ? (
                             <Image
                                 src={primaryAsset.url}
                                 alt={product.name}
                                 fill
                                 className="object-contain"
-                                sizes="(min-width: 768px) 220px, 100vw"
+                                sizes="(min-width: 1024px) 50vw, 100vw"
                             />
                         ) : (
                             <div className="flex h-full items-center justify-center text-sm text-neutral-400">
@@ -66,18 +72,30 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
                         )}
                     </div>
 
-                    <div className="space-y-2">
-                        <h2 className="text-xl font-semibold text-neutral-900">{product.name}</h2>
-                        <p className="text-sm text-neutral-500">Katalog Kodu: {product.code}</p>
+                    <div className="flex flex-col justify-center space-y-4">
+                        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">{product.name}</h2>
+                        <p className="text-sm text-neutral-500">Ürün Kodu: {product.code}</p>
                         {product.description && (
-                            <p className="text-sm leading-6 text-neutral-700">{product.description}</p>
+                            <p className="text-sm leading-7 text-neutral-700">{product.description}</p>
                         )}
+                        <ProductVariantHeaderActions
+                            productId={product.id}
+                            productSlug={product.slug}
+                            productName={product.name}
+                            productCode={product.code}
+                            variantKey={resolvedVariantKey}
+                            variantId={selectedVariant?.id}
+                            variantFullCode={selectedVariant?.fullCode}
+                        />
                     </div>
                 </div>
 
                 <ProductVariantDetailsTable
                     variants={filtered}
                     selectedMeasurements={selectedMeasurements}
+                    technicalDrawing={<ProductTechnicalDrawingSection product={product} compact />}
+                    productName={product.name}
+                    categoryName={product.category?.name}
                 />
             </section>
         </main>

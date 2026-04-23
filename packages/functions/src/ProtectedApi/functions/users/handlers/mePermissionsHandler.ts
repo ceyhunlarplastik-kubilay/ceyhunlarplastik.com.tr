@@ -23,6 +23,7 @@ export const mePermissionsHandler =
                 flags: {
                     isOwner: user.isOwner,
                     isAdmin: user.isAdmin,
+                    isSupplier: user.isSupplier,
                     isUser: user.groups.includes("user"),
                 },
 
@@ -30,6 +31,7 @@ export const mePermissionsHandler =
                     manageUsers: user.isOwner || user.isAdmin,
                     viewUsers: user.groups.length > 0,
                     accessAdminPanel: user.isOwner || user.isAdmin,
+                    accessSupplierPanel: user.isSupplier,
                     accessProtectedApi: true,
                 },
             };

@@ -165,10 +165,10 @@ export function Footer() {
 
                             <li className="pt-1 text-center lg:text-left">
                                 <Link
-                                    href="/urunler"
+                                    href="/urunler/filtre"
                                     className="text-white/50 hover:text-white transition"
                                 >
-                                    Tüm Ürünler
+                                    Sektörel Ürünler
                                 </Link>
                             </li>
                         </ul>

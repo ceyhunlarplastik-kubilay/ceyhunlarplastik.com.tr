@@ -1,10 +1,11 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Trash2, Plus, Pencil, Check, X } from "lucide-react"
+import { Trash2, Plus, Pencil, Check, X, UploadCloud, Loader2 } from "lucide-react"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
@@ -25,6 +26,14 @@ type Value = {
         id: string
         name: string
     } | null
+    assets?: {
+        id: string
+        key: string
+        mimeType: string
+        type: string
+        role: string
+        url: string
+    }[]
 }
 
 type AttributeWithValues = {
@@ -61,6 +70,7 @@ export function ProductAttributeValuesManager({ attributeId, attributeCode }: Pr
     const [editingName, setEditingName] = useState("")
     const [editingParentValueId, setEditingParentValueId] = useState<string>("")
     const [selectedSectorValueId, setSelectedSectorValueId] = useState<string | null>(null)
+    const [uploadingValueId, setUploadingValueId] = useState<string | null>(null)
     const parentAttributeCode = getParentAttributeCode(attributeCode)
 
     // 🔥 LIST
@@ -158,6 +168,70 @@ export function ProductAttributeValuesManager({ attributeId, attributeCode }: Pr
             })
         }
     })
+
+    const uploadAssetMutation = useMutation({
+        mutationFn: async ({ valueId, file }: { valueId: string, file: File }) => {
+            const value = data?.find((item) => item.id === valueId)
+            const existingAssets = value?.assets ?? []
+
+            if (existingAssets.length > 0) {
+                await Promise.all(existingAssets.map((asset) => adminApiClient.delete(`/assets/${asset.id}`)))
+            }
+
+            const presignRes = await adminApiClient.post("/product-attribute-values/assets/presign", {
+                productAttributeValueId: valueId,
+                assetRole: "PRIMARY",
+                fileName: file.name,
+                contentType: file.type || "image/jpeg",
+            })
+
+            const { uploadUrl, key } = presignRes.data.payload
+
+            await fetch(uploadUrl, {
+                method: "PUT",
+                headers: { "Content-Type": file.type || "image/jpeg" },
+                body: file,
+            })
+
+            await adminApiClient.put(`/product-attribute-values/${valueId}`, {
+                assetType: "IMAGE",
+                assetRole: "PRIMARY",
+                assetKey: key,
+                mimeType: file.type || "image/jpeg",
+            })
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["attribute-values", attributeId]
+            })
+            queryClient.invalidateQueries({
+                queryKey: ["product-attributes-filter"]
+            })
+        },
+        onSettled: () => {
+            setUploadingValueId(null)
+        }
+    })
+
+    const deleteAssetMutation = useMutation({
+        mutationFn: async (assetId: string) => {
+            await adminApiClient.delete(`/assets/${assetId}`)
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["attribute-values", attributeId]
+            })
+            queryClient.invalidateQueries({
+                queryKey: ["product-attributes-filter"]
+            })
+        }
+    })
+
+    const handleSelectAssetFile = (valueId: string, file?: File | null) => {
+        if (!file) return
+        setUploadingValueId(valueId)
+        uploadAssetMutation.mutate({ valueId, file })
+    }
 
     function handleCreate() {
         if (!newValue.trim()) return
@@ -289,6 +363,54 @@ export function ProductAttributeValuesManager({ attributeId, attributeCode }: Pr
                                             Bağlı: {val.parentValue.name}
                                         </p>
                                     )}
+                                    <div className="mt-2 flex items-center gap-2">
+                                        <div className="relative h-14 w-20 overflow-hidden rounded-md border bg-neutral-100">
+                                            {val.assets?.[0]?.url ? (
+                                                <Image
+                                                    src={val.assets[0].url}
+                                                    alt={`${val.name} görseli`}
+                                                    fill
+                                                    loading="lazy"
+                                                    sizes="80px"
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center text-[10px] text-neutral-500">
+                                                    Görsel yok
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <label className="cursor-pointer">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(event) => handleSelectAssetFile(val.id, event.target.files?.[0])}
+                                            />
+                                            <span className="inline-flex h-8 items-center gap-1 rounded-md border px-2 text-xs hover:bg-neutral-50">
+                                                {uploadingValueId === val.id && uploadAssetMutation.isPending ? (
+                                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                ) : (
+                                                    <UploadCloud className="h-3.5 w-3.5" />
+                                                )}
+                                                Görsel Yükle
+                                            </span>
+                                        </label>
+
+                                        {val.assets?.[0]?.id && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="h-8 px-2 text-xs"
+                                                onClick={() => deleteAssetMutation.mutate(val.assets![0].id)}
+                                                disabled={deleteAssetMutation.isPending}
+                                            >
+                                                <Trash2 className="mr-1 h-3.5 w-3.5" />
+                                                Sil
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center gap-1">

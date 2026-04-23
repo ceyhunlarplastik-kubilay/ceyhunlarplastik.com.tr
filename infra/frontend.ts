@@ -4,6 +4,7 @@ import { publicBucket } from "./storage";
 import { appRouter } from "./router";
 import { publicApi } from "./PublicApi";
 import { adminApi } from "./AdminApi";
+import { protectedApi } from "./ProtectedApi";
 
 export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
@@ -39,6 +40,7 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
         : `ceyhunlar-${$app.stage}.auth.${config.AWS_REGION}.amazoncognito.com`,
     NEXT_PUBLIC_API_URL: publicApi.url,
     NEXT_PUBLIC_ADMIN_API_URL: adminApi.url,
+    NEXT_PUBLIC_PROTECTED_API_URL: protectedApi.url,
     NEXT_PUBLIC_BUCKET_NAME: publicBucket.name,
     // ✅ presign helper public url üretmek için
     // ÖRN: ASSET_PUBLIC_BASE_URL: publicBucket.cdnUrl,

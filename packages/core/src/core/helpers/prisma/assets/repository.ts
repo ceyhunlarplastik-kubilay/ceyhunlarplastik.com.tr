@@ -23,6 +23,7 @@ export interface IPrismaAssetRepository {
     deleteCategoryAssetsByType(categoryId: string, type: AssetType): Promise<Prisma.BatchPayload>
     unsetCategoryPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
     unsetProductPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
+    unsetProductAttributeValuePrimaryAssets(productAttributeValueId: string): Promise<Prisma.BatchPayload>
 }
 
 export const assetRepository = (): IPrismaAssetRepository => {
@@ -51,6 +52,7 @@ export const assetRepository = (): IPrismaAssetRepository => {
                     category: true,
                     product: true,
                     variant: true,
+                    productAttributeValue: true,
                 }
             }),
             prisma.asset.count({ where }),
@@ -71,6 +73,7 @@ export const assetRepository = (): IPrismaAssetRepository => {
                 category: true,
                 product: true,
                 variant: true,
+                productAttributeValue: true,
             }
         })
 
@@ -128,6 +131,18 @@ export const assetRepository = (): IPrismaAssetRepository => {
         })
     }
 
+    const unsetProductAttributeValuePrimaryAssets = async (productAttributeValueId: string) => {
+        return prisma.asset.updateMany({
+            where: {
+                productAttributeValueId,
+                role: "PRIMARY",
+            },
+            data: {
+                role: "GALLERY",
+            },
+        })
+    }
+
     return {
         listAssets,
         getAsset,
@@ -137,6 +152,7 @@ export const assetRepository = (): IPrismaAssetRepository => {
         deleteAsset,
         deleteCategoryAssetsByType,
         unsetCategoryPrimaryAssets,
-        unsetProductPrimaryAssets
+        unsetProductPrimaryAssets,
+        unsetProductAttributeValuePrimaryAssets,
     }
 }

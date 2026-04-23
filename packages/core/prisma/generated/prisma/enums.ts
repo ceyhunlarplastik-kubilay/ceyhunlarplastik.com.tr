@@ -19,6 +19,16 @@ export const ColorSystem = {
 export type ColorSystem = (typeof ColorSystem)[keyof typeof ColorSystem]
 
 
+export const WebRequestStatus = {
+  NEW: 'NEW',
+  CONTACTED: 'CONTACTED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  CLOSED: 'CLOSED'
+} as const
+
+export type WebRequestStatus = (typeof WebRequestStatus)[keyof typeof WebRequestStatus]
+
+
 export const MeasurementCode = {
   D: 'D',
   D1: 'D1',

@@ -6,7 +6,7 @@ import { IProductVariantSupplierDependencies, IUpdateProductVariantSupplierEvent
 export const updateProductVariantSupplierHandler = ({ productVariantSupplierRepository, productVariantRepository, supplierRepository }: IProductVariantSupplierDependencies) => {
     return async (event: IUpdateProductVariantSupplierEvent) => {
         const { id } = event.pathParameters;
-        const { variantId, supplierId, isActive } = event.body;
+        const { variantId, supplierId, isActive, price, currency } = event.body;
 
         try {
             const existing = await productVariantSupplierRepository.getProductVariantSupplier(id);
@@ -25,6 +25,8 @@ export const updateProductVariantSupplierHandler = ({ productVariantSupplierRepo
                 ...(variantId && { variant: { connect: { id: variantId } } }),
                 ...(supplierId && { supplier: { connect: { id: supplierId } } }),
                 ...(isActive !== undefined && { isActive }),
+                ...(price !== undefined && { price }),
+                ...(currency && { currency: currency.toUpperCase() }),
             })
 
             return apiResponseDTO({

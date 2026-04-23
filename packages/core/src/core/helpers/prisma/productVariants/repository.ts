@@ -131,10 +131,30 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
     const getProductVariantTableData = async (productId: string) => {
         return prisma.productVariant.findMany({
             where: { productId },
+            orderBy: [
+                { supplierCode: "asc" },
+                { versionCode: "asc" },
+                { variantIndex: "asc" },
+            ],
             include: {
                 color: true,
                 materials: true,
+                variantSuppliers: {
+                    include: {
+                        supplier: true,
+                    },
+                    orderBy: [
+                        { isActive: "desc" },
+                        { supplier: { name: "asc" } },
+                    ],
+                },
                 measurements: {
+                    orderBy: [
+                        { measurementType: { displayOrder: "asc" } },
+                        { measurementType: { code: "asc" } },
+                        { value: "asc" },
+                        { label: "asc" },
+                    ],
                     include: {
                         measurementType: true
                     }

@@ -5,7 +5,7 @@ import { IProductVariantSupplierDependencies, ICreateProductVariantSupplierEvent
 
 export const createProductVariantSupplierHandler = ({ productVariantSupplierRepository, productVariantRepository, supplierRepository }: IProductVariantSupplierDependencies) => {
     return async (event: ICreateProductVariantSupplierEvent) => {
-        const { variantId, supplierId, isActive } = event.body;
+        const { variantId, supplierId, isActive, price, currency } = event.body;
 
         try {
             const variant = await productVariantRepository.getProductVariant(variantId)
@@ -17,7 +17,9 @@ export const createProductVariantSupplierHandler = ({ productVariantSupplierRepo
             const created = await productVariantSupplierRepository.createProductVariantSupplier({
                 variant: { connect: { id: variantId } },
                 supplier: { connect: { id: supplierId } },
-                isActive: isActive ?? false
+                isActive: isActive ?? false,
+                ...(price !== undefined && { price }),
+                ...(currency && { currency: currency.toUpperCase() }),
             })
 
             return apiResponseDTO({

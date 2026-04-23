@@ -23,6 +23,8 @@ model User {
   email      String   @unique
   identifier String
   groups     String[]
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
   isActive   Boolean  @default(true)
 
   createdAt DateTime @default(now())
@@ -136,6 +138,10 @@ model ProductAttributeValue {
 
   // 🔥 MANY TO MANY
   products Product[]
+  assets   Asset[]
+  customerSectors          Customer[] @relation("CustomerSector")
+  customerProductionGroups Customer[] @relation("CustomerProductionGroup")
+  customerUsageAreas       Customer[] @relation("CustomerUsageAreas")
 
   displayOrder Int     @default(0)
   isActive     Boolean @default(true)
@@ -146,6 +152,57 @@ model ProductAttributeValue {
   @@unique([attributeId, name])
   @@index([attributeId])
   @@index([parentValueId])
+}
+
+model Customer {
+  id String @id @default(uuid())
+
+  companyName String?
+  fullName    String
+  phone       String
+  email       String
+  note        String? @db.Text
+
+  sectorValueId String?
+  sectorValue   ProductAttributeValue? @relation("CustomerSector", fields: [sectorValueId], references: [id], onDelete: SetNull)
+
+  productionGroupValueId String?
+  productionGroupValue   ProductAttributeValue? @relation("CustomerProductionGroup", fields: [productionGroupValueId], references: [id], onDelete: SetNull)
+
+  usageAreaValues ProductAttributeValue[] @relation("CustomerUsageAreas")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([sectorValueId])
+  @@index([productionGroupValueId])
+}
+
+model WebRequest {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name    String
+  email   String
+  phone   String?
+  message String? @db.Text
+
+  // B2B inquiry sepet snapshot (productId, variant info, quantity...)
+  items Json
+
+  status WebRequestStatus @default(NEW)
+
+  @@index([email])
+  @@index([status, createdAt])
+}
+
+enum WebRequestStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  CLOSED
 }
 
 ///////////////////////////////////////////////////////
@@ -252,6 +309,7 @@ model Supplier {
   isActive Boolean @default(true)
 
   variantSuppliers ProductVariantSupplier[]
+  users            User[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -269,6 +327,8 @@ model ProductVariantSupplier {
   supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
   isActive Boolean @default(false)
+  price    Decimal @default(0) @db.Decimal(10, 2)
+  currency String  @default("TRY")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -330,10 +390,14 @@ model Asset {
   variantId String?
   variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
+  productAttributeValueId String?
+  productAttributeValue   ProductAttributeValue? @relation(fields: [productAttributeValueId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([categoryId])
   @@index([productId])
   @@index([variantId])
+  @@index([productAttributeValueId])
 }

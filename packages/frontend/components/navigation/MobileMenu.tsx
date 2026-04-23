@@ -1,14 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { categoryItems } from "@/constants/products";
+import type { Category } from "@/features/public/categories/types";
+import type { ProductAttribute } from "@/features/public/productAttributes/types";
+import CustomerLeadDialog from "@/components/home/CustomerLeadDialog";
+import { InquiryCartNavItem } from "@/components/navigation/InquiryCartNavItem";
+import { serviceItems } from "@/constants/services";
 
 export const MobileMenu = ({
     setMobileOpen,
     mobileOpen,
+    categories = [],
+    attributes = [],
 }: {
     setMobileOpen: (open: boolean) => void;
     mobileOpen: boolean;
+    categories?: Category[];
+    attributes?: ProductAttribute[];
 }) => {
     return (
         <div
@@ -65,7 +73,7 @@ export const MobileMenu = ({
 
                     <details className="menu-item-ios group border-b border-gray-100">
                         <summary className="cursor-pointer py-3 flex justify-between items-center list-none">
-                            Ürünler
+                            Kategoriler
                             <svg
                                 className="w-4 h-4 transition-transform group-open:rotate-180"
                                 fill="none"
@@ -81,18 +89,26 @@ export const MobileMenu = ({
                             </svg>
                         </summary>
                         <div className="ml-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
-                            {categoryItems.map((c) => (
+                            {categories.map((category) => (
                                 <Link
-                                    key={c.title}
+                                    key={category.id}
                                     className="menu-subitem-ios py-1 block"
-                                    href={c.href}
+                                    href={`/urun-kategori/${category.slug}`}
                                     onClick={() => setMobileOpen(false)}
                                 >
-                                    {c.title}
+                                    {category.name}
                                 </Link>
                             ))}
                         </div>
                     </details>
+
+                    <Link
+                        className="menu-item-ios py-2 border-b border-gray-100"
+                        href="/urunler/filtre"
+                        onClick={() => setMobileOpen(false)}
+                    >
+                        Sektörel Ürünler
+                    </Link>
 
                     <details className="menu-item-ios group border-b border-gray-100">
                         <summary className="cursor-pointer py-3 flex justify-between items-center list-none">
@@ -112,64 +128,26 @@ export const MobileMenu = ({
                             </svg>
                         </summary>
                         <div className="ml-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
-                            <Link
-                                href="#"
-                                className="py-1 block"
-                                onClick={() => setMobileOpen(false)}
-                            >
-                                Özel Tasarım
-                            </Link>
-                            <Link
-                                href="#"
-                                className="py-1 block"
-                                onClick={() => setMobileOpen(false)}
-                            >
-                                Lojistik
-                            </Link>
-                            <Link
-                                href="#"
-                                className="py-1 block"
-                                onClick={() => setMobileOpen(false)}
-                            >
-                                Danışmanlık
-                            </Link>
+                            {serviceItems.map((item) => (
+                                <Link
+                                    key={item.title}
+                                    href={item.href}
+                                    className="py-1 block"
+                                    onClick={() => setMobileOpen(false)}
+                                >
+                                    {item.title}
+                                </Link>
+                            ))}
                         </div>
                     </details>
 
-                    <details className="menu-item-ios group border-b border-gray-100">
-                        <summary className="cursor-pointer py-3 flex justify-between items-center list-none">
-                            Kaynaklar
-                            <svg
-                                className="w-4 h-4 transition-transform group-open:rotate-180"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 9l-7 7-7-7"
-                                />
-                            </svg>
-                        </summary>
-                        <div className="ml-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
-                            <Link
-                                href="/katalog"
-                                className="py-1 block"
-                                onClick={() => setMobileOpen(false)}
-                            >
-                                Ürün Kataloğu
-                            </Link>
-                            <Link
-                                href="/dokumanlar"
-                                className="py-1 block"
-                                onClick={() => setMobileOpen(false)}
-                            >
-                                Teknik Dökümanlar
-                            </Link>
-                        </div>
-                    </details>
+                    <Link
+                        className="menu-item-ios py-2 border-b border-gray-100"
+                        href="/kataloglar"
+                        onClick={() => setMobileOpen(false)}
+                    >
+                        Kataloglar
+                    </Link>
 
                     <Link
                         className="menu-item-ios py-2 border-b border-gray-100"
@@ -178,6 +156,17 @@ export const MobileMenu = ({
                     >
                         İletişim
                     </Link>
+
+                    <div className="pt-4">
+                        <InquiryCartNavItem className="w-full justify-center" />
+                    </div>
+
+                    <div className="pt-2">
+                        <CustomerLeadDialog
+                            attributes={attributes}
+                            buttonClassName="w-full justify-center"
+                        />
+                    </div>
                 </nav>
             </div>
         </div>

@@ -55,8 +55,11 @@ export default async function ProductPage({ params }: PageProps) {
 
     if (!product) notFound()
 
-    const variants = await getProductVariantTable(product.id)
-    const productsByCategory = await getProductsByCategory(product.categoryId, "id")
+    const [variants, productsByCategory] = await Promise.all([
+        getProductVariantTable(product.id),
+        getProductsByCategory(product.categoryId, "id"),
+    ])
+
     const similarProducts = productsByCategory
         .filter((item) => item.id !== product.id)
         .slice(0, 12)
@@ -75,7 +78,7 @@ export default async function ProductPage({ params }: PageProps) {
                 ]}
             />
 
-            <section className="mx-auto max-w-7xl px-6 py-6">
+            <section className="mx-auto w-full max-w-[96rem] px-4 py-5 lg:px-5">
 
                 {/* PRODUCT HERO */}
                 <div id="product-hero">
@@ -89,15 +92,21 @@ export default async function ProductPage({ params }: PageProps) {
 
             </section>
 
-            <section className="mx-auto max-w-7xl px-6 pb-24">
+            <section className="mx-auto w-full max-w-[96rem] px-4 pb-20 lg:px-5">
 
                 <div id="product-variants">
-                    <ProductVariantTable variants={variants} productSlug={product.slug} />
+                    <ProductVariantTable
+                        variants={variants}
+                        productSlug={product.slug}
+                        productId={product.id}
+                        technicalDrawing={
+                            <div id="product-technical-drawing">
+                                <ProductTechnicalDrawingSection product={product} compact />
+                            </div>
+                        }
+                    />
                 </div>
                 <ProductUsageAreasTable product={product} />
-                <div id="product-technical-drawing">
-                    <ProductTechnicalDrawingSection product={product} />
-                </div>
                 <div id="product-3d-model">
                     <Product3DModelSection product={product} />
                 </div>

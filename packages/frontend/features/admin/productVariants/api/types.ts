@@ -14,6 +14,8 @@ export type VariantMeasurement = {
 export type VariantSupplier = {
     id: string
     isActive: boolean
+    price?: number | string | { s?: number; e?: number; d?: number[] }
+    currency?: string
     supplier: {
         id: string
         name: string
@@ -110,7 +112,12 @@ export type UpsertVariantInput = {
     variantIndex: number
     colorId?: string
     materialIds: string[]
-    suppliers: Array<{ id: string; isActive?: boolean }>
+    suppliers: Array<{
+        id: string
+        isActive?: boolean
+        price?: number
+        currency?: string
+    }>
     measurements: Array<{
         measurementTypeId: string
         value: number

@@ -12,9 +12,10 @@ const ATTRIBUTE_CODES = {
 export const createProductAttributeValueHandler = ({
     productAttributeValueRepository,
     productAttributeRepository,
+    assetRepository,
 }: IProductAttributeValueDependencies) => {
     return async (event: ICreateProductAttributeValueEvent) => {
-        const { name, attributeId, displayOrder, parentValueId } = event.body
+        const { name, attributeId, displayOrder, parentValueId, assetType, assetRole, assetKey, mimeType } = event.body
 
         try {
             const attribute = await productAttributeRepository.getProductAttribute(attributeId)
@@ -59,6 +60,20 @@ export const createProductAttributeValueHandler = ({
                     }
                 }),
             })
+
+            if (assetType && assetKey && mimeType) {
+                if ((assetRole ?? "PRIMARY") === "PRIMARY") {
+                    await assetRepository.unsetProductAttributeValuePrimaryAssets(value.id)
+                }
+
+                await assetRepository.createAsset({
+                    key: assetKey,
+                    mimeType,
+                    type: assetType,
+                    role: assetRole ?? "PRIMARY",
+                    productAttributeValueId: value.id,
+                } as any)
+            }
 
             return apiResponseDTO({
                 statusCode: 201,

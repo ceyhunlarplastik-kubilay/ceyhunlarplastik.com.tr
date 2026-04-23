@@ -1,20 +1,27 @@
 import { prisma } from "@/core/db/prisma"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
-import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, ProductVariantSupplier } from "@/prisma/generated/prisma/client"
 
 export type ProductVariantSupplierWithRelations = Prisma.ProductVariantSupplierGetPayload<{
     include: {
-        variant: true
+        variant: {
+            include: {
+                product: {
+                    include: {
+                        category: true
+                    }
+                }
+            }
+        }
         supplier: true
     }
 }>
 
 export interface IPrismaProductVariantSupplierRepository {
-    listProductVariantSuppliers(query: IPaginationQuery & { variantId?: string, supplierId?: string }): Promise<{
+    listProductVariantSuppliers(query: IPaginationQuery & { variantId?: string, supplierId?: string, productId?: string, categoryId?: string }): Promise<{
         data: ProductVariantSupplierWithRelations[]
         meta: {
             page: number
@@ -24,14 +31,14 @@ export interface IPrismaProductVariantSupplierRepository {
         }
     }>
     getProductVariantSupplier(id: string): Promise<ProductVariantSupplierWithRelations | null>
-    createProductVariantSupplier(data: Prisma.ProductVariantSupplierCreateInput): Promise<ProductVariantSupplier>
-    updateProductVariantSupplier(id: string, data: Prisma.ProductVariantSupplierUpdateInput): Promise<ProductVariantSupplier>
-    deleteProductVariantSupplier(id: string): Promise<ProductVariantSupplier>
+    createProductVariantSupplier(data: Prisma.ProductVariantSupplierCreateInput): Promise<ProductVariantSupplierWithRelations>
+    updateProductVariantSupplier(id: string, data: Prisma.ProductVariantSupplierUpdateInput): Promise<ProductVariantSupplierWithRelations>
+    deleteProductVariantSupplier(id: string): Promise<ProductVariantSupplierWithRelations>
 }
 
 export const productVariantSupplierRepository = (): IPrismaProductVariantSupplierRepository => {
 
-    const listProductVariantSuppliers = async (query: IPaginationQuery & { variantId?: string, supplierId?: string }) => {
+    const listProductVariantSuppliers = async (query: IPaginationQuery & { variantId?: string, supplierId?: string, productId?: string, categoryId?: string }) => {
         const {
             where,
             orderBy,
@@ -48,6 +55,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             ...where,
             ...(query.variantId && { variantId: query.variantId }),
             ...(query.supplierId && { supplierId: query.supplierId }),
+            ...((query.productId || query.categoryId) && {
+                variant: {
+                    ...(query.productId && { productId: query.productId }),
+                    ...(query.categoryId && { product: { categoryId: query.categoryId } }),
+                },
+            }),
+            ...(query.search && {
+                OR: [
+                    { variant: { name: { contains: query.search, mode: "insensitive" } } },
+                    { variant: { fullCode: { contains: query.search, mode: "insensitive" } } },
+                    { supplier: { name: { contains: query.search, mode: "insensitive" } } },
+                ],
+            }),
         }
 
         const [data, total] = await Promise.all([
@@ -57,7 +77,15 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                 skip,
                 take,
                 include: {
-                    variant: true,
+                    variant: {
+                        include: {
+                            product: {
+                                include: {
+                                    category: true,
+                                },
+                            },
+                        },
+                    },
                     supplier: true,
                 }
             }),
@@ -73,10 +101,18 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
     }
 
     const getProductVariantSupplier = async (id: string) =>
-        prisma.productVariantSupplier.findUniqueOrThrow({
+        prisma.productVariantSupplier.findUnique({
             where: { id },
             include: {
-                variant: true,
+                variant: {
+                    include: {
+                        product: {
+                            include: {
+                                category: true,
+                            },
+                        },
+                    },
+                },
                 supplier: true,
             }
         })
@@ -93,11 +129,39 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                     data: { isActive: false },
                 });
 
-                return tx.productVariantSupplier.create({ data });
+                return tx.productVariantSupplier.create({
+                    data,
+                    include: {
+                        variant: {
+                            include: {
+                                product: {
+                                    include: {
+                                        category: true,
+                                    },
+                                },
+                            },
+                        },
+                        supplier: true,
+                    }
+                });
             });
         }
 
-        return prisma.productVariantSupplier.create({ data })
+        return prisma.productVariantSupplier.create({
+            data,
+            include: {
+                variant: {
+                    include: {
+                        product: {
+                            include: {
+                                category: true,
+                            },
+                        },
+                    },
+                },
+                supplier: true,
+            }
+        })
     }
 
     const updateProductVariantSupplier = async (id: string, data: Prisma.ProductVariantSupplierUpdateInput) => {
@@ -120,7 +184,15 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                         data,
                         include: {
                             supplier: true,
-                            variant: true,
+                            variant: {
+                                include: {
+                                    product: {
+                                        include: {
+                                            category: true,
+                                        },
+                                    },
+                                },
+                            },
                         }
                     });
                 });
@@ -132,7 +204,15 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             data,
             include: {
                 supplier: true,
-                variant: true,
+                variant: {
+                    include: {
+                        product: {
+                            include: {
+                                category: true,
+                            },
+                        },
+                    },
+                },
             }
         })
     }
@@ -140,6 +220,18 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
     const deleteProductVariantSupplier = async (id: string) =>
         prisma.productVariantSupplier.delete({
             where: { id },
+            include: {
+                variant: {
+                    include: {
+                        product: {
+                            include: {
+                                category: true,
+                            },
+                        },
+                    },
+                },
+                supplier: true,
+            }
         })
 
     return {

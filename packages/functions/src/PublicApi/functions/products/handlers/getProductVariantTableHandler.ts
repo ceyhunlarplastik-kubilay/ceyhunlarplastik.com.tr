@@ -3,6 +3,26 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { IProductVariantTableDependencies, IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
 
+const sortMeasurements = (
+    measurements: Array<{
+        measurementType: { displayOrder: number; code: string }
+        value: number
+        label?: string
+    }>
+) =>
+    [...measurements].sort((left, right) => {
+        const displayOrderDiff =
+            (left.measurementType.displayOrder ?? Number.MAX_SAFE_INTEGER) -
+            (right.measurementType.displayOrder ?? Number.MAX_SAFE_INTEGER)
+        if (displayOrderDiff !== 0) return displayOrderDiff
+
+        const codeDiff = left.measurementType.code.localeCompare(right.measurementType.code)
+        if (codeDiff !== 0) return codeDiff
+
+        if (left.value !== right.value) return left.value - right.value
+        return (left.label ?? "").localeCompare(right.label ?? "")
+    })
+
 export const getProductVariantTableHandler = ({ productVariantRepository }: IProductVariantTableDependencies) => {
     return async (event: IGetProductVariantTableEvent) => {
         const productId = event.pathParameters?.id

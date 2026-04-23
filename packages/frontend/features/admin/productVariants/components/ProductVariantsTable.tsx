@@ -24,6 +24,31 @@ type Props = {
     onDelete: (variant: ProductVariant) => void
 }
 
+function parseDecimalLikeToNumber(
+    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
+) {
+    if (value === null || value === undefined) return null
+    if (typeof value === "number") return Number.isFinite(value) ? value : null
+    if (typeof value === "string") {
+        const parsed = Number(value)
+        return Number.isFinite(parsed) ? parsed : null
+    }
+    const sign = value.s === -1 ? "-" : ""
+    const digits = Array.isArray(value.d) ? value.d.join("") : ""
+    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
+    if (!digits) return null
+    let decimalText = ""
+    if (exponent >= digits.length - 1) {
+        decimalText = `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
+    } else if (exponent < 0) {
+        decimalText = `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
+    } else {
+        decimalText = `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
+    }
+    const parsed = Number(decimalText)
+    return Number.isFinite(parsed) ? parsed : null
+}
+
 export function ProductVariantsTable({
     variants,
     deletingId,
@@ -143,6 +168,11 @@ export function ProductVariantsTable({
                                                         }`}
                                                 >
                                                     {variantSupplier.supplier.name}
+                                                    {(variantSupplier.price !== undefined && variantSupplier.price !== null) && (
+                                                        <span className="ml-1 text-[10px]">
+                                                            {(parseDecimalLikeToNumber(variantSupplier.price) ?? 0).toFixed(2)} {variantSupplier.currency ?? "TRY"}
+                                                        </span>
+                                                    )}
                                                     {variantSupplier.isActive && <span className="ml-1 text-[10px]">✓</span>}
                                                 </span>
                                             ))

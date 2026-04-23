@@ -4,7 +4,7 @@ import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 /* export const addUserToGroupValidator = validatorWrapper(
     z.object({
         body: z.object({
-            group: z.enum(["owner", "admin", "user"]),
+            group: z.enum(["owner", "admin", "user", "supplier"]),
         }),
     }),
     {
@@ -24,9 +24,12 @@ export const listUsersResponseValidator = z.toJSONSchema(
                         id: z.uuid(),
                         email: z.string(),
                         identifier: z.string(),
+                        groups: z.array(z.string()),
+                        supplierId: z.uuid().nullable().optional(),
+                        isActive: z.boolean(),
                         createdAt: z.string(),
                         updatedAt: z.string(),
-                    })
+                    }).loose()
                 ),
                 meta: z.object({
                     page: z.number(),
@@ -49,9 +52,12 @@ export const getUserResponseValidator = z.toJSONSchema(
                     id: z.uuid(),
                     email: z.string(),
                     identifier: z.string(),
+                    groups: z.array(z.string()),
+                    supplierId: z.uuid().nullable().optional(),
+                    isActive: z.boolean(),
                     createdAt: z.string(),
                     updatedAt: z.string(),
-                })
+                }).loose()
             })
         })
     }).loose()
@@ -66,4 +72,39 @@ export const idValidator = validatorWrapper(
     {
         requiredRootFields: ["pathParameters"],
     }
+)
+
+export const updateUserSupplierValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        body: z.object({
+            supplierId: z.uuid().nullable().optional(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+    }
+)
+
+export const updateUserSupplierResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                user: z.object({
+                    id: z.uuid(),
+                    email: z.string(),
+                    identifier: z.string(),
+                    groups: z.array(z.string()),
+                    supplierId: z.uuid().nullable().optional(),
+                    isActive: z.boolean(),
+                    createdAt: z.string(),
+                    updatedAt: z.string(),
+                }).loose()
+            })
+        })
+    }).loose()
 )

@@ -18,6 +18,8 @@ export interface IProductVariantDependencies {
 export interface IVariantSupplierInput {
     id: string
     isActive?: boolean
+    price?: number
+    currency?: string
 }
 
 export interface ICreateProductVariantBody {
