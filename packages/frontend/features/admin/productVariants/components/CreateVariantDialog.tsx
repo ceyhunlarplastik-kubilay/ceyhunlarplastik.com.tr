@@ -67,6 +67,15 @@ const variantSchema = z.object({
     supplierPricing: z.array(z.object({
         supplierId: z.string(),
         price: z.string().optional().default(""),
+        operationalCostRate: z.string().optional().default(""),
+        netCost: z.string().optional().default(""),
+        profitRate: z.string().optional().default(""),
+        listPrice: z.string().optional().default(""),
+        paymentTermDays: z.string().optional().default(""),
+        supplierVariantCode: z.string().optional().default(""),
+        supplierNote: z.string().optional().default(""),
+        minOrderQty: z.string().optional().default(""),
+        stockQty: z.string().optional().default(""),
         currency: z.string().optional().default("TRY"),
     })).default([]),
     measurements: z.array(measurementSchema).default([]),
@@ -114,11 +123,17 @@ const supplierCreateSchema = z.object({
     isActive: z.boolean().default(true),
 })
 
-type VariantFormValues = z.infer<typeof variantSchema>
+type VariantFormInput = z.input<typeof variantSchema>
+type VariantFormValues = z.output<typeof variantSchema>
+type SupplierPricingFormRow = VariantFormValues["supplierPricing"][number]
+type SupplierPricingLooseRow = {
+    supplierId: string
+} & Partial<Omit<SupplierPricingFormRow, "supplierId">>
 type MeasurementTypeCreateValues = z.infer<typeof measurementTypeCreateSchema>
 type ColorCreateValues = z.infer<typeof colorCreateSchema>
 type MaterialCreateValues = z.infer<typeof materialCreateSchema>
-type SupplierCreateValues = z.infer<typeof supplierCreateSchema>
+type SupplierCreateInput = z.input<typeof supplierCreateSchema>
+type SupplierCreateValues = z.output<typeof supplierCreateSchema>
 
 type Props = {
     mode?: "create" | "edit"
@@ -157,7 +172,7 @@ function parseDecimalLikeToString(
     return `${sign}${intPart}.${fracPart}`
 }
 
-function getDefaultValues(variant?: ProductVariant | null): VariantFormValues {
+function getDefaultValues(variant?: ProductVariant | null): VariantFormInput {
     const supplierPricing =
         variant?.variantSuppliers.map((supplier) => ({
             supplierId: supplier.supplier.id,
@@ -165,6 +180,36 @@ function getDefaultValues(variant?: ProductVariant | null): VariantFormValues {
                 supplier.price === undefined || supplier.price === null
                     ? ""
                     : parseDecimalLikeToString(supplier.price),
+            operationalCostRate:
+                supplier.operationalCostRate === undefined || supplier.operationalCostRate === null
+                    ? ""
+                    : parseDecimalLikeToString(supplier.operationalCostRate),
+            netCost:
+                supplier.netCost === undefined || supplier.netCost === null
+                    ? ""
+                    : parseDecimalLikeToString(supplier.netCost),
+            profitRate:
+                supplier.profitRate === undefined || supplier.profitRate === null
+                    ? ""
+                    : parseDecimalLikeToString(supplier.profitRate),
+            listPrice:
+                supplier.listPrice === undefined || supplier.listPrice === null
+                    ? ""
+                    : parseDecimalLikeToString(supplier.listPrice),
+            paymentTermDays:
+                supplier.paymentTermDays === undefined || supplier.paymentTermDays === null
+                    ? ""
+                    : String(supplier.paymentTermDays),
+            supplierVariantCode: supplier.supplierVariantCode ?? "",
+            supplierNote: supplier.supplierNote ?? "",
+            minOrderQty:
+                supplier.minOrderQty === undefined || supplier.minOrderQty === null
+                    ? ""
+                    : String(supplier.minOrderQty),
+            stockQty:
+                supplier.stockQty === undefined || supplier.stockQty === null
+                    ? ""
+                    : String(supplier.stockQty),
             currency: supplier.currency ?? "TRY",
         })) ?? []
 
@@ -225,6 +270,46 @@ function parseMeasurementInput(
         value: numericValue,
         normalizedLabel: normalized,
     }
+}
+
+function parseLocaleNumber(value?: string) {
+    if (!value) return undefined
+    const parsed = Number(value.replace(",", "."))
+    return Number.isFinite(parsed) ? parsed : undefined
+}
+
+function formatDisplayNumber(value?: number) {
+    if (value === undefined) return ""
+    return Number.isInteger(value) ? String(value) : value.toFixed(2)
+}
+
+function buildSupplierPricingMap(rows: SupplierPricingLooseRow[] = []) {
+    return new Map<string, SupplierPricingLooseRow>(
+        rows.map((row) => [row.supplierId, row] as const)
+    )
+}
+
+function getPricingStringField(
+    supplierPricingById: Map<string, SupplierPricingLooseRow>,
+    supplierId: string,
+    field: keyof Omit<SupplierPricingFormRow, "supplierId">
+) {
+    const value = supplierPricingById.get(supplierId)?.[field]
+    return typeof value === "string" ? value.trim() : ""
+}
+
+function toPositiveNumber(value: string) {
+    if (!value) return undefined
+    const parsed = Number(value.replace(",", "."))
+    if (!Number.isFinite(parsed) || parsed < 0) return null
+    return parsed
+}
+
+function toPositiveInt(value: string) {
+    if (!value) return undefined
+    const parsed = Number(value.replace(",", "."))
+    if (!Number.isFinite(parsed) || parsed < 0 || !Number.isInteger(parsed)) return null
+    return parsed
 }
 
 function SingleCombobox<T extends { id: string; name: string }>({
@@ -587,13 +672,13 @@ export function CreateVariantDialog({
     const [selectedMeasurementType, setSelectedMeasurementType] =
         useState<MeasurementTypeReference | null>(null)
 
-    const form = useForm<VariantFormValues>({
-        resolver: zodResolver(variantSchema) as any,
+    const form = useForm<VariantFormInput, unknown, VariantFormValues>({
+        resolver: zodResolver(variantSchema),
         defaultValues: getDefaultValues(variant),
     })
 
     const measurementTypeForm = useForm<MeasurementTypeCreateValues>({
-        resolver: zodResolver(measurementTypeCreateSchema) as any,
+        resolver: zodResolver(measurementTypeCreateSchema),
         defaultValues: {
             code: "D",
             name: "",
@@ -602,7 +687,7 @@ export function CreateVariantDialog({
     })
 
     const colorCreateForm = useForm<ColorCreateValues>({
-        resolver: zodResolver(colorCreateSchema) as any,
+        resolver: zodResolver(colorCreateSchema),
         defaultValues: {
             system: "CUSTOM",
             code: "",
@@ -612,15 +697,15 @@ export function CreateVariantDialog({
     })
 
     const materialCreateForm = useForm<MaterialCreateValues>({
-        resolver: zodResolver(materialCreateSchema) as any,
+        resolver: zodResolver(materialCreateSchema),
         defaultValues: {
             name: "",
             code: "",
         },
     })
 
-    const supplierCreateForm = useForm<SupplierCreateValues>({
-        resolver: zodResolver(supplierCreateSchema) as any,
+    const supplierCreateForm = useForm<SupplierCreateInput, unknown, SupplierCreateValues>({
+        resolver: zodResolver(supplierCreateSchema),
         defaultValues: {
             name: "",
             isActive: true,
@@ -720,7 +805,7 @@ export function CreateVariantDialog({
                 localReferences.measurementTypes
             ),
         }
-    }, [references, localReferences])
+    }, [references, localReferences, variant?.variantSuppliers])
 
     const selectedColor =
         referenceState.colors.find((color) => color.id === colorId) ?? null
@@ -733,13 +818,57 @@ export function CreateVariantDialog({
         (supplierIds ?? []).includes(supplier.id)
     )
 
-    const supplierPricingById = useMemo(() => {
-        const map = new Map<string, { supplierId: string; price?: string; currency?: string }>()
-        for (const item of supplierPricing ?? []) {
-            map.set(item.supplierId, item)
+    const supplierPricingById = useMemo(
+        () => buildSupplierPricingMap(supplierPricing ?? []),
+        [supplierPricing]
+    )
+
+    const variantSupplierPricingFallbackById = useMemo(() => {
+        const map = new Map<
+            string,
+            {
+                supplierId: string
+                price?: string
+                operationalCostRate?: string
+                netCost?: string
+                profitRate?: string
+                listPrice?: string
+                paymentTermDays?: string
+                supplierVariantCode?: string
+                supplierNote?: string
+                minOrderQty?: string
+                stockQty?: string
+                currency?: string
+            }
+        >()
+
+        for (const item of variant?.variantSuppliers ?? []) {
+            map.set(item.supplier.id, {
+                supplierId: item.supplier.id,
+                price: parseDecimalLikeToString(item.price),
+                operationalCostRate: parseDecimalLikeToString(item.operationalCostRate),
+                netCost: parseDecimalLikeToString(item.netCost),
+                profitRate: parseDecimalLikeToString(item.profitRate),
+                listPrice: parseDecimalLikeToString(item.listPrice),
+                paymentTermDays:
+                    item.paymentTermDays === null || item.paymentTermDays === undefined
+                        ? ""
+                        : String(item.paymentTermDays),
+                supplierVariantCode: item.supplierVariantCode ?? "",
+                supplierNote: item.supplierNote ?? "",
+                minOrderQty:
+                    item.minOrderQty === null || item.minOrderQty === undefined
+                        ? ""
+                        : String(item.minOrderQty),
+                stockQty:
+                    item.stockQty === null || item.stockQty === undefined
+                        ? ""
+                        : String(item.stockQty),
+                currency: item.currency ?? "TRY",
+            })
         }
         return map
-    }, [supplierPricing])
+    }, [variant?.variantSuppliers])
 
     const usedMeasurementTypeIds = new Set(
         (measurements ?? []).map((measurement) => measurement.measurementTypeId)
@@ -757,6 +886,15 @@ export function CreateVariantDialog({
             return {
                 supplierId,
                 price: existing?.price ?? "",
+                operationalCostRate: existing?.operationalCostRate ?? "",
+                netCost: existing?.netCost ?? "",
+                profitRate: existing?.profitRate ?? "",
+                listPrice: existing?.listPrice ?? "",
+                paymentTermDays: existing?.paymentTermDays ?? "",
+                supplierVariantCode: existing?.supplierVariantCode ?? "",
+                supplierNote: existing?.supplierNote ?? "",
+                minOrderQty: existing?.minOrderQty ?? "",
+                stockQty: existing?.stockQty ?? "",
                 currency: existing?.currency ?? "TRY",
             }
         })
@@ -798,7 +936,7 @@ export function CreateVariantDialog({
             materials: [...prev.materials, created],
         }))
 
-        const current = form.getValues("materialIds")
+        const current = form.getValues("materialIds") ?? []
         if (!current.includes(created.id)) {
             form.setValue("materialIds", [...current, created.id], { shouldDirty: true })
         }
@@ -810,15 +948,18 @@ export function CreateVariantDialog({
         setMaterialCreateOpen(false)
     })
 
-    const onCreateSupplier = supplierCreateForm.handleSubmit(async (values) => {
-        const created = await createSupplierMutation.mutateAsync(values)
+    const onCreateSupplier = supplierCreateForm.handleSubmit(async (values: SupplierCreateValues) => {
+        const created = await createSupplierMutation.mutateAsync({
+            name: values.name,
+            isActive: values.isActive,
+        })
 
         setLocalReferences((prev) => ({
             ...prev,
             suppliers: [...prev.suppliers, created],
         }))
 
-        const current = form.getValues("supplierIds")
+        const current = form.getValues("supplierIds") ?? []
         if (!current.includes(created.id)) {
             const nextIds = [...current, created.id]
             form.setValue("supplierIds", nextIds, { shouldDirty: true })
@@ -907,22 +1048,136 @@ export function CreateVariantDialog({
             })
         }
 
-        const supplierPricingById = new Map(
-            (values.supplierPricing ?? []).map((item) => [item.supplierId, item])
-        )
+        const supplierPricingById = buildSupplierPricingMap(values.supplierPricing ?? [])
 
         for (const supplierId of values.supplierIds) {
-            const rawPrice = supplierPricingById.get(supplierId)?.price?.trim() ?? ""
-            if (!rawPrice) continue
+            const rawPrice = getPricingStringField(supplierPricingById, supplierId, "price")
+            const rawOperationalCostRate = getPricingStringField(
+                supplierPricingById,
+                supplierId,
+                "operationalCostRate"
+            )
+            const rawNetCost = getPricingStringField(supplierPricingById, supplierId, "netCost")
+            const rawProfitRate = getPricingStringField(
+                supplierPricingById,
+                supplierId,
+                "profitRate"
+            )
+            const rawListPrice = getPricingStringField(
+                supplierPricingById,
+                supplierId,
+                "listPrice"
+            )
+            const rawPaymentTermDays = getPricingStringField(
+                supplierPricingById,
+                supplierId,
+                "paymentTermDays"
+            )
+            const rawMinOrderQty = getPricingStringField(
+                supplierPricingById,
+                supplierId,
+                "minOrderQty"
+            )
+            const rawStockQty = getPricingStringField(
+                supplierPricingById,
+                supplierId,
+                "stockQty"
+            )
+            if (rawPrice) {
+                const parsedPrice = toPositiveNumber(rawPrice)
+                if (parsedPrice === null) {
+                    form.setError("supplierPricing", {
+                        type: "manual",
+                        message: "Tedarikçi fiyatları 0 veya pozitif sayı olmalıdır.",
+                    })
+                    return
+                }
 
-            const parsedPrice = Number(rawPrice.replace(",", "."))
-            if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
-                form.setError("supplierPricing", {
-                    type: "manual",
-                    message: "Tedarikçi fiyatları 0 veya pozitif sayı olmalıdır.",
-                })
-                return
+                if (rawOperationalCostRate) {
+                    const parsedOperationalCostRate = toPositiveNumber(rawOperationalCostRate)
+                    if (parsedOperationalCostRate === null) {
+                        form.setError("supplierPricing", {
+                            type: "manual",
+                            message: "Operasyonel maliyet oranı 0 veya pozitif sayı olmalıdır.",
+                        })
+                        return
+                    }
+                }
+
+                if (rawNetCost) {
+                    const parsedNetCost = toPositiveNumber(rawNetCost)
+                    if (parsedNetCost === null) {
+                        form.setError("supplierPricing", {
+                            type: "manual",
+                            message: "Net maliyet 0 veya pozitif sayı olmalıdır.",
+                        })
+                        return
+                    }
+                }
+
+                if (rawProfitRate) {
+                    const parsedProfitRate = toPositiveNumber(rawProfitRate)
+                    if (parsedProfitRate === null) {
+                        form.setError("supplierPricing", {
+                            type: "manual",
+                            message: "Kar oranı 0 veya pozitif sayı olmalıdır.",
+                        })
+                        return
+                    }
+                }
+
+                if (rawListPrice) {
+                    const parsedListPrice = toPositiveNumber(rawListPrice)
+                    if (parsedListPrice === null) {
+                        form.setError("supplierPricing", {
+                            type: "manual",
+                            message: "Liste satış fiyatı 0 veya pozitif sayı olmalıdır.",
+                        })
+                        return
+                    }
+                }
             }
+
+            if (rawPaymentTermDays) {
+                const parsedPaymentTermDays = toPositiveInt(rawPaymentTermDays)
+                if (parsedPaymentTermDays === null) {
+                    form.setError("supplierPricing", {
+                        type: "manual",
+                        message: "Vade günü 0 veya pozitif tam sayı olmalıdır.",
+                    })
+                    return
+                }
+            }
+
+            if (rawMinOrderQty) {
+                const parsedMinOrderQty = toPositiveInt(rawMinOrderQty)
+                if (parsedMinOrderQty === null) {
+                    form.setError("supplierPricing", {
+                        type: "manual",
+                        message: "Minimum sipariş adedi 0 veya pozitif tam sayı olmalıdır.",
+                    })
+                    return
+                }
+            }
+
+            if (rawStockQty) {
+                const parsedStockQty = toPositiveInt(rawStockQty)
+                if (parsedStockQty === null) {
+                    form.setError("supplierPricing", {
+                        type: "manual",
+                        message: "Stok adedi 0 veya pozitif tam sayı olmalıdır.",
+                    })
+                    return
+                }
+            }
+        }
+
+        const supplierDataUpdated = Boolean(form.formState.dirtyFields.supplierPricing)
+        if (isEdit && supplierDataUpdated) {
+            const confirmed = window.confirm(
+                "Tedarikçi maliyet/stok bilgilerini güncellemek üzeresiniz. Devam etmek istiyor musunuz?"
+            )
+            if (!confirmed) return
         }
 
         const payload = {
@@ -933,12 +1188,81 @@ export function CreateVariantDialog({
             variantIndex: values.variantIndex,
             colorId: values.colorId || undefined,
             materialIds: values.materialIds,
-            suppliers: values.supplierIds.map((id) => ({
+            suppliers: values.supplierIds.map((id: string) => ({
                 ...(() => {
-                    const priceInput = supplierPricingById.get(id)?.price?.trim() ?? ""
-                    const parsed = priceInput ? Number(priceInput.replace(",", ".")) : undefined
+                    const priceInput = getPricingStringField(supplierPricingById, id, "price")
+                    const operationalCostRateInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "operationalCostRate"
+                    )
+                    const netCostInput = getPricingStringField(supplierPricingById, id, "netCost")
+                    const profitRateInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "profitRate"
+                    )
+                    const listPriceInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "listPrice"
+                    )
+                    const paymentTermDaysInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "paymentTermDays"
+                    )
+                    const supplierVariantCodeInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "supplierVariantCode"
+                    )
+                    const supplierNoteInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "supplierNote"
+                    )
+                    const minOrderQtyInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "minOrderQty"
+                    )
+                    const stockQtyInput = getPricingStringField(
+                        supplierPricingById,
+                        id,
+                        "stockQty"
+                    )
+                    const parsed = toPositiveNumber(priceInput) ?? undefined
+                    const parsedOperationalCostRate = toPositiveNumber(
+                        operationalCostRateInput
+                    ) ?? undefined
+                    const parsedNetCost = toPositiveNumber(netCostInput) ?? undefined
+                    const parsedProfitRate = toPositiveNumber(profitRateInput) ?? undefined
+                    const parsedListPrice = toPositiveNumber(listPriceInput) ?? undefined
+                    const parsedPaymentTermDays = toPositiveInt(paymentTermDaysInput) ?? undefined
+                    const parsedMinOrderQty = toPositiveInt(minOrderQtyInput) ?? undefined
+                    const parsedStockQty = toPositiveInt(stockQtyInput) ?? undefined
+                    const resolvedNetCost =
+                        parsed !== undefined
+                            ? parsed * (1 + (parsedOperationalCostRate ?? 0) / 100)
+                            : parsedNetCost
                     return {
-                        ...(parsed !== undefined && Number.isFinite(parsed) ? { price: parsed } : {}),
+                        ...(parsed !== undefined ? { price: parsed } : {}),
+                        ...(parsedOperationalCostRate !== undefined
+                            ? { operationalCostRate: parsedOperationalCostRate }
+                            : {}),
+                        ...(resolvedNetCost !== undefined ? { netCost: resolvedNetCost } : {}),
+                        ...(parsedProfitRate !== undefined
+                            ? { profitRate: parsedProfitRate }
+                            : {}),
+                        ...(parsedListPrice !== undefined ? { listPrice: parsedListPrice } : {}),
+                        ...(parsedPaymentTermDays !== undefined
+                            ? { paymentTermDays: parsedPaymentTermDays }
+                            : {}),
+                        ...(supplierVariantCodeInput ? { supplierVariantCode: supplierVariantCodeInput } : {}),
+                        ...(supplierNoteInput ? { supplierNote: supplierNoteInput } : {}),
+                        ...(parsedMinOrderQty !== undefined ? { minOrderQty: parsedMinOrderQty } : {}),
+                        ...(parsedStockQty !== undefined ? { stockQty: parsedStockQty } : {}),
                         ...(supplierPricingById.get(id)?.currency
                             ? { currency: supplierPricingById.get(id)?.currency?.toUpperCase() }
                             : {}),
@@ -979,7 +1303,7 @@ export function CreateVariantDialog({
                     onOpenChange(nextOpen)
                 }}
             >
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-[96vw] xl:max-w-7xl max-h-[92vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>
                             {isEdit ? "Varyantı Güncelle" : "Yeni Varyant Oluştur"}
@@ -1002,25 +1326,6 @@ export function CreateVariantDialog({
                         </div>
 
                         <div className="space-y-1">
-                            <Label className="text-xs text-neutral-500">Versiyon Kodu *</Label>
-                            <Input
-                                placeholder="V1"
-                                {...form.register("versionCode", {
-                                    onChange: (e) => {
-                                        form.setValue("versionCode", String(e.target.value).toUpperCase(), {
-                                            shouldDirty: true,
-                                        })
-                                    },
-                                })}
-                            />
-                            {form.formState.errors.versionCode && (
-                                <p className="text-xs text-red-500">
-                                    {form.formState.errors.versionCode.message}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="space-y-1">
                             <Label className="text-xs text-neutral-500">Tedarikçi Kodu *</Label>
                             <Input
                                 placeholder="B"
@@ -1037,6 +1342,25 @@ export function CreateVariantDialog({
                             {form.formState.errors.supplierCode && (
                                 <p className="text-xs text-red-500">
                                     {form.formState.errors.supplierCode.message}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="space-y-1">
+                            <Label className="text-xs text-neutral-500">Versiyon Kodu *</Label>
+                            <Input
+                                placeholder="V1"
+                                {...form.register("versionCode", {
+                                    onChange: (e) => {
+                                        form.setValue("versionCode", String(e.target.value).toUpperCase(), {
+                                            shouldDirty: true,
+                                        })
+                                    },
+                                })}
+                            />
+                            {form.formState.errors.versionCode && (
+                                <p className="text-xs text-red-500">
+                                    {form.formState.errors.versionCode.message}
                                 </p>
                             )}
                         </div>
@@ -1137,22 +1461,56 @@ export function CreateVariantDialog({
                     {selectedSuppliers.length > 0 && (
                         <div className="space-y-2">
                             <Label className="text-xs text-neutral-500">Tedarikçi Fiyatları</Label>
-                            <div className="rounded-lg border border-neutral-200 overflow-hidden">
-                                <table className="w-full text-sm">
+                            <div className="rounded-lg border border-neutral-200 overflow-auto">
+                                <table className="w-full min-w-[1240px] text-xs">
                                     <thead className="bg-neutral-50 border-b border-neutral-200">
                                         <tr>
                                             <th className="text-left px-3 py-2 text-xs font-semibold text-neutral-600">Tedarikçi</th>
-                                            <th className="text-left px-3 py-2 text-xs font-semibold text-neutral-600 w-40">Fiyat</th>
-                                            <th className="text-left px-3 py-2 text-xs font-semibold text-neutral-600 w-32">Para Birimi</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-28">Ham Maliyet</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-24">Operasyonel (%)</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-28">Net Maliyet</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-20">Kar (%)</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-28">Liste Fiyatı</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-20">Vade</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-28">Stok Kodu</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-40">Not</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-20">Min</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-20">Stok</th>
+                                            <th className="text-left px-2 py-1.5 text-[11px] font-semibold text-neutral-600 w-20">PB</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {selectedSuppliers.map((supplier) => {
-                                            const pricing = supplierPricingById.get(supplier.id)
+                                            const pricing =
+                                                supplierPricingById.get(supplier.id) ??
+                                                variantSupplierPricingFallbackById.get(supplier.id)
+                                            const hamMaliyet = parseLocaleNumber(pricing?.price)
+                                            const rawOperasyonelOran = parseLocaleNumber(pricing?.operationalCostRate)
+                                            const derivedOperasyonelOran =
+                                                rawOperasyonelOran !== undefined
+                                                    ? rawOperasyonelOran
+                                                    : hamMaliyet !== undefined &&
+                                                        hamMaliyet > 0 &&
+                                                        parseLocaleNumber(pricing?.netCost) !== undefined
+                                                        ? (((parseLocaleNumber(pricing?.netCost) ?? hamMaliyet) - hamMaliyet) / hamMaliyet) * 100
+                                                        : 0
+                                            const operasyonelOran = Number.isFinite(derivedOperasyonelOran)
+                                                ? derivedOperasyonelOran
+                                                : 0
+                                            const displayedOperationalCostRate =
+                                                pricing?.operationalCostRate ??
+                                                (hamMaliyet !== undefined && parseLocaleNumber(pricing?.netCost) !== undefined
+                                                    ? formatDisplayNumber(Number(operasyonelOran.toFixed(2)))
+                                                    : "")
+                                            const netMaliyet =
+                                                parseLocaleNumber(pricing?.netCost) ??
+                                                (hamMaliyet !== undefined
+                                                    ? hamMaliyet * (1 + operasyonelOran / 100)
+                                                    : undefined)
                                             return (
                                                 <tr key={supplier.id} className="border-t border-neutral-100">
-                                                    <td className="px-3 py-2 text-neutral-700">{supplier.name}</td>
-                                                    <td className="px-3 py-2">
+                                                    <td className="px-2 py-1.5 text-neutral-700 whitespace-nowrap">{supplier.name}</td>
+                                                    <td className="px-2 py-1.5">
                                                         <Input
                                                             type="text"
                                                             inputMode="decimal"
@@ -1170,10 +1528,184 @@ export function CreateVariantDialog({
                                                                     { shouldDirty: true }
                                                                 )
                                                             }}
-                                                            className="h-8"
+                                                            className="h-7 text-xs"
                                                         />
                                                     </td>
-                                                    <td className="px-3 py-2">
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="decimal"
+                                                            placeholder="örn. 12.5"
+                                                            value={displayedOperationalCostRate}
+                                                            onChange={(e) => {
+                                                                const normalized = e.target.value.replace(",", ".")
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, operationalCostRate: normalized }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="decimal"
+                                                            placeholder="otomatik"
+                                                            value={formatDisplayNumber(netMaliyet)}
+                                                            readOnly
+                                                            className="h-7 bg-neutral-50 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="decimal"
+                                                            placeholder="örn. 35"
+                                                            value={pricing?.profitRate ?? ""}
+                                                            onChange={(e) => {
+                                                                const normalized = e.target.value.replace(",", ".")
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, profitRate: normalized }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="decimal"
+                                                            placeholder="4.18"
+                                                            value={pricing?.listPrice ?? ""}
+                                                            onChange={(e) => {
+                                                                const normalized = e.target.value.replace(",", ".")
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, listPrice: normalized }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            placeholder="örn. 60"
+                                                            value={pricing?.paymentTermDays ?? ""}
+                                                            onChange={(e) => {
+                                                                const normalized = e.target.value.replace(/[^\d]/g, "")
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, paymentTermDays: normalized }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="örn. AP-10-44"
+                                                            value={pricing?.supplierVariantCode ?? ""}
+                                                            onChange={(e) => {
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, supplierVariantCode: e.target.value }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Tedarikçi notu"
+                                                            value={pricing?.supplierNote ?? ""}
+                                                            onChange={(e) => {
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, supplierNote: e.target.value }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            placeholder="örn. 100"
+                                                            value={pricing?.minOrderQty ?? ""}
+                                                            onChange={(e) => {
+                                                                const normalized = e.target.value.replace(/[^\d]/g, "")
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, minOrderQty: normalized }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
+                                                        <Input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            placeholder="örn. 1200"
+                                                            value={pricing?.stockQty ?? ""}
+                                                            onChange={(e) => {
+                                                                const normalized = e.target.value.replace(/[^\d]/g, "")
+                                                                form.setValue(
+                                                                    "supplierPricing",
+                                                                    (form.getValues("supplierPricing") ?? []).map((item) =>
+                                                                        item.supplierId === supplier.id
+                                                                            ? { ...item, stockQty: normalized }
+                                                                            : item
+                                                                    ),
+                                                                    { shouldDirty: true }
+                                                                )
+                                                            }}
+                                                            className="h-7 text-xs"
+                                                        />
+                                                    </td>
+                                                    <td className="px-2 py-1.5">
                                                         <select
                                                             value={pricing?.currency ?? "TRY"}
                                                             onChange={(e) => {
@@ -1187,7 +1719,7 @@ export function CreateVariantDialog({
                                                                     { shouldDirty: true }
                                                                 )
                                                             }}
-                                                            className="h-8 w-full rounded-md border border-input bg-background px-2 text-sm"
+                                                            className="h-7 w-full rounded-md border border-input bg-background px-1.5 text-xs"
                                                         >
                                                             <option value="TRY">TRY</option>
                                                             <option value="USD">USD</option>
@@ -1201,7 +1733,7 @@ export function CreateVariantDialog({
                                 </table>
                             </div>
                             <p className="text-[11px] text-neutral-500">
-                                Boş bırakılan fiyatlar API&apos;ye gönderilmez. Girilen değerler tedarikçi-varyant fiyatına kaydedilir.
+                                Net maliyet = Ham maliyet + (Ham maliyet × Operasyonel maliyet %). Liste fiyatı, net maliyet üzerinden hesaplanır.
                             </p>
                             {form.formState.errors.supplierPricing?.message && (
                                 <p className="text-xs text-red-500">

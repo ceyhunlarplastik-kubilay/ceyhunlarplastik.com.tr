@@ -7,15 +7,21 @@ import type {
 type Params = {
     id: string
     price: number
+    profitRate?: number
+    listPrice?: number
+    minOrderQty?: number
+    stockQty?: number
     currency?: string
+    endpointPrefix?: "supplier" | "purchasing"
 }
 
 export async function updateSupplierVariantPrice({
     id,
+    endpointPrefix = "supplier",
     ...payload
 }: Params): Promise<SupplierVariantPrice> {
     const res = await protectedApiClient.put<SupplierVariantPriceResponse>(
-        `/supplier/variant-prices/${id}`,
+        `/${endpointPrefix}/variant-prices/${id}`,
         payload
     )
 

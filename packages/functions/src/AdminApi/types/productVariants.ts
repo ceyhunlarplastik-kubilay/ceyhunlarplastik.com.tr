@@ -19,6 +19,15 @@ export interface IVariantSupplierInput {
     id: string
     isActive?: boolean
     price?: number
+    operationalCostRate?: number
+    netCost?: number
+    profitRate?: number
+    listPrice?: number
+    paymentTermDays?: number
+    supplierVariantCode?: string
+    supplierNote?: string
+    minOrderQty?: number
+    stockQty?: number
     currency?: string
 }
 

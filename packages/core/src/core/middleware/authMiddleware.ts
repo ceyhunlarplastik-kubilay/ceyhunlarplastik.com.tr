@@ -21,7 +21,7 @@ const ROLE_HIERARCHY = {
 } as const;
 
 type Role = keyof typeof ROLE_HIERARCHY;
-const KNOWN_GROUPS = ["owner", "admin", "supplier", "user"] as const;
+const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "supplier", "user"] as const;
 
 const normalizeGroups = (groups: string[]): string[] => {
   const cleaned = groups
@@ -143,6 +143,8 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
       isOwner: user.groups.includes("owner"),
       isAdmin: user.groups.includes("admin"),
       isSupplier: user.groups.includes("supplier"),
+      isPurchasing: user.groups.includes("purchasing"),
+      isSales: user.groups.includes("sales"),
     };
 
     // 🔐 Role check

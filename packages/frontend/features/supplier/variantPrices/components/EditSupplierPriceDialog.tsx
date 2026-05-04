@@ -20,6 +20,10 @@ import { useUpdateSupplierVariantPrice } from "@/features/supplier/variantPrices
 
 const formSchema = z.object({
     price: z.string().min(1, "Fiyat zorunludur"),
+    profitRate: z.string().default(""),
+    listPrice: z.string().default(""),
+    minOrderQty: z.string().default(""),
+    stockQty: z.string().default(""),
     currency: z.string().min(3).max(3),
 })
 
@@ -29,15 +33,39 @@ type Props = {
     open: boolean
     onOpenChange: (open: boolean) => void
     row: SupplierVariantPrice | null
+    endpointPrefix?: "supplier" | "purchasing"
+    allowAdvancedFields?: boolean
 }
 
-export function EditSupplierPriceDialog({ open, onOpenChange, row }: Props) {
-    const mutation = useUpdateSupplierVariantPrice()
+function decimalLikeToString(value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined) {
+    if (value === null || value === undefined) return ""
+    if (typeof value === "string" || typeof value === "number") return String(value)
+    const sign = value.s === -1 ? "-" : ""
+    const digits = Array.isArray(value.d) ? value.d.join("") : ""
+    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
+    if (!digits) return ""
+    if (exponent >= digits.length - 1) return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
+    if (exponent < 0) return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
+    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
+}
+
+export function EditSupplierPriceDialog({
+    open,
+    onOpenChange,
+    row,
+    endpointPrefix = "supplier",
+    allowAdvancedFields = false,
+}: Props) {
+    const mutation = useUpdateSupplierVariantPrice(endpointPrefix)
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             price: "",
+            profitRate: "",
+            listPrice: "",
+            minOrderQty: "",
+            stockQty: "",
             currency: "TRY",
         },
     })
@@ -45,7 +73,11 @@ export function EditSupplierPriceDialog({ open, onOpenChange, row }: Props) {
     useEffect(() => {
         if (!open || !row) return
         form.reset({
-            price: String(row.price ?? ""),
+            price: decimalLikeToString(row.price),
+            profitRate: decimalLikeToString(row.profitRate),
+            listPrice: decimalLikeToString(row.listPrice),
+            minOrderQty: row.minOrderQty !== undefined && row.minOrderQty !== null ? String(row.minOrderQty) : "",
+            stockQty: row.stockQty !== undefined && row.stockQty !== null ? String(row.stockQty) : "",
             currency: row.currency ?? "TRY",
         })
     }, [form, open, row])
@@ -62,10 +94,59 @@ export function EditSupplierPriceDialog({ open, onOpenChange, row }: Props) {
             return
         }
 
+        const parsedProfitRate = allowAdvancedFields
+            ? (values.profitRate?.trim() ? Number(values.profitRate.replace(",", ".")) : undefined)
+            : undefined
+        if (allowAdvancedFields && parsedProfitRate !== undefined && (!Number.isFinite(parsedProfitRate) || parsedProfitRate < 0)) {
+            form.setError("profitRate", {
+                type: "manual",
+                message: "Kar oranı 0 veya pozitif sayı olmalıdır.",
+            })
+            return
+        }
+
+        const parsedListPrice = allowAdvancedFields
+            ? (values.listPrice?.trim() ? Number(values.listPrice.replace(",", ".")) : undefined)
+            : undefined
+        if (allowAdvancedFields && parsedListPrice !== undefined && (!Number.isFinite(parsedListPrice) || parsedListPrice < 0)) {
+            form.setError("listPrice", {
+                type: "manual",
+                message: "Liste fiyatı 0 veya pozitif sayı olmalıdır.",
+            })
+            return
+        }
+
+        const parsedMinOrderQty = values.minOrderQty?.trim()
+            ? Number(values.minOrderQty.replace(",", "."))
+            : undefined
+        if (parsedMinOrderQty !== undefined && (!Number.isFinite(parsedMinOrderQty) || parsedMinOrderQty < 0 || !Number.isInteger(parsedMinOrderQty))) {
+            form.setError("minOrderQty", {
+                type: "manual",
+                message: "Minimum sipariş adedi 0 veya pozitif tam sayı olmalıdır.",
+            })
+            return
+        }
+
+        const parsedStockQty = values.stockQty?.trim()
+            ? Number(values.stockQty.replace(",", "."))
+            : undefined
+        if (parsedStockQty !== undefined && (!Number.isFinite(parsedStockQty) || parsedStockQty < 0 || !Number.isInteger(parsedStockQty))) {
+            form.setError("stockQty", {
+                type: "manual",
+                message: "Stok adedi 0 veya pozitif tam sayı olmalıdır.",
+            })
+            return
+        }
+
         await mutation.mutateAsync({
             id: row.id,
             price: parsedPrice,
+            ...(allowAdvancedFields && parsedProfitRate !== undefined ? { profitRate: parsedProfitRate } : {}),
+            ...(allowAdvancedFields && parsedListPrice !== undefined ? { listPrice: parsedListPrice } : {}),
+            ...(parsedMinOrderQty !== undefined ? { minOrderQty: parsedMinOrderQty } : {}),
+            ...(parsedStockQty !== undefined ? { stockQty: parsedStockQty } : {}),
             currency: values.currency.toUpperCase(),
+            endpointPrefix,
         })
 
         onOpenChange(false)
@@ -75,7 +156,7 @@ export function EditSupplierPriceDialog({ open, onOpenChange, row }: Props) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Tedarikçi Fiyatını Güncelle</DialogTitle>
+                    <DialogTitle>Tedarikçi Maliyet/Fiyatını Güncelle</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={onSubmit} className="space-y-4">
@@ -85,7 +166,7 @@ export function EditSupplierPriceDialog({ open, onOpenChange, row }: Props) {
                     </div>
 
                     <div className="space-y-1">
-                        <Label>Fiyat</Label>
+                        <Label>Maliyet</Label>
                         <Input
                             type="text"
                             inputMode="decimal"
@@ -94,6 +175,62 @@ export function EditSupplierPriceDialog({ open, onOpenChange, row }: Props) {
                         />
                         {form.formState.errors.price && (
                             <p className="text-xs text-red-500">{form.formState.errors.price.message}</p>
+                        )}
+                    </div>
+
+                    {allowAdvancedFields && (
+                        <div className="space-y-1">
+                            <Label>Kar Oranı (%)</Label>
+                            <Input
+                                type="text"
+                                inputMode="decimal"
+                                placeholder="örn. 35"
+                                {...form.register("profitRate")}
+                            />
+                            {form.formState.errors.profitRate && (
+                                <p className="text-xs text-red-500">{form.formState.errors.profitRate.message}</p>
+                            )}
+                        </div>
+                    )}
+
+                    {allowAdvancedFields && (
+                        <div className="space-y-1">
+                            <Label>Liste Fiyatı</Label>
+                            <Input
+                                type="text"
+                                inputMode="decimal"
+                                placeholder="örn. 4.18"
+                                {...form.register("listPrice")}
+                            />
+                            {form.formState.errors.listPrice && (
+                                <p className="text-xs text-red-500">{form.formState.errors.listPrice.message}</p>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="space-y-1">
+                        <Label>Minimum Sipariş Adedi</Label>
+                        <Input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="örn. 100"
+                            {...form.register("minOrderQty")}
+                        />
+                        {form.formState.errors.minOrderQty && (
+                            <p className="text-xs text-red-500">{form.formState.errors.minOrderQty.message}</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-1">
+                        <Label>Stok Adedi</Label>
+                        <Input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="örn. 1200"
+                            {...form.register("stockQty")}
+                        />
+                        {form.formState.errors.stockQty && (
+                            <p className="text-xs text-red-500">{form.formState.errors.stockQty.message}</p>
                         )}
                     </div>
 

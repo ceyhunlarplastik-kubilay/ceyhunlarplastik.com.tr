@@ -1,5 +1,5 @@
-import { SupplierVariantPricesPageClient } from "@/features/supplier/variantPrices/components/SupplierVariantPricesPageClient"
+import { redirect } from "next/navigation"
 
 export default function SupplierPage() {
-    return <SupplierVariantPricesPageClient />
+    redirect("/tedarikci")
 }

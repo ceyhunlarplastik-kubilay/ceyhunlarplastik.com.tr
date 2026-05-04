@@ -7,8 +7,10 @@ import {
     createProductVariantSupplierHandler,
     getProductVariantSupplierHandler,
     listProductVariantSuppliersHandler,
+    listSupplierProductsHandler,
     deleteProductVariantSupplierHandler,
     updateProductVariantSupplierHandler,
+    bulkUpdateProductVariantSupplierPricingHandler,
 } from "@/functions/AdminApi/functions/productVariantSuppliers/handlers"
 import {
     createProductVariantSupplierValidator,
@@ -16,14 +18,18 @@ import {
     idValidator,
     productVariantSupplierResponseValidator,
     listProductVariantSuppliersResponseValidator,
+    listSupplierProductsResponseValidator,
+    bulkUpdateProductVariantSupplierPricingValidator,
 } from "@/functions/AdminApi/validators/productVariantSuppliers"
 import type {
     IProductVariantSupplierDependencies,
     ICreateProductVariantSupplierEvent,
     IGetProductVariantSupplierEvent,
     IListProductVariantSuppliersEvent,
+    IListSupplierProductsEvent,
     IDeleteProductVariantSupplierEvent,
     IUpdateProductVariantSupplierEvent,
+    IBulkUpdateProductVariantSupplierPricingEvent,
 } from "@/functions/AdminApi/types/productVariantSuppliers"
 
 const getDeps = (): IProductVariantSupplierDependencies => ({
@@ -71,6 +77,18 @@ export const listProductVariantSuppliers = lambdaHandler(
     }
 )
 
+export const listSupplierProducts = lambdaHandler(
+    async (event) => {
+        return listSupplierProductsHandler(getDeps())(
+            event as IListSupplierProductsEvent
+        )
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        responseValidator: listSupplierProductsResponseValidator,
+    }
+)
+
 export const deleteProductVariantSupplier = lambdaHandler(
     async (event) => {
         return deleteProductVariantSupplierHandler(getDeps())(
@@ -93,5 +111,17 @@ export const updateProductVariantSupplier = lambdaHandler(
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateProductVariantSupplierValidator,
         responseValidator: productVariantSupplierResponseValidator,
+    }
+)
+
+export const bulkUpdateProductVariantSupplierPricing = lambdaHandler(
+    async (event) => {
+        return bulkUpdateProductVariantSupplierPricingHandler(getDeps())(
+            event as IBulkUpdateProductVariantSupplierPricingEvent
+        )
+    },
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        requestValidator: bulkUpdateProductVariantSupplierPricingValidator,
     }
 )

@@ -23,6 +23,8 @@ export const listProductVariantSuppliersHandler = ({ productVariantSupplierRepos
                 order,
                 ...(query.variantId && { variantId: query.variantId }),
                 ...(query.supplierId && { supplierId: query.supplierId }),
+                ...(query.productId && { productId: query.productId }),
+                ...(query.categoryId && { categoryId: query.categoryId }),
             })
 
             return apiResponseDTO({

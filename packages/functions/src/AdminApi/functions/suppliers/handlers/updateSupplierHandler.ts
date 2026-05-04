@@ -11,7 +11,7 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least one field must be provided");
 
-        const allowedFields = ["name", "isActive"] as const
+        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive"] as const
 
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
@@ -19,10 +19,15 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`);
 
-        const { name, isActive } = body;
+        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive } = body;
 
         const updateData: Prisma.SupplierUpdateInput = {
             ...(name !== undefined && { name }),
+            ...(contactName !== undefined && { contactName }),
+            ...(phone !== undefined && { phone }),
+            ...(address !== undefined && { address }),
+            ...(taxNumber !== undefined && { taxNumber }),
+            ...(defaultPaymentTermDays !== undefined && { defaultPaymentTermDays }),
             ...(isActive !== undefined && { isActive }),
         }
 

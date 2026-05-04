@@ -8,5 +8,6 @@ export function useProducts(params: GetProductsParams) {
         queryKey: ["admin-products", params],
         queryFn: () => getProducts(params),
         placeholderData: (prev) => prev,
+        enabled: params.limit !== 0,
     })
 }

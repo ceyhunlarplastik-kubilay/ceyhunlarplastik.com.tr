@@ -5,6 +5,11 @@ type Params = {
     supplierId: string
     page: number
     limit: number
+    search?: string
+    categoryId?: string
+    productId?: string
+    sort?: string
+    order?: "asc" | "desc"
 }
 
 export async function getSupplierVariantSuppliers(params: Params) {

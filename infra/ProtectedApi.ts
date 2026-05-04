@@ -126,7 +126,47 @@ protectedApi.route('GET /supplier/variant-prices', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /supplier/profile', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.getSupplierProfile`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /supplier/profile', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.updateSupplierProfile`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /supplier/products', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.listSupplierProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('PUT /supplier/variant-prices/{id}', {
     handler: `${folderPrefix}/supplierVariantPrices/actions.updateSupplierVariantPrice`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /purchasing/variant-prices', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.listSupplierVariantPrices`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /purchasing/products', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.listSupplierProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /purchasing/variant-prices/{id}', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.updateSupplierVariantPrice`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/variant-prices', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.listSupplierVariantPrices`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/products', {
+    handler: `${folderPrefix}/supplierVariantPrices/actions.listSupplierProducts`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });

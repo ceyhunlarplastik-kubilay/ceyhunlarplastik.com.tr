@@ -306,6 +306,11 @@ model Supplier {
   id String @id @default(uuid())
 
   name     String
+  contactName String?
+  phone String?
+  address String? @db.Text
+  taxNumber String?
+  defaultPaymentTermDays Int?
   isActive Boolean @default(true)
 
   variantSuppliers ProductVariantSupplier[]
@@ -328,6 +333,17 @@ model ProductVariantSupplier {
 
   isActive Boolean @default(false)
   price    Decimal @default(0) @db.Decimal(10, 2)
+  operationalCostRate Decimal? @db.Decimal(5, 2)
+  netCost Decimal? @db.Decimal(10, 2)
+  profitRate Decimal? @db.Decimal(5, 2)
+  listPrice Decimal? @db.Decimal(10, 2)
+  paymentTermDays Int?
+  supplierVariantCode String?
+  supplierNote String? @db.Text
+  pricingUpdatedAt DateTime?
+  minOrderQty Int?
+  stockQty Int?
+  availabilityUpdatedAt DateTime?
   currency String  @default("TRY")
 
   createdAt DateTime @default(now())

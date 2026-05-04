@@ -5,7 +5,7 @@ import type {
   IUpdateUserGroupsEvent,
 } from "@/functions/OwnerApi/types/users";
 
-const ALL_GROUPS = ["owner", "admin", "user", "supplier"] as const;
+const ALL_GROUPS = ["owner", "admin", "user", "supplier", "purchasing", "sales"] as const;
 
 export const updateUserGroupsHandler =
   ({ cognitoRepository, userRepository, supplierRepository, userPoolId }: IUpdateUserGroupsDependencies) =>

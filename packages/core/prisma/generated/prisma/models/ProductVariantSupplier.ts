@@ -28,10 +28,24 @@ export type AggregateProductVariantSupplier = {
 
 export type ProductVariantSupplierAvgAggregateOutputType = {
   price: runtime.Decimal | null
+  operationalCostRate: runtime.Decimal | null
+  netCost: runtime.Decimal | null
+  profitRate: runtime.Decimal | null
+  listPrice: runtime.Decimal | null
+  paymentTermDays: number | null
+  minOrderQty: number | null
+  stockQty: number | null
 }
 
 export type ProductVariantSupplierSumAggregateOutputType = {
   price: runtime.Decimal | null
+  operationalCostRate: runtime.Decimal | null
+  netCost: runtime.Decimal | null
+  profitRate: runtime.Decimal | null
+  listPrice: runtime.Decimal | null
+  paymentTermDays: number | null
+  minOrderQty: number | null
+  stockQty: number | null
 }
 
 export type ProductVariantSupplierMinAggregateOutputType = {
@@ -40,6 +54,17 @@ export type ProductVariantSupplierMinAggregateOutputType = {
   supplierId: string | null
   isActive: boolean | null
   price: runtime.Decimal | null
+  operationalCostRate: runtime.Decimal | null
+  netCost: runtime.Decimal | null
+  profitRate: runtime.Decimal | null
+  listPrice: runtime.Decimal | null
+  paymentTermDays: number | null
+  supplierVariantCode: string | null
+  supplierNote: string | null
+  pricingUpdatedAt: Date | null
+  minOrderQty: number | null
+  stockQty: number | null
+  availabilityUpdatedAt: Date | null
   currency: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -51,6 +76,17 @@ export type ProductVariantSupplierMaxAggregateOutputType = {
   supplierId: string | null
   isActive: boolean | null
   price: runtime.Decimal | null
+  operationalCostRate: runtime.Decimal | null
+  netCost: runtime.Decimal | null
+  profitRate: runtime.Decimal | null
+  listPrice: runtime.Decimal | null
+  paymentTermDays: number | null
+  supplierVariantCode: string | null
+  supplierNote: string | null
+  pricingUpdatedAt: Date | null
+  minOrderQty: number | null
+  stockQty: number | null
+  availabilityUpdatedAt: Date | null
   currency: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -62,6 +98,17 @@ export type ProductVariantSupplierCountAggregateOutputType = {
   supplierId: number
   isActive: number
   price: number
+  operationalCostRate: number
+  netCost: number
+  profitRate: number
+  listPrice: number
+  paymentTermDays: number
+  supplierVariantCode: number
+  supplierNote: number
+  pricingUpdatedAt: number
+  minOrderQty: number
+  stockQty: number
+  availabilityUpdatedAt: number
   currency: number
   createdAt: number
   updatedAt: number
@@ -71,10 +118,24 @@ export type ProductVariantSupplierCountAggregateOutputType = {
 
 export type ProductVariantSupplierAvgAggregateInputType = {
   price?: true
+  operationalCostRate?: true
+  netCost?: true
+  profitRate?: true
+  listPrice?: true
+  paymentTermDays?: true
+  minOrderQty?: true
+  stockQty?: true
 }
 
 export type ProductVariantSupplierSumAggregateInputType = {
   price?: true
+  operationalCostRate?: true
+  netCost?: true
+  profitRate?: true
+  listPrice?: true
+  paymentTermDays?: true
+  minOrderQty?: true
+  stockQty?: true
 }
 
 export type ProductVariantSupplierMinAggregateInputType = {
@@ -83,6 +144,17 @@ export type ProductVariantSupplierMinAggregateInputType = {
   supplierId?: true
   isActive?: true
   price?: true
+  operationalCostRate?: true
+  netCost?: true
+  profitRate?: true
+  listPrice?: true
+  paymentTermDays?: true
+  supplierVariantCode?: true
+  supplierNote?: true
+  pricingUpdatedAt?: true
+  minOrderQty?: true
+  stockQty?: true
+  availabilityUpdatedAt?: true
   currency?: true
   createdAt?: true
   updatedAt?: true
@@ -94,6 +166,17 @@ export type ProductVariantSupplierMaxAggregateInputType = {
   supplierId?: true
   isActive?: true
   price?: true
+  operationalCostRate?: true
+  netCost?: true
+  profitRate?: true
+  listPrice?: true
+  paymentTermDays?: true
+  supplierVariantCode?: true
+  supplierNote?: true
+  pricingUpdatedAt?: true
+  minOrderQty?: true
+  stockQty?: true
+  availabilityUpdatedAt?: true
   currency?: true
   createdAt?: true
   updatedAt?: true
@@ -105,6 +188,17 @@ export type ProductVariantSupplierCountAggregateInputType = {
   supplierId?: true
   isActive?: true
   price?: true
+  operationalCostRate?: true
+  netCost?: true
+  profitRate?: true
+  listPrice?: true
+  paymentTermDays?: true
+  supplierVariantCode?: true
+  supplierNote?: true
+  pricingUpdatedAt?: true
+  minOrderQty?: true
+  stockQty?: true
+  availabilityUpdatedAt?: true
   currency?: true
   createdAt?: true
   updatedAt?: true
@@ -203,6 +297,17 @@ export type ProductVariantSupplierGroupByOutputType = {
   supplierId: string
   isActive: boolean
   price: runtime.Decimal
+  operationalCostRate: runtime.Decimal | null
+  netCost: runtime.Decimal | null
+  profitRate: runtime.Decimal | null
+  listPrice: runtime.Decimal | null
+  paymentTermDays: number | null
+  supplierVariantCode: string | null
+  supplierNote: string | null
+  pricingUpdatedAt: Date | null
+  minOrderQty: number | null
+  stockQty: number | null
+  availabilityUpdatedAt: Date | null
   currency: string
   createdAt: Date
   updatedAt: Date
@@ -237,6 +342,17 @@ export type ProductVariantSupplierWhereInput = {
   supplierId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   isActive?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  supplierVariantCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  supplierNote?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  pricingUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
+  minOrderQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  stockQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  availabilityUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
@@ -250,6 +366,17 @@ export type ProductVariantSupplierOrderByWithRelationInput = {
   supplierId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  operationalCostRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  netCost?: Prisma.SortOrderInput | Prisma.SortOrder
+  profitRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  listPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  supplierVariantCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  supplierNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  minOrderQty?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockQty?: Prisma.SortOrderInput | Prisma.SortOrder
+  availabilityUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -267,6 +394,17 @@ export type ProductVariantSupplierWhereUniqueInput = Prisma.AtLeast<{
   supplierId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   isActive?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  supplierVariantCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  supplierNote?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  pricingUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
+  minOrderQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  stockQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  availabilityUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
@@ -280,6 +418,17 @@ export type ProductVariantSupplierOrderByWithAggregationInput = {
   supplierId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  operationalCostRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  netCost?: Prisma.SortOrderInput | Prisma.SortOrder
+  profitRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  listPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  supplierVariantCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  supplierNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  minOrderQty?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockQty?: Prisma.SortOrderInput | Prisma.SortOrder
+  availabilityUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -299,6 +448,17 @@ export type ProductVariantSupplierScalarWhereWithAggregatesInput = {
   supplierId?: Prisma.StringWithAggregatesFilter<"ProductVariantSupplier"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.IntNullableWithAggregatesFilter<"ProductVariantSupplier"> | number | null
+  supplierVariantCode?: Prisma.StringNullableWithAggregatesFilter<"ProductVariantSupplier"> | string | null
+  supplierNote?: Prisma.StringNullableWithAggregatesFilter<"ProductVariantSupplier"> | string | null
+  pricingUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductVariantSupplier"> | Date | string | null
+  minOrderQty?: Prisma.IntNullableWithAggregatesFilter<"ProductVariantSupplier"> | number | null
+  stockQty?: Prisma.IntNullableWithAggregatesFilter<"ProductVariantSupplier"> | number | null
+  availabilityUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringWithAggregatesFilter<"ProductVariantSupplier"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantSupplier"> | Date | string
@@ -308,6 +468,17 @@ export type ProductVariantSupplierCreateInput = {
   id?: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -321,6 +492,17 @@ export type ProductVariantSupplierUncheckedCreateInput = {
   supplierId: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -330,6 +512,17 @@ export type ProductVariantSupplierUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -343,6 +536,17 @@ export type ProductVariantSupplierUncheckedUpdateInput = {
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -354,6 +558,17 @@ export type ProductVariantSupplierCreateManyInput = {
   supplierId: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -363,6 +578,17 @@ export type ProductVariantSupplierUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -374,6 +600,17 @@ export type ProductVariantSupplierUncheckedUpdateManyInput = {
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -400,6 +637,17 @@ export type ProductVariantSupplierCountOrderByAggregateInput = {
   supplierId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  operationalCostRate?: Prisma.SortOrder
+  netCost?: Prisma.SortOrder
+  profitRate?: Prisma.SortOrder
+  listPrice?: Prisma.SortOrder
+  paymentTermDays?: Prisma.SortOrder
+  supplierVariantCode?: Prisma.SortOrder
+  supplierNote?: Prisma.SortOrder
+  pricingUpdatedAt?: Prisma.SortOrder
+  minOrderQty?: Prisma.SortOrder
+  stockQty?: Prisma.SortOrder
+  availabilityUpdatedAt?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -407,6 +655,13 @@ export type ProductVariantSupplierCountOrderByAggregateInput = {
 
 export type ProductVariantSupplierAvgOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  operationalCostRate?: Prisma.SortOrder
+  netCost?: Prisma.SortOrder
+  profitRate?: Prisma.SortOrder
+  listPrice?: Prisma.SortOrder
+  paymentTermDays?: Prisma.SortOrder
+  minOrderQty?: Prisma.SortOrder
+  stockQty?: Prisma.SortOrder
 }
 
 export type ProductVariantSupplierMaxOrderByAggregateInput = {
@@ -415,6 +670,17 @@ export type ProductVariantSupplierMaxOrderByAggregateInput = {
   supplierId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  operationalCostRate?: Prisma.SortOrder
+  netCost?: Prisma.SortOrder
+  profitRate?: Prisma.SortOrder
+  listPrice?: Prisma.SortOrder
+  paymentTermDays?: Prisma.SortOrder
+  supplierVariantCode?: Prisma.SortOrder
+  supplierNote?: Prisma.SortOrder
+  pricingUpdatedAt?: Prisma.SortOrder
+  minOrderQty?: Prisma.SortOrder
+  stockQty?: Prisma.SortOrder
+  availabilityUpdatedAt?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -426,6 +692,17 @@ export type ProductVariantSupplierMinOrderByAggregateInput = {
   supplierId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  operationalCostRate?: Prisma.SortOrder
+  netCost?: Prisma.SortOrder
+  profitRate?: Prisma.SortOrder
+  listPrice?: Prisma.SortOrder
+  paymentTermDays?: Prisma.SortOrder
+  supplierVariantCode?: Prisma.SortOrder
+  supplierNote?: Prisma.SortOrder
+  pricingUpdatedAt?: Prisma.SortOrder
+  minOrderQty?: Prisma.SortOrder
+  stockQty?: Prisma.SortOrder
+  availabilityUpdatedAt?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -433,6 +710,13 @@ export type ProductVariantSupplierMinOrderByAggregateInput = {
 
 export type ProductVariantSupplierSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
+  operationalCostRate?: Prisma.SortOrder
+  netCost?: Prisma.SortOrder
+  profitRate?: Prisma.SortOrder
+  listPrice?: Prisma.SortOrder
+  paymentTermDays?: Prisma.SortOrder
+  minOrderQty?: Prisma.SortOrder
+  stockQty?: Prisma.SortOrder
 }
 
 export type ProductVariantSupplierCreateNestedManyWithoutVariantInput = {
@@ -527,10 +811,33 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type ProductVariantSupplierCreateWithoutVariantInput = {
   id?: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -542,6 +849,17 @@ export type ProductVariantSupplierUncheckedCreateWithoutVariantInput = {
   supplierId: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -582,6 +900,17 @@ export type ProductVariantSupplierScalarWhereInput = {
   supplierId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   isActive?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  supplierVariantCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  supplierNote?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  pricingUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
+  minOrderQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  stockQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  availabilityUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
@@ -591,6 +920,17 @@ export type ProductVariantSupplierCreateWithoutSupplierInput = {
   id?: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -602,6 +942,17 @@ export type ProductVariantSupplierUncheckedCreateWithoutSupplierInput = {
   variantId: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -638,6 +989,17 @@ export type ProductVariantSupplierCreateManyVariantInput = {
   supplierId: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -647,6 +1009,17 @@ export type ProductVariantSupplierUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -658,6 +1031,17 @@ export type ProductVariantSupplierUncheckedUpdateWithoutVariantInput = {
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -668,6 +1052,17 @@ export type ProductVariantSupplierUncheckedUpdateManyWithoutVariantInput = {
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -678,6 +1073,17 @@ export type ProductVariantSupplierCreateManySupplierInput = {
   variantId: string
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: number | null
+  supplierVariantCode?: string | null
+  supplierNote?: string | null
+  pricingUpdatedAt?: Date | string | null
+  minOrderQty?: number | null
+  stockQty?: number | null
+  availabilityUpdatedAt?: Date | string | null
   currency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -687,6 +1093,17 @@ export type ProductVariantSupplierUpdateWithoutSupplierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -698,6 +1115,17 @@ export type ProductVariantSupplierUncheckedUpdateWithoutSupplierInput = {
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -708,6 +1136,17 @@ export type ProductVariantSupplierUncheckedUpdateManyWithoutSupplierInput = {
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  netCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  profitRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  listPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierVariantCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pricingUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  minOrderQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -721,6 +1160,17 @@ export type ProductVariantSupplierSelect<ExtArgs extends runtime.Types.Extension
   supplierId?: boolean
   isActive?: boolean
   price?: boolean
+  operationalCostRate?: boolean
+  netCost?: boolean
+  profitRate?: boolean
+  listPrice?: boolean
+  paymentTermDays?: boolean
+  supplierVariantCode?: boolean
+  supplierNote?: boolean
+  pricingUpdatedAt?: boolean
+  minOrderQty?: boolean
+  stockQty?: boolean
+  availabilityUpdatedAt?: boolean
   currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -734,6 +1184,17 @@ export type ProductVariantSupplierSelectCreateManyAndReturn<ExtArgs extends runt
   supplierId?: boolean
   isActive?: boolean
   price?: boolean
+  operationalCostRate?: boolean
+  netCost?: boolean
+  profitRate?: boolean
+  listPrice?: boolean
+  paymentTermDays?: boolean
+  supplierVariantCode?: boolean
+  supplierNote?: boolean
+  pricingUpdatedAt?: boolean
+  minOrderQty?: boolean
+  stockQty?: boolean
+  availabilityUpdatedAt?: boolean
   currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -747,6 +1208,17 @@ export type ProductVariantSupplierSelectUpdateManyAndReturn<ExtArgs extends runt
   supplierId?: boolean
   isActive?: boolean
   price?: boolean
+  operationalCostRate?: boolean
+  netCost?: boolean
+  profitRate?: boolean
+  listPrice?: boolean
+  paymentTermDays?: boolean
+  supplierVariantCode?: boolean
+  supplierNote?: boolean
+  pricingUpdatedAt?: boolean
+  minOrderQty?: boolean
+  stockQty?: boolean
+  availabilityUpdatedAt?: boolean
   currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -760,12 +1232,23 @@ export type ProductVariantSupplierSelectScalar = {
   supplierId?: boolean
   isActive?: boolean
   price?: boolean
+  operationalCostRate?: boolean
+  netCost?: boolean
+  profitRate?: boolean
+  listPrice?: boolean
+  paymentTermDays?: boolean
+  supplierVariantCode?: boolean
+  supplierNote?: boolean
+  pricingUpdatedAt?: boolean
+  minOrderQty?: boolean
+  stockQty?: boolean
+  availabilityUpdatedAt?: boolean
   currency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductVariantSupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "supplierId" | "isActive" | "price" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariantSupplier"]>
+export type ProductVariantSupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "supplierId" | "isActive" | "price" | "operationalCostRate" | "netCost" | "profitRate" | "listPrice" | "paymentTermDays" | "supplierVariantCode" | "supplierNote" | "pricingUpdatedAt" | "minOrderQty" | "stockQty" | "availabilityUpdatedAt" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariantSupplier"]>
 export type ProductVariantSupplierInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
@@ -791,6 +1274,17 @@ export type $ProductVariantSupplierPayload<ExtArgs extends runtime.Types.Extensi
     supplierId: string
     isActive: boolean
     price: runtime.Decimal
+    operationalCostRate: runtime.Decimal | null
+    netCost: runtime.Decimal | null
+    profitRate: runtime.Decimal | null
+    listPrice: runtime.Decimal | null
+    paymentTermDays: number | null
+    supplierVariantCode: string | null
+    supplierNote: string | null
+    pricingUpdatedAt: Date | null
+    minOrderQty: number | null
+    stockQty: number | null
+    availabilityUpdatedAt: Date | null
     currency: string
     createdAt: Date
     updatedAt: Date
@@ -1224,6 +1718,17 @@ export interface ProductVariantSupplierFieldRefs {
   readonly supplierId: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
   readonly isActive: Prisma.FieldRef<"ProductVariantSupplier", 'Boolean'>
   readonly price: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly operationalCostRate: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly netCost: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly profitRate: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly listPrice: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly paymentTermDays: Prisma.FieldRef<"ProductVariantSupplier", 'Int'>
+  readonly supplierVariantCode: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
+  readonly supplierNote: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
+  readonly pricingUpdatedAt: Prisma.FieldRef<"ProductVariantSupplier", 'DateTime'>
+  readonly minOrderQty: Prisma.FieldRef<"ProductVariantSupplier", 'Int'>
+  readonly stockQty: Prisma.FieldRef<"ProductVariantSupplier", 'Int'>
+  readonly availabilityUpdatedAt: Prisma.FieldRef<"ProductVariantSupplier", 'DateTime'>
   readonly currency: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProductVariantSupplier", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductVariantSupplier", 'DateTime'>

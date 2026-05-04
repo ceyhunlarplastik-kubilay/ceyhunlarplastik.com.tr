@@ -1,7 +1,7 @@
 import { getServerSession, NextAuthOptions } from "next-auth";
 import CognitoProvider from "next-auth/providers/cognito";
 
-const KNOWN_GROUPS = ["owner", "admin", "supplier", "user"] as const
+const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "supplier", "user"] as const
 
 function normalizeGroups(groups: string[]): string[] {
     const cleaned = groups

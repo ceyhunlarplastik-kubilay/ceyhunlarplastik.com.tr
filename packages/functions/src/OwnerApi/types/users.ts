@@ -8,6 +8,8 @@ enum UserGroups {
     ADMIN = "admin",
     OWNER = "owner",
     SUPPLIER = "supplier",
+    PURCHASING = "purchasing",
+    SALES = "sales",
 }
 
 export interface IAddUserToGroupBody {

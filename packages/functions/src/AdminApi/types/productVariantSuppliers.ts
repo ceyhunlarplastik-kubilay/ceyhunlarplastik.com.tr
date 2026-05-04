@@ -14,6 +14,15 @@ export interface ICreateProductVariantSupplierBody {
     supplierId: string
     isActive?: boolean
     price?: number
+    operationalCostRate?: number
+    netCost?: number
+    profitRate?: number
+    listPrice?: number
+    paymentTermDays?: number
+    supplierVariantCode?: string
+    supplierNote?: string
+    minOrderQty?: number
+    stockQty?: number
     currency?: string
 }
 
@@ -41,7 +50,32 @@ export type IListProductVariantSuppliersEvent =
             limit?: string
             variantId?: string
             supplierId?: string
+            productId?: string
+            categoryId?: string
             sort?: string
             order?: "asc" | "desc"
         }
     >
+
+export type IListSupplierProductsEvent =
+    IAPIGatewayProxyEventWithUserGeneric<
+        {},
+        {},
+        {
+            supplierId?: string
+            categoryId?: string
+            search?: string
+            page?: string
+            limit?: string
+            sort?: string
+            order?: "asc" | "desc"
+        }
+    >
+
+export type IBulkUpdateProductVariantSupplierPricingEvent =
+    IAPIGatewayProxyEventWithUserGeneric<{
+        productId: string
+        supplierId?: string
+        operationalCostRate?: number
+        profitRate?: number
+    }>

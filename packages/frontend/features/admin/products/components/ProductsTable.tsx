@@ -176,7 +176,7 @@ export function ProductsTable({
                             <SelectItem value="__all__">Tüm Kategoriler</SelectItem>
                             {categories.map((category) => (
                                 <SelectItem key={category.id} value={category.id}>
-                                    {category.name}
+                                    {category.code}-{category.name}
                                 </SelectItem>
                             ))}
                         </SelectContent>

@@ -20,13 +20,28 @@ export type SupplierModel = runtime.Types.Result.DefaultSelection<Prisma.$Suppli
 
 export type AggregateSupplier = {
   _count: SupplierCountAggregateOutputType | null
+  _avg: SupplierAvgAggregateOutputType | null
+  _sum: SupplierSumAggregateOutputType | null
   _min: SupplierMinAggregateOutputType | null
   _max: SupplierMaxAggregateOutputType | null
+}
+
+export type SupplierAvgAggregateOutputType = {
+  defaultPaymentTermDays: number | null
+}
+
+export type SupplierSumAggregateOutputType = {
+  defaultPaymentTermDays: number | null
 }
 
 export type SupplierMinAggregateOutputType = {
   id: string | null
   name: string | null
+  contactName: string | null
+  phone: string | null
+  address: string | null
+  taxNumber: string | null
+  defaultPaymentTermDays: number | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -35,6 +50,11 @@ export type SupplierMinAggregateOutputType = {
 export type SupplierMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  contactName: string | null
+  phone: string | null
+  address: string | null
+  taxNumber: string | null
+  defaultPaymentTermDays: number | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -43,6 +63,11 @@ export type SupplierMaxAggregateOutputType = {
 export type SupplierCountAggregateOutputType = {
   id: number
   name: number
+  contactName: number
+  phone: number
+  address: number
+  taxNumber: number
+  defaultPaymentTermDays: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -50,9 +75,22 @@ export type SupplierCountAggregateOutputType = {
 }
 
 
+export type SupplierAvgAggregateInputType = {
+  defaultPaymentTermDays?: true
+}
+
+export type SupplierSumAggregateInputType = {
+  defaultPaymentTermDays?: true
+}
+
 export type SupplierMinAggregateInputType = {
   id?: true
   name?: true
+  contactName?: true
+  phone?: true
+  address?: true
+  taxNumber?: true
+  defaultPaymentTermDays?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -61,6 +99,11 @@ export type SupplierMinAggregateInputType = {
 export type SupplierMaxAggregateInputType = {
   id?: true
   name?: true
+  contactName?: true
+  phone?: true
+  address?: true
+  taxNumber?: true
+  defaultPaymentTermDays?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -69,6 +112,11 @@ export type SupplierMaxAggregateInputType = {
 export type SupplierCountAggregateInputType = {
   id?: true
   name?: true
+  contactName?: true
+  phone?: true
+  address?: true
+  taxNumber?: true
+  defaultPaymentTermDays?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -113,6 +161,18 @@ export type SupplierAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SupplierAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SupplierSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SupplierMinAggregateInputType
@@ -143,6 +203,8 @@ export type SupplierGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: SupplierCountAggregateInputType | true
+  _avg?: SupplierAvgAggregateInputType
+  _sum?: SupplierSumAggregateInputType
   _min?: SupplierMinAggregateInputType
   _max?: SupplierMaxAggregateInputType
 }
@@ -150,10 +212,17 @@ export type SupplierGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type SupplierGroupByOutputType = {
   id: string
   name: string
+  contactName: string | null
+  phone: string | null
+  address: string | null
+  taxNumber: string | null
+  defaultPaymentTermDays: number | null
   isActive: boolean
   createdAt: Date
   updatedAt: Date
   _count: SupplierCountAggregateOutputType | null
+  _avg: SupplierAvgAggregateOutputType | null
+  _sum: SupplierSumAggregateOutputType | null
   _min: SupplierMinAggregateOutputType | null
   _max: SupplierMaxAggregateOutputType | null
 }
@@ -179,6 +248,11 @@ export type SupplierWhereInput = {
   NOT?: Prisma.SupplierWhereInput | Prisma.SupplierWhereInput[]
   id?: Prisma.StringFilter<"Supplier"> | string
   name?: Prisma.StringFilter<"Supplier"> | string
+  contactName?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  phone?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  address?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  taxNumber?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  defaultPaymentTermDays?: Prisma.IntNullableFilter<"Supplier"> | number | null
   isActive?: Prisma.BoolFilter<"Supplier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
@@ -189,6 +263,11 @@ export type SupplierWhereInput = {
 export type SupplierOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  contactName?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -202,6 +281,11 @@ export type SupplierWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SupplierWhereInput | Prisma.SupplierWhereInput[]
   OR?: Prisma.SupplierWhereInput[]
   NOT?: Prisma.SupplierWhereInput | Prisma.SupplierWhereInput[]
+  contactName?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  phone?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  address?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  taxNumber?: Prisma.StringNullableFilter<"Supplier"> | string | null
+  defaultPaymentTermDays?: Prisma.IntNullableFilter<"Supplier"> | number | null
   isActive?: Prisma.BoolFilter<"Supplier"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
@@ -212,12 +296,19 @@ export type SupplierWhereUniqueInput = Prisma.AtLeast<{
 export type SupplierOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  contactName?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  taxNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SupplierCountOrderByAggregateInput
+  _avg?: Prisma.SupplierAvgOrderByAggregateInput
   _max?: Prisma.SupplierMaxOrderByAggregateInput
   _min?: Prisma.SupplierMinOrderByAggregateInput
+  _sum?: Prisma.SupplierSumOrderByAggregateInput
 }
 
 export type SupplierScalarWhereWithAggregatesInput = {
@@ -226,6 +317,11 @@ export type SupplierScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SupplierScalarWhereWithAggregatesInput | Prisma.SupplierScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Supplier"> | string
   name?: Prisma.StringWithAggregatesFilter<"Supplier"> | string
+  contactName?: Prisma.StringNullableWithAggregatesFilter<"Supplier"> | string | null
+  phone?: Prisma.StringNullableWithAggregatesFilter<"Supplier"> | string | null
+  address?: Prisma.StringNullableWithAggregatesFilter<"Supplier"> | string | null
+  taxNumber?: Prisma.StringNullableWithAggregatesFilter<"Supplier"> | string | null
+  defaultPaymentTermDays?: Prisma.IntNullableWithAggregatesFilter<"Supplier"> | number | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Supplier"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Supplier"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Supplier"> | Date | string
@@ -234,6 +330,11 @@ export type SupplierScalarWhereWithAggregatesInput = {
 export type SupplierCreateInput = {
   id?: string
   name: string
+  contactName?: string | null
+  phone?: string | null
+  address?: string | null
+  taxNumber?: string | null
+  defaultPaymentTermDays?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -244,6 +345,11 @@ export type SupplierCreateInput = {
 export type SupplierUncheckedCreateInput = {
   id?: string
   name: string
+  contactName?: string | null
+  phone?: string | null
+  address?: string | null
+  taxNumber?: string | null
+  defaultPaymentTermDays?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -254,6 +360,11 @@ export type SupplierUncheckedCreateInput = {
 export type SupplierUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -264,6 +375,11 @@ export type SupplierUpdateInput = {
 export type SupplierUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -274,6 +390,11 @@ export type SupplierUncheckedUpdateInput = {
 export type SupplierCreateManyInput = {
   id?: string
   name: string
+  contactName?: string | null
+  phone?: string | null
+  address?: string | null
+  taxNumber?: string | null
+  defaultPaymentTermDays?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -282,6 +403,11 @@ export type SupplierCreateManyInput = {
 export type SupplierUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -290,6 +416,11 @@ export type SupplierUpdateManyMutationInput = {
 export type SupplierUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -303,14 +434,28 @@ export type SupplierNullableScalarRelationFilter = {
 export type SupplierCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  contactName?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  taxNumber?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
+export type SupplierAvgOrderByAggregateInput = {
+  defaultPaymentTermDays?: Prisma.SortOrder
+}
+
 export type SupplierMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  contactName?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  taxNumber?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -319,9 +464,18 @@ export type SupplierMaxOrderByAggregateInput = {
 export type SupplierMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  contactName?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  taxNumber?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SupplierSumOrderByAggregateInput = {
+  defaultPaymentTermDays?: Prisma.SortOrder
 }
 
 export type SupplierScalarRelationFilter = {
@@ -362,6 +516,11 @@ export type SupplierUpdateOneRequiredWithoutVariantSuppliersNestedInput = {
 export type SupplierCreateWithoutUsersInput = {
   id?: string
   name: string
+  contactName?: string | null
+  phone?: string | null
+  address?: string | null
+  taxNumber?: string | null
+  defaultPaymentTermDays?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -371,6 +530,11 @@ export type SupplierCreateWithoutUsersInput = {
 export type SupplierUncheckedCreateWithoutUsersInput = {
   id?: string
   name: string
+  contactName?: string | null
+  phone?: string | null
+  address?: string | null
+  taxNumber?: string | null
+  defaultPaymentTermDays?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -396,6 +560,11 @@ export type SupplierUpdateToOneWithWhereWithoutUsersInput = {
 export type SupplierUpdateWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -405,6 +574,11 @@ export type SupplierUpdateWithoutUsersInput = {
 export type SupplierUncheckedUpdateWithoutUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -414,6 +588,11 @@ export type SupplierUncheckedUpdateWithoutUsersInput = {
 export type SupplierCreateWithoutVariantSuppliersInput = {
   id?: string
   name: string
+  contactName?: string | null
+  phone?: string | null
+  address?: string | null
+  taxNumber?: string | null
+  defaultPaymentTermDays?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -423,6 +602,11 @@ export type SupplierCreateWithoutVariantSuppliersInput = {
 export type SupplierUncheckedCreateWithoutVariantSuppliersInput = {
   id?: string
   name: string
+  contactName?: string | null
+  phone?: string | null
+  address?: string | null
+  taxNumber?: string | null
+  defaultPaymentTermDays?: number | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -448,6 +632,11 @@ export type SupplierUpdateToOneWithWhereWithoutVariantSuppliersInput = {
 export type SupplierUpdateWithoutVariantSuppliersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -457,6 +646,11 @@ export type SupplierUpdateWithoutVariantSuppliersInput = {
 export type SupplierUncheckedUpdateWithoutVariantSuppliersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -506,6 +700,11 @@ export type SupplierCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.
 export type SupplierSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  contactName?: boolean
+  phone?: boolean
+  address?: boolean
+  taxNumber?: boolean
+  defaultPaymentTermDays?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -517,6 +716,11 @@ export type SupplierSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type SupplierSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  contactName?: boolean
+  phone?: boolean
+  address?: boolean
+  taxNumber?: boolean
+  defaultPaymentTermDays?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -525,6 +729,11 @@ export type SupplierSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type SupplierSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  contactName?: boolean
+  phone?: boolean
+  address?: boolean
+  taxNumber?: boolean
+  defaultPaymentTermDays?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -533,12 +742,17 @@ export type SupplierSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type SupplierSelectScalar = {
   id?: boolean
   name?: boolean
+  contactName?: boolean
+  phone?: boolean
+  address?: boolean
+  taxNumber?: boolean
+  defaultPaymentTermDays?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["supplier"]>
+export type SupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "contactName" | "phone" | "address" | "taxNumber" | "defaultPaymentTermDays" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["supplier"]>
 export type SupplierInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variantSuppliers?: boolean | Prisma.Supplier$variantSuppliersArgs<ExtArgs>
   users?: boolean | Prisma.Supplier$usersArgs<ExtArgs>
@@ -556,6 +770,11 @@ export type $SupplierPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    contactName: string | null
+    phone: string | null
+    address: string | null
+    taxNumber: string | null
+    defaultPaymentTermDays: number | null
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -986,6 +1205,11 @@ export interface Prisma__SupplierClient<T, Null = never, ExtArgs extends runtime
 export interface SupplierFieldRefs {
   readonly id: Prisma.FieldRef<"Supplier", 'String'>
   readonly name: Prisma.FieldRef<"Supplier", 'String'>
+  readonly contactName: Prisma.FieldRef<"Supplier", 'String'>
+  readonly phone: Prisma.FieldRef<"Supplier", 'String'>
+  readonly address: Prisma.FieldRef<"Supplier", 'String'>
+  readonly taxNumber: Prisma.FieldRef<"Supplier", 'String'>
+  readonly defaultPaymentTermDays: Prisma.FieldRef<"Supplier", 'Int'>
   readonly isActive: Prisma.FieldRef<"Supplier", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Supplier", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Supplier", 'DateTime'>

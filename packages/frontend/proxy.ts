@@ -1,6 +1,6 @@
 import { withAuth } from "next-auth/middleware"
 
-const KNOWN_GROUPS = ["owner", "admin", "supplier", "user"] as const
+const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "supplier", "user"] as const
 
 function normalizeGroups(raw: unknown): string[] {
     if (Array.isArray(raw)) {
@@ -54,37 +54,70 @@ function parseGroupsFromIdToken(idToken: unknown): string[] {
     }
 }
 
+type TokenLike = {
+    error?: string
+    groups?: unknown
+    idToken?: unknown
+}
+
 export const proxy = withAuth({
     callbacks: {
         authorized({ token, req }) {
             const { pathname } = req.nextUrl;
+            const typedToken = (token ?? {}) as TokenLike
 
             // Token yoksa veya refresh hatası varsa → re-login
             if (!token) return false;
 
             // Refresh token geçersiz olduysa (Cognito'dan invalid_grant geldi)
             // false döndürmek NextAuth'un kullanıcıyı signin'e yönlendirmesini tetikler
-            if ((token as any).error === "RefreshTokenError") return false;
+            if (typedToken.error === "RefreshTokenError") return false;
 
             // /admin ile başlıyorsa role kontrolü yap
             if (pathname.startsWith("/admin")) {
-                const groups = normalizeGroups((token as any).groups);
+                const groups = normalizeGroups(typedToken.groups);
                 const fallbackGroups =
-                    groups.length > 0 ? groups : parseGroupsFromIdToken((token as any).idToken);
+                    groups.length > 0 ? groups : parseGroupsFromIdToken(typedToken.idToken);
 
                 if (fallbackGroups.length === 0) return false;
 
                 return fallbackGroups.includes("admin") || fallbackGroups.includes("owner");
             }
 
-            if (pathname.startsWith("/supplier")) {
-                const groups = normalizeGroups((token as any).groups);
+            if (pathname.startsWith("/supplier") || pathname.startsWith("/tedarikci")) {
+                const groups = normalizeGroups(typedToken.groups);
                 const fallbackGroups =
-                    groups.length > 0 ? groups : parseGroupsFromIdToken((token as any).idToken);
+                    groups.length > 0 ? groups : parseGroupsFromIdToken(typedToken.idToken);
                 if (fallbackGroups.length === 0) return false;
 
                 return (
                     fallbackGroups.includes("supplier") ||
+                    fallbackGroups.includes("admin") ||
+                    fallbackGroups.includes("owner")
+                );
+            }
+
+            if (pathname.startsWith("/satinalma")) {
+                const groups = normalizeGroups(typedToken.groups);
+                const fallbackGroups =
+                    groups.length > 0 ? groups : parseGroupsFromIdToken(typedToken.idToken);
+                if (fallbackGroups.length === 0) return false;
+
+                return (
+                    fallbackGroups.includes("purchasing") ||
+                    fallbackGroups.includes("admin") ||
+                    fallbackGroups.includes("owner")
+                );
+            }
+
+            if (pathname.startsWith("/satis")) {
+                const groups = normalizeGroups(typedToken.groups);
+                const fallbackGroups =
+                    groups.length > 0 ? groups : parseGroupsFromIdToken(typedToken.idToken);
+                if (fallbackGroups.length === 0) return false;
+
+                return (
+                    fallbackGroups.includes("sales") ||
                     fallbackGroups.includes("admin") ||
                     fallbackGroups.includes("owner")
                 );
@@ -103,5 +136,8 @@ export const config = {
         "/protected/:path*",
         "/admin/:path*",
         "/supplier/:path*",
+        "/tedarikci/:path*",
+        "/satinalma/:path*",
+        "/satis/:path*",
     ]
 }

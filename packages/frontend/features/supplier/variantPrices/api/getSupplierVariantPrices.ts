@@ -5,8 +5,9 @@ import type {
 } from "@/features/supplier/variantPrices/api/types"
 
 export async function getSupplierVariantPrices(params: GetSupplierVariantPricesParams = {}) {
+    const endpointPrefix = params.endpointPrefix ?? "supplier"
     const res = await protectedApiClient.get<ListSupplierVariantPricesResponse>(
-        "/supplier/variant-prices",
+        `/${endpointPrefix}/variant-prices`,
         {
             params: {
                 page: params.page ?? 1,
@@ -17,6 +18,7 @@ export async function getSupplierVariantPrices(params: GetSupplierVariantPricesP
                 ...(params.variantId ? { variantId: params.variantId } : {}),
                 ...(params.productId ? { productId: params.productId } : {}),
                 ...(params.categoryId ? { categoryId: params.categoryId } : {}),
+                ...(params.supplierId ? { supplierId: params.supplierId } : {}),
             },
         }
     )

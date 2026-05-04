@@ -7,6 +7,11 @@ type Params = {
     supplierId?: string
     page: number
     limit: number
+    search?: string
+    categoryId?: string
+    productId?: string
+    sort?: string
+    order?: "asc" | "desc"
 }
 
 export function useSupplierVariantSuppliers(params: Params) {
@@ -17,6 +22,11 @@ export function useSupplierVariantSuppliers(params: Params) {
                 supplierId: params.supplierId as string,
                 page: params.page,
                 limit: params.limit,
+                ...(params.search ? { search: params.search } : {}),
+                ...(params.categoryId ? { categoryId: params.categoryId } : {}),
+                ...(params.productId ? { productId: params.productId } : {}),
+                ...(params.sort ? { sort: params.sort } : {}),
+                ...(params.order ? { order: params.order } : {}),
             }),
         enabled: Boolean(params.supplierId),
     })

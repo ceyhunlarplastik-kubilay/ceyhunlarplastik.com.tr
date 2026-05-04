@@ -1,2 +1,5 @@
 export * from "@/functions/ProtectedApi/functions/supplierVariantPrices/handlers/listSupplierVariantPricesHandler"
 export * from "@/functions/ProtectedApi/functions/supplierVariantPrices/handlers/updateSupplierVariantPriceHandler"
+export * from "@/functions/ProtectedApi/functions/supplierVariantPrices/handlers/listSupplierProductsHandler"
+export * from "@/functions/ProtectedApi/functions/supplierVariantPrices/handlers/getSupplierProfileHandler"
+export * from "@/functions/ProtectedApi/functions/supplierVariantPrices/handlers/updateSupplierProfileHandler"

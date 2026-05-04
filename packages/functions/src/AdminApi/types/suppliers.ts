@@ -7,6 +7,11 @@ export interface ISupplierDependencies {
 
 export interface ICreateSupplierBody {
     name: string
+    contactName?: string
+    phone?: string
+    address?: string
+    taxNumber?: string
+    defaultPaymentTermDays?: number
     isActive: boolean
 }
 

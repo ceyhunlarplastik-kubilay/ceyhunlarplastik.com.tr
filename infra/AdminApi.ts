@@ -297,6 +297,11 @@ adminApi.route("GET /product-variant-suppliers", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /product-variant-suppliers/products", {
+    handler: `${folderPrefix}/productVariantSuppliers/actions.listSupplierProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /product-variant-suppliers/{id}", {
     handler: `${folderPrefix}/productVariantSuppliers/actions.getProductVariantSupplier`,
     ...defaultRouteOptions,
@@ -309,6 +314,11 @@ adminApi.route("POST /product-variant-suppliers", {
 
 adminApi.route("PUT /product-variant-suppliers/{id}", {
     handler: `${folderPrefix}/productVariantSuppliers/actions.updateProductVariantSupplier`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /product-variant-suppliers/bulk-pricing-update", {
+    handler: `${folderPrefix}/productVariantSuppliers/actions.bulkUpdateProductVariantSupplierPricing`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 

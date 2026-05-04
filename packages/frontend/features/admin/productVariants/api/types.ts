@@ -15,6 +15,17 @@ export type VariantSupplier = {
     id: string
     isActive: boolean
     price?: number | string | { s?: number; e?: number; d?: number[] }
+    operationalCostRate?: number | string | { s?: number; e?: number; d?: number[] }
+    netCost?: number | string | { s?: number; e?: number; d?: number[] }
+    profitRate?: number | string | { s?: number; e?: number; d?: number[] }
+    listPrice?: number | string | { s?: number; e?: number; d?: number[] }
+    paymentTermDays?: number | null
+    supplierVariantCode?: string | null
+    supplierNote?: string | null
+    minOrderQty?: number | null
+    stockQty?: number | null
+    pricingUpdatedAt?: string | null
+    availabilityUpdatedAt?: string | null
     currency?: string
     supplier: {
         id: string
@@ -116,6 +127,15 @@ export type UpsertVariantInput = {
         id: string
         isActive?: boolean
         price?: number
+        operationalCostRate?: number
+        netCost?: number
+        profitRate?: number
+        listPrice?: number
+        paymentTermDays?: number
+        supplierVariantCode?: string
+        supplierNote?: string
+        minOrderQty?: number
+        stockQty?: number
         currency?: string
     }>
     measurements: Array<{

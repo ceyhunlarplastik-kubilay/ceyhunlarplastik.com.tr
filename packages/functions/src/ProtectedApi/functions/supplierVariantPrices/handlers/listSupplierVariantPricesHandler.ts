@@ -6,7 +6,7 @@ import {
     IListSupplierVariantPricesEvent,
 } from "@/functions/ProtectedApi/types/supplierVariantPrices"
 
-const ALLOWED_SORT_FIELDS = ["updatedAt", "createdAt"] as const
+const ALLOWED_SORT_FIELDS = ["updatedAt", "createdAt", "pricingUpdatedAt"] as const
 
 export const listSupplierVariantPricesHandler =
     ({ productVariantSupplierRepository }: ISupplierVariantPriceDependencies) =>
@@ -29,7 +29,9 @@ export const listSupplierVariantPricesHandler =
 
             const supplierIdFilter =
                 user.supplierId ??
-                ((user.isOwner || user.isAdmin) ? query.supplierId : undefined)
+                ((user.isOwner || user.isAdmin || user.isPurchasing || user.isSales)
+                    ? query.supplierId
+                    : undefined)
 
             if (user.isSupplier && !supplierIdFilter && !user.isOwner && !user.isAdmin) {
                 throw new createError.Forbidden("Supplier context missing")
@@ -47,8 +49,54 @@ export const listSupplierVariantPricesHandler =
                 ...(query.categoryId && { categoryId: query.categoryId }),
             })
 
+            const path = event.rawPath ?? ""
+            const isPurchasingRoute = path.startsWith("/purchasing/")
+            const isSalesRoute = path.startsWith("/sales/")
+            const canSeeAllPricing = user.isOwner || user.isAdmin
+
+            const projectedData = result.data.map((item) => {
+                if (canSeeAllPricing) return item
+
+                if (isSalesRoute) {
+                    return {
+                        ...item,
+                        price: undefined,
+                        profitRate: undefined,
+                    }
+                }
+
+                if (isPurchasingRoute) {
+                    return {
+                        ...item,
+                        profitRate: undefined,
+                        listPrice: undefined,
+                    }
+                }
+
+                if (user.isSupplier || user.isPurchasing) {
+                    return {
+                        ...item,
+                        profitRate: undefined,
+                        listPrice: undefined,
+                    }
+                }
+
+                if (user.isSales) {
+                    return {
+                        ...item,
+                        price: undefined,
+                        profitRate: undefined,
+                    }
+                }
+
+                return item
+            })
+
             return apiResponseDTO({
                 statusCode: 200,
-                payload: result,
+                payload: {
+                    data: projectedData,
+                    meta: result.meta,
+                },
             })
         }

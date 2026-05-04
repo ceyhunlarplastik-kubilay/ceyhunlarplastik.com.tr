@@ -74,6 +74,8 @@ export interface IAuthenticatedUser {
   isOwner: boolean
   isAdmin: boolean
   isSupplier: boolean
+  isPurchasing: boolean
+  isSales: boolean
 }
 
 // Lambda event tipi (hem authenticated hem anonymous destekler)
