@@ -13,7 +13,7 @@ type Params = {
 
 const supplierParamsSchema = z.object({
     page: z.number().int().positive(),
-    limit: z.number().int().positive().max(100),
+    limit: z.number().int().positive().max(500),
     search: z.string().trim().optional(),
 })
 
