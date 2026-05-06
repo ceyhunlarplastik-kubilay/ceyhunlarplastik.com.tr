@@ -51,6 +51,19 @@ declare module "sst" {
       "bastion": string
       "type": "sst.aws.Vpc"
     }
+    "SupplierApprovalBus": {
+      "arn": string
+      "name": string
+      "type": "sst.aws.Bus"
+    }
+    "SupplierApprovalRegisterTaskToken": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "SupplierApprovalWorkflow": {
+      "arn": string
+      "type": "sst.aws.StepFunctions"
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />

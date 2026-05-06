@@ -14,6 +14,7 @@ import {
     Truck,
     Users,
     ClipboardList,
+    ShieldCheck,
     Menu,
     ChevronLeft,
     ChevronDown,
@@ -59,6 +60,11 @@ const navItems = [
         href: "/admin/web-requests",
         label: "Web Talepleri",
         icon: ClipboardList,
+    },
+    {
+        href: "/admin/supplier-approval-requests",
+        label: "Onay Bekleyen Talepler",
+        icon: ShieldCheck,
     }
 ]
 

@@ -182,7 +182,7 @@ export type UserGroupByOutputType = {
   _max: UserMaxAggregateOutputType | null
 }
 
-type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<
+export type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<UserGroupByOutputType, T['by']> &
       {
@@ -211,6 +211,8 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestListRelationFilter
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -224,6 +226,8 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   supplier?: Prisma.SupplierOrderByWithRelationInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestOrderByRelationAggregateInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -240,6 +244,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestListRelationFilter
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestListRelationFilter
 }, "id" | "cognitoSub" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -282,6 +288,8 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -294,6 +302,8 @@ export type UserUncheckedCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
 }
 
 export type UserUpdateInput = {
@@ -306,6 +316,8 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -318,6 +330,8 @@ export type UserUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -407,6 +421,16 @@ export type UserOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type UserScalarRelationFilter = {
+  is?: Prisma.UserWhereInput
+  isNot?: Prisma.UserWhereInput
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type UserCreategroupsInput = {
   set: string[]
 }
@@ -474,6 +498,36 @@ export type UserUncheckedUpdateManyWithoutSupplierNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
+export type UserCreateNestedOneWithoutSupplierApprovalRequestsRequestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsRequestedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsRequestedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSupplierApprovalRequestsRequestedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutSupplierApprovalRequestsReviewedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsReviewedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSupplierApprovalRequestsReviewedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSupplierApprovalRequestsRequestedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsRequestedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsRequestedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSupplierApprovalRequestsRequestedInput
+  upsert?: Prisma.UserUpsertWithoutSupplierApprovalRequestsRequestedInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSupplierApprovalRequestsRequestedInput, Prisma.UserUpdateWithoutSupplierApprovalRequestsRequestedInput>, Prisma.UserUncheckedUpdateWithoutSupplierApprovalRequestsRequestedInput>
+}
+
+export type UserUpdateOneWithoutSupplierApprovalRequestsReviewedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsReviewedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSupplierApprovalRequestsReviewedInput
+  upsert?: Prisma.UserUpsertWithoutSupplierApprovalRequestsReviewedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUpdateWithoutSupplierApprovalRequestsReviewedInput>, Prisma.UserUncheckedUpdateWithoutSupplierApprovalRequestsReviewedInput>
+}
+
 export type UserCreateWithoutSupplierInput = {
   id?: string
   cognitoSub: string
@@ -483,6 +537,8 @@ export type UserCreateWithoutSupplierInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSupplierInput = {
@@ -494,6 +550,8 @@ export type UserUncheckedCreateWithoutSupplierInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSupplierInput = {
@@ -537,6 +595,142 @@ export type UserScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
 }
 
+export type UserCreateWithoutSupplierApprovalRequestsRequestedInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+}
+
+export type UserUncheckedCreateWithoutSupplierApprovalRequestsRequestedInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+}
+
+export type UserCreateOrConnectWithoutSupplierApprovalRequestsRequestedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsRequestedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsRequestedInput>
+}
+
+export type UserCreateWithoutSupplierApprovalRequestsReviewedInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+}
+
+export type UserUncheckedCreateWithoutSupplierApprovalRequestsReviewedInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+}
+
+export type UserCreateOrConnectWithoutSupplierApprovalRequestsReviewedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsReviewedInput>
+}
+
+export type UserUpsertWithoutSupplierApprovalRequestsRequestedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSupplierApprovalRequestsRequestedInput, Prisma.UserUncheckedUpdateWithoutSupplierApprovalRequestsRequestedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsRequestedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsRequestedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSupplierApprovalRequestsRequestedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSupplierApprovalRequestsRequestedInput, Prisma.UserUncheckedUpdateWithoutSupplierApprovalRequestsRequestedInput>
+}
+
+export type UserUpdateWithoutSupplierApprovalRequestsRequestedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSupplierApprovalRequestsRequestedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+}
+
+export type UserUpsertWithoutSupplierApprovalRequestsReviewedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUncheckedUpdateWithoutSupplierApprovalRequestsReviewedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUncheckedCreateWithoutSupplierApprovalRequestsReviewedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSupplierApprovalRequestsReviewedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUncheckedUpdateWithoutSupplierApprovalRequestsReviewedInput>
+}
+
+export type UserUpdateWithoutSupplierApprovalRequestsReviewedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSupplierApprovalRequestsReviewedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+}
+
 export type UserCreateManySupplierInput = {
   id?: string
   cognitoSub: string
@@ -557,6 +751,8 @@ export type UserUpdateWithoutSupplierInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupplierInput = {
@@ -568,6 +764,8 @@ export type UserUncheckedUpdateWithoutSupplierInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutSupplierInput = {
@@ -582,6 +780,44 @@ export type UserUncheckedUpdateManyWithoutSupplierInput = {
 }
 
 
+/**
+ * Count Type UserCountOutputType
+ */
+
+export type UserCountOutputType = {
+  supplierApprovalRequestsRequested: number
+  supplierApprovalRequestsReviewed: number
+}
+
+export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  supplierApprovalRequestsRequested?: boolean | UserCountOutputTypeCountSupplierApprovalRequestsRequestedArgs
+  supplierApprovalRequestsReviewed?: boolean | UserCountOutputTypeCountSupplierApprovalRequestsReviewedArgs
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserCountOutputType
+   */
+  select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSupplierApprovalRequestsRequestedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupplierApprovalRequestWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSupplierApprovalRequestsReviewedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupplierApprovalRequestWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -594,6 +830,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  supplierApprovalRequestsRequested?: boolean | Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs>
+  supplierApprovalRequestsReviewed?: boolean | Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs>
+  _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -637,6 +876,9 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "identifier" | "groups" | "supplierId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  supplierApprovalRequestsRequested?: boolean | Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs>
+  supplierApprovalRequestsReviewed?: boolean | Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs>
+  _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
@@ -649,6 +891,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     supplier: Prisma.$SupplierPayload<ExtArgs> | null
+    supplierApprovalRequestsRequested: Prisma.$SupplierApprovalRequestPayload<ExtArgs>[]
+    supplierApprovalRequestsReviewed: Prisma.$SupplierApprovalRequestPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1055,6 +1299,8 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   supplier<T extends Prisma.User$supplierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supplierArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  supplierApprovalRequestsRequested<T extends Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  supplierApprovalRequestsReviewed<T extends Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1289,6 +1535,11 @@ export type UserFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Skip the first `n` Users.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Users.
+   */
   distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
 }
 
@@ -1505,6 +1756,54 @@ export type User$supplierArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.SupplierInclude<ExtArgs> | null
   where?: Prisma.SupplierWhereInput
+}
+
+/**
+ * User.supplierApprovalRequestsRequested
+ */
+export type User$supplierApprovalRequestsRequestedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SupplierApprovalRequest
+   */
+  select?: Prisma.SupplierApprovalRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SupplierApprovalRequest
+   */
+  omit?: Prisma.SupplierApprovalRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupplierApprovalRequestInclude<ExtArgs> | null
+  where?: Prisma.SupplierApprovalRequestWhereInput
+  orderBy?: Prisma.SupplierApprovalRequestOrderByWithRelationInput | Prisma.SupplierApprovalRequestOrderByWithRelationInput[]
+  cursor?: Prisma.SupplierApprovalRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupplierApprovalRequestScalarFieldEnum | Prisma.SupplierApprovalRequestScalarFieldEnum[]
+}
+
+/**
+ * User.supplierApprovalRequestsReviewed
+ */
+export type User$supplierApprovalRequestsReviewedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SupplierApprovalRequest
+   */
+  select?: Prisma.SupplierApprovalRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SupplierApprovalRequest
+   */
+  omit?: Prisma.SupplierApprovalRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupplierApprovalRequestInclude<ExtArgs> | null
+  where?: Prisma.SupplierApprovalRequestWhereInput
+  orderBy?: Prisma.SupplierApprovalRequestOrderByWithRelationInput | Prisma.SupplierApprovalRequestOrderByWithRelationInput[]
+  cursor?: Prisma.SupplierApprovalRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupplierApprovalRequestScalarFieldEnum | Prisma.SupplierApprovalRequestScalarFieldEnum[]
 }
 
 /**

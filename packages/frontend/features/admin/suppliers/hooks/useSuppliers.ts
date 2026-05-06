@@ -1,6 +1,8 @@
 "use client"
 
+import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { z } from "zod"
 import { getSuppliers } from "@/features/admin/suppliers/api/getSuppliers"
 
 type Params = {
@@ -9,9 +11,26 @@ type Params = {
     search?: string
 }
 
-export function useSuppliers(params: Params) {
+const supplierParamsSchema = z.object({
+    page: z.number().int().positive(),
+    limit: z.number().int().positive().max(100),
+    search: z.string().trim().optional(),
+})
+
+type Options = {
+    params: Params
+    autoRefreshIntervalMs?: number | false
+}
+
+export function useSuppliers({ params, autoRefreshIntervalMs = false }: Options) {
+    const normalizedParams = useMemo(() => supplierParamsSchema.parse(params), [params])
+
     return useQuery({
-        queryKey: ["admin-suppliers", params],
-        queryFn: () => getSuppliers(params),
+        queryKey: ["admin-suppliers", normalizedParams],
+        queryFn: () => getSuppliers(normalizedParams),
+        refetchOnMount: "always",
+        refetchOnWindowFocus: true,
+        refetchInterval: autoRefreshIntervalMs,
+        refetchIntervalInBackground: false,
     })
 }

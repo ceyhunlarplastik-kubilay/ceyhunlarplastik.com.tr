@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/auth"
 import { redirect } from "next/navigation"
-import { AdminUserMenu } from "@/components/admin/AdminUserMenu"
+import { AdminTopbar } from "@/components/admin/AdminTopbar"
 
 export default async function SalesLayout({
     children,
@@ -11,7 +11,7 @@ export default async function SalesLayout({
 
     if (!session) redirect("/api/auth/signin")
 
-    const groups: string[] = (session.user as any)?.groups ?? []
+    const groups = (session.user as { groups?: string[] } | undefined)?.groups ?? []
     const allowed =
         groups.includes("sales") ||
         groups.includes("admin") ||
@@ -21,15 +21,14 @@ export default async function SalesLayout({
 
     return (
         <div className="min-h-screen bg-neutral-50">
-            <header className="sticky top-0 z-30 flex items-center justify-between gap-3 px-6 py-3 bg-white border-b border-neutral-100 shadow-sm">
-                <div className="text-sm font-semibold text-neutral-800">Satış Paneli</div>
-                <AdminUserMenu
-                    name={session.user?.name}
-                    email={session.user?.email}
-                    image={session.user?.image}
-                    groups={groups}
-                />
-            </header>
+            <AdminTopbar
+                title="Satış Paneli"
+                subtitle="Operasyon"
+                name={session.user?.name}
+                email={session.user?.email}
+                image={session.user?.image}
+                groups={groups}
+            />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">{children}</main>
         </div>
     )

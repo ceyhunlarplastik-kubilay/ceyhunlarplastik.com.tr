@@ -1,0 +1,303 @@
+Ceyhunlar plastik  web sitesini geliştirmeye devam ediyorum. Bu firma plastik parçalar üreten, farklı firmalardan da tedarik edip satabilen bir firmadır. Belirli rollerde admin panelleri bulunmaktadır ki daha önceki yakın zamanda yaptığımız konuşmalardan hatırlayabilrsin (admin/owner, supplier, purchasing, sales etc..). Önemli bir özellik eklemek üzereyim ve bunun için hangi aracı kullanmalıyım diye düşünüyorum. Tedarikçi (supplier) yetkisine sahip kullanıcı kendi ürünleri ile ilgili olarak bir güncelleme yaptığında aslında doğrudan güncelleme yapamayacak ve bir talep oluşturacaktır daha sonradan bu talep admin  veya owner yetkisine sahip kullanıcı tarafından /admin sayfasındayken onaylanacak veya reddedilecektir. sst ion v3 frameworkde monorepo template kullanıyorum nextjs fronetend ile. Sen zaten codexten de hatırlarsın ama kullandıklarımdan bazıları da şunlardır, nextjs, cognito, prisma ile postgresql, aws ApiGatewayV2, lambda fonksiyonlar vs. Az önce bahsettiğim tedarikçinin yaptığı güncellemenin admin veya owner onayından geçmesi sürecini yönetebilmesi için kullanması gereken araç konusunda özellikle senden araştırma yapıp en profesyonel yöntemi söylemeni istiyorum aws veya nodejs ile. Daha önceden step functions, sqs queue gibi şeyleri kullandığımı biliyorsun aws ile. SST docs'tan baktığıma göre şunları sst ion ile oluşturabiliyorum. 
+const foo = sst.aws.StepFunctions.pass({ name: "Foo" });
+const bar = sst.aws.StepFunctions.succeed({ name: "Bar" });
+
+const definition = foo.next(bar);
+
+new sst.aws.StepFunctions("MyStateMachine", {
+  definition
+});
+new sst.aws.SnsTopic("MyTopic", {
+  fifo: true
+});
+Realtime
+The Realtime component lets you publish and subscribe to messages in realtime.
+
+It offers a topic-based messaging network using AWS IoT. Letting you publish and subscribe to messages using a WebSocket in the browser and your server.
+
+Also, provides an SDK to authorize clients, grant permissions to subscribe, and publish to topics.
+There is only 1 IoT endpoint per region per AWS account. Messages from all apps and stages are published to the same IoT endpoint. Make sure to prefix the topics by the app and stage name.
+
+Create a realtime endpoint
+sst.config.ts
+const server = new sst.aws.Realtime("MyServer", {
+  authorizer: "src/authorizer.handler"
+});
+
+Authorize the client
+src/authorizer.ts
+import { Resource } from "sst/aws";
+import { realtime } from "sst/aws/realtime";
+
+export const handler = realtime.authorizer(async (token) => {
+  // Validate the token
+
+  // Return the topics to subscribe and publish
+  return {
+    subscribe: [${Resource.App.name}/${Resource.App.stage}/chat/room1],
+    publish: [${Resource.App.name}/${Resource.App.stage}/chat/room1],
+  };
+});
+
+Publish and receive messages in your frontend
+app/page.tsx
+import { Resource } from "sst/aws";
+
+const client = new mqtt.MqttClient();
+// Configure with
+// - Resource.Realtime.endpoint
+// - Resource.Realtime.authorizer
+const connection = client.new_connection(config);
+
+// Subscribe messages
+connection.on("message", (topic, payload) => {
+  // Handle the message
+});
+
+// Publish messages
+connection.publish(topic, payload, mqtt.QoS.AtLeastOnce);
+
+Subscribe messages in your backend
+sst.config.ts
+server.subscribe("src/subscriber.handler", {
+  filter: ${$app.name}/${$app.stage}/chat/room1
+});
+
+Publish message from your backend
+src/lambda.ts
+import { IoTDataPlaneClient, PublishCommand } from "@aws-sdk/client-iot-data-plane";
+const data = new IoTDataPlaneClient();
+await data.send(
+  new PublishCommand({
+    payload: Buffer.from(
+      JSON.stringify({ message: "Hello world" })
+    ),
+    topic: ${Resource.App.name}/${Resource.App.stage}/chat/room1,
+  })
+);
+
+Workflow
+The Workflow component lets you add serverless workflows to your app using AWS Lambda Durable Functions.
+
+It’s a thin wrapper around the Function component with durable execution enabled. It includes an SDK that wraps the AWS SDK with a simpler interface, adds helper methods, and makes it easier to integrate with other SST components.
+
+Minimal example
+sst.config.ts
+new sst.aws.Workflow("MyWorkflow", {
+  handler: "src/workflow.handler",
+});
+
+src/workflow.ts
+import { workflow } from "sst/aws/workflow";
+
+export const handler = workflow.handler(async (event, ctx) => {
+  const user = await ctx.step("load-user", async () => {
+    return { id: "user_123", email: "alice@example.com" };
+  });
+
+  await ctx.wait("pause-before-email", "1 minute");
+
+  return ctx.step("send-email", async () => {
+    return { sent: true, userId: user.id };
+  });
+});
+
+Configure timeout and retention
+sst.config.ts
+new sst.aws.Workflow("MyWorkflow", {
+  handler: "src/workflow.handler",
+  retention: "30 days",
+  timeout: {
+    execution: "2 hours",
+    invocation: "30 seconds",
+  },
+});
+
+Link resources
+sst.config.ts
+const bucket = new sst.aws.Bucket("MyBucket");
+
+new sst.aws.Workflow("MyWorkflow", {
+  handler: "src/workflow.handler",
+  link: [bucket],
+});
+
+src/workflow.ts
+import { Resource } from "sst";
+import { workflow } from "sst/aws/workflow";
+
+export const handler = workflow.handler(async (event, ctx) => {
+  return ctx.step("get-bucket-name", async () => {
+    return Resource.MyBucket.name;
+  });
+});
+
+Trigger with a cron job
+sst.config.ts
+const workflow = new sst.aws.Workflow("MyWorkflow", {
+  handler: "src/workflow.handler",
+});
+
+new sst.aws.CronV2("MyCron", {
+  schedule: "rate(1 minute)",
+  function: workflow,
+});
+
+src/workflow.ts
+import { workflow } from "sst/aws/workflow";
+
+export const handler = workflow.handler(async (event, ctx) => {
+  await ctx.step("start", async ({ logger }) => {
+    logger.info({ message: "Workflow invoked by cron" });
+  });
+});
+
+Check out the full example.
+
+Subscribe to a bus
+sst.config.ts
+const workflow = new sst.aws.Workflow("MyWorkflow", {
+  handler: "src/workflow.handler",
+});
+
+const bus = new sst.aws.Bus("MyBus");
+
+bus.subscribe("MySubscriber", workflow, {
+  pattern: {
+    detailType: ["app.workflow.requested"],
+  },
+});
+
+src/workflow.ts
+import { workflow } from "sst/aws/workflow";
+
+interface Event {
+  "detail-type": string;
+  detail: {
+    properties: {
+      message: string;
+      requestId: string;
+    };
+  };
+}
+
+export const handler = workflow.handler<Event>(async (event, ctx) => {
+  await ctx.step("start", async ({ logger }) => {
+    logger.info({
+      message: "Workflow invoked by bus",
+      requestId: event.detail.properties.requestId,
+    });
+  });
+});
+
+Check out the full example.
+
+Limitations
+Durable workflows replay from the top on resume and retry. Keep the control flow deterministic, and move side effects like API calls, database writes, timestamps, and random ID generation inside durable operations like ctx.step().
+
+Caution
+
+Workflow handlers have versioning enabled. Deploying an update won’t update existing running workflows.
+
+Before using workflows in production, review the AWS best practices for durable functions.
+
+Cost
+A workflow has no idle monthly cost. You pay the standard Lambda request and compute charges for each invocation.
+
+Tip
+
+When a workflow is suspended in a wait, functions don’t incur costs until execution resumes.
+
+Lambda durable functions usage is billed separately.
+
+Durable operations like starting an execution, completing a step, and creating a wait are billed at $8.00 per 1 million operations.
+Data written by durable operations is billed at $0.25 per GB.
+Retained execution state is billed at $0.15 per GB-month.
+For example, a workflow with two step() calls and one wait() uses four durable operations: one start, two steps, and one wait. That’s about $0.000032 per execution for durable operations, before Lambda compute, requests, written data, and retention.
+
+These are rough us-east-1 estimates. Check out the AWS Lambda pricing for more details.
+
+Constructor
+new Workflow(name, args, opts?)
+
+Parameters
+name string
+
+args WorkflowArgs
+
+opts? ComponentResourceOptions
+
+WorkflowArgs
+architecture?
+Type Input<“x86_64” | “arm64”>
+
+Default “x86_64”
+
+The architecture of the Lambda function.
+
+{
+  architecture: "arm64"}
+Queue
+The Queue component lets you add a serverless queue to your app. It uses Amazon SQS.
+
+Create a queue
+sst.config.ts
+const queue = new sst.aws.Queue("MyQueue");
+
+Make it a FIFO queue
+You can optionally make it a FIFO queue.
+
+sst.config.ts
+new sst.aws.Queue("MyQueue", {
+  fifo: true
+});
+
+Add a subscriber
+sst.config.ts
+queue.subscribe("src/subscriber.handler");
+
+Link the queue to a resource
+You can link the queue to other resources, like a function or your Next.js app.
+
+sst.config.ts
+new sst.aws.Nextjs("MyWeb", {
+  link: [queue]
+});
+
+Once linked, you can send messages to the queue from your function code.
+
+app/page.tsx
+import { Resource } from "sst";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+
+const sqs = new SQSClient({});
+
+await sqs.send(new SendMessageCommand({
+  QueueUrl: Resource.MyQueue.url,
+  MessageBody: "Hello from Next.js!"
+}));
+
+Constructor
+new Queue(name, args?, opts?)
+
+Parameters
+name string
+
+args? QueueArgs
+
+opts? ComponentResourceOptions
+
+QueueArgs
+delay?
+Type Input<“${number} minute” | “${number} minutes” | “${number} second” | “${number} seconds”>
+
+Default “0 seconds”
+
+The period of time which the delivery of all messages in the queue is delayed.
+
+This can range from 0 seconds to 900 seconds (15 minutes).
+
+{
+  delay: "10 seconds"
+}
+Ayrıca aklıma şu da geldi, mesela tedarikçi admin panelinde kendi ürünlerinden birinin fiyatını güncellemek istediğinde talep oluştursun, talep oluşturulduktan sonra admin veya owner kullanıcısı /admin panelindeyken kendisine gerçek zamanlı veya anlık bildirim gitmesini/gözükmesini isteyebilirim. Bunun için entegrasyon fikirlerine açığım ama ekonomik olması önceliğim tabi ki. Emin olmak için bana sorular sorabilirsin.

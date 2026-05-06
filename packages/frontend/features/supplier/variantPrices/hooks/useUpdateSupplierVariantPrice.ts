@@ -10,11 +10,17 @@ export function useUpdateSupplierVariantPrice(endpointPrefix: "supplier" | "purc
     return useMutation({
         mutationFn: updateSupplierVariantPrice,
         onSuccess() {
+            if (endpointPrefix === "supplier") {
+                toast.success("Değişiklik onaya gönderildi")
+                qc.invalidateQueries({ queryKey: ["supplier-approval-requests"] })
+                return
+            }
+
             toast.success("Fiyat güncellendi")
             qc.invalidateQueries({ queryKey: ["supplier-variant-prices", endpointPrefix] })
         },
         onError() {
-            toast.error("Fiyat güncellenemedi")
+            toast.error(endpointPrefix === "supplier" ? "Talep oluşturulamadı" : "Fiyat güncellenemedi")
         },
     })
 }

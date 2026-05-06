@@ -18,9 +18,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 type Props = {
-    onCreated: (category: Category) => void;
+    onCreated?: (category: Category) => void;
 };
 
 const schema = z.object({
@@ -108,7 +115,7 @@ export function CategoryCreateForm({ onCreated }: Props) {
             mimeType,
         });
 
-        onCreated(category);
+        onCreated?.(category);
 
         form.reset();
         setFile(null);
@@ -139,29 +146,27 @@ export function CategoryCreateForm({ onCreated }: Props) {
                     {...form.register("name")}
                 />
 
-                <select
-                    value={assetType}
-                    onChange={(e) =>
-                        setAssetType(e.target.value as AssetType)
-                    }
-                    className="border rounded px-3 py-2"
-                >
-                    <option value="IMAGE">Resim</option>
-                    <option value="VIDEO">Video</option>
-                    <option value="PDF">PDF</option>
-                </select>
+                <Select value={assetType} onValueChange={(value) => setAssetType(value as AssetType)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Asset tipi" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="IMAGE">Resim</SelectItem>
+                        <SelectItem value="VIDEO">Video</SelectItem>
+                        <SelectItem value="PDF">PDF</SelectItem>
+                    </SelectContent>
+                </Select>
 
-                <select
-                    value={assetRole}
-                    onChange={(e) =>
-                        setAssetRole(e.target.value as AssetRole)
-                    }
-                    className="border rounded px-3 py-2"
-                >
-                    <option value="PRIMARY">Primary</option>
-                    <option value="ANIMATION">Animation</option>
-                    <option value="GALLERY">Gallery</option>
-                </select>
+                <Select value={assetRole} onValueChange={(value) => setAssetRole(value as AssetRole)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Asset rolü" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="PRIMARY">Primary</SelectItem>
+                        <SelectItem value="ANIMATION">Animation</SelectItem>
+                        <SelectItem value="GALLERY">Gallery</SelectItem>
+                    </SelectContent>
+                </Select>
 
                 <Input
                     type="file"

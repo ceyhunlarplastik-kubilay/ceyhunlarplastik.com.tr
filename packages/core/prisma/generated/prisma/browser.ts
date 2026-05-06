@@ -83,6 +83,11 @@ export type Supplier = Prisma.SupplierModel
  */
 export type ProductVariantSupplier = Prisma.ProductVariantSupplierModel
 /**
+ * Model SupplierApprovalRequest
+ * 
+ */
+export type SupplierApprovalRequest = Prisma.SupplierApprovalRequestModel
+/**
  * Model Material
  * 
  */

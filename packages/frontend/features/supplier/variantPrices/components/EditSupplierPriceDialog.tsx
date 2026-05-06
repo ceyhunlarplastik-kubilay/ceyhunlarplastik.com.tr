@@ -15,9 +15,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { decimalLikeToString } from "@/lib/utils/decimal"
 import type { SupplierVariantPrice } from "@/features/supplier/variantPrices/api/types"
 import { useUpdateSupplierVariantPrice } from "@/features/supplier/variantPrices/hooks/useUpdateSupplierVariantPrice"
 
+// TODO: Zorunlu olan alanları formda belirtmemiz gerekmektedir.
 const formSchema = z.object({
     price: z.string().min(1, "Fiyat zorunludur"),
     profitRate: z.string().default(""),
@@ -28,6 +30,7 @@ const formSchema = z.object({
 })
 
 type FormValues = z.infer<typeof formSchema>
+type FormInput = z.input<typeof formSchema>
 
 type Props = {
     open: boolean
@@ -35,18 +38,6 @@ type Props = {
     row: SupplierVariantPrice | null
     endpointPrefix?: "supplier" | "purchasing"
     allowAdvancedFields?: boolean
-}
-
-function decimalLikeToString(value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined) {
-    if (value === null || value === undefined) return ""
-    if (typeof value === "string" || typeof value === "number") return String(value)
-    const sign = value.s === -1 ? "-" : ""
-    const digits = Array.isArray(value.d) ? value.d.join("") : ""
-    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
-    if (!digits) return ""
-    if (exponent >= digits.length - 1) return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
-    if (exponent < 0) return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
-    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
 }
 
 export function EditSupplierPriceDialog({
@@ -58,7 +49,7 @@ export function EditSupplierPriceDialog({
 }: Props) {
     const mutation = useUpdateSupplierVariantPrice(endpointPrefix)
 
-    const form = useForm<FormValues>({
+    const form = useForm<FormInput, unknown, FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             price: "",
@@ -166,7 +157,8 @@ export function EditSupplierPriceDialog({
                     </div>
 
                     <div className="space-y-1">
-                        <Label>Maliyet</Label>
+                        {/* <Label>Maliyet</Label> */}
+                        <Label>Fiyat</Label>
                         <Input
                             type="text"
                             inputMode="decimal"
@@ -222,7 +214,8 @@ export function EditSupplierPriceDialog({
                     </div>
 
                     <div className="space-y-1">
-                        <Label>Stok Adedi</Label>
+                        {/* <Label>Stok Adedi</Label> */}
+                        <Label>Tedarikçide Sürekli Bulunan Minimum Stok Miktarı</Label>
                         <Input
                             type="text"
                             inputMode="numeric"
@@ -256,7 +249,9 @@ export function EditSupplierPriceDialog({
                             Vazgeç
                         </Button>
                         <Button type="submit" disabled={mutation.isPending}>
-                            {mutation.isPending ? "Kaydediliyor..." : "Kaydet"}
+                            {mutation.isPending
+                                ? (endpointPrefix === "supplier" ? "Gönderiliyor..." : "Kaydediliyor...")
+                                : (endpointPrefix === "supplier" ? "Onaya Gönder" : "Kaydet")}
                         </Button>
                     </DialogFooter>
                 </form>

@@ -1,7 +1,7 @@
 "use client"
 
 import { signOut } from "next-auth/react"
-import { ShieldCheck, User } from "lucide-react"
+import { Mail, ShieldCheck } from "lucide-react"
 import { ProfileDropdown } from "@/components/ui/profile-dropdown"
 
 interface AdminUserMenuProps {
@@ -25,12 +25,12 @@ function getInitials(name?: string | null, email?: string | null): string {
 }
 
 function getRoleBadge(groups: string[]) {
-    if (groups.includes("owner")) return { label: "Owner", color: "text-amber-600 bg-amber-50" }
-    if (groups.includes("admin")) return { label: "Admin", color: "text-blue-600 bg-blue-50" }
-    if (groups.includes("purchasing")) return { label: "Satın Alma", color: "text-emerald-700 bg-emerald-50" }
-    if (groups.includes("sales")) return { label: "Satış", color: "text-fuchsia-700 bg-fuchsia-50" }
-    if (groups.includes("supplier")) return { label: "Tedarikçi", color: "text-cyan-700 bg-cyan-50" }
-    return { label: "User", color: "text-neutral-600 bg-neutral-100" }
+    if (groups.includes("owner")) return { label: "Owner" }
+    if (groups.includes("admin")) return { label: "Admin" }
+    if (groups.includes("purchasing")) return { label: "Satın Alma" }
+    if (groups.includes("sales")) return { label: "Satış" }
+    if (groups.includes("supplier")) return { label: "Tedarikçi" }
+    return { label: "User" }
 }
 
 async function handleSignOut() {
@@ -54,9 +54,9 @@ export function AdminUserMenu({ name, email, image, groups = [] }: AdminUserMenu
             }}
             menuItems={[
                 {
-                    label: "Profil",
+                    label: "Kimlik",
                     value: getInitials(name, email),
-                    icon: <User className="w-4 h-4" />,
+                    icon: <Mail className="w-4 h-4" />,
                 },
                 {
                     label: "Yetki",

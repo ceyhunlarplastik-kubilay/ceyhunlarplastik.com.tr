@@ -1,13 +1,19 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { Search, Users } from "lucide-react"
+import { useState } from "react"
+import { Users } from "lucide-react"
 import { toast } from "sonner"
 
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -17,27 +23,33 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { useSuppliers } from "@/features/admin/suppliers/hooks/useSuppliers"
 import { useUpdateUserSupplier } from "@/features/admin/users/hooks/useUpdateUserSupplier"
+import { useUserListFilters } from "@/features/admin/users/hooks/useUserListFilters"
+import { UserListFilters } from "@/features/admin/users/components/UserListFilters"
 
 export function UsersPageClient() {
-    const [search, setSearch] = useState("")
-    const [page, setPage] = useState(1)
-    const [limit, setLimit] = useState(20)
     const [draftSupplierByUserId, setDraftSupplierByUserId] = useState<Record<string, string>>({})
 
-    const userParams = useMemo(
-        () => ({
-            page,
-            limit,
-            ...(search.trim() ? { search: search.trim() } : {}),
-        }),
-        [page, limit, search]
-    )
+    const {
+        filters,
+        params,
+        setSearch,
+        setPage,
+        setLimit,
+        setRefreshIntervalSeconds,
+    } = useUserListFilters()
 
-    const userQuery = useUsers(userParams)
-    const supplierQuery = useSuppliers({ page: 1, limit: 500 })
+    const userQuery = useUsers({
+        params,
+        autoRefreshIntervalMs: filters.refreshIntervalSeconds > 0
+            ? filters.refreshIntervalSeconds * 1000
+            : false,
+    })
+    const supplierQuery = useSuppliers({ params: { page: 1, limit: 500 } })
     const updateMutation = useUpdateUserSupplier()
 
     const users = userQuery.data?.data ?? []
@@ -65,18 +77,15 @@ export function UsersPageClient() {
                 </p>
             </div>
 
-            <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                <Input
-                    placeholder="Kullanıcı ara..."
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value)
-                        setPage(1)
-                    }}
-                    className="pl-9"
-                />
-            </div>
+            <UserListFilters search={filters.search} onSearchChange={setSearch} />
+
+            <AdminListRefreshBar
+                dataUpdatedAt={userQuery.dataUpdatedAt}
+                isFetching={userQuery.isFetching}
+                onRefresh={() => void userQuery.refetch()}
+                refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                onRefreshIntervalChange={setRefreshIntervalSeconds}
+            />
 
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
                 <Table>
@@ -122,24 +131,28 @@ export function UsersPageClient() {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <select
-                                            className="h-9 min-w-56 rounded-md border border-neutral-200 px-2 text-sm disabled:opacity-50"
+                                        <Select
                                             disabled={!canAssignSupplier || supplierQuery.isLoading}
                                             value={selectedValue}
-                                            onChange={(e) =>
+                                            onValueChange={(value) =>
                                                 setDraftSupplierByUserId((prev) => ({
                                                     ...prev,
-                                                    [user.id]: e.target.value,
+                                                    [user.id]: value,
                                                 }))
                                             }
                                         >
-                                            <option value="__none__">Atama yok</option>
-                                            {suppliers.map((supplier) => (
-                                                <option key={supplier.id} value={supplier.id}>
-                                                    {supplier.name}
-                                                </option>
-                                            ))}
-                                        </select>
+                                            <SelectTrigger className="min-w-56">
+                                                <SelectValue placeholder="Atama yok" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="__none__">Atama yok</SelectItem>
+                                                {suppliers.map((supplier) => (
+                                                    <SelectItem key={supplier.id} value={supplier.id}>
+                                                        {supplier.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </TableCell>
                                     <TableCell className="text-right pr-4">
                                         <Button
@@ -167,39 +180,15 @@ export function UsersPageClient() {
                 </Table>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={(meta?.page ?? page) <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                    Önceki
-                </Button>
-                <span className="text-sm text-neutral-600">
-                    Sayfa {meta?.page ?? page} / {meta?.totalPages ?? 1}
-                </span>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={(meta?.page ?? page) >= (meta?.totalPages ?? 1)}
-                    onClick={() => setPage((p) => p + 1)}
-                >
-                    Sonraki
-                </Button>
-                <select
-                    className="ml-2 h-8 rounded-md border border-neutral-200 px-2 text-sm"
-                    value={String(limit)}
-                    onChange={(e) => {
-                        setLimit(Number(e.target.value))
-                        setPage(1)
-                    }}
-                >
-                    <option value="10">10 / sayfa</option>
-                    <option value="20">20 / sayfa</option>
-                    <option value="50">50 / sayfa</option>
-                </select>
-            </div>
+            <AdminListPagination
+                page={meta?.page ?? filters.page}
+                totalPages={meta?.totalPages ?? 1}
+                total={meta?.total}
+                limit={filters.limit}
+                itemLabel="kullanıcı"
+                onPageChange={setPage}
+                onLimitChange={setLimit}
+            />
         </div>
     )
 }

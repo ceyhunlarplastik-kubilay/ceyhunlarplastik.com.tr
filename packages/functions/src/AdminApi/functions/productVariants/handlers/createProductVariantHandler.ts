@@ -1,64 +1,8 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
+import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/productVariantSupplier"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductVariantDependencies, ICreateProductVariantEvent } from "@/functions/AdminApi/types/productVariants"
-
-function resolvePricingFields(supplierInput: {
-    price?: number
-    operationalCostRate?: number
-    netCost?: number
-    profitRate?: number
-    listPrice?: number
-}) {
-    const hasPrice = typeof supplierInput.price === "number" && Number.isFinite(supplierInput.price)
-    const hasOperationalRate =
-        typeof supplierInput.operationalCostRate === "number" && Number.isFinite(supplierInput.operationalCostRate)
-    const hasNetCost = typeof supplierInput.netCost === "number" && Number.isFinite(supplierInput.netCost)
-    const hasProfitRate = typeof supplierInput.profitRate === "number" && Number.isFinite(supplierInput.profitRate)
-    const hasListPrice = typeof supplierInput.listPrice === "number" && Number.isFinite(supplierInput.listPrice)
-
-    const result: {
-        price?: number
-        operationalCostRate?: number
-        netCost?: number
-        profitRate?: number
-        listPrice?: number
-    } = {}
-
-    if (hasPrice) result.price = supplierInput.price
-    if (hasOperationalRate) result.operationalCostRate = supplierInput.operationalCostRate
-    if (hasProfitRate) result.profitRate = supplierInput.profitRate
-    if (hasListPrice) result.listPrice = supplierInput.listPrice
-    if (hasNetCost) result.netCost = supplierInput.netCost
-
-    const resolvedNetCost =
-        hasNetCost
-            ? supplierInput.netCost!
-            : hasPrice
-                ? supplierInput.price! * (1 + (supplierInput.operationalCostRate ?? 0) / 100)
-                : undefined
-
-    if (resolvedNetCost !== undefined) {
-        result.netCost = resolvedNetCost
-    }
-
-    const shouldRecomputeListPriceFromProfit =
-        hasProfitRate && resolvedNetCost !== undefined && (hasPrice || hasOperationalRate || hasNetCost)
-
-    if (shouldRecomputeListPriceFromProfit) {
-        result.listPrice = resolvedNetCost! * (1 + supplierInput.profitRate! / 100)
-    } else if (!hasListPrice && hasProfitRate && resolvedNetCost !== undefined) {
-        result.listPrice = resolvedNetCost * (1 + supplierInput.profitRate! / 100)
-    } else if (!hasProfitRate && hasListPrice && resolvedNetCost !== undefined && resolvedNetCost > 0) {
-        result.profitRate = ((supplierInput.listPrice! - resolvedNetCost) / resolvedNetCost) * 100
-    }
-
-    if (hasPrice || hasOperationalRate || hasNetCost || hasProfitRate || hasListPrice) {
-        ; (result as any).pricingUpdatedAt = new Date()
-    }
-
-    return result
-}
 
 export const createProductVariantHandler = ({ productVariantRepository, productRepository, supplierRepository, materialRepository }: IProductVariantDependencies) => {
     return async (event: ICreateProductVariantEvent) => {
@@ -105,7 +49,7 @@ export const createProductVariantHandler = ({ productVariantRepository, productR
                         create: suppliers.map(sup => ({
                             supplier: { connect: { id: sup.id } },
                             isActive: sup.isActive ?? false,
-                            ...resolvePricingFields({
+                            ...resolveProductVariantSupplierPricing({
                                 price: sup.price,
                                 operationalCostRate: sup.operationalCostRate,
                                 netCost: sup.netCost,

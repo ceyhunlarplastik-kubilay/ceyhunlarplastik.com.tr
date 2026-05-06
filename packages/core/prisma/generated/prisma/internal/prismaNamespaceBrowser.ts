@@ -64,6 +64,7 @@ export const ModelName = {
   ProductMeasurement: 'ProductMeasurement',
   Supplier: 'Supplier',
   ProductVariantSupplier: 'ProductVariantSupplier',
+  SupplierApprovalRequest: 'SupplierApprovalRequest',
   Material: 'Material',
   Asset: 'Asset'
 } as const
@@ -285,6 +286,27 @@ export const ProductVariantSupplierScalarFieldEnum = {
 export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
 
 
+export const SupplierApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  status: 'status',
+  supplierId: 'supplierId',
+  productVariantSupplierId: 'productVariantSupplierId',
+  requestedByUserId: 'requestedByUserId',
+  reviewedByUserId: 'reviewedByUserId',
+  workflowExecutionArn: 'workflowExecutionArn',
+  workflowTaskToken: 'workflowTaskToken',
+  requestPayload: 'requestPayload',
+  currentSnapshot: 'currentSnapshot',
+  decisionNote: 'decisionNote',
+  decidedAt: 'decidedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SupplierApprovalRequestScalarFieldEnum = (typeof SupplierApprovalRequestScalarFieldEnum)[keyof typeof SupplierApprovalRequestScalarFieldEnum]
+
+
 export const MaterialScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -326,6 +348,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

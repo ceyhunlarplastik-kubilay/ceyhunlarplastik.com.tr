@@ -198,7 +198,7 @@ export function EditSupplierProfileDialog({
                                 Vazgeç
                             </Button>
                             <Button type="submit" disabled={isPending}>
-                                {isPending ? "Kaydediliyor..." : "Bilgileri Kaydet"}
+                                {isPending ? "Gönderiliyor..." : "Onaya Gönder"}
                             </Button>
                         </div>
                     </form>

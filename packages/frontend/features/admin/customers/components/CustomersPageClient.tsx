@@ -1,10 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { Search } from "lucide-react"
-
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import {
@@ -16,37 +12,38 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
+import { CustomerListFilters } from "@/features/admin/customers/components/CustomerListFilters"
 import { useCustomers } from "@/features/admin/customers/hooks/useCustomers"
+import { useCustomerListFilters } from "@/features/admin/customers/hooks/useCustomerListFilters"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 
 export function CustomersPageClient() {
-    const [search, setSearch] = useState("")
-    const [page, setPage] = useState(1)
-    const [limit, setLimit] = useState(20)
+    const {
+        filters,
+        params,
+        setSearch,
+        setSectorValueId,
+        setProductionGroupValueId,
+        setUsageAreaValueId,
+        setPage,
+        setLimit,
+        setRefreshIntervalSeconds,
+    } = useCustomerListFilters()
 
-    const [sectorValueId, setSectorValueId] = useState("")
-    const [productionGroupValueId, setProductionGroupValueId] = useState("")
-    const [usageAreaValueId, setUsageAreaValueId] = useState("")
-
-    const params = useMemo(
-        () => ({
-            page,
-            limit,
-            ...(search.trim() ? { search: search.trim() } : {}),
-            ...(sectorValueId ? { sectorValueId } : {}),
-            ...(productionGroupValueId ? { productionGroupValueId } : {}),
-            ...(usageAreaValueId ? { usageAreaValueId } : {}),
-        }),
-        [page, limit, search, sectorValueId, productionGroupValueId, usageAreaValueId]
-    )
-
-    const customersQuery = useCustomers(params)
+    const customersQuery = useCustomers({
+        params,
+        autoRefreshIntervalMs: filters.refreshIntervalSeconds > 0
+            ? filters.refreshIntervalSeconds * 1000
+            : false,
+    })
     const attrsQuery = useAttributesForFilter()
 
     const customers = customersQuery.data?.data ?? []
     const meta = customersQuery.data?.meta
 
-    const attributes = attrsQuery.data ?? []
+    const attributes = useMemo(() => attrsQuery.data ?? [], [attrsQuery.data])
 
     const sectorValues = useMemo(
         () => attributes.find((attribute) => attribute.code === "sector")?.values ?? [],
@@ -55,20 +52,20 @@ export function CustomersPageClient() {
 
     const productionGroupValues = useMemo(() => {
         const all = attributes.find((attribute) => attribute.code === "production_group")?.values ?? []
-        if (!sectorValueId) return all
-        return all.filter((value) => value.parentValueId === sectorValueId)
-    }, [attributes, sectorValueId])
+        if (!filters.sectorValueId) return all
+        return all.filter((value) => value.parentValueId === filters.sectorValueId)
+    }, [attributes, filters.sectorValueId])
 
     const usageAreaValues = useMemo(() => {
         const all = attributes.find((attribute) => attribute.code === "usage_area")?.values ?? []
-        if (productionGroupValueId) {
-            return all.filter((value) => value.parentValueId === productionGroupValueId)
+        if (filters.productionGroupValueId) {
+            return all.filter((value) => value.parentValueId === filters.productionGroupValueId)
         }
 
-        if (sectorValueId) {
+        if (filters.sectorValueId) {
             const allowedProdIds = new Set(
                 (attributes.find((attribute) => attribute.code === "production_group")?.values ?? [])
-                    .filter((value) => value.parentValueId === sectorValueId)
+                    .filter((value) => value.parentValueId === filters.sectorValueId)
                     .map((value) => value.id)
             )
 
@@ -76,7 +73,7 @@ export function CustomersPageClient() {
         }
 
         return all
-    }, [attributes, productionGroupValueId, sectorValueId])
+    }, [attributes, filters.productionGroupValueId, filters.sectorValueId])
 
     return (
         <div className="space-y-6">
@@ -87,65 +84,27 @@ export function CustomersPageClient() {
                 </p>
             </div>
 
-            <div className="grid gap-3 lg:grid-cols-4">
-                <div className="relative lg:col-span-2">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                    <Input
-                        placeholder="Müşteri ara (ad, firma, e-posta, telefon)"
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value)
-                            setPage(1)
-                        }}
-                        className="pl-9"
-                    />
-                </div>
+            <CustomerListFilters
+                search={filters.search}
+                sectorValueId={filters.sectorValueId}
+                productionGroupValueId={filters.productionGroupValueId}
+                usageAreaValueId={filters.usageAreaValueId}
+                sectorValues={sectorValues}
+                productionGroupValues={productionGroupValues}
+                usageAreaValues={usageAreaValues}
+                onSearchChange={setSearch}
+                onSectorValueIdChange={setSectorValueId}
+                onProductionGroupValueIdChange={setProductionGroupValueId}
+                onUsageAreaValueIdChange={setUsageAreaValueId}
+            />
 
-                <select
-                    className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
-                    value={sectorValueId}
-                    onChange={(e) => {
-                        setSectorValueId(e.target.value)
-                        setProductionGroupValueId("")
-                        setUsageAreaValueId("")
-                        setPage(1)
-                    }}
-                >
-                    <option value="">Tüm Sektörler</option>
-                    {sectorValues.map((value) => (
-                        <option key={value.id} value={value.id}>{value.name}</option>
-                    ))}
-                </select>
-
-                <select
-                    className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
-                    value={productionGroupValueId}
-                    onChange={(e) => {
-                        setProductionGroupValueId(e.target.value)
-                        setUsageAreaValueId("")
-                        setPage(1)
-                    }}
-                >
-                    <option value="">Tüm Üretim Grupları</option>
-                    {productionGroupValues.map((value) => (
-                        <option key={value.id} value={value.id}>{value.name}</option>
-                    ))}
-                </select>
-
-                <select
-                    className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
-                    value={usageAreaValueId}
-                    onChange={(e) => {
-                        setUsageAreaValueId(e.target.value)
-                        setPage(1)
-                    }}
-                >
-                    <option value="">Tüm Kullanım Alanları</option>
-                    {usageAreaValues.map((value) => (
-                        <option key={value.id} value={value.id}>{value.name}</option>
-                    ))}
-                </select>
-            </div>
+            <AdminListRefreshBar
+                dataUpdatedAt={customersQuery.dataUpdatedAt}
+                isFetching={customersQuery.isFetching}
+                onRefresh={() => void customersQuery.refetch()}
+                refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                onRefreshIntervalChange={setRefreshIntervalSeconds}
+            />
 
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
                 <Table>
@@ -209,39 +168,15 @@ export function CustomersPageClient() {
                 </Table>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={(meta?.page ?? page) <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                    Önceki
-                </Button>
-                <span className="text-sm text-neutral-600">
-                    Sayfa {meta?.page ?? page} / {meta?.totalPages ?? 1}
-                </span>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={(meta?.page ?? page) >= (meta?.totalPages ?? 1)}
-                    onClick={() => setPage((p) => p + 1)}
-                >
-                    Sonraki
-                </Button>
-                <select
-                    className="ml-2 h-8 rounded-md border border-neutral-200 px-2 text-sm"
-                    value={String(limit)}
-                    onChange={(e) => {
-                        setLimit(Number(e.target.value))
-                        setPage(1)
-                    }}
-                >
-                    <option value="10">10 / sayfa</option>
-                    <option value="20">20 / sayfa</option>
-                    <option value="50">50 / sayfa</option>
-                </select>
-            </div>
+            <AdminListPagination
+                page={meta?.page ?? filters.page}
+                totalPages={meta?.totalPages ?? 1}
+                total={meta?.total}
+                limit={filters.limit}
+                itemLabel="müşteri"
+                onPageChange={setPage}
+                onLimitChange={setLimit}
+            />
 
             {customersQuery.isFetching && !customersQuery.isLoading && (
                 <div className="inline-flex items-center gap-2 text-sm text-neutral-500">

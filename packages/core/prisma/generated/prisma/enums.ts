@@ -53,6 +53,23 @@ export const MeasurementCode = {
 export type MeasurementCode = (typeof MeasurementCode)[keyof typeof MeasurementCode]
 
 
+export const SupplierApprovalRequestType = {
+  SUPPLIER_PROFILE_UPDATE: 'SUPPLIER_PROFILE_UPDATE',
+  VARIANT_PRICING_UPDATE: 'VARIANT_PRICING_UPDATE'
+} as const
+
+export type SupplierApprovalRequestType = (typeof SupplierApprovalRequestType)[keyof typeof SupplierApprovalRequestType]
+
+
+export const SupplierApprovalRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type SupplierApprovalRequestStatus = (typeof SupplierApprovalRequestStatus)[keyof typeof SupplierApprovalRequestStatus]
+
+
 export const AssetType = {
   IMAGE: 'IMAGE',
   VIDEO: 'VIDEO',

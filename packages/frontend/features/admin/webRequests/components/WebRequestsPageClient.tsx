@@ -1,14 +1,20 @@
 "use client"
 
-import { Fragment, useEffect, useMemo, useState } from "react"
+import { Fragment, useEffect, useReducer } from "react"
 import { motion } from "motion/react"
-import { ChevronDown, Loader2, Save, Search } from "lucide-react"
+import { ChevronDown, Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
 
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import {
     Table,
     TableBody,
@@ -17,18 +23,82 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import type { AdminWebRequest, AdminWebRequestItem, AdminWebRequestItemResolved } from "@/features/admin/webRequests/api/types"
 import { getWebRequestItemDetails } from "@/features/admin/webRequests/api/getWebRequestItemDetails"
 import { useWebRequests } from "@/features/admin/webRequests/hooks/useWebRequests"
 import { useUpdateWebRequestStatus } from "@/features/admin/webRequests/hooks/useUpdateWebRequestStatus"
+import { useWebRequestListFilters, WEB_REQUEST_STATUS_VALUES } from "@/features/admin/webRequests/hooks/useWebRequestListFilters"
+import { WebRequestFilters } from "@/features/admin/webRequests/components/WebRequestFilters"
+import { WebRequestStatusBadge, WEB_REQUEST_STATUS_LABELS } from "@/features/admin/webRequests/components/WebRequestStatusBadge"
 
-const STATUS_OPTIONS = ["NEW", "CONTACTED", "IN_PROGRESS", "CLOSED"] as const
+type WebRequestStatus = (typeof WEB_REQUEST_STATUS_VALUES)[number]
+
 const EMPTY_REQUESTS: AdminWebRequest[] = []
-const STATUS_LABELS: Record<string, string> = {
-    NEW: "Yeni",
-    CONTACTED: "İletişime Geçildi",
-    IN_PROGRESS: "İşlemde",
-    CLOSED: "Kapatıldı",
+
+type UiState = {
+    expandedId: string | null
+    statusById: Record<string, WebRequestStatus>
+    detailsById: Record<string, AdminWebRequestItemResolved[]>
+    loadingDetailsById: Record<string, boolean>
+}
+
+type UiAction =
+    | { type: "toggleExpanded"; id: string }
+    | { type: "syncStatuses"; statuses: Record<string, WebRequestStatus> }
+    | { type: "setStatusDraft"; id: string; status: WebRequestStatus }
+    | { type: "startLoadingDetails"; id: string }
+    | { type: "setDetails"; id: string; details: AdminWebRequestItemResolved[] }
+    | { type: "finishLoadingDetails"; id: string }
+
+function uiReducer(state: UiState, action: UiAction): UiState {
+    switch (action.type) {
+        case "toggleExpanded":
+            return {
+                ...state,
+                expandedId: state.expandedId === action.id ? null : action.id,
+            }
+        case "syncStatuses":
+            return {
+                ...state,
+                statusById: action.statuses,
+            }
+        case "setStatusDraft":
+            return {
+                ...state,
+                statusById: {
+                    ...state.statusById,
+                    [action.id]: action.status,
+                },
+            }
+        case "startLoadingDetails":
+            return {
+                ...state,
+                loadingDetailsById: {
+                    ...state.loadingDetailsById,
+                    [action.id]: true,
+                },
+            }
+        case "setDetails":
+            return {
+                ...state,
+                detailsById: {
+                    ...state.detailsById,
+                    [action.id]: action.details,
+                },
+            }
+        case "finishLoadingDetails":
+            return {
+                ...state,
+                loadingDetailsById: {
+                    ...state.loadingDetailsById,
+                    [action.id]: false,
+                },
+            }
+        default:
+            return state
+    }
 }
 
 function parseRequestItems(items: unknown): AdminWebRequestItem[] {
@@ -39,78 +109,82 @@ function parseRequestItems(items: unknown): AdminWebRequestItem[] {
 }
 
 export function WebRequestsPageClient() {
-    const [search, setSearch] = useState("")
-    const [status, setStatus] = useState("")
-    const [page, setPage] = useState(1)
-    const [limit, setLimit] = useState(20)
-    const [expandedId, setExpandedId] = useState<string | null>(null)
-    const [statusById, setStatusById] = useState<Record<string, "NEW" | "CONTACTED" | "IN_PROGRESS" | "CLOSED">>({})
-    const [detailsById, setDetailsById] = useState<Record<string, AdminWebRequestItemResolved[]>>({})
-    const [loadingDetailsById, setLoadingDetailsById] = useState<Record<string, boolean>>({})
+    const [uiState, dispatch] = useReducer(uiReducer, {
+        expandedId: null,
+        statusById: {},
+        detailsById: {},
+        loadingDetailsById: {},
+    })
 
-    const params = useMemo(
-        () => ({
-            page,
-            limit,
-            ...(search.trim() ? { search: search.trim() } : {}),
-            ...(status ? { status } : {}),
-        }),
-        [page, limit, search, status]
-    )
+    const {
+        filters,
+        params,
+        setSearch,
+        setStatus,
+        setPage,
+        setLimit,
+        setRefreshIntervalSeconds,
+    } = useWebRequestListFilters()
 
-    const webRequestsQuery = useWebRequests(params)
+    const webRequestsQuery = useWebRequests({
+        params,
+        autoRefreshIntervalMs: filters.refreshIntervalSeconds > 0
+            ? filters.refreshIntervalSeconds * 1000
+            : false,
+    })
     const updateStatusMutation = useUpdateWebRequestStatus()
     const webRequests = webRequestsQuery.data?.data ?? EMPTY_REQUESTS
     const meta = webRequestsQuery.data?.meta
 
     useEffect(() => {
-        const next: Record<string, "NEW" | "CONTACTED" | "IN_PROGRESS" | "CLOSED"> = {}
+        const next: Record<string, WebRequestStatus> = {}
+
         for (const request of webRequests) {
-            const normalized = request.status?.toUpperCase() as "NEW" | "CONTACTED" | "IN_PROGRESS" | "CLOSED"
-            if (STATUS_OPTIONS.includes(normalized)) {
-                next[request.id] = normalized
-            } else {
-                next[request.id] = "NEW"
-            }
+            const normalized = request.status?.toUpperCase() as WebRequestStatus
+            next[request.id] = WEB_REQUEST_STATUS_VALUES.includes(normalized)
+                ? normalized
+                : "NEW"
         }
-        setStatusById((prev) => {
-            const prevKeys = Object.keys(prev)
-            const nextKeys = Object.keys(next)
-            if (prevKeys.length !== nextKeys.length) return next
-            for (const key of nextKeys) {
-                if (prev[key] !== next[key]) return next
-            }
-            return prev
-        })
-    }, [webRequests])
+
+        const prevKeys = Object.keys(uiState.statusById)
+        const nextKeys = Object.keys(next)
+        const changed =
+            prevKeys.length !== nextKeys.length ||
+            nextKeys.some((key) => uiState.statusById[key] !== next[key])
+
+        if (changed) {
+            dispatch({ type: "syncStatuses", statuses: next })
+        }
+    }, [uiState.statusById, webRequests])
 
     async function toggleDetails(request: AdminWebRequest) {
-        const nextOpen = expandedId === request.id ? null : request.id
-        setExpandedId(nextOpen)
+        const nextOpen = uiState.expandedId === request.id ? null : request.id
+        dispatch({ type: "toggleExpanded", id: request.id })
 
         if (!nextOpen) return
-        if (detailsById[request.id]) return
+        if (uiState.detailsById[request.id]) return
 
         const items = parseRequestItems(request.items)
         if (items.length === 0) {
-            setDetailsById((prev) => ({ ...prev, [request.id]: [] }))
+            dispatch({ type: "setDetails", id: request.id, details: [] })
             return
         }
 
-        setLoadingDetailsById((prev) => ({ ...prev, [request.id]: true }))
+        dispatch({ type: "startLoadingDetails", id: request.id })
+
         try {
             const resolved = await getWebRequestItemDetails(items)
-            setDetailsById((prev) => ({ ...prev, [request.id]: resolved }))
+            dispatch({ type: "setDetails", id: request.id, details: resolved })
         } catch (error) {
             console.error(error)
             toast.error("Sepet detayları yüklenemedi.")
         } finally {
-            setLoadingDetailsById((prev) => ({ ...prev, [request.id]: false }))
+            dispatch({ type: "finishLoadingDetails", id: request.id })
         }
     }
 
     async function handleSaveStatus(request: AdminWebRequest) {
-        const nextStatus = statusById[request.id]
+        const nextStatus = uiState.statusById[request.id]
         const currentStatus = request.status?.toUpperCase()
 
         if (!nextStatus || nextStatus === currentStatus) return
@@ -136,36 +210,20 @@ export function WebRequestsPageClient() {
                 </p>
             </div>
 
-            <div className="grid gap-3 lg:grid-cols-4">
-                <div className="relative lg:col-span-3">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                    <Input
-                        placeholder="Ad, e-posta, telefon, mesaj içinde ara"
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value)
-                            setPage(1)
-                        }}
-                        className="pl-9"
-                    />
-                </div>
+            <WebRequestFilters
+                search={filters.search}
+                status={filters.status}
+                onSearchChange={setSearch}
+                onStatusChange={setStatus}
+            />
 
-                <select
-                    className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
-                    value={status}
-                    onChange={(e) => {
-                        setStatus(e.target.value)
-                        setPage(1)
-                    }}
-                >
-                    <option value="">Tüm Durumlar</option>
-                    {STATUS_OPTIONS.map((value) => (
-                        <option key={value} value={value}>
-                            {STATUS_LABELS[value]}
-                        </option>
-                    ))}
-                </select>
-            </div>
+            <AdminListRefreshBar
+                dataUpdatedAt={webRequestsQuery.dataUpdatedAt}
+                isFetching={webRequestsQuery.isFetching}
+                onRefresh={() => void webRequestsQuery.refetch()}
+                refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                onRefreshIntervalChange={setRefreshIntervalSeconds}
+            />
 
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
                 <Table>
@@ -188,11 +246,11 @@ export function WebRequestsPageClient() {
                                 </TableCell>
                             </TableRow>
                         ) : webRequests.map((request) => {
-                            const isExpanded = expandedId === request.id
+                            const isExpanded = uiState.expandedId === request.id
                             const items = parseRequestItems(request.items)
-                            const resolvedItems = detailsById[request.id] ?? []
-                            const isDetailsLoading = loadingDetailsById[request.id]
-                            const selectedStatus = statusById[request.id] ?? "NEW"
+                            const resolvedItems = uiState.detailsById[request.id] ?? []
+                            const isDetailsLoading = uiState.loadingDetailsById[request.id]
+                            const selectedStatus = uiState.statusById[request.id] ?? "NEW"
 
                             return (
                                 <Fragment key={request.id}>
@@ -225,37 +283,45 @@ export function WebRequestsPageClient() {
                                             </Button>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <select
-                                                    className="h-8 rounded-md border border-neutral-200 px-2 text-xs"
-                                                    value={selectedStatus}
-                                                    onChange={(e) =>
-                                                        setStatusById((prev) => ({
-                                                            ...prev,
-                                                            [request.id]: e.target.value as "NEW" | "CONTACTED" | "IN_PROGRESS" | "CLOSED",
-                                                        }))
-                                                    }
-                                                >
-                                                    {STATUS_OPTIONS.map((value) => (
-                                                        <option key={value} value={value}>
-                                                            {STATUS_LABELS[value]}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                <Button
-                                                    type="button"
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    className="h-8 px-2"
-                                                    disabled={updateStatusMutation.isPending}
-                                                    onClick={() => void handleSaveStatus(request)}
-                                                >
-                                                    {updateStatusMutation.isPending ? (
-                                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                                    ) : (
-                                                        <Save className="h-4 w-4" />
-                                                    )}
-                                                </Button>
+                                            <div className="space-y-2">
+                                                <WebRequestStatusBadge status={selectedStatus} />
+                                                <div className="flex items-center gap-2">
+                                                    <Select
+                                                        value={selectedStatus}
+                                                        onValueChange={(value) =>
+                                                            dispatch({
+                                                                type: "setStatusDraft",
+                                                                id: request.id,
+                                                                status: value as WebRequestStatus,
+                                                            })
+                                                        }
+                                                    >
+                                                        <SelectTrigger className="h-8 w-[190px] text-xs">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {WEB_REQUEST_STATUS_VALUES.map((value) => (
+                                                                <SelectItem key={value} value={value}>
+                                                                    {WEB_REQUEST_STATUS_LABELS[value]}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-8 px-2"
+                                                        disabled={updateStatusMutation.isPending}
+                                                        onClick={() => void handleSaveStatus(request)}
+                                                    >
+                                                        {updateStatusMutation.isPending ? (
+                                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                                        ) : (
+                                                            <Save className="h-4 w-4" />
+                                                        )}
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right pr-4 text-sm text-neutral-500">
@@ -325,39 +391,15 @@ export function WebRequestsPageClient() {
                 </Table>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={(meta?.page ?? page) <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                >
-                    Önceki
-                </Button>
-                <span className="text-sm text-neutral-600">
-                    Sayfa {meta?.page ?? page} / {meta?.totalPages ?? 1}
-                </span>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={(meta?.page ?? page) >= (meta?.totalPages ?? 1)}
-                    onClick={() => setPage((p) => p + 1)}
-                >
-                    Sonraki
-                </Button>
-                <select
-                    className="ml-2 h-8 rounded-md border border-neutral-200 px-2 text-sm"
-                    value={String(limit)}
-                    onChange={(e) => {
-                        setLimit(Number(e.target.value))
-                        setPage(1)
-                    }}
-                >
-                    <option value="10">10 / sayfa</option>
-                    <option value="20">20 / sayfa</option>
-                    <option value="50">50 / sayfa</option>
-                </select>
-            </div>
+            <AdminListPagination
+                page={meta?.page ?? filters.page}
+                totalPages={meta?.totalPages ?? 1}
+                total={meta?.total}
+                limit={filters.limit}
+                itemLabel="talep"
+                onPageChange={setPage}
+                onLimitChange={setLimit}
+            />
 
             {webRequestsQuery.isFetching && !webRequestsQuery.isLoading && (
                 <div className="inline-flex items-center gap-2 text-sm text-neutral-500">

@@ -18,14 +18,16 @@ datasource db {
 ///////////////////////////////////////////////////////
 
 model User {
-  id         String   @id @default(uuid())
-  cognitoSub String   @unique
-  email      String   @unique
-  identifier String
-  groups     String[]
-  supplierId String?
-  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  isActive   Boolean  @default(true)
+  id                                String                    @id @default(uuid())
+  cognitoSub                        String                    @unique
+  email                             String                    @unique
+  identifier                        String
+  groups                            String[]
+  supplierId                        String?
+  supplier                          Supplier?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  isActive                          Boolean                   @default(true)
+  supplierApprovalRequestsRequested SupplierApprovalRequest[] @relation("SupplierApprovalRequestedBy")
+  supplierApprovalRequestsReviewed  SupplierApprovalRequest[] @relation("SupplierApprovalReviewedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -66,10 +68,10 @@ enum ColorSystem {
 ///////////////////////////////////////////////////////
 
 model Category {
-  id   String @id @default(uuid())
-  code Int
-  name String
-  slug String @unique
+  id                       String   @id @default(uuid())
+  code                     Int
+  name                     String
+  slug                     String   @unique
   allowedAttributeValueIds String[] @default([])
 
   products Product[]
@@ -137,8 +139,8 @@ model ProductAttributeValue {
   childValues   ProductAttributeValue[] @relation("AttributeValueHierarchy")
 
   // 🔥 MANY TO MANY
-  products Product[]
-  assets   Asset[]
+  products                 Product[]
+  assets                   Asset[]
   customerSectors          Customer[] @relation("CustomerSector")
   customerProductionGroups Customer[] @relation("CustomerProductionGroup")
   customerUsageAreas       Customer[] @relation("CustomerUsageAreas")
@@ -305,16 +307,17 @@ model ProductMeasurement {
 model Supplier {
   id String @id @default(uuid())
 
-  name     String
-  contactName String?
-  phone String?
-  address String? @db.Text
-  taxNumber String?
+  name                   String
+  contactName            String?
+  phone                  String?
+  address                String? @db.Text
+  taxNumber              String?
   defaultPaymentTermDays Int?
-  isActive Boolean @default(true)
+  isActive               Boolean @default(true)
 
   variantSuppliers ProductVariantSupplier[]
   users            User[]
+  approvalRequests SupplierApprovalRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -331,20 +334,21 @@ model ProductVariantSupplier {
   supplierId String
   supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
-  isActive Boolean @default(false)
-  price    Decimal @default(0) @db.Decimal(10, 2)
-  operationalCostRate Decimal? @db.Decimal(5, 2)
-  netCost Decimal? @db.Decimal(10, 2)
-  profitRate Decimal? @db.Decimal(5, 2)
-  listPrice Decimal? @db.Decimal(10, 2)
-  paymentTermDays Int?
-  supplierVariantCode String?
-  supplierNote String? @db.Text
-  pricingUpdatedAt DateTime?
-  minOrderQty Int?
-  stockQty Int?
+  isActive              Boolean                   @default(false)
+  price                 Decimal                   @default(0) @db.Decimal(10, 2)
+  operationalCostRate   Decimal?                  @db.Decimal(5, 2)
+  netCost               Decimal?                  @db.Decimal(10, 2)
+  profitRate            Decimal?                  @db.Decimal(5, 2)
+  listPrice             Decimal?                  @db.Decimal(10, 2)
+  paymentTermDays       Int?
+  supplierVariantCode   String?
+  supplierNote          String?                   @db.Text
+  pricingUpdatedAt      DateTime?
+  minOrderQty           Int?
+  stockQty              Int?
   availabilityUpdatedAt DateTime?
-  currency String  @default("TRY")
+  currency              String                    @default("TRY")
+  approvalRequests      SupplierApprovalRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -352,6 +356,53 @@ model ProductVariantSupplier {
   @@unique([variantId, supplierId])
   @@index([variantId])
   @@index([supplierId])
+}
+
+enum SupplierApprovalRequestType {
+  SUPPLIER_PROFILE_UPDATE
+  VARIANT_PRICING_UPDATE
+}
+
+enum SupplierApprovalRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model SupplierApprovalRequest {
+  id String @id @default(cuid())
+
+  type   SupplierApprovalRequestType
+  status SupplierApprovalRequestStatus @default(PENDING)
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  productVariantSupplierId String?
+  productVariantSupplier   ProductVariantSupplier? @relation(fields: [productVariantSupplierId], references: [id], onDelete: SetNull)
+
+  requestedByUserId String
+  requestedByUser   User   @relation("SupplierApprovalRequestedBy", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+
+  reviewedByUserId String?
+  reviewedByUser   User?   @relation("SupplierApprovalReviewedBy", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
+
+  workflowExecutionArn String? @unique
+  workflowTaskToken    String? @db.Text
+
+  requestPayload  Json
+  currentSnapshot Json?
+
+  decisionNote String?   @db.Text
+  decidedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([supplierId, status, createdAt])
+  @@index([productVariantSupplierId, status])
+  @@index([requestedByUserId, createdAt])
 }
 
 model Material {

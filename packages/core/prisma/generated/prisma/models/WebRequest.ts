@@ -182,7 +182,7 @@ export type WebRequestGroupByOutputType = {
   _max: WebRequestMaxAggregateOutputType | null
 }
 
-type GetWebRequestGroupByPayload<T extends WebRequestGroupByArgs> = Prisma.PrismaPromise<
+export type GetWebRequestGroupByPayload<T extends WebRequestGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<WebRequestGroupByOutputType, T['by']> &
       {
@@ -1064,6 +1064,11 @@ export type WebRequestFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` WebRequests.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of WebRequests.
+   */
   distinct?: Prisma.WebRequestScalarFieldEnum | Prisma.WebRequestScalarFieldEnum[]
 }
 

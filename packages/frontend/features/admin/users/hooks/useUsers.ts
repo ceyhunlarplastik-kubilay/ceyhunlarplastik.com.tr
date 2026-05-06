@@ -1,6 +1,8 @@
 "use client"
 
+import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { z } from "zod"
 
 import { getUsers } from "@/features/admin/users/api/getUsers"
 
@@ -10,9 +12,26 @@ type Params = {
     search?: string
 }
 
-export function useUsers(params: Params) {
+const userParamsSchema = z.object({
+    page: z.number().int().positive(),
+    limit: z.number().int().positive().max(100),
+    search: z.string().trim().optional(),
+})
+
+type Options = {
+    params: Params
+    autoRefreshIntervalMs?: number | false
+}
+
+export function useUsers({ params, autoRefreshIntervalMs = false }: Options) {
+    const normalizedParams = useMemo(() => userParamsSchema.parse(params), [params])
+
     return useQuery({
-        queryKey: ["admin-users", params],
-        queryFn: () => getUsers(params),
+        queryKey: ["admin-users", normalizedParams],
+        queryFn: () => getUsers(normalizedParams),
+        refetchOnMount: "always",
+        refetchOnWindowFocus: true,
+        refetchInterval: autoRefreshIntervalMs,
+        refetchIntervalInBackground: false,
     })
 }

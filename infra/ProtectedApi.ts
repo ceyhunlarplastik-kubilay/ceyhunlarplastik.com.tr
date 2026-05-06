@@ -2,6 +2,7 @@ import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 import { publicBucket } from "./storage";
+import { supplierApprovalWorkflow } from "./approvalWorkflow";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
@@ -64,6 +65,15 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
                     ? `https://dev.${config.DOMAIN}`
                     : $interpolate`https://${publicBucket.name}.s3.amazonaws.com`
     }
+}
+
+const approvalWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+    ...defaultRouteOptions,
+    link: [rds, userPool, publicBucket, supplierApprovalWorkflow],
+    environment: {
+        ...defaultRouteOptions.environment,
+        SUPPLIER_APPROVAL_WORKFLOW_ARN: supplierApprovalWorkflow.arn,
+    },
 }
 
 // 🔁 reusable auth config
@@ -132,8 +142,8 @@ protectedApi.route('GET /supplier/profile', {
 }, { ...defaultAuthOptions });
 
 protectedApi.route('PUT /supplier/profile', {
-    handler: `${folderPrefix}/supplierVariantPrices/actions.updateSupplierProfile`,
-    ...defaultRouteOptions
+    handler: `${folderPrefix}/supplierApprovalRequests/actions.requestSupplierProfileApproval`,
+    ...approvalWorkflowRouteOptions
 }, { ...defaultAuthOptions });
 
 protectedApi.route('GET /supplier/products', {
@@ -142,7 +152,12 @@ protectedApi.route('GET /supplier/products', {
 }, { ...defaultAuthOptions });
 
 protectedApi.route('PUT /supplier/variant-prices/{id}', {
-    handler: `${folderPrefix}/supplierVariantPrices/actions.updateSupplierVariantPrice`,
+    handler: `${folderPrefix}/supplierApprovalRequests/actions.requestSupplierVariantPricingApproval`,
+    ...approvalWorkflowRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /supplier/approval-requests', {
+    handler: `${folderPrefix}/supplierApprovalRequests/actions.listSupplierApprovalRequests`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 

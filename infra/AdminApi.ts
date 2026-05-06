@@ -2,6 +2,7 @@ import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 import { publicBucket } from "./storage";
+import { supplierApprovalWorkflow } from "./approvalWorkflow";
 
 const folderPrefix = "packages/functions/src/AdminApi/functions";
 
@@ -108,6 +109,11 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     }
 };
 
+const approvalWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+    ...defaultRouteOptions,
+    link: [rds, userPool, publicBucket, supplierApprovalWorkflow],
+};
+
 // 🔁 reusable auth config
 const defaultAuthOptions: sst.aws.ApiGatewayV2RouteArgs = {
     auth: {
@@ -147,6 +153,16 @@ adminApi.route("GET /web-requests", {
 adminApi.route("PUT /web-requests/{id}/status", {
     handler: `${folderPrefix}/webRequests/actions.updateWebRequestStatus`,
     ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /supplier-approval-requests", {
+    handler: `${folderPrefix}/supplierApprovalRequests/actions.listSupplierApprovalRequests`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /supplier-approval-requests/{id}/decision", {
+    handler: `${folderPrefix}/supplierApprovalRequests/actions.decideSupplierApprovalRequest`,
+    ...approvalWorkflowRouteOptions,
 }, { ...defaultAuthOptions });
 
 /*----------------------- CATEGORIES -----------------------*/

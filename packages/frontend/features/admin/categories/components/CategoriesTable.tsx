@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useState } from "react";
 import { Category } from "@/features/public/categories/types";
 
 import {
@@ -62,13 +63,7 @@ export function CategoriesTable({ categories }: Props) {
     const { data: session } = useSession();
     const deleteMutation = useDeleteCategory();
 
-    const [items, setItems] = useState<Category[]>(categories);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-    /** React Query refetch ederse tablo güncellenir */
-    useEffect(() => {
-        setItems(categories);
-    }, [categories]);
 
     const handleDelete = (category: Category) => {
         if (!session?.idToken) {
@@ -85,11 +80,6 @@ export function CategoriesTable({ categories }: Props) {
         deleteMutation.mutate(
             {
                 id: category.id,
-            },
-            {
-                onSuccess() {
-                    setItems((prev) => prev.filter((c) => c.id !== category.id));
-                },
             }
         );
     };
@@ -98,11 +88,7 @@ export function CategoriesTable({ categories }: Props) {
         <div className="space-y-6">
 
             {/* CREATE FORM */}
-            <CategoryCreateForm
-                onCreated={(category) => {
-                    setItems((prev) => [...prev, category]);
-                }}
-            />
+            <CategoryCreateForm />
 
             {/* TABLE */}
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
@@ -121,7 +107,7 @@ export function CategoriesTable({ categories }: Props) {
                     </TableHeader>
 
                     <TableBody>
-                        {items.map((category) => {
+                        {categories.map((category) => {
                             const thumb = pickThumb(category);
                             const counts = countByType(category);
 
@@ -142,9 +128,12 @@ export function CategoriesTable({ categories }: Props) {
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded border bg-muted flex items-center justify-center overflow-hidden">
                                                 {thumb ? (
-                                                    <img
+                                                    <Image
                                                         src={thumb}
                                                         className="h-full w-full object-cover"
+                                                        alt={category.name}
+                                                        width={40}
+                                                        height={40}
                                                     />
                                                 ) : (
                                                     <ImageIcon className="h-4 w-4 text-muted-foreground" />
@@ -212,10 +201,8 @@ export function CategoriesTable({ categories }: Props) {
                 <EditCategoryDialog
                     category={editingCategory}
                     onClose={() => setEditingCategory(null)}
-                    onUpdated={(updated) => {
-                        setItems((prev) =>
-                            prev.map((c) => (c.id === updated.id ? updated : c))
-                        );
+                    onUpdated={() => {
+                        setEditingCategory(null)
                     }}
                 />
             )}

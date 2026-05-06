@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/auth"
 import { redirect } from "next/navigation"
-import { AdminUserMenu } from "@/components/admin/AdminUserMenu"
+import { AdminTopbar } from "@/components/admin/AdminTopbar"
 
 export default async function SupplierLayout({
     children,
@@ -19,15 +19,14 @@ export default async function SupplierLayout({
 
     return (
         <div className="min-h-screen bg-neutral-50">
-            <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-neutral-100 bg-white px-6 py-3 shadow-sm">
-                <div className="text-sm font-semibold text-neutral-800">Tedarikçi Paneli</div>
-                <AdminUserMenu
-                    name={session.user?.name}
-                    email={session.user?.email}
-                    image={session.user?.image}
-                    groups={groups}
-                />
-            </header>
+            <AdminTopbar
+                title="Tedarikçi Paneli"
+                subtitle="Operasyon"
+                name={session.user?.name}
+                email={session.user?.email}
+                image={session.user?.image}
+                groups={groups}
+            />
             <main className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6">{children}</main>
         </div>
     )

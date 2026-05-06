@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.3.0
- * Query Engine version: 9d6ad21cbbceab97458517b147a6a09ff43aa735
+ * Prisma Client JS version: 7.8.0
+ * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.3.0",
-  engine: "9d6ad21cbbceab97458517b147a6a09ff43aa735"
+  client: "7.8.0",
+  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
 }
 
 /**
@@ -397,6 +397,7 @@ export const ModelName = {
   ProductMeasurement: 'ProductMeasurement',
   Supplier: 'Supplier',
   ProductVariantSupplier: 'ProductVariantSupplier',
+  SupplierApprovalRequest: 'SupplierApprovalRequest',
   Material: 'Material',
   Asset: 'Asset'
 } as const
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "customer" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "productVariantSupplier" | "material" | "asset"
+    modelProps: "user" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "customer" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "productVariantSupplier" | "supplierApprovalRequest" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1380,6 +1381,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SupplierApprovalRequest: {
+      payload: Prisma.$SupplierApprovalRequestPayload<ExtArgs>
+      fields: Prisma.SupplierApprovalRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SupplierApprovalRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SupplierApprovalRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.SupplierApprovalRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SupplierApprovalRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>
+        }
+        findMany: {
+          args: Prisma.SupplierApprovalRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>[]
+        }
+        create: {
+          args: Prisma.SupplierApprovalRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>
+        }
+        createMany: {
+          args: Prisma.SupplierApprovalRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SupplierApprovalRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.SupplierApprovalRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>
+        }
+        update: {
+          args: Prisma.SupplierApprovalRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.SupplierApprovalRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SupplierApprovalRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SupplierApprovalRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.SupplierApprovalRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SupplierApprovalRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.SupplierApprovalRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSupplierApprovalRequest>
+        }
+        groupBy: {
+          args: Prisma.SupplierApprovalRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SupplierApprovalRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SupplierApprovalRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SupplierApprovalRequestCountAggregateOutputType> | number
+        }
+      }
+    }
     Material: {
       payload: Prisma.$MaterialPayload<ExtArgs>
       fields: Prisma.MaterialFieldRefs
@@ -1768,6 +1843,27 @@ export const ProductVariantSupplierScalarFieldEnum = {
 export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
 
 
+export const SupplierApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  status: 'status',
+  supplierId: 'supplierId',
+  productVariantSupplierId: 'productVariantSupplierId',
+  requestedByUserId: 'requestedByUserId',
+  reviewedByUserId: 'reviewedByUserId',
+  workflowExecutionArn: 'workflowExecutionArn',
+  workflowTaskToken: 'workflowTaskToken',
+  requestPayload: 'requestPayload',
+  currentSnapshot: 'currentSnapshot',
+  decisionNote: 'decisionNote',
+  decidedAt: 'decidedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SupplierApprovalRequestScalarFieldEnum = (typeof SupplierApprovalRequestScalarFieldEnum)[keyof typeof SupplierApprovalRequestScalarFieldEnum]
+
+
 export const MaterialScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1809,6 +1905,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1976,6 +2080,34 @@ export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMo
 
 
 /**
+ * Reference to a field of type 'SupplierApprovalRequestType'
+ */
+export type EnumSupplierApprovalRequestTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupplierApprovalRequestType'>
+    
+
+
+/**
+ * Reference to a field of type 'SupplierApprovalRequestType[]'
+ */
+export type ListEnumSupplierApprovalRequestTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupplierApprovalRequestType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SupplierApprovalRequestStatus'
+ */
+export type EnumSupplierApprovalRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupplierApprovalRequestStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SupplierApprovalRequestStatus[]'
+ */
+export type ListEnumSupplierApprovalRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupplierApprovalRequestStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'AssetType'
  */
 export type EnumAssetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetType'>
@@ -2095,6 +2227,21 @@ export type PrismaClientOptions = ({
    * ```
    */
   comments?: runtime.SqlCommenterPlugin[]
+  /**
+   * Optional maximum size for the query plan cache. If not provided, a default size will be used.
+   * A value of `0` can be used to disable the cache entirely. A higher cache size can improve
+   * performance for applications that execute a large number of unique queries, while a smaller
+   * cache size can reduce memory usage.
+   * 
+   * @example
+   * ```
+   * const prisma = new PrismaClient({
+   *   adapter,
+   *   queryPlanCacheMaxSize: 100,
+   * })
+   * ```
+   */
+  queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
@@ -2110,6 +2257,7 @@ export type GlobalOmitConfig = {
   productMeasurement?: Prisma.ProductMeasurementOmit
   supplier?: Prisma.SupplierOmit
   productVariantSupplier?: Prisma.ProductVariantSupplierOmit
+  supplierApprovalRequest?: Prisma.SupplierApprovalRequestOmit
   material?: Prisma.MaterialOmit
   asset?: Prisma.AssetOmit
 }

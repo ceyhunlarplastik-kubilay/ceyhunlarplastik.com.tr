@@ -1,6 +1,7 @@
 import { prisma } from "@/core/db/prisma"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
+import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/productVariantSupplier"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, ProductVariantSupplier } from "@/prisma/generated/prisma/client"
@@ -381,39 +382,22 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
 
         await prisma.$transaction(
             rows.map((row) => {
-                const resolvedOperationalRate =
-                    typeof input.operationalCostRate === "number"
-                        ? input.operationalCostRate
-                        : row.operationalCostRate
-                            ? Number(row.operationalCostRate)
-                            : 0
-
-                const resolvedProfitRate =
-                    typeof input.profitRate === "number"
-                        ? input.profitRate
-                        : row.profitRate
-                            ? Number(row.profitRate)
-                            : undefined
-
-                const hamMaliyet = Number(row.price)
-                const netCost = hamMaliyet * (1 + Number(resolvedOperationalRate ?? 0) / 100)
-                const listPrice =
-                    resolvedProfitRate !== undefined
-                        ? netCost * (1 + Number(resolvedProfitRate) / 100)
-                        : undefined
+                const pricing = resolveProductVariantSupplierPricing(
+                    {
+                        price: Number(row.price),
+                        operationalCostRate: input.operationalCostRate,
+                        profitRate: input.profitRate,
+                    },
+                    {
+                        operationalCostRate: row.operationalCostRate,
+                        profitRate: row.profitRate,
+                    }
+                )
 
                 return prisma.productVariantSupplier.update({
                     where: { id: row.id },
                     data: {
-                        ...(typeof input.operationalCostRate === "number"
-                            ? { operationalCostRate: input.operationalCostRate }
-                            : {}),
-                        ...(typeof input.profitRate === "number"
-                            ? { profitRate: input.profitRate }
-                            : {}),
-                        netCost,
-                        ...(listPrice !== undefined ? { listPrice } : {}),
-                        pricingUpdatedAt: new Date(),
+                        ...pricing,
                     },
                 })
             })

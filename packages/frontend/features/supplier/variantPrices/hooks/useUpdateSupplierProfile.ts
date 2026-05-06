@@ -9,12 +9,11 @@ export function useUpdateSupplierProfile() {
     return useMutation({
         mutationFn: updateSupplierProfile,
         onSuccess: () => {
-            toast.success("Tedarikçi bilgileri güncellendi")
-            qc.invalidateQueries({ queryKey: ["supplier-profile"] })
+            toast.success("Profil güncelleme talebi onaya gönderildi")
+            qc.invalidateQueries({ queryKey: ["supplier-approval-requests"] })
         },
         onError: () => {
-            toast.error("Tedarikçi bilgileri güncellenemedi")
+            toast.error("Talep oluşturulamadı")
         },
     })
 }
-

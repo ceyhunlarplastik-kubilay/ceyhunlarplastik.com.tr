@@ -242,7 +242,7 @@ export type ColorGroupByOutputType = {
   _max: ColorMaxAggregateOutputType | null
 }
 
-type GetColorGroupByPayload<T extends ColorGroupByArgs> = Prisma.PrismaPromise<
+export type GetColorGroupByPayload<T extends ColorGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ColorGroupByOutputType, T['by']> &
       {
@@ -1356,6 +1356,11 @@ export type ColorFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Skip the first `n` Colors.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Colors.
+   */
   distinct?: Prisma.ColorScalarFieldEnum | Prisma.ColorScalarFieldEnum[]
 }
 

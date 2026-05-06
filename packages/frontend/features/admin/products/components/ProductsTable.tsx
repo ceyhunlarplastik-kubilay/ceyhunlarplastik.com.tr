@@ -1,18 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-
 import {
     Table,
     TableBody,
@@ -24,6 +16,9 @@ import {
 
 import { CreateProductDialog } from "@/features/admin/products/components/CreateProductDialog"
 import { EditProductDialog } from "@/features/admin/products/components/EditProductDialog"
+import { ProductsFilters } from "@/features/admin/products/components/ProductsFilters"
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 
 import { useDeleteProduct } from "@/features/admin/products/hooks/useDeleteProduct"
 
@@ -34,14 +29,13 @@ import {
     Film,
     FileText,
     Plus,
-    Search,
     Tag,
     Box,
     Loader2,
     Hash,
 } from "lucide-react"
 
-import { motion, AnimatePresence } from "framer-motion"
+import { AnimatePresence, motion } from "motion/react"
 
 import type { Product } from "@/features/public/products/types"
 import type { Category } from "@/features/public/categories/types"
@@ -58,12 +52,16 @@ type Props = {
     searchQuery: string
     onSearchQueryChange: (value: string) => void
     categoryId?: string
-    onCategoryIdChange: (value?: string) => void
+    onCategoryIdChange: (value: string) => void
     page: number
     onPageChange: (page: number) => void
     limit: number
     onLimitChange: (limit: number) => void
     isFetching?: boolean
+    dataUpdatedAt?: number
+    onRefresh: () => void
+    refreshIntervalSeconds: number
+    onRefreshIntervalChange: (seconds: number) => void
 }
 
 const MotionRow = motion(TableRow)
@@ -118,6 +116,10 @@ export function ProductsTable({
     limit,
     onLimitChange,
     isFetching = false,
+    dataUpdatedAt,
+    onRefresh,
+    refreshIntervalSeconds,
+    onRefreshIntervalChange,
 }: Props) {
     const [createOpen, setCreateOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -155,41 +157,31 @@ export function ProductsTable({
                         Sistemdeki tüm ürünleri bu sayfadan yönetebilirsiniz.
                     </p>
                 </div>
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                        <Input
-                            placeholder="Ürün Ara..."
-                            value={searchQuery}
-                            onChange={(e) => onSearchQueryChange(e.target.value)}
-                            className="pl-9"
-                        />
-                    </div>
-                    <Select
-                        value={categoryId ?? "__all__"}
-                        onValueChange={(next) => onCategoryIdChange(next === "__all__" ? undefined : next)}
-                    >
-                        <SelectTrigger className="w-full sm:w-56">
-                            <SelectValue placeholder="Kategori filtrele" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__all__">Tüm Kategoriler</SelectItem>
-                            {categories.map((category) => (
-                                <SelectItem key={category.id} value={category.id}>
-                                    {category.code}-{category.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Button
-                        onClick={() => setCreateOpen(true)}
-                        className="gap-2"
-                    >
+                <Button
+                    onClick={() => setCreateOpen(true)}
+                    className="gap-2"
+                >
                         <Plus className="h-4 w-4" />
                         Yeni Ürün
-                    </Button>
-                </div>
+                </Button>
             </div>
+
+            <ProductsFilters
+                categories={categories}
+                search={searchQuery}
+                categoryId={categoryId ?? ""}
+                onSearchChange={onSearchQueryChange}
+                onCategoryIdChange={onCategoryIdChange}
+            />
+
+            <AdminListRefreshBar
+                dataUpdatedAt={dataUpdatedAt}
+                isFetching={isFetching}
+                onRefresh={onRefresh}
+                refreshIntervalSeconds={refreshIntervalSeconds}
+                onRefreshIntervalChange={onRefreshIntervalChange}
+            />
+
             {/* TABLE */}
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
                 {isFetching && (
@@ -257,10 +249,12 @@ export function ProductsTable({
                                             <div className="flex items-center gap-4">
                                                 <div className="h-12 w-12 rounded-lg border overflow-hidden flex items-center justify-center">
                                                     {thumb ? (
-                                                        <img
+                                                        <Image
                                                             src={thumb}
                                                             className="h-full w-full object-cover"
                                                             alt={product.name}
+                                                            width={48}
+                                                            height={48}
                                                         />
                                                     ) : (
                                                         <Box className="h-5 w-5 text-neutral-300" />
@@ -347,51 +341,15 @@ export function ProductsTable({
                 </Table>
             </div>
 
-            <div className="flex flex-col gap-3 rounded-xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm text-neutral-600">
-                    Toplam <span className="font-semibold text-neutral-900">{meta?.total ?? 0}</span> ürün
-                </p>
-
-                <div className="flex flex-wrap items-center gap-2">
-                    <Select
-                        value={String(limit)}
-                        onValueChange={(next) => onLimitChange(Number(next))}
-                    >
-                        <SelectTrigger className="w-[140px]">
-                            <SelectValue placeholder="Sayfa boyutu" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="10">10 / sayfa</SelectItem>
-                            <SelectItem value="20">20 / sayfa</SelectItem>
-                            <SelectItem value="50">50 / sayfa</SelectItem>
-                        </SelectContent>
-                    </Select>
-
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={(meta?.page ?? page) <= 1}
-                        onClick={() => onPageChange(Math.max(1, page - 1))}
-                    >
-                        Önceki
-                    </Button>
-
-                    <span className="px-2 text-sm text-neutral-700">
-                        Sayfa {meta?.page ?? page} / {meta?.totalPages ?? 1}
-                    </span>
-
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={(meta?.page ?? page) >= (meta?.totalPages ?? 1)}
-                        onClick={() => onPageChange(page + 1)}
-                    >
-                        Sonraki
-                    </Button>
-                </div>
-            </div>
+            <AdminListPagination
+                page={meta?.page ?? page}
+                totalPages={meta?.totalPages ?? 1}
+                total={meta?.total}
+                limit={limit}
+                itemLabel="ürün"
+                onPageChange={onPageChange}
+                onLimitChange={onLimitChange}
+            />
             {/* CREATE */}
             <CreateProductDialog
                 open={createOpen}

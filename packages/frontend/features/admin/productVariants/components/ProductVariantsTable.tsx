@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
+import { decimalLikeToFixedText } from "@/lib/utils/decimal"
 import {
     Table,
     TableBody,
@@ -30,46 +31,19 @@ type Props = {
     onDelete: (variant: ProductVariant) => void
 }
 
-function parseDecimalLikeToNumber(
-    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
-) {
-    if (value === null || value === undefined) return null
-    if (typeof value === "number") return Number.isFinite(value) ? value : null
-    if (typeof value === "string") {
-        const parsed = Number(value.replace(",", "."))
-        return Number.isFinite(parsed) ? parsed : null
-    }
-    const sign = value.s === -1 ? "-" : ""
-    const digits = Array.isArray(value.d) ? value.d.join("") : ""
-    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
-    if (!digits) return null
-    let decimalText = ""
-    if (exponent >= digits.length - 1) {
-        decimalText = `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
-    } else if (exponent < 0) {
-        decimalText = `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
-    } else {
-        decimalText = `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
-    }
-    const parsed = Number(decimalText)
-    return Number.isFinite(parsed) ? parsed : null
-}
-
 function formatMoney(
     value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined,
     currency?: string | null
 ) {
-    const parsed = parseDecimalLikeToNumber(value)
-    if (parsed === null) return "-"
-    return `${parsed.toFixed(2)} ${currency ?? "TRY"}`
+    const text = decimalLikeToFixedText(value)
+    return text === "-" ? text : `${text} ${currency ?? "TRY"}`
 }
 
 function formatPercent(
     value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
 ) {
-    const parsed = parseDecimalLikeToNumber(value)
-    if (parsed === null) return "-"
-    return `%${parsed.toFixed(2)}`
+    const text = decimalLikeToFixedText(value)
+    return text === "-" ? text : `%${text}`
 }
 
 export function ProductVariantsTable({

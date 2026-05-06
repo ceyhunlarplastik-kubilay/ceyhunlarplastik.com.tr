@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from "react"
 import Image from "next/image"
-import { Package, Search, Truck } from "lucide-react"
+import { Package, Truck } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import { Label } from "@/components/ui/label"
+import { decimalLikeToFixedText } from "@/lib/utils/decimal"
 import {
     Table,
     TableBody,
@@ -17,6 +18,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 
 import { useSuppliers } from "@/features/admin/suppliers/hooks/useSuppliers"
 import { useSupplierVariantSuppliers } from "@/features/admin/suppliers/hooks/useSupplierVariantSuppliers"
@@ -24,6 +27,8 @@ import { useSupplierProducts } from "@/features/admin/suppliers/hooks/useSupplie
 import { useUpdateSupplier } from "@/features/admin/suppliers/hooks/useUpdateSupplier"
 import { useBulkUpdateSupplierVariantPricing } from "@/features/admin/suppliers/hooks/useBulkUpdateSupplierVariantPricing"
 import type { Supplier } from "@/features/admin/suppliers/api/types"
+import { SupplierListFilters } from "@/features/admin/suppliers/components/SupplierListFilters"
+import { useSupplierListFilters } from "@/features/admin/suppliers/hooks/useSupplierListFilters"
 import { useCategories } from "@/features/admin/categories/hooks/useCategories"
 import { CreateVariantDialog } from "@/features/admin/productVariants/components/CreateVariantDialog"
 import { useVariantReferences } from "@/features/admin/productVariants/hooks/useVariantReferences"
@@ -36,29 +41,15 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 
-function decimalLikeToText(
-    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
-) {
-    if (value === null || value === undefined) return "-"
-    if (typeof value === "number") return value.toFixed(2)
-    if (typeof value === "string") return value
-    const sign = value.s === -1 ? "-" : ""
-    const digits = Array.isArray(value.d) ? value.d.join("") : ""
-    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
-    if (!digits) return "-"
-    if (exponent >= digits.length - 1) {
-        return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
-    }
-    if (exponent < 0) {
-        return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
-    }
-    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
-}
-
 export function SuppliersPageClient() {
-    const [search, setSearch] = useState("")
-    const [page, setPage] = useState(1)
-    const [limit, setLimit] = useState(20)
+    const {
+        filters,
+        params: supplierParams,
+        setSearch,
+        setPage,
+        setLimit,
+        setRefreshIntervalSeconds,
+    } = useSupplierListFilters()
 
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
     const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
@@ -83,16 +74,12 @@ export function SuppliersPageClient() {
     const [bulkProfitRate, setBulkProfitRate] = useState("")
     const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null)
 
-    const supplierParams = useMemo(
-        () => ({
-            page,
-            limit,
-            ...(search.trim() ? { search: search.trim() } : {}),
-        }),
-        [page, limit, search]
-    )
-
-    const supplierQuery = useSuppliers(supplierParams)
+    const supplierQuery = useSuppliers({
+        params: supplierParams,
+        autoRefreshIntervalMs: filters.refreshIntervalSeconds > 0
+            ? filters.refreshIntervalSeconds * 1000
+            : false,
+    })
     const updateSupplierMutation = useUpdateSupplier()
     const bulkUpdatePricingMutation = useBulkUpdateSupplierVariantPricing()
     const referencesQuery = useVariantReferences()
@@ -138,18 +125,15 @@ export function SuppliersPageClient() {
                 </p>
             </div>
 
-            <div className="relative max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                <Input
-                    placeholder="Tedarikçi ara..."
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value)
-                        setPage(1)
-                    }}
-                    className="pl-9"
-                />
-            </div>
+            <SupplierListFilters search={filters.search} onSearchChange={setSearch} />
+
+            <AdminListRefreshBar
+                dataUpdatedAt={supplierQuery.dataUpdatedAt}
+                isFetching={supplierQuery.isFetching}
+                onRefresh={() => void supplierQuery.refetch()}
+                refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                onRefreshIntervalChange={setRefreshIntervalSeconds}
+            />
 
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
                 <Table>
@@ -234,29 +218,15 @@ export function SuppliersPageClient() {
                 </Table>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-                <Button variant="outline" size="sm" disabled={(supplierMeta?.page ?? page) <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
-                    Önceki
-                </Button>
-                <span className="text-sm text-neutral-600">
-                    Sayfa {supplierMeta?.page ?? page} / {supplierMeta?.totalPages ?? 1}
-                </span>
-                <Button variant="outline" size="sm" disabled={(supplierMeta?.page ?? page) >= (supplierMeta?.totalPages ?? 1)} onClick={() => setPage((p) => p + 1)}>
-                    Sonraki
-                </Button>
-                <select
-                    className="ml-2 h-8 rounded-md border border-neutral-200 px-2 text-sm"
-                    value={String(limit)}
-                    onChange={(e) => {
-                        setLimit(Number(e.target.value))
-                        setPage(1)
-                    }}
-                >
-                    <option value="10">10 / sayfa</option>
-                    <option value="20">20 / sayfa</option>
-                    <option value="50">50 / sayfa</option>
-                </select>
-            </div>
+            <AdminListPagination
+                page={supplierMeta?.page ?? filters.page}
+                totalPages={supplierMeta?.totalPages ?? 1}
+                total={supplierMeta?.total}
+                limit={filters.limit}
+                itemLabel="tedarikçi"
+                onPageChange={setPage}
+                onLimitChange={setLimit}
+            />
 
             {selectedSupplier && (
                 <div className="space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
@@ -529,12 +499,12 @@ export function SuppliersPageClient() {
                                         <TableCell className="font-mono text-xs">{row.variant?.fullCode ?? "-"}</TableCell>
                                         {/* <TableCell>{row.variant?.name ?? "-"}</TableCell> */}
                                         <TableCell>
-                                            {decimalLikeToText(row.price)} {row.currency ?? "TRY"}
+                                            {decimalLikeToFixedText(row.price)} {row.currency ?? "TRY"}
                                         </TableCell>
-                                        <TableCell>{decimalLikeToText(row.operationalCostRate)}</TableCell>
-                                        <TableCell>{decimalLikeToText(row.netCost)} {row.currency ?? "TRY"}</TableCell>
-                                        <TableCell>{decimalLikeToText(row.profitRate)}</TableCell>
-                                        <TableCell>{decimalLikeToText(row.listPrice)} {row.currency ?? "TRY"}</TableCell>
+                                        <TableCell>{decimalLikeToFixedText(row.operationalCostRate) === "-" ? "-" : `%${decimalLikeToFixedText(row.operationalCostRate)}`}</TableCell>
+                                        <TableCell>{decimalLikeToFixedText(row.netCost)} {row.currency ?? "TRY"}</TableCell>
+                                        <TableCell>{decimalLikeToFixedText(row.profitRate) === "-" ? "-" : `%${decimalLikeToFixedText(row.profitRate)}`}</TableCell>
+                                        <TableCell>{decimalLikeToFixedText(row.listPrice)} {row.currency ?? "TRY"}</TableCell>
                                         <TableCell>
                                             {row.paymentTermDays ?? selectedSupplier.defaultPaymentTermDays ?? "-"}
                                         </TableCell>

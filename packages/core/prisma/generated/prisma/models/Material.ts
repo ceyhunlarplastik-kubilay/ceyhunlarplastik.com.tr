@@ -158,7 +158,7 @@ export type MaterialGroupByOutputType = {
   _max: MaterialMaxAggregateOutputType | null
 }
 
-type GetMaterialGroupByPayload<T extends MaterialGroupByArgs> = Prisma.PrismaPromise<
+export type GetMaterialGroupByPayload<T extends MaterialGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MaterialGroupByOutputType, T['by']> &
       {
@@ -1141,6 +1141,11 @@ export type MaterialFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Materials.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Materials.
+   */
   distinct?: Prisma.MaterialScalarFieldEnum | Prisma.MaterialScalarFieldEnum[]
 }
 

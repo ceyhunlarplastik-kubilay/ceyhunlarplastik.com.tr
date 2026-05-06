@@ -11,13 +11,16 @@ import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter"
 import { DashboardWithCollapsibleSidebar } from "@/components/ui/dashboard-with-collapsible-sidebar"
+import { decimalLikeToFixedText } from "@/lib/utils/decimal"
 import { EditSupplierPriceDialog } from "@/features/supplier/variantPrices/components/EditSupplierPriceDialog"
 import { EditSupplierProfileDialog } from "@/features/supplier/variantPrices/components/EditSupplierProfileDialog"
+import { useSupplierApprovalRequests } from "@/features/supplier/approvalRequests/hooks/useSupplierApprovalRequests"
 import { useSupplierProfile } from "@/features/supplier/variantPrices/hooks/useSupplierProfile"
 import { useSupplierProducts } from "@/features/supplier/variantPrices/hooks/useSupplierProducts"
 import { useSupplierVariantPrices } from "@/features/supplier/variantPrices/hooks/useSupplierVariantPrices"
 import { useUpdateSupplierProfile } from "@/features/supplier/variantPrices/hooks/useUpdateSupplierProfile"
 import type { SupplierVariantPrice } from "@/features/supplier/variantPrices/api/types"
+import type { SupplierApprovalRequest } from "@/features/supplier/approvalRequests/api/types"
 import type { Category } from "@/features/public/categories/types"
 import type { ListCategoriesResponse } from "@/features/public/categories/api/types"
 
@@ -36,28 +39,6 @@ async function fetchCategoriesForFilter() {
     return res.data.payload.data as Category[]
 }
 
-function decimalLikeToText(
-    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
-) {
-    if (value === null || value === undefined) return "-"
-    if (typeof value === "number") return value.toFixed(2)
-    if (typeof value === "string") {
-        const parsed = Number(value)
-        return Number.isFinite(parsed) ? parsed.toFixed(2) : value
-    }
-    const sign = value.s === -1 ? "-" : ""
-    const digits = Array.isArray(value.d) ? value.d.join("") : ""
-    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
-    if (!digits) return "-"
-    if (exponent >= digits.length - 1) {
-        return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
-    }
-    if (exponent < 0) {
-        return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
-    }
-    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
-}
-
 function formatDate(value?: string | null) {
     if (!value) return "-"
     const date = new Date(value)
@@ -66,6 +47,34 @@ function formatDate(value?: string | null) {
         dateStyle: "short",
         timeStyle: "short",
     }).format(date)
+}
+
+const APPROVAL_STATUS_LABELS: Record<string, string> = {
+    PENDING: "Bekliyor",
+    APPROVED: "Onaylandı",
+    REJECTED: "Reddedildi",
+}
+
+const APPROVAL_STATUS_STYLES: Record<string, string> = {
+    PENDING: "bg-amber-100 text-amber-700",
+    APPROVED: "bg-emerald-100 text-emerald-700",
+    REJECTED: "bg-rose-100 text-rose-700",
+}
+
+const APPROVAL_TYPE_LABELS: Record<string, string> = {
+    SUPPLIER_PROFILE_UPDATE: "Profil Güncellemesi",
+    VARIANT_PRICING_UPDATE: "Varyant Fiyatı",
+}
+
+function summarizeApprovalRequest(request: SupplierApprovalRequest) {
+    if (request.type === "SUPPLIER_PROFILE_UPDATE") {
+        return "Firma / iletişim bilgileri değişikliği"
+    }
+
+    const variantLabel = request.productVariantSupplier?.variant?.fullCode
+        ?? request.productVariantSupplier?.variant?.name
+        ?? "Varyant"
+    return `${variantLabel} için maliyet ve stok değişikliği`
 }
 
 export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode }: Props) {
@@ -98,6 +107,13 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
 
     const isSupplierMode = mode === "supplier"
     const profileQuery = useSupplierProfile("supplier", isSupplierMode)
+    const approvalRequestsQuery = useSupplierApprovalRequests({
+        page: 1,
+        limit: 5,
+        sort: "createdAt",
+        order: "desc",
+        enabled: isSupplierMode,
+    })
     const updateProfileMutation = useUpdateSupplierProfile()
 
     const productsQuery = useSupplierProducts({
@@ -147,6 +163,7 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
     )
 
     const profile = profileQuery.data
+    const approvalRequests = approvalRequestsQuery.data?.data ?? []
 
     return (
         <div className="space-y-6">
@@ -199,6 +216,59 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
                     </div>
                 </div>
             </div>
+
+            {isSupplierMode ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 shadow-sm">
+                    Tedarikçi değişiklikleri artık doğrudan uygulanmıyor. Profil ve varyant güncellemeleri admin veya owner onayından sonra sisteme işleniyor.
+                </div>
+            ) : null}
+
+            {isSupplierMode ? (
+                <div className="rounded-2xl border bg-white p-4 shadow-sm">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                            <h2 className="text-sm font-semibold text-neutral-800">Son Onay Talepleri</h2>
+                            <p className="text-xs text-neutral-500">
+                                Gönderdiğiniz son taleplerin durumunu buradan takip edebilirsiniz.
+                            </p>
+                        </div>
+                    </div>
+
+                    {approvalRequestsQuery.isLoading ? (
+                        <div className="flex items-center justify-center py-6">
+                            <Spinner className="size-5" />
+                        </div>
+                    ) : approvalRequests.length === 0 ? (
+                        <p className="py-4 text-sm text-neutral-500">Henüz approval talebi oluşturulmadı.</p>
+                    ) : (
+                        <div className="space-y-2">
+                            {approvalRequests.map((request) => (
+                                <div key={request.id} className="rounded-xl border border-neutral-200 p-3">
+                                    <div className="flex flex-wrap items-start justify-between gap-2">
+                                        <div>
+                                            <p className="text-sm font-medium text-neutral-900">
+                                                {APPROVAL_TYPE_LABELS[request.type] ?? request.type}
+                                            </p>
+                                            <p className="text-xs text-neutral-500">
+                                                {summarizeApprovalRequest(request)}
+                                            </p>
+                                        </div>
+                                        <span className={`inline-flex rounded-full px-2 py-1 text-xs ${APPROVAL_STATUS_STYLES[request.status] ?? "bg-neutral-100 text-neutral-700"}`}>
+                                            {APPROVAL_STATUS_LABELS[request.status] ?? request.status}
+                                        </span>
+                                    </div>
+
+                                    <div className="mt-2 flex flex-wrap gap-4 text-xs text-neutral-500">
+                                        <span>Talep Tarihi: {formatDate(request.createdAt)}</span>
+                                        {request.decidedAt ? <span>Karar Tarihi: {formatDate(request.decidedAt)}</span> : null}
+                                        {request.decisionNote ? <span>Not: {request.decisionNote}</span> : null}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            ) : null}
 
             <DashboardWithCollapsibleSidebar
                 sidebar={
@@ -385,9 +455,9 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
                                                     <p className="font-mono text-xs text-neutral-500">{row.variant?.fullCode ?? "-"}</p>
                                                     <p className="font-medium text-neutral-800">{row.variant?.name ?? "-"}</p>
                                                 </td>
-                                                {canSeeCost ? <td className="px-3 py-2">{decimalLikeToText(row.price)} {row.currency ?? "TRY"}</td> : null}
-                                                {canSeeProfitRate ? <td className="px-3 py-2">{decimalLikeToText(row.profitRate)}</td> : null}
-                                                {canSeeListPrice ? <td className="px-3 py-2">{decimalLikeToText(row.listPrice)} {row.currency ?? "TRY"}</td> : null}
+                                                {canSeeCost ? <td className="px-3 py-2">{decimalLikeToFixedText(row.price)} {row.currency ?? "TRY"}</td> : null}
+                                                {canSeeProfitRate ? <td className="px-3 py-2">{decimalLikeToFixedText(row.profitRate)}</td> : null}
+                                                {canSeeListPrice ? <td className="px-3 py-2">{decimalLikeToFixedText(row.listPrice)} {row.currency ?? "TRY"}</td> : null}
                                                 <td className="px-3 py-2">{row.minOrderQty ?? "-"}</td>
                                                 <td className="px-3 py-2">{row.stockQty ?? "-"}</td>
                                                 <td className="px-3 py-2">{formatDate(row.pricingUpdatedAt)}</td>

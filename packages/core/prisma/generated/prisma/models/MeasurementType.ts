@@ -206,7 +206,7 @@ export type MeasurementTypeGroupByOutputType = {
   _max: MeasurementTypeMaxAggregateOutputType | null
 }
 
-type GetMeasurementTypeGroupByPayload<T extends MeasurementTypeGroupByArgs> = Prisma.PrismaPromise<
+export type GetMeasurementTypeGroupByPayload<T extends MeasurementTypeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MeasurementTypeGroupByOutputType, T['by']> &
       {
@@ -1200,6 +1200,11 @@ export type MeasurementTypeFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` MeasurementTypes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of MeasurementTypes.
+   */
   distinct?: Prisma.MeasurementTypeScalarFieldEnum | Prisma.MeasurementTypeScalarFieldEnum[]
 }
 
