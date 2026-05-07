@@ -5,7 +5,7 @@ export default async function AdminPage() {
     try {
         await requireRole(["admin", "owner"])
     } catch {
-        redirect("/")
+        redirect("/?error=unauthorized")
     }
 
     return <div>Admin Panel</div>

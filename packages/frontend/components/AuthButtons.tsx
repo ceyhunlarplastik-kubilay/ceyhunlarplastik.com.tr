@@ -1,6 +1,6 @@
 "use client"
 
-import { signIn, signOut, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 
 export function AuthButtons() {
@@ -23,9 +23,7 @@ export function AuthButtons() {
                     </Link>
                     <button
                         onClick={() => {
-                            signOut({
-                                callbackUrl: "/api/auth/signout-cognito"
-                            })
+                            window.location.href = "/auth/signout"
                         }}
                         className="rounded bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-700 transition"
                     >
@@ -36,13 +34,12 @@ export function AuthButtons() {
         )
     }
 
-    // `cognito` tells next-auth to specifically use the CognitoProvider
     return (
-        <button
-            onClick={() => signIn("cognito")}
+        <Link
+            href="/auth/signin"
             className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 transition"
         >
             Giriş Yap / Kayıt Ol
-        </button>
+        </Link>
     )
 }

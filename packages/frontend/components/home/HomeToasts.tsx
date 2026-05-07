@@ -9,11 +9,11 @@ export function HomeToasts({ error }: { error?: string }) {
     useEffect(() => {
         if (handledRef.current) return;
 
-        if (error === "admin-only") {
+        if (error === "admin-only" || error === "unauthorized") {
             handledRef.current = true;
 
             setTimeout(() => {
-                toast.error("Sadece admin kullanıcıları bu sayfaya erişebilir.", {
+                toast.error("Bu sayfaya erişim yetkiniz bulunmuyor.", {
                     duration: 3000,
                     position: "top-center",
                     richColors: true,

@@ -28,7 +28,7 @@ const userPool = new sst.aws.CognitoUserPool('CeyhunlarUserPool', {
     usernames: ['email'],
     verify: {
         emailSubject: 'Ceyhunlar Plastik - Email Doğrulama',
-        emailMessage: 'Kayıt olduğunuz için teşekkür ederiz. Giriş kodu: {####}',
+        emailMessage: 'Kayıt olduğunuz için teşekkür ederiz. Doğrulama kodunuz: {####}. Bu kod 24 saat boyunca geçerlidir.',
     },
     triggers: {
         postConfirmation: {

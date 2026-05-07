@@ -2,8 +2,8 @@
 
 import { Loader2, LogOut } from "lucide-react"
 import { useState } from "react"
-import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
+import { performClientSignOut } from "@/features/auth/lib/client-signout"
 
 export function SignOutPageClient() {
     const [isPending, setIsPending] = useState(false)
@@ -11,8 +11,7 @@ export function SignOutPageClient() {
     async function handleSignOut() {
         try {
             setIsPending(true)
-            await signOut({ redirect: false })
-            window.location.href = "/api/auth/signout-cognito"
+            await performClientSignOut()
         } finally {
             setIsPending(false)
         }
@@ -21,7 +20,7 @@ export function SignOutPageClient() {
     return (
         <div className="space-y-6">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
-                Cikis yaptiginizda hem uygulama oturumunuz hem de Cognito oturumunuz temizlenir. Bu islem sizi guvenli sekilde giris ekranina geri dondurur.
+                Çıkış yaptığınızda hem uygulama oturumunuz temizlenir hem de varsa Cognito refresh tokenınız iptal edilir. Ardından güvenli giriş ekranına dönersiniz.
             </div>
 
             <div className="flex flex-wrap gap-3">

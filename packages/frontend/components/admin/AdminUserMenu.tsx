@@ -1,8 +1,8 @@
 "use client"
 
-import { signOut } from "next-auth/react"
 import { Mail, ShieldCheck } from "lucide-react"
 import { ProfileDropdown } from "@/components/ui/profile-dropdown"
+import { performClientSignOut } from "@/features/auth/lib/client-signout"
 
 interface AdminUserMenuProps {
     name?: string | null
@@ -34,10 +34,7 @@ function getRoleBadge(groups: string[]) {
 }
 
 async function handleSignOut() {
-    // 1) NextAuth cookie/session'ını temizle (redirect:false — biz yönlendireceğiz)
-    await signOut({ redirect: false })
-    // 2) Cognito hosted UI logout endpoint'ine git (session cookie'yi orada da temizler)
-    window.location.href = "/api/auth/signout-cognito"
+    await performClientSignOut()
 }
 
 export function AdminUserMenu({ name, email, image, groups = [] }: AdminUserMenuProps) {

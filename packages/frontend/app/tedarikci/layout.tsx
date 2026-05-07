@@ -9,13 +9,13 @@ export default async function SupplierLayout({
 }) {
     const session = await auth()
 
-    if (!session) redirect("/api/auth/signin")
+    if (!session) redirect("/auth/signin?callbackUrl=%2Ftedarikci&error=SessionRequired")
 
     const groups: string[] =
         (session.user as { groups?: string[] } | undefined)?.groups ?? []
     const allowed = groups.includes("supplier") || groups.includes("admin") || groups.includes("owner")
 
-    if (!allowed) redirect("/?unauthorized=1")
+    if (!allowed) redirect("/?error=unauthorized")
 
     return (
         <div className="min-h-screen bg-neutral-50">

@@ -6,9 +6,9 @@ export default function SignOutPage() {
         <AuthShell
             eyebrow="Ceyhunlar Plastik"
             title="Oturumu kapat"
-            description="Gecerli uygulama ve Cognito oturumunuzu kontrollu bicimde kapatabilirsiniz."
-            sideTitle="Guvenli cikis akisi"
-            sideDescription="Bu ekran cikis deneyimini sade ve kontrollu hale getirir. Cikis sonrasi kullanici tekrar ozel giris ekranina dondurulur."
+            description="Geçerli uygulama oturumunuzu ve yenileme belirtecinizi kontrollü biçimde kapatabilirsiniz."
+            sideTitle="Güvenli çıkış akışı"
+            sideDescription="Çıkış deneyimi sade ve kontrollü şekilde tamamlanır. İşlem sonrası kullanıcı tekrar özel giriş ekranına döner."
         >
             <SignOutPageClient />
         </AuthShell>

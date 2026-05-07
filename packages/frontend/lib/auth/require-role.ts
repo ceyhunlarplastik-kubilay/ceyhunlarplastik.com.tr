@@ -7,7 +7,7 @@ export async function requireRole(allowedRoles: string[]) {
         throw new Error("UNAUTHORIZED");
     }
 
-    const groups = (session.user as any).groups || [];
+    const groups = session.user?.groups || [];
 
     const allowed = allowedRoles.some(role => groups.includes(role));
 

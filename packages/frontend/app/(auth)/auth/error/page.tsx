@@ -11,10 +11,10 @@ export default async function AuthErrorPage({
     return (
         <AuthShell
             eyebrow="Ceyhunlar Plastik"
-            title="Kimlik dogrulama hatasi"
-            description="Oturum acma veya yonlendirme sirasinda bir sorun olustu. Asagidan akisa geri donebilirsiniz."
-            sideTitle="Hata oldugunda da kontrollu deneyim"
-            sideDescription="Varsayilan NextAuth hata sayfasi yerine, kullaniciyi ne oldugunu anlatan ve dogru aksiyona yonlendiren bir ekran kullaniliyor."
+            title="Kimlik doğrulama hatası"
+            description="Oturum açma veya yönlendirme sırasında bir sorun oluştu. Aşağıdan güvenli akışa geri dönebilirsiniz."
+            sideTitle="Hata olduğunda da kontrollü deneyim"
+            sideDescription="Varsayılan hata ekranı yerine, kullanıcıya ne olduğunu anlatan ve doğru aksiyona yönlendiren özel bir deneyim sunulur."
         >
             <AuthErrorPanel error={params.error} />
         </AuthShell>
