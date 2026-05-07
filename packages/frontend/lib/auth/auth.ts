@@ -109,6 +109,11 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    pages: {
+        signIn: "/auth/signin",
+        signOut: "/auth/signout",
+        error: "/auth/error",
+    },
     callbacks: {
         async jwt({ token, profile, account }) {
             // ✅ İlk login: tüm tokenları kaydet
@@ -126,10 +131,13 @@ export const authOptions: NextAuthOptions = {
 
             // ✅ groups: sadece profile geldiğinde güncelle, yoksa mevcut token'daki groups'u koru
             if (profile) {
+                const typedProfile =
+                    typeof profile === "object" && profile !== null
+                        ? profile as Record<string, unknown>
+                        : null
+
                 const rawGroups =
-                    typeof profile === "object"
-                        ? (profile as any)["cognito:groups"]
-                        : undefined;
+                    typedProfile?.["cognito:groups"];
 
                 const parsed = parseCognitoGroups(rawGroups)
                 if (parsed.length > 0) {
@@ -176,12 +184,12 @@ export const authOptions: NextAuthOptions = {
         },
 
         async session({ session, token }) {
-            (session as any).idToken = token.idToken;
-            (session as any).accessToken = token.accessToken;
-            (session as any).error = token.error;
+            session.idToken = token.idToken;
+            session.accessToken = token.accessToken;
+            session.error = token.error;
 
             if (session.user) {
-                (session.user as any).groups = Array.isArray(token.groups) ? token.groups : [];
+                session.user.groups = Array.isArray(token.groups) ? token.groups : [];
                 // name & image NextAuth'un CognitoProvider'ından gelir; token'da tutulur
                 if (!session.user.name && token.name) {
                     session.user.name = token.name as string;

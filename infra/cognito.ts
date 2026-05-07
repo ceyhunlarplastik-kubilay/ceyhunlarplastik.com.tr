@@ -17,7 +17,10 @@ const getCallbackUrls = () => {
     const base = getBaseUrl()
     return [`${base}/api/auth/callback/cognito`]
 }
-const getLogoutUrls = () => [getBaseUrl()]
+const getLogoutUrls = () => [
+    getBaseUrl(),
+    `${getBaseUrl()}/auth/signin`,
+]
 
 const folderPrefix = 'packages/functions/src/Cognito/functions';
 
