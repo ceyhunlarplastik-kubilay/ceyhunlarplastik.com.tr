@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { Save } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 
 import { CategoryAssetManager } from "./CategoryAssetManager";
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect";
+import { useUpdateCategory } from "@/features/admin/categories/hooks/useUpdateCategory";
 
 import type { Category } from "@/features/public/categories/types";
 
@@ -47,6 +49,7 @@ export function EditCategoryDialog({
     onUpdated,
 }: Props) {
     const { data: session } = useSession();
+    const updateCategoryMutation = useUpdateCategory();
 
     const [category, setCategory] = useState<Category>(initialCategory);
     const [saving, setSaving] = useState(false);
@@ -87,26 +90,28 @@ export function EditCategoryDialog({
         }
     }, [authHeader, category.id, onUpdated, form]);
 
-    const onSubmit = async (data: FormValues) => {
-        if (!authHeader) return;
+    const hasAttributeChanges = useMemo(() => {
+        const initial = [...(initialCategory.allowedAttributeValueIds ?? [])].sort()
+        const current = [...allowedAttributeValueIds].sort()
 
+        if (initial.length !== current.length) return true
+        return initial.some((valueId, index) => valueId !== current[index])
+    }, [allowedAttributeValueIds, initialCategory.allowedAttributeValueIds])
+
+    const onSubmit = async (data: FormValues) => {
         try {
             setSaving(true);
 
-            const res = await axios.put(
-                `${process.env.NEXT_PUBLIC_ADMIN_API_URL}/categories/${category.id}`,
-                {
-                    name: data.name,
-                    allowedAttributeValueIds,
-                },
-                { headers: authHeader }
-            );
-
-            const updated = res.data.payload.category;
+            const updated = await updateCategoryMutation.mutateAsync({
+                id: category.id,
+                name: data.name,
+                allowedAttributeValueIds,
+            })
 
             setCategory(updated);
             setAllowedAttributeValueIds(updated.allowedAttributeValueIds ?? []);
             onUpdated(updated);
+            form.reset({ name: updated.name });
 
             toast.success("Kategori güncellendi");
         } catch (err) {
@@ -194,10 +199,30 @@ export function EditCategoryDialog({
                         </form>
 
                         <div className="rounded-xl border p-4 bg-neutral-50 space-y-3">
-                            <h3 className="font-medium text-sm">İzinli Attribute Değerleri</h3>
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 className="font-medium text-sm">İzinli Attribute Değerleri</h3>
+                                    <p className="mt-1 text-xs text-neutral-500">
+                                        Kategori altında açılabilecek ürünlerin seçebileceği değerleri yönetin.
+                                    </p>
+                                </div>
+
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={form.handleSubmit(onSubmit)}
+                                    disabled={saving || !hasAttributeChanges}
+                                    className="shrink-0 gap-2"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Güncelle
+                                </Button>
+                            </div>
+
                             <ProductAttributeSelect
                                 value={allowedAttributeValueIds}
                                 onChange={setAllowedAttributeValueIds}
+                                singleSelectNonHierarchy={false}
                             />
                         </div>
 

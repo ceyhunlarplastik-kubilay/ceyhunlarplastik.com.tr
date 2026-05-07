@@ -19,20 +19,27 @@ export default async function AdminLayout({
     if (!allowed) redirect("/?error=unauthorized")
 
     return (
-        <div className="min-h-screen flex bg-neutral-50">
-            <AdminSidebar />
+        <div className="min-h-screen flex flex-col bg-neutral-50 md:flex-row">
+            <AdminSidebar
+                name={session.user?.name}
+                email={session.user?.email}
+                image={session.user?.image}
+                groups={groups}
+            />
 
             <div className="flex-1 flex flex-col min-w-0">
-                <AdminTopbar
-                    title="Admin Console"
-                    subtitle="Ceyhunlar"
-                    name={session.user?.name}
-                    email={session.user?.email}
-                    image={session.user?.image}
-                    groups={groups}
-                />
+                <div className="hidden md:block">
+                    <AdminTopbar
+                        title="Admin Console"
+                        subtitle="Ceyhunlar"
+                        name={session.user?.name}
+                        email={session.user?.email}
+                        image={session.user?.image}
+                        groups={groups}
+                    />
+                </div>
 
-                <main className="flex-1 p-6 md:p-8">
+                <main className="flex-1 p-4 sm:p-5 md:p-8">
                     {children}
                 </main>
             </div>

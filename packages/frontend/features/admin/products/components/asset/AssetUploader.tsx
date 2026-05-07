@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import axios from "axios"
+import { toast } from "sonner"
 
 import slugify from "slugify"
 
@@ -52,63 +53,66 @@ export function AssetUploader({
     }
 
     const uploadFile = async (upload: Upload) => {
+        try {
+            const slug = slugify(product.name, {
+                lower: true,
+                strict: true
+            })
 
-        const slug = slugify(product.name, {
-            lower: true,
-            strict: true
-        })
+            const presigned = await presignMutation.mutateAsync({
 
-        const presigned = await presignMutation.mutateAsync({
+                productSlug: slug,
+                assetRole: activeRole,
+                fileName: upload.file.name,
+                contentType: upload.file.type
 
-            productSlug: slug,
-            assetRole: activeRole,
-            fileName: upload.file.name,
-            contentType: upload.file.type
+            })
 
-        })
+            const { uploadUrl, key } = presigned
 
-        const { uploadUrl, key } = presigned
+            await axios.put(uploadUrl, upload.file, {
 
-        await axios.put(uploadUrl, upload.file, {
+                headers: {
+                    "Content-Type": upload.file.type
+                },
 
-            headers: {
-                "Content-Type": upload.file.type
-            },
+                onUploadProgress: (e) => {
 
-            onUploadProgress: (e) => {
-
-                const percent = Math.round(
-                    (e.loaded * 100) / (e.total || 1)
-                )
-
-                setUploads(prev =>
-                    prev.map(u =>
-                        u.id === upload.id
-                            ? { ...u, progress: percent }
-                            : u
+                    const percent = Math.round(
+                        (e.loaded * 100) / (e.total || 1)
                     )
-                )
 
-            }
+                    setUploads(prev =>
+                        prev.map(u =>
+                            u.id === upload.id
+                                ? { ...u, progress: percent }
+                                : u
+                        )
+                    )
 
-        })
+                }
 
-        await updateProductMutation.mutateAsync({
+            })
 
-            id: product.id,
-            assetKey: key,
-            assetRole: activeRole,
-            assetType: upload.file.type.startsWith("image")
-                ? "IMAGE"
-                : upload.file.type.startsWith("video")
-                    ? "VIDEO"
-                    : "PDF",
-            mimeType: upload.file.type
+            await updateProductMutation.mutateAsync({
 
-        })
+                id: product.id,
+                assetKey: key,
+                assetRole: activeRole,
+                assetType: upload.file.type.startsWith("image")
+                    ? "IMAGE"
+                    : upload.file.type.startsWith("video")
+                        ? "VIDEO"
+                        : "PDF",
+                mimeType: upload.file.type
 
-        await refetchProduct()
+            })
 
+            await refetchProduct()
+            toast.success(`${upload.file.name} ürün asset'i olarak yüklendi`)
+        } catch {
+            toast.error(`${upload.file.name} yüklenemedi`)
+        }
     }
 
     return (

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import axios from "axios"
 import slugify from "slugify"
+import { toast } from "sonner"
 
 import { UploadDropzone } from "./UploadDropzone"
 import { UploadQueue } from "./UploadQueue"
@@ -50,69 +51,65 @@ export function AssetUploader({
     }
 
     const uploadFile = async (upload: Upload) => {
+        try {
+            const slug = slugify(category.name, {
+                lower: true,
+                strict: true,
+                locale: "tr"
+            })
 
-        const slug = slugify(category.name, {
-            lower: true,
-            strict: true,
-            locale: "tr"
-        })
+            const presigned = await presignMutation.mutateAsync({
+                categorySlug: slug,
+                assetRole: activeRole,
+                fileName: upload.file.name,
+                contentType: upload.file.type
+            })
 
-        /* 1️⃣ presign */
+            const { uploadUrl, key } = presigned
 
-        const presigned = await presignMutation.mutateAsync({
-            categorySlug: slug,
-            assetRole: activeRole,
-            fileName: upload.file.name,
-            contentType: upload.file.type
-        })
+            await axios.put(uploadUrl, upload.file, {
 
-        const { uploadUrl, key } = presigned
+                headers: {
+                    "Content-Type": upload.file.type
+                },
 
-        /* 2️⃣ upload to S3 */
+                onUploadProgress: (e) => {
 
-        await axios.put(uploadUrl, upload.file, {
-
-            headers: {
-                "Content-Type": upload.file.type
-            },
-
-            onUploadProgress: (e) => {
-
-                const percent = Math.round(
-                    (e.loaded * 100) / (e.total || 1)
-                )
-
-                setUploads(prev =>
-                    prev.map(u =>
-                        u.id === upload.id
-                            ? { ...u, progress: percent }
-                            : u
+                    const percent = Math.round(
+                        (e.loaded * 100) / (e.total || 1)
                     )
-                )
 
-            }
+                    setUploads(prev =>
+                        prev.map(u =>
+                            u.id === upload.id
+                                ? { ...u, progress: percent }
+                                : u
+                        )
+                    )
 
-        })
+                }
 
-        /* 3️⃣ create DB asset */
+            })
 
-        await updateCategoryMutation.mutateAsync({
+            await updateCategoryMutation.mutateAsync({
 
-            id: category.id,
-            assetKey: key,
-            assetRole: activeRole,
-            assetType: upload.file.type.startsWith("image")
-                ? "IMAGE"
-                : upload.file.type.startsWith("video")
-                    ? "VIDEO"
-                    : "PDF",
-            mimeType: upload.file.type
+                id: category.id,
+                assetKey: key,
+                assetRole: activeRole,
+                assetType: upload.file.type.startsWith("image")
+                    ? "IMAGE"
+                    : upload.file.type.startsWith("video")
+                        ? "VIDEO"
+                        : "PDF",
+                mimeType: upload.file.type
 
-        })
+            })
 
-        /* 4️⃣ refresh */
-
-        await refetchCategory()
+            await refetchCategory()
+            toast.success(`${upload.file.name} kategori asset'i olarak yüklendi`)
+        } catch {
+            toast.error(`${upload.file.name} yüklenemedi`)
+        }
     }
 
     return (

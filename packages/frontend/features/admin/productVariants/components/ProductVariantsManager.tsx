@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useQuery } from "@tanstack/react-query"
-import { ArrowLeft, Plus, Search } from "lucide-react"
+import Image from "next/image"
+import { ArrowLeft, Boxes, Plus, Search, Tag } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { Badge } from "@/components/ui/badge"
 
 import { getProduct } from "@/features/admin/products/api/getProduct"
 import { ProductVariantsTable } from "@/features/admin/productVariants/components/ProductVariantsTable"
@@ -21,6 +23,23 @@ import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 
 type Props = {
     productId: string
+}
+
+type ProductAssetLite = {
+    role?: string
+    type?: string
+    url?: string
+}
+
+function pickThumb(product: { assets?: ProductAssetLite[] }) {
+    const assets = product.assets ?? []
+    const primary = assets.find((asset) => asset.role === "PRIMARY" && asset.type === "IMAGE")
+    if (primary?.url) return primary.url
+
+    const animation = assets.find((asset) => asset.role === "ANIMATION" && asset.type === "IMAGE")
+    if (animation?.url) return animation.url
+
+    return assets.find((asset) => asset.type === "IMAGE")?.url ?? null
 }
 
 export function ProductVariantsManager({ productId }: Props) {
@@ -97,6 +116,8 @@ export function ProductVariantsManager({ productId }: Props) {
         )
     }
 
+    const productThumb = pickThumb(product as { assets?: ProductAssetLite[] })
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -139,6 +160,69 @@ export function ProductVariantsManager({ productId }: Props) {
                         <Plus className="h-4 w-4" />
                         Yeni Varyant
                     </Button>
+                </div>
+            </div>
+
+            <div className="grid gap-5 overflow-hidden rounded-[28px] border border-neutral-200 bg-white p-4 shadow-sm lg:grid-cols-[320px_minmax(0,1fr)] lg:p-5">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50">
+                    {productThumb ? (
+                        <Image
+                            src={productThumb}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                            sizes="(min-width: 1024px) 320px, 100vw"
+                        />
+                    ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-neutral-400">
+                            Ürün görseli bulunamadı
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex flex-col justify-between gap-5">
+                    <div className="space-y-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                            {product.category?.name ? (
+                                <Badge variant="outline" className="rounded-full border-neutral-200 bg-neutral-50 text-neutral-700">
+                                    <Tag className="mr-1 h-3.5 w-3.5" />
+                                    {product.category.name}
+                                </Badge>
+                            ) : null}
+                            <Badge variant="secondary" className="rounded-full bg-brand/10 text-brand">
+                                <Boxes className="mr-1 h-3.5 w-3.5" />
+                                {(variants ?? []).length} varyant
+                            </Badge>
+                        </div>
+
+                        <div className="space-y-2">
+                            <h2 className="text-2xl font-semibold tracking-tight text-neutral-950">{product.name}</h2>
+                            <div className="text-sm text-neutral-500">
+                                Ürün Kodu: <span className="font-mono text-neutral-700">{product.code}</span>
+                            </div>
+                        </div>
+
+                        <p className="max-w-3xl text-sm leading-7 text-neutral-700">
+                            {product.description?.trim() || "Bu ürün için henüz açıklama eklenmemiş. Varyantları yönetirken ölçü, renk ve teknik detay farklarını aşağıdaki tablo üzerinden kontrol edebilirsiniz."}
+                        </p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
+                            <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Slug</div>
+                            <div className="mt-2 text-sm font-medium text-neutral-800">/{product.slug}</div>
+                        </div>
+                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
+                            <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Toplam Varyant</div>
+                            <div className="mt-2 text-sm font-medium text-neutral-800">{(variants ?? []).length}</div>
+                        </div>
+                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
+                            <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Son Güncelleme</div>
+                            <div className="mt-2 text-sm font-medium text-neutral-800">
+                                {new Date(product.updatedAt).toLocaleDateString("tr-TR")}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

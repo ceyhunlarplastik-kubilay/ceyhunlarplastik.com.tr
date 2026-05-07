@@ -52,11 +52,17 @@ export function CategoriesPageClient() {
 
     return (
         <div className="space-y-6">
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Kategoriler</h1>
-                <p className="text-sm text-neutral-500">
-                    Kategori kayıtlarını arayın, düzenleyin ve asset/attribute ilişkilerini yönetin.
-                </p>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-1">
+                    <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Kategoriler</h1>
+                    <p className="text-sm text-neutral-500">
+                        Kategori kayıtlarını arayın, düzenleyin ve asset/attribute ilişkilerini yönetin.
+                    </p>
+                </div>
+
+                <div className="rounded-2xl border bg-white px-4 py-3 text-sm text-neutral-600 shadow-sm lg:min-w-[220px]">
+                    Toplam <span className="font-semibold text-neutral-900">{filteredCategories.length}</span> kategori
+                </div>
             </div>
 
             <CategoriesFilters search={filters.search} onSearchChange={setSearch} />
@@ -68,10 +74,6 @@ export function CategoriesPageClient() {
                 refreshIntervalSeconds={filters.refreshIntervalSeconds}
                 onRefreshIntervalChange={setRefreshIntervalSeconds}
             />
-
-            <div className="rounded-2xl border bg-white p-4 text-sm text-neutral-600 shadow-sm">
-                Toplam <span className="font-semibold text-neutral-900">{filteredCategories.length}</span> kategori
-            </div>
 
             <CategoriesTable categories={filteredCategories} />
         </div>

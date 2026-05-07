@@ -86,9 +86,9 @@ export function CategoriesTable({ categories }: Props) {
 
     return (
         <div className="space-y-6">
-
-            {/* CREATE FORM */}
-            <CategoryCreateForm />
+            <div className="flex justify-end">
+                <CategoryCreateForm />
+            </div>
 
             {/* TABLE */}
             <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
