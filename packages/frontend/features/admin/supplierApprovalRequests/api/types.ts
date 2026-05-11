@@ -47,6 +47,15 @@ export type AdminSupplierApprovalRequest = {
                 id: string
                 code: string
                 name: string
+                slug: string
+                description?: string | null
+                assets?: Array<{
+                    id: string
+                    key: string
+                    role: string
+                    type: string
+                    url: string
+                }>
             }
         }
     } | null

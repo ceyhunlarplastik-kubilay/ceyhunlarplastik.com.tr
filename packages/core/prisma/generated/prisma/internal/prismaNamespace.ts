@@ -396,6 +396,8 @@ export const ModelName = {
   MeasurementType: 'MeasurementType',
   ProductMeasurement: 'ProductMeasurement',
   Supplier: 'Supplier',
+  CustomerFeaturedProduct: 'CustomerFeaturedProduct',
+  CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
   SupplierApprovalRequest: 'SupplierApprovalRequest',
   Material: 'Material',
@@ -415,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "customer" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "productVariantSupplier" | "supplierApprovalRequest" | "material" | "asset"
+    modelProps: "user" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "customer" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerVisit" | "productVariantSupplier" | "supplierApprovalRequest" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1307,6 +1309,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CustomerFeaturedProduct: {
+      payload: Prisma.$CustomerFeaturedProductPayload<ExtArgs>
+      fields: Prisma.CustomerFeaturedProductFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerFeaturedProductFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerFeaturedProductFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerFeaturedProductFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerFeaturedProductFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerFeaturedProductFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerFeaturedProductCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerFeaturedProductCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerFeaturedProductCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerFeaturedProductDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
+        }
+        update: {
+          args: Prisma.CustomerFeaturedProductUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerFeaturedProductDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerFeaturedProductUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerFeaturedProductUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerFeaturedProductUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerFeaturedProductAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerFeaturedProduct>
+        }
+        groupBy: {
+          args: Prisma.CustomerFeaturedProductGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerFeaturedProductGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerFeaturedProductCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerFeaturedProductCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerVisit: {
+      payload: Prisma.$CustomerVisitPayload<ExtArgs>
+      fields: Prisma.CustomerVisitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerVisitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerVisitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerVisitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerVisitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+        }
+        findMany: {
+          args: Prisma.CustomerVisitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>[]
+        }
+        create: {
+          args: Prisma.CustomerVisitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+        }
+        createMany: {
+          args: Prisma.CustomerVisitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerVisitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerVisitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+        }
+        update: {
+          args: Prisma.CustomerVisitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerVisitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerVisitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerVisitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerVisitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVisitPayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerVisitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerVisit>
+        }
+        groupBy: {
+          args: Prisma.CustomerVisitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerVisitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerVisitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerVisitCountAggregateOutputType> | number
+        }
+      }
+    }
     ProductVariantSupplier: {
       payload: Prisma.$ProductVariantSupplierPayload<ExtArgs>
       fields: Prisma.ProductVariantSupplierFieldRefs
@@ -1649,6 +1799,7 @@ export const UserScalarFieldEnum = {
   identifier: 'identifier',
   groups: 'groups',
   supplierId: 'supplierId',
+  customerId: 'customerId',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1736,6 +1887,10 @@ export const CustomerScalarFieldEnum = {
   phone: 'phone',
   email: 'email',
   note: 'note',
+  status: 'status',
+  assignedSalesUserId: 'assignedSalesUserId',
+  convertedAt: 'convertedAt',
+  convertedByUserId: 'convertedByUserId',
   sectorValueId: 'sectorValueId',
   productionGroupValueId: 'productionGroupValueId',
   createdAt: 'createdAt',
@@ -1811,11 +1966,42 @@ export const SupplierScalarFieldEnum = {
   taxNumber: 'taxNumber',
   defaultPaymentTermDays: 'defaultPaymentTermDays',
   isActive: 'isActive',
+  assignedPurchasingUserId: 'assignedPurchasingUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
+
+
+export const CustomerFeaturedProductScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  productId: 'productId',
+  displayOrder: 'displayOrder',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerFeaturedProductScalarFieldEnum = (typeof CustomerFeaturedProductScalarFieldEnum)[keyof typeof CustomerFeaturedProductScalarFieldEnum]
+
+
+export const CustomerVisitScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  ownerUserId: 'ownerUserId',
+  scheduledAt: 'scheduledAt',
+  status: 'status',
+  title: 'title',
+  note: 'note',
+  completedAt: 'completedAt',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerVisitScalarFieldEnum = (typeof CustomerVisitScalarFieldEnum)[keyof typeof CustomerVisitScalarFieldEnum]
 
 
 export const ProductVariantSupplierScalarFieldEnum = {
@@ -2010,6 +2196,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'CustomerStatus'
+ */
+export type EnumCustomerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerStatus[]'
+ */
+export type ListEnumCustomerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Json'
  */
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -2062,6 +2262,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerVisitStatus'
+ */
+export type EnumCustomerVisitStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerVisitStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerVisitStatus[]'
+ */
+export type ListEnumCustomerVisitStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerVisitStatus[]'>
     
 
 
@@ -2256,6 +2470,8 @@ export type GlobalOmitConfig = {
   measurementType?: Prisma.MeasurementTypeOmit
   productMeasurement?: Prisma.ProductMeasurementOmit
   supplier?: Prisma.SupplierOmit
+  customerFeaturedProduct?: Prisma.CustomerFeaturedProductOmit
+  customerVisit?: Prisma.CustomerVisitOmit
   productVariantSupplier?: Prisma.ProductVariantSupplierOmit
   supplierApprovalRequest?: Prisma.SupplierApprovalRequestOmit
   material?: Prisma.MaterialOmit

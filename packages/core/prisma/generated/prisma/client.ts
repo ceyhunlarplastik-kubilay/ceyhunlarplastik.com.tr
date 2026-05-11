@@ -102,6 +102,16 @@ export type ProductMeasurement = Prisma.ProductMeasurementModel
  */
 export type Supplier = Prisma.SupplierModel
 /**
+ * Model CustomerFeaturedProduct
+ * 
+ */
+export type CustomerFeaturedProduct = Prisma.CustomerFeaturedProductModel
+/**
+ * Model CustomerVisit
+ * 
+ */
+export type CustomerVisit = Prisma.CustomerVisitModel
+/**
  * Model ProductVariantSupplier
  * 
  */

@@ -19,6 +19,14 @@ export const ColorSystem = {
 export type ColorSystem = (typeof ColorSystem)[keyof typeof ColorSystem]
 
 
+export const CustomerStatus = {
+  LEAD: 'LEAD',
+  CUSTOMER: 'CUSTOMER'
+} as const
+
+export type CustomerStatus = (typeof CustomerStatus)[keyof typeof CustomerStatus]
+
+
 export const WebRequestStatus = {
   NEW: 'NEW',
   CONTACTED: 'CONTACTED',
@@ -51,6 +59,15 @@ export const MeasurementCode = {
 } as const
 
 export type MeasurementCode = (typeof MeasurementCode)[keyof typeof MeasurementCode]
+
+
+export const CustomerVisitStatus = {
+  PLANNED: 'PLANNED',
+  COMPLETED: 'COMPLETED',
+  CANCELED: 'CANCELED'
+} as const
+
+export type CustomerVisitStatus = (typeof CustomerVisitStatus)[keyof typeof CustomerVisitStatus]
 
 
 export const SupplierApprovalRequestType = {

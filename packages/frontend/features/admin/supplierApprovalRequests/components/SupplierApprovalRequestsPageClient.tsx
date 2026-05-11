@@ -16,6 +16,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { SupplierApprovalRequestFilters } from "@/features/admin/supplierApprovalRequests/components/SupplierApprovalRequestFilters"
+import { SupplierApprovalRequestDiffPanel } from "@/features/admin/supplierApprovalRequests/components/SupplierApprovalRequestDiffPanel"
 import { SupplierApprovalRequestStatusBadge } from "@/features/admin/supplierApprovalRequests/components/SupplierApprovalRequestStatusBadge"
 import {
     SUPPLIER_APPROVAL_TYPE_LABELS,
@@ -25,35 +26,17 @@ import { useSupplierApprovalRequests } from "@/features/admin/supplierApprovalRe
 import { useDecideSupplierApprovalRequest } from "@/features/admin/supplierApprovalRequests/hooks/useDecideSupplierApprovalRequest"
 import type { AdminSupplierApprovalRequest } from "@/features/admin/supplierApprovalRequests/api/types"
 
-const FIELD_LABELS: Record<string, string> = {
-    name: "Firma Adı",
-    contactName: "Yetkili",
-    phone: "Telefon",
-    address: "Adres",
-    taxNumber: "Vergi No",
-    defaultPaymentTermDays: "Varsayılan Vade",
-    price: "Maliyet",
-    operationalCostRate: "Operasyonel Maliyet %",
-    netCost: "Net Maliyet",
-    profitRate: "Kar Oranı %",
-    listPrice: "Liste Fiyatı",
-    paymentTermDays: "Vade",
-    supplierVariantCode: "Tedarikçi Varyant Kodu",
-    supplierNote: "Tedarikçi Notu",
-    minOrderQty: "Minimum Sipariş",
-    stockQty: "Stok",
-    currency: "Para Birimi",
-}
-
 type UiState = {
     expandedId: string | null
     noteById: Record<string, string>
+    showAllFieldsById: Record<string, boolean>
 }
 
 type UiAction =
     | { type: "toggleExpanded"; id: string }
     | { type: "setNote"; id: string; note: string }
     | { type: "clearNote"; id: string }
+    | { type: "toggleShowAllFields"; id: string }
 
 function uiReducer(state: UiState, action: UiAction): UiState {
     switch (action.type) {
@@ -78,15 +61,17 @@ function uiReducer(state: UiState, action: UiAction): UiState {
                 noteById: rest,
             }
         }
+        case "toggleShowAllFields":
+            return {
+                ...state,
+                showAllFieldsById: {
+                    ...state.showAllFieldsById,
+                    [action.id]: !state.showAllFieldsById[action.id],
+                },
+            }
         default:
             return state
     }
-}
-
-function renderValue(value: unknown) {
-    if (value === null || value === undefined || value === "") return "-"
-    if (typeof value === "boolean") return value ? "Evet" : "Hayır"
-    return String(value)
 }
 
 function getTargetLabel(request: AdminSupplierApprovalRequest) {
@@ -103,6 +88,7 @@ export function SupplierApprovalRequestsPageClient() {
     const [uiState, dispatch] = useReducer(uiReducer, {
         expandedId: null,
         noteById: {},
+        showAllFieldsById: {},
     })
 
     const {
@@ -234,6 +220,7 @@ export function SupplierApprovalRequestsPageClient() {
                             const isExpanded = uiState.expandedId === request.id
                             const currentSnapshot = request.currentSnapshot ?? {}
                             const requestedPayload = request.requestPayload ?? {}
+                            const showAllFields = uiState.showAllFieldsById[request.id] ?? false
 
                             return (
                                 <Fragment key={request.id}>
@@ -269,31 +256,18 @@ export function SupplierApprovalRequestsPageClient() {
                                     {isExpanded ? (
                                         <TableRow>
                                             <TableCell colSpan={5} className="bg-white p-4">
-                                                <div className="grid gap-4 lg:grid-cols-2">
-                                                    <div className="rounded-xl border border-neutral-200 p-4">
-                                                        <h3 className="mb-3 text-sm font-semibold text-neutral-900">Mevcut Değerler</h3>
-                                                        <div className="space-y-2 text-sm">
-                                                            {Object.entries(currentSnapshot).map(([key, value]) => (
-                                                                <div key={`${request.id}-current-${key}`} className="flex justify-between gap-3 border-b border-dashed border-neutral-100 pb-2 last:border-0 last:pb-0">
-                                                                    <span className="text-neutral-500">{FIELD_LABELS[key] ?? key}</span>
-                                                                    <span className="text-right text-neutral-900">{renderValue(value)}</span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="rounded-xl border border-neutral-200 p-4">
-                                                        <h3 className="mb-3 text-sm font-semibold text-neutral-900">Talep Edilen Değerler</h3>
-                                                        <div className="space-y-2 text-sm">
-                                                            {Object.entries(requestedPayload).map(([key, value]) => (
-                                                                <div key={`${request.id}-requested-${key}`} className="flex justify-between gap-3 border-b border-dashed border-neutral-100 pb-2 last:border-0 last:pb-0">
-                                                                    <span className="text-neutral-500">{FIELD_LABELS[key] ?? key}</span>
-                                                                    <span className="text-right text-neutral-900">{renderValue(value)}</span>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                                <SupplierApprovalRequestDiffPanel
+                                                    request={request}
+                                                    currentSnapshot={currentSnapshot}
+                                                    requestedPayload={requestedPayload}
+                                                    showAllFields={showAllFields}
+                                                    onToggleShowAll={() =>
+                                                        dispatch({
+                                                            type: "toggleShowAllFields",
+                                                            id: request.id,
+                                                        })
+                                                    }
+                                                />
 
                                                 <div className="mt-4 space-y-3">
                                                     {request.decisionNote ? (

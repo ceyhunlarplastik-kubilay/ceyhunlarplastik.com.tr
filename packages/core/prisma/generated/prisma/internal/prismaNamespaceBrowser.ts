@@ -63,6 +63,8 @@ export const ModelName = {
   MeasurementType: 'MeasurementType',
   ProductMeasurement: 'ProductMeasurement',
   Supplier: 'Supplier',
+  CustomerFeaturedProduct: 'CustomerFeaturedProduct',
+  CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
   SupplierApprovalRequest: 'SupplierApprovalRequest',
   Material: 'Material',
@@ -92,6 +94,7 @@ export const UserScalarFieldEnum = {
   identifier: 'identifier',
   groups: 'groups',
   supplierId: 'supplierId',
+  customerId: 'customerId',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -179,6 +182,10 @@ export const CustomerScalarFieldEnum = {
   phone: 'phone',
   email: 'email',
   note: 'note',
+  status: 'status',
+  assignedSalesUserId: 'assignedSalesUserId',
+  convertedAt: 'convertedAt',
+  convertedByUserId: 'convertedByUserId',
   sectorValueId: 'sectorValueId',
   productionGroupValueId: 'productionGroupValueId',
   createdAt: 'createdAt',
@@ -254,11 +261,42 @@ export const SupplierScalarFieldEnum = {
   taxNumber: 'taxNumber',
   defaultPaymentTermDays: 'defaultPaymentTermDays',
   isActive: 'isActive',
+  assignedPurchasingUserId: 'assignedPurchasingUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
+
+
+export const CustomerFeaturedProductScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  productId: 'productId',
+  displayOrder: 'displayOrder',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerFeaturedProductScalarFieldEnum = (typeof CustomerFeaturedProductScalarFieldEnum)[keyof typeof CustomerFeaturedProductScalarFieldEnum]
+
+
+export const CustomerVisitScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  ownerUserId: 'ownerUserId',
+  scheduledAt: 'scheduledAt',
+  status: 'status',
+  title: 'title',
+  note: 'note',
+  completedAt: 'completedAt',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerVisitScalarFieldEnum = (typeof CustomerVisitScalarFieldEnum)[keyof typeof CustomerVisitScalarFieldEnum]
 
 
 export const ProductVariantSupplierScalarFieldEnum = {

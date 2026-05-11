@@ -25,12 +25,22 @@ model User {
   groups                            String[]
   supplierId                        String?
   supplier                          Supplier?                 @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  customerId                        String?
+  customer                          Customer?                 @relation("CustomerPortalUsers", fields: [customerId], references: [id], onDelete: SetNull)
   isActive                          Boolean                   @default(true)
   supplierApprovalRequestsRequested SupplierApprovalRequest[] @relation("SupplierApprovalRequestedBy")
   supplierApprovalRequestsReviewed  SupplierApprovalRequest[] @relation("SupplierApprovalReviewedBy")
+  assignedSalesCustomers            Customer[]                @relation("AssignedSalesUser")
+  convertedCustomers                Customer[]                @relation("CustomerConvertedBy")
+  assignedPurchasingSuppliers       Supplier[]                @relation("AssignedPurchasingUser")
+  createdCustomerFeaturedProducts   CustomerFeaturedProduct[] @relation("CustomerFeaturedProductCreatedBy")
+  ownedCustomerVisits               CustomerVisit[]           @relation("CustomerVisitOwner")
+  createdCustomerVisits             CustomerVisit[]           @relation("CustomerVisitCreatedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([customerId])
 }
 
 ///////////////////////////////////////////////////////
@@ -102,6 +112,7 @@ model Product {
   variants        ProductVariant[]
   assets          Asset[]
   attributeValues ProductAttributeValue[]
+  featuredByCustomers CustomerFeaturedProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,6 +175,14 @@ model Customer {
   phone       String
   email       String
   note        String? @db.Text
+  status      CustomerStatus @default(LEAD)
+
+  assignedSalesUserId String?
+  assignedSalesUser   User? @relation("AssignedSalesUser", fields: [assignedSalesUserId], references: [id], onDelete: SetNull)
+
+  convertedAt       DateTime?
+  convertedByUserId String?
+  convertedByUser   User? @relation("CustomerConvertedBy", fields: [convertedByUserId], references: [id], onDelete: SetNull)
 
   sectorValueId String?
   sectorValue   ProductAttributeValue? @relation("CustomerSector", fields: [sectorValueId], references: [id], onDelete: SetNull)
@@ -172,13 +191,23 @@ model Customer {
   productionGroupValue   ProductAttributeValue? @relation("CustomerProductionGroup", fields: [productionGroupValueId], references: [id], onDelete: SetNull)
 
   usageAreaValues ProductAttributeValue[] @relation("CustomerUsageAreas")
+  portalUsers     User[]                  @relation("CustomerPortalUsers")
+  featuredProducts CustomerFeaturedProduct[]
+  visits           CustomerVisit[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
+  @@index([status, createdAt])
+  @@index([assignedSalesUserId, status, createdAt])
   @@index([sectorValueId])
   @@index([productionGroupValueId])
+}
+
+enum CustomerStatus {
+  LEAD
+  CUSTOMER
 }
 
 model WebRequest {
@@ -314,6 +343,8 @@ model Supplier {
   taxNumber              String?
   defaultPaymentTermDays Int?
   isActive               Boolean @default(true)
+  assignedPurchasingUserId String?
+  assignedPurchasingUser   User? @relation("AssignedPurchasingUser", fields: [assignedPurchasingUserId], references: [id], onDelete: SetNull)
 
   variantSuppliers ProductVariantSupplier[]
   users            User[]
@@ -323,6 +354,63 @@ model Supplier {
   updatedAt DateTime @updatedAt
 
   @@unique([name])
+  @@index([assignedPurchasingUserId, createdAt])
+}
+
+model CustomerFeaturedProduct {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  displayOrder Int @default(0)
+
+  createdByUserId String
+  createdByUser   User @relation("CustomerFeaturedProductCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerId, productId])
+  @@index([customerId, displayOrder])
+  @@index([productId])
+  @@index([createdByUserId])
+}
+
+model CustomerVisit {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  ownerUserId String
+  ownerUser   User @relation("CustomerVisitOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+
+  scheduledAt DateTime
+  status      CustomerVisitStatus @default(PLANNED)
+  title       String
+  note        String? @db.Text
+  completedAt DateTime?
+
+  createdByUserId String
+  createdByUser   User @relation("CustomerVisitCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId, scheduledAt])
+  @@index([customerId, status, scheduledAt])
+  @@index([ownerUserId, status, scheduledAt])
+  @@index([createdByUserId])
+}
+
+enum CustomerVisitStatus {
+  PLANNED
+  COMPLETED
+  CANCELED
 }
 
 model ProductVariantSupplier {

@@ -8,9 +8,18 @@ import {
     normalizeAdminRefreshInterval,
 } from "@/features/admin/shared/config"
 
-export function useCustomerListFilters() {
+type CustomerStatusFilter = "LEAD" | "CUSTOMER"
+
+type Options = {
+    lockedStatus?: CustomerStatusFilter
+}
+
+export function useCustomerListFilters(options: Options = {}) {
+    const { lockedStatus } = options
     const [state, setState] = useQueryStates({
         search: parseAsString.withDefault(""),
+        status: parseAsString,
+        assignedSalesUserId: parseAsString,
         sectorValueId: parseAsString,
         productionGroupValueId: parseAsString,
         usageAreaValueId: parseAsString,
@@ -26,6 +35,12 @@ export function useCustomerListFilters() {
             page: state.page,
             limit: state.limit,
             ...(state.search.trim() ? { search: state.search.trim() } : {}),
+            ...(lockedStatus
+                ? { status: lockedStatus }
+                : state.status
+                    ? { status: state.status as CustomerStatusFilter }
+                    : {}),
+            ...(state.assignedSalesUserId ? { assignedSalesUserId: state.assignedSalesUserId } : {}),
             ...(state.sectorValueId ? { sectorValueId: state.sectorValueId } : {}),
             ...(state.productionGroupValueId ? { productionGroupValueId: state.productionGroupValueId } : {}),
             ...(state.usageAreaValueId ? { usageAreaValueId: state.usageAreaValueId } : {}),
@@ -33,16 +48,21 @@ export function useCustomerListFilters() {
         [
             state.limit,
             state.page,
+            state.assignedSalesUserId,
             state.productionGroupValueId,
             state.search,
             state.sectorValueId,
+            state.status,
             state.usageAreaValueId,
+            lockedStatus,
         ]
     )
 
     return {
         filters: {
             search: state.search,
+            status: lockedStatus ?? state.status ?? "",
+            assignedSalesUserId: state.assignedSalesUserId ?? "",
             sectorValueId: state.sectorValueId ?? "",
             productionGroupValueId: state.productionGroupValueId ?? "",
             usageAreaValueId: state.usageAreaValueId ?? "",
@@ -52,6 +72,12 @@ export function useCustomerListFilters() {
         },
         params,
         setSearch: (search: string) => setState({ search, page: 1 }),
+        setStatus: (status: string) => {
+            if (lockedStatus) return
+            return setState({ status: status || null, page: 1 })
+        },
+        setAssignedSalesUserId: (assignedSalesUserId: string) =>
+            setState({ assignedSalesUserId: assignedSalesUserId || null, page: 1 }),
         setSectorValueId: (sectorValueId: string) =>
             setState({
                 sectorValueId: sectorValueId || null,

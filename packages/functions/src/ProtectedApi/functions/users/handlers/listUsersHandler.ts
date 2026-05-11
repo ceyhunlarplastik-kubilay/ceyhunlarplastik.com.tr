@@ -3,8 +3,11 @@ import { IListUsersDependencies, IListUsersEvent} from "@/functions/ProtectedApi
 
 export const listUsersHandler = ({ userRepository }: IListUsersDependencies) => {
   return async (event: IListUsersEvent) => {
-
-    const users = await userRepository.listUsers();
+    void event
+    const users = await userRepository.listUsers({
+      page: 1,
+      limit: 100,
+    });
 
     return apiResponse({
       statusCode: 200,

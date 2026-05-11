@@ -22,6 +22,8 @@ export const listCustomersHandler = ({ customerRepository }: ICustomerDependenci
                 sectorValueId: event.queryStringParameters?.sectorValueId,
                 productionGroupValueId: event.queryStringParameters?.productionGroupValueId,
                 usageAreaValueId: event.queryStringParameters?.usageAreaValueId,
+                status: event.queryStringParameters?.status,
+                assignedSalesUserId: event.queryStringParameters?.assignedSalesUserId,
             })
 
             return apiResponseDTO({

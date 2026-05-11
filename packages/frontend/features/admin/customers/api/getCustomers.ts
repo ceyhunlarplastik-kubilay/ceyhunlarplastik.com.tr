@@ -8,6 +8,8 @@ type Params = {
     sectorValueId?: string
     productionGroupValueId?: string
     usageAreaValueId?: string
+    status?: "LEAD" | "CUSTOMER"
+    assignedSalesUserId?: string
 }
 
 export async function getCustomers(params: Params) {

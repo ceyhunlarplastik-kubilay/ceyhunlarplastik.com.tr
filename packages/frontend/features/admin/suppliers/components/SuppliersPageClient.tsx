@@ -34,6 +34,7 @@ import { CreateVariantDialog } from "@/features/admin/productVariants/components
 import { useVariantReferences } from "@/features/admin/productVariants/hooks/useVariantReferences"
 import { useProductVariants } from "@/features/admin/productVariants/hooks/useProductVariants"
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
+import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import {
     Dialog,
     DialogContent,
@@ -60,6 +61,7 @@ export function SuppliersPageClient() {
         address: "",
         taxNumber: "",
         defaultPaymentTermDays: "",
+        assignedPurchasingUserId: "",
     })
     const [selectedCategoryId, setSelectedCategoryId] = useState("")
     const [productSearch, setProductSearch] = useState("")
@@ -84,6 +86,7 @@ export function SuppliersPageClient() {
     const bulkUpdatePricingMutation = useBulkUpdateSupplierVariantPricing()
     const referencesQuery = useVariantReferences()
     const categoriesQuery = useCategories()
+    const usersQuery = useUsers({ params: { page: 1, limit: 500 } })
     const productsQuery = useSupplierProducts({
         supplierId: selectedSupplier?.id,
         page: productPage,
@@ -107,6 +110,7 @@ export function SuppliersPageClient() {
     const supplierMeta = supplierQuery.data?.meta
     const categories = categoriesQuery.data ?? []
     const products = productsQuery.data?.data ?? []
+    const purchasingUsers = (usersQuery.data?.data ?? []).filter((user) => user.groups.includes("purchasing") || user.groups.includes("admin") || user.groups.includes("owner"))
     const productMeta = productsQuery.data?.meta
     const supplierRows = detailQuery.data?.data ?? []
     const supplierRowsMeta = detailQuery.data?.meta
@@ -140,6 +144,7 @@ export function SuppliersPageClient() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Tedarikçi</TableHead>
+                            <TableHead>Satın Almacı</TableHead>
                             <TableHead>Durum</TableHead>
                             <TableHead>Oluşturma</TableHead>
                             <TableHead className="text-right pr-4">İşlem</TableHead>
@@ -148,7 +153,7 @@ export function SuppliersPageClient() {
                     <TableBody>
                         {supplierQuery.isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={4} className="py-12">
+                                <TableCell colSpan={5} className="py-12">
                                     <div className="flex items-center justify-center">
                                         <Spinner className="size-5" />
                                     </div>
@@ -157,6 +162,9 @@ export function SuppliersPageClient() {
                         ) : suppliers.map((supplier) => (
                             <TableRow key={supplier.id}>
                                 <TableCell className="font-medium">{supplier.name}</TableCell>
+                                <TableCell>
+                                    {supplier.assignedPurchasingUser?.identifier ?? "-"}
+                                </TableCell>
                                 <TableCell>
                                     <Badge variant={supplier.isActive ? "default" : "secondary"}>
                                         {supplier.isActive ? "Aktif" : "Pasif"}
@@ -199,6 +207,7 @@ export function SuppliersPageClient() {
                                                         supplier.defaultPaymentTermDays !== undefined
                                                         ? String(supplier.defaultPaymentTermDays)
                                                         : "",
+                                                assignedPurchasingUserId: supplier.assignedPurchasingUserId ?? "",
                                             })
                                         }}
                                     >
@@ -209,7 +218,7 @@ export function SuppliersPageClient() {
                         ))}
                         {!supplierQuery.isLoading && suppliers.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={4} className="py-10 text-center text-sm text-neutral-500">
+                                <TableCell colSpan={5} className="py-10 text-center text-sm text-neutral-500">
                                     Tedarikçi bulunamadı.
                                 </TableCell>
                             </TableRow>
@@ -621,6 +630,22 @@ export function SuppliersPageClient() {
                                 onChange={(e) => setSupplierDraft((p) => ({ ...p, defaultPaymentTermDays: e.target.value }))}
                             />
                         </div>
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="supplier-purchasing-user">Satın Alma Sorumlusu</Label>
+                            <select
+                                id="supplier-purchasing-user"
+                                className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
+                                value={supplierDraft.assignedPurchasingUserId || "__none__"}
+                                onChange={(e) => setSupplierDraft((p) => ({ ...p, assignedPurchasingUserId: e.target.value === "__none__" ? "" : e.target.value }))}
+                            >
+                                <option value="__none__">Atama yok</option>
+                                {purchasingUsers.map((user) => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.identifier}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="flex justify-end">
                             <Button
                                 onClick={async () => {
@@ -635,6 +660,7 @@ export function SuppliersPageClient() {
                                         defaultPaymentTermDays: supplierDraft.defaultPaymentTermDays
                                             ? Number(supplierDraft.defaultPaymentTermDays)
                                             : undefined,
+                                        assignedPurchasingUserId: supplierDraft.assignedPurchasingUserId || null,
                                     })
                                     setEditingSupplier(null)
                                 }}

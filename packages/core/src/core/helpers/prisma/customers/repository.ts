@@ -1,27 +1,111 @@
 import { prisma } from "@/core/db/prisma"
-import { Customer, Prisma } from "@/prisma/generated/prisma/client"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
+import { Customer, Prisma } from "@/prisma/generated/prisma/client"
+
+const customerBaseInclude = {
+    sectorValue: {
+        include: {
+            attribute: true,
+        },
+    },
+    productionGroupValue: {
+        include: {
+            attribute: true,
+        },
+    },
+    usageAreaValues: {
+        include: {
+            attribute: true,
+        },
+    },
+    assignedSalesUser: {
+        select: {
+            id: true,
+            email: true,
+            identifier: true,
+            groups: true,
+        },
+    },
+    convertedByUser: {
+        select: {
+            id: true,
+            email: true,
+            identifier: true,
+            groups: true,
+        },
+    },
+} satisfies Prisma.CustomerInclude
+
+const customerDetailInclude = {
+    ...customerBaseInclude,
+    featuredProducts: {
+        orderBy: {
+            displayOrder: "asc",
+        },
+        include: {
+            createdByUser: {
+                select: {
+                    id: true,
+                    email: true,
+                    identifier: true,
+                },
+            },
+            product: {
+                include: {
+                    category: true,
+                    assets: true,
+                    attributeValues: {
+                        include: {
+                            attribute: true,
+                        },
+                    },
+                },
+            },
+        },
+    },
+    visits: {
+        orderBy: [
+            { scheduledAt: "desc" },
+            { createdAt: "desc" },
+        ],
+        include: {
+            ownerUser: {
+                select: {
+                    id: true,
+                    email: true,
+                    identifier: true,
+                    groups: true,
+                },
+            },
+            createdByUser: {
+                select: {
+                    id: true,
+                    email: true,
+                    identifier: true,
+                    groups: true,
+                },
+            },
+        },
+    },
+} satisfies Prisma.CustomerInclude
 
 export type CustomerWithRelations = Prisma.CustomerGetPayload<{
-    include: {
-        sectorValue: {
-            include: {
-                attribute: true
-            }
-        }
-        productionGroupValue: {
-            include: {
-                attribute: true
-            }
-        }
-        usageAreaValues: {
-            include: {
-                attribute: true
-            }
-        }
-    }
+    include: typeof customerBaseInclude
+}>
+
+export type CustomerDetail = Prisma.CustomerGetPayload<{
+    include: typeof customerDetailInclude
+}>
+
+export type CustomerFeaturedProductWithRelations = Prisma.CustomerFeaturedProductGetPayload<{
+    include: typeof customerDetailInclude.featuredProducts.include
+}>
+
+export type CustomerVisitWithRelations = Prisma.CustomerVisitGetPayload<{
+    include: typeof customerDetailInclude.visits.include
 }>
 
 export interface IPrismaCustomerRepository {
@@ -30,6 +114,8 @@ export interface IPrismaCustomerRepository {
             sectorValueId?: string
             productionGroupValueId?: string
             usageAreaValueId?: string
+            status?: CustomerStatus
+            assignedSalesUserId?: string
         }
     ): Promise<{
         data: CustomerWithRelations[]
@@ -40,34 +126,31 @@ export interface IPrismaCustomerRepository {
             totalPages: number
         }
     }>
+    getCustomer(id: string): Promise<CustomerDetail | null>
     createCustomer(data: Prisma.CustomerCreateInput): Promise<CustomerWithRelations>
+    updateCustomer(id: string, data: Prisma.CustomerUpdateInput): Promise<CustomerWithRelations>
+    convertCustomer(id: string, convertedByUserId: string): Promise<CustomerWithRelations>
+    replaceFeaturedProducts(
+        customerId: string,
+        productIds: string[],
+        createdByUserId: string,
+    ): Promise<CustomerFeaturedProductWithRelations[]>
+    listFeaturedProducts(customerId: string): Promise<CustomerFeaturedProductWithRelations[]>
+    listVisits(customerId: string): Promise<CustomerVisitWithRelations[]>
+    createVisit(data: Prisma.CustomerVisitCreateInput): Promise<CustomerVisitWithRelations>
+    updateVisit(id: string, data: Prisma.CustomerVisitUpdateInput): Promise<CustomerVisitWithRelations>
+    deleteVisit(id: string): Promise<CustomerVisitWithRelations>
 }
 
 export const customerRepository = (): IPrismaCustomerRepository => {
-    const baseInclude = {
-        sectorValue: {
-            include: {
-                attribute: true,
-            },
-        },
-        productionGroupValue: {
-            include: {
-                attribute: true,
-            },
-        },
-        usageAreaValues: {
-            include: {
-                attribute: true,
-            },
-        },
-    } satisfies Prisma.CustomerInclude
-
     const listCustomers = async (
         query: IPaginationQuery & {
             sectorValueId?: string
             productionGroupValueId?: string
             usageAreaValueId?: string
-        }
+            status?: CustomerStatus
+            assignedSalesUserId?: string
+        },
     ) => {
         const { where, orderBy, skip, take, page, limit } = buildPaginationQuery<Customer>(query, {
             searchableFields: ["fullName", "companyName", "email", "phone"],
@@ -76,17 +159,21 @@ export const customerRepository = (): IPrismaCustomerRepository => {
 
         const finalWhere: Prisma.CustomerWhereInput = {
             ...where,
-            ...(query.sectorValueId && { sectorValueId: query.sectorValueId }),
-            ...(query.productionGroupValueId && {
-                productionGroupValueId: query.productionGroupValueId,
-            }),
-            ...(query.usageAreaValueId && {
-                usageAreaValues: {
-                    some: {
-                        id: query.usageAreaValueId,
+            ...(query.status ? { status: query.status } : {}),
+            ...(query.assignedSalesUserId ? { assignedSalesUserId: query.assignedSalesUserId } : {}),
+            ...(query.sectorValueId ? { sectorValueId: query.sectorValueId } : {}),
+            ...(query.productionGroupValueId
+                ? { productionGroupValueId: query.productionGroupValueId }
+                : {}),
+            ...(query.usageAreaValueId
+                ? {
+                    usageAreaValues: {
+                        some: {
+                            id: query.usageAreaValueId,
+                        },
                     },
-                },
-            }),
+                }
+                : {}),
         }
 
         const [data, total] = await Promise.all([
@@ -95,7 +182,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                 orderBy,
                 skip,
                 take,
-                include: baseInclude,
+                include: customerBaseInclude,
             }),
             prisma.customer.count({ where: finalWhere }),
         ])
@@ -108,14 +195,116 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         })
     }
 
+    const getCustomer = async (id: string) =>
+        prisma.customer.findUnique({
+            where: { id },
+            include: customerDetailInclude,
+        })
+
     const createCustomer = async (data: Prisma.CustomerCreateInput) =>
         prisma.customer.create({
             data,
-            include: baseInclude,
+            include: customerBaseInclude,
+        })
+
+    const updateCustomer = async (id: string, data: Prisma.CustomerUpdateInput) =>
+        prisma.customer.update({
+            where: { id },
+            data,
+            include: customerBaseInclude,
+        })
+
+    const convertCustomer = async (id: string, convertedByUserId: string) =>
+        prisma.customer.update({
+            where: { id },
+            data: {
+                status: CustomerStatus.CUSTOMER,
+                convertedAt: new Date(),
+                convertedByUser: {
+                    connect: { id: convertedByUserId },
+                },
+            },
+            include: customerBaseInclude,
+        })
+
+    const listFeaturedProducts = async (customerId: string) =>
+        prisma.customerFeaturedProduct.findMany({
+            where: { customerId },
+            orderBy: {
+                displayOrder: "asc",
+            },
+            include: customerDetailInclude.featuredProducts.include,
+        })
+
+    const replaceFeaturedProducts = async (
+        customerId: string,
+        productIds: string[],
+        createdByUserId: string,
+    ) => {
+        const uniqueProductIds = Array.from(new Set(productIds.filter(Boolean)))
+
+        await prisma.$transaction(async (tx) => {
+            await tx.customerFeaturedProduct.deleteMany({
+                where: { customerId },
+            })
+
+            if (uniqueProductIds.length > 0) {
+                await tx.customerFeaturedProduct.createMany({
+                    data: uniqueProductIds.map((productId, index) => ({
+                        customerId,
+                        productId,
+                        displayOrder: index,
+                        createdByUserId,
+                    })),
+                })
+            }
+        })
+
+        return listFeaturedProducts(customerId)
+    }
+
+    const listVisits = async (customerId: string) =>
+        prisma.customerVisit.findMany({
+            where: { customerId },
+            orderBy: [
+                { scheduledAt: "desc" },
+                { createdAt: "desc" },
+            ],
+            include: customerDetailInclude.visits.include,
+        })
+
+    const createVisit = async (data: Prisma.CustomerVisitCreateInput) =>
+        prisma.customerVisit.create({
+            data,
+            include: customerDetailInclude.visits.include,
+        })
+
+    const updateVisit = async (id: string, data: Prisma.CustomerVisitUpdateInput) =>
+        prisma.customerVisit.update({
+            where: { id },
+            data,
+            include: customerDetailInclude.visits.include,
+        })
+
+    const deleteVisit = async (id: string) =>
+        prisma.customerVisit.delete({
+            where: { id },
+            include: customerDetailInclude.visits.include,
         })
 
     return {
         listCustomers,
+        getCustomer,
         createCustomer,
+        updateCustomer,
+        convertCustomer,
+        replaceFeaturedProducts,
+        listFeaturedProducts,
+        listVisits,
+        createVisit,
+        updateVisit,
+        deleteVisit,
     }
 }
+
+export { CustomerStatus, CustomerVisitStatus }

@@ -30,6 +30,7 @@ export type UserMinAggregateOutputType = {
   email: string | null
   identifier: string | null
   supplierId: string | null
+  customerId: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -41,6 +42,7 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   identifier: string | null
   supplierId: string | null
+  customerId: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -53,6 +55,7 @@ export type UserCountAggregateOutputType = {
   identifier: number
   groups: number
   supplierId: number
+  customerId: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -66,6 +69,7 @@ export type UserMinAggregateInputType = {
   email?: true
   identifier?: true
   supplierId?: true
+  customerId?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -77,6 +81,7 @@ export type UserMaxAggregateInputType = {
   email?: true
   identifier?: true
   supplierId?: true
+  customerId?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -89,6 +94,7 @@ export type UserCountAggregateInputType = {
   identifier?: true
   groups?: true
   supplierId?: true
+  customerId?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -174,6 +180,7 @@ export type UserGroupByOutputType = {
   identifier: string
   groups: string[]
   supplierId: string | null
+  customerId: string | null
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -207,12 +214,20 @@ export type UserWhereInput = {
   identifier?: Prisma.StringFilter<"User"> | string
   groups?: Prisma.StringNullableListFilter<"User">
   supplierId?: Prisma.StringNullableFilter<"User"> | string | null
+  customerId?: Prisma.StringNullableFilter<"User"> | string | null
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
+  customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestListRelationFilter
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestListRelationFilter
+  assignedSalesCustomers?: Prisma.CustomerListRelationFilter
+  convertedCustomers?: Prisma.CustomerListRelationFilter
+  assignedPurchasingSuppliers?: Prisma.SupplierListRelationFilter
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductListRelationFilter
+  ownedCustomerVisits?: Prisma.CustomerVisitListRelationFilter
+  createdCustomerVisits?: Prisma.CustomerVisitListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -222,12 +237,20 @@ export type UserOrderByWithRelationInput = {
   identifier?: Prisma.SortOrder
   groups?: Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   supplier?: Prisma.SupplierOrderByWithRelationInput
+  customer?: Prisma.CustomerOrderByWithRelationInput
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestOrderByRelationAggregateInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestOrderByRelationAggregateInput
+  assignedSalesCustomers?: Prisma.CustomerOrderByRelationAggregateInput
+  convertedCustomers?: Prisma.CustomerOrderByRelationAggregateInput
+  assignedPurchasingSuppliers?: Prisma.SupplierOrderByRelationAggregateInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductOrderByRelationAggregateInput
+  ownedCustomerVisits?: Prisma.CustomerVisitOrderByRelationAggregateInput
+  createdCustomerVisits?: Prisma.CustomerVisitOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -240,12 +263,20 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   identifier?: Prisma.StringFilter<"User"> | string
   groups?: Prisma.StringNullableListFilter<"User">
   supplierId?: Prisma.StringNullableFilter<"User"> | string | null
+  customerId?: Prisma.StringNullableFilter<"User"> | string | null
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
+  customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestListRelationFilter
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestListRelationFilter
+  assignedSalesCustomers?: Prisma.CustomerListRelationFilter
+  convertedCustomers?: Prisma.CustomerListRelationFilter
+  assignedPurchasingSuppliers?: Prisma.SupplierListRelationFilter
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductListRelationFilter
+  ownedCustomerVisits?: Prisma.CustomerVisitListRelationFilter
+  createdCustomerVisits?: Prisma.CustomerVisitListRelationFilter
 }, "id" | "cognitoSub" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -255,6 +286,7 @@ export type UserOrderByWithAggregationInput = {
   identifier?: Prisma.SortOrder
   groups?: Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -273,6 +305,7 @@ export type UserScalarWhereWithAggregatesInput = {
   identifier?: Prisma.StringWithAggregatesFilter<"User"> | string
   groups?: Prisma.StringNullableListFilter<"User">
   supplierId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  customerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -288,8 +321,15 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -299,11 +339,18 @@ export type UserUncheckedCreateInput = {
   identifier: string
   groups?: Prisma.UserCreategroupsInput | string[]
   supplierId?: string | null
+  customerId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUpdateInput = {
@@ -316,8 +363,15 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -327,11 +381,18 @@ export type UserUncheckedUpdateInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   groups?: Prisma.UserUpdategroupsInput | string[]
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -341,6 +402,7 @@ export type UserCreateManyInput = {
   identifier: string
   groups?: Prisma.UserCreategroupsInput | string[]
   supplierId?: string | null
+  customerId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -364,6 +426,7 @@ export type UserUncheckedUpdateManyInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   groups?: Prisma.UserUpdategroupsInput | string[]
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -384,6 +447,7 @@ export type UserCountOrderByAggregateInput = {
   identifier?: Prisma.SortOrder
   groups?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  customerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -395,6 +459,7 @@ export type UserMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   identifier?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  customerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -406,9 +471,15 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   identifier?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  customerId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
 }
 
 export type UserListRelationFilter = {
@@ -424,11 +495,6 @@ export type UserOrderByRelationAggregateInput = {
 export type UserScalarRelationFilter = {
   is?: Prisma.UserWhereInput
   isNot?: Prisma.UserWhereInput
-}
-
-export type UserNullableScalarRelationFilter = {
-  is?: Prisma.UserWhereInput | null
-  isNot?: Prisma.UserWhereInput | null
 }
 
 export type UserCreategroupsInput = {
@@ -456,6 +522,86 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
+export type UserCreateNestedOneWithoutAssignedSalesCustomersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesCustomersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesCustomersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedSalesCustomersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutConvertedCustomersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConvertedCustomersInput, Prisma.UserUncheckedCreateWithoutConvertedCustomersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConvertedCustomersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedManyWithoutCustomerInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCustomerInput, Prisma.UserUncheckedCreateWithoutCustomerInput> | Prisma.UserCreateWithoutCustomerInput[] | Prisma.UserUncheckedCreateWithoutCustomerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCustomerInput | Prisma.UserCreateOrConnectWithoutCustomerInput[]
+  createMany?: Prisma.UserCreateManyCustomerInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutCustomerInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCustomerInput, Prisma.UserUncheckedCreateWithoutCustomerInput> | Prisma.UserCreateWithoutCustomerInput[] | Prisma.UserUncheckedCreateWithoutCustomerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCustomerInput | Prisma.UserCreateOrConnectWithoutCustomerInput[]
+  createMany?: Prisma.UserCreateManyCustomerInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateOneWithoutAssignedSalesCustomersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesCustomersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesCustomersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedSalesCustomersInput
+  upsert?: Prisma.UserUpsertWithoutAssignedSalesCustomersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedSalesCustomersInput, Prisma.UserUpdateWithoutAssignedSalesCustomersInput>, Prisma.UserUncheckedUpdateWithoutAssignedSalesCustomersInput>
+}
+
+export type UserUpdateOneWithoutConvertedCustomersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutConvertedCustomersInput, Prisma.UserUncheckedCreateWithoutConvertedCustomersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutConvertedCustomersInput
+  upsert?: Prisma.UserUpsertWithoutConvertedCustomersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutConvertedCustomersInput, Prisma.UserUpdateWithoutConvertedCustomersInput>, Prisma.UserUncheckedUpdateWithoutConvertedCustomersInput>
+}
+
+export type UserUpdateManyWithoutCustomerNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCustomerInput, Prisma.UserUncheckedCreateWithoutCustomerInput> | Prisma.UserCreateWithoutCustomerInput[] | Prisma.UserUncheckedCreateWithoutCustomerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCustomerInput | Prisma.UserCreateOrConnectWithoutCustomerInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutCustomerInput | Prisma.UserUpsertWithWhereUniqueWithoutCustomerInput[]
+  createMany?: Prisma.UserCreateManyCustomerInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutCustomerInput | Prisma.UserUpdateWithWhereUniqueWithoutCustomerInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutCustomerInput | Prisma.UserUpdateManyWithWhereWithoutCustomerInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutCustomerNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCustomerInput, Prisma.UserUncheckedCreateWithoutCustomerInput> | Prisma.UserCreateWithoutCustomerInput[] | Prisma.UserUncheckedCreateWithoutCustomerInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCustomerInput | Prisma.UserCreateOrConnectWithoutCustomerInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutCustomerInput | Prisma.UserUpsertWithWhereUniqueWithoutCustomerInput[]
+  createMany?: Prisma.UserCreateManyCustomerInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutCustomerInput | Prisma.UserUpdateWithWhereUniqueWithoutCustomerInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutCustomerInput | Prisma.UserUpdateManyWithWhereWithoutCustomerInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedOneWithoutAssignedPurchasingSuppliersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedPurchasingSuppliersInput, Prisma.UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedPurchasingSuppliersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserCreateNestedManyWithoutSupplierInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutSupplierInput, Prisma.UserUncheckedCreateWithoutSupplierInput> | Prisma.UserCreateWithoutSupplierInput[] | Prisma.UserUncheckedCreateWithoutSupplierInput[]
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSupplierInput | Prisma.UserCreateOrConnectWithoutSupplierInput[]
@@ -468,6 +614,16 @@ export type UserUncheckedCreateNestedManyWithoutSupplierInput = {
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutSupplierInput | Prisma.UserCreateOrConnectWithoutSupplierInput[]
   createMany?: Prisma.UserCreateManySupplierInputEnvelope
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateOneWithoutAssignedPurchasingSuppliersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedPurchasingSuppliersInput, Prisma.UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedPurchasingSuppliersInput
+  upsert?: Prisma.UserUpsertWithoutAssignedPurchasingSuppliersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedPurchasingSuppliersInput, Prisma.UserUpdateWithoutAssignedPurchasingSuppliersInput>, Prisma.UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput>
 }
 
 export type UserUpdateManyWithoutSupplierNestedInput = {
@@ -496,6 +652,48 @@ export type UserUncheckedUpdateManyWithoutSupplierNestedInput = {
   update?: Prisma.UserUpdateWithWhereUniqueWithoutSupplierInput | Prisma.UserUpdateWithWhereUniqueWithoutSupplierInput[]
   updateMany?: Prisma.UserUpdateManyWithWhereWithoutSupplierInput | Prisma.UserUpdateManyWithWhereWithoutSupplierInput[]
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserCreateNestedOneWithoutCreatedCustomerFeaturedProductsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomerFeaturedProductsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCreatedCustomerFeaturedProductsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomerFeaturedProductsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedCustomerFeaturedProductsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUpdateWithoutCreatedCustomerFeaturedProductsInput>, Prisma.UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput>
+}
+
+export type UserCreateNestedOneWithoutOwnedCustomerVisitsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutOwnedCustomerVisitsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedCustomerVisitsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutCreatedCustomerVisitsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerVisitsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomerVisitsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedCustomerVisitsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutOwnedCustomerVisitsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedCustomerVisitsInput
+  upsert?: Prisma.UserUpsertWithoutOwnedCustomerVisitsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedCustomerVisitsInput, Prisma.UserUpdateWithoutOwnedCustomerVisitsInput>, Prisma.UserUncheckedUpdateWithoutOwnedCustomerVisitsInput>
+}
+
+export type UserUpdateOneRequiredWithoutCreatedCustomerVisitsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerVisitsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomerVisitsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedCustomerVisitsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedCustomerVisitsInput, Prisma.UserUpdateWithoutCreatedCustomerVisitsInput>, Prisma.UserUncheckedUpdateWithoutCreatedCustomerVisitsInput>
 }
 
 export type UserCreateNestedOneWithoutSupplierApprovalRequestsRequestedInput = {
@@ -528,6 +726,325 @@ export type UserUpdateOneWithoutSupplierApprovalRequestsReviewedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSupplierApprovalRequestsReviewedInput, Prisma.UserUpdateWithoutSupplierApprovalRequestsReviewedInput>, Prisma.UserUncheckedUpdateWithoutSupplierApprovalRequestsReviewedInput>
 }
 
+export type UserCreateWithoutAssignedSalesCustomersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutAssignedSalesCustomersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  customerId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutAssignedSalesCustomersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesCustomersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesCustomersInput>
+}
+
+export type UserCreateWithoutConvertedCustomersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutConvertedCustomersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  customerId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutConvertedCustomersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutConvertedCustomersInput, Prisma.UserUncheckedCreateWithoutConvertedCustomersInput>
+}
+
+export type UserCreateWithoutCustomerInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutCustomerInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutCustomerInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCustomerInput, Prisma.UserUncheckedCreateWithoutCustomerInput>
+}
+
+export type UserCreateManyCustomerInputEnvelope = {
+  data: Prisma.UserCreateManyCustomerInput | Prisma.UserCreateManyCustomerInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithoutAssignedSalesCustomersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignedSalesCustomersInput, Prisma.UserUncheckedUpdateWithoutAssignedSalesCustomersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedSalesCustomersInput, Prisma.UserUncheckedCreateWithoutAssignedSalesCustomersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAssignedSalesCustomersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignedSalesCustomersInput, Prisma.UserUncheckedUpdateWithoutAssignedSalesCustomersInput>
+}
+
+export type UserUpdateWithoutAssignedSalesCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAssignedSalesCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUpsertWithoutConvertedCustomersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutConvertedCustomersInput, Prisma.UserUncheckedUpdateWithoutConvertedCustomersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutConvertedCustomersInput, Prisma.UserUncheckedCreateWithoutConvertedCustomersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutConvertedCustomersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutConvertedCustomersInput, Prisma.UserUncheckedUpdateWithoutConvertedCustomersInput>
+}
+
+export type UserUpdateWithoutConvertedCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutConvertedCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUpsertWithWhereUniqueWithoutCustomerInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCustomerInput, Prisma.UserUncheckedUpdateWithoutCustomerInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCustomerInput, Prisma.UserUncheckedCreateWithoutCustomerInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutCustomerInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCustomerInput, Prisma.UserUncheckedUpdateWithoutCustomerInput>
+}
+
+export type UserUpdateManyWithWhereWithoutCustomerInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutCustomerInput>
+}
+
+export type UserScalarWhereInput = {
+  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  OR?: Prisma.UserScalarWhereInput[]
+  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  id?: Prisma.StringFilter<"User"> | string
+  cognitoSub?: Prisma.StringFilter<"User"> | string
+  email?: Prisma.StringFilter<"User"> | string
+  identifier?: Prisma.StringFilter<"User"> | string
+  groups?: Prisma.StringNullableListFilter<"User">
+  supplierId?: Prisma.StringNullableFilter<"User"> | string | null
+  customerId?: Prisma.StringNullableFilter<"User"> | string | null
+  isActive?: Prisma.BoolFilter<"User"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+}
+
+export type UserCreateWithoutAssignedPurchasingSuppliersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  customerId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutAssignedPurchasingSuppliersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedPurchasingSuppliersInput, Prisma.UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput>
+}
+
 export type UserCreateWithoutSupplierInput = {
   id?: string
   cognitoSub: string
@@ -537,8 +1054,15 @@ export type UserCreateWithoutSupplierInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSupplierInput = {
@@ -547,11 +1071,18 @@ export type UserUncheckedCreateWithoutSupplierInput = {
   email: string
   identifier: string
   groups?: Prisma.UserCreategroupsInput | string[]
+  customerId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSupplierInput = {
@@ -562,6 +1093,57 @@ export type UserCreateOrConnectWithoutSupplierInput = {
 export type UserCreateManySupplierInputEnvelope = {
   data: Prisma.UserCreateManySupplierInput | Prisma.UserCreateManySupplierInput[]
   skipDuplicates?: boolean
+}
+
+export type UserUpsertWithoutAssignedPurchasingSuppliersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignedPurchasingSuppliersInput, Prisma.UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedPurchasingSuppliersInput, Prisma.UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAssignedPurchasingSuppliersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignedPurchasingSuppliersInput, Prisma.UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput>
+}
+
+export type UserUpdateWithoutAssignedPurchasingSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutSupplierInput = {
@@ -580,19 +1162,292 @@ export type UserUpdateManyWithWhereWithoutSupplierInput = {
   data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutSupplierInput>
 }
 
-export type UserScalarWhereInput = {
-  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  OR?: Prisma.UserScalarWhereInput[]
-  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  id?: Prisma.StringFilter<"User"> | string
-  cognitoSub?: Prisma.StringFilter<"User"> | string
-  email?: Prisma.StringFilter<"User"> | string
-  identifier?: Prisma.StringFilter<"User"> | string
-  groups?: Prisma.StringNullableListFilter<"User">
-  supplierId?: Prisma.StringNullableFilter<"User"> | string | null
-  isActive?: Prisma.BoolFilter<"User"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+export type UserCreateWithoutCreatedCustomerFeaturedProductsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  customerId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedCustomerFeaturedProductsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
+}
+
+export type UserUpsertWithoutCreatedCustomerFeaturedProductsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedCustomerFeaturedProductsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput>
+}
+
+export type UserUpdateWithoutCreatedCustomerFeaturedProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserCreateWithoutOwnedCustomerVisitsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutOwnedCustomerVisitsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  customerId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutOwnedCustomerVisitsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutOwnedCustomerVisitsInput>
+}
+
+export type UserCreateWithoutCreatedCustomerVisitsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedCustomerVisitsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  customerId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedCustomerVisitsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerVisitsInput>
+}
+
+export type UserUpsertWithoutOwnedCustomerVisitsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedCustomerVisitsInput, Prisma.UserUncheckedUpdateWithoutOwnedCustomerVisitsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutOwnedCustomerVisitsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedCustomerVisitsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedCustomerVisitsInput, Prisma.UserUncheckedUpdateWithoutOwnedCustomerVisitsInput>
+}
+
+export type UserUpdateWithoutOwnedCustomerVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedCustomerVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUpsertWithoutCreatedCustomerVisitsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCustomerVisitsInput, Prisma.UserUncheckedUpdateWithoutCreatedCustomerVisitsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerVisitsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerVisitsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedCustomerVisitsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCustomerVisitsInput, Prisma.UserUncheckedUpdateWithoutCreatedCustomerVisitsInput>
+}
+
+export type UserUpdateWithoutCreatedCustomerVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedCustomerVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
 }
 
 export type UserCreateWithoutSupplierApprovalRequestsRequestedInput = {
@@ -605,7 +1460,14 @@ export type UserCreateWithoutSupplierApprovalRequestsRequestedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSupplierApprovalRequestsRequestedInput = {
@@ -615,10 +1477,17 @@ export type UserUncheckedCreateWithoutSupplierApprovalRequestsRequestedInput = {
   identifier: string
   groups?: Prisma.UserCreategroupsInput | string[]
   supplierId?: string | null
+  customerId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutReviewedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSupplierApprovalRequestsRequestedInput = {
@@ -636,7 +1505,14 @@ export type UserCreateWithoutSupplierApprovalRequestsReviewedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestCreateNestedManyWithoutRequestedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSupplierApprovalRequestsReviewedInput = {
@@ -646,10 +1522,17 @@ export type UserUncheckedCreateWithoutSupplierApprovalRequestsReviewedInput = {
   identifier: string
   groups?: Prisma.UserCreategroupsInput | string[]
   supplierId?: string | null
+  customerId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSupplierApprovalRequestsReviewedInput = {
@@ -678,7 +1561,14 @@ export type UserUpdateWithoutSupplierApprovalRequestsRequestedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupplierApprovalRequestsRequestedInput = {
@@ -688,10 +1578,17 @@ export type UserUncheckedUpdateWithoutSupplierApprovalRequestsRequestedInput = {
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   groups?: Prisma.UserUpdategroupsInput | string[]
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUpsertWithoutSupplierApprovalRequestsReviewedInput = {
@@ -715,10 +1612,69 @@ export type UserUpdateWithoutSupplierApprovalRequestsReviewedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupplierApprovalRequestsReviewedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserCreateManyCustomerInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  groups?: Prisma.UserCreategroupsInput | string[]
+  supplierId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutCustomerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -729,6 +1685,25 @@ export type UserUncheckedUpdateWithoutSupplierApprovalRequestsReviewedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutCustomerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserCreateManySupplierInput = {
@@ -737,6 +1712,7 @@ export type UserCreateManySupplierInput = {
   email: string
   identifier: string
   groups?: Prisma.UserCreategroupsInput | string[]
+  customerId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -751,8 +1727,15 @@ export type UserUpdateWithoutSupplierInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUpdateManyWithoutRequestedByUserNestedInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupplierInput = {
@@ -761,11 +1744,18 @@ export type UserUncheckedUpdateWithoutSupplierInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   groups?: Prisma.UserUpdategroupsInput | string[]
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplierApprovalRequestsRequested?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
   supplierApprovalRequestsReviewed?: Prisma.SupplierApprovalRequestUncheckedUpdateManyWithoutReviewedByUserNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutSupplierInput = {
@@ -774,6 +1764,7 @@ export type UserUncheckedUpdateManyWithoutSupplierInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
   groups?: Prisma.UserUpdategroupsInput | string[]
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -787,11 +1778,23 @@ export type UserUncheckedUpdateManyWithoutSupplierInput = {
 export type UserCountOutputType = {
   supplierApprovalRequestsRequested: number
   supplierApprovalRequestsReviewed: number
+  assignedSalesCustomers: number
+  convertedCustomers: number
+  assignedPurchasingSuppliers: number
+  createdCustomerFeaturedProducts: number
+  ownedCustomerVisits: number
+  createdCustomerVisits: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplierApprovalRequestsRequested?: boolean | UserCountOutputTypeCountSupplierApprovalRequestsRequestedArgs
   supplierApprovalRequestsReviewed?: boolean | UserCountOutputTypeCountSupplierApprovalRequestsReviewedArgs
+  assignedSalesCustomers?: boolean | UserCountOutputTypeCountAssignedSalesCustomersArgs
+  convertedCustomers?: boolean | UserCountOutputTypeCountConvertedCustomersArgs
+  assignedPurchasingSuppliers?: boolean | UserCountOutputTypeCountAssignedPurchasingSuppliersArgs
+  createdCustomerFeaturedProducts?: boolean | UserCountOutputTypeCountCreatedCustomerFeaturedProductsArgs
+  ownedCustomerVisits?: boolean | UserCountOutputTypeCountOwnedCustomerVisitsArgs
+  createdCustomerVisits?: boolean | UserCountOutputTypeCountCreatedCustomerVisitsArgs
 }
 
 /**
@@ -818,6 +1821,48 @@ export type UserCountOutputTypeCountSupplierApprovalRequestsReviewedArgs<ExtArgs
   where?: Prisma.SupplierApprovalRequestWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAssignedSalesCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountConvertedCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAssignedPurchasingSuppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupplierWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedCustomerFeaturedProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerFeaturedProductWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedCustomerVisitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerVisitWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedCustomerVisitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerVisitWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -826,12 +1871,20 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   identifier?: boolean
   groups?: boolean
   supplierId?: boolean
+  customerId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  customer?: boolean | Prisma.User$customerArgs<ExtArgs>
   supplierApprovalRequestsRequested?: boolean | Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs>
   supplierApprovalRequestsReviewed?: boolean | Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs>
+  assignedSalesCustomers?: boolean | Prisma.User$assignedSalesCustomersArgs<ExtArgs>
+  convertedCustomers?: boolean | Prisma.User$convertedCustomersArgs<ExtArgs>
+  assignedPurchasingSuppliers?: boolean | Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs>
+  createdCustomerFeaturedProducts?: boolean | Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs>
+  ownedCustomerVisits?: boolean | Prisma.User$ownedCustomerVisitsArgs<ExtArgs>
+  createdCustomerVisits?: boolean | Prisma.User$createdCustomerVisitsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -842,10 +1895,12 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   identifier?: boolean
   groups?: boolean
   supplierId?: boolean
+  customerId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  customer?: boolean | Prisma.User$customerArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -855,10 +1910,12 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   identifier?: boolean
   groups?: boolean
   supplierId?: boolean
+  customerId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  customer?: boolean | Prisma.User$customerArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -868,31 +1925,48 @@ export type UserSelectScalar = {
   identifier?: boolean
   groups?: boolean
   supplierId?: boolean
+  customerId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "identifier" | "groups" | "supplierId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "identifier" | "groups" | "supplierId" | "customerId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  customer?: boolean | Prisma.User$customerArgs<ExtArgs>
   supplierApprovalRequestsRequested?: boolean | Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs>
   supplierApprovalRequestsReviewed?: boolean | Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs>
+  assignedSalesCustomers?: boolean | Prisma.User$assignedSalesCustomersArgs<ExtArgs>
+  convertedCustomers?: boolean | Prisma.User$convertedCustomersArgs<ExtArgs>
+  assignedPurchasingSuppliers?: boolean | Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs>
+  createdCustomerFeaturedProducts?: boolean | Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs>
+  ownedCustomerVisits?: boolean | Prisma.User$ownedCustomerVisitsArgs<ExtArgs>
+  createdCustomerVisits?: boolean | Prisma.User$createdCustomerVisitsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  customer?: boolean | Prisma.User$customerArgs<ExtArgs>
 }
 export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
+  customer?: boolean | Prisma.User$customerArgs<ExtArgs>
 }
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
     supplier: Prisma.$SupplierPayload<ExtArgs> | null
+    customer: Prisma.$CustomerPayload<ExtArgs> | null
     supplierApprovalRequestsRequested: Prisma.$SupplierApprovalRequestPayload<ExtArgs>[]
     supplierApprovalRequestsReviewed: Prisma.$SupplierApprovalRequestPayload<ExtArgs>[]
+    assignedSalesCustomers: Prisma.$CustomerPayload<ExtArgs>[]
+    convertedCustomers: Prisma.$CustomerPayload<ExtArgs>[]
+    assignedPurchasingSuppliers: Prisma.$SupplierPayload<ExtArgs>[]
+    createdCustomerFeaturedProducts: Prisma.$CustomerFeaturedProductPayload<ExtArgs>[]
+    ownedCustomerVisits: Prisma.$CustomerVisitPayload<ExtArgs>[]
+    createdCustomerVisits: Prisma.$CustomerVisitPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -901,6 +1975,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     identifier: string
     groups: string[]
     supplierId: string | null
+    customerId: string | null
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -1299,8 +2374,15 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   supplier<T extends Prisma.User$supplierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supplierArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  customer<T extends Prisma.User$customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$customerArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supplierApprovalRequestsRequested<T extends Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supplierApprovalRequestsRequestedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   supplierApprovalRequestsReviewed<T extends Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supplierApprovalRequestsReviewedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedSalesCustomers<T extends Prisma.User$assignedSalesCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedSalesCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  convertedCustomers<T extends Prisma.User$convertedCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$convertedCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedPurchasingSuppliers<T extends Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdCustomerFeaturedProducts<T extends Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerFeaturedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedCustomerVisits<T extends Prisma.User$ownedCustomerVisitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedCustomerVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdCustomerVisits<T extends Prisma.User$createdCustomerVisitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCustomerVisitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1336,6 +2418,7 @@ export interface UserFieldRefs {
   readonly identifier: Prisma.FieldRef<"User", 'String'>
   readonly groups: Prisma.FieldRef<"User", 'String[]'>
   readonly supplierId: Prisma.FieldRef<"User", 'String'>
+  readonly customerId: Prisma.FieldRef<"User", 'String'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -1759,6 +2842,25 @@ export type User$supplierArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
+ * User.customer
+ */
+export type User$customerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
  * User.supplierApprovalRequestsRequested
  */
 export type User$supplierApprovalRequestsRequestedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1804,6 +2906,150 @@ export type User$supplierApprovalRequestsReviewedArgs<ExtArgs extends runtime.Ty
   take?: number
   skip?: number
   distinct?: Prisma.SupplierApprovalRequestScalarFieldEnum | Prisma.SupplierApprovalRequestScalarFieldEnum[]
+}
+
+/**
+ * User.assignedSalesCustomers
+ */
+export type User$assignedSalesCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
+}
+
+/**
+ * User.convertedCustomers
+ */
+export type User$convertedCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
+}
+
+/**
+ * User.assignedPurchasingSuppliers
+ */
+export type User$assignedPurchasingSuppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Supplier
+   */
+  select?: Prisma.SupplierSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Supplier
+   */
+  omit?: Prisma.SupplierOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupplierInclude<ExtArgs> | null
+  where?: Prisma.SupplierWhereInput
+  orderBy?: Prisma.SupplierOrderByWithRelationInput | Prisma.SupplierOrderByWithRelationInput[]
+  cursor?: Prisma.SupplierWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupplierScalarFieldEnum | Prisma.SupplierScalarFieldEnum[]
+}
+
+/**
+ * User.createdCustomerFeaturedProducts
+ */
+export type User$createdCustomerFeaturedProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerFeaturedProduct
+   */
+  select?: Prisma.CustomerFeaturedProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerFeaturedProduct
+   */
+  omit?: Prisma.CustomerFeaturedProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerFeaturedProductInclude<ExtArgs> | null
+  where?: Prisma.CustomerFeaturedProductWhereInput
+  orderBy?: Prisma.CustomerFeaturedProductOrderByWithRelationInput | Prisma.CustomerFeaturedProductOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerFeaturedProductWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerFeaturedProductScalarFieldEnum | Prisma.CustomerFeaturedProductScalarFieldEnum[]
+}
+
+/**
+ * User.ownedCustomerVisits
+ */
+export type User$ownedCustomerVisitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerVisit
+   */
+  select?: Prisma.CustomerVisitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerVisit
+   */
+  omit?: Prisma.CustomerVisitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerVisitInclude<ExtArgs> | null
+  where?: Prisma.CustomerVisitWhereInput
+  orderBy?: Prisma.CustomerVisitOrderByWithRelationInput | Prisma.CustomerVisitOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerVisitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerVisitScalarFieldEnum | Prisma.CustomerVisitScalarFieldEnum[]
+}
+
+/**
+ * User.createdCustomerVisits
+ */
+export type User$createdCustomerVisitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerVisit
+   */
+  select?: Prisma.CustomerVisitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerVisit
+   */
+  omit?: Prisma.CustomerVisitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerVisitInclude<ExtArgs> | null
+  where?: Prisma.CustomerVisitWhereInput
+  orderBy?: Prisma.CustomerVisitOrderByWithRelationInput | Prisma.CustomerVisitOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerVisitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerVisitScalarFieldEnum | Prisma.CustomerVisitScalarFieldEnum[]
 }
 
 /**

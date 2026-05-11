@@ -37,7 +37,7 @@ Key modules:
 - `infra/db.ts`
   VPC and PostgreSQL definitions.
 - `infra/cognito.ts`
-  Cognito User Pool, app client, groups, and hosted UI domain wiring.
+  Cognito User Pool, app client, groups, custom auth support, and legacy hosted UI domain wiring.
 - `infra/storage.ts`
   S3/public asset resources.
 - `infra/router.ts`
@@ -122,15 +122,21 @@ Notable implementation detail:
 `infra/cognito.ts` defines:
 - Cognito User Pool
 - Cognito app client
-- hosted UI domain configuration
+- hosted UI domain configuration retained for compatibility and rollback
 - Cognito groups:
-  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`
+  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `customer`
 - a `postConfirmation` trigger Lambda linked to RDS
 
-Frontend authentication is handled by NextAuth with Cognito.
+Frontend authentication is handled by NextAuth with a custom Cognito credentials flow.
 Admin and protected API requests currently send the Cognito `idToken` as the bearer token.
 
-That is a real current implementation detail and should be preserved unless the auth model is intentionally changed.
+Current auth UX behavior:
+- `/auth/*` pages are custom Next.js screens
+- sign-in, sign-up, confirm-sign-up, forgot-password, and reset-password flows are rendered inside the app
+- Cognito API calls are made server-side from the frontend package
+- the hosted UI domain still exists in infra, but it is no longer the primary user-facing auth surface
+
+That token model is a real current implementation detail and should be preserved unless the auth model is intentionally changed.
 
 ### Frontend deployment
 `infra/frontend.ts` deploys the Next.js app through `sst.aws.Nextjs`.
@@ -194,8 +200,16 @@ The frontend uses route groups and persona-specific sections.
 Important route segments currently include:
 - `app/(public)`
   Public SEO-facing pages
+- `app/(auth)/auth`
+  Custom authentication routes rendered without the public marketing shell
 - `app/admin`
   Admin panel
+- `app/admin/potansiyel-musteriler`
+  Lead-focused CRM list for `Customer.status = LEAD`
+- `app/admin/cari-musteriler`
+  Active account list for `Customer.status = CUSTOMER`
+- `app/musteri`
+  Customer portal
 - `app/satinalma`
   Purchasing-facing routes
 - `app/satis`
@@ -251,10 +265,11 @@ Do not scatter raw API base URLs or custom fetch wrappers across features when t
 `packages/frontend/lib/auth/auth.ts` is the current NextAuth integration.
 
 Key behavior:
-- Cognito provider
-- refresh token flow against Cognito token endpoint
+- Credentials-based provider backed by server-side Cognito API calls
+- refresh token flow against Cognito token APIs
+- logout revokes refresh token before ending the NextAuth session
 - group extraction from Cognito token payload
-- session exposes `idToken`, `accessToken`, and `groups`
+- session exposes `idToken`, `accessToken`, `groups`, and customer-linked role context when available
 
 If auth behavior changes, update both:
 - frontend session/token flow
@@ -319,6 +334,7 @@ Derived booleans currently include:
 - `isSupplier`
 - `isPurchasing`
 - `isSales`
+- `isCustomer`
 
 Keep these flags consistent across frontend assumptions, middleware output, and API permission checks.
 
@@ -344,6 +360,31 @@ Use repositories for:
 - centralizing model-specific reads and writes
 
 Do not duplicate complex Prisma query trees across multiple Lambda handlers if they can be owned by a repository.
+
+### CRM and portal model
+The customer side is no longer only a passive lead table.
+
+Current CRM structure includes:
+- `Customer.status` with `LEAD` and `CUSTOMER`
+- `Customer.assignedSalesUserId`
+- `Customer.convertedAt` and `Customer.convertedByUserId`
+- `Supplier.assignedPurchasingUserId`
+- `User.customerId` for customer portal users
+- `CustomerFeaturedProduct` for manually curated customer-facing products
+- `CustomerVisit` for planned/completed/canceled visit tracking
+
+Operational meaning:
+- `sales` users should work from assigned customers
+- `purchasing` users should work from assigned suppliers
+- `customer` users should only see their own portal data under `/musteri`
+- `admin` and `owner` can see and assign across those operational boundaries
+
+Important distinction:
+- `User.customerId` and `User.supplierId` are portal-account bindings for external customer/supplier users
+- operational ownership for internal staff is modeled on the business entities:
+  - `Customer.assignedSalesUserId`
+  - `Supplier.assignedPurchasingUserId`
+- do not confuse those two concepts in UI or API design
 
 ### Mapping and DTO helpers
 The repo already has custom mapping conventions that are part of the architecture.
@@ -383,6 +424,31 @@ Typical authenticated operational flow:
 5. `authMiddleware` parses claims and synchronizes user state.
 6. Handler validates input, performs repository/domain work, and returns a typed response.
 
+### Customer portal flow
+Current customer portal lifecycle:
+1. A `Customer` record exists as `LEAD` or `CUSTOMER`.
+2. Admin/owner can assign a sales representative and featured products.
+3. A Cognito user in the `customer` group can be linked to that `Customer` through `User.customerId`.
+4. The customer signs in through the same custom auth surface.
+5. `/musteri` reads only the linked customer record and its featured products.
+
+Portal scope is intentionally narrow in v1:
+- overview
+- defined products
+- profile / firm information
+
+### Sales and purchasing workspaces
+The internal role workspaces are no longer topbar-only pages.
+
+Current expectation:
+- `/satis` uses a left navigation shell with at least assigned customers and products
+- `/satinalma` uses a left navigation shell with at least assigned suppliers and products
+- product browsing may reuse the shared supplier/purchasing/sales variant price feature as long as visibility rules remain role-safe
+
+Visibility rules currently expected:
+- `sales` can browse products and customer-safe pricing outputs, but not supplier/cost-oriented purchasing data
+- `purchasing` can browse products and supplier-side cost data, but not sales-facing profit or list-price emphasis
+
 ### Supplier approval flow
 Current supplier approval lifecycle:
 1. Supplier submits a profile or variant pricing change request.
@@ -398,6 +464,16 @@ Current supplier approval lifecycle:
 This split is intentional:
 - request persistence and final DB status change happen in API/application logic
 - workflow orchestration handles human waiting and event publication
+
+### Approval review UI pattern
+The admin supplier approval UI should optimize for review speed.
+
+Current expectation:
+- show changed fields first
+- allow optionally revealing unchanged fields for context
+- use explicit before/after visual contrast instead of two raw value dumps
+- keep approval/rejection actions close to the diff content
+- variant pricing requests may surface a compact product summary with a direct link to the related admin variant page
 
 ## Extension Guide
 

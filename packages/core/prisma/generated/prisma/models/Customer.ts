@@ -31,6 +31,10 @@ export type CustomerMinAggregateOutputType = {
   phone: string | null
   email: string | null
   note: string | null
+  status: $Enums.CustomerStatus | null
+  assignedSalesUserId: string | null
+  convertedAt: Date | null
+  convertedByUserId: string | null
   sectorValueId: string | null
   productionGroupValueId: string | null
   createdAt: Date | null
@@ -44,6 +48,10 @@ export type CustomerMaxAggregateOutputType = {
   phone: string | null
   email: string | null
   note: string | null
+  status: $Enums.CustomerStatus | null
+  assignedSalesUserId: string | null
+  convertedAt: Date | null
+  convertedByUserId: string | null
   sectorValueId: string | null
   productionGroupValueId: string | null
   createdAt: Date | null
@@ -57,6 +65,10 @@ export type CustomerCountAggregateOutputType = {
   phone: number
   email: number
   note: number
+  status: number
+  assignedSalesUserId: number
+  convertedAt: number
+  convertedByUserId: number
   sectorValueId: number
   productionGroupValueId: number
   createdAt: number
@@ -72,6 +84,10 @@ export type CustomerMinAggregateInputType = {
   phone?: true
   email?: true
   note?: true
+  status?: true
+  assignedSalesUserId?: true
+  convertedAt?: true
+  convertedByUserId?: true
   sectorValueId?: true
   productionGroupValueId?: true
   createdAt?: true
@@ -85,6 +101,10 @@ export type CustomerMaxAggregateInputType = {
   phone?: true
   email?: true
   note?: true
+  status?: true
+  assignedSalesUserId?: true
+  convertedAt?: true
+  convertedByUserId?: true
   sectorValueId?: true
   productionGroupValueId?: true
   createdAt?: true
@@ -98,6 +118,10 @@ export type CustomerCountAggregateInputType = {
   phone?: true
   email?: true
   note?: true
+  status?: true
+  assignedSalesUserId?: true
+  convertedAt?: true
+  convertedByUserId?: true
   sectorValueId?: true
   productionGroupValueId?: true
   createdAt?: true
@@ -184,6 +208,10 @@ export type CustomerGroupByOutputType = {
   phone: string
   email: string
   note: string | null
+  status: $Enums.CustomerStatus
+  assignedSalesUserId: string | null
+  convertedAt: Date | null
+  convertedByUserId: string | null
   sectorValueId: string | null
   productionGroupValueId: string | null
   createdAt: Date
@@ -218,13 +246,22 @@ export type CustomerWhereInput = {
   phone?: Prisma.StringFilter<"Customer"> | string
   email?: Prisma.StringFilter<"Customer"> | string
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
+  status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  convertedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
+  convertedByUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
   sectorValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
   productionGroupValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  assignedSalesUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  convertedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   sectorValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
   productionGroupValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
   usageAreaValues?: Prisma.ProductAttributeValueListRelationFilter
+  portalUsers?: Prisma.UserListRelationFilter
+  featuredProducts?: Prisma.CustomerFeaturedProductListRelationFilter
+  visits?: Prisma.CustomerVisitListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
@@ -234,13 +271,22 @@ export type CustomerOrderByWithRelationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  assignedSalesUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   sectorValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   productionGroupValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  assignedSalesUser?: Prisma.UserOrderByWithRelationInput
+  convertedByUser?: Prisma.UserOrderByWithRelationInput
   sectorValue?: Prisma.ProductAttributeValueOrderByWithRelationInput
   productionGroupValue?: Prisma.ProductAttributeValueOrderByWithRelationInput
   usageAreaValues?: Prisma.ProductAttributeValueOrderByRelationAggregateInput
+  portalUsers?: Prisma.UserOrderByRelationAggregateInput
+  featuredProducts?: Prisma.CustomerFeaturedProductOrderByRelationAggregateInput
+  visits?: Prisma.CustomerVisitOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -253,13 +299,22 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringFilter<"Customer"> | string
   email?: Prisma.StringFilter<"Customer"> | string
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
+  status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  convertedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
+  convertedByUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
   sectorValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
   productionGroupValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  assignedSalesUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  convertedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   sectorValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
   productionGroupValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
   usageAreaValues?: Prisma.ProductAttributeValueListRelationFilter
+  portalUsers?: Prisma.UserListRelationFilter
+  featuredProducts?: Prisma.CustomerFeaturedProductListRelationFilter
+  visits?: Prisma.CustomerVisitListRelationFilter
 }, "id">
 
 export type CustomerOrderByWithAggregationInput = {
@@ -269,6 +324,10 @@ export type CustomerOrderByWithAggregationInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  assignedSalesUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   sectorValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   productionGroupValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -288,6 +347,10 @@ export type CustomerScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   email?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   note?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  status?: Prisma.EnumCustomerStatusWithAggregatesFilter<"Customer"> | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  convertedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
+  convertedByUserId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   sectorValueId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   productionGroupValueId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
@@ -301,11 +364,18 @@ export type CustomerCreateInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
   sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
   productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
   usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateInput = {
@@ -315,11 +385,18 @@ export type CustomerUncheckedCreateInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   sectorValueId?: string | null
   productionGroupValueId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUpdateInput = {
@@ -329,11 +406,18 @@ export type CustomerUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
   sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
   productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
   usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
@@ -343,11 +427,18 @@ export type CustomerUncheckedUpdateInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyInput = {
@@ -357,6 +448,10 @@ export type CustomerCreateManyInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   sectorValueId?: string | null
   productionGroupValueId?: string | null
   createdAt?: Date | string
@@ -370,6 +465,8 @@ export type CustomerUpdateManyMutationInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -381,10 +478,19 @@ export type CustomerUncheckedUpdateManyInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerNullableScalarRelationFilter = {
+  is?: Prisma.CustomerWhereInput | null
+  isNot?: Prisma.CustomerWhereInput | null
 }
 
 export type CustomerListRelationFilter = {
@@ -404,6 +510,10 @@ export type CustomerCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  assignedSalesUserId?: Prisma.SortOrder
+  convertedAt?: Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrder
   sectorValueId?: Prisma.SortOrder
   productionGroupValueId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -417,6 +527,10 @@ export type CustomerMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  assignedSalesUserId?: Prisma.SortOrder
+  convertedAt?: Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrder
   sectorValueId?: Prisma.SortOrder
   productionGroupValueId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -430,10 +544,119 @@ export type CustomerMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  assignedSalesUserId?: Prisma.SortOrder
+  convertedAt?: Prisma.SortOrder
+  convertedByUserId?: Prisma.SortOrder
   sectorValueId?: Prisma.SortOrder
   productionGroupValueId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CustomerScalarRelationFilter = {
+  is?: Prisma.CustomerWhereInput
+  isNot?: Prisma.CustomerWhereInput
+}
+
+export type CustomerCreateNestedOneWithoutPortalUsersInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutPortalUsersInput, Prisma.CustomerUncheckedCreateWithoutPortalUsersInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutPortalUsersInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerCreateNestedManyWithoutAssignedSalesUserInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput> | Prisma.CustomerCreateWithoutAssignedSalesUserInput[] | Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput | Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput[]
+  createMany?: Prisma.CustomerCreateManyAssignedSalesUserInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
+export type CustomerCreateNestedManyWithoutConvertedByUserInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutConvertedByUserInput, Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput> | Prisma.CustomerCreateWithoutConvertedByUserInput[] | Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput | Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput[]
+  createMany?: Prisma.CustomerCreateManyConvertedByUserInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
+export type CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput> | Prisma.CustomerCreateWithoutAssignedSalesUserInput[] | Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput | Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput[]
+  createMany?: Prisma.CustomerCreateManyAssignedSalesUserInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
+export type CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutConvertedByUserInput, Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput> | Prisma.CustomerCreateWithoutConvertedByUserInput[] | Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput | Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput[]
+  createMany?: Prisma.CustomerCreateManyConvertedByUserInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
+export type CustomerUpdateOneWithoutPortalUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutPortalUsersInput, Prisma.CustomerUncheckedCreateWithoutPortalUsersInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutPortalUsersInput
+  upsert?: Prisma.CustomerUpsertWithoutPortalUsersInput
+  disconnect?: Prisma.CustomerWhereInput | boolean
+  delete?: Prisma.CustomerWhereInput | boolean
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutPortalUsersInput, Prisma.CustomerUpdateWithoutPortalUsersInput>, Prisma.CustomerUncheckedUpdateWithoutPortalUsersInput>
+}
+
+export type CustomerUpdateManyWithoutAssignedSalesUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput> | Prisma.CustomerCreateWithoutAssignedSalesUserInput[] | Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput | Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutAssignedSalesUserInput | Prisma.CustomerUpsertWithWhereUniqueWithoutAssignedSalesUserInput[]
+  createMany?: Prisma.CustomerCreateManyAssignedSalesUserInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutAssignedSalesUserInput | Prisma.CustomerUpdateWithWhereUniqueWithoutAssignedSalesUserInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutAssignedSalesUserInput | Prisma.CustomerUpdateManyWithWhereWithoutAssignedSalesUserInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+}
+
+export type CustomerUpdateManyWithoutConvertedByUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutConvertedByUserInput, Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput> | Prisma.CustomerCreateWithoutConvertedByUserInput[] | Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput | Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutConvertedByUserInput | Prisma.CustomerUpsertWithWhereUniqueWithoutConvertedByUserInput[]
+  createMany?: Prisma.CustomerCreateManyConvertedByUserInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutConvertedByUserInput | Prisma.CustomerUpdateWithWhereUniqueWithoutConvertedByUserInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutConvertedByUserInput | Prisma.CustomerUpdateManyWithWhereWithoutConvertedByUserInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+}
+
+export type CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput> | Prisma.CustomerCreateWithoutAssignedSalesUserInput[] | Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput | Prisma.CustomerCreateOrConnectWithoutAssignedSalesUserInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutAssignedSalesUserInput | Prisma.CustomerUpsertWithWhereUniqueWithoutAssignedSalesUserInput[]
+  createMany?: Prisma.CustomerCreateManyAssignedSalesUserInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutAssignedSalesUserInput | Prisma.CustomerUpdateWithWhereUniqueWithoutAssignedSalesUserInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutAssignedSalesUserInput | Prisma.CustomerUpdateManyWithWhereWithoutAssignedSalesUserInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+}
+
+export type CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutConvertedByUserInput, Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput> | Prisma.CustomerCreateWithoutConvertedByUserInput[] | Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput | Prisma.CustomerCreateOrConnectWithoutConvertedByUserInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutConvertedByUserInput | Prisma.CustomerUpsertWithWhereUniqueWithoutConvertedByUserInput[]
+  createMany?: Prisma.CustomerCreateManyConvertedByUserInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutConvertedByUserInput | Prisma.CustomerUpdateWithWhereUniqueWithoutConvertedByUserInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutConvertedByUserInput | Prisma.CustomerUpdateManyWithWhereWithoutConvertedByUserInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
 }
 
 export type CustomerCreateNestedManyWithoutSectorValueInput = {
@@ -558,6 +781,290 @@ export type CustomerUncheckedUpdateManyWithoutUsageAreaValuesNestedInput = {
   deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
 }
 
+export type EnumCustomerStatusFieldUpdateOperationsInput = {
+  set?: $Enums.CustomerStatus
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type CustomerCreateNestedOneWithoutFeaturedProductsInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutFeaturedProductsInput, Prisma.CustomerUncheckedCreateWithoutFeaturedProductsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutFeaturedProductsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutFeaturedProductsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutFeaturedProductsInput, Prisma.CustomerUncheckedCreateWithoutFeaturedProductsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutFeaturedProductsInput
+  upsert?: Prisma.CustomerUpsertWithoutFeaturedProductsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutFeaturedProductsInput, Prisma.CustomerUpdateWithoutFeaturedProductsInput>, Prisma.CustomerUncheckedUpdateWithoutFeaturedProductsInput>
+}
+
+export type CustomerCreateNestedOneWithoutVisitsInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutVisitsInput, Prisma.CustomerUncheckedCreateWithoutVisitsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutVisitsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutVisitsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutVisitsInput, Prisma.CustomerUncheckedCreateWithoutVisitsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutVisitsInput
+  upsert?: Prisma.CustomerUpsertWithoutVisitsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutVisitsInput, Prisma.CustomerUpdateWithoutVisitsInput>, Prisma.CustomerUncheckedUpdateWithoutVisitsInput>
+}
+
+export type CustomerCreateWithoutPortalUsersInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
+  sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
+  productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutPortalUsersInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutPortalUsersInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutPortalUsersInput, Prisma.CustomerUncheckedCreateWithoutPortalUsersInput>
+}
+
+export type CustomerCreateWithoutAssignedSalesUserInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
+  sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
+  productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutAssignedSalesUserInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutAssignedSalesUserInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput>
+}
+
+export type CustomerCreateManyAssignedSalesUserInputEnvelope = {
+  data: Prisma.CustomerCreateManyAssignedSalesUserInput | Prisma.CustomerCreateManyAssignedSalesUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerCreateWithoutConvertedByUserInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
+  productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutConvertedByUserInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutConvertedByUserInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutConvertedByUserInput, Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput>
+}
+
+export type CustomerCreateManyConvertedByUserInputEnvelope = {
+  data: Prisma.CustomerCreateManyConvertedByUserInput | Prisma.CustomerCreateManyConvertedByUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerUpsertWithoutPortalUsersInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutPortalUsersInput, Prisma.CustomerUncheckedUpdateWithoutPortalUsersInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutPortalUsersInput, Prisma.CustomerUncheckedCreateWithoutPortalUsersInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutPortalUsersInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutPortalUsersInput, Prisma.CustomerUncheckedUpdateWithoutPortalUsersInput>
+}
+
+export type CustomerUpdateWithoutPortalUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
+  sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
+  productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutPortalUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUpsertWithWhereUniqueWithoutAssignedSalesUserInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedUpdateWithoutAssignedSalesUserInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedCreateWithoutAssignedSalesUserInput>
+}
+
+export type CustomerUpdateWithWhereUniqueWithoutAssignedSalesUserInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutAssignedSalesUserInput, Prisma.CustomerUncheckedUpdateWithoutAssignedSalesUserInput>
+}
+
+export type CustomerUpdateManyWithWhereWithoutAssignedSalesUserInput = {
+  where: Prisma.CustomerScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateManyMutationInput, Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserInput>
+}
+
+export type CustomerScalarWhereInput = {
+  AND?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+  OR?: Prisma.CustomerScalarWhereInput[]
+  NOT?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+  id?: Prisma.StringFilter<"Customer"> | string
+  companyName?: Prisma.StringNullableFilter<"Customer"> | string | null
+  fullName?: Prisma.StringFilter<"Customer"> | string
+  phone?: Prisma.StringFilter<"Customer"> | string
+  email?: Prisma.StringFilter<"Customer"> | string
+  note?: Prisma.StringNullableFilter<"Customer"> | string | null
+  status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  convertedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
+  convertedByUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  sectorValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  productionGroupValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+}
+
+export type CustomerUpsertWithWhereUniqueWithoutConvertedByUserInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutConvertedByUserInput, Prisma.CustomerUncheckedUpdateWithoutConvertedByUserInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutConvertedByUserInput, Prisma.CustomerUncheckedCreateWithoutConvertedByUserInput>
+}
+
+export type CustomerUpdateWithWhereUniqueWithoutConvertedByUserInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutConvertedByUserInput, Prisma.CustomerUncheckedUpdateWithoutConvertedByUserInput>
+}
+
+export type CustomerUpdateManyWithWhereWithoutConvertedByUserInput = {
+  where: Prisma.CustomerScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateManyMutationInput, Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserInput>
+}
+
 export type CustomerCreateWithoutSectorValueInput = {
   id?: string
   companyName?: string | null
@@ -565,10 +1072,17 @@ export type CustomerCreateWithoutSectorValueInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
   productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
   usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutSectorValueInput = {
@@ -578,10 +1092,17 @@ export type CustomerUncheckedCreateWithoutSectorValueInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   productionGroupValueId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutSectorValueInput = {
@@ -601,10 +1122,17 @@ export type CustomerCreateWithoutProductionGroupValueInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
   sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
   usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutProductionGroupValueInput = {
@@ -614,10 +1142,17 @@ export type CustomerUncheckedCreateWithoutProductionGroupValueInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   sectorValueId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutProductionGroupValueInput = {
@@ -637,10 +1172,17 @@ export type CustomerCreateWithoutUsageAreaValuesInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
   sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
   productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutUsageAreaValuesInput = {
@@ -650,10 +1192,17 @@ export type CustomerUncheckedCreateWithoutUsageAreaValuesInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   sectorValueId?: string | null
   productionGroupValueId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutUsageAreaValuesInput = {
@@ -675,22 +1224,6 @@ export type CustomerUpdateWithWhereUniqueWithoutSectorValueInput = {
 export type CustomerUpdateManyWithWhereWithoutSectorValueInput = {
   where: Prisma.CustomerScalarWhereInput
   data: Prisma.XOR<Prisma.CustomerUpdateManyMutationInput, Prisma.CustomerUncheckedUpdateManyWithoutSectorValueInput>
-}
-
-export type CustomerScalarWhereInput = {
-  AND?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
-  OR?: Prisma.CustomerScalarWhereInput[]
-  NOT?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
-  id?: Prisma.StringFilter<"Customer"> | string
-  companyName?: Prisma.StringNullableFilter<"Customer"> | string | null
-  fullName?: Prisma.StringFilter<"Customer"> | string
-  phone?: Prisma.StringFilter<"Customer"> | string
-  email?: Prisma.StringFilter<"Customer"> | string
-  note?: Prisma.StringNullableFilter<"Customer"> | string | null
-  sectorValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
-  productionGroupValueId?: Prisma.StringNullableFilter<"Customer"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
 }
 
 export type CustomerUpsertWithWhereUniqueWithoutProductionGroupValueInput = {
@@ -725,6 +1258,342 @@ export type CustomerUpdateManyWithWhereWithoutUsageAreaValuesInput = {
   data: Prisma.XOR<Prisma.CustomerUpdateManyMutationInput, Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput>
 }
 
+export type CustomerCreateWithoutFeaturedProductsInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
+  sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
+  productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutFeaturedProductsInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutFeaturedProductsInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutFeaturedProductsInput, Prisma.CustomerUncheckedCreateWithoutFeaturedProductsInput>
+}
+
+export type CustomerUpsertWithoutFeaturedProductsInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutFeaturedProductsInput, Prisma.CustomerUncheckedUpdateWithoutFeaturedProductsInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutFeaturedProductsInput, Prisma.CustomerUncheckedCreateWithoutFeaturedProductsInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutFeaturedProductsInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutFeaturedProductsInput, Prisma.CustomerUncheckedUpdateWithoutFeaturedProductsInput>
+}
+
+export type CustomerUpdateWithoutFeaturedProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
+  sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
+  productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutFeaturedProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutVisitsInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
+  sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
+  productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutVisitsInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutVisitsInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutVisitsInput, Prisma.CustomerUncheckedCreateWithoutVisitsInput>
+}
+
+export type CustomerUpsertWithoutVisitsInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutVisitsInput, Prisma.CustomerUncheckedUpdateWithoutVisitsInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutVisitsInput, Prisma.CustomerUncheckedCreateWithoutVisitsInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutVisitsInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutVisitsInput, Prisma.CustomerUncheckedUpdateWithoutVisitsInput>
+}
+
+export type CustomerUpdateWithoutVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
+  sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
+  productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateManyAssignedSalesUserInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerCreateManyConvertedByUserInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerUpdateWithoutAssignedSalesUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
+  sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
+  productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutAssignedSalesUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateManyWithoutAssignedSalesUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerUpdateWithoutConvertedByUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
+  productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutConvertedByUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateManyWithoutConvertedByUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type CustomerCreateManySectorValueInput = {
   id?: string
   companyName?: string | null
@@ -732,6 +1601,10 @@ export type CustomerCreateManySectorValueInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   productionGroupValueId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -744,6 +1617,10 @@ export type CustomerCreateManyProductionGroupValueInput = {
   phone: string
   email: string
   note?: string | null
+  status?: $Enums.CustomerStatus
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
   sectorValueId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -756,10 +1633,17 @@ export type CustomerUpdateWithoutSectorValueInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
   productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
   usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutSectorValueInput = {
@@ -769,10 +1653,17 @@ export type CustomerUncheckedUpdateWithoutSectorValueInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutSectorValueInput = {
@@ -782,6 +1673,10 @@ export type CustomerUncheckedUpdateManyWithoutSectorValueInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -794,10 +1689,17 @@ export type CustomerUpdateWithoutProductionGroupValueInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
   sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
   usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
@@ -807,10 +1709,17 @@ export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutProductionGroupValueInput = {
@@ -820,6 +1729,10 @@ export type CustomerUncheckedUpdateManyWithoutProductionGroupValueInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -832,10 +1745,17 @@ export type CustomerUpdateWithoutUsageAreaValuesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
   sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
   productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
@@ -845,10 +1765,17 @@ export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput = {
@@ -858,6 +1785,10 @@ export type CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput = {
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -871,10 +1802,16 @@ export type CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput = {
 
 export type CustomerCountOutputType = {
   usageAreaValues: number
+  portalUsers: number
+  featuredProducts: number
+  visits: number
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   usageAreaValues?: boolean | CustomerCountOutputTypeCountUsageAreaValuesArgs
+  portalUsers?: boolean | CustomerCountOutputTypeCountPortalUsersArgs
+  featuredProducts?: boolean | CustomerCountOutputTypeCountFeaturedProductsArgs
+  visits?: boolean | CustomerCountOutputTypeCountVisitsArgs
 }
 
 /**
@@ -894,6 +1831,27 @@ export type CustomerCountOutputTypeCountUsageAreaValuesArgs<ExtArgs extends runt
   where?: Prisma.ProductAttributeValueWhereInput
 }
 
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountPortalUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountFeaturedProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerFeaturedProductWhereInput
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountVisitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerVisitWhereInput
+}
+
 
 export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -902,13 +1860,22 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   phone?: boolean
   email?: boolean
   note?: boolean
+  status?: boolean
+  assignedSalesUserId?: boolean
+  convertedAt?: boolean
+  convertedByUserId?: boolean
   sectorValueId?: boolean
   productionGroupValueId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
+  convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
   sectorValue?: boolean | Prisma.Customer$sectorValueArgs<ExtArgs>
   productionGroupValue?: boolean | Prisma.Customer$productionGroupValueArgs<ExtArgs>
   usageAreaValues?: boolean | Prisma.Customer$usageAreaValuesArgs<ExtArgs>
+  portalUsers?: boolean | Prisma.Customer$portalUsersArgs<ExtArgs>
+  featuredProducts?: boolean | Prisma.Customer$featuredProductsArgs<ExtArgs>
+  visits?: boolean | Prisma.Customer$visitsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -919,10 +1886,16 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   phone?: boolean
   email?: boolean
   note?: boolean
+  status?: boolean
+  assignedSalesUserId?: boolean
+  convertedAt?: boolean
+  convertedByUserId?: boolean
   sectorValueId?: boolean
   productionGroupValueId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
+  convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
   sectorValue?: boolean | Prisma.Customer$sectorValueArgs<ExtArgs>
   productionGroupValue?: boolean | Prisma.Customer$productionGroupValueArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
@@ -934,10 +1907,16 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   phone?: boolean
   email?: boolean
   note?: boolean
+  status?: boolean
+  assignedSalesUserId?: boolean
+  convertedAt?: boolean
+  convertedByUserId?: boolean
   sectorValueId?: boolean
   productionGroupValueId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
+  convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
   sectorValue?: boolean | Prisma.Customer$sectorValueArgs<ExtArgs>
   productionGroupValue?: boolean | Prisma.Customer$productionGroupValueArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
@@ -949,24 +1928,37 @@ export type CustomerSelectScalar = {
   phone?: boolean
   email?: boolean
   note?: boolean
+  status?: boolean
+  assignedSalesUserId?: boolean
+  convertedAt?: boolean
+  convertedByUserId?: boolean
   sectorValueId?: boolean
   productionGroupValueId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyName" | "fullName" | "phone" | "email" | "note" | "sectorValueId" | "productionGroupValueId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyName" | "fullName" | "phone" | "email" | "note" | "status" | "assignedSalesUserId" | "convertedAt" | "convertedByUserId" | "sectorValueId" | "productionGroupValueId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
+  convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
   sectorValue?: boolean | Prisma.Customer$sectorValueArgs<ExtArgs>
   productionGroupValue?: boolean | Prisma.Customer$productionGroupValueArgs<ExtArgs>
   usageAreaValues?: boolean | Prisma.Customer$usageAreaValuesArgs<ExtArgs>
+  portalUsers?: boolean | Prisma.Customer$portalUsersArgs<ExtArgs>
+  featuredProducts?: boolean | Prisma.Customer$featuredProductsArgs<ExtArgs>
+  visits?: boolean | Prisma.Customer$visitsArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
+  convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
   sectorValue?: boolean | Prisma.Customer$sectorValueArgs<ExtArgs>
   productionGroupValue?: boolean | Prisma.Customer$productionGroupValueArgs<ExtArgs>
 }
 export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
+  convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
   sectorValue?: boolean | Prisma.Customer$sectorValueArgs<ExtArgs>
   productionGroupValue?: boolean | Prisma.Customer$productionGroupValueArgs<ExtArgs>
 }
@@ -974,9 +1966,14 @@ export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Customer"
   objects: {
+    assignedSalesUser: Prisma.$UserPayload<ExtArgs> | null
+    convertedByUser: Prisma.$UserPayload<ExtArgs> | null
     sectorValue: Prisma.$ProductAttributeValuePayload<ExtArgs> | null
     productionGroupValue: Prisma.$ProductAttributeValuePayload<ExtArgs> | null
     usageAreaValues: Prisma.$ProductAttributeValuePayload<ExtArgs>[]
+    portalUsers: Prisma.$UserPayload<ExtArgs>[]
+    featuredProducts: Prisma.$CustomerFeaturedProductPayload<ExtArgs>[]
+    visits: Prisma.$CustomerVisitPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -985,6 +1982,10 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     phone: string
     email: string
     note: string | null
+    status: $Enums.CustomerStatus
+    assignedSalesUserId: string | null
+    convertedAt: Date | null
+    convertedByUserId: string | null
     sectorValueId: string | null
     productionGroupValueId: string | null
     createdAt: Date
@@ -1383,9 +2384,14 @@ readonly fields: CustomerFieldRefs;
  */
 export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  assignedSalesUser<T extends Prisma.Customer$assignedSalesUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$assignedSalesUserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  convertedByUser<T extends Prisma.Customer$convertedByUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$convertedByUserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   sectorValue<T extends Prisma.Customer$sectorValueArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$sectorValueArgs<ExtArgs>>): Prisma.Prisma__ProductAttributeValueClient<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   productionGroupValue<T extends Prisma.Customer$productionGroupValueArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$productionGroupValueArgs<ExtArgs>>): Prisma.Prisma__ProductAttributeValueClient<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   usageAreaValues<T extends Prisma.Customer$usageAreaValuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$usageAreaValuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  portalUsers<T extends Prisma.Customer$portalUsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$portalUsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  featuredProducts<T extends Prisma.Customer$featuredProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$featuredProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerFeaturedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  visits<T extends Prisma.Customer$visitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1421,6 +2427,10 @@ export interface CustomerFieldRefs {
   readonly phone: Prisma.FieldRef<"Customer", 'String'>
   readonly email: Prisma.FieldRef<"Customer", 'String'>
   readonly note: Prisma.FieldRef<"Customer", 'String'>
+  readonly status: Prisma.FieldRef<"Customer", 'CustomerStatus'>
+  readonly assignedSalesUserId: Prisma.FieldRef<"Customer", 'String'>
+  readonly convertedAt: Prisma.FieldRef<"Customer", 'DateTime'>
+  readonly convertedByUserId: Prisma.FieldRef<"Customer", 'String'>
   readonly sectorValueId: Prisma.FieldRef<"Customer", 'String'>
   readonly productionGroupValueId: Prisma.FieldRef<"Customer", 'String'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>
@@ -1826,6 +2836,44 @@ export type CustomerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * Customer.assignedSalesUser
+ */
+export type Customer$assignedSalesUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * Customer.convertedByUser
+ */
+export type Customer$convertedByUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
  * Customer.sectorValue
  */
 export type Customer$sectorValueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1885,6 +2933,78 @@ export type Customer$usageAreaValuesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.ProductAttributeValueScalarFieldEnum | Prisma.ProductAttributeValueScalarFieldEnum[]
+}
+
+/**
+ * Customer.portalUsers
+ */
+export type Customer$portalUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
+  cursor?: Prisma.UserWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
+}
+
+/**
+ * Customer.featuredProducts
+ */
+export type Customer$featuredProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerFeaturedProduct
+   */
+  select?: Prisma.CustomerFeaturedProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerFeaturedProduct
+   */
+  omit?: Prisma.CustomerFeaturedProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerFeaturedProductInclude<ExtArgs> | null
+  where?: Prisma.CustomerFeaturedProductWhereInput
+  orderBy?: Prisma.CustomerFeaturedProductOrderByWithRelationInput | Prisma.CustomerFeaturedProductOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerFeaturedProductWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerFeaturedProductScalarFieldEnum | Prisma.CustomerFeaturedProductScalarFieldEnum[]
+}
+
+/**
+ * Customer.visits
+ */
+export type Customer$visitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerVisit
+   */
+  select?: Prisma.CustomerVisitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerVisit
+   */
+  omit?: Prisma.CustomerVisitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerVisitInclude<ExtArgs> | null
+  where?: Prisma.CustomerVisitWhereInput
+  orderBy?: Prisma.CustomerVisitOrderByWithRelationInput | Prisma.CustomerVisitOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerVisitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerVisitScalarFieldEnum | Prisma.CustomerVisitScalarFieldEnum[]
 }
 
 /**

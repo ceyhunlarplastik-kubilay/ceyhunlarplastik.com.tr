@@ -1,16 +1,135 @@
 import { lambdaHandler } from "@/core/middy"
 import { customerRepository } from "@/core/helpers/prisma/customers/repository"
-import { listCustomersHandler } from "@/functions/AdminApi/functions/customers/handlers"
-import { IListCustomersEvent } from "@/functions/AdminApi/types/customers"
-import { listCustomersResponseValidator } from "@/functions/AdminApi/validators/customers"
+import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+import { productRepository } from "@/core/helpers/prisma/products/repository"
+import {
+    convertCustomerHandler,
+    createCustomerVisitHandler,
+    deleteCustomerVisitHandler,
+    getCustomerHandler,
+    listCustomerFeaturedProductsHandler,
+    listCustomersHandler,
+    listCustomerVisitsHandler,
+    replaceCustomerFeaturedProductsHandler,
+    updateCustomerHandler,
+    updateCustomerVisitHandler,
+} from "@/functions/AdminApi/functions/customers/handlers"
+import {
+    IConvertCustomerEvent,
+    ICreateCustomerVisitEvent,
+    IDeleteCustomerVisitEvent,
+    IGetCustomerEvent,
+    IListCustomerVisitsEvent,
+    IListCustomersEvent,
+    IReplaceCustomerFeaturedProductsEvent,
+    IUpdateCustomerEvent,
+    IUpdateCustomerVisitEvent,
+} from "@/functions/AdminApi/types/customers"
+import {
+    createCustomerVisitValidator,
+    customerFeaturedProductsResponseValidator,
+    customerIdValidator,
+    customerResponseValidator,
+    customerVisitResponseValidator,
+    customerVisitIdValidator,
+    customerVisitsResponseValidator,
+    listCustomersResponseValidator,
+    replaceCustomerFeaturedProductsValidator,
+    updateCustomerValidator,
+    updateCustomerVisitValidator,
+} from "@/functions/AdminApi/validators/customers"
+
+const deps = {
+    customerRepository: customerRepository(),
+    productAttributeValueRepository: productAttributeValueRepository(),
+    productRepository: productRepository(),
+}
 
 export const listCustomers = lambdaHandler(
-    async (event) =>
-        listCustomersHandler({
-            customerRepository: customerRepository(),
-        })(event as IListCustomersEvent),
+    async (event) => listCustomersHandler(deps)(event as IListCustomersEvent),
     {
         auth: { requiredPermissionGroups: ["admin", "owner"] },
-        // responseValidator: listCustomersResponseValidator,
-    }
+        responseValidator: listCustomersResponseValidator,
+    },
+)
+
+export const getCustomer = lambdaHandler(
+    async (event) => getCustomerHandler(deps)(event as IGetCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: customerIdValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const updateCustomer = lambdaHandler(
+    async (event) => updateCustomerHandler(deps)(event as IUpdateCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: updateCustomerValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const convertCustomer = lambdaHandler(
+    async (event) => convertCustomerHandler(deps)(event as IConvertCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: customerIdValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const listCustomerFeaturedProducts = lambdaHandler(
+    async (event) => listCustomerFeaturedProductsHandler(deps)(event as IGetCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: customerIdValidator,
+        responseValidator: customerFeaturedProductsResponseValidator,
+    },
+)
+
+export const replaceCustomerFeaturedProducts = lambdaHandler(
+    async (event) => replaceCustomerFeaturedProductsHandler(deps)(event as IReplaceCustomerFeaturedProductsEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: replaceCustomerFeaturedProductsValidator,
+        responseValidator: customerFeaturedProductsResponseValidator,
+    },
+)
+
+export const listCustomerVisits = lambdaHandler(
+    async (event) => listCustomerVisitsHandler(deps)(event as IListCustomerVisitsEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: customerIdValidator,
+        responseValidator: customerVisitsResponseValidator,
+    },
+)
+
+export const createCustomerVisit = lambdaHandler(
+    async (event) => createCustomerVisitHandler(deps)(event as ICreateCustomerVisitEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: createCustomerVisitValidator,
+        responseValidator: customerVisitResponseValidator,
+    },
+)
+
+export const updateCustomerVisit = lambdaHandler(
+    async (event) => updateCustomerVisitHandler(deps)(event as IUpdateCustomerVisitEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: updateCustomerVisitValidator,
+        responseValidator: customerVisitResponseValidator,
+    },
+)
+
+export const deleteCustomerVisit = lambdaHandler(
+    async (event) => deleteCustomerVisitHandler(deps)(event as IDeleteCustomerVisitEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: customerVisitIdValidator,
+        responseValidator: customerVisitResponseValidator,
+    },
 )

@@ -35,7 +35,7 @@ export const createSupplier = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
         requestValidator: createSupplierValidator,
         responseValidator: supplierResponseValidator,
     }
@@ -51,7 +51,7 @@ export const getSupplier = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
         requestValidator: getSupplierValidator,
         responseValidator: supplierResponseValidator,
     }
@@ -68,7 +68,7 @@ export const listSuppliers = lambdaHandler(
             )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
         responseValidator: listSuppliersResponseValidator,
     }
 )
@@ -83,7 +83,7 @@ export const deleteSupplier = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
         requestValidator: deleteSupplierValidator,
         responseValidator: supplierResponseValidator,
     }
@@ -99,7 +99,7 @@ export const updateSupplier = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
         requestValidator: updateSupplierValidator,
         responseValidator: supplierResponseValidator,
     }

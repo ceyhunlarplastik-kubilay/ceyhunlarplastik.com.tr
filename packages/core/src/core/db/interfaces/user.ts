@@ -5,5 +5,6 @@ export interface IUser {
   identifier: string
   groups: string[]
   supplierId?: string | null
+  customerId?: string | null
   isActive: boolean
 }

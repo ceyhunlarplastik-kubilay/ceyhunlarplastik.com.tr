@@ -139,9 +139,59 @@ adminApi.route("PUT /users/{id}/supplier", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("PUT /users/{id}/assignment", {
+    handler: `${folderPrefix}/users/actions.updateUserAssignment`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- CUSTOMERS -----------------------*/
 adminApi.route("GET /customers", {
     handler: `${folderPrefix}/customers/actions.listCustomers`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /customers/{id}", {
+    handler: `${folderPrefix}/customers/actions.getCustomer`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /customers/{id}", {
+    handler: `${folderPrefix}/customers/actions.updateCustomer`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /customers/{id}/convert", {
+    handler: `${folderPrefix}/customers/actions.convertCustomer`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /customers/{id}/featured-products", {
+    handler: `${folderPrefix}/customers/actions.listCustomerFeaturedProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /customers/{id}/featured-products", {
+    handler: `${folderPrefix}/customers/actions.replaceCustomerFeaturedProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /customers/{id}/visits", {
+    handler: `${folderPrefix}/customers/actions.listCustomerVisits`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /customers/{id}/visits", {
+    handler: `${folderPrefix}/customers/actions.createCustomerVisit`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /customers/{id}/visits/{visitId}", {
+    handler: `${folderPrefix}/customers/actions.updateCustomerVisit`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /customers/{id}/visits/{visitId}", {
+    handler: `${folderPrefix}/customers/actions.deleteCustomerVisit`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 

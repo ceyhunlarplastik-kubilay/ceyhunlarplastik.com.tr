@@ -11,6 +11,7 @@ type AuthenticatedUser = {
     name?: string
     image?: string
     groups: string[]
+    customerId?: string | null
     idToken: string
     accessToken: string
     refreshToken?: string
@@ -65,6 +66,7 @@ export const authOptions: NextAuthOptions = {
                 token.name = typedUser.name
                 token.picture = typedUser.image
                 token.groups = typedUser.groups
+                token.customerId = typedUser.customerId
                 token.idToken = typedUser.idToken
                 token.accessToken = typedUser.accessToken
                 token.refreshToken = typedUser.refreshToken
@@ -115,6 +117,9 @@ export const authOptions: NextAuthOptions = {
                 session.user.name = typeof token.name === "string" ? token.name : session.user.name
                 session.user.image = typeof token.picture === "string" ? token.picture : session.user.image
                 session.user.groups = Array.isArray(token.groups) ? token.groups : []
+                session.user.customerId = typeof token.customerId === "string" || token.customerId === null
+                    ? token.customerId
+                    : undefined
             }
 
             return session

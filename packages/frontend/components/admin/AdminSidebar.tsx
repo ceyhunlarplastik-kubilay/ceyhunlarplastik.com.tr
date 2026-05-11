@@ -54,8 +54,13 @@ const navItems = [
         icon: Truck,
     },
     {
-        href: "/admin/customers",
-        label: "Müşteriler",
+        href: "/admin/potansiyel-musteriler",
+        label: "Potansiyel Müşteriler",
+        icon: Users,
+    },
+    {
+        href: "/admin/cari-musteriler",
+        label: "Cari Müşteriler",
         icon: Users,
     },
     {

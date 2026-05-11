@@ -2,6 +2,7 @@ import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
 import { IPrismaUserRepository } from "@/core/helpers/prisma/users/repository"
 import { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/repository"
+import { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
 
 enum UserGroups {
     USER = "user",
@@ -10,11 +11,13 @@ enum UserGroups {
     SUPPLIER = "supplier",
     PURCHASING = "purchasing",
     SALES = "sales",
+    CUSTOMER = "customer",
 }
 
 export interface IAddUserToGroupBody {
     group: UserGroups
     supplierId?: string | null
+    customerId?: string | null
 }
 
 export type IUpdateUserGroupsEvent =
@@ -28,5 +31,6 @@ export interface IUpdateUserGroupsDependencies {
     cognitoRepository: ICognitoUserRepository
     userRepository: IPrismaUserRepository
     supplierRepository: IPrismaSupplierRepository
+    customerRepository: IPrismaCustomerRepository
     userPoolId: string
 }

@@ -13,6 +13,7 @@ export interface ICreateSupplierBody {
     taxNumber?: string
     defaultPaymentTermDays?: number
     isActive: boolean
+    assignedPurchasingUserId?: string | null
 }
 
 export type ICreateSupplierEvent =
@@ -28,6 +29,7 @@ export type IListSuppliersEvent =
             search?: string
             sort?: string
             order?: "asc" | "desc"
+            assignedPurchasingUserId?: string
         }
     >
 

@@ -18,13 +18,22 @@ type FilterValue = {
 
 type Props = {
     search: string
+    status: string
+    hideStatusFilter?: boolean
+    assignedSalesUserId: string
     sectorValueId: string
     productionGroupValueId: string
     usageAreaValueId: string
+    salesUsers: Array<{
+        id: string
+        label: string
+    }>
     sectorValues: FilterValue[]
     productionGroupValues: FilterValue[]
     usageAreaValues: FilterValue[]
     onSearchChange: (value: string) => void
+    onStatusChange: (value: string) => void
+    onAssignedSalesUserIdChange: (value: string) => void
     onSectorValueIdChange: (value: string) => void
     onProductionGroupValueIdChange: (value: string) => void
     onUsageAreaValueIdChange: (value: string) => void
@@ -32,13 +41,19 @@ type Props = {
 
 export function CustomerListFilters({
     search,
+    status,
+    hideStatusFilter = false,
+    assignedSalesUserId,
     sectorValueId,
     productionGroupValueId,
     usageAreaValueId,
+    salesUsers,
     sectorValues,
     productionGroupValues,
     usageAreaValues,
     onSearchChange,
+    onStatusChange,
+    onAssignedSalesUserIdChange,
     onSectorValueIdChange,
     onProductionGroupValueIdChange,
     onUsageAreaValueIdChange,
@@ -56,6 +71,39 @@ export function CustomerListFilters({
                     />
                 </div>
 
+                {!hideStatusFilter ? (
+                    <Select
+                        value={status || "__all__"}
+                        onValueChange={(value) => onStatusChange(value === "__all__" ? "" : value)}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Tüm Durumlar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all__">Tüm Durumlar</SelectItem>
+                            <SelectItem value="LEAD">Potansiyel Müşteri</SelectItem>
+                            <SelectItem value="CUSTOMER">Müşteri</SelectItem>
+                        </SelectContent>
+                    </Select>
+                ) : null}
+
+                <Select
+                    value={assignedSalesUserId || "__all__"}
+                    onValueChange={(value) => onAssignedSalesUserIdChange(value === "__all__" ? "" : value)}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Tüm Satış Temsilcileri" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="__all__">Tüm Satış Temsilcileri</SelectItem>
+                        {salesUsers.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
+                                {user.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
                 <Select
                     value={sectorValueId || "__all__"}
                     onValueChange={(value) => onSectorValueIdChange(value === "__all__" ? "" : value)}
@@ -72,12 +120,14 @@ export function CustomerListFilters({
                         ))}
                     </SelectContent>
                 </Select>
+            </div>
 
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
                 <Select
                     value={productionGroupValueId || "__all__"}
                     onValueChange={(value) => onProductionGroupValueIdChange(value === "__all__" ? "" : value)}
                 >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full xl:w-72">
                         <SelectValue placeholder="Tüm Üretim Grupları" />
                     </SelectTrigger>
                     <SelectContent>
@@ -89,14 +139,12 @@ export function CustomerListFilters({
                         ))}
                     </SelectContent>
                 </Select>
-            </div>
 
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                 <Select
                     value={usageAreaValueId || "__all__"}
                     onValueChange={(value) => onUsageAreaValueIdChange(value === "__all__" ? "" : value)}
                 >
-                    <SelectTrigger className="w-full lg:w-72">
+                    <SelectTrigger className="w-full xl:w-72">
                         <SelectValue placeholder="Tüm Kullanım Alanları" />
                     </SelectTrigger>
                     <SelectContent>
@@ -109,8 +157,18 @@ export function CustomerListFilters({
                     </SelectContent>
                 </Select>
 
-                <Button variant="ghost" onClick={() => onSearchChange("")}>
-                    Aramayı Temizle
+                <Button
+                    variant="ghost"
+                    onClick={() => {
+                        onSearchChange("")
+                        onStatusChange("")
+                        onAssignedSalesUserIdChange("")
+                        onSectorValueIdChange("")
+                        onProductionGroupValueIdChange("")
+                        onUsageAreaValueIdChange("")
+                    }}
+                >
+                    Filtreleri Temizle
                 </Button>
             </div>
         </div>

@@ -38,5 +38,6 @@ export const config = {
         "/tedarikci/:path*",
         "/satinalma/:path*",
         "/satis/:path*",
+        "/musteri/:path*",
     ]
 }

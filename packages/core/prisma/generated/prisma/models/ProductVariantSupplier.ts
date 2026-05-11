@@ -831,10 +831,6 @@ export type NullableDecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type ProductVariantSupplierCreateNestedOneWithoutApprovalRequestsInput = {
   create?: Prisma.XOR<Prisma.ProductVariantSupplierCreateWithoutApprovalRequestsInput, Prisma.ProductVariantSupplierUncheckedCreateWithoutApprovalRequestsInput>
   connectOrCreate?: Prisma.ProductVariantSupplierCreateOrConnectWithoutApprovalRequestsInput

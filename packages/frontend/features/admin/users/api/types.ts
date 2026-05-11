@@ -4,6 +4,27 @@ export type AdminUser = {
     identifier: string
     groups: string[]
     supplierId?: string | null
+    customerId?: string | null
+    supplier?: {
+        id: string
+        name: string
+    } | null
+    customer?: {
+        id: string
+        fullName: string
+        companyName?: string | null
+        status: "LEAD" | "CUSTOMER"
+    } | null
+    assignedSalesCustomers?: Array<{
+        id: string
+        fullName: string
+        companyName?: string | null
+        status: "LEAD" | "CUSTOMER"
+    }>
+    assignedPurchasingSuppliers?: Array<{
+        id: string
+        name: string
+    }>
     isActive: boolean
     createdAt: string
     updatedAt: string

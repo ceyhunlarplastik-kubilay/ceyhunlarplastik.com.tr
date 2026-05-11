@@ -69,6 +69,7 @@ export interface IAuthenticatedUser {
   email: string
   groups: string[]
   supplierId?: string | null
+  customerId?: string | null
 
   // ✅ derived flags
   isOwner: boolean
@@ -76,6 +77,7 @@ export interface IAuthenticatedUser {
   isSupplier: boolean
   isPurchasing: boolean
   isSales: boolean
+  isCustomer: boolean
 }
 
 // Lambda event tipi (hem authenticated hem anonymous destekler)

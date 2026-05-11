@@ -4,8 +4,9 @@ import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 export const addUserToGroupValidator = validatorWrapper(
     z.object({
         body: z.object({
-            group: z.enum(["owner", "admin", "user", "supplier", "purchasing", "sales"]),
+            group: z.enum(["owner", "admin", "user", "supplier", "purchasing", "sales", "customer"]),
             supplierId: z.uuid().nullable().optional(),
+            customerId: z.uuid().nullable().optional(),
         }),
     }),
     {

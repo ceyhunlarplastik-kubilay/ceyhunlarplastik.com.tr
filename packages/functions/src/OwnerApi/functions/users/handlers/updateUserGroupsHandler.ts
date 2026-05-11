@@ -5,14 +5,14 @@ import type {
   IUpdateUserGroupsEvent,
 } from "@/functions/OwnerApi/types/users";
 
-const ALL_GROUPS = ["owner", "admin", "user", "supplier", "purchasing", "sales"] as const;
+const ALL_GROUPS = ["owner", "admin", "user", "supplier", "purchasing", "sales", "customer"] as const;
 
 export const updateUserGroupsHandler =
-  ({ cognitoRepository, userRepository, supplierRepository, userPoolId }: IUpdateUserGroupsDependencies) =>
+  ({ cognitoRepository, userRepository, supplierRepository, customerRepository, userPoolId }: IUpdateUserGroupsDependencies) =>
     async (event: IUpdateUserGroupsEvent) => {
       const requester = event.user!;
       const targetUserId = event.pathParameters.id;
-      const { group: nextGroup, supplierId } = event.body!;
+      const { group: nextGroup, supplierId, customerId } = event.body!;
 
       /* ---------- Guards ---------- */
       if (!requester.isOwner) throw createError.Forbidden("Only owners can change user roles");
@@ -29,6 +29,16 @@ export const updateUserGroupsHandler =
         const supplier = await supplierRepository.getSupplier(supplierId);
         if (!supplier) {
           throw createError.NotFound("Supplier not found");
+        }
+      }
+
+      if (nextGroup === "customer") {
+        if (!customerId) {
+          throw createError.BadRequest("customerId is required for customer group");
+        }
+        const customer = await customerRepository.getCustomer(customerId);
+        if (!customer) {
+          throw createError.NotFound("Customer not found");
         }
       }
 
@@ -63,10 +73,13 @@ export const updateUserGroupsHandler =
 
       /* ---------- Prisma projection ---------- */
 
-      await userRepository.updateGroupsAndSupplier(
+      await userRepository.updateAssignments(
         user.id,
         [toAdd],
-        nextGroup === "supplier" ? supplierId : null
+        {
+          supplierId: nextGroup === "supplier" ? supplierId : null,
+          customerId: nextGroup === "customer" ? customerId : null,
+        }
       );
 
       return apiResponse({

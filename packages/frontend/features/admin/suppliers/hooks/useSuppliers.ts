@@ -9,12 +9,14 @@ type Params = {
     page: number
     limit: number
     search?: string
+    assignedPurchasingUserId?: string
 }
 
 const supplierParamsSchema = z.object({
     page: z.number().int().positive(),
     limit: z.number().int().positive().max(500),
     search: z.string().trim().optional(),
+    assignedPurchasingUserId: z.string().trim().optional(),
 })
 
 type Options = {

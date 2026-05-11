@@ -375,6 +375,7 @@ Protected/admin UIs should feel operational and efficient:
 - visible refresh behavior
 - reusable filters/toolbars
 - tables split from orchestration logic
+- review and approval screens should emphasize changed values first instead of dumping full before/after records
 
 ### Animations
 Use `motion/react` sparingly and intentionally:
@@ -429,3 +430,5 @@ A change is considered aligned with this architecture when:
 - `AGENTS.md` should remain the high-level implementation guide and engineering rulebook.
 - If deeper project-specific system design documentation is needed, create `ARCHITECTURE.md` as a separate document.
 - Keep `AGENTS.md` concise enough to guide implementation decisions, and keep lower-level flow diagrams, subsystem notes, and internal conventions in `ARCHITECTURE.md`.
+- Update `ARCHITECTURE.md` in the same change when routing, auth, workflows, role boundaries, or shared domain structure materially changes.
+- Update `AGENTS.md` in the same change when a reusable implementation rule or UI decision should guide future work.

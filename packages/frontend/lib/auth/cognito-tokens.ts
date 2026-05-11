@@ -1,4 +1,4 @@
-const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "supplier", "user"] as const
+const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "supplier", "customer", "user"] as const
 
 export type CognitoIdTokenProfile = {
     sub?: string

@@ -81,8 +81,15 @@ const salesGroup = new aws.cognito.UserGroup('CeyhunlarSales', {
     description: 'Sales users',
     precedence: 6,
 });
+const customerGroup = new aws.cognito.UserGroup('CeyhunlarCustomers', {
+    userPoolId: userPool.id,
+    name: 'customer',
+    description: 'Customer portal users',
+    precedence: 7,
+});
 void purchasingGroup;
 void salesGroup;
+void customerGroup;
 
 if (isPermanentStage) {
     const hostedZoneId = config.HOSTED_ZONE_ID

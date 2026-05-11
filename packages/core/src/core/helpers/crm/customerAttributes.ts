@@ -1,0 +1,74 @@
+import createError from "http-errors"
+import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+
+const ATTRIBUTE_CODES = {
+    sector: "sector",
+    productionGroup: "production_group",
+    usageArea: "usage_area",
+} as const
+
+type CustomerAttributeInput = {
+    sectorValueId?: string | null
+    productionGroupValueId?: string | null
+    usageAreaValueIds?: string[]
+}
+
+export async function validateCustomerAttributeSelection(
+    productAttributeValueRepository: IPrismaProductAttributeValueRepository,
+    input: CustomerAttributeInput,
+) {
+    const { sectorValueId, productionGroupValueId } = input
+
+    const sectorValue = sectorValueId
+        ? await productAttributeValueRepository.getValueById(sectorValueId)
+        : null
+
+    if (sectorValue && sectorValue.attribute.code !== ATTRIBUTE_CODES.sector) {
+        throw new createError.BadRequest("sectorValueId must reference a sector value")
+    }
+
+    const productionGroupValue = productionGroupValueId
+        ? await productAttributeValueRepository.getValueById(productionGroupValueId)
+        : null
+
+    if (productionGroupValue && productionGroupValue.attribute.code !== ATTRIBUTE_CODES.productionGroup) {
+        throw new createError.BadRequest("productionGroupValueId must reference a production_group value")
+    }
+
+    if (
+        sectorValue &&
+        productionGroupValue &&
+        productionGroupValue.parentValueId !== sectorValue.id
+    ) {
+        throw new createError.BadRequest("production_group must belong to selected sector")
+    }
+
+    const usageAreaIds = Array.from(new Set((input.usageAreaValueIds ?? []).filter(Boolean)))
+    const usageAreaValues = await Promise.all(
+        usageAreaIds.map((id) => productAttributeValueRepository.getValueById(id)),
+    )
+
+    for (const value of usageAreaValues) {
+        if (!value) throw new createError.BadRequest("One or more usage_area values are invalid")
+        if (value.attribute.code !== ATTRIBUTE_CODES.usageArea) {
+            throw new createError.BadRequest("usageAreaValueIds must reference usage_area values")
+        }
+
+        if (productionGroupValue && value.parentValueId !== productionGroupValue.id) {
+            throw new createError.BadRequest("usage_area must belong to selected production_group")
+        }
+
+        if (sectorValue) {
+            const usageSectorId = value.parentValue?.parentValueId
+            if (usageSectorId && usageSectorId !== sectorValue.id) {
+                throw new createError.BadRequest("usage_area must belong to selected sector")
+            }
+        }
+    }
+
+    return {
+        sectorValue,
+        productionGroupValue,
+        usageAreaIds,
+    }
+}

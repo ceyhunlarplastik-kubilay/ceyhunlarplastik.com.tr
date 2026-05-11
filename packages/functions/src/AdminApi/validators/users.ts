@@ -26,6 +26,31 @@ export const listUsersResponseValidator = z.toJSONSchema(
                         identifier: z.string(),
                         groups: z.array(z.string()),
                         supplierId: z.uuid().nullable().optional(),
+                        customerId: z.uuid().nullable().optional(),
+                        supplier: z.object({
+                            id: z.uuid(),
+                            name: z.string(),
+                        }).nullable().optional(),
+                        customer: z.object({
+                            id: z.uuid(),
+                            fullName: z.string(),
+                            companyName: z.string().nullable().optional(),
+                            status: z.enum(["LEAD", "CUSTOMER"]),
+                        }).nullable().optional(),
+                        assignedSalesCustomers: z.array(
+                            z.object({
+                                id: z.uuid(),
+                                fullName: z.string(),
+                                companyName: z.string().nullable().optional(),
+                                status: z.enum(["LEAD", "CUSTOMER"]),
+                            }).loose()
+                        ).optional(),
+                        assignedPurchasingSuppliers: z.array(
+                            z.object({
+                                id: z.uuid(),
+                                name: z.string(),
+                            }).loose()
+                        ).optional(),
                         isActive: z.boolean(),
                         createdAt: z.string(),
                         updatedAt: z.string(),
@@ -54,6 +79,31 @@ export const getUserResponseValidator = z.toJSONSchema(
                     identifier: z.string(),
                     groups: z.array(z.string()),
                     supplierId: z.uuid().nullable().optional(),
+                    customerId: z.uuid().nullable().optional(),
+                    supplier: z.object({
+                        id: z.uuid(),
+                        name: z.string(),
+                    }).nullable().optional(),
+                    customer: z.object({
+                        id: z.uuid(),
+                        fullName: z.string(),
+                        companyName: z.string().nullable().optional(),
+                        status: z.enum(["LEAD", "CUSTOMER"]),
+                    }).nullable().optional(),
+                    assignedSalesCustomers: z.array(
+                        z.object({
+                            id: z.uuid(),
+                            fullName: z.string(),
+                            companyName: z.string().nullable().optional(),
+                            status: z.enum(["LEAD", "CUSTOMER"]),
+                        }).loose()
+                    ).optional(),
+                    assignedPurchasingSuppliers: z.array(
+                        z.object({
+                            id: z.uuid(),
+                            name: z.string(),
+                        }).loose()
+                    ).optional(),
                     isActive: z.boolean(),
                     createdAt: z.string(),
                     updatedAt: z.string(),
@@ -81,6 +131,9 @@ export const updateUserSupplierValidator = validatorWrapper(
         }),
         body: z.object({
             supplierId: z.uuid().nullable().optional(),
+            customerId: z.uuid().nullable().optional(),
+            assignedSupplierIds: z.array(z.uuid()).max(500).optional(),
+            assignedCustomerIds: z.array(z.uuid()).max(500).optional(),
         }),
     }),
     {
@@ -100,6 +153,31 @@ export const updateUserSupplierResponseValidator = z.toJSONSchema(
                     identifier: z.string(),
                     groups: z.array(z.string()),
                     supplierId: z.uuid().nullable().optional(),
+                    customerId: z.uuid().nullable().optional(),
+                    supplier: z.object({
+                        id: z.uuid(),
+                        name: z.string(),
+                    }).nullable().optional(),
+                    customer: z.object({
+                        id: z.uuid(),
+                        fullName: z.string(),
+                        companyName: z.string().nullable().optional(),
+                        status: z.enum(["LEAD", "CUSTOMER"]),
+                    }).nullable().optional(),
+                    assignedSalesCustomers: z.array(
+                        z.object({
+                            id: z.uuid(),
+                            fullName: z.string(),
+                            companyName: z.string().nullable().optional(),
+                            status: z.enum(["LEAD", "CUSTOMER"]),
+                        }).loose()
+                    ).optional(),
+                    assignedPurchasingSuppliers: z.array(
+                        z.object({
+                            id: z.uuid(),
+                            name: z.string(),
+                        }).loose()
+                    ).optional(),
                     isActive: z.boolean(),
                     createdAt: z.string(),
                     updatedAt: z.string(),

@@ -1,76 +1,100 @@
 import { prisma } from "@/core/db/prisma"
-import { Prisma, Supplier } from "@/prisma/generated/prisma/client"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import { Prisma, Supplier } from "@/prisma/generated/prisma/client"
+
+const supplierInclude = {
+    assignedPurchasingUser: {
+        select: {
+            id: true,
+            email: true,
+            identifier: true,
+            groups: true,
+        },
+    },
+} satisfies Prisma.SupplierInclude
+
+export type SupplierWithRelations = Prisma.SupplierGetPayload<{
+    include: typeof supplierInclude
+}>
 
 export interface IPrismaSupplierRepository {
-  listSuppliers(query: IPaginationQuery): Promise<{
-    data: Supplier[]
-    meta: {
-      page: number
-      limit: number
-      total: number
-      totalPages: number
-    }
-  }>
-  getSupplier(id: string): Promise<Supplier | null>
-  createSupplier(data: Prisma.SupplierCreateInput): Promise<Supplier>
-  updateSupplier(id: string, data: Prisma.SupplierUpdateInput): Promise<Supplier>
-  deleteSupplier(id: string): Promise<Supplier>
+    listSuppliers(query: IPaginationQuery & { assignedPurchasingUserId?: string }): Promise<{
+        data: SupplierWithRelations[]
+        meta: {
+            page: number
+            limit: number
+            total: number
+            totalPages: number
+        }
+    }>
+    getSupplier(id: string): Promise<SupplierWithRelations | null>
+    createSupplier(data: Prisma.SupplierCreateInput): Promise<SupplierWithRelations>
+    updateSupplier(id: string, data: Prisma.SupplierUpdateInput): Promise<SupplierWithRelations>
+    deleteSupplier(id: string): Promise<SupplierWithRelations>
 }
 
 export const supplierRepository = (): IPrismaSupplierRepository => {
+    const listSuppliers = async (
+        query: IPaginationQuery & { assignedPurchasingUserId?: string },
+    ) => {
+        const { where, orderBy, skip, take, page, limit } = buildPaginationQuery<Supplier>(query, {
+            searchableFields: ["name", "contactName", "taxNumber"],
+            defaultSort: "createdAt",
+        })
 
-  const listSuppliers = async (query: IPaginationQuery) => {
+        const finalWhere: Prisma.SupplierWhereInput = {
+            ...where,
+            ...(query.assignedPurchasingUserId
+                ? { assignedPurchasingUserId: query.assignedPurchasingUserId }
+                : {}),
+        }
 
-    const {
-      where,
-      orderBy,
-      skip,
-      take,
-      page,
-      limit,
-    } = buildPaginationQuery<Supplier>(query, {
-      searchableFields: ["name"],
-      defaultSort: "createdAt",
-    })
+        const [data, total] = await Promise.all([
+            prisma.supplier.findMany({
+                where: finalWhere,
+                orderBy,
+                skip,
+                take,
+                include: supplierInclude,
+            }),
+            prisma.supplier.count({ where: finalWhere }),
+        ])
 
-    const [data, total] = await Promise.all([
-      prisma.supplier.findMany({
-        where,
-        orderBy,
-        skip,
-        take,
-      }),
-      prisma.supplier.count({ where }),
-    ])
+        return buildPaginationResponse(data, {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        })
+    }
 
-    return buildPaginationResponse(data, {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    })
-  }
+    return {
+        listSuppliers,
+        getSupplier: (id) =>
+            prisma.supplier.findUnique({
+                where: { id },
+                include: supplierInclude,
+            }),
 
-  return {
-    listSuppliers,
-    getSupplier: (id) =>
-      prisma.supplier.findUniqueOrThrow({ where: { id } }),
+        createSupplier: (data) =>
+            prisma.supplier.create({
+                data,
+                include: supplierInclude,
+            }),
 
-    createSupplier: (data) =>
-      prisma.supplier.create({ data }),
+        updateSupplier: (id, data) =>
+            prisma.supplier.update({
+                where: { id },
+                data,
+                include: supplierInclude,
+            }),
 
-    updateSupplier: (id, data) =>
-      prisma.supplier.update({
-        where: { id },
-        data,
-      }),
-
-    deleteSupplier: (id) =>
-      prisma.supplier.delete({
-        where: { id },
-      }),
-  }
+        deleteSupplier: (id) =>
+            prisma.supplier.delete({
+                where: { id },
+                include: supplierInclude,
+            }),
+    }
 }

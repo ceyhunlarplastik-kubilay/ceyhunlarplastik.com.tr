@@ -27,12 +27,17 @@ import { AdminListPagination } from "@/features/admin/shared/components/AdminLis
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { useSuppliers } from "@/features/admin/suppliers/hooks/useSuppliers"
+import { useCustomers } from "@/features/admin/customers/hooks/useCustomers"
 import { useUpdateUserSupplier } from "@/features/admin/users/hooks/useUpdateUserSupplier"
 import { useUserListFilters } from "@/features/admin/users/hooks/useUserListFilters"
 import { UserListFilters } from "@/features/admin/users/components/UserListFilters"
+import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
 
 export function UsersPageClient() {
     const [draftSupplierByUserId, setDraftSupplierByUserId] = useState<Record<string, string>>({})
+    const [draftCustomerByUserId, setDraftCustomerByUserId] = useState<Record<string, string>>({})
+    const [draftAssignedSupplierIdsByUserId, setDraftAssignedSupplierIdsByUserId] = useState<Record<string, string[]>>({})
+    const [draftAssignedCustomerIdsByUserId, setDraftAssignedCustomerIdsByUserId] = useState<Record<string, string[]>>({})
 
     const {
         filters,
@@ -50,19 +55,31 @@ export function UsersPageClient() {
             : false,
     })
     const supplierQuery = useSuppliers({ params: { page: 1, limit: 500 } })
+    const customerQuery = useCustomers({ params: { page: 1, limit: 500 } })
     const updateMutation = useUpdateUserSupplier()
 
     const users = userQuery.data?.data ?? []
     const meta = userQuery.data?.meta
     const suppliers = supplierQuery.data?.data ?? []
+    const customers = customerQuery.data?.data ?? []
 
     const onSave = async (userId: string) => {
-        const draftValue = draftSupplierByUserId[userId]
-        const supplierId = draftValue === "__none__" ? null : draftValue
+        const draftSupplierValue = draftSupplierByUserId[userId]
+        const draftCustomerValue = draftCustomerByUserId[userId]
+        const supplierId = draftSupplierValue === "__none__" ? null : draftSupplierValue
+        const customerId = draftCustomerValue === "__none__" ? null : draftCustomerValue
+        const assignedSupplierIds = draftAssignedSupplierIdsByUserId[userId]
+        const assignedCustomerIds = draftAssignedCustomerIdsByUserId[userId]
 
         try {
-            await updateMutation.mutateAsync({ id: userId, supplierId: supplierId || null })
-            toast.success("Tedarikçi ataması güncellendi")
+            await updateMutation.mutateAsync({
+                id: userId,
+                supplierId: supplierId || null,
+                customerId: customerId || null,
+                assignedSupplierIds,
+                assignedCustomerIds,
+            })
+            toast.success("Kullanıcı atamaları güncellendi")
         } catch {
             toast.error("Atama güncellenemedi")
         }
@@ -73,7 +90,7 @@ export function UsersPageClient() {
             <div className="space-y-1">
                 <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Kullanıcılar</h1>
                 <p className="text-neutral-500 text-sm">
-                    Kullanıcıları görüntüleyin, supplier roldeki kullanıcılar için tedarikçi ataması yapın.
+                    Portal kullanıcı bağlarını ve operasyonel eşleşmeleri yönetin. Sales kullanıcılarına müşteri, purchasing kullanıcılarına tedarikçi atayın.
                 </p>
             </div>
 
@@ -93,25 +110,40 @@ export function UsersPageClient() {
                         <TableRow>
                             <TableHead>Kullanıcı</TableHead>
                             <TableHead>Gruplar</TableHead>
-                            <TableHead>Atanan Tedarikçi</TableHead>
+                            <TableHead>Portal Tedarikçi</TableHead>
+                            <TableHead>Portal Müşteri</TableHead>
+                            <TableHead>Satın Alma Tedarikçileri</TableHead>
+                            <TableHead>Satış Müşterileri</TableHead>
                             <TableHead className="text-right pr-4">İşlem</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {userQuery.isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={4} className="py-12">
+                                <TableCell colSpan={7} className="py-12">
                                     <div className="flex items-center justify-center">
                                         <Spinner className="size-5" />
                                     </div>
                                 </TableCell>
                             </TableRow>
                         ) : users.map((user) => {
-                            const selectedValue =
+                            const selectedSupplierValue =
                                 draftSupplierByUserId[user.id] ??
                                 (user.supplierId ?? "__none__")
+                            const selectedCustomerValue =
+                                draftCustomerByUserId[user.id] ??
+                                (user.customerId ?? "__none__")
+                            const selectedAssignedSupplierIds =
+                                draftAssignedSupplierIdsByUserId[user.id] ??
+                                (user.assignedPurchasingSuppliers ?? []).map((supplier) => supplier.id)
+                            const selectedAssignedCustomerIds =
+                                draftAssignedCustomerIdsByUserId[user.id] ??
+                                (user.assignedSalesCustomers ?? []).map((customer) => customer.id)
 
-                            const canAssignSupplier = user.groups.includes("supplier") || user.groups.includes("owner") || user.groups.includes("admin")
+                            const canAssignPortalSupplier = user.groups.includes("supplier")
+                            const canAssignPortalCustomer = user.groups.includes("customer")
+                            const canAssignPurchasingSuppliers = user.groups.includes("purchasing")
+                            const canAssignSalesCustomers = user.groups.includes("sales")
 
                             return (
                                 <TableRow key={user.id}>
@@ -132,8 +164,8 @@ export function UsersPageClient() {
                                     </TableCell>
                                     <TableCell>
                                         <Select
-                                            disabled={!canAssignSupplier || supplierQuery.isLoading}
-                                            value={selectedValue}
+                                            disabled={!canAssignPortalSupplier || supplierQuery.isLoading}
+                                            value={selectedSupplierValue}
                                             onValueChange={(value) =>
                                                 setDraftSupplierByUserId((prev) => ({
                                                     ...prev,
@@ -154,12 +186,79 @@ export function UsersPageClient() {
                                             </SelectContent>
                                         </Select>
                                     </TableCell>
+                                    <TableCell>
+                                        <Select
+                                            disabled={!canAssignPortalCustomer || customerQuery.isLoading}
+                                            value={selectedCustomerValue}
+                                            onValueChange={(value) =>
+                                                setDraftCustomerByUserId((prev) => ({
+                                                    ...prev,
+                                                    [user.id]: value,
+                                                }))
+                                            }
+                                        >
+                                            <SelectTrigger className="min-w-56">
+                                                <SelectValue placeholder="Atama yok" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="__none__">Atama yok</SelectItem>
+                                                {customers.map((customer) => (
+                                                    <SelectItem key={customer.id} value={customer.id}>
+                                                        {customer.companyName || customer.fullName}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </TableCell>
+                                    <TableCell className="min-w-72">
+                                        <EntityAssignmentSelect
+                                            disabled={!canAssignPurchasingSuppliers || supplierQuery.isLoading}
+                                            value={selectedAssignedSupplierIds}
+                                            options={suppliers.map((supplier) => ({
+                                                id: supplier.id,
+                                                label: supplier.name,
+                                                caption: supplier.contactName || supplier.taxNumber || undefined,
+                                            }))}
+                                            placeholder="Tedarikçi seç"
+                                            emptyLabel="Tedarikçi bulunamadı"
+                                            onChange={(value) =>
+                                                setDraftAssignedSupplierIdsByUserId((prev) => ({
+                                                    ...prev,
+                                                    [user.id]: value,
+                                                }))
+                                            }
+                                        />
+                                    </TableCell>
+                                    <TableCell className="min-w-72">
+                                        <EntityAssignmentSelect
+                                            disabled={!canAssignSalesCustomers || customerQuery.isLoading}
+                                            value={selectedAssignedCustomerIds}
+                                            options={customers.map((customer) => ({
+                                                id: customer.id,
+                                                label: customer.companyName || customer.fullName,
+                                                caption: customer.fullName,
+                                            }))}
+                                            placeholder="Müşteri seç"
+                                            emptyLabel="Müşteri bulunamadı"
+                                            onChange={(value) =>
+                                                setDraftAssignedCustomerIdsByUserId((prev) => ({
+                                                    ...prev,
+                                                    [user.id]: value,
+                                                }))
+                                            }
+                                        />
+                                    </TableCell>
                                     <TableCell className="text-right pr-4">
                                         <Button
                                             size="sm"
                                             variant="outline"
                                             className="gap-2"
-                                            disabled={!canAssignSupplier || updateMutation.isPending}
+                                            disabled={(
+                                                !canAssignPortalSupplier
+                                                && !canAssignPortalCustomer
+                                                && !canAssignPurchasingSuppliers
+                                                && !canAssignSalesCustomers
+                                            ) || updateMutation.isPending}
                                             onClick={() => onSave(user.id)}
                                         >
                                             <Users className="h-4 w-4" />
@@ -171,7 +270,7 @@ export function UsersPageClient() {
                         })}
                         {!userQuery.isLoading && users.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={4} className="py-10 text-center text-sm text-neutral-500">
+                                <TableCell colSpan={7} className="py-10 text-center text-sm text-neutral-500">
                                     Kullanıcı bulunamadı.
                                 </TableCell>
                             </TableRow>

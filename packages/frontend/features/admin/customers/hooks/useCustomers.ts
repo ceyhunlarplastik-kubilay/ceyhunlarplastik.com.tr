@@ -12,15 +12,19 @@ type Params = {
     sectorValueId?: string
     productionGroupValueId?: string
     usageAreaValueId?: string
+    status?: "LEAD" | "CUSTOMER"
+    assignedSalesUserId?: string
 }
 
 const customerParamsSchema = z.object({
     page: z.number().int().positive(),
-    limit: z.number().int().positive().max(100),
+    limit: z.number().int().positive().max(500),
     search: z.string().trim().optional(),
     sectorValueId: z.string().trim().optional(),
     productionGroupValueId: z.string().trim().optional(),
     usageAreaValueId: z.string().trim().optional(),
+    status: z.enum(["LEAD", "CUSTOMER"]).optional(),
+    assignedSalesUserId: z.string().trim().optional(),
 })
 
 type Options = {

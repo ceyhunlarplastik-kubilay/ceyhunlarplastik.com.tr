@@ -185,3 +185,73 @@ protectedApi.route('GET /sales/products', {
     handler: `${folderPrefix}/supplierVariantPrices/actions.listSupplierProducts`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/customers', {
+    handler: `${folderPrefix}/crm/actions.listManagedCustomers`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/customers/{id}', {
+    handler: `${folderPrefix}/crm/actions.getManagedCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /sales/customers/{id}', {
+    handler: `${folderPrefix}/crm/actions.updateManagedCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /sales/customers/{id}/convert', {
+    handler: `${folderPrefix}/crm/actions.convertManagedCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/customers/{id}/featured-products', {
+    handler: `${folderPrefix}/crm/actions.listManagedCustomerFeaturedProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /sales/customers/{id}/featured-products', {
+    handler: `${folderPrefix}/crm/actions.replaceManagedCustomerFeaturedProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/customers/{id}/visits', {
+    handler: `${folderPrefix}/crm/actions.listManagedCustomerVisits`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /sales/customers/{id}/visits', {
+    handler: `${folderPrefix}/crm/actions.createManagedCustomerVisit`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /sales/customers/{id}/visits/{visitId}', {
+    handler: `${folderPrefix}/crm/actions.updateManagedCustomerVisit`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /sales/customers/{id}/visits/{visitId}', {
+    handler: `${folderPrefix}/crm/actions.deleteManagedCustomerVisit`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /purchasing/suppliers', {
+    handler: `${folderPrefix}/crm/actions.listManagedSuppliers`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /purchasing/suppliers/{id}', {
+    handler: `${folderPrefix}/crm/actions.getManagedSupplier`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /portal/customer', {
+    handler: `${folderPrefix}/crm/actions.getPortalCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /portal/customer/featured-products', {
+    handler: `${folderPrefix}/crm/actions.getPortalCustomerFeaturedProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });

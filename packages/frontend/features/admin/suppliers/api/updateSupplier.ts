@@ -10,6 +10,7 @@ type Params = {
     taxNumber?: string
     defaultPaymentTermDays?: number
     isActive?: boolean
+    assignedPurchasingUserId?: string | null
 }
 
 type SupplierResponse = {

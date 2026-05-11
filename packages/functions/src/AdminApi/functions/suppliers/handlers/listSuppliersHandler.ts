@@ -21,6 +21,7 @@ export const listSuppliersHandler = ({ supplierRepository }: ISupplierDependenci
                 search,
                 sort,
                 order,
+                assignedPurchasingUserId: event.queryStringParameters?.assignedPurchasingUserId,
             })
 
             return apiResponseDTO({

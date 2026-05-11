@@ -1,12 +1,7 @@
 import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { validateCustomerAttributeSelection } from "@/core/helpers/crm/customerAttributes"
 import { ICreateCustomerEvent, ICustomerDependencies } from "@/functions/PublicApi/types/customers"
-
-const ATTRIBUTE_CODES = {
-    sector: "sector",
-    productionGroup: "production_group",
-    usageArea: "usage_area",
-} as const
 
 export const createCustomerHandler = ({
     customerRepository,
@@ -25,52 +20,10 @@ export const createCustomerHandler = ({
         } = event.body
 
         try {
-            const sectorValue = sectorValueId
-                ? await productAttributeValueRepository.getValueById(sectorValueId)
-                : null
-
-            if (sectorValue && sectorValue.attribute.code !== ATTRIBUTE_CODES.sector) {
-                throw new createError.BadRequest("sectorValueId must reference a sector value")
-            }
-
-            const productionGroupValue = productionGroupValueId
-                ? await productAttributeValueRepository.getValueById(productionGroupValueId)
-                : null
-
-            if (productionGroupValue && productionGroupValue.attribute.code !== ATTRIBUTE_CODES.productionGroup) {
-                throw new createError.BadRequest("productionGroupValueId must reference a production_group value")
-            }
-
-            if (
-                sectorValue &&
-                productionGroupValue &&
-                productionGroupValue.parentValueId !== sectorValue.id
-            ) {
-                throw new createError.BadRequest("production_group must belong to selected sector")
-            }
-
-            const usageAreaIds = [...new Set((usageAreaValueIds ?? []).filter(Boolean))]
-            const usageAreaValues = await Promise.all(
-                usageAreaIds.map((id) => productAttributeValueRepository.getValueById(id))
+            const { usageAreaIds } = await validateCustomerAttributeSelection(
+                productAttributeValueRepository,
+                { sectorValueId, productionGroupValueId, usageAreaValueIds },
             )
-
-            for (const value of usageAreaValues) {
-                if (!value) throw new createError.BadRequest("One or more usage_area values are invalid")
-                if (value.attribute.code !== ATTRIBUTE_CODES.usageArea) {
-                    throw new createError.BadRequest("usageAreaValueIds must reference usage_area values")
-                }
-
-                if (productionGroupValue && value.parentValueId !== productionGroupValue.id) {
-                    throw new createError.BadRequest("usage_area must belong to selected production_group")
-                }
-
-                if (sectorValue) {
-                    const usageSectorId = value.parentValue?.parentValueId
-                    if (usageSectorId && usageSectorId !== sectorValue.id) {
-                        throw new createError.BadRequest("usage_area must belong to selected sector")
-                    }
-                }
-            }
 
             const customer = await customerRepository.createCustomer({
                 companyName,

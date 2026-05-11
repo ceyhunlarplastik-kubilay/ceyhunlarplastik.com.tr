@@ -32,6 +32,7 @@ export type SupplierApprovalRequestWithRelations = Prisma.SupplierApprovalReques
                         product: {
                             include: {
                                 category: true
+                                assets: true
                             }
                         }
                     }
@@ -101,6 +102,7 @@ const approvalRequestInclude = {
                     product: {
                         include: {
                             category: true,
+                            assets: true,
                         },
                     },
                 },

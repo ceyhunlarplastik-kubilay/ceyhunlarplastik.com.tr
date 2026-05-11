@@ -1,4 +1,5 @@
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
+import { mapApprovalRequestForApi } from "@/core/helpers/supplierApproval/mapApprovalRequestForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IAdminSupplierApprovalRequestDependencies, IListAdminSupplierApprovalRequestsEvent } from "@/functions/AdminApi/types/supplierApprovalRequests"
 
@@ -32,7 +33,7 @@ export const listSupplierApprovalRequestsHandler =
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: result.data,
+                    data: result.data.map(mapApprovalRequestForApi),
                     meta: result.meta,
                 },
             })

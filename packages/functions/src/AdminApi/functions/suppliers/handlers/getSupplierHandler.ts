@@ -9,6 +9,9 @@ export const getSupplierHandler = ({ supplierRepository }: ISupplierDependencies
 
         try {
             const supplier = await supplierRepository.getSupplier(id);
+            if (!supplier) {
+                throw new createError.NotFound("Supplier not found")
+            }
 
             return apiResponseDTO({
                 statusCode: 200,

@@ -5,6 +5,7 @@ import {
     approveSupplierApprovalRequest,
     rejectSupplierApprovalRequest,
 } from "@/core/helpers/supplierApproval/decision"
+import { mapApprovalRequestForApi } from "@/core/helpers/supplierApproval/mapApprovalRequestForApi"
 import { IAdminSupplierApprovalRequestDependencies, IDecideSupplierApprovalRequestEvent } from "@/functions/AdminApi/types/supplierApprovalRequests"
 
 const sfn = new SFNClient({})
@@ -67,7 +68,7 @@ export const decideSupplierApprovalRequestHandler =
                 statusCode: 200,
                 payload: {
                     accepted: true,
-                    approvalRequest,
+                    approvalRequest: mapApprovalRequestForApi(approvalRequest),
                 },
             })
         }

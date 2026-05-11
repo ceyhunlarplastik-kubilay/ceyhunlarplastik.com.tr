@@ -1,6 +1,7 @@
 import { lambdaHandler } from "@/core/middy"
 import { userRepository } from "@/core/helpers/prisma/users/repository"
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
+import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import {
     listUsersHandler,
     getUserHandler,
@@ -46,6 +47,7 @@ export const updateUserSupplier = lambdaHandler(
         updateUserSupplierHandler({
             userRepository: userRepository(),
             supplierRepository: supplierRepository(),
+            customerRepository: customerRepository(),
         })(event as IUpdateUserSupplierEvent),
     {
         auth: { requiredPermissionGroups: ["admin", "owner"] },
@@ -53,3 +55,5 @@ export const updateUserSupplier = lambdaHandler(
         responseValidator: updateUserSupplierResponseValidator,
     }
 )
+
+export const updateUserAssignment = updateUserSupplier
