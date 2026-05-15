@@ -1,6 +1,7 @@
 import createError from "http-errors"
 
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { mapAdminUserForApi } from "@/functions/AdminApi/functions/users/handlers/mapAdminUserForApi"
 import {
     IUpdateUserSupplierEvent,
     IUsersDependencies,
@@ -78,6 +79,6 @@ export const updateUserSupplierHandler =
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: { user: updated },
+                payload: { user: mapAdminUserForApi(updated) },
             })
         }

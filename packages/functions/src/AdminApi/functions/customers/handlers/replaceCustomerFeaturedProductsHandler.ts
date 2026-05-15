@@ -1,4 +1,5 @@
 import createError from "http-errors"
+import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICustomerDependencies, IReplaceCustomerFeaturedProductsEvent } from "@/functions/AdminApi/types/customers"
 
@@ -36,7 +37,12 @@ export const replaceCustomerFeaturedProductsHandler = ({
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data },
+            payload: {
+                data: data.map((item) => ({
+                    ...item,
+                    product: mapProductWithAssets(item.product),
+                })),
+            },
         })
     }
 }

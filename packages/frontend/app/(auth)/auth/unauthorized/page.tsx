@@ -11,6 +11,7 @@ export default async function UnauthorizedPage({
     const session = await auth()
     const params = await searchParams
     const groups = session?.user?.groups ?? []
+    const accessStatus = session?.user?.accessStatus ?? "ACTIVE"
 
     return (
         <AuthShell
@@ -20,7 +21,7 @@ export default async function UnauthorizedPage({
             sideTitle="Doğru panele yönlendirme"
             sideDescription="Rol bazlı sistem koruması nedeniyle uygun olmayan alanlar kapatılır ve kullanıcı doğru hedefe yönlendirilir."
         >
-            <UnauthorizedPageContent homeHref={resolveAuthHome(groups)} from={params.from} />
+            <UnauthorizedPageContent homeHref={resolveAuthHome(groups, accessStatus)} from={params.from} />
         </AuthShell>
     )
 }

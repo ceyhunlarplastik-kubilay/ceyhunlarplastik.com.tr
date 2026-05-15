@@ -10,6 +10,19 @@ export type ProductVariantSupplierWithRelations = Prisma.ProductVariantSupplierG
     include: {
         variant: {
             include: {
+                color: true
+                materials: true
+                measurements: {
+                    include: {
+                        measurementType: true
+                    }
+                    orderBy: [
+                        { measurementType: { displayOrder: "asc" } },
+                        { measurementType: { code: "asc" } },
+                        { value: "asc" },
+                        { label: "asc" },
+                    ]
+                }
                 product: {
                     include: {
                         category: true
@@ -115,6 +128,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                 include: {
                     variant: {
                         include: {
+                            color: true,
+                            materials: true,
+                            measurements: {
+                                include: {
+                                    measurementType: true,
+                                },
+                                orderBy: [
+                                    { measurementType: { displayOrder: "asc" } },
+                                    { measurementType: { code: "asc" } },
+                                    { value: "asc" },
+                                    { label: "asc" },
+                                ],
+                            },
                             product: {
                                 include: {
                                     category: true,
@@ -142,6 +168,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             include: {
                 variant: {
                     include: {
+                        color: true,
+                        materials: true,
+                        measurements: {
+                            include: {
+                                measurementType: true,
+                            },
+                            orderBy: [
+                                { measurementType: { displayOrder: "asc" } },
+                                { measurementType: { code: "asc" } },
+                                { value: "asc" },
+                                { label: "asc" },
+                            ],
+                        },
                         product: {
                             include: {
                                 category: true,
@@ -170,6 +209,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                     include: {
                         variant: {
                             include: {
+                                color: true,
+                                materials: true,
+                                measurements: {
+                                    include: {
+                                        measurementType: true,
+                                    },
+                                    orderBy: [
+                                        { measurementType: { displayOrder: "asc" } },
+                                        { measurementType: { code: "asc" } },
+                                        { value: "asc" },
+                                        { label: "asc" },
+                                    ],
+                                },
                                 product: {
                                     include: {
                                         category: true,
@@ -188,6 +240,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             include: {
                 variant: {
                     include: {
+                        color: true,
+                        materials: true,
+                        measurements: {
+                            include: {
+                                measurementType: true,
+                            },
+                            orderBy: [
+                                { measurementType: { displayOrder: "asc" } },
+                                { measurementType: { code: "asc" } },
+                                { value: "asc" },
+                                { label: "asc" },
+                            ],
+                        },
                         product: {
                             include: {
                                 category: true,
@@ -222,6 +287,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                             supplier: true,
                             variant: {
                                 include: {
+                                    color: true,
+                                    materials: true,
+                                    measurements: {
+                                        include: {
+                                            measurementType: true,
+                                        },
+                                        orderBy: [
+                                            { measurementType: { displayOrder: "asc" } },
+                                            { measurementType: { code: "asc" } },
+                                            { value: "asc" },
+                                            { label: "asc" },
+                                        ],
+                                    },
                                     product: {
                                         include: {
                                             category: true,
@@ -242,6 +320,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                 supplier: true,
                 variant: {
                     include: {
+                        color: true,
+                        materials: true,
+                        measurements: {
+                            include: {
+                                measurementType: true,
+                            },
+                            orderBy: [
+                                { measurementType: { displayOrder: "asc" } },
+                                { measurementType: { code: "asc" } },
+                                { value: "asc" },
+                                { label: "asc" },
+                            ],
+                        },
                         product: {
                             include: {
                                 category: true,
@@ -259,6 +350,19 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             include: {
                 variant: {
                     include: {
+                        color: true,
+                        materials: true,
+                        measurements: {
+                            include: {
+                                measurementType: true,
+                            },
+                            orderBy: [
+                                { measurementType: { displayOrder: "asc" } },
+                                { measurementType: { code: "asc" } },
+                                { value: "asc" },
+                                { label: "asc" },
+                            ],
+                        },
                         product: {
                             include: {
                                 category: true,

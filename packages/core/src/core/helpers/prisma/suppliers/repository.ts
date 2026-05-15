@@ -5,12 +5,15 @@ import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Supplier } from "@/prisma/generated/prisma/client"
 
 const supplierInclude = {
-    assignedPurchasingUser: {
+    assignedPurchasingSuppliers: {
         select: {
             id: true,
             email: true,
             identifier: true,
             groups: true,
+        },
+        orderBy: {
+            createdAt: "asc",
         },
     },
 } satisfies Prisma.SupplierInclude
@@ -47,7 +50,13 @@ export const supplierRepository = (): IPrismaSupplierRepository => {
         const finalWhere: Prisma.SupplierWhereInput = {
             ...where,
             ...(query.assignedPurchasingUserId
-                ? { assignedPurchasingUserId: query.assignedPurchasingUserId }
+                ? {
+                    assignedPurchasingSuppliers: {
+                        some: {
+                            id: query.assignedPurchasingUserId,
+                        },
+                    },
+                }
                 : {}),
         }
 

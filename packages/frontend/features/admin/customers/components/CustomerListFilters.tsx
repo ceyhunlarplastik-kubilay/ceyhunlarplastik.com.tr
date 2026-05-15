@@ -59,7 +59,12 @@ export function CustomerListFilters({
     onUsageAreaValueIdChange,
 }: Props) {
     return (
-        <div className="space-y-3">
+        <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+                <div className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600">
+                    Müşteri filtreleri
+                </div>
+            </div>
             <div className="grid gap-3 lg:grid-cols-4">
                 <div className="relative lg:col-span-2">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />

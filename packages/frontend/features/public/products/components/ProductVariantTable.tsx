@@ -57,6 +57,9 @@ export type VariantSupplier = {
     isActive?: boolean
     currency?: string | null
     price?: number | string | { s?: number; e?: number; d?: number[] } | null
+    listPrice?: number | string | { s?: number; e?: number; d?: number[] } | null
+    pricingUpdatedAt?: string | null
+    updatedAt?: string
     supplier: {
         id: string
         name: string
@@ -99,6 +102,7 @@ interface ProductVariantTableProps {
     productSlug: string
     technicalDrawing?: React.ReactNode
     productId: string
+    variantDetailsPathname?: string
 }
 
 function decimalLikeToText(
@@ -136,6 +140,7 @@ export default function ProductVariantTable({
     productSlug,
     technicalDrawing,
     productId,
+    variantDetailsPathname,
 }: ProductVariantTableProps) {
     const { data: session } = useSession()
     const options = useMemo<GroupedMeasurementOption[]>(() => {
@@ -339,7 +344,9 @@ export default function ProductVariantTable({
                                                 <div className="flex items-center justify-end gap-0.5 leading-none">
                                                     <ButtonShine
                                                         href={{
-                                                            pathname: `/urun/${productSlug}/varyantlar`,
+                                                            pathname:
+                                                                variantDetailsPathname ??
+                                                                `/urun/${productSlug}/varyantlar`,
                                                             query: { m: option.key },
                                                         }}
                                                         onClick={(e) => e.stopPropagation()}

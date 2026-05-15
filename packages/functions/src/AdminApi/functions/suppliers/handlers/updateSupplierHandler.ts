@@ -11,7 +11,7 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least one field must be provided");
 
-        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "assignedPurchasingUserId"] as const
+        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "assignedPurchasingUserIds"] as const
 
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
@@ -19,7 +19,7 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`);
 
-        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, assignedPurchasingUserId } = body;
+        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, assignedPurchasingUserIds } = body;
 
         const updateData: Prisma.SupplierUpdateInput = {
             ...(name !== undefined && { name }),
@@ -29,10 +29,12 @@ export const updateSupplierHandler = ({ supplierRepository }: ISupplierDependenc
             ...(taxNumber !== undefined && { taxNumber }),
             ...(defaultPaymentTermDays !== undefined && { defaultPaymentTermDays }),
             ...(isActive !== undefined && { isActive }),
-            ...(assignedPurchasingUserId !== undefined
-                ? assignedPurchasingUserId
-                    ? { assignedPurchasingUser: { connect: { id: assignedPurchasingUserId } } }
-                    : { assignedPurchasingUser: { disconnect: true } }
+            ...(assignedPurchasingUserIds !== undefined
+                ? {
+                    assignedPurchasingSuppliers: {
+                        set: assignedPurchasingUserIds.map((id) => ({ id })),
+                    },
+                }
                 : {}),
         }
 

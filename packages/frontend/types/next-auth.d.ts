@@ -8,11 +8,16 @@ declare module "next-auth" {
         error?: string;
         user?: DefaultSession["user"] & {
             id?: string;
+            dbUserId?: string;
+            identifier?: string;
             name?: string | null;
             email?: string | null;
             image?: string | null;
             groups?: string[];
+            accessStatus?: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED";
             customerId?: string | null;
+            supplierId?: string | null;
+            isActive?: boolean;
         };
     }
 }

@@ -6,8 +6,11 @@ import { useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import {
     Boxes,
+    Building2,
     ChevronLeft,
+    ClipboardList,
     Menu,
+    ShieldCheck,
     Truck,
     Users,
 } from "lucide-react"
@@ -18,13 +21,17 @@ import { cn } from "@/lib/utils"
 type NavItem = {
     href: string
     label: string
-    icon: "users" | "truck" | "boxes"
+    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard"
+    match?: "exact" | "prefix"
 }
 
 const iconMap = {
     users: Users,
     truck: Truck,
     boxes: Boxes,
+    building: Building2,
+    shield: ShieldCheck,
+    clipboard: ClipboardList,
 } as const
 
 type Props = {
@@ -39,13 +46,18 @@ type Props = {
 
 function WorkspaceNavItem({
     item,
+    collapsed = false,
     onNavigate,
 }: {
     item: NavItem
+    collapsed?: boolean
     onNavigate?: () => void
 }) {
     const pathname = usePathname()
-    const isActive = item.href === pathname
+    const isActive =
+        item.match === "prefix"
+            ? pathname === item.href || pathname.startsWith(`${item.href}/`)
+            : item.href === pathname
     const Icon = iconMap[item.icon]
 
     return (
@@ -60,7 +72,18 @@ function WorkspaceNavItem({
             )}
         >
             <Icon className="h-5 w-5 shrink-0" />
-            <span className="whitespace-nowrap">{item.label}</span>
+            <AnimatePresence initial={false}>
+                {!collapsed ? (
+                    <motion.span
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -8 }}
+                        className="whitespace-nowrap"
+                    >
+                        {item.label}
+                    </motion.span>
+                ) : null}
+            </AnimatePresence>
         </Link>
     )
 }
@@ -74,6 +97,7 @@ export function RoleWorkspaceSidebar({
     image,
     groups = [],
 }: Props) {
+    const [collapsed, setCollapsed] = useState(false)
     const [mobileOpen, setMobileOpen] = useState(false)
 
     return (
@@ -145,6 +169,7 @@ export function RoleWorkspaceSidebar({
                                     <WorkspaceNavItem
                                         key={item.href}
                                         item={item}
+                                        collapsed={false}
                                         onNavigate={() => setMobileOpen(false)}
                                     />
                                 ))}
@@ -154,22 +179,50 @@ export function RoleWorkspaceSidebar({
                 ) : null}
             </AnimatePresence>
 
-            <aside className="hidden w-[260px] shrink-0 border-r border-white/70 bg-white p-4 shadow-sm md:flex md:flex-col md:gap-6">
-                <div className="space-y-0.5 px-2 pt-1">
-                    <div className="text-[11px] font-medium uppercase tracking-[0.24em] text-neutral-400">
-                        {panelSubtitle}
-                    </div>
-                    <div className="text-2xl font-semibold tracking-tight text-neutral-950">
-                        {panelTitle}
-                    </div>
+            <motion.aside
+                animate={{ width: collapsed ? 88 : 260 }}
+                className="hidden shrink-0 border-r border-white/70 bg-white p-4 shadow-sm md:flex md:flex-col md:gap-6"
+            >
+                <div className="flex items-start justify-between gap-3 px-2 pt-1">
+                    <AnimatePresence initial={false}>
+                        {!collapsed ? (
+                            <motion.div
+                                key="workspace-sidebar-header"
+                                initial={{ opacity: 0, x: -8 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -8 }}
+                                className="space-y-0.5"
+                            >
+                                <div className="text-[11px] font-medium uppercase tracking-[0.24em] text-neutral-400">
+                                    {panelSubtitle}
+                                </div>
+                                <div className="text-2xl font-semibold tracking-tight text-neutral-950">
+                                    {panelTitle}
+                                </div>
+                            </motion.div>
+                        ) : null}
+                    </AnimatePresence>
+
+                    <button
+                        type="button"
+                        onClick={() => setCollapsed((prev) => !prev)}
+                        className="rounded-xl border border-neutral-200 bg-white p-2 text-neutral-700 shadow-sm"
+                        aria-label={collapsed ? "Navigasyonu genişlet" : "Navigasyonu daralt"}
+                    >
+                        <ChevronLeft className={cn("h-5 w-5 transition-transform", collapsed && "rotate-180")} />
+                    </button>
                 </div>
 
                 <nav className="flex flex-1 flex-col gap-2">
                     {navItems.map((item) => (
-                        <WorkspaceNavItem key={item.href} item={item} />
+                        <WorkspaceNavItem key={item.href} item={item} collapsed={collapsed} />
                     ))}
                 </nav>
-            </aside>
+
+                <div className="px-2 text-xs text-neutral-400">
+                    {!collapsed ? "Ceyhunlar Workspace" : null}
+                </div>
+            </motion.aside>
         </>
     )
 }

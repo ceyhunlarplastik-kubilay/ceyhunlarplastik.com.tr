@@ -4,6 +4,9 @@
   "type": "module",
   "dependencies": {
     "@ceyhunlarweb/core": "*",
+    "@aws-sdk/client-eventbridge": "^3.983.0",
+    "@aws-sdk/client-iot-data-plane": "^3.983.0",
+    "@aws-sdk/client-sesv2": "^3.983.0",
     "sst": "*"
   },
   "devDependencies": {

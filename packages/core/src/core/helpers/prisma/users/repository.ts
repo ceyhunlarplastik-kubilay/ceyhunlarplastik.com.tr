@@ -5,6 +5,12 @@ import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import type { IUser } from "@/core/db/interfaces/user"
 import type { Prisma, User } from "@/prisma/generated/prisma/client"
 
+export type UserAccessStatus = "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
+
+export type UserListQuery = IPaginationQuery & {
+    accessStatus?: UserAccessStatus
+}
+
 const userInclude = {
     supplier: {
         select: {
@@ -47,7 +53,7 @@ export type UserWithRelations = Prisma.UserGetPayload<{
 }>
 
 export interface IPrismaUserRepository {
-    listUsers(query: IPaginationQuery): Promise<{
+    listUsers(query: UserListQuery): Promise<{
         data: UserWithRelations[]
         meta: {
             page: number
@@ -58,7 +64,14 @@ export interface IPrismaUserRepository {
     }>
     getUserById(id: string): Promise<UserWithRelations | null>
     getUserByCognitoSub(sub: string): Promise<IUser | null>
+    getUserByEmail(email: string): Promise<IUser | null>
     createUser(data: Prisma.UserCreateInput): Promise<IUser>
+    listActiveUsersByGroups(groups: string[]): Promise<Array<{
+        id: string
+        email: string
+        identifier: string
+        groups: string[]
+    }>>
     updateGroups(id: string, groups: string[]): Promise<IUser>
     updateAssignments(
         id: string,
@@ -68,12 +81,17 @@ export interface IPrismaUserRepository {
             customerId?: string | null
             assignedSupplierIds?: string[]
             assignedCustomerIds?: string[]
+            accessStatus?: UserAccessStatus
+            accessStatusChangedAt?: Date | null
+            accessStatusChangedByUserId?: string | null
+            accessStatusReason?: string | null
         },
     ): Promise<UserWithRelations>
+    updateImageKey(id: string, imageKey: string | null): Promise<UserWithRelations>
 }
 
 export const userRepository = (): IPrismaUserRepository => {
-    const listUsers = async (query: IPaginationQuery) => {
+    const listUsers = async (query: UserListQuery) => {
         const {
             where,
             orderBy,
@@ -85,6 +103,10 @@ export const userRepository = (): IPrismaUserRepository => {
             searchableFields: ["email", "identifier"],
             defaultSort: "createdAt",
         })
+
+        if (query.accessStatus) {
+            where.accessStatus = query.accessStatus
+        }
 
         const [data, total] = await Promise.all([
             prisma.user.findMany({
@@ -114,8 +136,31 @@ export const userRepository = (): IPrismaUserRepository => {
     const getUserByCognitoSub = async (sub: string) =>
         prisma.user.findUnique({ where: { cognitoSub: sub } })
 
+    const getUserByEmail = async (email: string) =>
+        prisma.user.findUnique({ where: { email } })
+
     const createUser = async (data: Prisma.UserCreateInput) =>
         prisma.user.create({ data })
+
+    const listActiveUsersByGroups = async (groups: string[]) =>
+        prisma.user.findMany({
+            where: {
+                isActive: true,
+                accessStatus: "ACTIVE",
+                groups: {
+                    hasSome: groups,
+                },
+            },
+            select: {
+                id: true,
+                email: true,
+                identifier: true,
+                groups: true,
+            },
+            orderBy: {
+                createdAt: "asc",
+            },
+        })
 
     const updateGroups = async (id: string, groups: string[]) =>
         prisma.user.update({
@@ -131,6 +176,10 @@ export const userRepository = (): IPrismaUserRepository => {
             customerId?: string | null
             assignedSupplierIds?: string[]
             assignedCustomerIds?: string[]
+            accessStatus?: UserAccessStatus
+            accessStatusChangedAt?: Date | null
+            accessStatusChangedByUserId?: string | null
+            accessStatusReason?: string | null
         },
     ) => {
         return prisma.$transaction(async (tx) => {
@@ -138,30 +187,32 @@ export const userRepository = (): IPrismaUserRepository => {
                 where: { id },
                 data: {
                     groups,
+                    ...(assignments.accessStatus !== undefined ? { accessStatus: assignments.accessStatus } : {}),
+                    ...(assignments.accessStatusChangedAt !== undefined ? { accessStatusChangedAt: assignments.accessStatusChangedAt } : {}),
+                    ...(assignments.accessStatusChangedByUserId !== undefined ? { accessStatusChangedByUserId: assignments.accessStatusChangedByUserId } : {}),
+                    ...(assignments.accessStatusReason !== undefined ? { accessStatusReason: assignments.accessStatusReason } : {}),
                     ...(assignments.supplierId !== undefined ? { supplierId: assignments.supplierId } : {}),
                     ...(assignments.customerId !== undefined ? { customerId: assignments.customerId } : {}),
                 },
             })
 
             if (assignments.assignedSupplierIds !== undefined) {
-                await tx.supplier.updateMany({
-                    where: {
-                        assignedPurchasingUserId: id,
-                    },
+                await tx.user.update({
+                    where: { id },
                     data: {
-                        assignedPurchasingUserId: null,
+                        assignedPurchasingSuppliers: {
+                            set: [],
+                        },
                     },
                 })
 
                 if (assignments.assignedSupplierIds.length > 0) {
-                    await tx.supplier.updateMany({
-                        where: {
-                            id: {
-                                in: assignments.assignedSupplierIds,
-                            },
-                        },
+                    await tx.user.update({
+                        where: { id },
                         data: {
-                            assignedPurchasingUserId: id,
+                            assignedPurchasingSuppliers: {
+                                connect: assignments.assignedSupplierIds.map((supplierId) => ({ id: supplierId })),
+                            },
                         },
                     })
                 }
@@ -198,12 +249,24 @@ export const userRepository = (): IPrismaUserRepository => {
         })
     }
 
+    const updateImageKey = async (id: string, imageKey: string | null) =>
+        prisma.user.update({
+            where: { id },
+            data: {
+                imageKey,
+            },
+            include: userInclude,
+        })
+
     return {
         listUsers,
         getUserById,
         getUserByCognitoSub,
+        getUserByEmail,
         createUser,
+        listActiveUsersByGroups,
         updateGroups,
         updateAssignments,
+        updateImageKey,
     }
 }

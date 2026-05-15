@@ -6,6 +6,19 @@
 
 declare module "sst" {
   export interface Resource {
+    "BusinessWorkflowBus": {
+      "arn": string
+      "name": string
+      "type": "sst.aws.Bus"
+    }
+    "BusinessWorkflowRegisterTaskToken": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "BusinessWorkflowResolveNextPendingStep": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "Ceyhunlar-Frontend": {
       "type": "sst.aws.Nextjs"
       "url": string
@@ -51,18 +64,15 @@ declare module "sst" {
       "bastion": string
       "type": "sst.aws.Vpc"
     }
-    "SupplierApprovalBus": {
+    "UserAccessBus": {
       "arn": string
       "name": string
       "type": "sst.aws.Bus"
     }
-    "SupplierApprovalRegisterTaskToken": {
-      "name": string
-      "type": "sst.aws.Function"
-    }
-    "SupplierApprovalWorkflow": {
-      "arn": string
-      "type": "sst.aws.StepFunctions"
+    "UserAccessRealtime": {
+      "authorizer": string
+      "endpoint": string
+      "type": "sst.aws.Realtime"
     }
   }
 }

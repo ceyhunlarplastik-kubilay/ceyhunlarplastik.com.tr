@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
+import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import {
@@ -16,6 +17,7 @@ import {
     IManagedCustomerEvent,
     IManagedSupplierEvent,
     IProtectedCrmDependencies,
+    IReplaceManagedCustomerAssignedProductsEvent,
     IReplaceManagedCustomerFeaturedProductsEvent,
     IUpdateManagedCustomerEvent,
     IUpdateManagedCustomerVisitEvent,
@@ -23,6 +25,13 @@ import {
 
 const CUSTOMER_SORT_FIELDS = ["fullName", "companyName", "email", "createdAt"] as const
 const SUPPLIER_SORT_FIELDS = ["name", "createdAt"] as const
+
+function mapFeaturedProducts(data: Array<any>) {
+    return data.map((item) => ({
+        ...item,
+        product: mapProductWithAssets(item.product),
+    }))
+}
 
 export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
     return async (event: IListManagedCustomersEvent) => {
@@ -127,7 +136,7 @@ export const listManagedCustomerFeaturedProductsHandler = ({ customerRepository 
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data },
+            payload: { data: mapFeaturedProducts(data) },
         })
     }
 }
@@ -155,7 +164,51 @@ export const replaceManagedCustomerFeaturedProductsHandler = ({
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data },
+            payload: { data: mapFeaturedProducts(data) },
+        })
+    }
+}
+
+export const listManagedCustomerAssignedProductsHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IManagedCustomerEvent) => {
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(event.user, customer)
+
+        const data = await customerRepository.listAssignedProducts(customer.id)
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { data: mapFeaturedProducts(data) },
+        })
+    }
+}
+
+export const replaceManagedCustomerAssignedProductsHandler = ({
+    customerRepository,
+    productRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IReplaceManagedCustomerAssignedProductsEvent) => {
+        if (!productRepository) {
+            throw new createError.InternalServerError("Product repository not configured")
+        }
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(requester, customer)
+
+        const productIds = Array.from(new Set((event.body?.productIds ?? []).filter(Boolean)))
+        await Promise.all(productIds.map((productId) => productRepository.getProduct(productId)))
+
+        const data = await customerRepository.replaceAssignedProducts(customer.id, productIds, requester.id)
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { data: mapFeaturedProducts(data) },
         })
     }
 }
@@ -331,7 +384,23 @@ export const getPortalCustomerFeaturedProductsHandler = ({ customerRepository }:
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data },
+            payload: { data: mapFeaturedProducts(data) },
+        })
+    }
+}
+
+export const getPortalCustomerAssignedProductsHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IManagedCustomerEvent) => {
+        const customerId = event.user?.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(event.user, customerId)
+
+        const data = await customerRepository.listAssignedProducts(customerId)
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { data: mapFeaturedProducts(data) },
         })
     }
 }

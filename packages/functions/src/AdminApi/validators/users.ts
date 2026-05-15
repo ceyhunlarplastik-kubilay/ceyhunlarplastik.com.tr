@@ -25,6 +25,9 @@ export const listUsersResponseValidator = z.toJSONSchema(
                         email: z.string(),
                         identifier: z.string(),
                         groups: z.array(z.string()),
+                        accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]),
+                        accessStatusChangedAt: z.string().nullable().optional(),
+                        accessStatusReason: z.string().nullable().optional(),
                         supplierId: z.uuid().nullable().optional(),
                         customerId: z.uuid().nullable().optional(),
                         supplier: z.object({
@@ -78,6 +81,9 @@ export const getUserResponseValidator = z.toJSONSchema(
                     email: z.string(),
                     identifier: z.string(),
                     groups: z.array(z.string()),
+                    accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]),
+                    accessStatusChangedAt: z.string().nullable().optional(),
+                    accessStatusReason: z.string().nullable().optional(),
                     supplierId: z.uuid().nullable().optional(),
                     customerId: z.uuid().nullable().optional(),
                     supplier: z.object({
@@ -141,6 +147,24 @@ export const updateUserSupplierValidator = validatorWrapper(
     }
 )
 
+export const updateUserRoleValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        body: z.object({
+            group: z.enum(["owner", "admin", "user", "supplier", "purchasing", "sales", "sales_director", "customer"]),
+            accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]).optional(),
+            supplierId: z.uuid().nullable().optional(),
+            customerId: z.uuid().nullable().optional(),
+            reason: z.string().trim().max(500).nullable().optional(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+    }
+)
+
 export const updateUserSupplierResponseValidator = z.toJSONSchema(
     z.object({
         statusCode: z.number(),
@@ -152,6 +176,9 @@ export const updateUserSupplierResponseValidator = z.toJSONSchema(
                     email: z.string(),
                     identifier: z.string(),
                     groups: z.array(z.string()),
+                    accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]),
+                    accessStatusChangedAt: z.string().nullable().optional(),
+                    accessStatusReason: z.string().nullable().optional(),
                     supplierId: z.uuid().nullable().optional(),
                     customerId: z.uuid().nullable().optional(),
                     supplier: z.object({
@@ -186,3 +213,5 @@ export const updateUserSupplierResponseValidator = z.toJSONSchema(
         })
     }).loose()
 )
+
+export const updateUserRoleResponseValidator = updateUserSupplierResponseValidator

@@ -12,7 +12,7 @@ export function useUpdateSupplierVariantPrice(endpointPrefix: "supplier" | "purc
         onSuccess() {
             if (endpointPrefix === "supplier") {
                 toast.success("Değişiklik onaya gönderildi")
-                qc.invalidateQueries({ queryKey: ["supplier-approval-requests"] })
+                qc.invalidateQueries({ queryKey: ["business-requests", "supplier"] })
                 return
             }
 

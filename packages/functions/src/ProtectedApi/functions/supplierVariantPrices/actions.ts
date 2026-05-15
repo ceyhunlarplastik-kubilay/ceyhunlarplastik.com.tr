@@ -37,7 +37,7 @@ export const listSupplierVariantPrices = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["supplier", "purchasing", "sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["supplier", "purchasing", "sales", "sales_director", "admin", "owner"] },
         // auth: false,
         responseValidator: listSupplierVariantPricesResponseValidator,
     }
@@ -64,7 +64,7 @@ export const listSupplierProducts = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["supplier", "purchasing", "sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["supplier", "purchasing", "sales", "sales_director", "admin", "owner"] },
         responseValidator: listSupplierProductsResponseValidator,
     }
 )
@@ -76,7 +76,7 @@ export const getSupplierProfile = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["supplier", "purchasing", "sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["supplier", "purchasing", "sales", "sales_director", "admin", "owner"] },
         responseValidator: supplierProfileResponseValidator,
     }
 )

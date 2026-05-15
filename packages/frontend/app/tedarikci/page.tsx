@@ -1,6 +1,5 @@
-import { SupplierVariantPricesPageClient } from "@/features/supplier/variantPrices/components/SupplierVariantPricesPageClient"
+import { SupplierWorkspaceOverviewPageClient } from "@/features/supplier/variantPrices/components/SupplierWorkspaceOverviewPageClient"
 
 export default function SupplierPage() {
-    return <SupplierVariantPricesPageClient />
+    return <SupplierWorkspaceOverviewPageClient />
 }
-

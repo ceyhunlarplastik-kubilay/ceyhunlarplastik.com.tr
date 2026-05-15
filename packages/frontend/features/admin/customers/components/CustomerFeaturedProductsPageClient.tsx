@@ -6,18 +6,114 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { useCustomerAssignedProducts } from "@/features/admin/customers/hooks/useCustomerAssignedProducts"
 import { useCustomerFeaturedProducts } from "@/features/admin/customers/hooks/useCustomerFeaturedProducts"
+import { useReplaceCustomerAssignedProducts } from "@/features/admin/customers/hooks/useReplaceCustomerAssignedProducts"
 import { useReplaceCustomerFeaturedProducts } from "@/features/admin/customers/hooks/useReplaceCustomerFeaturedProducts"
 import { useProducts } from "@/features/admin/products/hooks/useProducts"
+import { protectedApiClient } from "@/lib/http/client"
+import type {
+    CustomerAssignedProductsResponse,
+    CustomerFeaturedProductsResponse,
+} from "@/features/admin/customers/api/types"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 type Props = {
     customerId: string
+    scope?: "admin" | "sales"
+    mode?: "featured" | "assigned"
 }
 
-export function CustomerFeaturedProductsPageClient({ customerId }: Props) {
+async function getManagedCustomerFeaturedProducts(customerId: string) {
+    const res = await protectedApiClient.get<CustomerFeaturedProductsResponse>(
+        `/sales/customers/${customerId}/featured-products`,
+    )
+    return res.data.payload.data
+}
+
+async function replaceManagedCustomerFeaturedProducts(customerId: string, productIds: string[]) {
+    const res = await protectedApiClient.put<CustomerFeaturedProductsResponse>(
+        `/sales/customers/${customerId}/featured-products`,
+        { productIds },
+    )
+    return res.data.payload.data
+}
+
+async function getManagedCustomerAssignedProducts(customerId: string) {
+    const res = await protectedApiClient.get<CustomerAssignedProductsResponse>(
+        `/sales/customers/${customerId}/assigned-products`,
+    )
+    return res.data.payload.data
+}
+
+async function replaceManagedCustomerAssignedProducts(customerId: string, productIds: string[]) {
+    const res = await protectedApiClient.put<CustomerAssignedProductsResponse>(
+        `/sales/customers/${customerId}/assigned-products`,
+        { productIds },
+    )
+    return res.data.payload.data
+}
+
+function useManagedCustomerFeaturedProducts(customerId: string, enabled: boolean) {
+    return useQuery({
+        queryKey: ["sales-customer-featured-products", customerId],
+        queryFn: () => getManagedCustomerFeaturedProducts(customerId),
+        enabled: Boolean(customerId) && enabled,
+        refetchOnMount: "always",
+        refetchOnWindowFocus: true,
+    })
+}
+
+function useReplaceManagedCustomerFeaturedProducts(customerId: string, enabled: boolean) {
+    const qc = useQueryClient()
+
+    return useMutation({
+        mutationFn: (productIds: string[]) => replaceManagedCustomerFeaturedProducts(customerId, productIds),
+        onSuccess() {
+            qc.invalidateQueries({ queryKey: ["sales-customer-featured-products", customerId] })
+            qc.invalidateQueries({ queryKey: ["sales-managed-customer", customerId] })
+            qc.invalidateQueries({ queryKey: ["sales-managed-customers"] })
+        },
+    })
+}
+
+function useManagedCustomerAssignedProducts(customerId: string, enabled: boolean) {
+    return useQuery({
+        queryKey: ["sales-customer-assigned-products", customerId],
+        queryFn: () => getManagedCustomerAssignedProducts(customerId),
+        enabled: Boolean(customerId) && enabled,
+        refetchOnMount: "always",
+        refetchOnWindowFocus: true,
+    })
+}
+
+function useReplaceManagedCustomerAssignedProducts(customerId: string, enabled: boolean) {
+    const qc = useQueryClient()
+
+    return useMutation({
+        mutationFn: (productIds: string[]) => replaceManagedCustomerAssignedProducts(customerId, productIds),
+        onSuccess() {
+            qc.invalidateQueries({ queryKey: ["sales-customer-assigned-products", customerId] })
+            qc.invalidateQueries({ queryKey: ["sales-managed-customer", customerId] })
+            qc.invalidateQueries({ queryKey: ["sales-managed-customers"] })
+        },
+    })
+}
+
+export function CustomerFeaturedProductsPageClient({
+    customerId,
+    scope = "admin",
+    mode = "featured",
+}: Props) {
     const [search, setSearch] = useState("")
-    const featuredQuery = useCustomerFeaturedProducts(customerId)
-    const replaceMutation = useReplaceCustomerFeaturedProducts(customerId)
+    const adminFeaturedQuery = useCustomerFeaturedProducts(customerId, scope === "admin")
+    const adminAssignedQuery = useCustomerAssignedProducts(customerId, scope === "admin")
+    const salesFeaturedQuery = useManagedCustomerFeaturedProducts(customerId, scope === "sales")
+    const salesAssignedQuery = useManagedCustomerAssignedProducts(customerId, scope === "sales")
+    const adminReplaceMutation = useReplaceCustomerFeaturedProducts(customerId)
+    const adminAssignedReplaceMutation = useReplaceCustomerAssignedProducts(customerId)
+    const salesReplaceMutation = useReplaceManagedCustomerFeaturedProducts(customerId, scope === "sales")
+    const salesAssignedReplaceMutation = useReplaceManagedCustomerAssignedProducts(customerId, scope === "sales")
     const productsQuery = useProducts({
         params: {
             page: 1,
@@ -26,12 +122,51 @@ export function CustomerFeaturedProductsPageClient({ customerId }: Props) {
         },
     })
 
-    const featured = featuredQuery.data ?? []
+    const selectionQuery = scope === "sales"
+        ? mode === "assigned" ? salesAssignedQuery : salesFeaturedQuery
+        : mode === "assigned" ? adminAssignedQuery : adminFeaturedQuery
+    const replaceMutation = scope === "sales"
+        ? mode === "assigned" ? salesAssignedReplaceMutation : salesReplaceMutation
+        : mode === "assigned" ? adminAssignedReplaceMutation : adminReplaceMutation
+
+    const content = mode === "assigned"
+        ? {
+            badge: "Tanımlı Ürün Havuzu",
+            title: "Tanımlı Ürünler",
+            description: scope === "sales"
+                ? "Müşteriye düzenli veya yüksek hacimli satılan ürünleri seçin."
+                : "Müşterinin tanımlı ürün portföyünü oluşturacak ürünleri seçin.",
+            successMessage: "Tanımlı ürünler güncellendi",
+            errorMessage: "Tanımlı ürünler güncellenemedi",
+            emptySelected: "Henüz tanımlı ürün seçilmedi.",
+        }
+        : {
+            badge: "Müşteriye Özel Ürünler",
+            title: "İlgili Ürünler",
+            description: scope === "sales"
+                ? "Sorumlu olduğunuz müşteri için ilgili ürünleri seçin."
+                : "Müşteriyle ilişkili veya öne çıkarılacak ürünleri seçin.",
+            successMessage: "İlgili ürünler güncellendi",
+            errorMessage: "İlgili ürünler güncellenemedi",
+            emptySelected: "Henüz ilgili ürün seçilmedi.",
+        }
+
+    const featured = selectionQuery.data ?? []
     const products = productsQuery.data?.data ?? []
     const [selectedIds, setSelectedIds] = useState<string[]>([])
 
     useEffect(() => {
-        setSelectedIds(featured.map((item) => item.productId))
+        const nextIds = featured.map((item) => item.productId)
+        setSelectedIds((prev) => {
+            if (
+                prev.length === nextIds.length &&
+                prev.every((id, index) => id === nextIds[index])
+            ) {
+                return prev
+            }
+
+            return nextIds
+        })
     }, [featured])
 
     const selectedProducts = useMemo(() => {
@@ -60,9 +195,9 @@ export function CustomerFeaturedProductsPageClient({ customerId }: Props) {
     async function handleSave() {
         try {
             await replaceMutation.mutateAsync(selectedIds)
-            toast.success("Tanımlı ürünler güncellendi")
+            toast.success(content.successMessage)
         } catch {
-            toast.error("Tanımlı ürünler güncellenemedi")
+            toast.error(content.errorMessage)
         }
     }
 
@@ -71,9 +206,12 @@ export function CustomerFeaturedProductsPageClient({ customerId }: Props) {
             <div className="rounded-3xl border bg-white p-6 shadow-sm">
                 <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold text-neutral-950">Tanımlı Ürünler</h2>
+                        <div className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600">
+                            {content.badge}
+                        </div>
+                        <h2 className="mt-3 text-xl font-semibold text-neutral-950">{content.title}</h2>
                         <p className="mt-1 text-sm text-neutral-500">
-                            Müşteriye özel olarak öne çıkarılacak ürünleri seçin.
+                            {content.description}
                         </p>
                     </div>
                     <Button onClick={handleSave} disabled={replaceMutation.isPending}>
@@ -89,7 +227,7 @@ export function CustomerFeaturedProductsPageClient({ customerId }: Props) {
                     />
                 </div>
 
-                {featuredQuery.isLoading || productsQuery.isLoading ? (
+                {selectionQuery.isLoading || productsQuery.isLoading ? (
                     <div className="flex min-h-[160px] items-center justify-center">
                         <Spinner className="size-5" />
                     </div>
@@ -134,7 +272,7 @@ export function CustomerFeaturedProductsPageClient({ customerId }: Props) {
                                         <div className="text-xs text-neutral-500">{item.product.code}</div>
                                     </div>
                                 )) : (
-                                    <div className="text-sm text-neutral-500">Henüz ürün seçilmedi.</div>
+                                    <div className="text-sm text-neutral-500">{content.emptySelected}</div>
                                 )}
                             </div>
                         </div>

@@ -25,7 +25,7 @@ export function CustomerVisitsPageClient({ customerId }: Props) {
     const deleteMutation = useDeleteCustomerVisit(customerId)
 
     const salesUsers = useMemo(
-        () => (usersQuery.data?.data ?? []).filter((user) => user.groups.includes("sales") || user.groups.includes("admin") || user.groups.includes("owner")),
+        () => (usersQuery.data?.data ?? []).filter((user) => user.groups.includes("sales") || user.groups.includes("sales_director") || user.groups.includes("admin") || user.groups.includes("owner")),
         [usersQuery.data?.data],
     )
 

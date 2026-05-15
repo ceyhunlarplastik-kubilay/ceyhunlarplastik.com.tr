@@ -26,6 +26,7 @@ interface ProductCardProps {
 
     /** 👇 SADECE NAVIGATION'DA true */
     asNavigationItem?: boolean;
+    showSpecialAttributeValues?: boolean;
 }
 
 export function ProductCard({
@@ -37,9 +38,12 @@ export function ProductCard({
     attributeValues = [],
     children,
     asNavigationItem = false,
+    showSpecialAttributeValues = false,
 }: ProductCardProps) {
     const [hovered, setHovered] = useState(false);
-    const hiddenCodes = new Set(["sector", "production_group", "usage_area"]);
+    const hiddenCodes = showSpecialAttributeValues
+        ? new Set<string>()
+        : new Set(["sector", "production_group", "usage_area"]);
 
     const compactAttributes = attributeValues
         .filter((value) => !hiddenCodes.has(value.attribute?.code ?? ""))

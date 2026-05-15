@@ -1,6 +1,7 @@
 import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
+import { userAccessBus } from "./userAccessLifecycle";
 
 const folderPrefix = "packages/functions/src/OwnerApi/functions";
 
@@ -41,7 +42,7 @@ const jwtAuthorizer = ownerApi.addAuthorizer({
 const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     runtime: "nodejs22.x",
     vpc: vpc,
-    link: [rds, userPool],
+    link: [rds, userPool, userAccessBus],
 };
 
 // 🔁 reusable auth config

@@ -1,10 +1,15 @@
-export function resolveAuthHome(groups: string[] = []) {
+export function resolveAuthHome(
+    groups: string[] = [],
+    accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED" = "ACTIVE",
+) {
+    if (accessStatus !== "ACTIVE") return "/hesabim"
     if (groups.includes("owner") || groups.includes("admin")) return "/admin"
     if (groups.includes("purchasing")) return "/satinalma"
+    if (groups.includes("sales_director")) return "/satis"
     if (groups.includes("sales")) return "/satis"
     if (groups.includes("supplier")) return "/tedarikci"
     if (groups.includes("customer")) return "/musteri"
-    return "/"
+    return "/hesabim"
 }
 
 export function getCallbackPathname(callbackUrl?: string) {
@@ -35,7 +40,7 @@ export function canAccessPath(groups: string[] = [], pathname: string) {
     }
 
     if (pathname.startsWith("/satis")) {
-        return groups.includes("sales") || groups.includes("admin") || groups.includes("owner")
+        return groups.includes("sales") || groups.includes("sales_director") || groups.includes("admin") || groups.includes("owner")
     }
 
     if (pathname.startsWith("/musteri")) {

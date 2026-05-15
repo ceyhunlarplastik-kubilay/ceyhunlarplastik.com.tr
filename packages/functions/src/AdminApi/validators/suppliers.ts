@@ -11,7 +11,7 @@ export const createSupplierValidator = validatorWrapper(
       taxNumber: z.string().min(2).max(50).optional(),
       defaultPaymentTermDays: z.number().int().min(0).optional(),
       isActive: z.boolean().optional(),
-      assignedPurchasingUserId: z.uuid().nullable().optional(),
+      assignedPurchasingUserIds: z.array(z.uuid()).max(500).optional(),
     }),
   }),
   {
@@ -55,7 +55,7 @@ export const updateSupplierValidator = validatorWrapper(
       taxNumber: z.string().min(2).max(50).optional(),
       defaultPaymentTermDays: z.number().int().min(0).optional(),
       isActive: z.boolean().optional(),
-      assignedPurchasingUserId: z.uuid().nullable().optional(),
+      assignedPurchasingUserIds: z.array(z.uuid()).max(500).optional(),
     }),
   }),
   {
@@ -73,13 +73,12 @@ export const supplierSchema = z.object({
   taxNumber: z.string().nullable().optional(),
   defaultPaymentTermDays: z.number().nullable().optional(),
   isActive: z.boolean(),
-  assignedPurchasingUserId: z.uuid().nullable().optional(),
-  assignedPurchasingUser: z.object({
+  assignedPurchasingSuppliers: z.array(z.object({
     id: z.uuid(),
     email: z.string(),
     identifier: z.string(),
     groups: z.array(z.string()).optional(),
-  }).nullable().optional(),
+  }).loose()).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 }).loose()

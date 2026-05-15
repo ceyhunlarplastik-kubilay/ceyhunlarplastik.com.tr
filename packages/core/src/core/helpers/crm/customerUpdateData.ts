@@ -13,6 +13,23 @@ type Input = {
     sectorValueId?: string | null
     productionGroupValueId?: string | null
     usageAreaValueIds?: string[]
+    addresses?: Array<{
+        label: string
+        contactName?: string | null
+        phone?: string | null
+        email?: string | null
+        country?: string | null
+        city: string
+        district?: string | null
+        line1: string
+        line2?: string | null
+        postalCode?: string | null
+        taxOffice?: string | null
+        isPrimary?: boolean
+        isBilling?: boolean
+        isShipping?: boolean
+        note?: string | null
+    }>
 }
 
 export async function buildCustomerUpdateData(
@@ -54,6 +71,31 @@ export async function buildCustomerUpdateData(
             ? {
                 usageAreaValues: {
                     set: usageAreaIds.map((id) => ({ id })),
+                },
+            }
+            : {}),
+        ...(input.addresses !== undefined
+            ? {
+                addresses: {
+                    deleteMany: {},
+                    create: input.addresses.map((address, index) => ({
+                        label: address.label,
+                        contactName: address.contactName ?? null,
+                        phone: address.phone ?? null,
+                        email: address.email ?? null,
+                        country: address.country?.trim() || "Turkiye",
+                        city: address.city,
+                        district: address.district ?? null,
+                        line1: address.line1,
+                        line2: address.line2 ?? null,
+                        postalCode: address.postalCode ?? null,
+                        taxOffice: address.taxOffice ?? null,
+                        isPrimary: Boolean(address.isPrimary),
+                        isBilling: Boolean(address.isBilling),
+                        isShipping: address.isShipping ?? true,
+                        note: address.note ?? null,
+                        displayOrder: index,
+                    })),
                 },
             }
             : {}),

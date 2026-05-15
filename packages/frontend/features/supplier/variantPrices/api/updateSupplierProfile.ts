@@ -1,6 +1,6 @@
 import { protectedApiClient } from "@/lib/http/client"
 import type { SupplierProfileResponse } from "@/features/supplier/variantPrices/api/types"
-import type { SupplierApprovalRequest, SupplierApprovalRequestResponse } from "@/features/supplier/approvalRequests/api/types"
+import type { BusinessRequest, BusinessRequestResponse } from "@/features/businessRequests/api/types"
 
 type Params = {
     name?: string
@@ -11,11 +11,11 @@ type Params = {
     defaultPaymentTermDays?: number
 }
 
-export async function updateSupplierProfile(payload: Params): Promise<SupplierApprovalRequest | null> {
-    const res = await protectedApiClient.put<SupplierApprovalRequestResponse | SupplierProfileResponse>("/supplier/profile", payload)
+export async function updateSupplierProfile(payload: Params): Promise<BusinessRequest | null> {
+    const res = await protectedApiClient.put<BusinessRequestResponse | SupplierProfileResponse>("/supplier/profile", payload)
 
-    if ("approvalRequest" in res.data.payload) {
-        return (res.data as SupplierApprovalRequestResponse).payload.approvalRequest
+    if ("request" in res.data.payload) {
+        return (res.data as BusinessRequestResponse).payload.request
     }
 
     return null

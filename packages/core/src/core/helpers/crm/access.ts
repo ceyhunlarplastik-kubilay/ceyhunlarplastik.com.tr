@@ -8,11 +8,14 @@ type CustomerLike = {
 
 type SupplierLike = {
     id: string
-    assignedPurchasingUserId?: string | null
+    assignedPurchasingSuppliers?: Array<{
+        id: string
+    }>
 }
 
 export function canManageCustomer(user: IAuthenticatedUser, customer: CustomerLike) {
     if (user.isOwner || user.isAdmin) return true
+    if (user.isSalesDirector) return true
     return user.isSales && customer.assignedSalesUserId === user.id
 }
 
@@ -24,7 +27,7 @@ export function assertCustomerManagementAccess(user: IAuthenticatedUser | undefi
 
 export function canManageSupplier(user: IAuthenticatedUser, supplier: SupplierLike) {
     if (user.isOwner || user.isAdmin) return true
-    return user.isPurchasing && supplier.assignedPurchasingUserId === user.id
+    return user.isPurchasing && (supplier.assignedPurchasingSuppliers ?? []).some((assignedUser) => assignedUser.id === user.id)
 }
 
 export function assertSupplierManagementAccess(user: IAuthenticatedUser | undefined, supplier: SupplierLike) {

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth/auth"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { ResetPasswordPageClient } from "@/features/auth/components/ResetPasswordPageClient"
+import { resolveAuthHome } from "@/features/auth/lib/navigation"
 
 export default async function ResetPasswordPage({
     searchParams,
@@ -13,7 +14,7 @@ export default async function ResetPasswordPage({
     const callbackUrl = params.callbackUrl || "/admin"
 
     if (session) {
-        redirect(callbackUrl)
+        redirect(resolveAuthHome(session.user?.groups ?? [], session.user?.accessStatus ?? "ACTIVE"))
     }
 
     return (

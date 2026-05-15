@@ -30,6 +30,31 @@ export type CustomerFeaturedProduct = {
     product: Product
 }
 
+export type CustomerAssignedProduct = CustomerFeaturedProduct
+
+export type CustomerAddress = {
+    id: string
+    customerId: string
+    label: string
+    contactName?: string | null
+    phone?: string | null
+    email?: string | null
+    country: string
+    city: string
+    district?: string | null
+    line1: string
+    line2?: string | null
+    postalCode?: string | null
+    taxOffice?: string | null
+    isPrimary: boolean
+    isBilling: boolean
+    isShipping: boolean
+    note?: string | null
+    displayOrder: number
+    createdAt: string
+    updatedAt: string
+}
+
 export type CustomerVisit = {
     id: string
     customerId: string
@@ -67,6 +92,8 @@ export type AdminCustomer = {
     assignedSalesUser?: UserSummary | null
     convertedByUser?: UserSummary | null
     featuredProducts?: CustomerFeaturedProduct[]
+    assignedProducts?: CustomerAssignedProduct[]
+    addresses?: CustomerAddress[]
     visits?: CustomerVisit[]
 }
 
@@ -103,6 +130,13 @@ export type CustomerVisitsResponse = {
     statusCode: number
     payload: {
         data: CustomerVisit[]
+    }
+}
+
+export type CustomerAssignedProductsResponse = {
+    statusCode: number
+    payload: {
+        data: CustomerAssignedProduct[]
     }
 }
 

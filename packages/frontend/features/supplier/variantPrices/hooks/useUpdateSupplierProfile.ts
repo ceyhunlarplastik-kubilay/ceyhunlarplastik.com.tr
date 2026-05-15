@@ -10,7 +10,7 @@ export function useUpdateSupplierProfile() {
         mutationFn: updateSupplierProfile,
         onSuccess: () => {
             toast.success("Profil güncelleme talebi onaya gönderildi")
-            qc.invalidateQueries({ queryKey: ["supplier-approval-requests"] })
+            qc.invalidateQueries({ queryKey: ["business-requests", "supplier"] })
         },
         onError: () => {
             toast.error("Talep oluşturulamadı")

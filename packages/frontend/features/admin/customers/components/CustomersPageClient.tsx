@@ -73,7 +73,7 @@ export function CustomersPageClient({
     const attributes = useMemo(() => attrsQuery.data ?? [], [attrsQuery.data])
     const salesUsers = useMemo(
         () => (usersQuery.data?.data ?? [])
-            .filter((user) => user.groups.includes("sales") || user.groups.includes("admin") || user.groups.includes("owner"))
+            .filter((user) => user.groups.includes("sales") || user.groups.includes("sales_director") || user.groups.includes("admin") || user.groups.includes("owner"))
             .map((user) => ({
                 id: user.id,
                 label: user.identifier || user.email,
@@ -148,8 +148,9 @@ export function CustomersPageClient({
                 onRefreshIntervalChange={setRefreshIntervalSeconds}
             />
 
-            <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-                <Table>
+            <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+                <div className="overflow-x-auto">
+                <Table className="min-w-[1180px]">
                     <TableHeader>
                         <TableRow>
                             <TableHead>Müşteri</TableHead>
@@ -231,6 +232,7 @@ export function CustomersPageClient({
                         )}
                     </TableBody>
                 </Table>
+                </div>
             </div>
 
             <AdminListPagination

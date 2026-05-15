@@ -2,7 +2,7 @@ import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 import { publicBucket } from "./storage";
-import { supplierApprovalWorkflow } from "./approvalWorkflow";
+import { businessApprovalWorkflow } from "./businessWorkflow";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
@@ -67,13 +67,26 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     }
 }
 
-const approvalWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+const businessWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultRouteOptions,
-    link: [rds, userPool, publicBucket, supplierApprovalWorkflow],
+    link: [rds, userPool, publicBucket],
     environment: {
         ...defaultRouteOptions.environment,
-        SUPPLIER_APPROVAL_WORKFLOW_ARN: supplierApprovalWorkflow.arn,
+        BUSINESS_APPROVAL_WORKFLOW_ARN: businessApprovalWorkflow.arn,
     },
+    permissions: [
+        {
+            actions: ["states:*"],
+            resources: [
+                businessApprovalWorkflow.arn,
+                businessApprovalWorkflow.arn.apply((arn) => `${arn.replace("stateMachine", "execution")}:*`),
+            ],
+        },
+        {
+            actions: ["states:SendTaskSuccess", "states:SendTaskFailure", "states:SendTaskHeartbeat"],
+            resources: ["*"],
+        },
+    ],
 }
 
 // 🔁 reusable auth config
@@ -102,8 +115,33 @@ protectedApi.route('GET /me', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('POST /me/profile-image/presign', {
+    handler: `${folderPrefix}/users/actions.createMyProfileImageUpload`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /me/profile-image', {
+    handler: `${folderPrefix}/users/actions.updateMyProfileImage`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /me/permissions', {
     handler: `${folderPrefix}/users/actions.mePermissions`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /me/access', {
+    handler: `${folderPrefix}/users/actions.getMyAccess`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /me/notifications', {
+    handler: `${folderPrefix}/users/actions.listMyNotifications`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /me/notifications/{id}/read', {
+    handler: `${folderPrefix}/users/actions.markMyNotificationRead`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
@@ -142,8 +180,8 @@ protectedApi.route('GET /supplier/profile', {
 }, { ...defaultAuthOptions });
 
 protectedApi.route('PUT /supplier/profile', {
-    handler: `${folderPrefix}/supplierApprovalRequests/actions.requestSupplierProfileApproval`,
-    ...approvalWorkflowRouteOptions
+    handler: `${folderPrefix}/businessRequests/actions.requestSupplierProfileBusinessRequest`,
+    ...businessWorkflowRouteOptions
 }, { ...defaultAuthOptions });
 
 protectedApi.route('GET /supplier/products', {
@@ -152,12 +190,27 @@ protectedApi.route('GET /supplier/products', {
 }, { ...defaultAuthOptions });
 
 protectedApi.route('PUT /supplier/variant-prices/{id}', {
-    handler: `${folderPrefix}/supplierApprovalRequests/actions.requestSupplierVariantPricingApproval`,
-    ...approvalWorkflowRouteOptions
+    handler: `${folderPrefix}/businessRequests/actions.requestSupplierVariantPricingBusinessRequest`,
+    ...businessWorkflowRouteOptions
 }, { ...defaultAuthOptions });
 
 protectedApi.route('GET /supplier/approval-requests', {
-    handler: `${folderPrefix}/supplierApprovalRequests/actions.listSupplierApprovalRequests`,
+    handler: `${folderPrefix}/businessRequests/actions.listSupplierBusinessRequests`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /supplier/requests', {
+    handler: `${folderPrefix}/businessRequests/actions.listSupplierBusinessRequests`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /supplier/requests', {
+    handler: `${folderPrefix}/businessRequests/actions.createSupplierBusinessRequest`,
+    ...businessWorkflowRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /supplier/request-references/variant', {
+    handler: `${folderPrefix}/businessRequests/actions.getSupplierVariantRequestReferences`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
@@ -216,6 +269,16 @@ protectedApi.route('PUT /sales/customers/{id}/featured-products', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /sales/customers/{id}/assigned-products', {
+    handler: `${folderPrefix}/crm/actions.listManagedCustomerAssignedProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /sales/customers/{id}/assigned-products', {
+    handler: `${folderPrefix}/crm/actions.replaceManagedCustomerAssignedProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/customers/{id}/visits', {
     handler: `${folderPrefix}/crm/actions.listManagedCustomerVisits`,
     ...defaultRouteOptions
@@ -236,6 +299,16 @@ protectedApi.route('DELETE /sales/customers/{id}/visits/{visitId}', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /sales/approval-requests', {
+    handler: `${folderPrefix}/businessRequests/actions.listSalesBusinessRequests`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /sales/approval-requests/{id}/decision', {
+    handler: `${folderPrefix}/businessRequests/actions.decideBusinessRequest`,
+    ...businessWorkflowRouteOptions,
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /purchasing/suppliers', {
     handler: `${folderPrefix}/crm/actions.listManagedSuppliers`,
     ...defaultRouteOptions
@@ -254,4 +327,34 @@ protectedApi.route('GET /portal/customer', {
 protectedApi.route('GET /portal/customer/featured-products', {
     handler: `${folderPrefix}/crm/actions.getPortalCustomerFeaturedProducts`,
     ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /portal/customer/assigned-products', {
+    handler: `${folderPrefix}/crm/actions.getPortalCustomerAssignedProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /portal/customer/requests', {
+    handler: `${folderPrefix}/businessRequests/actions.listPortalBusinessRequests`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /portal/customer/requests', {
+    handler: `${folderPrefix}/businessRequests/actions.createPortalBusinessRequest`,
+    ...businessWorkflowRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /portal/customer/requests/{id}/decision', {
+    handler: `${folderPrefix}/businessRequests/actions.decideBusinessRequest`,
+    ...businessWorkflowRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /purchasing/approval-requests', {
+    handler: `${folderPrefix}/businessRequests/actions.listPurchasingBusinessRequests`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /purchasing/approval-requests/{id}/decision', {
+    handler: `${folderPrefix}/businessRequests/actions.decideBusinessRequest`,
+    ...businessWorkflowRouteOptions,
 }, { ...defaultAuthOptions });

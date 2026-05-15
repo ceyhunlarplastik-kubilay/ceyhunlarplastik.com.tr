@@ -7,13 +7,12 @@ export type Supplier = {
     taxNumber?: string | null
     defaultPaymentTermDays?: number | null
     isActive: boolean
-    assignedPurchasingUserId?: string | null
-    assignedPurchasingUser?: {
+    assignedPurchasingSuppliers?: Array<{
         id: string
         email: string
         identifier: string
         groups?: string[]
-    } | null
+    }>
     createdAt: string
     updatedAt: string
 }

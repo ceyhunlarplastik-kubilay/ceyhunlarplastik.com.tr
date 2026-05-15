@@ -9,12 +9,15 @@ import {
     deleteManagedCustomerVisitHandler,
     getManagedCustomerHandler,
     getManagedSupplierHandler,
+    getPortalCustomerAssignedProductsHandler,
     getPortalCustomerFeaturedProductsHandler,
     getPortalCustomerHandler,
+    listManagedCustomerAssignedProductsHandler,
     listManagedCustomerFeaturedProductsHandler,
     listManagedCustomersHandler,
     listManagedCustomerVisitsHandler,
     listManagedSuppliersHandler,
+    replaceManagedCustomerAssignedProductsHandler,
     replaceManagedCustomerFeaturedProductsHandler,
     updateManagedCustomerHandler,
     updateManagedCustomerVisitHandler,
@@ -26,12 +29,14 @@ import type {
     IListManagedSuppliersEvent,
     IManagedCustomerEvent,
     IManagedSupplierEvent,
+    IReplaceManagedCustomerAssignedProductsEvent,
     IReplaceManagedCustomerFeaturedProductsEvent,
     IUpdateManagedCustomerEvent,
     IUpdateManagedCustomerVisitEvent,
 } from "@/functions/ProtectedApi/types/crm"
 import {
     createCustomerVisitValidator,
+    customerAssignedProductsResponseValidator,
     customerFeaturedProductsResponseValidator,
     customerIdValidator,
     customerResponseValidator,
@@ -39,6 +44,7 @@ import {
     customerVisitResponseValidator,
     customerVisitsResponseValidator,
     listCustomersResponseValidator,
+    replaceCustomerAssignedProductsValidator,
     replaceCustomerFeaturedProductsValidator,
     updateCustomerValidator,
     updateCustomerVisitValidator,
@@ -59,7 +65,7 @@ const deps = {
 export const listManagedCustomers = lambdaHandler(
     async (event) => listManagedCustomersHandler(deps)(event as IListManagedCustomersEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         responseValidator: listCustomersResponseValidator,
     },
 )
@@ -67,7 +73,7 @@ export const listManagedCustomers = lambdaHandler(
 export const getManagedCustomer = lambdaHandler(
     async (event) => getManagedCustomerHandler(deps)(event as IManagedCustomerEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerResponseValidator,
     },
@@ -76,7 +82,7 @@ export const getManagedCustomer = lambdaHandler(
 export const updateManagedCustomer = lambdaHandler(
     async (event) => updateManagedCustomerHandler(deps)(event as IUpdateManagedCustomerEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: updateCustomerValidator,
         responseValidator: customerResponseValidator,
     },
@@ -85,7 +91,7 @@ export const updateManagedCustomer = lambdaHandler(
 export const convertManagedCustomer = lambdaHandler(
     async (event) => convertManagedCustomerHandler(deps)(event as IManagedCustomerEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerResponseValidator,
     },
@@ -94,7 +100,7 @@ export const convertManagedCustomer = lambdaHandler(
 export const listManagedCustomerFeaturedProducts = lambdaHandler(
     async (event) => listManagedCustomerFeaturedProductsHandler(deps)(event as IManagedCustomerEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerFeaturedProductsResponseValidator,
     },
@@ -104,16 +110,35 @@ export const replaceManagedCustomerFeaturedProducts = lambdaHandler(
     async (event) =>
         replaceManagedCustomerFeaturedProductsHandler(deps)(event as IReplaceManagedCustomerFeaturedProductsEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: replaceCustomerFeaturedProductsValidator,
         responseValidator: customerFeaturedProductsResponseValidator,
+    },
+)
+
+export const listManagedCustomerAssignedProducts = lambdaHandler(
+    async (event) => listManagedCustomerAssignedProductsHandler(deps)(event as IManagedCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: customerIdValidator,
+        responseValidator: customerAssignedProductsResponseValidator,
+    },
+)
+
+export const replaceManagedCustomerAssignedProducts = lambdaHandler(
+    async (event) =>
+        replaceManagedCustomerAssignedProductsHandler(deps)(event as IReplaceManagedCustomerAssignedProductsEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: replaceCustomerAssignedProductsValidator,
+        responseValidator: customerAssignedProductsResponseValidator,
     },
 )
 
 export const listManagedCustomerVisits = lambdaHandler(
     async (event) => listManagedCustomerVisitsHandler(deps)(event as IManagedCustomerEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerVisitsResponseValidator,
     },
@@ -122,7 +147,7 @@ export const listManagedCustomerVisits = lambdaHandler(
 export const createManagedCustomerVisit = lambdaHandler(
     async (event) => createManagedCustomerVisitHandler(deps)(event as ICreateManagedCustomerVisitEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: createCustomerVisitValidator,
         responseValidator: customerVisitResponseValidator,
     },
@@ -131,7 +156,7 @@ export const createManagedCustomerVisit = lambdaHandler(
 export const updateManagedCustomerVisit = lambdaHandler(
     async (event) => updateManagedCustomerVisitHandler(deps)(event as IUpdateManagedCustomerVisitEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: updateCustomerVisitValidator,
         responseValidator: customerVisitResponseValidator,
     },
@@ -140,7 +165,7 @@ export const updateManagedCustomerVisit = lambdaHandler(
 export const deleteManagedCustomerVisit = lambdaHandler(
     async (event) => deleteManagedCustomerVisitHandler(deps)(event as IDeleteManagedCustomerVisitEvent),
     {
-        auth: { requiredPermissionGroups: ["sales", "admin", "owner"] },
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerVisitIdValidator,
         responseValidator: customerVisitResponseValidator,
     },
@@ -176,5 +201,13 @@ export const getPortalCustomerFeaturedProducts = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
         responseValidator: customerFeaturedProductsResponseValidator,
+    },
+)
+
+export const getPortalCustomerAssignedProducts = lambdaHandler(
+    async (event) => getPortalCustomerAssignedProductsHandler(deps)(event as IManagedCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        responseValidator: customerAssignedProductsResponseValidator,
     },
 )

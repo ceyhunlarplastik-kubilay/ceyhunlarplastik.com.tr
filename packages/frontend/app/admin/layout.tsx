@@ -14,8 +14,10 @@ export default async function AdminLayout({
     if (!session) redirect("/auth/signin?callbackUrl=%2Fadmin&error=SessionRequired")
 
     const groups = (session.user as { groups?: string[] } | undefined)?.groups ?? []
+    const accessStatus = session.user?.accessStatus ?? "PENDING_REVIEW"
     const allowed = groups.includes("admin") || groups.includes("owner")
 
+    if (accessStatus !== "ACTIVE") redirect("/hesabim")
     if (!allowed) redirect("/?error=unauthorized")
 
     return (

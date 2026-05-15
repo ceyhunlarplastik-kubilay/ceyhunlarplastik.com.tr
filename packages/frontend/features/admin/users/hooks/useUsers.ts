@@ -10,12 +10,14 @@ type Params = {
     page: number
     limit: number
     search?: string
+    accessStatus?: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
 }
 
 const userParamsSchema = z.object({
     page: z.number().int().positive(),
     limit: z.number().int().positive().max(500),
     search: z.string().trim().optional(),
+    accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]).optional(),
 })
 
 type Options = {

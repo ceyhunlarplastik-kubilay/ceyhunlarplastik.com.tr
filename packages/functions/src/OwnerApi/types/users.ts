@@ -3,6 +3,8 @@ import { IPrismaUserRepository } from "@/core/helpers/prisma/users/repository"
 import { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
+import type { UserAccessStatus } from "@/core/helpers/prisma/users/repository"
+import type { UserAccessUpdateEventDetail } from "@/core/helpers/userAccess/types"
 
 enum UserGroups {
     USER = "user",
@@ -16,8 +18,10 @@ enum UserGroups {
 
 export interface IAddUserToGroupBody {
     group: UserGroups
+    accessStatus?: UserAccessStatus
     supplierId?: string | null
     customerId?: string | null
+    reason?: string | null
 }
 
 export type IUpdateUserGroupsEvent =
@@ -33,4 +37,5 @@ export interface IUpdateUserGroupsDependencies {
     supplierRepository: IPrismaSupplierRepository
     customerRepository: IPrismaCustomerRepository
     userPoolId: string
+    publishEvent: (detail: UserAccessUpdateEventDetail) => Promise<void>
 }

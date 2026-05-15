@@ -25,6 +25,7 @@ At runtime, the system is primarily composed of:
 - PostgreSQL on RDS
 - S3 for public assets
 - EventBridge + Step Functions for human approval workflow orchestration
+- domain-level event buses for access lifecycle and business request workflows
 
 ## Monorepo Boundaries
 
@@ -49,8 +50,10 @@ Key modules:
 - `infra/AdminApi.ts`
 - `infra/OwnerApi.ts`
   API Gateway boundaries and Lambda route wiring.
-- `infra/approvalWorkflow.ts`
-  Step Functions + EventBridge supplier approval workflow resources.
+- `infra/businessWorkflow.ts`
+  Generic Step Functions + EventBridge business request workflow resources.
+- `infra/userAccessLifecycle.ts`
+  User access lifecycle bus, realtime authorizer/subscribers, and email notification fan-out.
 
 Infra files should only wire resources, permissions, links, domains, and runtime configuration.
 Business logic belongs in `packages/functions` or `packages/core`.
@@ -75,7 +78,7 @@ Current boundaries include:
 - `ProtectedApi`
 - `AdminApi`
 - `OwnerApi`
-- workflow-specific folders such as `SupplierApprovalWorkflow`
+- workflow-specific folders such as `BusinessWorkflow`
 - auth-related folders such as `Cognito`
 
 This package is the API edge. It should orchestrate dependencies and delegate domain work to `packages/core`.
@@ -124,7 +127,7 @@ Notable implementation detail:
 - Cognito app client
 - hosted UI domain configuration retained for compatibility and rollback
 - Cognito groups:
-  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `customer`
+  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`
 - a `postConfirmation` trigger Lambda linked to RDS
 
 Frontend authentication is handled by NextAuth with a custom Cognito credentials flow.
@@ -135,6 +138,9 @@ Current auth UX behavior:
 - sign-in, sign-up, confirm-sign-up, forgot-password, and reset-password flows are rendered inside the app
 - Cognito API calls are made server-side from the frontend package
 - the hosted UI domain still exists in infra, but it is no longer the primary user-facing auth surface
+- sign-up confirmation no longer implies immediate panel access; newly confirmed users enter a pending-review state
+- `/auth/awaiting-approval` is the public transition screen after confirmation
+- `/hesabim` is the authenticated account-status screen for pending, suspended, or rejected users
 
 That token model is a real current implementation detail and should be preserved unless the auth model is intentionally changed.
 
@@ -148,6 +154,7 @@ The frontend receives environment values for:
 - NextAuth config
 - Cognito config
 - public/admin/protected API base URLs
+- user access realtime endpoint + authorizer name
 - asset base URL
 
 Permanent stages are also granted a public Lambda invoke permission for the server function.
@@ -175,22 +182,104 @@ The repo intentionally separates APIs by audience and trust level.
 
 When adding a new endpoint, place it in the narrowest boundary that matches the required permissions.
 
+### Customer CRM and portal model
+Customer management now distinguishes between two different product relationships:
+- `Customer.featuredProducts`
+  Customer-facing "İlgili Ürünler" list. These are relevance or showcase products surfaced in the portal.
+- `Customer.assignedProducts`
+  Operational "Tanımlı Ürünler" list. These represent frequently sold or strategically defined products for that customer.
+
+The distinction is intentional and should be preserved in future UI and API work. Do not overload one relation for both concerns.
+
+Customer records also support professional multi-address data through `CustomerAddress`.
+Address records are ordered and can be marked as primary, billing, and shipping so the portal and CRM can present operational contact points without flattening them into a single text field.
+
+Customer-facing operational requests are now modeled separately from profile/catalog data.
+Portal-originated order, document, pricing, and profile-change intents should go through the generic `BusinessRequest` workflow engine instead of mutating domain records directly from the portal UI.
+
+### Sales and purchasing role topology
+The application now treats `sales_director` as a first-class business role between `sales` and `admin`.
+
+Current hierarchy expectations:
+- `owner`
+  Cross-domain final authority and bypass capability.
+- `admin`
+  Cross-domain operational authority and final approval capability.
+- `sales_director`
+  Sales-domain supervisory role. Can review sales requests and override `sales` approval steps without becoming an admin.
+- `sales`
+  Customer-facing CRM operator scoped to assigned customers.
+- `purchasing`
+  Supplier-facing operator scoped to assigned suppliers.
+- `customer`, `supplier`
+  External portal users that submit requests but do not self-approve them.
+
 ### Workflow orchestration
-`infra/approvalWorkflow.ts` defines the supplier approval workflow.
+Supplier, customer, sales, and purchasing approvals should use the generic `BusinessRequest` workflow backbone.
 
-Current design:
-- a dedicated EventBridge bus
-- a Step Functions state machine
-- a Lambda used with task token integration to register a pending approval wait state
-- requested, approved, and rejected events published onto the bus
+### Generic business request workflow
+`infra/businessWorkflow.ts` now defines the generic sales/purchasing approval backbone.
 
-Current operational model:
-- supplier actions create approval requests and start the workflow
-- Step Functions waits for a human decision
-- the admin decision updates the database synchronously in the API layer
-- the workflow is then resumed and publishes the final event
+This workflow is the canonical approval engine:
+- `BusinessRequest`
+  Source-of-truth request record for customer/supplier/commercial intents.
+- `BusinessRequestApprovalStep`
+  Ordered human approval steps with role and optional assigned user.
+- `BusinessRequestItem`
+  Optional line items for variant-based portal requests such as quote/order style carts.
+- `ActivityLog`
+  Event-driven audit stream persisted from workflow events.
 
-This is important: the database status update is not treated as eventual workflow side effect anymore. It happens at the admin decision boundary.
+Current design split:
+- PostgreSQL is the business source of truth.
+- API Lambda handlers perform synchronous business decisions and persist DB state first.
+- Step Functions manages the long-running approval state and next-step progression.
+- EventBridge distributes domain events such as:
+  `business-request.created`
+  `business-request.pending-approval`
+  `business-request.step-approved`
+  `business-request.rejected`
+
+Supplier-specific usage rules:
+- Supplier profile, pricing, category create, product create, and variant create intents should all be represented as `BusinessRequest` rows in the `PURCHASING` domain.
+- Supplier review chains can have multiple assigned purchasing users. Any assigned purchasing user may approve the purchasing step.
+- Review UIs should keep the diff-first presentation style by comparing `currentSnapshot` and `requestedData`.
+  `business-request.completed`
+- EventBridge subscribers persist activity logs, user notifications, and workflow emails.
+
+This split is intentional:
+- EventBridge answers “what happened?”
+- Step Functions answers “who needs to act next?”
+- PostgreSQL answers “what is the current business truth?”
+
+### Supplier request model
+Supplier-originated operational changes should converge on the generic workflow system.
+
+Current target model:
+- Supplier users can view the global product catalog but only see their own supplier-price records when they exist.
+- Supplier users submit change requests instead of mutating protected records directly.
+- Typical supplier requests include:
+  profile updates,
+  supplier pricing updates,
+  capability changes,
+  and later product or variant creation proposals.
+- These requests should be represented as `BusinessRequest` rows under the `PURCHASING` domain.
+- Review surfaces should emphasize `currentSnapshot` vs `requestedData` differences, preserving the existing diff-first review style from the old supplier approval UI.
+
+Current limitation:
+- the schema still keeps a single `assignedPurchasingUserId` on `Supplier`, so true multi-purchasing approval assignment is not implemented yet.
+- if multiple purchasing users must be able to approve the same supplier workflow interchangeably, that requires a follow-up schema change and approval-step assignment strategy update.
+- Step Functions answers “what approval step comes next?”
+
+The generic workflow currently supports the following approval defaults:
+- Sales domain:
+  `customer -> sales -> sales_director -> admin`
+  with `admin/owner` bypass and `sales_director` override over `sales` steps.
+- Purchasing domain:
+  `supplier -> purchasing -> admin`
+  with `admin/owner` bypass.
+
+Do not add direct portal mutations for customer/supplier operational requests if they should be reviewable. They should become `BusinessRequest` records and enter the workflow bus/state-machine path.
 
 ## Frontend Architecture
 
@@ -268,8 +357,8 @@ Key behavior:
 - Credentials-based provider backed by server-side Cognito API calls
 - refresh token flow against Cognito token APIs
 - logout revokes refresh token before ending the NextAuth session
-- group extraction from Cognito token payload
-- session exposes `idToken`, `accessToken`, `groups`, and customer-linked role context when available
+- session is enriched with database-backed access state on sign-in, refresh, and session materialization
+- session exposes `idToken`, `accessToken`, `groups`, `dbUserId`, `accessStatus`, and linked portal entity ids when available
 
 If auth behavior changes, update both:
 - frontend session/token flow
@@ -319,13 +408,44 @@ New HTTP Lambdas should use `lambdaHandler` unless there is a strong reason not 
 - Cognito claim extraction
 - group normalization and parsing
 - automatic user creation on first authenticated request
-- group synchronization between Cognito and the database
+- access-state-aware normalization using the application database as source of truth
 - `isActive` guard
 - derived role flags on `event.user`
 - permission checking with role hierarchy for core roles
 
 This middleware is a central architectural decision.
 It means the application database becomes the normalized user context source after Cognito authentication is accepted.
+
+### User access lifecycle
+Current access lifecycle model:
+- Cognito confirmation creates a DB `User` with `groups = ["user"]`
+- new users start with `accessStatus = PENDING_REVIEW`
+- `user` is a no-panel default group
+- admin can assign business roles: `user`, `supplier`, `purchasing`, `sales`, `customer`
+- owner can additionally assign `admin` and `owner`
+- pending or otherwise inactive users can sign in, but they are routed to `/hesabim`
+
+Current persistence fields on `User`:
+- `accessStatus`
+- `accessStatusChangedAt`
+- `accessStatusChangedByUserId`
+- `accessStatusReason`
+
+User-facing notification persistence uses `UserNotification`:
+- `ACCESS_STATUS_CHANGED`
+- `ROLE_CHANGED`
+- `ASSIGNMENT_CHANGED`
+
+### User access events
+Role or access changes are modeled as a synchronous update plus asynchronous fan-out:
+1. Admin or owner updates the user role/access state.
+2. A shared core helper updates Cognito groups and the PostgreSQL `User` record together.
+3. The API publishes `user.access.updated` to the `UserAccessBus`.
+4. Subscribers persist an in-app notification, send an email, and publish a realtime message.
+
+Current rationale:
+- Step Functions is not used here because this flow is not a long-running workflow.
+- `Bus + Realtime + SES` is the current event-driven pattern for access lifecycle notifications.
 
 ### Current role model
 Derived booleans currently include:
@@ -401,7 +521,7 @@ Cross-cutting business logic should live in core helpers.
 
 Current examples:
 - pricing calculation logic centralized in `packages/core/src/core/helpers/pricing`
-- supplier approval domain logic in `packages/core/src/core/helpers/supplierApproval`
+- business request approval domain logic in `packages/core/src/core/helpers/businessRequests`
 
 When a rule must stay consistent across admin UI, supplier workflows, and bulk operations, it belongs in `packages/core`, not in a single handler or component.
 
@@ -429,7 +549,7 @@ Current customer portal lifecycle:
 1. A `Customer` record exists as `LEAD` or `CUSTOMER`.
 2. Admin/owner can assign a sales representative and featured products.
 3. A Cognito user in the `customer` group can be linked to that `Customer` through `User.customerId`.
-4. The customer signs in through the same custom auth surface.
+4. The customer signs in through the same custom auth surface after access is activated by an internal user.
 5. `/musteri` reads only the linked customer record and its featured products.
 
 Portal scope is intentionally narrow in v1:
@@ -449,24 +569,23 @@ Visibility rules currently expected:
 - `sales` can browse products and customer-safe pricing outputs, but not supplier/cost-oriented purchasing data
 - `purchasing` can browse products and supplier-side cost data, but not sales-facing profit or list-price emphasis
 
-### Supplier approval flow
-Current supplier approval lifecycle:
-1. Supplier submits a profile or variant pricing change request.
-2. Protected API creates a `SupplierApprovalRequest`.
-3. The API starts the `SupplierApprovalWorkflow` Step Functions execution.
-4. The workflow publishes `supplier-approval.requested`.
-5. The workflow registers a task token and waits for decision.
-6. Admin sees the pending item in the approval UI.
-7. Admin approve/reject action updates the database synchronously.
-8. Admin action resumes the workflow via task token.
-9. Workflow publishes approved or rejected event and completes.
+### Supplier request flow
+Current supplier request lifecycle:
+1. Supplier submits a profile, pricing, category, product, or variant request.
+2. Protected API creates a `BusinessRequest` in the `PURCHASING` domain.
+3. The API starts the generic `businessApprovalWorkflow` Step Functions execution.
+4. The workflow publishes the relevant business-request events and advances approval steps.
+5. Purchasing inbox users see the pending item in the generic approval UI.
+6. Any assigned purchasing user can approve the purchasing step.
+7. Admin or owner completes the remaining approval step when required.
+8. Final approval applies the requested change to the domain entity and stores `completedSnapshot`.
 
 This split is intentional:
 - request persistence and final DB status change happen in API/application logic
-- workflow orchestration handles human waiting and event publication
+- workflow orchestration handles human waiting, retries, and event publication
 
 ### Approval review UI pattern
-The admin supplier approval UI should optimize for review speed.
+The admin and purchasing approval UI should optimize for review speed.
 
 Current expectation:
 - show changed fields first

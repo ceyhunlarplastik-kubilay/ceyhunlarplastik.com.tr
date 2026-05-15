@@ -4,6 +4,7 @@ import {
     ArrowRight,
     Boxes,
     ClipboardList,
+    ClipboardCheck,
     Folder,
     ShieldCheck,
     Truck,
@@ -29,9 +30,15 @@ const quickLinks = [
         icon: UserRoundCog,
     },
     {
+        href: "/admin/onaylar",
+        title: "İş Talep Onayları",
+        description: "Customer, sales ve purchasing tarafındaki workflow taleplerini tek listede yönetin.",
+        icon: ClipboardCheck,
+    },
+    {
         href: "/admin/supplier-approval-requests",
-        title: "Onay Talepleri",
-        description: "Supplier profil ve varyant fiyat taleplerini fark odaklı görünümle inceleyin.",
+        title: "Tedarikçi İş Talepleri",
+        description: "Supplier profil ve varyant fiyat taleplerini generic workflow ve fark görünümüyle inceleyin.",
         icon: ShieldCheck,
     },
 ]
@@ -98,13 +105,19 @@ export default async function AdminPage() {
                         <div className="flex flex-wrap gap-3">
                             <Button asChild>
                                 <Link href="/admin/potansiyel-musteriler">
-                                    Lead Havuzunu Aç
+                                    {/* Lead Havuzunu Aç */}
+                                    Potansiyel Müşterileri Yönet
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Link>
                             </Button>
                             <Button asChild variant="outline">
                                 <Link href="/admin/supplier-approval-requests">
-                                    Onay Taleplerini İncele
+                                    Tedarikçi Taleplerini Aç
+                                </Link>
+                            </Button>
+                            <Button asChild variant="outline">
+                                <Link href="/admin/onaylar">
+                                    İş Taleplerini Aç
                                 </Link>
                             </Button>
                         </div>

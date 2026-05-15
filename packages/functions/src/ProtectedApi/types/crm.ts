@@ -46,11 +46,33 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
         sectorValueId?: string | null
         productionGroupValueId?: string | null
         usageAreaValueIds?: string[]
+        addresses?: Array<{
+            label: string
+            contactName?: string | null
+            phone?: string | null
+            email?: string | null
+            country?: string | null
+            city: string
+            district?: string | null
+            line1: string
+            line2?: string | null
+            postalCode?: string | null
+            taxOffice?: string | null
+            isPrimary?: boolean
+            isBilling?: boolean
+            isShipping?: boolean
+            note?: string | null
+        }>
     },
     { id: string }
 >
 
 export type IReplaceManagedCustomerFeaturedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
+    { productIds: string[] },
+    { id: string }
+>
+
+export type IReplaceManagedCustomerAssignedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
     { productIds: string[] },
     { id: string }
 >

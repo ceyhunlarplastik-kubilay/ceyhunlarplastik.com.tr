@@ -42,6 +42,7 @@ The goal is to preserve the current modular structure, keep the codebase scalabl
 - `infra/storage.ts`
 - `infra/router.ts`
 - `infra/approvalWorkflow.ts`
+- `infra/userAccessLifecycle.ts`
 
 Infra files should stay focused on wiring resources, links, permissions, domains, and runtime config. Business logic must not be implemented here.
 
@@ -294,7 +295,7 @@ If a migration must be run manually by the user, clearly state the command inste
 
 ### Data conventions
 Preserve existing naming and domain terminology:
-- `SupplierApprovalRequest`
+- `BusinessRequest`
 - `ProductVariantSupplier`
 - role-oriented API boundaries
 - soft-delete behavior where already implemented
@@ -327,6 +328,18 @@ For approval and async workflows:
 - keep orchestration in Step Functions/EventBridge-aware modules
 - keep domain updates in shared helpers or handlers
 - avoid coupling business truth to transient UI polling behavior
+
+For user access lifecycle and notifications:
+- prefer `Bus + Realtime + SES` style fan-out for role/access change notifications
+- keep Cognito group changes, DB access-status changes, and event publication coordinated through a shared domain helper
+- do not scatter Cognito group mutation logic across multiple handlers
+
+### Access lifecycle
+- Treat the application database as the normalized source of truth for user access state after Cognito authentication succeeds.
+- The default `user` group is a no-panel role and should not grant admin/protected workspace access.
+- Access lifecycle should use explicit statuses such as `PENDING_REVIEW`, `ACTIVE`, `SUSPENDED`, and `REJECTED` when the feature is involved.
+- Pending or inactive users should be routed to a dedicated account-status surface such as `/hesabim`, not dropped into privileged panels.
+- If signup/confirm flows change, keep the post-confirmation DB user creation and pending-review experience aligned with frontend auth messaging.
 
 ## Naming and Conventions
 

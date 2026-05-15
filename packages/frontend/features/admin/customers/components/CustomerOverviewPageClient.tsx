@@ -14,6 +14,42 @@ import { useConvertCustomer } from "@/features/admin/customers/hooks/useConvertC
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 
+type AddressDraft = {
+    label: string
+    contactName: string
+    phone: string
+    email: string
+    country: string
+    city: string
+    district: string
+    line1: string
+    line2: string
+    postalCode: string
+    taxOffice: string
+    isPrimary: boolean
+    isBilling: boolean
+    isShipping: boolean
+    note: string
+}
+
+const emptyAddress = (): AddressDraft => ({
+    label: "",
+    contactName: "",
+    phone: "",
+    email: "",
+    country: "Turkiye",
+    city: "",
+    district: "",
+    line1: "",
+    line2: "",
+    postalCode: "",
+    taxOffice: "",
+    isPrimary: false,
+    isBilling: false,
+    isShipping: true,
+    note: "",
+})
+
 type Props = {
     customerId: string
 }
@@ -37,6 +73,7 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
         sectorValueId: "",
         productionGroupValueId: "",
         usageAreaValueId: "",
+        addresses: [] as AddressDraft[],
     })
 
     useEffect(() => {
@@ -52,6 +89,23 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
             sectorValueId: customer.sectorValueId ?? "",
             productionGroupValueId: customer.productionGroupValueId ?? "",
             usageAreaValueId: customer.usageAreaValues?.[0]?.id ?? "",
+            addresses: (customer.addresses ?? []).map((address) => ({
+                label: address.label,
+                contactName: address.contactName ?? "",
+                phone: address.phone ?? "",
+                email: address.email ?? "",
+                country: address.country,
+                city: address.city,
+                district: address.district ?? "",
+                line1: address.line1,
+                line2: address.line2 ?? "",
+                postalCode: address.postalCode ?? "",
+                taxOffice: address.taxOffice ?? "",
+                isPrimary: address.isPrimary,
+                isBilling: address.isBilling,
+                isShipping: address.isShipping,
+                note: address.note ?? "",
+            })),
         })
     }, [customer])
 
@@ -73,7 +127,7 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
         return all.filter((value) => value.parentValueId === draft.productionGroupValueId)
     }, [attributes, draft.productionGroupValueId])
     const salesUsers = useMemo(
-        () => users.filter((user) => user.groups.includes("sales") || user.groups.includes("admin") || user.groups.includes("owner")),
+        () => users.filter((user) => user.groups.includes("sales") || user.groups.includes("sales_director") || user.groups.includes("admin") || user.groups.includes("owner")),
         [users],
     )
 
@@ -93,11 +147,53 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                 sectorValueId: draft.sectorValueId || null,
                 productionGroupValueId: draft.productionGroupValueId || null,
                 usageAreaValueIds: draft.usageAreaValueId ? [draft.usageAreaValueId] : [],
+                addresses: draft.addresses
+                    .filter((address) => address.label.trim() && address.city.trim() && address.line1.trim())
+                    .map((address, index) => ({
+                        label: address.label.trim(),
+                        contactName: address.contactName.trim() || null,
+                        phone: address.phone.trim() || null,
+                        email: address.email.trim() || null,
+                        country: address.country.trim() || "Turkiye",
+                        city: address.city.trim(),
+                        district: address.district.trim() || null,
+                        line1: address.line1.trim(),
+                        line2: address.line2.trim() || null,
+                        postalCode: address.postalCode.trim() || null,
+                        taxOffice: address.taxOffice.trim() || null,
+                        isPrimary: address.isPrimary || index === 0,
+                        isBilling: address.isBilling,
+                        isShipping: address.isShipping,
+                        note: address.note.trim() || null,
+                    })),
             })
             toast.success("Müşteri bilgileri güncellendi")
         } catch {
             toast.error("Müşteri bilgileri güncellenemedi")
         }
+    }
+
+    function updateAddress(index: number, patch: Partial<AddressDraft>) {
+        setDraft((prev) => ({
+            ...prev,
+            addresses: prev.addresses.map((address, currentIndex) =>
+                currentIndex === index ? { ...address, ...patch } : address,
+            ),
+        }))
+    }
+
+    function removeAddress(index: number) {
+        setDraft((prev) => ({
+            ...prev,
+            addresses: prev.addresses.filter((_, currentIndex) => currentIndex !== index),
+        }))
+    }
+
+    function addAddress() {
+        setDraft((prev) => ({
+            ...prev,
+            addresses: [...prev.addresses, emptyAddress()],
+        }))
     }
 
     async function handleConvert() {
@@ -240,6 +336,119 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                         <Textarea id="note" value={draft.note} onChange={(e) => setDraft((prev) => ({ ...prev, note: e.target.value }))} rows={5} />
                     </div>
                 </div>
+            </div>
+
+            <div className="rounded-3xl border bg-white p-6 shadow-sm">
+                <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h2 className="text-xl font-semibold text-neutral-950">Adresler</h2>
+                        <p className="mt-1 text-sm text-neutral-500">
+                            Fatura, sevkiyat ve operasyon iletişimi için profesyonel adres kayıtlarını yönetin.
+                        </p>
+                    </div>
+                    <Button type="button" variant="outline" onClick={addAddress}>
+                        Adres Ekle
+                    </Button>
+                </div>
+
+                {draft.addresses.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-4 py-8 text-sm text-neutral-500">
+                        Henüz tanımlı adres bulunmuyor.
+                    </div>
+                ) : (
+                    <div className="space-y-5">
+                        {draft.addresses.map((address, index) => (
+                            <div key={`address-${index}`} className="rounded-2xl border border-neutral-200 p-4">
+                                <div className="mb-4 flex items-center justify-between gap-3">
+                                    <div className="text-sm font-semibold text-neutral-900">
+                                        {address.label.trim() || `Adres ${index + 1}`}
+                                    </div>
+                                    <Button type="button" variant="ghost" className="text-red-600 hover:text-red-700" onClick={() => removeAddress(index)}>
+                                        Kaldır
+                                    </Button>
+                                </div>
+
+                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    <div className="space-y-2">
+                                        <Label>Adres Etiketi</Label>
+                                        <Input value={address.label} onChange={(e) => updateAddress(index, { label: e.target.value })} placeholder="Merkez, Depo, Fatura..." />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>İrtibat Kişisi</Label>
+                                        <Input value={address.contactName} onChange={(e) => updateAddress(index, { contactName: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Telefon</Label>
+                                        <Input value={address.phone} onChange={(e) => updateAddress(index, { phone: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>E-posta</Label>
+                                        <Input type="email" value={address.email} onChange={(e) => updateAddress(index, { email: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Ülke</Label>
+                                        <Input value={address.country} onChange={(e) => updateAddress(index, { country: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Şehir</Label>
+                                        <Input value={address.city} onChange={(e) => updateAddress(index, { city: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>İlçe</Label>
+                                        <Input value={address.district} onChange={(e) => updateAddress(index, { district: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Posta Kodu</Label>
+                                        <Input value={address.postalCode} onChange={(e) => updateAddress(index, { postalCode: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Vergi Dairesi</Label>
+                                        <Input value={address.taxOffice} onChange={(e) => updateAddress(index, { taxOffice: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2 xl:col-span-3">
+                                        <Label>Adres Satırı 1</Label>
+                                        <Input value={address.line1} onChange={(e) => updateAddress(index, { line1: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2 xl:col-span-3">
+                                        <Label>Adres Satırı 2</Label>
+                                        <Input value={address.line2} onChange={(e) => updateAddress(index, { line2: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2 xl:col-span-3">
+                                        <Label>Adres Notu</Label>
+                                        <Textarea value={address.note} onChange={(e) => updateAddress(index, { note: e.target.value })} rows={3} />
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 flex flex-wrap gap-4 text-sm text-neutral-600">
+                                    <label className="inline-flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={address.isPrimary}
+                                            onChange={(e) => updateAddress(index, { isPrimary: e.target.checked })}
+                                        />
+                                        Birincil adres
+                                    </label>
+                                    <label className="inline-flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={address.isBilling}
+                                            onChange={(e) => updateAddress(index, { isBilling: e.target.checked })}
+                                        />
+                                        Fatura adresi
+                                    </label>
+                                    <label className="inline-flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={address.isShipping}
+                                            onChange={(e) => updateAddress(index, { isShipping: e.target.checked })}
+                                        />
+                                        Sevkiyat adresi
+                                    </label>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     )

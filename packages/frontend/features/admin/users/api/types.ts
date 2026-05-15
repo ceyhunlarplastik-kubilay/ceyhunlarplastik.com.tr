@@ -2,7 +2,11 @@ export type AdminUser = {
     id: string
     email: string
     identifier: string
+    imageUrl?: string | null
     groups: string[]
+    accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
+    accessStatusChangedAt?: string | null
+    accessStatusReason?: string | null
     supplierId?: string | null
     customerId?: string | null
     supplier?: {

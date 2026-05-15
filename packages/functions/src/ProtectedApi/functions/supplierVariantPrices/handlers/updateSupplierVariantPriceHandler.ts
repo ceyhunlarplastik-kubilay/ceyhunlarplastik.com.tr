@@ -1,6 +1,6 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { buildApprovedVariantPricingUpdate } from "@/core/helpers/supplierApproval/variantPricing"
+import { buildApprovedVariantPricingUpdate } from "@/core/helpers/businessRequests/supplierPayloads"
 import {
     ISupplierVariantPriceDependencies,
     IUpdateSupplierVariantPriceEvent,

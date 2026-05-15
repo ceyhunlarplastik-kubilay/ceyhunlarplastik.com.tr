@@ -5,6 +5,7 @@ type Params = {
     page: number
     limit: number
     search?: string
+    accessStatus?: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
 }
 
 export async function getUsers(params: Params) {

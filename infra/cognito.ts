@@ -81,14 +81,21 @@ const salesGroup = new aws.cognito.UserGroup('CeyhunlarSales', {
     description: 'Sales users',
     precedence: 6,
 });
+const salesDirectorGroup = new aws.cognito.UserGroup('CeyhunlarSalesDirectors', {
+    userPoolId: userPool.id,
+    name: 'sales_director',
+    description: 'Sales director users',
+    precedence: 7,
+});
 const customerGroup = new aws.cognito.UserGroup('CeyhunlarCustomers', {
     userPoolId: userPool.id,
     name: 'customer',
     description: 'Customer portal users',
-    precedence: 7,
+    precedence: 8,
 });
 void purchasingGroup;
 void salesGroup;
+void salesDirectorGroup;
 void customerGroup;
 
 if (isPermanentStage) {

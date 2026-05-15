@@ -2,6 +2,7 @@ import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IUsersDependencies, IGetUserEvent } from "@/functions/AdminApi/types/users"
+import { mapAdminUserForApi } from "@/functions/AdminApi/functions/users/handlers/mapAdminUserForApi"
 
 export const getUserHandler = ({ userRepository }: IUsersDependencies) => {
     return async (event: IGetUserEvent) => {
@@ -13,7 +14,7 @@ export const getUserHandler = ({ userRepository }: IUsersDependencies) => {
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: { user },
+                payload: { user: user ? mapAdminUserForApi(user) : user },
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err;

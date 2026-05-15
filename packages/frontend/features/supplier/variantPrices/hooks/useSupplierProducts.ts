@@ -12,12 +12,15 @@ type Params = {
     categoryId?: string
     supplierId?: string
     endpointPrefix?: "supplier" | "purchasing" | "sales"
+    autoRefreshIntervalMs?: number | false
 }
 
 export function useSupplierProducts(params: Params = {}) {
+    const { autoRefreshIntervalMs = false, ...queryParams } = params
+
     return useQuery({
-        queryKey: ["supplier-products", params],
-        queryFn: () => getSupplierProducts(params),
+        queryKey: ["supplier-products", queryParams],
+        queryFn: () => getSupplierProducts(queryParams),
+        refetchInterval: autoRefreshIntervalMs,
     })
 }
-

@@ -16,6 +16,7 @@ import {
     Users,
     ClipboardList,
     ShieldCheck,
+    ClipboardCheck,
     Menu,
     ChevronLeft,
     ChevronDown,
@@ -69,8 +70,18 @@ const navItems = [
         icon: ClipboardList,
     },
     {
+        href: "/admin/onaylar",
+        label: "Müşteri / Satış Onay Akışı",
+        icon: ClipboardCheck,
+    },
+    {
+        href: "/admin/siparisler",
+        label: "Siparişler",
+        icon: ClipboardList,
+    },
+    {
         href: "/admin/supplier-approval-requests",
-        label: "Onay Bekleyen Talepler",
+        label: "Tedarikçi / Satın Alma Onay Akışı",
         icon: ShieldCheck,
     }
 ]

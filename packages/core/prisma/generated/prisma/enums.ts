@@ -9,6 +9,28 @@
 * 🟢 You can import this file directly.
 */
 
+export const UserAccessStatus = {
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type UserAccessStatus = (typeof UserAccessStatus)[keyof typeof UserAccessStatus]
+
+
+export const UserNotificationType = {
+  ACCESS_STATUS_CHANGED: 'ACCESS_STATUS_CHANGED',
+  ROLE_CHANGED: 'ROLE_CHANGED',
+  ASSIGNMENT_CHANGED: 'ASSIGNMENT_CHANGED',
+  REQUEST_CREATED: 'REQUEST_CREATED',
+  APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
+  REQUEST_DECIDED: 'REQUEST_DECIDED'
+} as const
+
+export type UserNotificationType = (typeof UserNotificationType)[keyof typeof UserNotificationType]
+
+
 export const ColorSystem = {
   RAL: 'RAL',
   PANTONE: 'PANTONE',
@@ -70,21 +92,92 @@ export const CustomerVisitStatus = {
 export type CustomerVisitStatus = (typeof CustomerVisitStatus)[keyof typeof CustomerVisitStatus]
 
 
-export const SupplierApprovalRequestType = {
-  SUPPLIER_PROFILE_UPDATE: 'SUPPLIER_PROFILE_UPDATE',
-  VARIANT_PRICING_UPDATE: 'VARIANT_PRICING_UPDATE'
+export const BusinessRequestDomain = {
+  SALES: 'SALES',
+  PURCHASING: 'PURCHASING'
 } as const
 
-export type SupplierApprovalRequestType = (typeof SupplierApprovalRequestType)[keyof typeof SupplierApprovalRequestType]
+export type BusinessRequestDomain = (typeof BusinessRequestDomain)[keyof typeof BusinessRequestDomain]
 
 
-export const SupplierApprovalRequestStatus = {
+export const BusinessRequestType = {
+  CUSTOMER_PROFILE_CHANGE: 'CUSTOMER_PROFILE_CHANGE',
+  CUSTOMER_ORDER_REQUEST: 'CUSTOMER_ORDER_REQUEST',
+  CUSTOMER_DOCUMENT_REQUEST: 'CUSTOMER_DOCUMENT_REQUEST',
+  CUSTOMER_PRICING_REQUEST: 'CUSTOMER_PRICING_REQUEST',
+  SUPPLIER_PROFILE_CHANGE: 'SUPPLIER_PROFILE_CHANGE',
+  SUPPLIER_PRICING_CHANGE: 'SUPPLIER_PRICING_CHANGE',
+  SUPPLIER_CAPABILITY_CHANGE: 'SUPPLIER_CAPABILITY_CHANGE',
+  SUPPLIER_CATEGORY_CREATE: 'SUPPLIER_CATEGORY_CREATE',
+  SUPPLIER_PRODUCT_CREATE: 'SUPPLIER_PRODUCT_CREATE',
+  SUPPLIER_VARIANT_CREATE: 'SUPPLIER_VARIANT_CREATE',
+  OFFER_DISCOUNT_REQUEST: 'OFFER_DISCOUNT_REQUEST',
+  PAYMENT_TERM_REQUEST: 'PAYMENT_TERM_REQUEST'
+} as const
+
+export type BusinessRequestType = (typeof BusinessRequestType)[keyof typeof BusinessRequestType]
+
+
+export const BusinessRequestStatus = {
+  DRAFT: 'DRAFT',
+  PENDING_APPROVAL: 'PENDING_APPROVAL',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type BusinessRequestStatus = (typeof BusinessRequestStatus)[keyof typeof BusinessRequestStatus]
+
+
+export const BusinessRequestEntityType = {
+  CATEGORY: 'CATEGORY',
+  CUSTOMER: 'CUSTOMER',
+  SUPPLIER: 'SUPPLIER',
+  PRODUCT: 'PRODUCT',
+  PRODUCT_VARIANT: 'PRODUCT_VARIANT',
+  ORDER: 'ORDER',
+  OFFER: 'OFFER',
+  PAYMENT_TERM: 'PAYMENT_TERM',
+  DOCUMENT: 'DOCUMENT',
+  OTHER: 'OTHER'
+} as const
+
+export type BusinessRequestEntityType = (typeof BusinessRequestEntityType)[keyof typeof BusinessRequestEntityType]
+
+
+export const BusinessRequestPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+
+export type BusinessRequestPriority = (typeof BusinessRequestPriority)[keyof typeof BusinessRequestPriority]
+
+
+export const ApprovalRole = {
+  CUSTOMER: 'CUSTOMER',
+  SUPPLIER: 'SUPPLIER',
+  SALES: 'SALES',
+  SALES_DIRECTOR: 'SALES_DIRECTOR',
+  PURCHASING: 'PURCHASING',
+  ADMIN: 'ADMIN',
+  OWNER: 'OWNER'
+} as const
+
+export type ApprovalRole = (typeof ApprovalRole)[keyof typeof ApprovalRole]
+
+
+export const ApprovalStepStatus = {
   PENDING: 'PENDING',
   APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED'
+  REJECTED: 'REJECTED',
+  SKIPPED: 'SKIPPED'
 } as const
 
-export type SupplierApprovalRequestStatus = (typeof SupplierApprovalRequestStatus)[keyof typeof SupplierApprovalRequestStatus]
+export type ApprovalStepStatus = (typeof ApprovalStepStatus)[keyof typeof ApprovalStepStatus]
 
 
 export const AssetType = {

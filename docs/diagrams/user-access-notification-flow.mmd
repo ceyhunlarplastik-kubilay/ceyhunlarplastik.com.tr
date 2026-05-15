@@ -1,0 +1,21 @@
+flowchart LR
+    A["Admin UI\n/admin/users"] --> B["Admin API\nPUT /users/{id}/role"]
+    B --> C["updateUserAccess()\nshared domain helper"]
+    C --> D["Amazon Cognito\nGroup update"]
+    C --> E["PostgreSQL\nUser accessStatus + groups update"]
+    C --> F["EventBridge Bus\nUserAccessBus\nuser.access.updated"]
+
+    F --> G["Lambda\nPersistUserAccessNotification"]
+    F --> H["Lambda\nSendUserAccessEmail"]
+    F --> I["Lambda\nPublishUserAccessRealtime"]
+
+    G --> J["PostgreSQL\nUserNotification table"]
+    H --> K["Amazon SES\nAccess change email"]
+    I --> L["SST Realtime / AWS IoT\nuser topic publish"]
+
+    M["Authenticated user\n/hesabim"] --> N["Protected API\n/me/access\n/me/notifications"]
+    N --> E
+    N --> J
+
+    L -. realtime event .-> M
+    K -. email notification .-> M

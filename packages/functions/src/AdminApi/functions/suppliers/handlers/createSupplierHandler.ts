@@ -10,14 +10,14 @@ export const createSupplierHandler = ({ supplierRepository }: ISupplierDependenc
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least one body field must be provided");
 
-        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "assignedPurchasingUserId"] as const
+        const allowedFields = ["name", "contactName", "phone", "address", "taxNumber", "defaultPaymentTermDays", "isActive", "assignedPurchasingUserIds"] as const
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
         )
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`)
 
-        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, assignedPurchasingUserId } = body;
+        const { name, contactName, phone, address, taxNumber, defaultPaymentTermDays, isActive, assignedPurchasingUserIds } = body;
 
         try {
             const supplier = await supplierRepository.createSupplier({
@@ -28,8 +28,8 @@ export const createSupplierHandler = ({ supplierRepository }: ISupplierDependenc
                 ...(taxNumber !== undefined ? { taxNumber } : {}),
                 ...(defaultPaymentTermDays !== undefined ? { defaultPaymentTermDays } : {}),
                 ...(isActive !== undefined ? { isActive } : {}),
-                ...(assignedPurchasingUserId
-                    ? { assignedPurchasingUser: { connect: { id: assignedPurchasingUserId } } }
+                ...(assignedPurchasingUserIds?.length
+                    ? { assignedPurchasingSuppliers: { connect: assignedPurchasingUserIds.map((id) => ({ id })) } }
                     : {}),
             })
 

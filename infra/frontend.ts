@@ -5,9 +5,12 @@ import { appRouter } from "./router";
 import { publicApi } from "./PublicApi";
 import { adminApi } from "./AdminApi";
 import { protectedApi } from "./ProtectedApi";
+import { userAccessRealtime } from "./userAccessLifecycle";
+import { rds } from "./db";
 
 export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
+  link: [rds],
 
   // ✅ Router BURADA
   router: appRouter
@@ -41,6 +44,8 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
     NEXT_PUBLIC_API_URL: publicApi.url,
     NEXT_PUBLIC_ADMIN_API_URL: adminApi.url,
     NEXT_PUBLIC_PROTECTED_API_URL: protectedApi.url,
+    NEXT_PUBLIC_USER_ACCESS_REALTIME_ENDPOINT: userAccessRealtime.endpoint,
+    NEXT_PUBLIC_USER_ACCESS_REALTIME_AUTHORIZER: userAccessRealtime.authorizer,
     NEXT_PUBLIC_BUCKET_NAME: publicBucket.name,
     // ✅ presign helper public url üretmek için
     // ÖRN: ASSET_PUBLIC_BASE_URL: publicBucket.cdnUrl,

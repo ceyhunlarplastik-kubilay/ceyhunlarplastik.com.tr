@@ -13,6 +13,13 @@ const navItems = [
         href: "/satinalma/urunler",
         label: "Ürünler",
         icon: "boxes" as const,
+        match: "prefix" as const,
+    },
+    {
+        href: "/satinalma/onaylar",
+        label: "Onay Talepleri",
+        icon: "shield" as const,
+        match: "prefix" as const,
     },
 ]
 
@@ -26,11 +33,13 @@ export default async function PurchasingLayout({
     if (!session) redirect("/auth/signin?callbackUrl=%2Fsatinalma&error=SessionRequired")
 
     const groups = (session.user as { groups?: string[] } | undefined)?.groups ?? []
+    const accessStatus = session.user?.accessStatus ?? "PENDING_REVIEW"
     const allowed =
         groups.includes("purchasing") ||
         groups.includes("admin") ||
         groups.includes("owner")
 
+    if (accessStatus !== "ACTIVE") redirect("/hesabim")
     if (!allowed) redirect("/?error=unauthorized")
 
     return (

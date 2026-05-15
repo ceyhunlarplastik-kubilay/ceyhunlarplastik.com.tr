@@ -1,7 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useManagedCustomers } from "@/features/sales/customers/hooks/useManagedCustomers"
@@ -53,6 +55,14 @@ export function SalesCustomersPageClient() {
                             <div>Sektör: {customer.sectorValue?.name ?? "-"}</div>
                             <div>Tanımlı Ürün: {customer.featuredProducts?.length ?? 0}</div>
                             <div>Ziyaret: {customer.visits?.length ?? 0}</div>
+                        </div>
+
+                        <div className="mt-5 flex flex-wrap gap-2">
+                            <Button asChild size="sm" variant="brand">
+                                <Link href={`/satis/musteriler/${customer.id}/products`}>
+                                    Tanımlı Ürünler
+                                </Link>
+                            </Button>
                         </div>
                     </div>
                 ))}

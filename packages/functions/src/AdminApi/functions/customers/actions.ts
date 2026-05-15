@@ -7,10 +7,12 @@ import {
     createCustomerVisitHandler,
     deleteCustomerVisitHandler,
     getCustomerHandler,
+    listCustomerAssignedProductsHandler,
     listCustomerFeaturedProductsHandler,
     listCustomersHandler,
     listCustomerVisitsHandler,
     replaceCustomerFeaturedProductsHandler,
+    replaceCustomerAssignedProductsHandler,
     updateCustomerHandler,
     updateCustomerVisitHandler,
 } from "@/functions/AdminApi/functions/customers/handlers"
@@ -19,6 +21,7 @@ import {
     ICreateCustomerVisitEvent,
     IDeleteCustomerVisitEvent,
     IGetCustomerEvent,
+    IReplaceCustomerAssignedProductsEvent,
     IListCustomerVisitsEvent,
     IListCustomersEvent,
     IReplaceCustomerFeaturedProductsEvent,
@@ -27,6 +30,7 @@ import {
 } from "@/functions/AdminApi/types/customers"
 import {
     createCustomerVisitValidator,
+    customerAssignedProductsResponseValidator,
     customerFeaturedProductsResponseValidator,
     customerIdValidator,
     customerResponseValidator,
@@ -34,6 +38,7 @@ import {
     customerVisitIdValidator,
     customerVisitsResponseValidator,
     listCustomersResponseValidator,
+    replaceCustomerAssignedProductsValidator,
     replaceCustomerFeaturedProductsValidator,
     updateCustomerValidator,
     updateCustomerVisitValidator,
@@ -95,6 +100,24 @@ export const replaceCustomerFeaturedProducts = lambdaHandler(
         auth: { requiredPermissionGroups: ["admin", "owner"] },
         requestValidator: replaceCustomerFeaturedProductsValidator,
         responseValidator: customerFeaturedProductsResponseValidator,
+    },
+)
+
+export const listCustomerAssignedProducts = lambdaHandler(
+    async (event) => listCustomerAssignedProductsHandler(deps)(event as IGetCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: customerIdValidator,
+        responseValidator: customerAssignedProductsResponseValidator,
+    },
+)
+
+export const replaceCustomerAssignedProducts = lambdaHandler(
+    async (event) => replaceCustomerAssignedProductsHandler(deps)(event as IReplaceCustomerAssignedProductsEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: replaceCustomerAssignedProductsValidator,
+        responseValidator: customerAssignedProductsResponseValidator,
     },
 )
 

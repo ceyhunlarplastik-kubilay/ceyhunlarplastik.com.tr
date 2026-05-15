@@ -6,13 +6,26 @@ import { AdminTopbar } from "@/components/admin/AdminTopbar"
 const navItems = [
     {
         href: "/satis",
-        label: "Müşteriler",
+        label: "Atanmış Müşteriler",
         icon: "users" as const,
     },
     {
         href: "/satis/urunler",
         label: "Ürünler",
         icon: "boxes" as const,
+        match: "prefix" as const,
+    },
+    {
+        href: "/satis/onaylar",
+        label: "Onay Talepleri",
+        icon: "shield" as const,
+        match: "prefix" as const,
+    },
+    {
+        href: "/satis/siparisler",
+        label: "Siparişler",
+        icon: "clipboard" as const,
+        match: "prefix" as const,
     },
 ]
 
@@ -26,11 +39,14 @@ export default async function SalesLayout({
     if (!session) redirect("/auth/signin?callbackUrl=%2Fsatis&error=SessionRequired")
 
     const groups = (session.user as { groups?: string[] } | undefined)?.groups ?? []
+    const accessStatus = session.user?.accessStatus ?? "PENDING_REVIEW"
     const allowed =
         groups.includes("sales") ||
+        groups.includes("sales_director") ||
         groups.includes("admin") ||
         groups.includes("owner")
 
+    if (accessStatus !== "ACTIVE") redirect("/hesabim")
     if (!allowed) redirect("/?error=unauthorized")
 
     return (

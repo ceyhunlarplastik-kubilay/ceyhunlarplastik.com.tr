@@ -48,8 +48,8 @@ export function ConfirmSignUpPageClient({ callbackUrl, initialEmail }: Props) {
             code: values.code.trim(),
         })
 
-        toast.success("Hesabınız doğrulandı. Giriş yapabilirsiniz.")
-        router.push(`/auth/signin?email=${encodeURIComponent(result.email)}&callbackUrl=${encodeURIComponent(callbackUrl)}&notice=confirmed`)
+        toast.success("Hesabınız doğrulandı. Yönetici onayı bekleniyor.")
+        router.push(`/auth/awaiting-approval?email=${encodeURIComponent(result.email)}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
     }
 
     async function handleResend() {

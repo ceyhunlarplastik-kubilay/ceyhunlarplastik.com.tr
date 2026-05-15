@@ -1,4 +1,4 @@
-const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "supplier", "customer", "user"] as const
+const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "sales_director", "supplier", "customer", "user"] as const
 
 export type CognitoIdTokenProfile = {
     sub?: string
@@ -13,12 +13,6 @@ export function normalizeGroups(groups: string[]): string[] {
         .map((group) => group.trim().toLowerCase())
         .filter(Boolean)
 
-    if (cleaned.length === 1) {
-        const merged = cleaned[0]
-        const extracted = KNOWN_GROUPS.filter((group) => merged.includes(group))
-        if (extracted.length > 1) return extracted
-    }
-
     return Array.from(new Set(cleaned))
 }
 
@@ -26,8 +20,9 @@ export function parseCognitoGroups(rawGroups: unknown): string[] {
     if (Array.isArray(rawGroups)) {
         return normalizeGroups(rawGroups
             .filter((group): group is string => typeof group === "string")
+            .flatMap((group) => group.replace(/[\[\]"]/g, "").split(/[,\s]+/))
             .map((group) => group.trim().toLowerCase())
-            .filter(Boolean))
+            .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])))
     }
 
     if (typeof rawGroups !== "string") return []
@@ -42,7 +37,7 @@ export function parseCognitoGroups(rawGroups: unknown): string[] {
     return normalizeGroups(normalized
         .split(/[,\s]+/)
         .map((group) => group.trim().toLowerCase())
-        .filter(Boolean))
+        .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])))
 }
 
 export function decodeJwtPayload(token: string): Record<string, unknown> | null {

@@ -1,4 +1,5 @@
 import createError from "http-errors"
+import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICustomerDependencies, IGetCustomerEvent } from "@/functions/AdminApi/types/customers"
 
@@ -14,7 +15,12 @@ export const listCustomerFeaturedProductsHandler = ({ customerRepository }: ICus
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data },
+            payload: {
+                data: data.map((item) => ({
+                    ...item,
+                    product: mapProductWithAssets(item.product),
+                })),
+            },
         })
     }
 }

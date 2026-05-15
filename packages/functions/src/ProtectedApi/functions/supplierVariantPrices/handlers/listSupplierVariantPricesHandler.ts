@@ -29,7 +29,7 @@ export const listSupplierVariantPricesHandler =
 
             const supplierIdFilter =
                 user.supplierId ??
-                ((user.isOwner || user.isAdmin || user.isPurchasing || user.isSales)
+                ((user.isOwner || user.isAdmin || user.isPurchasing || user.isSales || user.isSalesDirector)
                     ? query.supplierId
                     : undefined)
 
@@ -81,7 +81,7 @@ export const listSupplierVariantPricesHandler =
                     }
                 }
 
-                if (user.isSales) {
+                if (user.isSales || user.isSalesDirector) {
                     return {
                         ...item,
                         price: undefined,

@@ -66,6 +66,7 @@ const variantSupplierSchema = z.object({
     price: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
     profitRate: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
     listPrice: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
+    pricingUpdatedAt: z.string().nullable().optional(),
     currency: z.string().nullable().optional(),
     createdAt: z.string().optional(),
     updatedAt: z.string().optional(),

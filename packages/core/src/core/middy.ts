@@ -131,9 +131,12 @@ export const lambdaHandler = <TResponse = unknown>(
     /* ------------------------
      * 9 Logging
      * ------------------------ */
-    if (process.env.NODE_ENV !== "prod") {
+    // Temporarily disabled because full event/response dumps make local admin flows noisy
+    // and expose oversized requestContext logs during routine panel usage.
+    // Re-enable behind an explicit debug flag if deep Lambda tracing is needed again.
+    /* if (process.env.NODE_ENV !== "prod") {
         chain.use(inputOutputLogger())
-    }
+    } */
 
     chain.use(errorLogger())
 

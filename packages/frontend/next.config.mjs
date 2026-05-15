@@ -1,0 +1,14 @@
+const nextConfig = {
+    /* config options here */
+    images: {
+        minimumCacheTTL: 60,
+        unoptimized: true,
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "*.s3.amazonaws.com",
+            },
+        ],
+    },
+};
+export default nextConfig;

@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model UserNotification
+ * 
+ */
+export type UserNotification = Prisma.UserNotificationModel
+/**
  * Model Color
  * 
  */
@@ -107,6 +112,16 @@ export type Supplier = Prisma.SupplierModel
  */
 export type CustomerFeaturedProduct = Prisma.CustomerFeaturedProductModel
 /**
+ * Model CustomerAssignedProduct
+ * 
+ */
+export type CustomerAssignedProduct = Prisma.CustomerAssignedProductModel
+/**
+ * Model CustomerAddress
+ * 
+ */
+export type CustomerAddress = Prisma.CustomerAddressModel
+/**
  * Model CustomerVisit
  * 
  */
@@ -117,10 +132,25 @@ export type CustomerVisit = Prisma.CustomerVisitModel
  */
 export type ProductVariantSupplier = Prisma.ProductVariantSupplierModel
 /**
- * Model SupplierApprovalRequest
+ * Model BusinessRequest
  * 
  */
-export type SupplierApprovalRequest = Prisma.SupplierApprovalRequestModel
+export type BusinessRequest = Prisma.BusinessRequestModel
+/**
+ * Model BusinessRequestItem
+ * 
+ */
+export type BusinessRequestItem = Prisma.BusinessRequestItemModel
+/**
+ * Model BusinessRequestApprovalStep
+ * 
+ */
+export type BusinessRequestApprovalStep = Prisma.BusinessRequestApprovalStepModel
+/**
+ * Model ActivityLog
+ * 
+ */
+export type ActivityLog = Prisma.ActivityLogModel
 /**
  * Model Material
  * 

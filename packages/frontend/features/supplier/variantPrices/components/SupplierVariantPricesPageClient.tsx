@@ -1,28 +1,22 @@
 "use client"
 
-import Image from "next/image"
 import { useMemo, useState } from "react"
-import { Building2, Filter, Pencil, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 
-import { publicApiClient } from "@/lib/http/client"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
-import { AnimatedCounter } from "@/components/ui/AnimatedCounter"
-import { DashboardWithCollapsibleSidebar } from "@/components/ui/dashboard-with-collapsible-sidebar"
-import { decimalLikeToFixedText } from "@/lib/utils/decimal"
+import { Input } from "@/components/ui/input"
+import { ProductVariantsTable } from "@/features/admin/productVariants/components/ProductVariantsTable"
+import { useProductListFilters } from "@/features/admin/products/hooks/useProductListFilters"
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { CreateSupplierVariantRequestDialog } from "@/features/supplier/businessRequests/components/CreateSupplierVariantRequestDialog"
 import { EditSupplierPriceDialog } from "@/features/supplier/variantPrices/components/EditSupplierPriceDialog"
-import { EditSupplierProfileDialog } from "@/features/supplier/variantPrices/components/EditSupplierProfileDialog"
-import { useSupplierApprovalRequests } from "@/features/supplier/approvalRequests/hooks/useSupplierApprovalRequests"
-import { useSupplierProfile } from "@/features/supplier/variantPrices/hooks/useSupplierProfile"
 import { useSupplierProducts } from "@/features/supplier/variantPrices/hooks/useSupplierProducts"
 import { useSupplierVariantPrices } from "@/features/supplier/variantPrices/hooks/useSupplierVariantPrices"
-import { useUpdateSupplierProfile } from "@/features/supplier/variantPrices/hooks/useUpdateSupplierProfile"
 import type { SupplierVariantPrice } from "@/features/supplier/variantPrices/api/types"
-import type { SupplierApprovalRequest } from "@/features/supplier/approvalRequests/api/types"
-import type { Category } from "@/features/public/categories/types"
-import type { ListCategoriesResponse } from "@/features/public/categories/api/types"
+import { WorkspaceProductsTable } from "@/features/workspaceProducts/components/WorkspaceProductsTable"
+import { getProductFilterCategories } from "@/features/workspaceProducts/api/getProductFilterCategories"
+import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 
 type VariantPricePanelMode = "supplier" | "purchasing" | "sales"
 type VariantPriceViewerMode = "full" | "supplier" | "purchasing" | "sales"
@@ -32,492 +26,305 @@ type Props = {
     viewerMode?: VariantPriceViewerMode
 }
 
-async function fetchCategoriesForFilter() {
-    const res = await publicApiClient.get<ListCategoriesResponse>("/categories", {
-        params: { page: 1, limit: 500, sort: "name", order: "asc" },
+function sortVariantList(variants: ProductVariant[]) {
+    return [...variants].sort((left, right) => {
+        const leftMeasurements = [...left.measurements].sort(
+            (a, b) => (a.measurementType.displayOrder ?? 0) - (b.measurementType.displayOrder ?? 0),
+        )
+        const rightMeasurements = [...right.measurements].sort(
+            (a, b) => (a.measurementType.displayOrder ?? 0) - (b.measurementType.displayOrder ?? 0),
+        )
+
+        const length = Math.max(leftMeasurements.length, rightMeasurements.length)
+        for (let index = 0; index < length; index += 1) {
+            const leftValue = leftMeasurements[index]?.value ?? 0
+            const rightValue = rightMeasurements[index]?.value ?? 0
+
+            if (leftValue !== rightValue) {
+                return leftValue - rightValue
+            }
+        }
+
+        return left.fullCode.localeCompare(right.fullCode, "tr", {
+            sensitivity: "base",
+            numeric: true,
+        })
     })
-    return res.data.payload.data as Category[]
 }
 
-function formatDate(value?: string | null) {
-    if (!value) return "-"
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return "-"
-    return new Intl.DateTimeFormat("tr-TR", {
-        dateStyle: "short",
-        timeStyle: "short",
-    }).format(date)
-}
+function groupVariantPriceRows(rows: SupplierVariantPrice[]) {
+    const variantsById = new Map<string, ProductVariant>()
 
-const APPROVAL_STATUS_LABELS: Record<string, string> = {
-    PENDING: "Bekliyor",
-    APPROVED: "Onaylandı",
-    REJECTED: "Reddedildi",
-}
+    for (const row of rows) {
+        const variant = row.variant
+        if (!variant) continue
 
-const APPROVAL_STATUS_STYLES: Record<string, string> = {
-    PENDING: "bg-amber-100 text-amber-700",
-    APPROVED: "bg-emerald-100 text-emerald-700",
-    REJECTED: "bg-rose-100 text-rose-700",
-}
+        const existing = variantsById.get(variant.id)
 
-const APPROVAL_TYPE_LABELS: Record<string, string> = {
-    SUPPLIER_PROFILE_UPDATE: "Profil Güncellemesi",
-    VARIANT_PRICING_UPDATE: "Varyant Fiyatı",
-}
+        const nextSupplier = {
+            id: row.id,
+            isActive: row.isActive,
+            price: row.price ?? undefined,
+            operationalCostRate: row.operationalCostRate ?? undefined,
+            netCost: row.netCost ?? undefined,
+            profitRate: row.profitRate ?? undefined,
+            listPrice: row.listPrice ?? undefined,
+            paymentTermDays: row.paymentTermDays,
+            supplierVariantCode: row.supplierVariantCode,
+            supplierNote: row.supplierNote,
+            minOrderQty: row.minOrderQty,
+            stockQty: row.stockQty,
+            pricingUpdatedAt: row.pricingUpdatedAt,
+            availabilityUpdatedAt: row.availabilityUpdatedAt,
+            currency: row.currency,
+            supplier: {
+                id: row.supplier?.id ?? row.supplierId,
+                name: row.supplier?.name ?? "Tedarikçi",
+            },
+        }
 
-function summarizeApprovalRequest(request: SupplierApprovalRequest) {
-    if (request.type === "SUPPLIER_PROFILE_UPDATE") {
-        return "Firma / iletişim bilgileri değişikliği"
+        if (existing) {
+            existing.variantSuppliers.push(nextSupplier)
+            continue
+        }
+
+        variantsById.set(variant.id, {
+            id: variant.id,
+            productId: variant.productId,
+            name: variant.name,
+            fullCode: variant.fullCode,
+            versionCode: variant.fullCode,
+            supplierCode: row.supplierVariantCode ?? "",
+            variantIndex: 0,
+            createdAt: row.createdAt,
+            color: variant.color ?? null,
+            materials: (variant.materials ?? []).map((material) => ({
+                id: material.id,
+                name: material.name,
+            })),
+            measurements: (variant.measurements ?? []).map((measurement) => ({
+                id: measurement.id,
+                value: measurement.value,
+                label: measurement.label,
+                measurementType: measurement.measurementType,
+            })),
+            variantSuppliers: [nextSupplier],
+        })
     }
 
-    const variantLabel = request.productVariantSupplier?.variant?.fullCode
-        ?? request.productVariantSupplier?.variant?.name
-        ?? "Varyant"
-    return `${variantLabel} için maliyet ve stok değişikliği`
+    return sortVariantList(Array.from(variantsById.values()))
 }
 
 export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode }: Props) {
-    const [categoryId, setCategoryId] = useState("")
-    const [productSearch, setProductSearch] = useState("")
-    const [productPage, setProductPage] = useState(1)
-    const [productLimit, setProductLimit] = useState(12)
     const [selectedProductId, setSelectedProductId] = useState("")
-
     const [variantSearch, setVariantSearch] = useState("")
     const [variantPage, setVariantPage] = useState(1)
     const [variantLimit, setVariantLimit] = useState(20)
     const [editingRow, setEditingRow] = useState<SupplierVariantPrice | null>(null)
-    const [profileDialogOpen, setProfileDialogOpen] = useState(false)
+    const [variantRequestOpen, setVariantRequestOpen] = useState(false)
 
+    const {
+        filters,
+        params,
+        setSearch,
+        setCategoryId,
+        setPage,
+        setLimit,
+        setRefreshIntervalSeconds,
+    } = useProductListFilters()
+
+    const endpointPrefix = mode === "sales" ? "sales" : mode === "purchasing" ? "purchasing" : "supplier"
     const effectiveViewerMode: VariantPriceViewerMode =
         viewerMode ?? (mode === "sales" ? "sales" : mode === "purchasing" ? "purchasing" : "supplier")
 
     const canSeeCost = effectiveViewerMode === "full" || effectiveViewerMode === "purchasing" || effectiveViewerMode === "supplier"
-    const canSeeProfitRate = effectiveViewerMode === "full"
     const canSeeListPrice = effectiveViewerMode === "full" || effectiveViewerMode === "sales"
     const canEdit = effectiveViewerMode !== "sales"
     const allowAdvancedFields = effectiveViewerMode === "full"
 
     const categoriesQuery = useQuery({
-        queryKey: ["supplier-panel-categories"],
-        queryFn: fetchCategoriesForFilter,
+        queryKey: ["workspace-product-filter-categories"],
+        queryFn: getProductFilterCategories,
         staleTime: 1000 * 60 * 10,
     })
 
-    const isSupplierMode = mode === "supplier"
-    const profileQuery = useSupplierProfile("supplier", isSupplierMode)
-    const approvalRequestsQuery = useSupplierApprovalRequests({
-        page: 1,
-        limit: 5,
-        sort: "createdAt",
-        order: "desc",
-        enabled: isSupplierMode,
-    })
-    const updateProfileMutation = useUpdateSupplierProfile()
-
     const productsQuery = useSupplierProducts({
-        endpointPrefix: mode === "sales" ? "sales" : mode === "purchasing" ? "purchasing" : "supplier",
-        page: productPage,
-        limit: productLimit,
-        ...(categoryId ? { categoryId } : {}),
-        ...(productSearch.trim() ? { search: productSearch.trim() } : {}),
+        endpointPrefix,
+        ...params,
         sort: "name",
         order: "asc",
+        autoRefreshIntervalMs: filters.refreshIntervalSeconds > 0
+            ? filters.refreshIntervalSeconds * 1000
+            : false,
     })
 
-    const variantsQuery = useSupplierVariantPrices({
-        endpointPrefix: mode === "sales" ? "sales" : mode === "purchasing" ? "purchasing" : "supplier",
-        page: variantPage,
-        limit: variantLimit,
-        sort: "updatedAt",
-        order: "desc",
-        ...(selectedProductId ? { productId: selectedProductId } : {}),
-        ...(variantSearch.trim() ? { search: variantSearch.trim() } : {}),
-    })
-
-    const panelTitle =
-        mode === "purchasing"
-            ? "Satın Alma"
-            : mode === "sales"
-                ? "Satış"
-                : profileQuery.data?.name ?? "Tedarikçi"
-    const sortedCategories = useMemo(
-        () =>
-            [...(categoriesQuery.data ?? [])].sort((a, b) =>
-                `${a.code} ${a.name}`.localeCompare(`${b.code} ${b.name}`, "tr", {
-                    sensitivity: "base",
-                    numeric: true,
-                })
-            ),
-        [categoriesQuery.data]
+    const variantsQuery = useSupplierVariantPrices(
+        {
+            endpointPrefix,
+            page: 1,
+            limit: 500,
+            sort: "updatedAt",
+            order: "desc",
+            productId: selectedProductId || undefined,
+            ...(variantSearch.trim() ? { search: variantSearch.trim() } : {}),
+        },
+        {
+            enabled: Boolean(selectedProductId),
+            refetchInterval: filters.refreshIntervalSeconds > 0
+                ? filters.refreshIntervalSeconds * 1000
+                : false,
+        },
     )
-    const products = productsQuery.data?.data
+
+    const products = useMemo(() => productsQuery.data?.data ?? [], [productsQuery.data?.data])
     const productMeta = productsQuery.data?.meta
-    const rows = selectedProductId ? (variantsQuery.data?.data ?? []) : []
-    const variantsMeta = variantsQuery.data?.meta
-
-    const selectedProductName = useMemo(
-        () => (products ?? []).find((product) => product.id === selectedProductId)?.name ?? "",
-        [products, selectedProductId]
+    const selectedProduct = products.find((product) => product.id === selectedProductId)
+    const groupedVariants = useMemo(
+        () => groupVariantPriceRows(variantsQuery.data?.data ?? []),
+        [variantsQuery.data?.data],
     )
+    const paginatedVariants = useMemo(() => {
+        const start = (variantPage - 1) * variantLimit
+        return groupedVariants.slice(start, start + variantLimit)
+    }, [groupedVariants, variantLimit, variantPage])
+    const variantTotalPages = Math.max(1, Math.ceil(groupedVariants.length / variantLimit))
 
-    const profile = profileQuery.data
-    const approvalRequests = approvalRequestsQuery.data?.data ?? []
+    const selectedProductName = useMemo(() => {
+        const selectedProduct = products.find((product) => product.id === selectedProductId)
+        if (selectedProduct) return selectedProduct.name
+
+        return variantsQuery.data?.data?.[0]?.variant?.product?.name ?? ""
+    }, [products, selectedProductId, variantsQuery.data?.data])
+
+    const productTitle =
+        mode === "purchasing"
+            ? "Satın Alma Ürünleri"
+            : mode === "sales"
+                ? "Satış Ürünleri"
+                : "Tedarikçi Ürünleri"
+    const productDescription =
+        mode === "purchasing"
+            ? "Tedarikçilerden gelen ürün modellerini admin ekranıyla aynı filtre ve tablo yapısında inceleyin."
+            : mode === "sales"
+                ? "Satış ekibinin görebildiği ürün modellerini admin ekranına paralel liste yapısıyla yönetin."
+                : "Tedarikçinize bağlı ürün modellerini admin ürün ekranıyla aynı iskelette görüntüleyin."
 
     return (
         <div className="space-y-6">
-            <div className="rounded-2xl border bg-white p-4 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+            <WorkspaceProductsTable
+                title={productTitle}
+                description={productDescription}
+                emptyMessage="Seçilen filtrelere göre ürün bulunamadı."
+                products={products}
+                meta={productMeta}
+                categories={categoriesQuery.data ?? []}
+                searchQuery={filters.search}
+                onSearchQueryChange={setSearch}
+                categoryId={filters.categoryId}
+                onCategoryIdChange={(value) => {
+                    setCategoryId(value)
+                    setSelectedProductId("")
+                    setVariantPage(1)
+                }}
+                page={filters.page}
+                onPageChange={setPage}
+                limit={filters.limit}
+                onLimitChange={setLimit}
+                isFetching={productsQuery.isFetching || categoriesQuery.isFetching}
+                dataUpdatedAt={productsQuery.dataUpdatedAt}
+                onRefresh={() => void productsQuery.refetch()}
+                refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                onRefreshIntervalChange={setRefreshIntervalSeconds}
+                selectedProductId={selectedProductId}
+                onViewVariants={(productId) => {
+                    setSelectedProductId(productId)
+                    setVariantPage(1)
+                }}
+            />
+
+            <div className="space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div className="space-y-1">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-600">
-                            <Building2 className="h-3.5 w-3.5" />
-                            {mode === "supplier" ? "Tedarikçi Paneli" : mode === "purchasing" ? "Satın Alma Paneli" : "Satış Paneli"}
-                        </div>
-                        <h1 className="text-2xl font-semibold text-neutral-900">{panelTitle}</h1>
+                        <h2 className="text-xl font-semibold tracking-tight text-neutral-950">Varyantlar</h2>
                         <p className="text-sm text-neutral-500">
-                            {isSupplierMode && profileQuery.data?.contactName
-                                ? `Yetkili: ${profileQuery.data.contactName}`
-                                : "Varyant maliyet, kâr ve liste fiyat verilerini inceleyin."}
+                            {selectedProductId
+                                ? `${selectedProductName || "Seçili model"} için varyant detayları`
+                                : "Admin varyant ekranına benzer görünümde detayları görmek için ürün modeli seçin."}
                         </p>
-                        {isSupplierMode ? (
-                            <>
-                                <div className="flex flex-wrap gap-3 pt-1 text-xs text-neutral-500">
-                                    {profileQuery.data?.phone ? <span>Telefon: {profileQuery.data.phone}</span> : null}
-                                    {profileQuery.data?.taxNumber ? <span>Vergi No: {profileQuery.data.taxNumber}</span> : null}
-                                    {profileQuery.data?.defaultPaymentTermDays !== null && profileQuery.data?.defaultPaymentTermDays !== undefined ? (
-                                        <span>Varsayılan Vade: {profileQuery.data.defaultPaymentTermDays} gün</span>
-                                    ) : null}
-                                    {profileQuery.data?.address ? <span>Adres: {profileQuery.data.address}</span> : null}
-                                </div>
-                                <div className="pt-2">
-                                    <Button size="sm" variant="outline" className="gap-1" onClick={() => setProfileDialogOpen(true)}>
-                                        <Pencil className="h-3.5 w-3.5" />
-                                        Tedarikçi Bilgilerini Düzenle
-                                    </Button>
-                                </div>
-                            </>
-                        ) : null}
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-lg border bg-neutral-50 px-3 py-2 text-center">
-                            <p className="text-[11px] text-neutral-500">Model</p>
-                            <p className="text-base font-semibold text-neutral-800"><AnimatedCounter value={productsQuery.data?.meta.total ?? 0} /></p>
-                        </div>
-                        <div className="rounded-lg border bg-neutral-50 px-3 py-2 text-center">
-                            <p className="text-[11px] text-neutral-500">Varyant</p>
-                            <p className="text-base font-semibold text-neutral-800"><AnimatedCounter value={variantsMeta?.total ?? 0} /></p>
-                        </div>
-                        <div className="rounded-lg border bg-neutral-50 px-3 py-2 text-center">
-                            <p className="text-[11px] text-neutral-500">Aktif</p>
-                            <p className="text-base font-semibold text-neutral-800"><AnimatedCounter value={rows.filter((row) => row.isActive).length} /></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {isSupplierMode ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 shadow-sm">
-                    Tedarikçi değişiklikleri artık doğrudan uygulanmıyor. Profil ve varyant güncellemeleri admin veya owner onayından sonra sisteme işleniyor.
-                </div>
-            ) : null}
-
-            {isSupplierMode ? (
-                <div className="rounded-2xl border bg-white p-4 shadow-sm">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                        <div>
-                            <h2 className="text-sm font-semibold text-neutral-800">Son Onay Talepleri</h2>
-                            <p className="text-xs text-neutral-500">
-                                Gönderdiğiniz son taleplerin durumunu buradan takip edebilirsiniz.
-                            </p>
-                        </div>
-                    </div>
-
-                    {approvalRequestsQuery.isLoading ? (
-                        <div className="flex items-center justify-center py-6">
-                            <Spinner className="size-5" />
-                        </div>
-                    ) : approvalRequests.length === 0 ? (
-                        <p className="py-4 text-sm text-neutral-500">Henüz approval talebi oluşturulmadı.</p>
-                    ) : (
-                        <div className="space-y-2">
-                            {approvalRequests.map((request) => (
-                                <div key={request.id} className="rounded-xl border border-neutral-200 p-3">
-                                    <div className="flex flex-wrap items-start justify-between gap-2">
-                                        <div>
-                                            <p className="text-sm font-medium text-neutral-900">
-                                                {APPROVAL_TYPE_LABELS[request.type] ?? request.type}
-                                            </p>
-                                            <p className="text-xs text-neutral-500">
-                                                {summarizeApprovalRequest(request)}
-                                            </p>
-                                        </div>
-                                        <span className={`inline-flex rounded-full px-2 py-1 text-xs ${APPROVAL_STATUS_STYLES[request.status] ?? "bg-neutral-100 text-neutral-700"}`}>
-                                            {APPROVAL_STATUS_LABELS[request.status] ?? request.status}
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-2 flex flex-wrap gap-4 text-xs text-neutral-500">
-                                        <span>Talep Tarihi: {formatDate(request.createdAt)}</span>
-                                        {request.decidedAt ? <span>Karar Tarihi: {formatDate(request.decidedAt)}</span> : null}
-                                        {request.decisionNote ? <span>Not: {request.decisionNote}</span> : null}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            ) : null}
-
-            <DashboardWithCollapsibleSidebar
-                sidebar={
-                    <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-neutral-800">
-                        <Filter className="h-4 w-4" />
-                        Ürün Modeli Filtreleri
-                    </div>
-
-                    <div>
-                        <label className="mb-1 block text-xs text-neutral-500">Kategori</label>
-                        <select
-                            value={categoryId}
-                            onChange={(e) => {
-                                setCategoryId(e.target.value)
-                                setSelectedProductId("")
-                                setProductPage(1)
+                    <div className="relative w-full lg:max-w-sm">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                        <Input
+                            value={variantSearch}
+                            onChange={(event) => {
+                                setVariantSearch(event.target.value)
                                 setVariantPage(1)
                             }}
-                            className="h-9 w-full rounded-md border border-neutral-200 px-2 text-sm"
-                        >
-                            <option value="">Tüm Kategoriler</option>
-                            {sortedCategories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.code} · {category.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="mb-1 block text-xs text-neutral-500">Model Ara</label>
-                        <Input
-                            placeholder="Kod veya ad..."
-                            value={productSearch}
-                            onChange={(e) => {
-                                setProductSearch(e.target.value)
-                                setProductPage(1)
-                            }}
+                            placeholder="Varyant kodu veya adı ara"
+                            className="pl-9"
+                            disabled={!selectedProductId}
                         />
                     </div>
-
-                    <div>
-                        <label className="mb-1 block text-xs text-neutral-500">Sayfa Başına Model Sayısı</label>
-                        <select
-                            value={String(productLimit)}
-                            onChange={(e) => {
-                                setProductLimit(Number(e.target.value))
-                                setProductPage(1)
-                            }}
-                            className="h-9 w-full rounded-md border border-neutral-200 px-2 text-sm"
-                        >
-                            <option value="8">8</option>
-                            <option value="12">12</option>
-                            <option value="20">20</option>
-                        </select>
-                    </div>
-                    </div>
-                }
-            >
-                <div className="space-y-4">
-                    <div className="rounded-2xl border bg-white p-4 shadow-sm">
-                        <div className="mb-3 flex items-center justify-between">
-                            <h2 className="text-sm font-semibold text-neutral-800">Ürün Modelleri</h2>
-                            <div className="text-xs text-neutral-500">
-                                Sayfa {productMeta?.page ?? productPage} / {productMeta?.totalPages ?? 1}
-                            </div>
-                        </div>
-
-                        {productsQuery.isLoading ? (
-                            <div className="flex items-center justify-center py-8">
-                                <Spinner className="size-5" />
-                            </div>
-                        ) : (products ?? []).length === 0 ? (
-                            <p className="py-6 text-center text-sm text-neutral-500">Bu tedarikçide eşleşen ürün modeli bulunamadı.</p>
-                        ) : (
-                            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                                {(products ?? []).map((product) => {
-                                    const primaryAsset = (product.assets ?? []).find((asset) => asset?.role === "PRIMARY") ?? (product.assets ?? [])[0]
-                                    const selected = selectedProductId === product.id
-                                    return (
-                                        <button
-                                            key={product.id}
-                                            type="button"
-                                            onClick={() => {
-                                                setSelectedProductId(product.id)
-                                                setVariantPage(1)
-                                            }}
-                                            className={`flex items-center gap-3 rounded-lg border p-2 text-left transition ${
-                                                selected ? "border-brand bg-brand/5" : "hover:border-neutral-300 hover:bg-neutral-50"
-                                            }`}
-                                        >
-                                            <div className="relative h-12 w-12 overflow-hidden rounded-md border bg-white">
-                                                {primaryAsset?.url ? (
-                                                    <Image src={primaryAsset.url} alt={product.name} fill className="object-cover" sizes="48px" />
-                                                ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-[10px] text-neutral-400">Görsel</div>
-                                                )}
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="truncate text-xs text-neutral-500">{product.code}</p>
-                                                <p className="truncate text-sm font-medium text-neutral-900">{product.name}</p>
-                                                <p className="truncate text-[11px] text-neutral-500">
-                                                    {product.category?.name} · {product.variantCount} varyant
-                                                </p>
-                                            </div>
-                                        </button>
-                                    )
-                                })}
-                            </div>
-                        )}
-
-                        <div className="mt-3 flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={(productMeta?.page ?? productPage) <= 1}
-                                onClick={() => setProductPage((p) => Math.max(1, p - 1))}
-                            >
-                                Önceki
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={(productMeta?.page ?? productPage) >= (productMeta?.totalPages ?? 1)}
-                                onClick={() => setProductPage((p) => p + 1)}
-                            >
-                                Sonraki
-                            </Button>
-                        </div>
-                    </div>
-
-                    <div className="rounded-2xl border bg-white p-4 shadow-sm">
-                        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <h3 className="text-sm font-semibold text-neutral-800">Varyantlar</h3>
-                                <p className="text-xs text-neutral-500">
-                                    {selectedProductId ? `${selectedProductName} modeli varyantları` : "Önce bir ürün modeli seçin"}
-                                </p>
-                            </div>
-                            <div className="relative w-full max-w-xs">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                                <Input
-                                    value={variantSearch}
-                                    onChange={(e) => {
-                                        setVariantSearch(e.target.value)
-                                        setVariantPage(1)
-                                    }}
-                                    placeholder="Varyant kod/ad..."
-                                    className="pl-9"
-                                />
-                            </div>
-                        </div>
-
-                        {selectedProductId && variantsQuery.isLoading ? (
-                            <div className="flex items-center justify-center py-8">
-                                <Spinner className="size-5" />
-                            </div>
-                        ) : !selectedProductId ? (
-                            <p className="py-8 text-center text-sm text-neutral-500">Varyantları görmek için ürün modeli seçin.</p>
-                        ) : rows.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-neutral-500">Bu model için varyant kaydı bulunamadı.</p>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="w-full min-w-[980px] text-sm">
-                                    <thead>
-                                        <tr className="border-b bg-neutral-50 text-left text-xs text-neutral-600">
-                                            <th className="px-3 py-2">Varyant</th>
-                                            {canSeeCost ? <th className="px-3 py-2">Maliyet</th> : null}
-                                            {canSeeProfitRate ? <th className="px-3 py-2">Kâr %</th> : null}
-                                            {canSeeListPrice ? <th className="px-3 py-2">Liste Fiyatı</th> : null}
-                                            <th className="px-3 py-2">Min Sipariş</th>
-                                            <th className="px-3 py-2">Stok</th>
-                                            <th className="px-3 py-2">Fiyat Güncelleme</th>
-                                            <th className="px-3 py-2">Stok Güncelleme</th>
-                                            <th className="px-3 py-2">Durum</th>
-                                            {canEdit ? <th className="px-3 py-2 text-right">İşlem</th> : null}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row) => (
-                                            <tr key={row.id} className="border-b last:border-0">
-                                                <td className="px-3 py-2">
-                                                    <p className="font-mono text-xs text-neutral-500">{row.variant?.fullCode ?? "-"}</p>
-                                                    <p className="font-medium text-neutral-800">{row.variant?.name ?? "-"}</p>
-                                                </td>
-                                                {canSeeCost ? <td className="px-3 py-2">{decimalLikeToFixedText(row.price)} {row.currency ?? "TRY"}</td> : null}
-                                                {canSeeProfitRate ? <td className="px-3 py-2">{decimalLikeToFixedText(row.profitRate)}</td> : null}
-                                                {canSeeListPrice ? <td className="px-3 py-2">{decimalLikeToFixedText(row.listPrice)} {row.currency ?? "TRY"}</td> : null}
-                                                <td className="px-3 py-2">{row.minOrderQty ?? "-"}</td>
-                                                <td className="px-3 py-2">{row.stockQty ?? "-"}</td>
-                                                <td className="px-3 py-2">{formatDate(row.pricingUpdatedAt)}</td>
-                                                <td className="px-3 py-2">{formatDate(row.availabilityUpdatedAt)}</td>
-                                                <td className="px-3 py-2">
-                                                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${row.isActive ? "bg-emerald-100 text-emerald-700" : "bg-neutral-100 text-neutral-600"}`}>
-                                                        {row.isActive ? "Aktif" : "Pasif"}
-                                                    </span>
-                                                </td>
-                                                {canEdit ? (
-                                                    <td className="px-3 py-2 text-right">
-                                                        <Button variant="outline" size="sm" className="gap-1" onClick={() => setEditingRow(row)}>
-                                                            <Pencil className="h-3.5 w-3.5" />
-                                                            Düzenle
-                                                        </Button>
-                                                    </td>
-                                                ) : null}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-
-                        <div className="mt-3 flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={(variantsMeta?.page ?? variantPage) <= 1}
-                                onClick={() => setVariantPage((p) => Math.max(1, p - 1))}
-                            >
-                                Önceki
-                            </Button>
-                            <span className="text-xs text-neutral-500">
-                                Sayfa {variantsMeta?.page ?? variantPage} / {variantsMeta?.totalPages ?? 1}
-                            </span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={(variantsMeta?.page ?? variantPage) >= (variantsMeta?.totalPages ?? 1)}
-                                onClick={() => setVariantPage((p) => p + 1)}
-                            >
-                                Sonraki
-                            </Button>
-                            <select
-                                className="ml-2 h-8 rounded-md border border-neutral-200 px-2 text-sm"
-                                value={String(variantLimit)}
-                                onChange={(e) => {
-                                    setVariantLimit(Number(e.target.value))
-                                    setVariantPage(1)
-                                }}
-                            >
-                                <option value="10">10 / sayfa</option>
-                                <option value="20">20 / sayfa</option>
-                                <option value="50">50 / sayfa</option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
-            </DashboardWithCollapsibleSidebar>
+
+                {mode === "supplier" && selectedProductId && selectedProduct ? (
+                    <div className="flex justify-end">
+                        <Button type="button" onClick={() => setVariantRequestOpen(true)}>
+                            Varyant Talebi Aç
+                        </Button>
+                    </div>
+                ) : null}
+
+                {selectedProductId ? (
+                    <ProductVariantsTable
+                        variants={paginatedVariants}
+                        emptyTitle="Varyant bulunamadı"
+                        emptyDescription="Seçili ürün modeli için görüntülenecek varyant kaydı yok."
+                        pricingVisibility={{
+                            showPrice: canSeeCost,
+                            showOperationalCostRate: canSeeCost,
+                            showNetCost: canSeeCost,
+                            showProfitRate: effectiveViewerMode === "full",
+                            showListPrice: canSeeListPrice,
+                        }}
+                        pricingLabels={{
+                            price: "Maliyet",
+                            operationalCostRate: "Op. Maliyet",
+                            netCost: "Net Maliyet",
+                            profitRate: "Kâr Oranı",
+                            listPrice: "Liste Fiyatı",
+                        }}
+                        summaryPricingField={canSeeListPrice ? "listPrice" : "netCost"}
+                        onEdit={canEdit
+                            ? (variant) => {
+                                const activeSupplier = variant.variantSuppliers.find((supplier) => supplier.isActive) ?? variant.variantSuppliers[0]
+                                const nextRow = variantsQuery.data?.data?.find((row) => row.id === activeSupplier?.id) ?? null
+                                setEditingRow(nextRow)
+                            }
+                            : undefined}
+                    />
+                ) : (
+                    <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-12 text-center text-sm text-neutral-500">
+                        Varyant listesini açmak için yukarıdan bir ürün modeli seçin.
+                    </div>
+                )}
+
+                {selectedProductId ? (
+                    <AdminListPagination
+                        page={variantPage}
+                        totalPages={variantTotalPages}
+                        total={groupedVariants.length}
+                        limit={variantLimit}
+                        itemLabel="varyant"
+                        onPageChange={setVariantPage}
+                        onLimitChange={(nextLimit) => {
+                            setVariantLimit(nextLimit)
+                            setVariantPage(1)
+                        }}
+                    />
+                ) : null}
+            </div>
 
             {canEdit ? (
                 <EditSupplierPriceDialog
@@ -531,15 +338,13 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
                 />
             ) : null}
 
-            {isSupplierMode ? (
-                <EditSupplierProfileDialog
-                    open={profileDialogOpen}
-                    onOpenChange={setProfileDialogOpen}
-                    profile={profile}
-                    isPending={updateProfileMutation.isPending}
-                    onSubmit={async (values) => {
-                        await updateProfileMutation.mutateAsync(values)
-                    }}
+            {mode === "supplier" && selectedProductId && selectedProduct ? (
+                <CreateSupplierVariantRequestDialog
+                    open={variantRequestOpen}
+                    onOpenChange={setVariantRequestOpen}
+                    productId={selectedProduct.id}
+                    productCode={selectedProduct.code}
+                    productName={selectedProduct.name}
                 />
             ) : null}
         </div>

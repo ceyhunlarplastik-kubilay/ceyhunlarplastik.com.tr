@@ -23,6 +23,30 @@ export type SupplierVariantPrice = {
         name: string
         fullCode: string
         productId: string
+        color?: {
+            id: string
+            name: string
+            hex?: string
+            hexCode?: string
+            code: string
+            system: string
+        } | null
+        materials?: Array<{
+            id: string
+            name: string
+        }>
+        measurements?: Array<{
+            id: string
+            value: number
+            label: string
+            measurementType: {
+                id: string
+                code: string
+                name: string
+                baseUnit?: string
+                displayOrder?: number
+            }
+        }>
         product?: {
             id: string
             code: string

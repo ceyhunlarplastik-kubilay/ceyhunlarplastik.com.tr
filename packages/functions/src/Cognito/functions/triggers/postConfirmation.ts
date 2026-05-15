@@ -30,6 +30,8 @@ export const handler = async (
             email,
             identifier: email.split("@")[0],
             groups: ["user"],
+            accessStatus: "PENDING_REVIEW",
+            accessStatusChangedAt: new Date(),
             isActive: true,
         });
     }

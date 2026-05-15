@@ -2,14 +2,20 @@ import { InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider"
 import { getCognitoClient } from "@/features/auth/server/cognito-client"
 import { CognitoAuthError, toCognitoAuthError } from "@/features/auth/server/errors"
 import { computeSecretHash } from "@/features/auth/server/secret-hash"
+import { getAuthUserAccessStateByCognitoSub } from "@/features/auth/server/user-access"
 import { getCognitoProfileFromIdToken } from "@/lib/auth/cognito-tokens"
 
 export type SignInResult = {
     id: string
+    dbUserId: string
     email: string
     name?: string
     image?: string
+    identifier: string
     groups: string[]
+    accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
+    customerId?: string | null
+    supplierId?: string | null
     idToken: string
     accessToken: string
     refreshToken?: string
@@ -49,13 +55,25 @@ export async function signInWithCognito(email: string, password: string): Promis
         }
 
         const profile = getCognitoProfileFromIdToken(idToken)
+        const accessState = profile.sub
+            ? await getAuthUserAccessStateByCognitoSub(profile.sub)
+            : null
+
+        if (!accessState) {
+            throw new CognitoAuthError("UNKNOWN_AUTH_ERROR", "Kullanıcı erişim kaydı bulunamadı.", 404)
+        }
 
         return {
             id: profile.sub ?? email,
+            dbUserId: accessState.dbUserId,
             email: profile.email ?? email,
             name: profile.name ?? profile.email ?? email,
-            image: profile.picture,
-            groups: profile.groups,
+            image: accessState.imageUrl ?? profile.picture,
+            identifier: accessState.identifier,
+            groups: accessState.groups,
+            accessStatus: accessState.accessStatus,
+            customerId: accessState.customerId,
+            supplierId: accessState.supplierId,
             idToken,
             accessToken,
             refreshToken: response.AuthenticationResult?.RefreshToken,

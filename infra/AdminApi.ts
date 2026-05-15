@@ -2,7 +2,8 @@ import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 import { publicBucket } from "./storage";
-import { supplierApprovalWorkflow } from "./approvalWorkflow";
+import { businessApprovalWorkflow } from "./businessWorkflow";
+import { userAccessBus } from "./userAccessLifecycle";
 
 const folderPrefix = "packages/functions/src/AdminApi/functions";
 
@@ -97,7 +98,7 @@ const jwtAuthorizer = adminApi.addAuthorizer({
 const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     runtime: "nodejs22.x",
     vpc: vpc,
-    link: [rds, userPool, publicBucket],
+    link: [rds, userPool, publicBucket, userAccessBus],
     environment: {
         BUCKET_NAME: publicBucket.name,
         ASSET_PUBLIC_BASE_URL:
@@ -109,9 +110,22 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     }
 };
 
-const approvalWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+const businessWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultRouteOptions,
-    link: [rds, userPool, publicBucket, supplierApprovalWorkflow],
+    link: [rds, userPool, publicBucket],
+    permissions: [
+        {
+            actions: ["states:*"],
+            resources: [
+                businessApprovalWorkflow.arn,
+                businessApprovalWorkflow.arn.apply((arn) => `${arn.replace("stateMachine", "execution")}:*`),
+            ],
+        },
+        {
+            actions: ["states:SendTaskSuccess", "states:SendTaskFailure", "states:SendTaskHeartbeat"],
+            resources: ["*"],
+        },
+    ],
 };
 
 // 🔁 reusable auth config
@@ -141,6 +155,11 @@ adminApi.route("PUT /users/{id}/supplier", {
 
 adminApi.route("PUT /users/{id}/assignment", {
     handler: `${folderPrefix}/users/actions.updateUserAssignment`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /users/{id}/role", {
+    handler: `${folderPrefix}/users/actions.updateUserRole`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
@@ -175,6 +194,16 @@ adminApi.route("PUT /customers/{id}/featured-products", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /customers/{id}/assigned-products", {
+    handler: `${folderPrefix}/customers/actions.listCustomerAssignedProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /customers/{id}/assigned-products", {
+    handler: `${folderPrefix}/customers/actions.replaceCustomerAssignedProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /customers/{id}/visits", {
     handler: `${folderPrefix}/customers/actions.listCustomerVisits`,
     ...defaultRouteOptions,
@@ -195,6 +224,16 @@ adminApi.route("DELETE /customers/{id}/visits/{visitId}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /approval-requests", {
+    handler: `${folderPrefix}/businessRequests/actions.listBusinessRequests`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /approval-requests/{id}/decision", {
+    handler: `${folderPrefix}/businessRequests/actions.decideBusinessRequest`,
+    ...businessWorkflowRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /web-requests", {
     handler: `${folderPrefix}/webRequests/actions.listWebRequests`,
     ...defaultRouteOptions,
@@ -203,16 +242,6 @@ adminApi.route("GET /web-requests", {
 adminApi.route("PUT /web-requests/{id}/status", {
     handler: `${folderPrefix}/webRequests/actions.updateWebRequestStatus`,
     ...defaultRouteOptions,
-}, { ...defaultAuthOptions });
-
-adminApi.route("GET /supplier-approval-requests", {
-    handler: `${folderPrefix}/supplierApprovalRequests/actions.listSupplierApprovalRequests`,
-    ...defaultRouteOptions,
-}, { ...defaultAuthOptions });
-
-adminApi.route("POST /supplier-approval-requests/{id}/decision", {
-    handler: `${folderPrefix}/supplierApprovalRequests/actions.decideSupplierApprovalRequest`,
-    ...approvalWorkflowRouteOptions,
 }, { ...defaultAuthOptions });
 
 /*----------------------- CATEGORIES -----------------------*/

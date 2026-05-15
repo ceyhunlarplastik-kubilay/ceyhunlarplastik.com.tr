@@ -13,7 +13,7 @@ export interface ICreateSupplierBody {
     taxNumber?: string
     defaultPaymentTermDays?: number
     isActive: boolean
-    assignedPurchasingUserId?: string | null
+    assignedPurchasingUserIds?: string[]
 }
 
 export type ICreateSupplierEvent =

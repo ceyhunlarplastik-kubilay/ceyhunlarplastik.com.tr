@@ -65,9 +65,11 @@ export interface IAPIGatewayEventRequestContextJWTAuthorizerWithClaims
 // Kullanıcı bilgisi tipi
 export interface IAuthenticatedUser {
   id: string
+  dbUserId?: string
   identifier: string
   email: string
   groups: string[]
+  accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
   supplierId?: string | null
   customerId?: string | null
 
@@ -77,6 +79,7 @@ export interface IAuthenticatedUser {
   isSupplier: boolean
   isPurchasing: boolean
   isSales: boolean
+  isSalesDirector: boolean
   isCustomer: boolean
 }
 

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth/auth"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { SignInPageClient } from "@/features/auth/components/SignInPageClient"
-import { canAccessPath, getCallbackPathname } from "@/features/auth/lib/navigation"
+import { canAccessPath, getCallbackPathname, resolveAuthHome } from "@/features/auth/lib/navigation"
 
 export default async function SignInPage({
     searchParams,
@@ -15,13 +15,18 @@ export default async function SignInPage({
 
     if (session) {
         const groups = session.user?.groups ?? []
+        const accessStatus = session.user?.accessStatus ?? "PENDING_REVIEW"
         const callbackPathname = getCallbackPathname(callbackUrl)
+
+        if (accessStatus !== "ACTIVE") {
+            redirect("/hesabim")
+        }
 
         if (canAccessPath(groups, callbackPathname)) {
             redirect(callbackUrl)
         }
 
-        redirect("/?error=unauthorized")
+        redirect(resolveAuthHome(groups, accessStatus))
     }
 
     return (

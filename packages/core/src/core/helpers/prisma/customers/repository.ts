@@ -39,32 +39,47 @@ const customerBaseInclude = {
     },
 } satisfies Prisma.CustomerInclude
 
+const customerProductInclude = {
+    createdByUser: {
+        select: {
+            id: true,
+            email: true,
+            identifier: true,
+        },
+    },
+    product: {
+        include: {
+            category: true,
+            assets: true,
+            attributeValues: {
+                include: {
+                    attribute: true,
+                },
+            },
+        },
+    },
+} as const
+
 const customerDetailInclude = {
     ...customerBaseInclude,
     featuredProducts: {
         orderBy: {
             displayOrder: "asc",
         },
-        include: {
-            createdByUser: {
-                select: {
-                    id: true,
-                    email: true,
-                    identifier: true,
-                },
-            },
-            product: {
-                include: {
-                    category: true,
-                    assets: true,
-                    attributeValues: {
-                        include: {
-                            attribute: true,
-                        },
-                    },
-                },
-            },
+        include: customerProductInclude,
+    },
+    assignedProducts: {
+        orderBy: {
+            displayOrder: "asc",
         },
+        include: customerProductInclude,
+    },
+    addresses: {
+        orderBy: [
+            { isPrimary: "desc" },
+            { displayOrder: "asc" },
+            { createdAt: "asc" },
+        ],
     },
     visits: {
         orderBy: [
@@ -101,8 +116,14 @@ export type CustomerDetail = Prisma.CustomerGetPayload<{
 }>
 
 export type CustomerFeaturedProductWithRelations = Prisma.CustomerFeaturedProductGetPayload<{
-    include: typeof customerDetailInclude.featuredProducts.include
+    include: typeof customerProductInclude
 }>
+
+export type CustomerAssignedProductWithRelations = Prisma.CustomerAssignedProductGetPayload<{
+    include: typeof customerProductInclude
+}>
+
+export type CustomerAddressRecord = Prisma.CustomerAddressGetPayload<{}>
 
 export type CustomerVisitWithRelations = Prisma.CustomerVisitGetPayload<{
     include: typeof customerDetailInclude.visits.include
@@ -136,6 +157,12 @@ export interface IPrismaCustomerRepository {
         createdByUserId: string,
     ): Promise<CustomerFeaturedProductWithRelations[]>
     listFeaturedProducts(customerId: string): Promise<CustomerFeaturedProductWithRelations[]>
+    replaceAssignedProducts(
+        customerId: string,
+        productIds: string[],
+        createdByUserId: string,
+    ): Promise<CustomerAssignedProductWithRelations[]>
+    listAssignedProducts(customerId: string): Promise<CustomerAssignedProductWithRelations[]>
     listVisits(customerId: string): Promise<CustomerVisitWithRelations[]>
     createVisit(data: Prisma.CustomerVisitCreateInput): Promise<CustomerVisitWithRelations>
     updateVisit(id: string, data: Prisma.CustomerVisitUpdateInput): Promise<CustomerVisitWithRelations>
@@ -233,7 +260,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             orderBy: {
                 displayOrder: "asc",
             },
-            include: customerDetailInclude.featuredProducts.include,
+            include: customerProductInclude,
         })
 
     const replaceFeaturedProducts = async (
@@ -261,6 +288,42 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         })
 
         return listFeaturedProducts(customerId)
+    }
+
+    const listAssignedProducts = async (customerId: string) =>
+        prisma.customerAssignedProduct.findMany({
+            where: { customerId },
+            orderBy: {
+                displayOrder: "asc",
+            },
+            include: customerProductInclude,
+        })
+
+    const replaceAssignedProducts = async (
+        customerId: string,
+        productIds: string[],
+        createdByUserId: string,
+    ) => {
+        const uniqueProductIds = Array.from(new Set(productIds.filter(Boolean)))
+
+        await prisma.$transaction(async (tx) => {
+            await tx.customerAssignedProduct.deleteMany({
+                where: { customerId },
+            })
+
+            if (uniqueProductIds.length > 0) {
+                await tx.customerAssignedProduct.createMany({
+                    data: uniqueProductIds.map((productId, index) => ({
+                        customerId,
+                        productId,
+                        displayOrder: index,
+                        createdByUserId,
+                    })),
+                })
+            }
+        })
+
+        return listAssignedProducts(customerId)
     }
 
     const listVisits = async (customerId: string) =>
@@ -300,6 +363,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         convertCustomer,
         replaceFeaturedProducts,
         listFeaturedProducts,
+        replaceAssignedProducts,
+        listAssignedProducts,
         listVisits,
         createVisit,
         updateVisit,

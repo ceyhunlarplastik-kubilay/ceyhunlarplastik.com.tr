@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  UserNotification: 'UserNotification',
   Color: 'Color',
   Category: 'Category',
   Product: 'Product',
@@ -64,9 +65,14 @@ export const ModelName = {
   ProductMeasurement: 'ProductMeasurement',
   Supplier: 'Supplier',
   CustomerFeaturedProduct: 'CustomerFeaturedProduct',
+  CustomerAssignedProduct: 'CustomerAssignedProduct',
+  CustomerAddress: 'CustomerAddress',
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
-  SupplierApprovalRequest: 'SupplierApprovalRequest',
+  BusinessRequest: 'BusinessRequest',
+  BusinessRequestItem: 'BusinessRequestItem',
+  BusinessRequestApprovalStep: 'BusinessRequestApprovalStep',
+  ActivityLog: 'ActivityLog',
   Material: 'Material',
   Asset: 'Asset'
 } as const
@@ -92,7 +98,12 @@ export const UserScalarFieldEnum = {
   cognitoSub: 'cognitoSub',
   email: 'email',
   identifier: 'identifier',
+  imageKey: 'imageKey',
   groups: 'groups',
+  accessStatus: 'accessStatus',
+  accessStatusChangedAt: 'accessStatusChangedAt',
+  accessStatusChangedByUserId: 'accessStatusChangedByUserId',
+  accessStatusReason: 'accessStatusReason',
   supplierId: 'supplierId',
   customerId: 'customerId',
   isActive: 'isActive',
@@ -101,6 +112,20 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const UserNotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  data: 'data',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+} as const
+
+export type UserNotificationScalarFieldEnum = (typeof UserNotificationScalarFieldEnum)[keyof typeof UserNotificationScalarFieldEnum]
 
 
 export const ColorScalarFieldEnum = {
@@ -261,7 +286,6 @@ export const SupplierScalarFieldEnum = {
   taxNumber: 'taxNumber',
   defaultPaymentTermDays: 'defaultPaymentTermDays',
   isActive: 'isActive',
-  assignedPurchasingUserId: 'assignedPurchasingUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -280,6 +304,45 @@ export const CustomerFeaturedProductScalarFieldEnum = {
 } as const
 
 export type CustomerFeaturedProductScalarFieldEnum = (typeof CustomerFeaturedProductScalarFieldEnum)[keyof typeof CustomerFeaturedProductScalarFieldEnum]
+
+
+export const CustomerAssignedProductScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  productId: 'productId',
+  displayOrder: 'displayOrder',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerAssignedProductScalarFieldEnum = (typeof CustomerAssignedProductScalarFieldEnum)[keyof typeof CustomerAssignedProductScalarFieldEnum]
+
+
+export const CustomerAddressScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  label: 'label',
+  contactName: 'contactName',
+  phone: 'phone',
+  email: 'email',
+  country: 'country',
+  city: 'city',
+  district: 'district',
+  line1: 'line1',
+  line2: 'line2',
+  postalCode: 'postalCode',
+  taxOffice: 'taxOffice',
+  isPrimary: 'isPrimary',
+  isBilling: 'isBilling',
+  isShipping: 'isShipping',
+  note: 'note',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerAddressScalarFieldEnum = (typeof CustomerAddressScalarFieldEnum)[keyof typeof CustomerAddressScalarFieldEnum]
 
 
 export const CustomerVisitScalarFieldEnum = {
@@ -324,25 +387,80 @@ export const ProductVariantSupplierScalarFieldEnum = {
 export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
 
 
-export const SupplierApprovalRequestScalarFieldEnum = {
+export const BusinessRequestScalarFieldEnum = {
   id: 'id',
+  domain: 'domain',
   type: 'type',
   status: 'status',
+  priority: 'priority',
+  title: 'title',
+  description: 'description',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  customerId: 'customerId',
   supplierId: 'supplierId',
-  productVariantSupplierId: 'productVariantSupplierId',
   requestedByUserId: 'requestedByUserId',
-  reviewedByUserId: 'reviewedByUserId',
+  requesterRole: 'requesterRole',
   workflowExecutionArn: 'workflowExecutionArn',
   workflowTaskToken: 'workflowTaskToken',
-  requestPayload: 'requestPayload',
+  requestedData: 'requestedData',
   currentSnapshot: 'currentSnapshot',
-  decisionNote: 'decisionNote',
+  completedSnapshot: 'completedSnapshot',
   decidedAt: 'decidedAt',
+  completedAt: 'completedAt',
+  cancelledAt: 'cancelledAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type SupplierApprovalRequestScalarFieldEnum = (typeof SupplierApprovalRequestScalarFieldEnum)[keyof typeof SupplierApprovalRequestScalarFieldEnum]
+export type BusinessRequestScalarFieldEnum = (typeof BusinessRequestScalarFieldEnum)[keyof typeof BusinessRequestScalarFieldEnum]
+
+
+export const BusinessRequestItemScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  productVariantId: 'productVariantId',
+  quantity: 'quantity',
+  note: 'note',
+  data: 'data',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessRequestItemScalarFieldEnum = (typeof BusinessRequestItemScalarFieldEnum)[keyof typeof BusinessRequestItemScalarFieldEnum]
+
+
+export const BusinessRequestApprovalStepScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  stepOrder: 'stepOrder',
+  requiredRole: 'requiredRole',
+  assignedUserId: 'assignedUserId',
+  status: 'status',
+  decidedByUserId: 'decidedByUserId',
+  decidedAt: 'decidedAt',
+  decisionNote: 'decisionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessRequestApprovalStepScalarFieldEnum = (typeof BusinessRequestApprovalStepScalarFieldEnum)[keyof typeof BusinessRequestApprovalStepScalarFieldEnum]
+
+
+export const ActivityLogScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  actorUserId: 'actorUserId',
+  source: 'source',
+  eventType: 'eventType',
+  title: 'title',
+  description: 'description',
+  data: 'data',
+  createdAt: 'createdAt'
+} as const
+
+export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
 
 
 export const MaterialScalarFieldEnum = {
@@ -381,19 +499,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

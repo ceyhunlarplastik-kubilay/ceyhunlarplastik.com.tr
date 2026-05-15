@@ -15,7 +15,7 @@ type Props = {
 
 export function AssetPreviewPanel({
     asset,
-    refetchCategory,
+    refetchCategory: _refetchCategory,
 }: Props) {
 
     const deleteMutation = useDeleteAsset()
@@ -39,7 +39,6 @@ export function AssetPreviewPanel({
 
         deleteMutation.mutate({
             assetId: asset.id,
-            refetchCategory,
         })
 
     };

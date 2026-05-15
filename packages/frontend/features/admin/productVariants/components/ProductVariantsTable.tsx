@@ -26,9 +26,26 @@ import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 
 type Props = {
     variants: ProductVariant[]
-    deletingId: string | null
-    onEdit: (variant: ProductVariant) => void
-    onDelete: (variant: ProductVariant) => void
+    deletingId?: string | null
+    onEdit?: (variant: ProductVariant) => void
+    onDelete?: (variant: ProductVariant) => void
+    emptyTitle?: string
+    emptyDescription?: string
+    pricingVisibility?: {
+        showPrice?: boolean
+        showOperationalCostRate?: boolean
+        showNetCost?: boolean
+        showProfitRate?: boolean
+        showListPrice?: boolean
+    }
+    pricingLabels?: {
+        price?: string
+        operationalCostRate?: string
+        netCost?: string
+        profitRate?: string
+        listPrice?: string
+    }
+    summaryPricingField?: "price" | "netCost" | "listPrice"
 }
 
 function formatMoney(
@@ -48,10 +65,31 @@ function formatPercent(
 
 export function ProductVariantsTable({
     variants,
-    deletingId,
+    deletingId = null,
     onEdit,
     onDelete,
+    emptyTitle = "Varyant bulunamadı",
+    emptyDescription = "Henüz bu ürüne ait varyant eklenmemiş.",
+    pricingVisibility,
+    pricingLabels,
+    summaryPricingField = "listPrice",
 }: Props) {
+    const visibility = {
+        showPrice: pricingVisibility?.showPrice ?? true,
+        showOperationalCostRate: pricingVisibility?.showOperationalCostRate ?? true,
+        showNetCost: pricingVisibility?.showNetCost ?? true,
+        showProfitRate: pricingVisibility?.showProfitRate ?? true,
+        showListPrice: pricingVisibility?.showListPrice ?? true,
+    }
+    const labels = {
+        price: pricingLabels?.price ?? "Ham Maliyet",
+        operationalCostRate: pricingLabels?.operationalCostRate ?? "Op. Maliyet",
+        netCost: pricingLabels?.netCost ?? "Net Maliyet",
+        profitRate: pricingLabels?.profitRate ?? "Kâr Oranı",
+        listPrice: pricingLabels?.listPrice ?? "Liste Fiyatı",
+    }
+    const showActions = Boolean(onEdit || onDelete)
+
     if (!variants.length) {
         return (
             <div className="rounded-2xl border border-neutral-200/60 bg-white shadow-sm">
@@ -59,8 +97,8 @@ export function ProductVariantsTable({
                     <div className="w-14 h-14 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center">
                         <Box className="w-7 h-7 text-neutral-300" />
                     </div>
-                    <p className="font-medium text-neutral-900">Varyant bulunamadı</p>
-                    <p className="text-sm text-neutral-500">Henüz bu ürüne ait varyant eklenmemiş.</p>
+                    <p className="font-medium text-neutral-900">{emptyTitle}</p>
+                    <p className="text-sm text-neutral-500">{emptyDescription}</p>
                 </div>
             </div>
         )
@@ -68,17 +106,30 @@ export function ProductVariantsTable({
 
     return (
         <div className="rounded-2xl border border-neutral-200/60 bg-white shadow-sm p-3 sm:p-4">
-            <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 px-3 py-2 text-[11px] font-semibold text-neutral-500 border-b">
+            <div className={`grid ${showActions ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"} gap-3 border-b px-3 py-2 text-[11px] font-semibold text-neutral-500`}>
                 <div>Kod / Ad</div>
                 <div>Ölçüler</div>
                 <div>Tedarikçi Özeti</div>
-                <div>İşlem</div>
+                {showActions ? <div>İşlem</div> : null}
             </div>
 
             <Accordion type="single" collapsible className="w-full">
                 <AnimatePresence>
                     {variants.map((variant) => {
                         const activeSupplier = variant.variantSuppliers.find((supplier) => supplier.isActive)
+                        const summaryValue =
+                            summaryPricingField === "netCost"
+                                ? activeSupplier?.netCost
+                                : summaryPricingField === "price"
+                                    ? activeSupplier?.price
+                                    : activeSupplier?.listPrice
+                        const summaryLabel =
+                            summaryPricingField === "netCost"
+                                ? labels.netCost
+                                : summaryPricingField === "price"
+                                    ? labels.price
+                                    : labels.listPrice
+
                         return (
                             <motion.div
                                 key={variant.id}
@@ -88,7 +139,7 @@ export function ProductVariantsTable({
                                 transition={{ duration: 0.2 }}
                             >
                                 <AccordionItem value={variant.id} className="border-b border-neutral-100">
-                                    <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 items-center px-3 py-2">
+                                    <div className={`grid ${showActions ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"} items-center gap-3 px-3 py-2`}>
                                         <AccordionTrigger className="py-1 hover:no-underline text-left">
                                             <div>
                                                 <p className="font-mono text-xs text-neutral-500">{variant.fullCode}</p>
@@ -119,38 +170,46 @@ export function ProductVariantsTable({
                                             {activeSupplier ? (
                                                 <div className="space-y-0.5">
                                                     <p className="font-medium">{activeSupplier.supplier.name}</p>
-                                                    <p className="text-neutral-500">
-                                                        L: {formatMoney(activeSupplier.listPrice, activeSupplier.currency)}
-                                                    </p>
+                                                    {summaryValue !== undefined ? (
+                                                        <p className="text-neutral-500">
+                                                            {summaryLabel}: {formatMoney(summaryValue, activeSupplier.currency)}
+                                                        </p>
+                                                    ) : null}
                                                 </div>
                                             ) : (
                                                 <span className="text-neutral-400 italic">–</span>
                                             )}
                                         </div>
 
-                                        <div className="flex justify-end gap-1">
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="h-8 w-8 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100"
-                                                onClick={() => onEdit(variant)}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="h-8 w-8 text-neutral-500 hover:text-red-600 hover:bg-red-50"
-                                                onClick={() => onDelete(variant)}
-                                                disabled={deletingId === variant.id}
-                                            >
-                                                {deletingId === variant.id ? (
-                                                    <Spinner className="size-4 text-red-600" />
-                                                ) : (
-                                                    <Trash2 className="h-4 w-4" />
-                                                )}
-                                            </Button>
-                                        </div>
+                                        {showActions ? (
+                                            <div className="flex justify-end gap-1">
+                                                {onEdit ? (
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-8 w-8 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100"
+                                                        onClick={() => onEdit(variant)}
+                                                    >
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                ) : null}
+                                                {onDelete ? (
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-8 w-8 text-neutral-500 hover:text-red-600 hover:bg-red-50"
+                                                        onClick={() => onDelete(variant)}
+                                                        disabled={deletingId === variant.id}
+                                                    >
+                                                        {deletingId === variant.id ? (
+                                                            <Spinner className="size-4 text-red-600" />
+                                                        ) : (
+                                                            <Trash2 className="h-4 w-4" />
+                                                        )}
+                                                    </Button>
+                                                ) : null}
+                                            </div>
+                                        ) : null}
                                     </div>
 
                                     <AccordionContent className="px-3 pb-3">
@@ -191,11 +250,11 @@ export function ProductVariantsTable({
                                                         <TableHeader>
                                                             <TableRow>
                                                                 <TableHead className="text-[11px]">Tedarikçi</TableHead>
-                                                                <TableHead className="text-[11px]">Ham Maliyet</TableHead>
-                                                                <TableHead className="text-[11px]">Op. Maliyet</TableHead>
-                                                                <TableHead className="text-[11px]">Net Maliyet</TableHead>
-                                                                <TableHead className="text-[11px]">Kâr Oranı</TableHead>
-                                                                <TableHead className="text-[11px]">Liste Fiyatı</TableHead>
+                                                                {visibility.showPrice ? <TableHead className="text-[11px]">{labels.price}</TableHead> : null}
+                                                                {visibility.showOperationalCostRate ? <TableHead className="text-[11px]">{labels.operationalCostRate}</TableHead> : null}
+                                                                {visibility.showNetCost ? <TableHead className="text-[11px]">{labels.netCost}</TableHead> : null}
+                                                                {visibility.showProfitRate ? <TableHead className="text-[11px]">{labels.profitRate}</TableHead> : null}
+                                                                {visibility.showListPrice ? <TableHead className="text-[11px]">{labels.listPrice}</TableHead> : null}
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
@@ -205,21 +264,31 @@ export function ProductVariantsTable({
                                                                         {supplier.supplier.name}
                                                                         {supplier.isActive ? " (Aktif)" : ""}
                                                                     </TableCell>
-                                                                    <TableCell className="text-[11px]">
-                                                                        {formatMoney(supplier.price, supplier.currency)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-[11px]">
-                                                                        {formatPercent(supplier.operationalCostRate)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-[11px]">
-                                                                        {formatMoney(supplier.netCost, supplier.currency)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-[11px]">
-                                                                        {formatPercent(supplier.profitRate)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-[11px]">
-                                                                        {formatMoney(supplier.listPrice, supplier.currency)}
-                                                                    </TableCell>
+                                                                    {visibility.showPrice ? (
+                                                                        <TableCell className="text-[11px]">
+                                                                            {formatMoney(supplier.price, supplier.currency)}
+                                                                        </TableCell>
+                                                                    ) : null}
+                                                                    {visibility.showOperationalCostRate ? (
+                                                                        <TableCell className="text-[11px]">
+                                                                            {formatPercent(supplier.operationalCostRate)}
+                                                                        </TableCell>
+                                                                    ) : null}
+                                                                    {visibility.showNetCost ? (
+                                                                        <TableCell className="text-[11px]">
+                                                                            {formatMoney(supplier.netCost, supplier.currency)}
+                                                                        </TableCell>
+                                                                    ) : null}
+                                                                    {visibility.showProfitRate ? (
+                                                                        <TableCell className="text-[11px]">
+                                                                            {formatPercent(supplier.profitRate)}
+                                                                        </TableCell>
+                                                                    ) : null}
+                                                                    {visibility.showListPrice ? (
+                                                                        <TableCell className="text-[11px]">
+                                                                            {formatMoney(supplier.listPrice, supplier.currency)}
+                                                                        </TableCell>
+                                                                    ) : null}
                                                                 </TableRow>
                                                             ))}
                                                         </TableBody>

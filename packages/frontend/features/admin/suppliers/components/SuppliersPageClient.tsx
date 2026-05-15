@@ -35,6 +35,7 @@ import { useVariantReferences } from "@/features/admin/productVariants/hooks/use
 import { useProductVariants } from "@/features/admin/productVariants/hooks/useProductVariants"
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
+import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
 import {
     Dialog,
     DialogContent,
@@ -61,7 +62,7 @@ export function SuppliersPageClient() {
         address: "",
         taxNumber: "",
         defaultPaymentTermDays: "",
-        assignedPurchasingUserId: "",
+        assignedPurchasingUserIds: [] as string[],
     })
     const [selectedCategoryId, setSelectedCategoryId] = useState("")
     const [productSearch, setProductSearch] = useState("")
@@ -163,7 +164,9 @@ export function SuppliersPageClient() {
                             <TableRow key={supplier.id}>
                                 <TableCell className="font-medium">{supplier.name}</TableCell>
                                 <TableCell>
-                                    {supplier.assignedPurchasingUser?.identifier ?? "-"}
+                                    {(supplier.assignedPurchasingSuppliers ?? []).length > 0
+                                        ? (supplier.assignedPurchasingSuppliers ?? []).map((user) => user.identifier).join(", ")
+                                        : "-"}
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant={supplier.isActive ? "default" : "secondary"}>
@@ -207,7 +210,7 @@ export function SuppliersPageClient() {
                                                         supplier.defaultPaymentTermDays !== undefined
                                                         ? String(supplier.defaultPaymentTermDays)
                                                         : "",
-                                                assignedPurchasingUserId: supplier.assignedPurchasingUserId ?? "",
+                                                assignedPurchasingUserIds: (supplier.assignedPurchasingSuppliers ?? []).map((user) => user.id),
                                             })
                                         }}
                                     >
@@ -631,20 +634,18 @@ export function SuppliersPageClient() {
                             />
                         </div>
                         <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-purchasing-user">Satın Alma Sorumlusu</Label>
-                            <select
-                                id="supplier-purchasing-user"
-                                className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
-                                value={supplierDraft.assignedPurchasingUserId || "__none__"}
-                                onChange={(e) => setSupplierDraft((p) => ({ ...p, assignedPurchasingUserId: e.target.value === "__none__" ? "" : e.target.value }))}
-                            >
-                                <option value="__none__">Atama yok</option>
-                                {purchasingUsers.map((user) => (
-                                    <option key={user.id} value={user.id}>
-                                        {user.identifier}
-                                    </option>
-                                ))}
-                            </select>
+                            <Label htmlFor="supplier-purchasing-user">Satın Alma Sorumluları</Label>
+                            <EntityAssignmentSelect
+                                value={supplierDraft.assignedPurchasingUserIds}
+                                options={purchasingUsers.map((user) => ({
+                                    id: user.id,
+                                    label: user.identifier,
+                                    caption: user.email,
+                                }))}
+                                placeholder="Satın almacı seç"
+                                emptyLabel="Kullanıcı bulunamadı"
+                                onChange={(value) => setSupplierDraft((p) => ({ ...p, assignedPurchasingUserIds: value }))}
+                            />
                         </div>
                         <div className="flex justify-end">
                             <Button
@@ -660,7 +661,7 @@ export function SuppliersPageClient() {
                                         defaultPaymentTermDays: supplierDraft.defaultPaymentTermDays
                                             ? Number(supplierDraft.defaultPaymentTermDays)
                                             : undefined,
-                                        assignedPurchasingUserId: supplierDraft.assignedPurchasingUserId || null,
+                                        assignedPurchasingUserIds: supplierDraft.assignedPurchasingUserIds,
                                     })
                                     setEditingSupplier(null)
                                 }}

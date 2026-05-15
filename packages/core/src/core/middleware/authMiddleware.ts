@@ -12,6 +12,7 @@ export type IPermissionGroups = {
 
 export interface IAuthMiddlewareOptions extends IPermissionGroups {
   optional?: boolean;
+  allowInactive?: boolean;
 }
 
 const ROLE_HIERARCHY = {
@@ -21,18 +22,12 @@ const ROLE_HIERARCHY = {
 } as const;
 
 type Role = keyof typeof ROLE_HIERARCHY;
-const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "supplier", "customer", "user"] as const;
+const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "sales_director", "supplier", "customer", "user"] as const;
 
 const normalizeGroups = (groups: string[]): string[] => {
   const cleaned = groups
     .map((group) => group.trim().toLowerCase())
     .filter(Boolean);
-
-  if (cleaned.length === 1) {
-    const merged = cleaned[0];
-    const extracted = KNOWN_GROUPS.filter((group) => merged.includes(group));
-    if (extracted.length > 1) return extracted;
-  }
 
   return Array.from(new Set(cleaned));
 };
@@ -41,8 +36,11 @@ const parseCognitoGroups = (rawGroups: unknown): string[] => {
   if (Array.isArray(rawGroups)) {
     return normalizeGroups(rawGroups
       .filter((group): group is string => typeof group === "string")
+      .flatMap((group) => group
+        .replace(/[\[\]"]/g, "")
+        .split(/[,\s]+/))
       .map((group) => group.trim().toLowerCase())
-      .filter(Boolean));
+      .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])));
   }
 
   if (typeof rawGroups !== "string") return [];
@@ -57,11 +55,11 @@ const parseCognitoGroups = (rawGroups: unknown): string[] => {
   return normalizeGroups(normalized
     .split(/[,\s]+/)
     .map((group) => group.trim().toLowerCase())
-    .filter(Boolean));
+    .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])));
 };
 
 const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
-  const { requiredPermissionGroups, optional } = opts || {};
+  const { requiredPermissionGroups, optional, allowInactive } = opts || {};
 
   const before: middy.MiddlewareFn<
     IAPIGatewayProxyEventWithUser,
@@ -113,32 +111,32 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
           email,
           identifier: email.split("@")[0],
           groups: cognitoGroups,
+          accessStatus: cognitoGroups.includes("user") ? "PENDING_REVIEW" : "ACTIVE",
           isActive: true,
         },
       });
-    } else {
-      // 🔄 Cognito ↔ DB role sync
-      const needsGroupSync =
-        JSON.stringify(user.groups.slice().sort()) !==
-        JSON.stringify(cognitoGroups.slice().sort());
-
-      if (needsGroupSync) {
-        user = await prisma.user.update({
-          where: { id: user.id },
-          data: { groups: cognitoGroups },
-        });
-      }
+    } else if (user.email !== email) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { email },
+      });
     }
 
     if (!user.isActive) {
       throw createError.Forbidden("User is disabled");
     }
 
+    if (user.accessStatus !== "ACTIVE" && !allowInactive) {
+      throw createError.Forbidden("User access is not active");
+    }
+
     event.user = {
       id: user.id,
+      dbUserId: user.id,
       identifier: user.identifier,
       email: user.email,
       groups: user.groups,
+      accessStatus: user.accessStatus,
       supplierId: user.supplierId,
       customerId: user.customerId,
       isOwner: user.groups.includes("owner"),
@@ -146,6 +144,7 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
       isSupplier: user.groups.includes("supplier"),
       isPurchasing: user.groups.includes("purchasing"),
       isSales: user.groups.includes("sales"),
+      isSalesDirector: user.groups.includes("sales_director"),
       isCustomer: user.groups.includes("customer"),
     };
 
