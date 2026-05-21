@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation"
+import { CustomerWorkspaceShell } from "@/features/admin/customers/components/CustomerWorkspaceShell"
+import { SalesCustomerOverviewPageClient } from "@/features/sales/customers/components/SalesCustomerOverviewPageClient"
 
 export default async function SalesCustomerPage({
     params,
@@ -7,5 +8,9 @@ export default async function SalesCustomerPage({
 }) {
     const { id } = await params
 
-    redirect(`/satis/musteriler/${id}/products`)
+    return (
+        <CustomerWorkspaceShell customerId={id} scope="sales">
+            <SalesCustomerOverviewPageClient customerId={id} />
+        </CustomerWorkspaceShell>
+    )
 }

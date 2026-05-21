@@ -75,6 +75,27 @@ const customerDetailInclude = {
             { displayOrder: "asc" },
             { createdAt: "asc" },
         ],
+        include: {
+            countryRef: {
+                select: {
+                    id: true,
+                    name: true,
+                    iso2: true,
+                },
+            },
+            stateRef: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            cityRef: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
     },
     visits: {
         orderBy: [

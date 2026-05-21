@@ -10,7 +10,8 @@ import { useCustomerAssignedProducts } from "@/features/admin/customers/hooks/us
 import { useCustomerFeaturedProducts } from "@/features/admin/customers/hooks/useCustomerFeaturedProducts"
 import { useReplaceCustomerAssignedProducts } from "@/features/admin/customers/hooks/useReplaceCustomerAssignedProducts"
 import { useReplaceCustomerFeaturedProducts } from "@/features/admin/customers/hooks/useReplaceCustomerFeaturedProducts"
-import { useProducts } from "@/features/admin/products/hooks/useProducts"
+import { useProducts as useAdminProducts } from "@/features/admin/products/hooks/useProducts"
+import { useProducts as usePublicProducts } from "@/features/public/products/hooks/useProducts"
 import { protectedApiClient } from "@/lib/http/client"
 import type {
     CustomerAssignedProductsResponse,
@@ -114,13 +115,20 @@ export function CustomerFeaturedProductsPageClient({
     const adminAssignedReplaceMutation = useReplaceCustomerAssignedProducts(customerId)
     const salesReplaceMutation = useReplaceManagedCustomerFeaturedProducts(customerId, scope === "sales")
     const salesAssignedReplaceMutation = useReplaceManagedCustomerAssignedProducts(customerId, scope === "sales")
-    const productsQuery = useProducts({
+    const adminProductsQuery = useAdminProducts({
+        enabled: scope === "admin",
         params: {
             page: 1,
             limit: 50,
             ...(search.trim() ? { search: search.trim() } : {}),
         },
     })
+    const salesProductsQuery = usePublicProducts({
+        page: 1,
+        limit: 50,
+        ...(search.trim() ? { search: search.trim() } : {}),
+    })
+    const productsQuery = scope === "sales" ? salesProductsQuery : adminProductsQuery
 
     const selectionQuery = scope === "sales"
         ? mode === "assigned" ? salesAssignedQuery : salesFeaturedQuery

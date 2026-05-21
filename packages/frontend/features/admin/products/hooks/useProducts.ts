@@ -17,16 +17,17 @@ const productParamsSchema = z.object({
 type Options = {
     params?: GetProductsParams
     autoRefreshIntervalMs?: number | false
+    enabled?: boolean
 }
 
-export function useProducts({ params = {}, autoRefreshIntervalMs = false }: Options = {}) {
+export function useProducts({ params = {}, autoRefreshIntervalMs = false, enabled = true }: Options = {}) {
     const normalizedParams = useMemo(() => productParamsSchema.parse(params), [params])
 
     return useQuery({
         queryKey: ["admin-products", normalizedParams],
         queryFn: () => getProducts(normalizedParams),
         placeholderData: (prev) => prev,
-        enabled: normalizedParams.limit !== 0,
+        enabled: enabled && normalizedParams.limit !== 0,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,
         refetchInterval: autoRefreshIntervalMs,

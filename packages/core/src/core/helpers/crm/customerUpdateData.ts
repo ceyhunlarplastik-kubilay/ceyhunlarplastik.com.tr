@@ -18,6 +18,9 @@ type Input = {
         contactName?: string | null
         phone?: string | null
         email?: string | null
+        countryId?: number | null
+        stateId?: number | null
+        cityId?: number | null
         country?: string | null
         city: string
         district?: string | null
@@ -25,6 +28,7 @@ type Input = {
         line2?: string | null
         postalCode?: string | null
         taxOffice?: string | null
+        taxNumber?: string | null
         isPrimary?: boolean
         isBilling?: boolean
         isShipping?: boolean
@@ -83,6 +87,9 @@ export async function buildCustomerUpdateData(
                         contactName: address.contactName ?? null,
                         phone: address.phone ?? null,
                         email: address.email ?? null,
+                        countryId: address.countryId ?? null,
+                        stateId: address.stateId ?? null,
+                        cityId: address.cityId ?? null,
                         country: address.country?.trim() || "Turkiye",
                         city: address.city,
                         district: address.district ?? null,
@@ -90,6 +97,7 @@ export async function buildCustomerUpdateData(
                         line2: address.line2 ?? null,
                         postalCode: address.postalCode ?? null,
                         taxOffice: address.taxOffice ?? null,
+                        taxNumber: address.taxNumber ?? null,
                         isPrimary: Boolean(address.isPrimary),
                         isBilling: Boolean(address.isBilling),
                         isShipping: address.isShipping ?? true,

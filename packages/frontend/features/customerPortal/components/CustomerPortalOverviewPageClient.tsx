@@ -132,10 +132,10 @@ export function CustomerPortalOverviewPageClient() {
                         </div>
                     </div>
                     <div className="rounded-3xl border bg-white p-6 shadow-sm xl:col-span-2">
-                        <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Workflow Talepleri</div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Müşteri Talepleri</div>
                         <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                             <div className="max-w-2xl text-sm leading-6 text-neutral-600">
-                                Sipariş, fiyat, doküman ve profil değişikliği taleplerinizi artık portal içinden kontrollü approval akışına gönderebilirsiniz.
+                                Sipariş, fiyat, doküman ve profil değişikliği taleplerinizi artık portal içinden kontrollü onay akışına gönderebilirsiniz.
                             </div>
                             <Link
                                 href="/musteri/talepler"
@@ -172,6 +172,7 @@ export function CustomerPortalOverviewPageClient() {
                                     {address.email ? <div>E-posta: {address.email}</div> : null}
                                     {address.postalCode ? <div>Posta Kodu: {address.postalCode}</div> : null}
                                     {address.taxOffice ? <div>Vergi Dairesi: {address.taxOffice}</div> : null}
+                                    {address.taxNumber ? <div>Vergi Numarası: {address.taxNumber}</div> : null}
                                 </div>
                             </div>
                         )) : (

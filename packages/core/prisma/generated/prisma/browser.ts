@@ -58,6 +58,21 @@ export type ProductAttributeValue = Prisma.ProductAttributeValueModel
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model GeoCountry
+ * 
+ */
+export type GeoCountry = Prisma.GeoCountryModel
+/**
+ * Model GeoState
+ * 
+ */
+export type GeoState = Prisma.GeoStateModel
+/**
+ * Model GeoCity
+ * 
+ */
+export type GeoCity = Prisma.GeoCityModel
+/**
  * Model WebRequest
  * 
  */

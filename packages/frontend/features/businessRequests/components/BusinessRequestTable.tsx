@@ -66,6 +66,10 @@ function isSupplierDiffRequest(request: BusinessRequest) {
         || request.type === "SUPPLIER_VARIANT_CREATE"
 }
 
+function isDiffRequest(request: BusinessRequest) {
+    return isSupplierDiffRequest(request) || request.type === "CUSTOMER_PROFILE_CHANGE"
+}
+
 function getSubjectLabel(request: BusinessRequest) {
     if (request.customer) return request.customer.companyName || request.customer.fullName
     if (request.supplier) return request.supplier.name
@@ -402,7 +406,7 @@ export function BusinessRequestTable({
                                                     {Object.entries(request.requestedData ?? {}).length > 0 ? (
                                                         <div className="rounded-2xl border border-neutral-200 bg-white p-4">
                                                             <div className="text-sm font-medium text-neutral-900">Talep Verileri</div>
-                                                            {isSupplierDiffRequest(request) ? (
+                                                            {isDiffRequest(request) ? (
                                                                 <div className="mt-3">
                                                                     <BusinessRequestDiffPanel
                                                                         request={request}
@@ -437,21 +441,6 @@ export function BusinessRequestTable({
                                                                         </div>
                                                                     ) : null}
 
-                                                                    {request.type === "CUSTOMER_PROFILE_CHANGE" && Array.isArray((request.requestedData as Record<string, any> | undefined)?.proposedProfile?.addresses) ? (
-                                                                        <div className="mt-4 grid gap-3">
-                                                                            {((request.requestedData as Record<string, any>)?.proposedProfile?.addresses as Array<Record<string, unknown>>).map((address, index) => (
-                                                                                <div key={`address-${index}`} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                                                                                    <div className="font-medium text-neutral-900">{renderDataValue(address.label)}</div>
-                                                                                    <div className="mt-1 text-sm text-neutral-700">
-                                                                                        {[address.line1, address.line2, address.district, address.city, address.country]
-                                                                                            .filter(Boolean)
-                                                                                            .map((value) => String(value))
-                                                                                            .join(", ")}
-                                                                                    </div>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    ) : null}
                                                                 </>
                                                             )}
                                                         </div>

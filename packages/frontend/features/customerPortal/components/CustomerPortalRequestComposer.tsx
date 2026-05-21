@@ -38,7 +38,9 @@ import {
 import { useCreatePortalBusinessRequest } from "@/features/businessRequests/hooks/useCreatePortalBusinessRequest"
 import { CustomerPortalRequestDraftPanel } from "@/features/customerPortal/components/CustomerPortalRequestDraftPanel"
 import { usePortalCustomer } from "@/features/customerPortal/hooks/usePortalCustomer"
+import { GeoAddressFields } from "@/features/geo/components/GeoAddressFields"
 import { type PortalRequestDraftItem, usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
+import { cn } from "@/lib/utils"
 
 const draftPanelStateValues = ["closed", "open"] as const
 const composeTypeParser = parseAsStringLiteral(CUSTOMER_PORTAL_REQUEST_TYPES)
@@ -106,18 +108,44 @@ const addressDraftSchema = z.object({
     contactName: z.string().trim().max(160).optional(),
     phone: z.string().trim().max(40).optional(),
     email: z.string().trim().max(160).optional(),
+    countryId: z.number().int().positive().nullable().optional(),
+    stateId: z.number().int().positive().nullable().optional(),
+    cityId: z.number().int().positive().nullable().optional(),
     country: z.string().trim().max(80).optional(),
+    stateName: z.string().trim().max(120).optional(),
     city: z.string().trim().max(80),
     district: z.string().trim().max(80).optional(),
     line1: z.string().trim().max(240),
     line2: z.string().trim().max(240).optional(),
     postalCode: z.string().trim().max(30).optional(),
     taxOffice: z.string().trim().max(120).optional(),
+    taxNumber: z.string().trim().max(32).optional(),
     isPrimary: z.boolean(),
     isBilling: z.boolean(),
     isShipping: z.boolean(),
     note: z.string().trim().max(1000).optional(),
 })
+
+function hasMeaningfulAddressInput(address: z.infer<typeof addressDraftSchema>) {
+    return Boolean(
+        address.label.trim()
+        || address.contactName?.trim()
+        || address.phone?.trim()
+        || address.email?.trim()
+        || address.countryId
+        || address.stateId
+        || address.cityId
+        || address.stateName?.trim()
+        || address.city.trim()
+        || address.district?.trim()
+        || address.line1.trim()
+        || address.line2?.trim()
+        || address.postalCode?.trim()
+        || address.taxOffice?.trim()
+        || address.taxNumber?.trim()
+        || address.note?.trim(),
+    )
+}
 
 const optionalEmailSchema = z
     .string()
@@ -190,6 +218,52 @@ const portalRequestSchema = z.object({
             path: ["documentTypes"],
         })
     }
+
+    if (values.type === "CUSTOMER_PROFILE_CHANGE") {
+        values.addresses.forEach((address, index) => {
+            if (!hasMeaningfulAddressInput(address)) return
+
+            if (!address.label.trim()) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Adres etiketi gerekli.",
+                    path: ["addresses", index, "label"],
+                })
+            }
+
+            if (!address.countryId) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Ülke seçin.",
+                    path: ["addresses", index, "countryId"],
+                })
+            }
+
+            if (!address.stateId) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "İl seçin.",
+                    path: ["addresses", index, "stateId"],
+                })
+            }
+
+            if (!address.cityId || !address.city.trim()) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "İlçe seçin.",
+                    path: ["addresses", index, "cityId"],
+                })
+            }
+
+            if (!address.line1.trim()) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Açık adres gerekli.",
+                    path: ["addresses", index, "line1"],
+                })
+            }
+        })
+    }
 })
 
 type PortalRequestFormValues = z.infer<typeof portalRequestSchema>
@@ -200,13 +274,18 @@ function emptyAddress() {
         contactName: "",
         phone: "",
         email: "",
+        countryId: null,
+        stateId: null,
+        cityId: null,
         country: "Turkiye",
+        stateName: "",
         city: "",
         district: "",
         line1: "",
         line2: "",
         postalCode: "",
         taxOffice: "",
+        taxNumber: "",
         isPrimary: false,
         isBilling: false,
         isShipping: true,
@@ -307,6 +386,14 @@ export function CustomerPortalRequestComposer() {
         [customer?.addresses, shippingAddressId],
     )
 
+    const getAddressFieldError = (index: number, key: keyof z.infer<typeof addressDraftSchema>) => {
+        const issue = form.formState.errors.addresses?.[index]?.[key]
+        return issue?.message ? String(issue.message) : ""
+    }
+
+    const getAddressFieldClassName = (index: number, key: keyof z.infer<typeof addressDraftSchema>) =>
+        cn(getAddressFieldError(index, key) && "border-destructive focus-visible:ring-destructive/20")
+
     useEffect(() => {
         form.setValue("type", composerState.composeType, {
             shouldDirty: false,
@@ -337,13 +424,18 @@ export function CustomerPortalRequestComposer() {
                 contactName: address.contactName ?? "",
                 phone: address.phone ?? "",
                 email: address.email ?? "",
+                countryId: address.countryId ?? null,
+                stateId: address.stateId ?? null,
+                cityId: address.cityId ?? null,
                 country: address.country,
+                stateName: address.stateRef?.name ?? "",
                 city: address.city,
                 district: address.district ?? "",
                 line1: address.line1,
                 line2: address.line2 ?? "",
                 postalCode: address.postalCode ?? "",
                 taxOffice: address.taxOffice ?? "",
+                taxNumber: address.taxNumber ?? "",
                 isPrimary: address.isPrimary,
                 isBilling: address.isBilling,
                 isShipping: address.isShipping,
@@ -403,19 +495,24 @@ export function CustomerPortalRequestComposer() {
         switch (values.type) {
             case "CUSTOMER_PROFILE_CHANGE": {
                 const normalizedAddresses = values.addresses
-                    .filter((address) => address.label.trim() && address.city.trim() && address.line1.trim())
+                    .filter((address) => hasMeaningfulAddressInput(address))
                     .map((address, index) => ({
                         label: address.label.trim(),
                         contactName: address.contactName?.trim() || null,
                         phone: address.phone?.trim() || null,
                         email: address.email?.trim() || null,
+                        countryId: address.countryId ?? null,
+                        stateId: address.stateId ?? null,
+                        cityId: address.cityId ?? null,
                         country: address.country?.trim() || "Turkiye",
+                        stateName: address.stateName?.trim() || null,
                         city: address.city.trim(),
                         district: address.district?.trim() || null,
                         line1: address.line1.trim(),
                         line2: address.line2?.trim() || null,
                         postalCode: address.postalCode?.trim() || null,
                         taxOffice: address.taxOffice?.trim() || null,
+                        taxNumber: address.taxNumber?.trim() || null,
                         isPrimary: address.isPrimary || index === 0,
                         isBilling: address.isBilling,
                         isShipping: address.isShipping,
@@ -751,14 +848,9 @@ export function CustomerPortalRequestComposer() {
                                         )}
                                     />
 
-                                    <div className="space-y-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                                    <div className="space-y-4 rounded-3xl border border-neutral-200 bg-neutral-50/80 p-4 md:p-5">
                                         <div className="flex items-center justify-between gap-3">
-                                            <div>
-                                                <div className="text-sm font-medium text-neutral-900">Adres Önerileri</div>
-                                                <p className="mt-1 text-sm text-neutral-500">
-                                                    Değişmesi gereken fatura veya sevkiyat adreslerini talep içine ekleyin.
-                                                </p>
-                                            </div>
+                                            <div className="text-sm font-medium text-neutral-900">Adres Değişiklik Talebi</div>
 
                                             <Button type="button" variant="outline" onClick={() => append(emptyAddress())}>
                                                 Adres Ekle
@@ -772,9 +864,9 @@ export function CustomerPortalRequestComposer() {
                                         ) : (
                                             <div className="space-y-4">
                                                 {addressFields.map((field, index) => (
-                                                    <div key={field.id} className="rounded-2xl border border-neutral-200 bg-white p-4">
+                                                    <div key={field.id} className="rounded-[24px] border border-neutral-200 bg-white p-4 md:p-5 shadow-sm">
                                                         <div className="mb-4 flex items-center justify-between gap-3">
-                                                            <div className="text-sm font-medium text-neutral-900">
+                                                            <div className="text-sm font-semibold text-neutral-900">
                                                                 {form.watch(`addresses.${index}.label`) || `Adres ${index + 1}`}
                                                             </div>
                                                             <Button type="button" size="sm" variant="ghost" onClick={() => remove(index)}>
@@ -782,28 +874,89 @@ export function CustomerPortalRequestComposer() {
                                                             </Button>
                                                         </div>
 
-                                                        <div className="grid gap-4 md:grid-cols-2">
-                                                            <Input {...form.register(`addresses.${index}.label`)} placeholder="Merkez, Depo, Fatura..." />
-                                                            <Input {...form.register(`addresses.${index}.contactName`)} placeholder="İrtibat kişisi" />
-                                                            <Input {...form.register(`addresses.${index}.phone`)} placeholder="Telefon" />
-                                                            <Input {...form.register(`addresses.${index}.email`)} placeholder="E-posta" />
-                                                            <Input {...form.register(`addresses.${index}.country`)} placeholder="Ülke" />
-                                                            <Input {...form.register(`addresses.${index}.city`)} placeholder="Şehir" />
-                                                            <Input {...form.register(`addresses.${index}.district`)} placeholder="İlçe" />
-                                                            <Input {...form.register(`addresses.${index}.postalCode`)} placeholder="Posta kodu" />
-                                                            <Input {...form.register(`addresses.${index}.taxOffice`)} placeholder="Vergi dairesi" />
-                                                            <div className="md:col-span-2">
-                                                                <Input {...form.register(`addresses.${index}.line1`)} placeholder="Adres satırı 1" />
+                                                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                                                            <div className="space-y-2">
+                                                                <FormLabel>Adres Etiketi</FormLabel>
+                                                                <Input
+                                                                    {...form.register(`addresses.${index}.label`)}
+                                                                    className={getAddressFieldClassName(index, "label")}
+                                                                    placeholder="Merkez, Depo, Fatura..."
+                                                                />
+                                                                {getAddressFieldError(index, "label") ? <p className="text-sm text-destructive">{getAddressFieldError(index, "label")}</p> : null}
                                                             </div>
-                                                            <div className="md:col-span-2">
-                                                                <Input {...form.register(`addresses.${index}.line2`)} placeholder="Adres satırı 2" />
+                                                            <div className="space-y-2">
+                                                                <FormLabel>İrtibat Kişisi</FormLabel>
+                                                                <Input {...form.register(`addresses.${index}.contactName`)} placeholder="İrtibat kişisi" />
                                                             </div>
-                                                            <div className="md:col-span-2">
-                                                                <Textarea {...form.register(`addresses.${index}.note`)} rows={3} placeholder="Adresle ilgili açıklama" />
+                                                            <div className="space-y-2">
+                                                                <FormLabel>Telefon</FormLabel>
+                                                                <Input {...form.register(`addresses.${index}.phone`)} placeholder="Telefon" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <FormLabel>E-posta</FormLabel>
+                                                                <Input
+                                                                    {...form.register(`addresses.${index}.email`)}
+                                                                    className={getAddressFieldClassName(index, "email")}
+                                                                    placeholder="E-posta"
+                                                                />
+                                                                {getAddressFieldError(index, "email") ? <p className="text-sm text-destructive">{getAddressFieldError(index, "email")}</p> : null}
+                                                            </div>
+                                                            <div className="md:col-span-2 xl:col-span-4 grid gap-4 xl:grid-cols-3">
+                                                                <GeoAddressFields
+                                                                    countryId={form.watch(`addresses.${index}.countryId`) ?? null}
+                                                                    stateId={form.watch(`addresses.${index}.stateId`) ?? null}
+                                                                    cityId={form.watch(`addresses.${index}.cityId`) ?? null}
+                                                                    onChange={(patch) => {
+                                                                        if (patch.countryId !== undefined) form.setValue(`addresses.${index}.countryId`, patch.countryId ?? null)
+                                                                        if (patch.stateId !== undefined) form.setValue(`addresses.${index}.stateId`, patch.stateId ?? null)
+                                                                        if (patch.cityId !== undefined) form.setValue(`addresses.${index}.cityId`, patch.cityId ?? null)
+                                                                        if (patch.country !== undefined) form.setValue(`addresses.${index}.country`, patch.country)
+                                                                        if (patch.stateName !== undefined) form.setValue(`addresses.${index}.stateName`, patch.stateName)
+                                                                        if (patch.city !== undefined) form.setValue(`addresses.${index}.city`, patch.city)
+                                                                    }}
+                                                                />
+                                                                <div className="xl:col-span-3 grid gap-2 md:grid-cols-3">
+                                                                    {getAddressFieldError(index, "countryId") ? <p className="text-sm text-destructive">{getAddressFieldError(index, "countryId")}</p> : <div />}
+                                                                    {getAddressFieldError(index, "stateId") ? <p className="text-sm text-destructive">{getAddressFieldError(index, "stateId")}</p> : <div />}
+                                                                    {getAddressFieldError(index, "cityId") ? <p className="text-sm text-destructive">{getAddressFieldError(index, "cityId")}</p> : <div />}
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <FormLabel>Mahalle / Bölge</FormLabel>
+                                                                <Input {...form.register(`addresses.${index}.district`)} placeholder="Mahalle, semt veya bölge" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <FormLabel>Posta Kodu</FormLabel>
+                                                                <Input {...form.register(`addresses.${index}.postalCode`)} placeholder="Posta kodu" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <FormLabel>Vergi Dairesi</FormLabel>
+                                                                <Input {...form.register(`addresses.${index}.taxOffice`)} placeholder="Vergi dairesi" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <FormLabel>Vergi Numarası</FormLabel>
+                                                                <Input {...form.register(`addresses.${index}.taxNumber`)} placeholder="VKN / TCKN" />
+                                                            </div>
+                                                            <div className="space-y-2 md:col-span-2 xl:col-span-4">
+                                                                <FormLabel>Açık Adres</FormLabel>
+                                                                <Input
+                                                                    {...form.register(`addresses.${index}.line1`)}
+                                                                    className={getAddressFieldClassName(index, "line1")}
+                                                                    placeholder="Cadde, sokak, bina no, kat, daire"
+                                                                />
+                                                                {getAddressFieldError(index, "line1") ? <p className="text-sm text-destructive">{getAddressFieldError(index, "line1")}</p> : null}
+                                                            </div>
+                                                            <div className="space-y-2 md:col-span-2 xl:col-span-4">
+                                                                <FormLabel>Adres Satırı 2</FormLabel>
+                                                                <Input {...form.register(`addresses.${index}.line2`)} placeholder="Opsiyonel ek adres bilgisi" />
+                                                            </div>
+                                                            <div className="space-y-2 md:col-span-2 xl:col-span-4">
+                                                                <FormLabel>Adres Notu</FormLabel>
+                                                                <Textarea {...form.register(`addresses.${index}.note`)} rows={3} placeholder="Adresle ilgili kısa açıklama" />
                                                             </div>
                                                         </div>
 
-                                                        <div className="mt-4 flex flex-wrap gap-4">
+                                                        <div className="mt-4 flex flex-wrap gap-4 border-t border-neutral-100 pt-4">
                                                             <label className="inline-flex items-center gap-2 text-sm text-neutral-600">
                                                                 <Checkbox
                                                                     checked={form.watch(`addresses.${index}.isPrimary`)}

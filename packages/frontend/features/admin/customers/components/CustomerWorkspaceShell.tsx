@@ -36,6 +36,9 @@ export function CustomerWorkspaceShell({
     const customerQuery = scope === "sales" ? salesCustomerQuery : adminCustomerQuery
     const customer = customerQuery.data
     const rootPath = basePath ?? (scope === "sales" ? `/satis/musteriler/${customerId}` : `/admin/customers/${customerId}`)
+    const visibleNavItems = scope === "sales"
+        ? navItems.filter((item) => item.label !== "Ziyaretler")
+        : navItems
 
     return (
         <div className="space-y-6">
@@ -119,7 +122,7 @@ export function CustomerWorkspaceShell({
                 <aside className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm">
                     <div className="mb-4 text-sm font-semibold text-neutral-900">Müşteri Çalışma Alanı</div>
                     <nav className="space-y-2">
-                        {navItems.map((item) => {
+                        {visibleNavItems.map((item) => {
                             const href = `${rootPath}${item.href}`
                             const active = item.href === "" ? pathname === rootPath : pathname === href
 

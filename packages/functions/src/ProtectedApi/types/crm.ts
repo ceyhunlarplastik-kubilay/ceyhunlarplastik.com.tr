@@ -51,6 +51,9 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
             contactName?: string | null
             phone?: string | null
             email?: string | null
+            countryId?: number | null
+            stateId?: number | null
+            cityId?: number | null
             country?: string | null
             city: string
             district?: string | null
@@ -58,6 +61,7 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
             line2?: string | null
             postalCode?: string | null
             taxOffice?: string | null
+            taxNumber?: string | null
             isPrimary?: boolean
             isBilling?: boolean
             isShipping?: boolean

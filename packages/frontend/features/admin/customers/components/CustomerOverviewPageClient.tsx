@@ -13,19 +13,25 @@ import { useUpdateCustomer } from "@/features/admin/customers/hooks/useUpdateCus
 import { useConvertCustomer } from "@/features/admin/customers/hooks/useConvertCustomer"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
+import { GeoAddressFields } from "@/features/geo/components/GeoAddressFields"
 
 type AddressDraft = {
     label: string
     contactName: string
     phone: string
     email: string
+    countryId: number | null
+    stateId: number | null
+    cityId: number | null
     country: string
+    stateName: string
     city: string
     district: string
     line1: string
     line2: string
     postalCode: string
     taxOffice: string
+    taxNumber: string
     isPrimary: boolean
     isBilling: boolean
     isShipping: boolean
@@ -37,13 +43,18 @@ const emptyAddress = (): AddressDraft => ({
     contactName: "",
     phone: "",
     email: "",
+    countryId: null,
+    stateId: null,
+    cityId: null,
     country: "Turkiye",
+    stateName: "",
     city: "",
     district: "",
     line1: "",
     line2: "",
     postalCode: "",
     taxOffice: "",
+    taxNumber: "",
     isPrimary: false,
     isBilling: false,
     isShipping: true,
@@ -94,13 +105,18 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                 contactName: address.contactName ?? "",
                 phone: address.phone ?? "",
                 email: address.email ?? "",
+                countryId: address.countryId ?? null,
+                stateId: address.stateId ?? null,
+                cityId: address.cityId ?? null,
                 country: address.country,
+                stateName: address.stateRef?.name ?? "",
                 city: address.city,
                 district: address.district ?? "",
                 line1: address.line1,
                 line2: address.line2 ?? "",
                 postalCode: address.postalCode ?? "",
                 taxOffice: address.taxOffice ?? "",
+                taxNumber: address.taxNumber ?? "",
                 isPrimary: address.isPrimary,
                 isBilling: address.isBilling,
                 isShipping: address.isShipping,
@@ -154,6 +170,9 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                         contactName: address.contactName.trim() || null,
                         phone: address.phone.trim() || null,
                         email: address.email.trim() || null,
+                        countryId: address.countryId ?? null,
+                        stateId: address.stateId ?? null,
+                        cityId: address.cityId ?? null,
                         country: address.country.trim() || "Turkiye",
                         city: address.city.trim(),
                         district: address.district.trim() || null,
@@ -161,6 +180,7 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                         line2: address.line2.trim() || null,
                         postalCode: address.postalCode.trim() || null,
                         taxOffice: address.taxOffice.trim() || null,
+                        taxNumber: address.taxNumber.trim() || null,
                         isPrimary: address.isPrimary || index === 0,
                         isBilling: address.isBilling,
                         isShipping: address.isShipping,
@@ -385,16 +405,16 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                                         <Label>E-posta</Label>
                                         <Input type="email" value={address.email} onChange={(e) => updateAddress(index, { email: e.target.value })} />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Ülke</Label>
-                                        <Input value={address.country} onChange={(e) => updateAddress(index, { country: e.target.value })} />
+                                    <div className="md:col-span-2 xl:col-span-3 grid gap-4 xl:grid-cols-3">
+                                        <GeoAddressFields
+                                            countryId={address.countryId}
+                                            stateId={address.stateId}
+                                            cityId={address.cityId}
+                                            onChange={(patch) => updateAddress(index, patch)}
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Şehir</Label>
-                                        <Input value={address.city} onChange={(e) => updateAddress(index, { city: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>İlçe</Label>
+                                        <Label>Mahalle / Bölge</Label>
                                         <Input value={address.district} onChange={(e) => updateAddress(index, { district: e.target.value })} />
                                     </div>
                                     <div className="space-y-2">
@@ -404,6 +424,10 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                                     <div className="space-y-2">
                                         <Label>Vergi Dairesi</Label>
                                         <Input value={address.taxOffice} onChange={(e) => updateAddress(index, { taxOffice: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Vergi Numarası</Label>
+                                        <Input value={address.taxNumber} onChange={(e) => updateAddress(index, { taxNumber: e.target.value })} />
                                     </div>
                                     <div className="space-y-2 md:col-span-2 xl:col-span-3">
                                         <Label>Adres Satırı 1</Label>

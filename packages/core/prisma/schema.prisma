@@ -250,6 +250,101 @@ model Customer {
   @@index([productionGroupValueId])
 }
 
+model GeoCountry {
+  id                Int      @id
+  name              String
+  iso3              String?
+  iso2              String   @unique
+  numericCode       String?  @map("numeric_code")
+  phoneCode         String?  @map("phonecode")
+  capital           String?
+  currency          String?
+  currencyName      String?  @map("currency_name")
+  currencySymbol    String?  @map("currency_symbol")
+  tld               String?
+  native            String?
+  population        BigInt?
+  gdp               String?
+  region            String?
+  regionId          Int?     @map("region_id")
+  subregion         String?
+  subregionId       Int?     @map("subregion_id")
+  nationality       String?
+  areaSqKm          String?  @map("area_sq_km")
+  postalCodeFormat  String?  @map("postal_code_format")
+  postalCodeRegex   String?  @map("postal_code_regex")
+  timezones         Json?
+  latitude          Decimal? @db.Decimal(10, 8)
+  longitude         Decimal? @db.Decimal(11, 8)
+  emoji             String?
+  emojiU            String?
+  wikiDataId        String?
+
+  states            GeoState[]
+  cities            GeoCity[]
+  customerAddresses CustomerAddress[]
+
+  @@index([name])
+  @@map("geo_countries")
+}
+
+model GeoState {
+  id          Int      @id
+  name        String
+  countryId   Int      @map("country_id")
+  countryCode String?  @map("country_code")
+  countryName String?  @map("country_name")
+  iso2        String?
+  iso3166_2   String?
+  fipsCode    String?  @map("fips_code")
+  type        String?
+  level       String?
+  parentId    Int?     @map("parent_id")
+  native      String?
+  latitude    Decimal? @db.Decimal(10, 8)
+  longitude   Decimal? @db.Decimal(11, 8)
+  timezone    String?
+  wikiDataId  String?
+  population  BigInt?
+
+  country           GeoCountry       @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  cities            GeoCity[]
+  customerAddresses CustomerAddress[]
+
+  @@index([countryId, name])
+  @@index([countryCode])
+  @@map("geo_states")
+}
+
+model GeoCity {
+  id          Int      @id
+  name        String
+  stateId     Int?     @map("state_id")
+  stateCode   String?  @map("state_code")
+  stateName   String?  @map("state_name")
+  countryId   Int      @map("country_id")
+  countryCode String?  @map("country_code")
+  countryName String?  @map("country_name")
+  latitude    Decimal? @db.Decimal(10, 8)
+  longitude   Decimal? @db.Decimal(11, 8)
+  native      String?
+  type        String?
+  level       String?
+  parentId    Int?     @map("parent_id")
+  population  BigInt?
+  timezone    String?
+  translations Json?
+  wikiDataId  String?
+
+  country           GeoCountry       @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  state             GeoState?        @relation(fields: [stateId], references: [id], onDelete: SetNull)
+  customerAddresses CustomerAddress[]
+
+  @@index([countryId, name])
+  @@index([stateId, name])
+  @@map("geo_cities")
+}
+
 enum CustomerStatus {
   LEAD
   CUSTOMER
@@ -457,6 +552,9 @@ model CustomerAddress {
   contactName  String?
   phone        String?
   email        String?
+  countryId     Int?
+  stateId       Int?
+  cityId        Int?
   country      String  @default("Turkiye")
   city         String
   district     String?
@@ -464,17 +562,25 @@ model CustomerAddress {
   line2        String?
   postalCode   String?
   taxOffice    String?
+  taxNumber    String?
   isPrimary    Boolean @default(false)
   isBilling    Boolean @default(false)
   isShipping   Boolean @default(true)
   note         String? @db.Text
   displayOrder Int     @default(0)
 
+  countryRef GeoCountry? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  stateRef   GeoState?   @relation(fields: [stateId], references: [id], onDelete: SetNull)
+  cityRef    GeoCity?    @relation(fields: [cityId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([customerId, displayOrder])
   @@index([customerId, isPrimary])
+  @@index([countryId])
+  @@index([stateId])
+  @@index([cityId])
 }
 
 model CustomerVisit {

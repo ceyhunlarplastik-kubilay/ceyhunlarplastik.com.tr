@@ -80,6 +80,27 @@ const customerDetailInclude = {
             { displayOrder: "asc" },
             { createdAt: "asc" },
         ],
+        include: {
+            countryRef: {
+                select: {
+                    id: true,
+                    name: true,
+                    iso2: true,
+                },
+            },
+            stateRef: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            cityRef: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
     },
     visits: {
         orderBy: [
@@ -123,7 +144,9 @@ export type CustomerAssignedProductWithRelations = Prisma.CustomerAssignedProduc
     include: typeof customerProductInclude
 }>
 
-export type CustomerAddressRecord = Prisma.CustomerAddressGetPayload<{}>
+export type CustomerAddressRecord = Prisma.CustomerAddressGetPayload<{
+    include: typeof customerDetailInclude.addresses.include
+}>
 
 export type CustomerVisitWithRelations = Prisma.CustomerVisitGetPayload<{
     include: typeof customerDetailInclude.visits.include

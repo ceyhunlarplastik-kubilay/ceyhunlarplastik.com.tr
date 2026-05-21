@@ -53,10 +53,64 @@ function pickSupplierProfilePayload(requestedData) {
     });
 }
 async function applyApprovedBusinessRequestTx(tx, request) {
+    const requestedData = asRecord(request.requestedData);
+    if (request.requesterRole === "CUSTOMER" && request.domain === "SALES") {
+        if (request.type !== "CUSTOMER_PROFILE_CHANGE") {
+            return;
+        }
+        if (!request.customerId) {
+            throw new createError.BadRequest("Customer target is missing for profile change request");
+        }
+        const proposedProfile = asRecord(requestedData.proposedProfile);
+        const rawAddresses = Array.isArray(proposedProfile.addresses) ? proposedProfile.addresses : [];
+        await tx.customer.update({
+            where: { id: request.customerId },
+            data: {
+                ...(typeof proposedProfile.companyName === "string" ? { companyName: proposedProfile.companyName.trim() || null } : {}),
+                ...(typeof proposedProfile.fullName === "string" ? { fullName: proposedProfile.fullName.trim() } : {}),
+                ...(typeof proposedProfile.phone === "string" ? { phone: proposedProfile.phone.trim() } : {}),
+                ...(typeof proposedProfile.email === "string" ? { email: proposedProfile.email.trim() } : {}),
+                ...(typeof proposedProfile.note === "string" ? { note: proposedProfile.note.trim() || null } : {}),
+                addresses: {
+                    deleteMany: {},
+                    create: rawAddresses
+                        .map((entry) => asRecord(entry))
+                        .filter((address) => typeof address.label === "string"
+                        && address.label.trim()
+                        && typeof address.city === "string"
+                        && address.city.trim()
+                        && typeof address.line1 === "string"
+                        && address.line1.trim())
+                        .map((address, index) => ({
+                        label: String(address.label).trim(),
+                        contactName: typeof address.contactName === "string" ? address.contactName.trim() || null : null,
+                        phone: typeof address.phone === "string" ? address.phone.trim() || null : null,
+                        email: typeof address.email === "string" ? address.email.trim() || null : null,
+                        countryId: isFiniteNumber(address.countryId) ? Number(address.countryId) : null,
+                        stateId: isFiniteNumber(address.stateId) ? Number(address.stateId) : null,
+                        cityId: isFiniteNumber(address.cityId) ? Number(address.cityId) : null,
+                        country: typeof address.country === "string" ? address.country.trim() || "Turkiye" : "Turkiye",
+                        city: String(address.city).trim(),
+                        district: typeof address.district === "string" ? address.district.trim() || null : null,
+                        line1: String(address.line1).trim(),
+                        line2: typeof address.line2 === "string" ? address.line2.trim() || null : null,
+                        postalCode: typeof address.postalCode === "string" ? address.postalCode.trim() || null : null,
+                        taxOffice: typeof address.taxOffice === "string" ? address.taxOffice.trim() || null : null,
+                        taxNumber: typeof address.taxNumber === "string" ? address.taxNumber.trim() || null : null,
+                        isPrimary: Boolean(address.isPrimary) || index === 0,
+                        isBilling: Boolean(address.isBilling),
+                        isShipping: address.isShipping === undefined ? true : Boolean(address.isShipping),
+                        note: typeof address.note === "string" ? address.note.trim() || null : null,
+                        displayOrder: index,
+                    })),
+                },
+            },
+        });
+        return;
+    }
     if (request.requesterRole !== "SUPPLIER" || request.domain !== "PURCHASING") {
         return;
     }
-    const requestedData = asRecord(request.requestedData);
     if (request.type === "SUPPLIER_PROFILE_CHANGE") {
         if (!request.supplierId) {
             throw new createError.BadRequest("Supplier target is missing for profile change request");
@@ -626,13 +680,18 @@ export async function createCustomerBusinessRequest(input) {
                 contactName: address.contactName,
                 phone: address.phone,
                 email: address.email,
+                countryId: address.countryId,
+                stateId: address.stateId,
+                cityId: address.cityId,
                 country: address.country,
+                stateName: address.stateRef?.name ?? null,
                 city: address.city,
                 district: address.district,
                 line1: address.line1,
                 line2: address.line2,
                 postalCode: address.postalCode,
                 taxOffice: address.taxOffice,
+                taxNumber: address.taxNumber,
                 isPrimary: address.isPrimary,
                 isBilling: address.isBilling,
                 isShipping: address.isShipping,

@@ -300,6 +300,14 @@ Preserve existing naming and domain terminology:
 - role-oriented API boundaries
 - soft-delete behavior where already implemented
 
+### Reference geo data
+When implementing selectable address flows for customers or suppliers:
+- Treat country/state/city data as internal reference data stored in the project PostgreSQL database, not as a runtime dependency on a third-party API.
+- Prefer additive schema changes. Keep display strings such as `country`, `city`, `district`, and `postalCode` while introducing normalized foreign keys like `countryId`, `stateId`, and `cityId`.
+- Import upstream location data through project-owned scripts under `packages/core/prisma/`, not by relying on temporary clone directories or one-off SQL imports.
+- Expose shared geo lookups through `PublicApi` so public, admin, customer, and future supplier forms can reuse the same selector contract.
+- Do not assume the global dataset includes reliable mahalle/neighborhood coverage; keep fine-grained local address parts as editable text unless a country-specific source is intentionally added.
+
 ## Infrastructure Rules
 
 ### SST

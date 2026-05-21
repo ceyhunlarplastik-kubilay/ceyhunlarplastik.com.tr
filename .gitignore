@@ -16,3 +16,5 @@ node_modules
 
 # misc
 .DS_Store
+.playwright-mcp/
+packages/core/prisma/geo-source/json-cities.json

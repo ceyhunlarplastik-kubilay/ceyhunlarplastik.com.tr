@@ -49,6 +49,9 @@ export type IUpdateCustomerBody = {
         contactName?: string | null
         phone?: string | null
         email?: string | null
+        countryId?: number | null
+        stateId?: number | null
+        cityId?: number | null
         country?: string | null
         city: string
         district?: string | null
@@ -56,6 +59,7 @@ export type IUpdateCustomerBody = {
         line2?: string | null
         postalCode?: string | null
         taxOffice?: string | null
+        taxNumber?: string | null
         isPrimary?: boolean
         isBilling?: boolean
         isShipping?: boolean

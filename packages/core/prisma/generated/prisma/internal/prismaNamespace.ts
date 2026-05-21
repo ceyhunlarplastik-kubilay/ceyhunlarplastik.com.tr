@@ -392,6 +392,9 @@ export const ModelName = {
   ProductAttribute: 'ProductAttribute',
   ProductAttributeValue: 'ProductAttributeValue',
   Customer: 'Customer',
+  GeoCountry: 'GeoCountry',
+  GeoState: 'GeoState',
+  GeoCity: 'GeoCity',
   WebRequest: 'WebRequest',
   ProductVariant: 'ProductVariant',
   MeasurementType: 'MeasurementType',
@@ -423,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "customer" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "customerVisit" | "productVariantSupplier" | "businessRequest" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "customer" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "customerVisit" | "productVariantSupplier" | "businessRequest" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1016,6 +1019,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerCountAggregateOutputType> | number
+        }
+      }
+    }
+    GeoCountry: {
+      payload: Prisma.$GeoCountryPayload<ExtArgs>
+      fields: Prisma.GeoCountryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GeoCountryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GeoCountryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>
+        }
+        findFirst: {
+          args: Prisma.GeoCountryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GeoCountryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>
+        }
+        findMany: {
+          args: Prisma.GeoCountryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>[]
+        }
+        create: {
+          args: Prisma.GeoCountryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>
+        }
+        createMany: {
+          args: Prisma.GeoCountryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GeoCountryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>[]
+        }
+        delete: {
+          args: Prisma.GeoCountryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>
+        }
+        update: {
+          args: Prisma.GeoCountryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>
+        }
+        deleteMany: {
+          args: Prisma.GeoCountryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GeoCountryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GeoCountryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>[]
+        }
+        upsert: {
+          args: Prisma.GeoCountryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCountryPayload>
+        }
+        aggregate: {
+          args: Prisma.GeoCountryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGeoCountry>
+        }
+        groupBy: {
+          args: Prisma.GeoCountryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeoCountryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GeoCountryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeoCountryCountAggregateOutputType> | number
+        }
+      }
+    }
+    GeoState: {
+      payload: Prisma.$GeoStatePayload<ExtArgs>
+      fields: Prisma.GeoStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GeoStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GeoStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>
+        }
+        findFirst: {
+          args: Prisma.GeoStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GeoStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>
+        }
+        findMany: {
+          args: Prisma.GeoStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>[]
+        }
+        create: {
+          args: Prisma.GeoStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>
+        }
+        createMany: {
+          args: Prisma.GeoStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GeoStateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>[]
+        }
+        delete: {
+          args: Prisma.GeoStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>
+        }
+        update: {
+          args: Prisma.GeoStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.GeoStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GeoStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GeoStateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>[]
+        }
+        upsert: {
+          args: Prisma.GeoStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoStatePayload>
+        }
+        aggregate: {
+          args: Prisma.GeoStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGeoState>
+        }
+        groupBy: {
+          args: Prisma.GeoStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeoStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GeoStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeoStateCountAggregateOutputType> | number
+        }
+      }
+    }
+    GeoCity: {
+      payload: Prisma.$GeoCityPayload<ExtArgs>
+      fields: Prisma.GeoCityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GeoCityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GeoCityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>
+        }
+        findFirst: {
+          args: Prisma.GeoCityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GeoCityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>
+        }
+        findMany: {
+          args: Prisma.GeoCityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>[]
+        }
+        create: {
+          args: Prisma.GeoCityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>
+        }
+        createMany: {
+          args: Prisma.GeoCityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GeoCityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>[]
+        }
+        delete: {
+          args: Prisma.GeoCityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>
+        }
+        update: {
+          args: Prisma.GeoCityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>
+        }
+        deleteMany: {
+          args: Prisma.GeoCityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GeoCityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GeoCityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>[]
+        }
+        upsert: {
+          args: Prisma.GeoCityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeoCityPayload>
+        }
+        aggregate: {
+          args: Prisma.GeoCityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGeoCity>
+        }
+        groupBy: {
+          args: Prisma.GeoCityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeoCityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GeoCityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeoCityCountAggregateOutputType> | number
         }
       }
     }
@@ -2369,6 +2594,87 @@ export const CustomerScalarFieldEnum = {
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
+export const GeoCountryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  iso3: 'iso3',
+  iso2: 'iso2',
+  numericCode: 'numericCode',
+  phoneCode: 'phoneCode',
+  capital: 'capital',
+  currency: 'currency',
+  currencyName: 'currencyName',
+  currencySymbol: 'currencySymbol',
+  tld: 'tld',
+  native: 'native',
+  population: 'population',
+  gdp: 'gdp',
+  region: 'region',
+  regionId: 'regionId',
+  subregion: 'subregion',
+  subregionId: 'subregionId',
+  nationality: 'nationality',
+  areaSqKm: 'areaSqKm',
+  postalCodeFormat: 'postalCodeFormat',
+  postalCodeRegex: 'postalCodeRegex',
+  timezones: 'timezones',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  emoji: 'emoji',
+  emojiU: 'emojiU',
+  wikiDataId: 'wikiDataId'
+} as const
+
+export type GeoCountryScalarFieldEnum = (typeof GeoCountryScalarFieldEnum)[keyof typeof GeoCountryScalarFieldEnum]
+
+
+export const GeoStateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  countryId: 'countryId',
+  countryCode: 'countryCode',
+  countryName: 'countryName',
+  iso2: 'iso2',
+  iso3166_2: 'iso3166_2',
+  fipsCode: 'fipsCode',
+  type: 'type',
+  level: 'level',
+  parentId: 'parentId',
+  native: 'native',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  timezone: 'timezone',
+  wikiDataId: 'wikiDataId',
+  population: 'population'
+} as const
+
+export type GeoStateScalarFieldEnum = (typeof GeoStateScalarFieldEnum)[keyof typeof GeoStateScalarFieldEnum]
+
+
+export const GeoCityScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  stateId: 'stateId',
+  stateCode: 'stateCode',
+  stateName: 'stateName',
+  countryId: 'countryId',
+  countryCode: 'countryCode',
+  countryName: 'countryName',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  native: 'native',
+  type: 'type',
+  level: 'level',
+  parentId: 'parentId',
+  population: 'population',
+  timezone: 'timezone',
+  translations: 'translations',
+  wikiDataId: 'wikiDataId'
+} as const
+
+export type GeoCityScalarFieldEnum = (typeof GeoCityScalarFieldEnum)[keyof typeof GeoCityScalarFieldEnum]
+
+
 export const WebRequestScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2475,6 +2781,9 @@ export const CustomerAddressScalarFieldEnum = {
   contactName: 'contactName',
   phone: 'phone',
   email: 'email',
+  countryId: 'countryId',
+  stateId: 'stateId',
+  cityId: 'cityId',
   country: 'country',
   city: 'city',
   district: 'district',
@@ -2482,6 +2791,7 @@ export const CustomerAddressScalarFieldEnum = {
   line2: 'line2',
   postalCode: 'postalCode',
   taxOffice: 'taxOffice',
+  taxNumber: 'taxNumber',
   isPrimary: 'isPrimary',
   isBilling: 'isBilling',
   isShipping: 'isShipping',
@@ -2814,6 +3124,34 @@ export type ListEnumCustomerStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt[]'
+ */
+export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
  * Reference to a field of type 'WebRequestStatus'
  */
 export type EnumWebRequestStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WebRequestStatus'>
@@ -2866,20 +3204,6 @@ export type EnumCustomerVisitStatusFieldRefInput<$PrismaModel> = FieldRefInputTy
  * Reference to a field of type 'CustomerVisitStatus[]'
  */
 export type ListEnumCustomerVisitStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerVisitStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal'
- */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal[]'
- */
-export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -3126,6 +3450,9 @@ export type GlobalOmitConfig = {
   productAttribute?: Prisma.ProductAttributeOmit
   productAttributeValue?: Prisma.ProductAttributeValueOmit
   customer?: Prisma.CustomerOmit
+  geoCountry?: Prisma.GeoCountryOmit
+  geoState?: Prisma.GeoStateOmit
+  geoCity?: Prisma.GeoCityOmit
   webRequest?: Prisma.WebRequestOmit
   productVariant?: Prisma.ProductVariantOmit
   measurementType?: Prisma.MeasurementTypeOmit

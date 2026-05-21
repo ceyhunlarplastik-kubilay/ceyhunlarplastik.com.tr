@@ -2,8 +2,9 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowUpRight, Minus, Plus, Sparkles } from "lucide-react"
+import { ArrowUpRight, MapPin, Minus, Plus, Sparkles } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { BusinessRequest } from "@/features/businessRequests/api/types"
 import { cn } from "@/lib/utils"
@@ -12,8 +13,22 @@ const FIELD_LABELS: Record<string, string> = {
     name: "Firma Adı",
     contactName: "Yetkili",
     phone: "Telefon",
+    email: "E-posta",
     address: "Adres",
+    label: "Adres Etiketi",
+    country: "Ülke",
+    stateName: "İl",
+    city: "İlçe",
+    district: "Mahalle / Bölge",
+    line1: "Açık Adres",
+    line2: "Adres Satırı 2",
+    postalCode: "Posta Kodu",
+    taxOffice: "Vergi Dairesi",
     taxNumber: "Vergi No",
+    isPrimary: "Birincil",
+    isBilling: "Fatura",
+    isShipping: "Sevkiyat",
+    note: "Not",
     defaultPaymentTermDays: "Varsayılan Vade",
     price: "Maliyet",
     operationalCostRate: "Operasyonel Maliyet %",
@@ -50,6 +65,10 @@ type DiffRow = {
     requestedValue: unknown
     changed: boolean
 }
+
+type AddressLike = Record<string, unknown>
+const CUSTOMER_PROFILE_FIELD_KEYS = ["companyName", "fullName", "phone", "email", "note", "addresses"] as const
+const HIDDEN_ADDRESS_DIFF_KEYS = new Set(["id", "displayOrder", "countryId", "stateId", "cityId"])
 
 function areValuesEqual(left: unknown, right: unknown) {
     if (left === right) return true
@@ -103,6 +122,108 @@ function buildDiffRows(currentSnapshot: JsonRecord, requestedPayload: JsonRecord
         })
 }
 
+function getComparisonPayload(request: BusinessRequest) {
+    if (request.type === "CUSTOMER_PROFILE_CHANGE") {
+        const requestedData = (request.requestedData ?? {}) as JsonRecord
+        const proposedProfile = (requestedData.proposedProfile ?? {}) as JsonRecord
+        const currentSnapshot = (request.currentSnapshot ?? {}) as JsonRecord
+
+        return {
+            currentSnapshot: Object.fromEntries(
+                CUSTOMER_PROFILE_FIELD_KEYS.map((key) => [key, currentSnapshot[key]]),
+            ) as JsonRecord,
+            requestedPayload: Object.fromEntries(
+                CUSTOMER_PROFILE_FIELD_KEYS
+                    .filter((key) => Object.prototype.hasOwnProperty.call(proposedProfile, key))
+                    .map((key) => [key, proposedProfile[key]]),
+            ) as JsonRecord,
+        }
+    }
+
+    return {
+        currentSnapshot: (request.currentSnapshot ?? {}) as JsonRecord,
+        requestedPayload: (request.requestedData ?? {}) as JsonRecord,
+    }
+}
+
+function renderAddressSummary(address: AddressLike) {
+    return [
+        address.line1,
+        address.line2,
+        address.district,
+        address.city,
+        address.stateName,
+        address.country,
+    ]
+        .filter(Boolean)
+        .map((value) => String(value))
+        .join(", ")
+}
+
+function buildAddressDiffRows(currentAddress: AddressLike, requestedAddress: AddressLike) {
+    const keys = Array.from(new Set([
+        ...Object.keys(currentAddress),
+        ...Object.keys(requestedAddress),
+    ])).filter((key) => !HIDDEN_ADDRESS_DIFF_KEYS.has(key))
+
+    return keys
+        .map<DiffRow>((key) => {
+            const currentValue = currentAddress[key]
+            const requestedValue = Object.prototype.hasOwnProperty.call(requestedAddress, key)
+                ? requestedAddress[key]
+                : currentValue
+
+            return {
+                key,
+                label: FIELD_LABELS[key] ?? key,
+                currentValue,
+                requestedValue,
+                changed: !areValuesEqual(currentValue, requestedValue),
+            }
+        })
+        .sort((left, right) => {
+            if (left.changed !== right.changed) return left.changed ? -1 : 1
+            return left.label.localeCompare(right.label, "tr")
+        })
+}
+
+function buildAddressDiffCards(request: BusinessRequest, showAllFields: boolean) {
+    if (request.type !== "CUSTOMER_PROFILE_CHANGE") return []
+
+    const currentSnapshot = (request.currentSnapshot ?? {}) as JsonRecord
+    const requestedData = (request.requestedData ?? {}) as JsonRecord
+    const currentAddresses = Array.isArray(currentSnapshot.addresses) ? currentSnapshot.addresses as AddressLike[] : []
+    const requestedAddresses = Array.isArray((requestedData.proposedProfile as JsonRecord | undefined)?.addresses)
+        ? ((requestedData.proposedProfile as JsonRecord).addresses as AddressLike[])
+        : []
+
+    const maxLength = Math.max(currentAddresses.length, requestedAddresses.length)
+
+    return Array.from({ length: maxLength }, (_, index) => {
+        const currentAddress = currentAddresses[index] ?? {}
+        const requestedAddress = requestedAddresses[index] ?? {}
+        const rows = buildAddressDiffRows(currentAddress, requestedAddress)
+        const changedRows = rows.filter((row) => row.changed)
+        const visibleRows = showAllFields
+            ? rows
+            : changedRows.length > 0
+                ? changedRows
+                : rows
+
+        const requestedLabel = renderValue(requestedAddress.label)
+        const currentLabel = renderValue(currentAddress.label)
+
+        return {
+            key: `address-${index}`,
+            title: requestedLabel !== "-" ? requestedLabel : currentLabel !== "-" ? currentLabel : `Adres ${index + 1}`,
+            currentSummary: renderAddressSummary(currentAddress),
+            requestedSummary: renderAddressSummary(requestedAddress),
+            changedCount: changedRows.length,
+            visibleRows,
+        }
+    }).filter((card) => card.visibleRows.length > 0)
+}
+
 function getProductPreview(request: BusinessRequest) {
     const product = request.items?.[0]?.productVariant?.product
     if (!product) return null
@@ -130,18 +251,17 @@ export function BusinessRequestDiffPanel({
     showAllFields,
     onToggleShowAll,
 }: Props) {
-    const rows = buildDiffRows(
-        (request.currentSnapshot ?? {}) as JsonRecord,
-        (request.requestedData ?? {}) as JsonRecord,
-    )
+    const { currentSnapshot, requestedPayload } = getComparisonPayload(request)
+    const rows = buildDiffRows(currentSnapshot, requestedPayload).filter((row) => row.key !== "addresses")
     const changedRows = rows.filter((row) => row.changed)
     const hiddenCount = Math.max(0, rows.length - changedRows.length)
-    const visibleRows = showAllFields
-        ? rows
-        : changedRows.length > 0
-            ? changedRows
-            : rows
+    const visibleRows = showAllFields ? rows : changedRows
     const productPreview = getProductPreview(request)
+    const addressDiffCards = buildAddressDiffCards(request, showAllFields)
+    const visibleAddressCards = showAllFields
+        ? addressDiffCards
+        : addressDiffCards.filter((card) => card.changedCount > 0)
+    const totalChangedCount = changedRows.length + addressDiffCards.reduce((sum, card) => sum + card.changedCount, 0)
 
     return (
         <div className="mx-auto max-w-none space-y-3 rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3">
@@ -152,8 +272,8 @@ export function BusinessRequestDiffPanel({
                         Değişiklik Özeti
                     </div>
                     <p className="text-sm text-neutral-600">
-                        {changedRows.length > 0
-                            ? `${changedRows.length} alan değişiyor${hiddenCount > 0 && !showAllFields ? `, ${hiddenCount} aynı alan gizleniyor` : ""}.`
+                        {totalChangedCount > 0
+                            ? `${totalChangedCount} değişiklik bulundu${hiddenCount > 0 && !showAllFields ? `, ${hiddenCount} aynı alan gizleniyor` : ""}.`
                             : "Fark bulunamadı. Talep ile mevcut kayıt aynı görünüyor."}
                     </p>
                 </div>
@@ -265,6 +385,55 @@ export function BusinessRequestDiffPanel({
                     </div>
                 ))}
             </div>
+
+            {visibleAddressCards.length > 0 ? (
+                <div className="space-y-3">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+                        <MapPin className="h-3.5 w-3.5" />
+                        Adres Değişiklikleri
+                    </div>
+
+                    <div className="space-y-3">
+                        {visibleAddressCards.map((card) => (
+                            <div key={card.key} className="rounded-xl border border-neutral-200 bg-white p-3 shadow-sm">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <div className="text-sm font-semibold text-neutral-900">{card.title}</div>
+                                    <Badge variant={card.changedCount > 0 ? "default" : "outline"}>
+                                        {card.changedCount > 0 ? `${card.changedCount} alan değişiyor` : "Fark yok"}
+                                    </Badge>
+                                </div>
+
+                                <div className="mt-3 grid gap-2 md:grid-cols-2">
+                                    <div className="rounded-lg border border-rose-200 bg-rose-50/70 px-3 py-2">
+                                        <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Mevcut Adres</div>
+                                        <div className="mt-1 text-sm leading-6 text-neutral-900">
+                                            {card.currentSummary || "-"}
+                                        </div>
+                                    </div>
+                                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 px-3 py-2">
+                                        <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Talep Edilen Adres</div>
+                                        <div className="mt-1 text-sm leading-6 text-neutral-900">
+                                            {card.requestedSummary || "-"}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-3 space-y-2">
+                                    {card.visibleRows.map((row) => (
+                                        <div key={`${card.key}-${row.key}`} className="grid gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-2 md:grid-cols-3">
+                                            <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">{row.label}</div>
+                                            <div className="text-sm text-neutral-700">{renderValue(row.currentValue)}</div>
+                                            <div className={cn("text-sm font-medium", row.changed ? "text-emerald-800" : "text-neutral-700")}>
+                                                {renderValue(row.requestedValue)}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
         </div>
     )
 }

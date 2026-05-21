@@ -59,6 +59,9 @@ export const ModelName = {
   ProductAttribute: 'ProductAttribute',
   ProductAttributeValue: 'ProductAttributeValue',
   Customer: 'Customer',
+  GeoCountry: 'GeoCountry',
+  GeoState: 'GeoState',
+  GeoCity: 'GeoCity',
   WebRequest: 'WebRequest',
   ProductVariant: 'ProductVariant',
   MeasurementType: 'MeasurementType',
@@ -220,6 +223,87 @@ export const CustomerScalarFieldEnum = {
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
+export const GeoCountryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  iso3: 'iso3',
+  iso2: 'iso2',
+  numericCode: 'numericCode',
+  phoneCode: 'phoneCode',
+  capital: 'capital',
+  currency: 'currency',
+  currencyName: 'currencyName',
+  currencySymbol: 'currencySymbol',
+  tld: 'tld',
+  native: 'native',
+  population: 'population',
+  gdp: 'gdp',
+  region: 'region',
+  regionId: 'regionId',
+  subregion: 'subregion',
+  subregionId: 'subregionId',
+  nationality: 'nationality',
+  areaSqKm: 'areaSqKm',
+  postalCodeFormat: 'postalCodeFormat',
+  postalCodeRegex: 'postalCodeRegex',
+  timezones: 'timezones',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  emoji: 'emoji',
+  emojiU: 'emojiU',
+  wikiDataId: 'wikiDataId'
+} as const
+
+export type GeoCountryScalarFieldEnum = (typeof GeoCountryScalarFieldEnum)[keyof typeof GeoCountryScalarFieldEnum]
+
+
+export const GeoStateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  countryId: 'countryId',
+  countryCode: 'countryCode',
+  countryName: 'countryName',
+  iso2: 'iso2',
+  iso3166_2: 'iso3166_2',
+  fipsCode: 'fipsCode',
+  type: 'type',
+  level: 'level',
+  parentId: 'parentId',
+  native: 'native',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  timezone: 'timezone',
+  wikiDataId: 'wikiDataId',
+  population: 'population'
+} as const
+
+export type GeoStateScalarFieldEnum = (typeof GeoStateScalarFieldEnum)[keyof typeof GeoStateScalarFieldEnum]
+
+
+export const GeoCityScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  stateId: 'stateId',
+  stateCode: 'stateCode',
+  stateName: 'stateName',
+  countryId: 'countryId',
+  countryCode: 'countryCode',
+  countryName: 'countryName',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  native: 'native',
+  type: 'type',
+  level: 'level',
+  parentId: 'parentId',
+  population: 'population',
+  timezone: 'timezone',
+  translations: 'translations',
+  wikiDataId: 'wikiDataId'
+} as const
+
+export type GeoCityScalarFieldEnum = (typeof GeoCityScalarFieldEnum)[keyof typeof GeoCityScalarFieldEnum]
+
+
 export const WebRequestScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -326,6 +410,9 @@ export const CustomerAddressScalarFieldEnum = {
   contactName: 'contactName',
   phone: 'phone',
   email: 'email',
+  countryId: 'countryId',
+  stateId: 'stateId',
+  cityId: 'cityId',
   country: 'country',
   city: 'city',
   district: 'district',
@@ -333,6 +420,7 @@ export const CustomerAddressScalarFieldEnum = {
   line2: 'line2',
   postalCode: 'postalCode',
   taxOffice: 'taxOffice',
+  taxNumber: 'taxNumber',
   isPrimary: 'isPrimary',
   isBilling: 'isBilling',
   isShipping: 'isShipping',

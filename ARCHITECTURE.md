@@ -193,6 +193,25 @@ The distinction is intentional and should be preserved in future UI and API work
 
 Customer records also support professional multi-address data through `CustomerAddress`.
 Address records are ordered and can be marked as primary, billing, and shipping so the portal and CRM can present operational contact points without flattening them into a single text field.
+Address normalization is intentionally progressive:
+- human-readable fields such as `country`, `city`, `district`, `postalCode`, `line1`, and `line2` remain on the domain record for readability and backward compatibility
+- normalized foreign keys such as `countryId`, `stateId`, and `cityId` point to internal reference tables
+- reference lookup tables are stored in PostgreSQL through `GeoCountry`, `GeoState`, and `GeoCity`
+- reference data is imported from the external `dr5hn/countries-states-cities-database` dataset through the project-owned `packages/core/prisma/seed-geo.ts` script
+
+Geo lookup delivery rules:
+- geo selectors are exposed through `PublicApi` endpoints so public forms, admin CRM forms, and future supplier flows can reuse the same lookup surface
+- the application should not depend on an external runtime REST API for country/state/city selection
+- temporary clone directories such as `/private/tmp/cscdb` are bootstrap aids only and are not part of the deployed system or persistent project assets
+
+Current geo import inputs:
+- `packages/core/prisma/geo-source/countries.csv`
+- `packages/core/prisma/geo-source/states.csv`
+- `packages/core/prisma/geo-source/json-cities.json`
+
+Current operational limitation:
+- the imported global dataset is suitable for country, state/province, and city selection
+- mahalle/neighborhood precision should remain editable text until a country-specific source is intentionally introduced
 
 Customer-facing operational requests are now modeled separately from profile/catalog data.
 Portal-originated order, document, pricing, and profile-change intents should go through the generic `BusinessRequest` workflow engine instead of mutating domain records directly from the portal UI.

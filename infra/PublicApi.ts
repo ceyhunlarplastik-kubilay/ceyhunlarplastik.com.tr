@@ -62,6 +62,22 @@ publicApi.route('GET /users', {
     ...defaultOptions,
 })
 
+/*----------------------- GEO -----------------------*/
+publicApi.route("GET /geo/countries", {
+    handler: `${folderPrefix}/geo/actions.listCountries`,
+    ...defaultOptions,
+})
+
+publicApi.route("GET /geo/countries/{countryId}/states", {
+    handler: `${folderPrefix}/geo/actions.listStates`,
+    ...defaultOptions,
+})
+
+publicApi.route("GET /geo/states/{stateId}/cities", {
+    handler: `${folderPrefix}/geo/actions.listCities`,
+    ...defaultOptions,
+})
+
 /*----------------------- CATEGORIES -----------------------*/
 publicApi.route("GET /categories/{id}", {
     handler: `${folderPrefix}/categories/actions.getCategory`,

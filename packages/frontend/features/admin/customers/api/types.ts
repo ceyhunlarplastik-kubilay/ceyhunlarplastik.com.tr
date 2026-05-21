@@ -39,6 +39,9 @@ export type CustomerAddress = {
     contactName?: string | null
     phone?: string | null
     email?: string | null
+    countryId?: number | null
+    stateId?: number | null
+    cityId?: number | null
     country: string
     city: string
     district?: string | null
@@ -46,6 +49,7 @@ export type CustomerAddress = {
     line2?: string | null
     postalCode?: string | null
     taxOffice?: string | null
+    taxNumber?: string | null
     isPrimary: boolean
     isBilling: boolean
     isShipping: boolean
@@ -53,6 +57,19 @@ export type CustomerAddress = {
     displayOrder: number
     createdAt: string
     updatedAt: string
+    countryRef?: {
+        id: number
+        name: string
+        iso2: string
+    } | null
+    stateRef?: {
+        id: number
+        name: string
+    } | null
+    cityRef?: {
+        id: number
+        name: string
+    } | null
 }
 
 export type CustomerVisit = {
