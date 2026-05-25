@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useDeferredValue, useMemo, useState } from "react"
-import { Boxes, Check, Search, Shapes } from "lucide-react"
+import { Boxes, Check, Search, Shapes, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -19,6 +19,7 @@ type Props = {
     categories: Category[]
     categoryId: string
     onCategoryIdChange: (value: string) => void
+    railMode?: "featured" | "all"
 }
 
 function pickCategoryThumb(category: Category) {
@@ -52,10 +53,10 @@ function ProductCategoryCard({
             type="button"
             onClick={onClick}
             className={[
-                "group flex min-w-[220px] items-center gap-3 rounded-2xl border bg-white p-3 text-left transition",
+                "group relative flex min-w-[220px] items-center gap-3 rounded-2xl border bg-white p-3 text-left transition",
                 "hover:border-[var(--color-brand)]/40 hover:shadow-sm",
                 selected
-                    ? "border-[var(--color-brand)] bg-[color-mix(in_oklab,var(--color-brand)_8%,white)] ring-1 ring-[var(--color-brand)]/20"
+                    ? "border-2 border-[var(--color-brand)] bg-[color-mix(in_oklab,var(--color-brand)_10%,white)] shadow-[0_14px_28px_-20px_rgba(0,0,0,0.35)] ring-2 ring-[var(--color-brand)]/15"
                     : "border-slate-200",
             ].join(" ")}
         >
@@ -74,6 +75,12 @@ function ProductCategoryCard({
             </div>
 
             <div className="min-w-0 flex-1">
+                {selected ? (
+                    <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
+                        <Sparkles className="h-3 w-3" />
+                        Seçili
+                    </div>
+                ) : null}
                 <p className="truncate text-sm font-semibold text-slate-900">
                     {category.name}
                 </p>
@@ -106,7 +113,7 @@ function AllProductsCard({
                 "group flex min-w-[220px] items-center gap-3 rounded-2xl border bg-white p-3 text-left transition",
                 "hover:border-[var(--color-brand)]/40 hover:shadow-sm",
                 selected
-                    ? "border-[var(--color-brand)] bg-[color-mix(in_oklab,var(--color-brand)_8%,white)] ring-1 ring-[var(--color-brand)]/20"
+                    ? "border-2 border-[var(--color-brand)] bg-[color-mix(in_oklab,var(--color-brand)_10%,white)] shadow-[0_14px_28px_-20px_rgba(0,0,0,0.35)] ring-2 ring-[var(--color-brand)]/15"
                     : "border-slate-200",
             ].join(" ")}
         >
@@ -115,6 +122,12 @@ function AllProductsCard({
             </div>
 
             <div className="min-w-0 flex-1">
+                {selected ? (
+                    <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
+                        <Sparkles className="h-3 w-3" />
+                        Seçili
+                    </div>
+                ) : null}
                 <p className="truncate text-sm font-semibold text-slate-900">
                     Tüm Ürünler
                 </p>
@@ -136,6 +149,7 @@ export function ProductCategoryFilterRail({
     categories,
     categoryId,
     onCategoryIdChange,
+    railMode = "featured",
 }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false)
     const [dialogSearch, setDialogSearch] = useState("")
@@ -158,6 +172,15 @@ export function ProductCategoryFilterRail({
         return [selectedCategory, ...featured.slice(0, 6)]
     }, [categoryId, sortedCategories])
 
+    const visibleRailCategories = useMemo(() => {
+        if (railMode !== "all") return featuredCategories
+        if (!categoryId) return sortedCategories
+
+        const selected = sortedCategories.find((category) => category.id === categoryId)
+        if (!selected) return sortedCategories
+
+        return [selected, ...sortedCategories.filter((category) => category.id !== selected.id)]
+    }, [categoryId, featuredCategories, railMode, sortedCategories])
     const filteredDialogCategories = useMemo(() => {
         const normalizedSearch = deferredDialogSearch.trim().toLocaleLowerCase("tr-TR")
         if (!normalizedSearch) return sortedCategories
@@ -169,16 +192,26 @@ export function ProductCategoryFilterRail({
         )
     }, [deferredDialogSearch, sortedCategories])
 
+    const selectedCategory = useMemo(
+        () => sortedCategories.find((category) => category.id === categoryId),
+        [categoryId, sortedCategories],
+    )
+
     return (
         <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
-                <div>
+                <div className="space-y-1.5">
                     <p className="text-sm font-semibold text-slate-900">
                         Kategoriye Göre Filtrele
                     </p>
                     <p className="text-xs text-slate-500">
                         Görsel kartlardan hızlı seçim yapabilir veya tüm kategorileri açabilirsiniz.
                     </p>
+                    <div className="flex flex-wrap gap-2">
+                        <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                            {selectedCategory ? `${selectedCategory.name} seçili` : "Tüm Ürünler seçili"}
+                        </div>
+                    </div>
                 </div>
 
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -240,7 +273,7 @@ export function ProductCategoryFilterRail({
                         onClick={() => onCategoryIdChange("")}
                     />
 
-                    {featuredCategories.map((category) => (
+                    {visibleRailCategories.map((category) => (
                         <ProductCategoryCard
                             key={category.id}
                             category={category}
@@ -248,25 +281,6 @@ export function ProductCategoryFilterRail({
                             onClick={() => onCategoryIdChange(category.id)}
                         />
                     ))}
-
-                    <button
-                        type="button"
-                        onClick={() => setDialogOpen(true)}
-                        className="flex min-w-[220px] items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-white p-3 text-left transition hover:border-[var(--color-brand)]/45 hover:shadow-sm"
-                    >
-                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
-                            <Shapes className="h-5 w-5" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold text-slate-900">
-                                Diğer Kategoriler
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500">
-                                {categories.length} kategori arasından seçim yap
-                            </p>
-                        </div>
-                    </button>
                 </div>
             </div>
         </div>

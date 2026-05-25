@@ -1,13 +1,21 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Palette, Ruler, Layers3, Hash } from "lucide-react"
+import { motion } from "motion/react"
+import { CircleHelp, Palette, Ruler, Layers3, Hash } from "lucide-react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 
 import { Badge } from "@/components/ui/badge"
 import { ButtonShine } from "@/components/ui/button-shine"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import {
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 import {
     Table,
     TableBody,
@@ -103,6 +111,67 @@ interface ProductVariantTableProps {
     technicalDrawing?: React.ReactNode
     productId: string
     variantDetailsPathname?: string
+    focusOnMeasurements?: boolean
+    measurementHelpVideoUrl?: string
+}
+
+function MeasurementHelpDialogButton({
+    measurementCode,
+    videoUrl,
+}: {
+    measurementCode: string
+    videoUrl: string
+}) {
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <button
+                    type="button"
+                    aria-label={`${measurementCode} ölçüsü hakkında videoyu aç`}
+                    className="relative inline-flex size-5 items-center justify-center rounded-full text-brand transition hover:text-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
+                    onClick={(event) => event.stopPropagation()}
+                >
+                    <motion.span
+                        className="absolute inset-0 rounded-full bg-brand/15"
+                        animate={{
+                            scale: [1, 1.55, 1],
+                            opacity: [0.25, 0.75, 0.25],
+                        }}
+                        transition={{
+                            duration: 1.8,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                    />
+                    <motion.span
+                        className="absolute inset-0 rounded-full border border-brand/40"
+                        animate={{
+                            scale: [1, 1.85],
+                            opacity: [0.55, 0],
+                        }}
+                        transition={{
+                            duration: 1.9,
+                            repeat: Infinity,
+                            ease: "easeOut",
+                        }}
+                    />
+                    <CircleHelp className="relative z-10 size-3.5" />
+                </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl overflow-hidden p-0">
+                <DialogTitle className="sr-only">Ölçü Açıklama Videosu</DialogTitle>
+                <div className="aspect-video w-full bg-black">
+                    <iframe
+                        className="h-full w-full"
+                        src={videoUrl}
+                        title={`${measurementCode} ölçü videosu`}
+                        allow="autoplay; encrypted-media"
+                        allowFullScreen
+                    />
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
 }
 
 function decimalLikeToText(
@@ -141,6 +210,8 @@ export default function ProductVariantTable({
     technicalDrawing,
     productId,
     variantDetailsPathname,
+    focusOnMeasurements = false,
+    measurementHelpVideoUrl = "https://www.youtube.com/embed/42mrTRiExjs?autoplay=1",
 }: ProductVariantTableProps) {
     const { data: session } = useSession()
     const options = useMemo<GroupedMeasurementOption[]>(() => {
@@ -263,31 +334,41 @@ export default function ProductVariantTable({
 
     return (
         <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-            <div className="border-b border-neutral-100 px-4 py-3">
+            <div className="border-b border-neutral-100 px-6 py-4 bg-neutral-50/50">
                 <h2 className="text-base font-semibold text-neutral-900">Ölçü ve Seçenekler</h2>
-                <p className="mt-1 text-xs text-neutral-500">
-                    Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz.
+                <p className="mt-1 text-xs text-neutral-500 max-w-3xl leading-relaxed">
+                    {focusOnMeasurements
+                        ? "Ölçüler tekilleştirilmiştir. Başlıklardaki yardım ikonundan aynı açıklama videosunu açabilir, tabloyu ölçü matrisi gibi inceleyebilirsiniz."
+                        : "Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz."}
                 </p>
             </div>
 
-            <div className="grid gap-3 p-3 xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,1fr)]">
-                <div className="space-y-1.5">
-                    <p className="text-xs font-medium text-neutral-500">Ölçü Seçenekleri</p>
-                    <div className="max-h-[860px] overflow-x-auto overflow-y-auto rounded-lg border border-neutral-200">
-                        <Table className="min-w-[760px] [&_td]:px-1.5 [&_td]:py-1 [&_td]:text-xs [&_th]:h-7 [&_th]:px-1.5 [&_th]:py-1 [&_th]:text-[11px] [&_tr]:leading-tight">
-                            <TableHeader className="sticky top-0 z-20 bg-neutral-50">
-                                <TableRow>
+            <div className="grid gap-5 p-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]">
+                <div className="space-y-2">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Ölçü Seçenekleri</p>
+                    <div className="max-h-[860px] overflow-x-auto overflow-y-auto rounded-xl border border-neutral-200 bg-neutral-50/10 shadow-inner">
+                        <Table className={cn(
+                            focusOnMeasurements ? "min-w-[620px]" : "min-w-[780px]",
+                            "[&_td]:px-3 [&_td]:py-2.5 [&_td]:text-xs [&_th]:h-10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-[10px] [&_th]:font-bold [&_th]:tracking-wider [&_th]:uppercase [&_tr]:leading-tight border-collapse"
+                        )}>
+                            <TableHeader className="sticky top-0 z-20 bg-neutral-100/95 backdrop-blur-sm border-b border-neutral-200">
+                                <TableRow className="hover:bg-transparent">
                                     {measurementColumns.map((column) => (
-                                        <TableHead key={column.id} className="sticky top-0 z-20 bg-neutral-50 font-semibold">
-                                            {column.code}
+                                        <TableHead key={column.id} className="font-semibold text-neutral-700">
+                                            <div className="flex items-center gap-1.5">
+                                                <span>{column.code}</span>
+                                                <MeasurementHelpDialogButton
+                                                    measurementCode={column.code}
+                                                    videoUrl={measurementHelpVideoUrl}
+                                                />
+                                            </div>
                                         </TableHead>
                                     ))}
-                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Renk</TableHead>
-                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Ham Madde</TableHead>
-                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Tedarikçi</TableHead>
-                                    {/* <TableHead className="text-center">Fiyat</TableHead> */}
-                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 text-center font-semibold">Kod</TableHead>
-                                    <TableHead className="sticky top-0 z-20 bg-neutral-50 px-1 text-right font-semibold">Detay</TableHead>
+                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Renk</TableHead> : null}
+                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Ham Madde</TableHead> : null}
+                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Tedarikçi</TableHead> : null}
+                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Kod</TableHead> : null}
+                                    <TableHead className="px-1 text-right font-semibold text-neutral-700">Detay</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -298,10 +379,15 @@ export default function ProductVariantTable({
                                         <TableRow
                                             key={option.key}
                                             data-state={isActive ? "selected" : undefined}
-                                            className="cursor-pointer"
+                                            className={cn(
+                                                "cursor-pointer transition-all duration-150 border-b border-neutral-100",
+                                                isActive
+                                                    ? "bg-brand/[0.04] hover:bg-brand/[0.06] font-medium"
+                                                    : "hover:bg-neutral-50/70"
+                                            )}
                                             onClick={() => setSelectedKey(option.key)}
                                         >
-                                            {measurementColumns.map((column) => {
+                                            {measurementColumns.map((column, index) => {
                                                 const measurement = option.measurements.find(
                                                     (item) => item.measurementType.id === column.id
                                                 )
@@ -310,9 +396,12 @@ export default function ProductVariantTable({
                                                     return (
                                                         <TableCell
                                                             key={`${option.key}-${column.id}`}
-                                                            className="text-neutral-300"
+                                                            className={cn(
+                                                                "text-neutral-300 text-center font-normal px-3 py-2.5",
+                                                                index === 0 && isActive && "border-l-2 border-l-brand"
+                                                            )}
                                                         >
-                                                            -
+                                                            —
                                                         </TableCell>
                                                     )
                                                 }
@@ -323,25 +412,52 @@ export default function ProductVariantTable({
                                                     measurement.measurementType.code !== "M"
 
                                                 return (
-                                                    <TableCell key={`${option.key}-${column.id}`} className="font-medium text-neutral-800">
+                                                    <TableCell
+                                                        key={`${option.key}-${column.id}`}
+                                                        className={cn(
+                                                            "px-3 py-2.5 text-neutral-800",
+                                                            index === 0 && isActive
+                                                                ? "border-l-2 border-l-brand text-brand font-bold"
+                                                                : "font-semibold"
+                                                        )}
+                                                    >
                                                         {formatMeasurementValue(measurement)}
-                                                        {hasUnit ? ` ${measurement.measurementType.baseUnit}` : ""}
+                                                        {hasUnit ? (
+                                                            <span className="text-[10px] text-neutral-400 font-normal ml-0.5">
+                                                                {measurement.measurementType.baseUnit}
+                                                            </span>
+                                                        ) : null}
                                                     </TableCell>
                                                 )
                                             })}
-                                            <TableCell className="text-center">{option.colors.length}</TableCell>
-                                            <TableCell className="text-center">{option.materials.length}</TableCell>
-                                            <TableCell className="text-center">{option.suppliers.length}</TableCell>
-                                            {/* <TableCell className="text-center">
-                                                {option.minPrice
-                                                    ? `${option.minPrice.value.toFixed(2)} ${option.minPrice.currency}`
-                                                    : "-"}
-                                            </TableCell> */}
-                                            <TableCell className="text-center">{option.fullCodes.length}</TableCell>
-                                            {/* <TableCell className="px-1 text-right"> */}
-                                            <TableCell className="px-0 pr-1 text-right align-middle">
-                                                {/* <div className="flex items-center justify-end gap-0.5"> */}
-                                                <div className="flex items-center justify-end gap-0.5 leading-none">
+                                            {!focusOnMeasurements ? (
+                                                <TableCell className="text-center px-3 py-2.5">
+                                                    <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
+                                                        {option.colors.length} Renk
+                                                    </Badge>
+                                                </TableCell>
+                                            ) : null}
+                                            {!focusOnMeasurements ? (
+                                                <TableCell className="text-center px-3 py-2.5">
+                                                    <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
+                                                        {option.materials.length} H.M.
+                                                    </Badge>
+                                                </TableCell>
+                                            ) : null}
+                                            {!focusOnMeasurements ? (
+                                                <TableCell className="text-center px-3 py-2.5">
+                                                    <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
+                                                        {option.suppliers.length} Ted.
+                                                    </Badge>
+                                                </TableCell>
+                                            ) : null}
+                                            {!focusOnMeasurements ? (
+                                                <TableCell className="text-center px-3 py-2.5 font-mono text-[11px] text-neutral-500">
+                                                    {option.fullCodes.length} Kod
+                                                </TableCell>
+                                            ) : null}
+                                            <TableCell className="px-3 py-2.5 pr-4 text-right align-middle">
+                                                <div className="flex items-center justify-end gap-1.5 leading-none">
                                                     <ButtonShine
                                                         href={{
                                                             pathname:
@@ -350,17 +466,18 @@ export default function ProductVariantTable({
                                                             query: { m: option.key },
                                                         }}
                                                         onClick={(e) => e.stopPropagation()}
-                                                        className="h-6 px-1.5 text-[10px]"
-                                                    /* className="h-6 px-1 text-[10px]" */
+                                                        className={cn(
+                                                            "h-7 px-2.5 text-[11px] font-medium shadow-sm transition-transform active:scale-95",
+                                                            isActive ? "bg-brand text-white shadow-brand/10" : "bg-neutral-900 text-white"
+                                                        )}
                                                     >
                                                         Varyantları Göster
                                                     </ButtonShine>
-                                                    {canManageVariants && adminVariantsUrl ? (
+                                                    {canManageVariants && adminVariantsUrl && !focusOnMeasurements ? (
                                                         <Button
                                                             asChild
                                                             size="sm"
-                                                            className="h-6 bg-red-600 px-1.5 text-[10px] text-white hover:bg-red-700"
-                                                            /* className="h-6 px-1 text-[10px]" */
+                                                            className="h-7 bg-red-600 px-2.5 text-[11px] text-white hover:bg-red-700 active:scale-95"
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
                                                             <Link href={adminVariantsUrl} target="_blank" rel="noopener noreferrer">
@@ -378,66 +495,76 @@ export default function ProductVariantTable({
                     </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {technicalDrawing ? (
-                        <div className="w-full overflow-hidden rounded-lg border border-neutral-200 p-2">
+                        <div className="w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50/30 p-2.5 shadow-sm">
                             {technicalDrawing}
                         </div>
                     ) : null}
 
-                    <div className="rounded-xl border border-neutral-200 p-4">
-                        <div className="flex items-center gap-2 text-neutral-700 mb-3">
-                            <Ruler className="w-4 h-4" />
-                            <p className="text-sm font-medium">Seçilen Ölçü</p>
+                    {/* Seçilen Ölçü Detayları */}
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-4">
+                            <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm">
+                                <Ruler className="w-4 h-4 text-brand" />
+                                <span>Seçilen Ölçü Detayları</span>
+                            </div>
+                            {focusOnMeasurements ? (
+                                <div className="flex items-center gap-1.5">
+                                    <MeasurementHelpDialogButton
+                                        measurementCode="GENEL"
+                                        videoUrl={measurementHelpVideoUrl}
+                                    />
+                                    <span className="text-[10px] text-neutral-400">Açıklama Videosu</span>
+                                </div>
+                            ) : null}
                         </div>
+                        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
+                            {selected.measurements.map((measurement) => {
+                                const hasUnit =
+                                    measurement.measurementType.baseUnit &&
+                                    measurement.measurementType.code !== "D" &&
+                                    measurement.measurementType.code !== "M"
 
-                        <div className="flex flex-wrap gap-2">
-                            {selected.measurements.map((measurement) => (
-                                <Badge key={measurement.id} variant="secondary">
-                                    {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
-                                    {formatMeasurementValue(measurement)}
-                                    {measurement.measurementType.baseUnit &&
-                                        measurement.measurementType.code !== "D" &&
-                                        measurement.measurementType.code !== "M"
-                                        ? ` ${measurement.measurementType.baseUnit}`
-                                        : ""}
-                                </Badge>
-                            ))}
+                                return (
+                                    <div
+                                        key={measurement.id}
+                                        className="flex items-center justify-between rounded-xl border border-neutral-100 bg-neutral-50/50 p-2.5 hover:border-brand/30 transition-all duration-200"
+                                    >
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-bold text-brand tracking-wider uppercase">
+                                                {measurement.measurementType.code}
+                                            </span>
+                                            <span className="text-xs text-neutral-500 font-medium leading-normal">
+                                                {measurement.measurementType.name}
+                                            </span>
+                                        </div>
+                                        <div className="rounded-lg bg-white border border-neutral-200/60 px-3 py-1 text-sm font-bold text-neutral-900 shadow-sm font-mono">
+                                            {formatMeasurementValue(measurement)}
+                                            {hasUnit ? ` ${measurement.measurementType.baseUnit}` : ""}
+                                        </div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
 
-                    {/* <div className="rounded-xl border border-neutral-200 p-4">
-                        <div className="flex items-center gap-2 text-neutral-700 mb-3">
-                            <Hash className="w-4 h-4" />
-                            <p className="text-sm font-medium">Tedarikçi Fiyatları</p>
+                    {/* Mevcut Varyant Kodları */}
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
+                            <Hash className="w-4 h-4 text-brand" />
+                            <span>Mevcut Varyant Kodları</span>
                         </div>
-
-                        {selected.suppliers.length === 0 ? (
-                            <p className="text-sm text-neutral-400">Bu ölçü için tedarikçi fiyat bilgisi bulunamadı.</p>
-                        ) : (
-                            <div className="flex flex-wrap gap-2">
-                                {selected.suppliers.map((item) => (
-                                    <Badge key={`${item.supplierId}-${item.priceText}-${item.currency}`} variant="outline">
-                                        {item.supplierName}: {item.priceText || "-"} {item.currency}
-                                        {item.isActive ? " (aktif)" : ""}
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                    </div> */}
-
-                    <div className="rounded-xl border border-neutral-200 p-4">
-                        <div className="flex items-center gap-2 text-neutral-700 mb-3">
-                            <Hash className="w-4 h-4" />
-                            <p className="text-sm font-medium">Mevcut Varyant Kodları</p>
-                        </div>
-
                         {selected.fullCodes.length === 0 ? (
-                            <p className="text-sm text-neutral-400">Bu ölçü için varyant kodu bulunamadı.</p>
+                            <p className="text-xs text-neutral-400">Bu ölçü için varyant kodu bulunamadı.</p>
                         ) : (
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-1.5">
                                 {selected.fullCodes.map((fullCode) => (
-                                    <Badge key={fullCode} variant="outline" className="font-mono">
+                                    <Badge
+                                        key={fullCode}
+                                        variant="outline"
+                                        className="font-mono text-xs font-semibold px-2.5 py-1 bg-neutral-50/50 text-neutral-700 hover:bg-neutral-50/50 border-neutral-200/80 rounded-lg shadow-sm"
+                                    >
                                         {fullCode}
                                     </Badge>
                                 ))}
@@ -445,23 +572,23 @@ export default function ProductVariantTable({
                         )}
                     </div>
 
-                    <div className="rounded-xl border border-neutral-200 p-4">
-                        <div className="flex items-center gap-2 text-neutral-700 mb-3">
-                            <Palette className="w-4 h-4" />
-                            <p className="text-sm font-medium">Renk Seçenekleri</p>
+                    {/* Renk Seçenekleri */}
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
+                            <Palette className="w-4 h-4 text-brand" />
+                            <span>Renk Seçenekleri</span>
                         </div>
-
                         {selected.colors.length === 0 ? (
-                            <p className="text-sm text-neutral-400">Bu ölçü için renk bilgisi bulunamadı.</p>
+                            <p className="text-xs text-neutral-400">Bu ölçü için renk bilgisi bulunamadı.</p>
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {selected.colors.map((color) => (
                                     <span
                                         key={color.id}
-                                        className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-neutral-200 text-xs text-neutral-700"
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-neutral-100 bg-neutral-50/50 hover:bg-white hover:border-brand/40 hover:shadow-sm text-xs text-neutral-700 font-medium transition-all duration-200"
                                     >
                                         <span
-                                            className="w-3 h-3 rounded-full border border-neutral-300"
+                                            className="w-3.5 h-3.5 rounded-full border border-neutral-200 shadow-inner"
                                             style={{ backgroundColor: color.hex || "#ddd" }}
                                         />
                                         {formatColorLabel(color)}
@@ -471,18 +598,22 @@ export default function ProductVariantTable({
                         )}
                     </div>
 
-                    <div className="rounded-xl border border-neutral-200 p-4">
-                        <div className="flex items-center gap-2 text-neutral-700 mb-3">
-                            <Layers3 className="w-4 h-4" />
-                            <p className="text-sm font-medium">Ham Madde Seçenekleri</p>
+                    {/* Ham Madde Seçenekleri */}
+                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
+                            <Layers3 className="w-4 h-4 text-brand" />
+                            <span>Ham Madde Seçenekleri</span>
                         </div>
-
                         {selected.materials.length === 0 ? (
-                            <p className="text-sm text-neutral-400">Bu ölçü için ham madde bilgisi bulunamadı.</p>
+                            <p className="text-xs text-neutral-400">Bu ölçü için ham madde bilgisi bulunamadı.</p>
                         ) : (
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-1.5">
                                 {selected.materials.map((material) => (
-                                    <Badge key={material.id} variant="outline">
+                                    <Badge
+                                        key={material.id}
+                                        variant="outline"
+                                        className="text-xs font-semibold px-2.5 py-1 bg-brand/5 text-brand border-brand/20 hover:bg-brand/10 rounded-lg"
+                                    >
                                         {material.name}
                                         {material.code ? ` (${material.code})` : ""}
                                     </Badge>

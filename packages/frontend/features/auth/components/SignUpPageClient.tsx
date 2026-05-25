@@ -26,6 +26,8 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
     const form = useForm<SignUpFormValues>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
+            firstName: "",
+            lastName: "",
             email: initialEmail ?? "",
             password: "",
             confirmPassword: "",
@@ -39,6 +41,8 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
 
     async function onSubmit(values: SignUpFormValues) {
         const result = await mutation.mutateAsync({
+            firstName: values.firstName.trim(),
+            lastName: values.lastName.trim(),
             email: values.email.trim().toLowerCase(),
             password: values.password,
         })
@@ -55,6 +59,11 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
 
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <AuthField control={form.control} name="firstName" label="Ad" placeholder="Adınız" disabled={mutation.isPending} />
+                        <AuthField control={form.control} name="lastName" label="Soyad" placeholder="Soyadınız" disabled={mutation.isPending} />
+                    </div>
+
                     <AuthField control={form.control} name="email" label="E-posta" type="email" placeholder="ornek@ceyhunlar.com" disabled={mutation.isPending} />
 
                     <div className="grid gap-2">

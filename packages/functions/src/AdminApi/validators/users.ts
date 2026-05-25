@@ -1,4 +1,5 @@
 import { z, ZodType } from "zod"
+import { PHONE_INPUT_REGEX } from "@/core/helpers/validation/phone"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
 /* export const addUserToGroupValidator = validatorWrapper(
@@ -24,12 +25,18 @@ export const listUsersResponseValidator = z.toJSONSchema(
                         id: z.uuid(),
                         email: z.string(),
                         identifier: z.string(),
+                        firstName: z.string().nullable().optional(),
+                        lastName: z.string().nullable().optional(),
+                        phone: z.string().nullable().optional(),
                         groups: z.array(z.string()),
                         accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]),
                         accessStatusChangedAt: z.string().nullable().optional(),
                         accessStatusReason: z.string().nullable().optional(),
                         supplierId: z.uuid().nullable().optional(),
                         customerId: z.uuid().nullable().optional(),
+                        customerContactTitle: z.string().nullable().optional(),
+                        customerContactDepartment: z.string().nullable().optional(),
+                        isPrimaryCustomerContact: z.boolean().optional(),
                         supplier: z.object({
                             id: z.uuid(),
                             name: z.string(),
@@ -80,12 +87,18 @@ export const getUserResponseValidator = z.toJSONSchema(
                     id: z.uuid(),
                     email: z.string(),
                     identifier: z.string(),
+                    firstName: z.string().nullable().optional(),
+                    lastName: z.string().nullable().optional(),
+                    phone: z.string().nullable().optional(),
                     groups: z.array(z.string()),
                     accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]),
                     accessStatusChangedAt: z.string().nullable().optional(),
                     accessStatusReason: z.string().nullable().optional(),
                     supplierId: z.uuid().nullable().optional(),
                     customerId: z.uuid().nullable().optional(),
+                    customerContactTitle: z.string().nullable().optional(),
+                    customerContactDepartment: z.string().nullable().optional(),
+                    isPrimaryCustomerContact: z.boolean().optional(),
                     supplier: z.object({
                         id: z.uuid(),
                         name: z.string(),
@@ -165,6 +178,41 @@ export const updateUserRoleValidator = validatorWrapper(
     }
 )
 
+export const updateUserProfileValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        body: z.object({
+            email: z.email().trim().optional(),
+            identifier: z.string().trim().min(2).max(120).optional(),
+            firstName: z.string().trim().min(2).max(120).optional(),
+            lastName: z.string().trim().min(2).max(120).optional(),
+            phone: z.string().trim().regex(
+                PHONE_INPUT_REGEX,
+                "Telefon numarasi yalnizca rakam, bosluk, parantez, tire ve + karakteri icerebilir.",
+            ).nullable().optional(),
+            customerContactTitle: z.string().trim().max(120).nullable().optional(),
+            customerContactDepartment: z.string().trim().max(120).nullable().optional(),
+            isPrimaryCustomerContact: z.boolean().optional(),
+        }).superRefine((value, ctx) => {
+            const hasFirstName = value.firstName !== undefined
+            const hasLastName = value.lastName !== undefined
+
+            if (hasFirstName !== hasLastName) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: [hasFirstName ? "lastName" : "firstName"],
+                    message: "Ad ve soyad birlikte guncellenmelidir.",
+                })
+            }
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+    },
+)
+
 export const updateUserSupplierResponseValidator = z.toJSONSchema(
     z.object({
         statusCode: z.number(),
@@ -175,12 +223,18 @@ export const updateUserSupplierResponseValidator = z.toJSONSchema(
                     id: z.uuid(),
                     email: z.string(),
                     identifier: z.string(),
+                    firstName: z.string().nullable().optional(),
+                    lastName: z.string().nullable().optional(),
+                    phone: z.string().nullable().optional(),
                     groups: z.array(z.string()),
                     accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]),
                     accessStatusChangedAt: z.string().nullable().optional(),
                     accessStatusReason: z.string().nullable().optional(),
                     supplierId: z.uuid().nullable().optional(),
                     customerId: z.uuid().nullable().optional(),
+                    customerContactTitle: z.string().nullable().optional(),
+                    customerContactDepartment: z.string().nullable().optional(),
+                    isPrimaryCustomerContact: z.boolean().optional(),
                     supplier: z.object({
                         id: z.uuid(),
                         name: z.string(),
@@ -215,3 +269,4 @@ export const updateUserSupplierResponseValidator = z.toJSONSchema(
 )
 
 export const updateUserRoleResponseValidator = updateUserSupplierResponseValidator
+export const updateUserProfileResponseValidator = updateUserSupplierResponseValidator

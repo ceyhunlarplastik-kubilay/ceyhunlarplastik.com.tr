@@ -2,11 +2,13 @@ import { create } from "zustand"
 
 type Store = {
     category?: string
+    search: string
     attributes: Record<string, string[]>
     page: number
     limit: number
 
     setCategory: (c?: string) => void
+    setSearch: (value: string) => void
     toggleAttribute: (code: string, value: string) => void
     setAttributes: (attrs: Record<string, string[]>) => void
     setPage: (p: number) => void
@@ -17,11 +19,13 @@ type Store = {
 
 export const useFilterStore = create<Store>((set, get) => ({
     category: undefined,
+    search: "",
     attributes: {},
     page: 1,
     limit: 20,
 
     setCategory: (category) => set({ category, page: 1 }),
+    setSearch: (search) => set({ search, page: 1 }),
 
     toggleAttribute: (code, value) => {
         const attrs = { ...get().attributes }
@@ -41,11 +45,12 @@ export const useFilterStore = create<Store>((set, get) => ({
     setPage: (page) => set({ page }),
 
     toQueryString: () => {
-        const { category, attributes, page, limit } = get()
+        const { category, search, attributes, page, limit } = get()
 
         const params = new URLSearchParams()
 
         if (category) params.set("category", category)
+        if (search.trim()) params.set("search", search.trim())
         params.set("page", String(page))
         params.set("limit", String(limit))
 
@@ -60,12 +65,13 @@ export const useFilterStore = create<Store>((set, get) => ({
         const attrs: Record<string, string[]> = {}
 
         params.forEach((value, key) => {
-            if (["category", "page", "limit"].includes(key)) return
+            if (["category", "search", "page", "limit"].includes(key)) return
             attrs[key] = value.split(",")
         })
 
         set({
             category: params.get("category") ?? undefined,
+            search: params.get("search") ?? "",
             page: Number(params.get("page") ?? 1),
             limit: Number(params.get("limit") ?? 20),
             attributes: attrs,

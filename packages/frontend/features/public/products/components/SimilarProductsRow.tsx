@@ -17,9 +17,13 @@ type ProductItem = {
 
 type Props = {
     products: ProductItem[]
+    hrefBasePath?: string
 }
 
-export default function SimilarProductsRow({ products }: Props) {
+export default function SimilarProductsRow({
+    products,
+    hrefBasePath = "/urun",
+}: Props) {
     if (!products?.length) return null
 
     return (
@@ -40,7 +44,7 @@ export default function SimilarProductsRow({ products }: Props) {
                             <ProductCard
                                 title={product.name}
                                 code={product.code}
-                                href={`/urun/${product.slug}`}
+                                href={`${hrefBasePath}/${product.slug}`}
                                 imageStatic={image}
                             />
                         </div>
@@ -50,4 +54,3 @@ export default function SimilarProductsRow({ products }: Props) {
         </section>
     )
 }
-

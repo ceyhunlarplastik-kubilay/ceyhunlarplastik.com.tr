@@ -142,6 +142,14 @@ Current auth UX behavior:
 - `/auth/awaiting-approval` is the public transition screen after confirmation
 - `/hesabim` is the authenticated account-status screen for pending, suspended, or rejected users
 
+Current user identity conventions:
+- the application database stores `User.firstName` and `User.lastName` as nullable fields for backward-compatible rollout
+- new sign-up flows collect `firstName` and `lastName` and send them to Cognito standard attributes `given_name`, `family_name`, and `name`
+- the `identifier` column remains in place for compatibility and operational search, but UI display should prefer `firstName + lastName`
+- the standard fallback order for user display text is:
+  `firstName + lastName` -> `identifier` -> email local-part
+- existing legacy users without populated name fields must remain able to sign in and render safely throughout admin, customer, and workflow surfaces
+
 That token model is a real current implementation detail and should be preserved unless the auth model is intentionally changed.
 
 ### Frontend deployment

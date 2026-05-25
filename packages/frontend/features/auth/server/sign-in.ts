@@ -9,6 +9,8 @@ export type SignInResult = {
     id: string
     dbUserId: string
     email: string
+    firstName?: string | null
+    lastName?: string | null
     name?: string
     image?: string
     identifier: string
@@ -67,7 +69,9 @@ export async function signInWithCognito(email: string, password: string): Promis
             id: profile.sub ?? email,
             dbUserId: accessState.dbUserId,
             email: profile.email ?? email,
-            name: profile.name ?? profile.email ?? email,
+            firstName: accessState.firstName,
+            lastName: accessState.lastName,
+            name: accessState.displayName || profile.name || profile.email || email,
             image: accessState.imageUrl ?? profile.picture,
             identifier: accessState.identifier,
             groups: accessState.groups,

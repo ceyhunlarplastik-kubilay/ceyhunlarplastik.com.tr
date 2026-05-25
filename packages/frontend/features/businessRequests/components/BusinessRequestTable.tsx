@@ -31,6 +31,7 @@ import type {
     BusinessRequestDecisionAction,
     BusinessRequestDecisionScope,
 } from "@/features/businessRequests/api/types"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 type Props = {
     requests: BusinessRequest[]
@@ -376,7 +377,7 @@ export function BusinessRequestTable({
                                     </TableCell>
                                     {showRequester ? (
                                         <TableCell>
-                                            <div className="text-sm text-neutral-900">{request.requestedByUser.identifier}</div>
+                                            <div className="text-sm text-neutral-900">{getUserDisplayName(request.requestedByUser) || request.requestedByUser.email}</div>
                                             <div className="text-xs text-neutral-500">{request.requestedByUser.email}</div>
                                         </TableCell>
                                     ) : null}
@@ -481,6 +482,22 @@ export function BusinessRequestTable({
                                                                                     {formatMoneyValue(item.data?.targetUnitPrice, typeof item.data?.currency === "string" ? item.data.currency : "TRY")}
                                                                                 </div>
                                                                             </div>
+                                                                            {typeof item.data?.customerUnitPrice === "number" ? (
+                                                                                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900 md:col-span-2">
+                                                                                    <span className="text-[11px] uppercase tracking-[0.16em] text-emerald-600">Müşteri Net Fiyatı</span>
+                                                                                    <div className="mt-1 font-medium">
+                                                                                        {formatMoneyValue(item.data?.customerUnitPrice, typeof item.data?.currency === "string" ? item.data.currency : "TRY")}
+                                                                                    </div>
+                                                                                    {typeof item.data?.appliedDiscountPercent === "number" && item.data.appliedDiscountPercent > 0 ? (
+                                                                                        <div className="mt-1 text-[11px] text-emerald-700">
+                                                                                            %{item.data.appliedDiscountPercent.toLocaleString("tr-TR", {
+                                                                                                minimumFractionDigits: item.data.appliedDiscountPercent % 1 === 0 ? 0 : 2,
+                                                                                                maximumFractionDigits: 2,
+                                                                                            })} genel iskonto uygulandı
+                                                                                        </div>
+                                                                                    ) : null}
+                                                                                </div>
+                                                                            ) : null}
                                                                             {typeof item.data?.counterUnitPrice === "number" ? (
                                                                                 <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
                                                                                     <span className="text-[11px] uppercase tracking-[0.16em] text-amber-500">Karşı Teklif</span>
@@ -508,7 +525,9 @@ export function BusinessRequestTable({
                                                                 <div key={step.id} className="space-y-1 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
                                                                     <div>{renderRoleBadge(step.requiredRole, step.status)}</div>
                                                                     <div className="text-xs text-neutral-500">
-                                                                        {step.assignedUser?.identifier ?? "Rol bazlı"}
+                                                                        {step.assignedUser
+                                                                            ? (getUserDisplayName(step.assignedUser) || step.assignedUser.email)
+                                                                            : "Rol bazlı"}
                                                                     </div>
                                                                     {step.decisionNote ? (
                                                                         <div className="max-w-[240px] text-xs text-neutral-600">{step.decisionNote}</div>
@@ -530,7 +549,9 @@ export function BusinessRequestTable({
                                                                         ) : null}
                                                                         <div className="mt-1 text-[11px] text-neutral-400">
                                                                             {new Date(log.createdAt).toLocaleString("tr-TR")}
-                                                                            {log.actorUser?.identifier ? ` • ${log.actorUser.identifier}` : ""}
+                                                                            {log.actorUser
+                                                                                ? ` • ${getUserDisplayName(log.actorUser) || log.actorUser.email}`
+                                                                                : ""}
                                                                         </div>
                                                                     </div>
                                                                 ))}

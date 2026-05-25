@@ -44,40 +44,37 @@ import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminLis
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { useSuppliers } from "@/features/admin/suppliers/hooks/useSuppliers"
 import { useCustomers } from "@/features/admin/customers/hooks/useCustomers"
+import { useUpdateUserProfile } from "@/features/admin/users/hooks/useUpdateUserProfile"
 import { useUpdateUserSupplier } from "@/features/admin/users/hooks/useUpdateUserSupplier"
 import { useUpdateUserRole } from "@/features/admin/users/hooks/useUpdateUserRole"
 import { useUserListFilters } from "@/features/admin/users/hooks/useUserListFilters"
 import { UserListFilters } from "@/features/admin/users/components/UserListFilters"
+import { UserEditDialog } from "@/features/admin/users/components/UserEditDialog"
 import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
 import { UserAccessStatusBadge } from "@/features/admin/users/components/UserAccessStatusBadge"
 import type { AdminUser } from "@/features/admin/users/api/types"
 import type { Supplier } from "@/features/admin/suppliers/api/types"
-import type { AdminCustomer } from "@/features/admin/customers/api/types"
+import {
+    ACCESS_STATUS_OPTIONS,
+    buildUserEditorSubmission,
+    type AccessStatus,
+    type CustomerOption,
+    getDefaultAccessStatusForGroup,
+    getRoleOptions,
+    getUserDisplayGroup,
+    GROUP_LABELS,
+    ROLE_ASSIGNMENT_CONFIG,
+    type UserEditorFormValues,
+    type UserGroup,
+} from "@/features/admin/users/schema/userEditor"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 const EMPTY_OPTION = "__none__"
 const USER_CELL_BADGE_CLASS = "rounded-full border-neutral-200 bg-white/80 text-neutral-700"
 const USERS_QUICK_FILTERS_STORAGE_KEY = "admin-users-quick-filters-v1"
-
-const USER_GROUP_VALUES = [
-    "user",
-    "supplier",
-    "purchasing",
-    "sales",
-    "sales_director",
-    "customer",
-    "admin",
-    "owner",
-] as const
-
-const ACCESS_STATUS_VALUES = [
-    "PENDING_REVIEW",
-    "ACTIVE",
-    "SUSPENDED",
-    "REJECTED",
-] as const
-
-type UserGroup = typeof USER_GROUP_VALUES[number]
-type AccessStatus = typeof ACCESS_STATUS_VALUES[number]
+const EMPTY_USERS: AdminUser[] = []
+const EMPTY_SUPPLIERS: Supplier[] = []
+const EMPTY_CUSTOMERS: CustomerOption[] = []
 
 type UserDraft = {
     group?: UserGroup
@@ -88,67 +85,11 @@ type UserDraft = {
     assignedCustomerIds?: string[]
 }
 
-type RoleOption = {
-    value: UserGroup
-    label: string
-}
-
-type RoleAssignmentConfig = {
-    requiresPortalSupplier?: boolean
-    requiresPortalCustomer?: boolean
-    canAssignSuppliers?: boolean
-    canAssignCustomers?: boolean
-}
-
-type CustomerOption = Pick<AdminCustomer, "id" | "fullName" | "companyName" | "status">
 type QuickRoleFilter = "all" | UserGroup
 type QuickLinkFilter = "all" | "portal_supplier" | "portal_customer" | "unlinked"
 type QuickStateFilter = "all" | "dirty" | "inactive"
 type SortKey = "createdAt" | "email" | "role" | "status"
 type SortDirection = "asc" | "desc"
-
-const BUSINESS_GROUP_OPTIONS: RoleOption[] = [
-    { value: "user", label: "İnceleme bekleyen kullanıcı" },
-    { value: "supplier", label: "Tedarikçi" },
-    { value: "purchasing", label: "Satın alma" },
-    { value: "sales", label: "Satış" },
-    { value: "sales_director", label: "Satış direktörü" },
-    { value: "customer", label: "Müşteri portalı" },
-]
-
-const PRIVILEGED_GROUP_OPTIONS: RoleOption[] = [
-    { value: "admin", label: "Admin" },
-    { value: "owner", label: "Owner" },
-]
-
-const ACCESS_STATUS_OPTIONS: Array<{ value: AccessStatus; label: string }> = [
-    { value: "PENDING_REVIEW", label: "İnceleniyor" },
-    { value: "ACTIVE", label: "Aktif" },
-    { value: "SUSPENDED", label: "Askıya alındı" },
-    { value: "REJECTED", label: "Reddedildi" },
-]
-
-const GROUP_LABELS: Record<UserGroup, string> = {
-    user: "İnceleme bekleyen kullanıcı",
-    supplier: "Tedarikçi",
-    purchasing: "Satın alma",
-    sales: "Satış",
-    sales_director: "Satış direktörü",
-    customer: "Müşteri portalı",
-    admin: "Admin",
-    owner: "Owner",
-}
-
-const ROLE_ASSIGNMENT_CONFIG: Record<UserGroup, RoleAssignmentConfig> = {
-    user: {},
-    supplier: { requiresPortalSupplier: true },
-    purchasing: { canAssignSuppliers: true },
-    sales: { canAssignCustomers: true },
-    sales_director: {},
-    customer: { requiresPortalCustomer: true },
-    admin: {},
-    owner: {},
-}
 
 const QUICK_ROLE_CHIPS: Array<{ value: QuickRoleFilter; label: string }> = [
     { value: "all", label: "Tüm Roller" },
@@ -186,16 +127,51 @@ type UsersQuickFiltersPersisted = {
     sortDirection: SortDirection
 }
 
-function getUserDisplayGroup(user: AdminUser) {
-    return (user.groups[0] ?? "user") as UserGroup
-}
+function readPersistedQuickFilters(): UsersQuickFiltersPersisted {
+    if (typeof window === "undefined") {
+        return {
+            quickRole: "all",
+            quickLink: "all",
+            quickState: "all",
+            sortKey: "createdAt",
+            sortDirection: "desc",
+        }
+    }
 
-function getDefaultAccessStatusForGroup(group: UserGroup): AccessStatus {
-    return group === "user" ? "PENDING_REVIEW" : "ACTIVE"
+    try {
+        const raw = window.localStorage.getItem(USERS_QUICK_FILTERS_STORAGE_KEY)
+        if (!raw) {
+            return {
+                quickRole: "all",
+                quickLink: "all",
+                quickState: "all",
+                sortKey: "createdAt",
+                sortDirection: "desc",
+            }
+        }
+
+        const parsed = JSON.parse(raw) as Partial<UsersQuickFiltersPersisted>
+
+        return {
+            quickRole: parsed.quickRole ?? "all",
+            quickLink: parsed.quickLink ?? "all",
+            quickState: parsed.quickState ?? "all",
+            sortKey: parsed.sortKey ?? "createdAt",
+            sortDirection: parsed.sortDirection ?? "desc",
+        }
+    } catch {
+        return {
+            quickRole: "all",
+            quickLink: "all",
+            quickState: "all",
+            sortKey: "createdAt",
+            sortDirection: "desc",
+        }
+    }
 }
 
 function getInitials(user: Pick<AdminUser, "identifier" | "email">) {
-    const source = user.identifier || user.email || "??"
+    const source = getUserDisplayName(user) || user.email || "??"
     return source.slice(0, 2).toUpperCase()
 }
 
@@ -218,11 +194,6 @@ function areStringArraysEqual(left: string[], right: string[]) {
 
     if (leftSorted.length !== rightSorted.length) return false
     return leftSorted.every((value, index) => value === rightSorted[index])
-}
-
-function areStringArraysEqualInOrder(left: string[], right: string[]) {
-    if (left.length !== right.length) return false
-    return left.every((value, index) => value === right[index])
 }
 
 function getEffectiveDraft(user: AdminUser, draft: UserDraft | undefined) {
@@ -256,19 +227,6 @@ function isUserDraftDirty(user: AdminUser, draft: UserDraft | undefined) {
         || !areStringArraysEqual(effective.assignedSupplierIds, (user.assignedPurchasingSuppliers ?? []).map((supplier) => supplier.id))
         || !areStringArraysEqual(effective.assignedCustomerIds, (user.assignedSalesCustomers ?? []).map((customer) => customer.id))
     )
-}
-
-function getRoleOptions(user: AdminUser, isOwnerViewer: boolean): RoleOption[] {
-    if (isOwnerViewer) {
-        return [...BUSINESS_GROUP_OPTIONS, ...PRIVILEGED_GROUP_OPTIONS]
-    }
-
-    const currentGroup = getUserDisplayGroup(user)
-    if (currentGroup === "admin" || currentGroup === "owner") {
-        return [...BUSINESS_GROUP_OPTIONS, { value: currentGroup, label: GROUP_LABELS[currentGroup] }]
-    }
-
-    return BUSINESS_GROUP_OPTIONS
 }
 
 function buildUserUpdatePayload(user: AdminUser, draft: UserDraft | undefined) {
@@ -396,12 +354,26 @@ function getUsersStats(users: AdminUser[], draftsByUserId: Record<string, UserDr
     )
 }
 
+function getCustomerContactMeta(user: AdminUser) {
+    const parts = [user.customerContactTitle, user.customerContactDepartment]
+        .map((value) => value?.trim())
+        .filter(Boolean)
+
+    if (parts.length === 0) {
+        return user.isPrimaryCustomerContact ? "Ana Yetkili" : ""
+    }
+
+    const meta = parts.join(" / ")
+    return user.isPrimaryCustomerContact ? `${meta} / Ana Yetkili` : meta
+}
+
 function useUserAccessUpdate() {
+    const updateUserProfile = useUpdateUserProfile()
     const updateUserRole = useUpdateUserRole()
     const updateUserSupplier = useUpdateUserSupplier()
 
     return {
-        async save(user: AdminUser, draft: UserDraft | undefined) {
+        async saveDraft(user: AdminUser, draft: UserDraft | undefined) {
             const payload = buildUserUpdatePayload(user, draft)
 
             if (payload.roleChanged) {
@@ -423,6 +395,23 @@ function useUserAccessUpdate() {
                     assignedSupplierIds: payload.assignedSupplierIds,
                     assignedCustomerIds: payload.assignedCustomerIds,
                 })
+            }
+
+            return payload
+        },
+        async saveEditor(user: AdminUser, values: UserEditorFormValues) {
+            const payload = buildUserEditorSubmission(user, values)
+
+            if (payload.roleChanged) {
+                await updateUserRole.mutateAsync(payload.rolePayload)
+            }
+
+            if (payload.assignmentsChanged) {
+                await updateUserSupplier.mutateAsync(payload.assignmentPayload)
+            }
+
+            if (payload.profileChanged) {
+                await updateUserProfile.mutateAsync(payload.profilePayload)
             }
 
             return payload
@@ -732,6 +721,9 @@ function UserExpandedPanel({
                     <div><span className="font-medium text-neutral-900">Rol:</span> {GROUP_LABELS[effective.group]}</div>
                     <div><span className="font-medium text-neutral-900">Portal tedarikçi:</span> {user.supplier?.name ?? "Atama yok"}</div>
                     <div><span className="font-medium text-neutral-900">Portal müşteri:</span> {user.customer?.companyName || user.customer?.fullName || "Atama yok"}</div>
+                    {user.customer ? (
+                        <div><span className="font-medium text-neutral-900">Müşteri iletişim kartı:</span> {getCustomerContactMeta(user) || "Tanımlanmadı"}</div>
+                    ) : null}
                 </div>
             </div>
 
@@ -859,15 +851,17 @@ function UserComparisonDialog({
                 <div className="grid gap-4 p-6 md:grid-cols-2">
                     {users.map((user) => {
                         const effective = getEffectiveDraft(user, draftsByUserId[user.id])
+                        const displayName = getUserDisplayName(user) || user.email
                         return (
                             <div key={user.id} className="space-y-4 rounded-[24px] border border-neutral-200 bg-white p-5 shadow-sm">
                                 <div className="flex items-start gap-3">
                                     <Avatar size="lg" className="ring-1 ring-neutral-200">
-                                        <AvatarImage src={user.imageUrl ?? undefined} alt={user.identifier} className="object-cover" />
+                                        <AvatarImage src={user.imageUrl ?? undefined} alt={displayName} className="object-cover" />
                                         <AvatarFallback>{getInitials(user)}</AvatarFallback>
                                     </Avatar>
                                     <div className="min-w-0">
-                                        <div className="truncate text-sm font-semibold text-neutral-950">{user.email}</div>
+                                        <div className="truncate text-sm font-semibold text-neutral-950">{displayName}</div>
+                                        <div className="truncate text-xs text-neutral-500">{user.email}</div>
                                         <div className="truncate text-xs text-neutral-500">@{user.identifier}</div>
                                     </div>
                                 </div>
@@ -883,6 +877,9 @@ function UserComparisonDialog({
                                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 text-sm text-neutral-700">
                                         <div><span className="font-medium text-neutral-900">Portal tedarikçi:</span> {user.supplier?.name ?? "Atama yok"}</div>
                                         <div><span className="font-medium text-neutral-900">Portal müşteri:</span> {user.customer?.companyName || user.customer?.fullName || "Atama yok"}</div>
+                                        {user.customer ? (
+                                            <div><span className="font-medium text-neutral-900">İletişim meta verisi:</span> {getCustomerContactMeta(user) || "Tanımlanmadı"}</div>
+                                        ) : null}
                                     </div>
                                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4 text-sm text-neutral-700">
                                         <div><span className="font-medium text-neutral-900">Satın alma atamaları:</span> {effective.assignedSupplierIds.length}</div>
@@ -914,6 +911,7 @@ function UserTableRow({
     onToggleSelected,
     onDraftChange,
     onSave,
+    onOpenEditor,
 }: {
     user: AdminUser
     draft: UserDraft | undefined
@@ -929,11 +927,13 @@ function UserTableRow({
     onToggleSelected: () => void
     onDraftChange: (patch: UserDraft) => void
     onSave: () => void
+    onOpenEditor: () => void
 }) {
     const effective = getEffectiveDraft(user, draft)
     const isDirty = isUserDraftDirty(user, draft)
     const validationError = validateUserDraft(user, draft)
     const canSave = isDirty && !validationError
+    const displayName = getUserDisplayName(user) || user.email
 
     return (
         <>
@@ -942,13 +942,14 @@ function UserTableRow({
                 <div className="flex items-start gap-3">
                     <Checkbox checked={isSelected} onCheckedChange={onToggleSelected} className="mt-1" />
                     <Avatar size="lg" className="ring-1 ring-neutral-200">
-                        <AvatarImage src={user.imageUrl ?? undefined} alt={user.identifier} className="object-cover" />
+                        <AvatarImage src={user.imageUrl ?? undefined} alt={displayName} className="object-cover" />
                         <AvatarFallback>{getInitials(user)}</AvatarFallback>
                     </Avatar>
 
                     <div className="min-w-0 space-y-2">
                         <div className="space-y-1">
-                            <div className="truncate text-sm font-semibold text-neutral-950">{user.email}</div>
+                            <div className="truncate text-sm font-semibold text-neutral-950">{displayName}</div>
+                            <div className="truncate text-xs text-neutral-500">{user.email}</div>
                             <div className="truncate text-xs text-neutral-500">@{user.identifier}</div>
                         </div>
 
@@ -957,6 +958,11 @@ function UserTableRow({
                             {user.customer ? <Badge variant="outline" className={USER_CELL_BADGE_CLASS}>Müşteri Portalı</Badge> : null}
                             {!user.isActive ? <Badge variant="outline" className="rounded-full border-rose-200 bg-rose-50 text-rose-700">Pasif</Badge> : null}
                         </div>
+                        {user.customer ? (
+                            <div className="truncate text-[11px] text-neutral-500">
+                                {getCustomerContactMeta(user) || "Müşteri iletişim meta verisi eklenmedi"}
+                            </div>
+                        ) : null}
 
                         <button
                             type="button"
@@ -1020,6 +1026,9 @@ function UserTableRow({
             <TableCell className="align-top py-5 text-right">
                 <div className="flex flex-col items-end gap-2">
                     <UserSaveButton canSave={canSave} isSaving={isSaving} onSave={onSave} />
+                    <Button type="button" size="sm" variant="ghost" className="rounded-xl" onClick={onOpenEditor}>
+                        Profili Düzenle
+                    </Button>
                     {validationError ? (
                         <p className="max-w-44 text-right text-[11px] leading-4 text-rose-600">
                             {validationError}
@@ -1066,6 +1075,7 @@ function UserMobileCard({
     onToggleSelected,
     onDraftChange,
     onSave,
+    onOpenEditor,
 }: {
     user: AdminUser
     draft: UserDraft | undefined
@@ -1079,11 +1089,13 @@ function UserMobileCard({
     onToggleSelected: () => void
     onDraftChange: (patch: UserDraft) => void
     onSave: () => void
+    onOpenEditor: () => void
 }) {
     const effective = getEffectiveDraft(user, draft)
     const isDirty = isUserDraftDirty(user, draft)
     const validationError = validateUserDraft(user, draft)
     const canSave = isDirty && !validationError
+    const displayName = getUserDisplayName(user) || user.email
 
     return (
         <Collapsible className="rounded-[24px] border border-neutral-200 bg-white shadow-sm">
@@ -1092,16 +1104,22 @@ function UserMobileCard({
                 <CollapsibleTrigger asChild>
                     <button className="flex min-w-0 flex-1 items-center gap-3 text-left">
                         <Avatar size="lg" className="ring-1 ring-neutral-200">
-                            <AvatarImage src={user.imageUrl ?? undefined} alt={user.identifier} className="object-cover" />
+                            <AvatarImage src={user.imageUrl ?? undefined} alt={displayName} className="object-cover" />
                             <AvatarFallback>{getInitials(user)}</AvatarFallback>
                         </Avatar>
                         <div className="min-w-0 flex-1">
-                            <div className="truncate text-sm font-semibold text-neutral-950">{user.email}</div>
+                            <div className="truncate text-sm font-semibold text-neutral-950">{displayName}</div>
+                            <div className="truncate text-xs text-neutral-500">{user.email}</div>
                             <div className="truncate text-xs text-neutral-500">@{user.identifier}</div>
                             <div className="mt-2 flex flex-wrap gap-1.5">
                                 <UserAccessStatusBadge status={effective.accessStatus} />
                                 <Badge variant="outline" className={USER_CELL_BADGE_CLASS}>{GROUP_LABELS[effective.group]}</Badge>
                             </div>
+                            {user.customer ? (
+                                <div className="mt-2 truncate text-[11px] text-neutral-500">
+                                    {getCustomerContactMeta(user) || "Müşteri iletişim meta verisi eklenmedi"}
+                                </div>
+                            ) : null}
                         </div>
                         <ChevronDown className="h-5 w-5 shrink-0 text-neutral-400 transition-transform data-[state=open]:rotate-180" />
                     </button>
@@ -1156,7 +1174,12 @@ function UserMobileCard({
                                 <p className="text-neutral-400">Satır güncel.</p>
                             )}
                         </div>
-                        <UserSaveButton canSave={canSave} isSaving={isSaving} onSave={onSave} />
+                        <div className="flex items-center gap-2">
+                            <Button type="button" size="sm" variant="ghost" className="rounded-xl" onClick={onOpenEditor}>
+                                Düzenle
+                            </Button>
+                            <UserSaveButton canSave={canSave} isSaving={isSaving} onSave={onSave} />
+                        </div>
                     </div>
                 </div>
             </CollapsibleContent>
@@ -1317,6 +1340,7 @@ function UsersTable({
     onResetQuickControls,
     onDraftChange,
     onSave,
+    onOpenEditor,
 }: {
     users: AdminUser[]
     dirtyCount: number
@@ -1345,6 +1369,7 @@ function UsersTable({
     onResetQuickControls: () => void
     onDraftChange: (userId: string, patch: UserDraft) => void
     onSave: (userId: string) => void
+    onOpenEditor: (user: AdminUser) => void
 }) {
     return (
         <div className="overflow-hidden rounded-[28px]">
@@ -1412,6 +1437,7 @@ function UsersTable({
                             onToggleSelected={() => onToggleSelected(user.id)}
                             onDraftChange={(patch) => onDraftChange(user.id, patch)}
                             onSave={() => onSave(user.id)}
+                            onOpenEditor={() => onOpenEditor(user)}
                         />
                     ))
                 )}
@@ -1450,6 +1476,7 @@ function UsersTable({
                             onToggleExpand={() => onToggleExpand(user.id)}
                             onDraftChange={(patch) => onDraftChange(user.id, patch)}
                             onSave={() => onSave(user.id)}
+                            onOpenEditor={() => onOpenEditor(user)}
                         />
                     ))}
 
@@ -1463,15 +1490,17 @@ function UsersTable({
 
 export function UsersPageClient() {
     const { data: session } = useSession()
+    const initialQuickFilters = readPersistedQuickFilters()
     const [draftsByUserId, setDraftsByUserId] = useState<Record<string, UserDraft>>({})
     const [savingUserId, setSavingUserId] = useState<string | null>(null)
+    const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
     const [expandedUserIds, setExpandedUserIds] = useState<string[]>([])
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
-    const [quickRole, setQuickRole] = useState<QuickRoleFilter>("all")
-    const [quickLink, setQuickLink] = useState<QuickLinkFilter>("all")
-    const [quickState, setQuickState] = useState<QuickStateFilter>("all")
-    const [sortKey, setSortKey] = useState<SortKey>("createdAt")
-    const [sortDirection, setSortDirection] = useState<SortDirection>("desc")
+    const [quickRole, setQuickRole] = useState<QuickRoleFilter>(initialQuickFilters.quickRole)
+    const [quickLink, setQuickLink] = useState<QuickLinkFilter>(initialQuickFilters.quickLink)
+    const [quickState, setQuickState] = useState<QuickStateFilter>(initialQuickFilters.quickState)
+    const [sortKey, setSortKey] = useState<SortKey>(initialQuickFilters.sortKey)
+    const [sortDirection, setSortDirection] = useState<SortDirection>(initialQuickFilters.sortDirection)
     const [comparisonOpen, setComparisonOpen] = useState(false)
     const updateAccess = useUserAccessUpdate()
 
@@ -1494,10 +1523,10 @@ export function UsersPageClient() {
     const supplierQuery = useSuppliers({ params: { page: 1, limit: 500 } })
     const customerQuery = useCustomers({ params: { page: 1, limit: 500 } })
 
-    const users = userQuery.data?.data ?? []
+    const users = userQuery.data?.data ?? EMPTY_USERS
     const meta = userQuery.data?.meta
-    const suppliers = supplierQuery.data?.data ?? []
-    const customers = customerQuery.data?.data ?? []
+    const suppliers = supplierQuery.data?.data ?? EMPTY_SUPPLIERS
+    const customers = customerQuery.data?.data ?? EMPTY_CUSTOMERS
     const viewerGroups = session?.user?.groups ?? []
     const isOwnerViewer = viewerGroups.includes("owner")
 
@@ -1516,26 +1545,25 @@ export function UsersPageClient() {
         [draftsByUserId, filteredUsers, sortDirection, sortKey],
     )
 
-    const comparisonUsers = useMemo(
-        () => visibleUsers.filter((user) => selectedUserIds.includes(user.id)).slice(0, 2),
-        [selectedUserIds, visibleUsers],
+    const visibleUserIds = useMemo(
+        () => visibleUsers.map((user) => user.id),
+        [visibleUsers],
     )
 
-    useEffect(() => {
-        try {
-            const raw = window.localStorage.getItem(USERS_QUICK_FILTERS_STORAGE_KEY)
-            if (!raw) return
+    const activeSelectedUserIds = useMemo(
+        () => selectedUserIds.filter((id) => visibleUserIds.includes(id)),
+        [selectedUserIds, visibleUserIds],
+    )
 
-            const parsed = JSON.parse(raw) as Partial<UsersQuickFiltersPersisted>
-            if (parsed.quickRole) setQuickRole(parsed.quickRole)
-            if (parsed.quickLink) setQuickLink(parsed.quickLink)
-            if (parsed.quickState) setQuickState(parsed.quickState)
-            if (parsed.sortKey) setSortKey(parsed.sortKey)
-            if (parsed.sortDirection) setSortDirection(parsed.sortDirection)
-        } catch {
-            // Ignore malformed persisted filters.
-        }
-    }, [])
+    const activeExpandedUserIds = useMemo(
+        () => expandedUserIds.filter((id) => visibleUserIds.includes(id)),
+        [expandedUserIds, visibleUserIds],
+    )
+
+    const comparisonUsers = useMemo(
+        () => visibleUsers.filter((user) => activeSelectedUserIds.includes(user.id)).slice(0, 2),
+        [activeSelectedUserIds, visibleUsers],
+    )
 
     useEffect(() => {
         const payload: UsersQuickFiltersPersisted = {
@@ -1547,18 +1575,6 @@ export function UsersPageClient() {
         }
         window.localStorage.setItem(USERS_QUICK_FILTERS_STORAGE_KEY, JSON.stringify(payload))
     }, [quickLink, quickRole, quickState, sortDirection, sortKey])
-
-    useEffect(() => {
-        setSelectedUserIds((prev) => {
-            const next = prev.filter((id) => visibleUsers.some((user) => user.id === id))
-            return areStringArraysEqualInOrder(prev, next) ? prev : next
-        })
-
-        setExpandedUserIds((prev) => {
-            const next = prev.filter((id) => visibleUsers.some((user) => user.id === id))
-            return areStringArraysEqualInOrder(prev, next) ? prev : next
-        })
-    }, [visibleUsers])
 
     function patchDraft(userId: string, patch: UserDraft) {
         setDraftsByUserId((prev) => ({
@@ -1606,7 +1622,7 @@ export function UsersPageClient() {
 
         try {
             setSavingUserId(userId)
-            const payload = await updateAccess.save(user, draftsByUserId[userId])
+            const payload = await updateAccess.saveDraft(user, draftsByUserId[userId])
             setDraftsByUserId((prev) => {
                 const next = { ...prev }
                 delete next[userId]
@@ -1620,8 +1636,42 @@ export function UsersPageClient() {
         }
     }
 
+    async function handleDialogSave(user: AdminUser, values: UserEditorFormValues) {
+        const payload = buildUserEditorSubmission(user, values)
+        if (!payload.profileChanged && !payload.roleChanged && !payload.assignmentsChanged) {
+            toast.message("Güncellenecek bir alan bulunmuyor.")
+            setEditingUser(null)
+            return
+        }
+
+        try {
+            setSavingUserId(user.id)
+            const result = await updateAccess.saveEditor(user, values)
+            setDraftsByUserId((prev) => {
+                const next = { ...prev }
+                delete next[user.id]
+                return next
+            })
+            setEditingUser(null)
+
+            if (result.profileChanged && (result.roleChanged || result.assignmentsChanged)) {
+                toast.success("Kullanıcı profili, rolü ve atamaları güncellendi.")
+            } else if (result.profileChanged) {
+                toast.success("Kullanıcı profili güncellendi.")
+            } else if (result.roleChanged) {
+                toast.success("Rol ve erişim güncellendi.")
+            } else {
+                toast.success("Kullanıcı atamaları güncellendi.")
+            }
+        } catch {
+            toast.error("Kullanıcı bilgileri güncellenemedi.")
+        } finally {
+            setSavingUserId(null)
+        }
+    }
+
     async function handleSaveSelected() {
-        for (const userId of selectedUserIds) {
+        for (const userId of activeSelectedUserIds) {
             const user = visibleUsers.find((item) => item.id === userId)
             if (!user || !isUserDraftDirty(user, draftsByUserId[userId])) continue
             const validationError = validateUserDraft(user, draftsByUserId[userId])
@@ -1710,10 +1760,10 @@ export function UsersPageClient() {
                 transition={{ delay: 0.13, duration: 0.4, ease: "easeOut" }}
             >
                 <UsersBulkActions
-                    selectedCount={selectedUserIds.length}
-                    compareDisabled={selectedUserIds.length !== 2}
+                    selectedCount={activeSelectedUserIds.length}
+                    compareDisabled={activeSelectedUserIds.length !== 2}
                     onClearSelection={() => setSelectedUserIds([])}
-                    onExpandSelection={() => setExpandedUserIds(Array.from(new Set([...expandedUserIds, ...selectedUserIds])))}
+                    onExpandSelection={() => setExpandedUserIds(Array.from(new Set([...expandedUserIds, ...activeSelectedUserIds])))}
                     onCompare={() => setComparisonOpen(true)}
                     onSaveSelection={() => void handleSaveSelected()}
                 />
@@ -1736,8 +1786,8 @@ export function UsersPageClient() {
                     isLoadingSuppliers={supplierQuery.isLoading}
                     isLoadingCustomers={customerQuery.isLoading}
                     savingUserId={savingUserId}
-                    expandedUserIds={expandedUserIds}
-                    selectedUserIds={selectedUserIds}
+                    expandedUserIds={activeExpandedUserIds}
+                    selectedUserIds={activeSelectedUserIds}
                     quickRole={quickRole}
                     quickLink={quickLink}
                     quickState={quickState}
@@ -1753,8 +1803,24 @@ export function UsersPageClient() {
                     onResetQuickControls={resetQuickControls}
                     onDraftChange={patchDraft}
                     onSave={handleSave}
+                    onOpenEditor={setEditingUser}
                 />
             </motion.div>
+
+            <UserEditDialog
+                open={Boolean(editingUser)}
+                user={editingUser}
+                suppliers={suppliers}
+                customers={customers}
+                isOwnerViewer={isOwnerViewer}
+                isSaving={savingUserId === editingUser?.id}
+                isLoadingSuppliers={supplierQuery.isLoading}
+                isLoadingCustomers={customerQuery.isLoading}
+                onOpenChange={(open) => {
+                    if (!open) setEditingUser(null)
+                }}
+                onSubmit={handleDialogSave}
+            />
 
             <UserComparisonDialog
                 open={comparisonOpen}

@@ -20,8 +20,22 @@ export type CustomerModel = runtime.Types.Result.DefaultSelection<Prisma.$Custom
 
 export type AggregateCustomer = {
   _count: CustomerCountAggregateOutputType | null
+  _avg: CustomerAvgAggregateOutputType | null
+  _sum: CustomerSumAggregateOutputType | null
   _min: CustomerMinAggregateOutputType | null
   _max: CustomerMaxAggregateOutputType | null
+}
+
+export type CustomerAvgAggregateOutputType = {
+  generalDiscountPercent: runtime.Decimal | null
+  defaultPaymentTermDays: number | null
+  creditLimit: runtime.Decimal | null
+}
+
+export type CustomerSumAggregateOutputType = {
+  generalDiscountPercent: runtime.Decimal | null
+  defaultPaymentTermDays: number | null
+  creditLimit: runtime.Decimal | null
 }
 
 export type CustomerMinAggregateOutputType = {
@@ -32,6 +46,10 @@ export type CustomerMinAggregateOutputType = {
   email: string | null
   note: string | null
   status: $Enums.CustomerStatus | null
+  generalDiscountPercent: runtime.Decimal | null
+  defaultPaymentTermDays: number | null
+  creditLimit: runtime.Decimal | null
+  paymentTermNote: string | null
   assignedSalesUserId: string | null
   convertedAt: Date | null
   convertedByUserId: string | null
@@ -49,6 +67,10 @@ export type CustomerMaxAggregateOutputType = {
   email: string | null
   note: string | null
   status: $Enums.CustomerStatus | null
+  generalDiscountPercent: runtime.Decimal | null
+  defaultPaymentTermDays: number | null
+  creditLimit: runtime.Decimal | null
+  paymentTermNote: string | null
   assignedSalesUserId: string | null
   convertedAt: Date | null
   convertedByUserId: string | null
@@ -66,6 +88,10 @@ export type CustomerCountAggregateOutputType = {
   email: number
   note: number
   status: number
+  generalDiscountPercent: number
+  defaultPaymentTermDays: number
+  creditLimit: number
+  paymentTermNote: number
   assignedSalesUserId: number
   convertedAt: number
   convertedByUserId: number
@@ -77,6 +103,18 @@ export type CustomerCountAggregateOutputType = {
 }
 
 
+export type CustomerAvgAggregateInputType = {
+  generalDiscountPercent?: true
+  defaultPaymentTermDays?: true
+  creditLimit?: true
+}
+
+export type CustomerSumAggregateInputType = {
+  generalDiscountPercent?: true
+  defaultPaymentTermDays?: true
+  creditLimit?: true
+}
+
 export type CustomerMinAggregateInputType = {
   id?: true
   companyName?: true
@@ -85,6 +123,10 @@ export type CustomerMinAggregateInputType = {
   email?: true
   note?: true
   status?: true
+  generalDiscountPercent?: true
+  defaultPaymentTermDays?: true
+  creditLimit?: true
+  paymentTermNote?: true
   assignedSalesUserId?: true
   convertedAt?: true
   convertedByUserId?: true
@@ -102,6 +144,10 @@ export type CustomerMaxAggregateInputType = {
   email?: true
   note?: true
   status?: true
+  generalDiscountPercent?: true
+  defaultPaymentTermDays?: true
+  creditLimit?: true
+  paymentTermNote?: true
   assignedSalesUserId?: true
   convertedAt?: true
   convertedByUserId?: true
@@ -119,6 +165,10 @@ export type CustomerCountAggregateInputType = {
   email?: true
   note?: true
   status?: true
+  generalDiscountPercent?: true
+  defaultPaymentTermDays?: true
+  creditLimit?: true
+  paymentTermNote?: true
   assignedSalesUserId?: true
   convertedAt?: true
   convertedByUserId?: true
@@ -167,6 +217,18 @@ export type CustomerAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CustomerAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CustomerSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CustomerMinAggregateInputType
@@ -197,6 +259,8 @@ export type CustomerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: CustomerCountAggregateInputType | true
+  _avg?: CustomerAvgAggregateInputType
+  _sum?: CustomerSumAggregateInputType
   _min?: CustomerMinAggregateInputType
   _max?: CustomerMaxAggregateInputType
 }
@@ -209,6 +273,10 @@ export type CustomerGroupByOutputType = {
   email: string
   note: string | null
   status: $Enums.CustomerStatus
+  generalDiscountPercent: runtime.Decimal | null
+  defaultPaymentTermDays: number | null
+  creditLimit: runtime.Decimal | null
+  paymentTermNote: string | null
   assignedSalesUserId: string | null
   convertedAt: Date | null
   convertedByUserId: string | null
@@ -217,6 +285,8 @@ export type CustomerGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: CustomerCountAggregateOutputType | null
+  _avg: CustomerAvgAggregateOutputType | null
+  _sum: CustomerSumAggregateOutputType | null
   _min: CustomerMinAggregateOutputType | null
   _max: CustomerMaxAggregateOutputType | null
 }
@@ -247,6 +317,10 @@ export type CustomerWhereInput = {
   email?: Prisma.StringFilter<"Customer"> | string
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.IntNullableFilter<"Customer"> | number | null
+  creditLimit?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.StringNullableFilter<"Customer"> | string | null
   assignedSalesUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
   convertedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   convertedByUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -275,6 +349,10 @@ export type CustomerOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  generalDiscountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  creditLimit?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentTermNote?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedSalesUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   convertedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -306,6 +384,10 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringFilter<"Customer"> | string
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.IntNullableFilter<"Customer"> | number | null
+  creditLimit?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.StringNullableFilter<"Customer"> | string | null
   assignedSalesUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
   convertedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   convertedByUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -334,6 +416,10 @@ export type CustomerOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  generalDiscountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrderInput | Prisma.SortOrder
+  creditLimit?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentTermNote?: Prisma.SortOrderInput | Prisma.SortOrder
   assignedSalesUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   convertedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   convertedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,8 +428,10 @@ export type CustomerOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerCountOrderByAggregateInput
+  _avg?: Prisma.CustomerAvgOrderByAggregateInput
   _max?: Prisma.CustomerMaxOrderByAggregateInput
   _min?: Prisma.CustomerMinOrderByAggregateInput
+  _sum?: Prisma.CustomerSumOrderByAggregateInput
 }
 
 export type CustomerScalarWhereWithAggregatesInput = {
@@ -357,6 +445,10 @@ export type CustomerScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   note?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusWithAggregatesFilter<"Customer"> | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
+  creditLimit?: Prisma.DecimalNullableWithAggregatesFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   assignedSalesUserId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   convertedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
   convertedByUserId?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
@@ -374,6 +466,10 @@ export type CustomerCreateInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -398,6 +494,10 @@ export type CustomerUncheckedCreateInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -422,6 +522,10 @@ export type CustomerUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -446,6 +550,10 @@ export type CustomerUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -470,6 +578,10 @@ export type CustomerCreateManyInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -487,6 +599,10 @@ export type CustomerUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -500,6 +616,10 @@ export type CustomerUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -532,6 +652,10 @@ export type CustomerCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   note?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  generalDiscountPercent?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
+  creditLimit?: Prisma.SortOrder
+  paymentTermNote?: Prisma.SortOrder
   assignedSalesUserId?: Prisma.SortOrder
   convertedAt?: Prisma.SortOrder
   convertedByUserId?: Prisma.SortOrder
@@ -539,6 +663,12 @@ export type CustomerCountOrderByAggregateInput = {
   productionGroupValueId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CustomerAvgOrderByAggregateInput = {
+  generalDiscountPercent?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
+  creditLimit?: Prisma.SortOrder
 }
 
 export type CustomerMaxOrderByAggregateInput = {
@@ -549,6 +679,10 @@ export type CustomerMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   note?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  generalDiscountPercent?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
+  creditLimit?: Prisma.SortOrder
+  paymentTermNote?: Prisma.SortOrder
   assignedSalesUserId?: Prisma.SortOrder
   convertedAt?: Prisma.SortOrder
   convertedByUserId?: Prisma.SortOrder
@@ -566,6 +700,10 @@ export type CustomerMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   note?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  generalDiscountPercent?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
+  creditLimit?: Prisma.SortOrder
+  paymentTermNote?: Prisma.SortOrder
   assignedSalesUserId?: Prisma.SortOrder
   convertedAt?: Prisma.SortOrder
   convertedByUserId?: Prisma.SortOrder
@@ -573,6 +711,12 @@ export type CustomerMinOrderByAggregateInput = {
   productionGroupValueId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CustomerSumOrderByAggregateInput = {
+  generalDiscountPercent?: Prisma.SortOrder
+  defaultPaymentTermDays?: Prisma.SortOrder
+  creditLimit?: Prisma.SortOrder
 }
 
 export type CustomerScalarRelationFilter = {
@@ -806,6 +950,14 @@ export type EnumCustomerStatusFieldUpdateOperationsInput = {
   set?: $Enums.CustomerStatus
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type CustomerCreateNestedOneWithoutFeaturedProductsInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutFeaturedProductsInput, Prisma.CustomerUncheckedCreateWithoutFeaturedProductsInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutFeaturedProductsInput
@@ -886,6 +1038,10 @@ export type CustomerCreateWithoutPortalUsersInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -909,6 +1065,10 @@ export type CustomerUncheckedCreateWithoutPortalUsersInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -937,6 +1097,10 @@ export type CustomerCreateWithoutAssignedSalesUserInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -960,6 +1124,10 @@ export type CustomerUncheckedCreateWithoutAssignedSalesUserInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
   sectorValueId?: string | null
@@ -993,6 +1161,10 @@ export type CustomerCreateWithoutConvertedByUserInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1016,6 +1188,10 @@ export type CustomerUncheckedCreateWithoutConvertedByUserInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   sectorValueId?: string | null
@@ -1060,6 +1236,10 @@ export type CustomerUpdateWithoutPortalUsersInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1083,6 +1263,10 @@ export type CustomerUncheckedUpdateWithoutPortalUsersInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1125,6 +1309,10 @@ export type CustomerScalarWhereInput = {
   email?: Prisma.StringFilter<"Customer"> | string
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.IntNullableFilter<"Customer"> | number | null
+  creditLimit?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.StringNullableFilter<"Customer"> | string | null
   assignedSalesUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
   convertedAt?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   convertedByUserId?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -1158,6 +1346,10 @@ export type CustomerCreateWithoutSectorValueInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1181,6 +1373,10 @@ export type CustomerUncheckedCreateWithoutSectorValueInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1214,6 +1410,10 @@ export type CustomerCreateWithoutProductionGroupValueInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1237,6 +1437,10 @@ export type CustomerUncheckedCreateWithoutProductionGroupValueInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1270,6 +1474,10 @@ export type CustomerCreateWithoutUsageAreaValuesInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1293,6 +1501,10 @@ export type CustomerUncheckedCreateWithoutUsageAreaValuesInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1369,6 +1581,10 @@ export type CustomerCreateWithoutFeaturedProductsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1392,6 +1608,10 @@ export type CustomerUncheckedCreateWithoutFeaturedProductsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1431,6 +1651,10 @@ export type CustomerUpdateWithoutFeaturedProductsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1454,6 +1678,10 @@ export type CustomerUncheckedUpdateWithoutFeaturedProductsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1477,6 +1705,10 @@ export type CustomerCreateWithoutAssignedProductsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1500,6 +1732,10 @@ export type CustomerUncheckedCreateWithoutAssignedProductsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1539,6 +1775,10 @@ export type CustomerUpdateWithoutAssignedProductsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1562,6 +1802,10 @@ export type CustomerUncheckedUpdateWithoutAssignedProductsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1585,6 +1829,10 @@ export type CustomerCreateWithoutAddressesInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1608,6 +1856,10 @@ export type CustomerUncheckedCreateWithoutAddressesInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1647,6 +1899,10 @@ export type CustomerUpdateWithoutAddressesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1670,6 +1926,10 @@ export type CustomerUncheckedUpdateWithoutAddressesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1693,6 +1953,10 @@ export type CustomerCreateWithoutVisitsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1716,6 +1980,10 @@ export type CustomerUncheckedCreateWithoutVisitsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1755,6 +2023,10 @@ export type CustomerUpdateWithoutVisitsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1778,6 +2050,10 @@ export type CustomerUncheckedUpdateWithoutVisitsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1801,6 +2077,10 @@ export type CustomerCreateWithoutBusinessRequestsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1824,6 +2104,10 @@ export type CustomerUncheckedCreateWithoutBusinessRequestsInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -1863,6 +2147,10 @@ export type CustomerUpdateWithoutBusinessRequestsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1886,6 +2174,10 @@ export type CustomerUncheckedUpdateWithoutBusinessRequestsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1909,6 +2201,10 @@ export type CustomerCreateManyAssignedSalesUserInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
   sectorValueId?: string | null
@@ -1925,6 +2221,10 @@ export type CustomerCreateManyConvertedByUserInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   sectorValueId?: string | null
@@ -1941,6 +2241,10 @@ export type CustomerUpdateWithoutAssignedSalesUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1964,6 +2268,10 @@ export type CustomerUncheckedUpdateWithoutAssignedSalesUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1987,6 +2295,10 @@ export type CustomerUncheckedUpdateManyWithoutAssignedSalesUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2003,6 +2315,10 @@ export type CustomerUpdateWithoutConvertedByUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2026,6 +2342,10 @@ export type CustomerUncheckedUpdateWithoutConvertedByUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2049,6 +2369,10 @@ export type CustomerUncheckedUpdateManyWithoutConvertedByUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2065,6 +2389,10 @@ export type CustomerCreateManySectorValueInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -2081,6 +2409,10 @@ export type CustomerCreateManyProductionGroupValueInput = {
   email: string
   note?: string | null
   status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
   assignedSalesUserId?: string | null
   convertedAt?: Date | string | null
   convertedByUserId?: string | null
@@ -2097,6 +2429,10 @@ export type CustomerUpdateWithoutSectorValueInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2120,6 +2456,10 @@ export type CustomerUncheckedUpdateWithoutSectorValueInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2143,6 +2483,10 @@ export type CustomerUncheckedUpdateManyWithoutSectorValueInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2159,6 +2503,10 @@ export type CustomerUpdateWithoutProductionGroupValueInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2182,6 +2530,10 @@ export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2205,6 +2557,10 @@ export type CustomerUncheckedUpdateManyWithoutProductionGroupValueInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2221,6 +2577,10 @@ export type CustomerUpdateWithoutUsageAreaValuesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2244,6 +2604,10 @@ export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2267,6 +2631,10 @@ export type CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2369,6 +2737,10 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   email?: boolean
   note?: boolean
   status?: boolean
+  generalDiscountPercent?: boolean
+  defaultPaymentTermDays?: boolean
+  creditLimit?: boolean
+  paymentTermNote?: boolean
   assignedSalesUserId?: boolean
   convertedAt?: boolean
   convertedByUserId?: boolean
@@ -2398,6 +2770,10 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   email?: boolean
   note?: boolean
   status?: boolean
+  generalDiscountPercent?: boolean
+  defaultPaymentTermDays?: boolean
+  creditLimit?: boolean
+  paymentTermNote?: boolean
   assignedSalesUserId?: boolean
   convertedAt?: boolean
   convertedByUserId?: boolean
@@ -2419,6 +2795,10 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   email?: boolean
   note?: boolean
   status?: boolean
+  generalDiscountPercent?: boolean
+  defaultPaymentTermDays?: boolean
+  creditLimit?: boolean
+  paymentTermNote?: boolean
   assignedSalesUserId?: boolean
   convertedAt?: boolean
   convertedByUserId?: boolean
@@ -2440,6 +2820,10 @@ export type CustomerSelectScalar = {
   email?: boolean
   note?: boolean
   status?: boolean
+  generalDiscountPercent?: boolean
+  defaultPaymentTermDays?: boolean
+  creditLimit?: boolean
+  paymentTermNote?: boolean
   assignedSalesUserId?: boolean
   convertedAt?: boolean
   convertedByUserId?: boolean
@@ -2449,7 +2833,7 @@ export type CustomerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyName" | "fullName" | "phone" | "email" | "note" | "status" | "assignedSalesUserId" | "convertedAt" | "convertedByUserId" | "sectorValueId" | "productionGroupValueId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyName" | "fullName" | "phone" | "email" | "note" | "status" | "generalDiscountPercent" | "defaultPaymentTermDays" | "creditLimit" | "paymentTermNote" | "assignedSalesUserId" | "convertedAt" | "convertedByUserId" | "sectorValueId" | "productionGroupValueId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
   convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
@@ -2500,6 +2884,10 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     email: string
     note: string | null
     status: $Enums.CustomerStatus
+    generalDiscountPercent: runtime.Decimal | null
+    defaultPaymentTermDays: number | null
+    creditLimit: runtime.Decimal | null
+    paymentTermNote: string | null
     assignedSalesUserId: string | null
     convertedAt: Date | null
     convertedByUserId: string | null
@@ -2948,6 +3336,10 @@ export interface CustomerFieldRefs {
   readonly email: Prisma.FieldRef<"Customer", 'String'>
   readonly note: Prisma.FieldRef<"Customer", 'String'>
   readonly status: Prisma.FieldRef<"Customer", 'CustomerStatus'>
+  readonly generalDiscountPercent: Prisma.FieldRef<"Customer", 'Decimal'>
+  readonly defaultPaymentTermDays: Prisma.FieldRef<"Customer", 'Int'>
+  readonly creditLimit: Prisma.FieldRef<"Customer", 'Decimal'>
+  readonly paymentTermNote: Prisma.FieldRef<"Customer", 'String'>
   readonly assignedSalesUserId: Prisma.FieldRef<"Customer", 'String'>
   readonly convertedAt: Prisma.FieldRef<"Customer", 'DateTime'>
   readonly convertedByUserId: Prisma.FieldRef<"Customer", 'String'>

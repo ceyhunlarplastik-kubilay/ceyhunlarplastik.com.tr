@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
         const result = await signUpWithCognito(
             payload.email.trim().toLowerCase(),
             payload.password,
+            payload.firstName,
+            payload.lastName,
         )
 
         return ok(result)

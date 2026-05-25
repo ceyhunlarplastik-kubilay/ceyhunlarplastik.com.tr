@@ -1,29 +1,18 @@
 "use client"
 
-import { useMemo, useTransition, useEffect, useCallback } from "react"
+import Image from "next/image"
+import { useMemo, useTransition, useEffect, useCallback, useDeferredValue, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "motion/react"
-import { Check, ChevronsUpDown, Loader2, Search, X } from "lucide-react"
+import { Box, Loader2, Search, Sparkles, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command"
 
 import { useFilterStore } from "@/features/public/products/store/filterStore"
+import { ProductFilterPopoverSelect } from "@/features/public/products/components/ProductFilterPopoverSelect"
 
 type Category = {
     id: string
@@ -31,6 +20,11 @@ type Category = {
     slug: string
     code: string | number
     allowedAttributeValueIds?: string[]
+    assets?: {
+        role?: string
+        type?: string
+        url?: string
+    }[]
 }
 
 type AttributeValue = {
@@ -53,6 +47,62 @@ type Props = {
     hideCategoryFilter?: boolean
     fixedCategorySlug?: string
     basePath?: string
+    showSelectedCategoryPreview?: boolean
+    attributeSelectorVariant?: "mixed" | "popover"
+    hiddenAttributeCodesWhenCategorySelected?: string[]
+    showProductSearch?: boolean
+    productSearchPlaceholder?: string
+}
+
+function ProductSidebarSearchControl({
+    committedSearch,
+    placeholder,
+    onCommit,
+}: {
+    committedSearch: string
+    placeholder: string
+    onCommit: (value: string) => void
+}) {
+    const [draftSearch, setDraftSearch] = useState(committedSearch)
+    const deferredDraftSearch = useDeferredValue(draftSearch)
+
+    useEffect(() => {
+        const normalizedSearch = deferredDraftSearch.trim()
+        if (normalizedSearch === committedSearch) return
+
+        const timeoutId = window.setTimeout(() => {
+            onCommit(normalizedSearch)
+        }, 300)
+
+        return () => window.clearTimeout(timeoutId)
+    }, [committedSearch, deferredDraftSearch, onCommit])
+
+    return (
+        <section className="space-y-2">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                Urun Arama
+            </div>
+            <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                <Input
+                    value={draftSearch}
+                    onChange={(event) => setDraftSearch(event.target.value)}
+                    placeholder={placeholder}
+                    className="h-10 rounded-xl pl-9 pr-10 text-sm"
+                />
+                {draftSearch ? (
+                    <button
+                        type="button"
+                        onClick={() => setDraftSearch("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-700"
+                        aria-label="Aramayi temizle"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                ) : null}
+            </div>
+        </section>
+    )
 }
 
 export default function ProductFilterSidebar({
@@ -61,6 +111,11 @@ export default function ProductFilterSidebar({
     hideCategoryFilter = false,
     fixedCategorySlug,
     basePath = "/urunler/filtre",
+    showSelectedCategoryPreview = false,
+    attributeSelectorVariant = "mixed",
+    hiddenAttributeCodesWhenCategorySelected = [],
+    showProductSearch = false,
+    productSearchPlaceholder = "Ürün kodu veya adı ara",
 }: Props) {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -68,8 +123,10 @@ export default function ProductFilterSidebar({
 
     const {
         category,
+        search,
         attributes: storeAttributes,
         setCategory,
+        setSearch,
         setAttributes,
         setFromUrl,
     } = useFilterStore()
@@ -85,6 +142,11 @@ export default function ProductFilterSidebar({
     }, [fixedCategorySlug, category, setCategory])
 
     const scopedCategorySlug = fixedCategorySlug ?? category
+    const hiddenAttributeCodesSet = useMemo(
+        () => new Set(hiddenAttributeCodesWhenCategorySelected),
+        [hiddenAttributeCodesWhenCategorySelected],
+    )
+
     const scopedAllowedValueIds = useMemo(() => {
         if (!scopedCategorySlug) return null
         const targetCategory = categories.find((item) => item.slug === scopedCategorySlug)
@@ -93,26 +155,43 @@ export default function ProductFilterSidebar({
         return new Set(targetCategory.allowedAttributeValueIds)
     }, [categories, scopedCategorySlug])
 
-    const categoryScopedAttributes = useMemo(() => {
-        if (!scopedAllowedValueIds) return attributes
-        return attributes
-            .map((attribute) => {
-                return {
-                    ...attribute,
-                    values: (attribute.values ?? []).filter((value) => {
-                        if (scopedAllowedValueIds.has(value.id)) return true
-                        if (value.parentValueId && scopedAllowedValueIds.has(value.parentValueId)) return true
-                        return false
-                    }),
-                }
-            })
-            .filter((attribute) => (attribute.values?.length ?? 0) > 0)
-    }, [attributes, scopedAllowedValueIds])
+    const selectedCategory = useMemo(
+        () => categories.find((item) => item.slug === scopedCategorySlug),
+        [categories, scopedCategorySlug],
+    )
 
-    const pushStateToUrl = useCallback((nextCategory: string | undefined, nextAttributes: Record<string, string[]>) => {
+    const categoryScopedAttributes = useMemo(() => {
+        const scopedAttributes = !scopedAllowedValueIds
+            ? attributes
+            : attributes
+                .map((attribute) => {
+                    return {
+                        ...attribute,
+                        values: (attribute.values ?? []).filter((value) => {
+                            if (scopedAllowedValueIds.has(value.id)) return true
+                            if (value.parentValueId && scopedAllowedValueIds.has(value.parentValueId)) return true
+                            return false
+                        }),
+                    }
+                })
+                .filter((attribute) => (attribute.values?.length ?? 0) > 0)
+
+        if (!scopedCategorySlug || hiddenAttributeCodesSet.size === 0) {
+            return scopedAttributes
+        }
+
+        return scopedAttributes.filter((attribute) => !hiddenAttributeCodesSet.has(attribute.code))
+    }, [attributes, scopedAllowedValueIds, scopedCategorySlug, hiddenAttributeCodesSet])
+
+    const pushStateToUrl = useCallback((
+        nextCategory: string | undefined,
+        nextAttributes: Record<string, string[]>,
+        nextSearch: string = useFilterStore.getState().search,
+    ) => {
         const params = new URLSearchParams()
         const effectiveCategory = fixedCategorySlug ?? nextCategory
         if (effectiveCategory) params.set("category", effectiveCategory)
+        if (nextSearch.trim()) params.set("search", nextSearch.trim())
         params.set("page", "1")
         params.set("limit", String(useFilterStore.getState().limit))
 
@@ -193,7 +272,6 @@ export default function ProductFilterSidebar({
 
         if (allowedProductionGroupSlugs) {
             if (code === "sector") {
-                // Sector seçildiğinde bağlı üretim gruplarını default seçili getir.
                 next["production_group"] = Array.from(allowedProductionGroupSlugs)
             } else {
                 next["production_group"] = (next["production_group"] ?? []).filter((value) =>
@@ -219,7 +297,6 @@ export default function ProductFilterSidebar({
 
         if (allowedUsageAreaSlugs) {
             if (code === "sector") {
-                // Sector seçildiğinde bağlı kullanım alanlarını da default seçili getir.
                 next["usage_area"] = Array.from(allowedUsageAreaSlugs)
             } else {
                 next["usage_area"] = (next["usage_area"] ?? []).filter((value) =>
@@ -241,18 +318,21 @@ export default function ProductFilterSidebar({
 
     function clearAll() {
         if (fixedCategorySlug) {
+            setSearch("")
             setAttributes({})
-            pushStateToUrl(fixedCategorySlug, {})
+            pushStateToUrl(fixedCategorySlug, {}, "")
             return
         }
+        setSearch("")
         startTransition(() => {
             router.replace(basePath, { scroll: false })
         })
     }
 
     const hasActiveFilters = useMemo(() => {
-        return category || Object.keys(storeAttributes).length > 0
-    }, [category, storeAttributes])
+        const hasCategoryFilter = !fixedCategorySlug && Boolean(category)
+        return hasCategoryFilter || Boolean(search.trim()) || Object.keys(storeAttributes).length > 0
+    }, [category, fixedCategorySlug, search, storeAttributes])
 
     const attributeMap = useMemo(() => {
         return new Map(categoryScopedAttributes.map((attr) => [attr.code, attr]))
@@ -293,6 +373,23 @@ export default function ProductFilterSidebar({
             .filter((id): id is string => Boolean(id))
     }, [attributeMap, selectedProductionGroupSlugs])
 
+    const selectedCategoryThumb = useMemo(() => {
+        if (!selectedCategory?.assets?.length) return null
+
+        const primary = selectedCategory.assets.find(
+            (asset) => asset.role === "PRIMARY" && asset.type === "IMAGE",
+        )
+        if (primary?.url) return primary.url
+
+        const animation = selectedCategory.assets.find(
+            (asset) => asset.role === "ANIMATION" && asset.type === "IMAGE",
+        )
+        if (animation?.url) return animation.url
+
+        const anyImage = selectedCategory.assets.find((asset) => asset.type === "IMAGE")
+        return anyImage?.url ?? null
+    }, [selectedCategory])
+
     return (
         <aside className="sticky top-24">
             <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
@@ -300,7 +397,7 @@ export default function ProductFilterSidebar({
                     <h2 className="text-base font-semibold">Filtreler</h2>
                     {hasActiveFilters && (
                         <Button size="sm" variant="ghost" onClick={clearAll}>
-                            <X className="w-4 h-4 mr-1" />
+                            <X className="mr-1 h-4 w-4" />
                             Temizle
                         </Button>
                     )}
@@ -315,10 +412,56 @@ export default function ProductFilterSidebar({
                     />
                 )}
 
-                <div className="space-y-6 p-5">
+                <div className="space-y-4 p-4">
+                    {showProductSearch ? (
+                        <ProductSidebarSearchControl
+                            key={search}
+                            committedSearch={search}
+                            placeholder={productSearchPlaceholder}
+                            onCommit={(nextSearch) => {
+                                setSearch(nextSearch)
+                                pushStateToUrl(fixedCategorySlug ?? category, useFilterStore.getState().attributes, nextSearch)
+                            }}
+                        />
+                    ) : null}
+
+                    {showSelectedCategoryPreview && selectedCategory ? (
+                        <section className="rounded-2xl border-2 border-[var(--color-brand)]/80 bg-[color-mix(in_oklab,var(--color-brand)_8%,white)] p-3 shadow-[0_14px_28px_-22px_rgba(0,0,0,0.35)] ring-2 ring-[var(--color-brand)]/10">
+                            <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
+                                <Sparkles className="h-3 w-3" />
+                                Seçili kategori
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/80">
+                                    {selectedCategoryThumb ? (
+                                        <Image
+                                            src={selectedCategoryThumb}
+                                            alt={selectedCategory.name}
+                                            fill
+                                            sizes="56px"
+                                            className="object-cover"
+                                        />
+                                    ) : (
+                                        <Box className="h-5 w-5 text-neutral-400" />
+                                    )}
+                                </div>
+
+                                <div className="min-w-0">
+                                    <div className="truncate text-sm font-semibold text-slate-900">
+                                        {selectedCategory.name}
+                                    </div>
+                                    <div className="mt-1 text-xs text-slate-500">
+                                        Kod {selectedCategory.code}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    ) : null}
+
                     {!hideCategoryFilter && (
                         <section>
-                            <h3 className="text-xs font-semibold mb-3 text-neutral-500 uppercase tracking-wide">
+                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
                                 Kategoriler
                             </h3>
                             <div className="flex flex-wrap gap-2">
@@ -329,7 +472,7 @@ export default function ProductFilterSidebar({
                                             key={cat.id}
                                             onClick={() => handleCategory(cat.slug)}
                                             className={[
-                                                "px-3 py-1.5 rounded-full text-xs font-medium transition",
+                                                "rounded-full px-3 py-1.5 text-xs font-medium transition",
                                                 active
                                                     ? "bg-[var(--color-brand)] text-white shadow-sm"
                                                     : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
@@ -352,81 +495,53 @@ export default function ProductFilterSidebar({
                                     ? baseValues.filter((value) => value.parentValueId && selectedProductionGroupIds.includes(value.parentValueId))
                                     : baseValues
 
+                        if (values.length === 0) return null
+
                         const selected = storeAttributes[attr.code] ?? []
-                        const isLarge = values.length > 8
+                        const usePopoverSelector =
+                            attributeSelectorVariant === "popover" || values.length > 8
 
                         return (
                             <section key={attr.id}>
-                                <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">
-                                    {attr.name}
-                                </h3>
-
-                                {isLarge ? (
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button variant="outline" className="w-full justify-between rounded-xl h-10 px-3">
-                                                <span className="truncate text-left">
-                                                    {selected.length > 0 ? `${selected.length} seçim` : `${attr.name} seç`}
-                                                </span>
-                                                <ChevronsUpDown className="w-4 h-4 opacity-60" />
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-[320px] p-0 rounded-2xl border shadow-lg" align="start">
-                                            <Command>
-                                                <CommandInput placeholder="Ara..." />
-                                                <CommandList>
-                                                    <CommandEmpty>Bulunamadı</CommandEmpty>
-                                                    <CommandGroup>
-                                                        <ScrollArea className="h-64">
-                                                            {values.map((val) => {
-                                                                const checked = selected.includes(val.slug)
-                                                                return (
-                                                                    <CommandItem
-                                                                        key={val.id}
-                                                                        onSelect={() => handleAttribute(attr.code, val.slug)}
-                                                                        className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer"
-                                                                    >
-                                                                        <div className="flex items-center gap-2">
-                                                                            <Checkbox checked={checked} />
-                                                                            <span className="text-sm">{val.name}</span>
-                                                                        </div>
-                                                                        {checked && (
-                                                                            <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-                                                                                <Check className="w-4 h-4 text-[var(--color-brand)]" />
-                                                                            </motion.div>
-                                                                        )}
-                                                                    </CommandItem>
-                                                                )
-                                                            })}
-                                                        </ScrollArea>
-                                                    </CommandGroup>
-                                                </CommandList>
-                                            </Command>
-                                        </PopoverContent>
-                                    </Popover>
+                                {usePopoverSelector ? (
+                                    <ProductFilterPopoverSelect
+                                        label={attr.name}
+                                        options={values.map((value) => ({
+                                            id: value.id,
+                                            label: value.name,
+                                            value: value.slug,
+                                        }))}
+                                        selectedValues={selected}
+                                        onToggle={(slug) => handleAttribute(attr.code, slug)}
+                                    />
                                 ) : (
-                                    values.map((val) => {
-                                        const checked = selected.includes(val.slug)
-                                        return (
-                                            <Label
-                                                key={val.id}
-                                                className="flex items-center gap-3 px-3 py-2 rounded-xl border border-neutral-200 hover:bg-neutral-50 transition cursor-pointer"
-                                            >
-                                                <Checkbox
-                                                    checked={checked}
-                                                    onCheckedChange={() => handleAttribute(attr.code, val.slug)}
-                                                />
-                                                {val.name}
-                                            </Label>
-                                        )
-                                    })
+                                    <div className="space-y-1.5">
+                                        <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                                            {attr.name}
+                                        </h3>
+                                        {values.map((val) => {
+                                            const checked = selected.includes(val.slug)
+                                            return (
+                                                <Label
+                                                    key={val.id}
+                                                    className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-[13px] transition hover:bg-neutral-50"
+                                                >
+                                                    <Checkbox
+                                                        checked={checked}
+                                                        onCheckedChange={() => handleAttribute(attr.code, val.slug)}
+                                                    />
+                                                    {val.name}
+                                                </Label>
+                                            )
+                                        })}
+                                    </div>
                                 )}
                             </section>
                         )
                     })}
 
-                    <div className="text-sm text-neutral-500 flex gap-2 items-center">
-                        {isPending ? <Loader2 className="animate-spin w-4 h-4" /> : <Search className="w-4 h-4" />}
+                    <div className="flex items-center gap-2 text-xs text-neutral-500">
+                        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                         {isPending ? "Filtreleniyor..." : "Hazır"}
                     </div>
                 </div>

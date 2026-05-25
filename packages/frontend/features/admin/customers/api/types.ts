@@ -4,7 +4,14 @@ export type UserSummary = {
     id: string
     email: string
     identifier: string
+    firstName?: string | null
+    lastName?: string | null
     groups?: string[]
+    phone?: string | null
+    imageUrl?: string | null
+    customerContactTitle?: string | null
+    customerContactDepartment?: string | null
+    isPrimaryCustomerContact?: boolean
 }
 
 export type CustomerAttributeValue = {
@@ -96,6 +103,10 @@ export type AdminCustomer = {
     email: string
     note?: string | null
     status: CustomerStatus
+    generalDiscountPercent?: number | null
+    defaultPaymentTermDays?: number | null
+    creditLimit?: number | null
+    paymentTermNote?: string | null
     assignedSalesUserId?: string | null
     convertedAt?: string | null
     convertedByUserId?: string | null
@@ -108,6 +119,7 @@ export type AdminCustomer = {
     usageAreaValues?: CustomerAttributeValue[]
     assignedSalesUser?: UserSummary | null
     convertedByUser?: UserSummary | null
+    portalUsers?: UserSummary[]
     featuredProducts?: CustomerFeaturedProduct[]
     assignedProducts?: CustomerAssignedProduct[]
     addresses?: CustomerAddress[]

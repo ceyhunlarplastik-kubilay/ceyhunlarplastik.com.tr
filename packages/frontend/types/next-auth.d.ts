@@ -10,6 +10,8 @@ declare module "next-auth" {
             id?: string;
             dbUserId?: string;
             identifier?: string;
+            firstName?: string | null;
+            lastName?: string | null;
             name?: string | null;
             email?: string | null;
             image?: string | null;

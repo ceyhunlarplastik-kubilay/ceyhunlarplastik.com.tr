@@ -164,6 +164,20 @@ const userPoolClient = userPool.addClient('CeyhunlarClient', {
             // generateSecret: false,
             generateSecret: true,
             supportedIdentityProviders: ['COGNITO'],
+            readAttributes: [
+                'email',
+                'phone_number',
+                'given_name',
+                'family_name',
+                'name',
+            ],
+            writeAttributes: [
+                'email',
+                'phone_number',
+                'given_name',
+                'family_name',
+                'name',
+            ],
             explicitAuthFlows: [
                 'ALLOW_USER_SRP_AUTH', // Secure Remote Password
                 'ALLOW_REFRESH_TOKEN_AUTH',

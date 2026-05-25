@@ -9,6 +9,10 @@ type Input = {
     email?: string
     note?: string | null
     status?: "LEAD" | "CUSTOMER"
+    generalDiscountPercent?: number | null
+    defaultPaymentTermDays?: number | null
+    creditLimit?: number | null
+    paymentTermNote?: string | null
     assignedSalesUserId?: string | null
     sectorValueId?: string | null
     productionGroupValueId?: string | null
@@ -56,6 +60,10 @@ export async function buildCustomerUpdateData(
         ...(input.email !== undefined ? { email: input.email } : {}),
         ...(input.note !== undefined ? { note: input.note } : {}),
         ...(input.status !== undefined ? { status: input.status } : {}),
+        ...(input.generalDiscountPercent !== undefined ? { generalDiscountPercent: input.generalDiscountPercent } : {}),
+        ...(input.defaultPaymentTermDays !== undefined ? { defaultPaymentTermDays: input.defaultPaymentTermDays } : {}),
+        ...(input.creditLimit !== undefined ? { creditLimit: input.creditLimit } : {}),
+        ...(input.paymentTermNote !== undefined ? { paymentTermNote: input.paymentTermNote } : {}),
         ...(input.assignedSalesUserId !== undefined
             ? input.assignedSalesUserId
                 ? { assignedSalesUser: { connect: { id: input.assignedSalesUserId } } }

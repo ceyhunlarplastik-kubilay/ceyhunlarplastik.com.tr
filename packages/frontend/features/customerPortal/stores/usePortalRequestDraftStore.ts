@@ -14,6 +14,8 @@ export type PortalRequestDraftItem = {
     variantFullCode: string
     quantity: number
     listUnitPrice?: number | null
+    customerUnitPrice?: number | null
+    appliedDiscountPercent?: number | null
     currency?: string | null
     targetUnitPrice?: number | null
     targetUnitPriceInput?: string
@@ -54,6 +56,8 @@ export const usePortalRequestDraftStore = create<PortalRequestDraftState>()(
                                 {
                                     ...incoming,
                                     quantity: clampQuantity(incoming.quantity),
+                                    customerUnitPrice: incoming.customerUnitPrice ?? incoming.listUnitPrice ?? null,
+                                    appliedDiscountPercent: incoming.appliedDiscountPercent ?? null,
                                     targetUnitPrice: incoming.targetUnitPrice ?? null,
                                     targetUnitPriceInput: incoming.targetUnitPriceInput ?? formatTargetUnitPriceInput(incoming.targetUnitPrice),
                                     customerNote: incoming.customerNote ?? "",
@@ -68,6 +72,8 @@ export const usePortalRequestDraftStore = create<PortalRequestDraftState>()(
                         ...existing,
                         ...incoming,
                         quantity: clampQuantity(existing.quantity + incoming.quantity),
+                        customerUnitPrice: incoming.customerUnitPrice ?? existing.customerUnitPrice ?? incoming.listUnitPrice ?? existing.listUnitPrice ?? null,
+                        appliedDiscountPercent: incoming.appliedDiscountPercent ?? existing.appliedDiscountPercent ?? null,
                         targetUnitPrice: incoming.targetUnitPrice ?? existing.targetUnitPrice ?? null,
                         targetUnitPriceInput: incoming.targetUnitPriceInput
                             ?? existing.targetUnitPriceInput
@@ -109,7 +115,7 @@ export const usePortalRequestDraftStore = create<PortalRequestDraftState>()(
             clear: () => set({ items: [] }),
         }),
         {
-            name: "customer-portal-request-draft-v2",
+            name: "customer-portal-request-draft-v3",
             storage: createJSONStorage(() => localStorage),
         },
     ),

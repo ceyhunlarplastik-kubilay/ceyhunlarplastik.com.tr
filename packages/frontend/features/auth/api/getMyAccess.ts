@@ -7,6 +7,8 @@ export type MyAccessResponse = {
             id: string
             email: string
             identifier: string
+            firstName?: string | null
+            lastName?: string | null
             groups: string[]
             accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
             accessStatusChangedAt?: string | null

@@ -13,6 +13,7 @@ import { useCustomerVisits } from "@/features/admin/customers/hooks/useCustomerV
 import { useCreateCustomerVisit } from "@/features/admin/customers/hooks/useCreateCustomerVisit"
 import { useDeleteCustomerVisit } from "@/features/admin/customers/hooks/useDeleteCustomerVisit"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 type Props = {
     customerId: string
@@ -93,7 +94,7 @@ export function CustomerVisitsPageClient({ customerId }: Props) {
                             <SelectContent>
                                 <SelectItem value="__none__">Sorumlu seçin</SelectItem>
                                 {salesUsers.map((user) => (
-                                    <SelectItem key={user.id} value={user.id}>{user.identifier}</SelectItem>
+                                    <SelectItem key={user.id} value={user.id}>{getUserDisplayName(user) || user.email}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -153,7 +154,7 @@ export function CustomerVisitsPageClient({ customerId }: Props) {
                                         {new Date(visit.scheduledAt).toLocaleString("tr-TR")}
                                     </div>
                                     <div className="text-sm text-neutral-500">
-                                        Sorumlu: {visit.ownerUser?.identifier ?? "-"}
+                                        Sorumlu: {visit.ownerUser ? (getUserDisplayName(visit.ownerUser) || visit.ownerUser.email) : "-"}
                                     </div>
                                     {visit.note ? <div className="pt-2 text-sm text-neutral-700">{visit.note}</div> : null}
                                 </div>

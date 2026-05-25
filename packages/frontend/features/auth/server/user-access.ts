@@ -1,10 +1,14 @@
 "use server"
 
 import { prisma } from "../../../../core/src/core/db/prisma"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 export type AuthUserAccessState = {
     dbUserId: string
     identifier: string
+    firstName?: string | null
+    lastName?: string | null
+    displayName: string
     imageUrl?: string | null
     groups: string[]
     accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
@@ -27,7 +31,10 @@ export async function getAuthUserAccessStateByCognitoSub(cognitoSub: string) {
         },
         select: {
             id: true,
+            email: true,
             identifier: true,
+            firstName: true,
+            lastName: true,
             imageKey: true,
             groups: true,
             accessStatus: true,
@@ -44,6 +51,9 @@ export async function getAuthUserAccessStateByCognitoSub(cognitoSub: string) {
     return {
         dbUserId: user.id,
         identifier: user.identifier,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: getUserDisplayName(user),
         imageUrl: buildUserImageUrl(user.imageKey),
         groups: user.groups,
         accessStatus: user.accessStatus,

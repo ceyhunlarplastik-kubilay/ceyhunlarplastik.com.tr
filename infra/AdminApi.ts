@@ -158,6 +158,11 @@ adminApi.route("PUT /users/{id}/assignment", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("PUT /users/{id}/profile", {
+    handler: `${folderPrefix}/users/actions.updateUserProfile`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("PUT /users/{id}/role", {
     handler: `${folderPrefix}/users/actions.updateUserRole`,
     ...defaultRouteOptions,

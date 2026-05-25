@@ -1,65 +1,20 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import { BadgePercent, CalendarClock, CreditCard, Mail, MapPin, UserRound } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { Spinner } from "@/components/ui/spinner"
+import { EditCustomerProfileDialog } from "@/features/admin/customers/components/EditCustomerProfileDialog"
 import { useCustomer } from "@/features/admin/customers/hooks/useCustomer"
-import { useUpdateCustomer } from "@/features/admin/customers/hooks/useUpdateCustomer"
 import { useConvertCustomer } from "@/features/admin/customers/hooks/useConvertCustomer"
+import { useUpdateCustomer } from "@/features/admin/customers/hooks/useUpdateCustomer"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
-import { GeoAddressFields } from "@/features/geo/components/GeoAddressFields"
-
-type AddressDraft = {
-    label: string
-    contactName: string
-    phone: string
-    email: string
-    countryId: number | null
-    stateId: number | null
-    cityId: number | null
-    country: string
-    stateName: string
-    city: string
-    district: string
-    line1: string
-    line2: string
-    postalCode: string
-    taxOffice: string
-    taxNumber: string
-    isPrimary: boolean
-    isBilling: boolean
-    isShipping: boolean
-    note: string
-}
-
-const emptyAddress = (): AddressDraft => ({
-    label: "",
-    contactName: "",
-    phone: "",
-    email: "",
-    countryId: null,
-    stateId: null,
-    cityId: null,
-    country: "Turkiye",
-    stateName: "",
-    city: "",
-    district: "",
-    line1: "",
-    line2: "",
-    postalCode: "",
-    taxOffice: "",
-    taxNumber: "",
-    isPrimary: false,
-    isBilling: false,
-    isShipping: true,
-    note: "",
-})
+import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
+import { formatDiscountBadge, formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 type Props = {
     customerId: string
@@ -71,149 +26,42 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
     const convertMutation = useConvertCustomer()
     const attrsQuery = useAttributesForFilter()
     const usersQuery = useUsers({ params: { page: 1, limit: 500 } })
+    const [dialogOpen, setDialogOpen] = useState(false)
 
     const customer = customerQuery.data
-    const [draft, setDraft] = useState({
-        companyName: "",
-        fullName: "",
-        phone: "",
-        email: "",
-        note: "",
-        status: "LEAD" as "LEAD" | "CUSTOMER",
-        assignedSalesUserId: "",
-        sectorValueId: "",
-        productionGroupValueId: "",
-        usageAreaValueId: "",
-        addresses: [] as AddressDraft[],
-    })
-
-    useEffect(() => {
-        if (!customer) return
-        setDraft({
-            companyName: customer.companyName ?? "",
-            fullName: customer.fullName,
-            phone: customer.phone,
-            email: customer.email,
-            note: customer.note ?? "",
-            status: customer.status,
-            assignedSalesUserId: customer.assignedSalesUserId ?? "",
-            sectorValueId: customer.sectorValueId ?? "",
-            productionGroupValueId: customer.productionGroupValueId ?? "",
-            usageAreaValueId: customer.usageAreaValues?.[0]?.id ?? "",
-            addresses: (customer.addresses ?? []).map((address) => ({
-                label: address.label,
-                contactName: address.contactName ?? "",
-                phone: address.phone ?? "",
-                email: address.email ?? "",
-                countryId: address.countryId ?? null,
-                stateId: address.stateId ?? null,
-                cityId: address.cityId ?? null,
-                country: address.country,
-                stateName: address.stateRef?.name ?? "",
-                city: address.city,
-                district: address.district ?? "",
-                line1: address.line1,
-                line2: address.line2 ?? "",
-                postalCode: address.postalCode ?? "",
-                taxOffice: address.taxOffice ?? "",
-                taxNumber: address.taxNumber ?? "",
-                isPrimary: address.isPrimary,
-                isBilling: address.isBilling,
-                isShipping: address.isShipping,
-                note: address.note ?? "",
+    const attributes = useMemo(() => attrsQuery.data ?? [], [attrsQuery.data])
+    const salesUsers = useMemo(
+        () => (usersQuery.data?.data ?? [])
+            .filter((user) => user.groups.includes("sales") || user.groups.includes("sales_director") || user.groups.includes("admin") || user.groups.includes("owner"))
+            .map((user) => ({
+                id: user.id,
+                label: getUserDisplayName(user) || user.email,
             })),
-        })
-    }, [customer])
-
-    const attributes = attrsQuery.data ?? []
-    const users = usersQuery.data?.data ?? []
-
+        [usersQuery.data?.data],
+    )
     const sectorValues = useMemo(
         () => attributes.find((attribute) => attribute.code === "sector")?.values ?? [],
         [attributes],
     )
-    const productionGroupValues = useMemo(() => {
-        const all = attributes.find((attribute) => attribute.code === "production_group")?.values ?? []
-        if (!draft.sectorValueId) return all
-        return all.filter((value) => value.parentValueId === draft.sectorValueId)
-    }, [attributes, draft.sectorValueId])
-    const usageAreaValues = useMemo(() => {
-        const all = attributes.find((attribute) => attribute.code === "usage_area")?.values ?? []
-        if (!draft.productionGroupValueId) return all
-        return all.filter((value) => value.parentValueId === draft.productionGroupValueId)
-    }, [attributes, draft.productionGroupValueId])
-    const salesUsers = useMemo(
-        () => users.filter((user) => user.groups.includes("sales") || user.groups.includes("sales_director") || user.groups.includes("admin") || user.groups.includes("owner")),
-        [users],
+    const allProductionGroupValues = useMemo(
+        () => attributes.find((attribute) => attribute.code === "production_group")?.values ?? [],
+        [attributes],
+    )
+    const allUsageAreaValues = useMemo(
+        () => attributes.find((attribute) => attribute.code === "usage_area")?.values ?? [],
+        [attributes],
     )
 
-    async function handleSave() {
+    async function handleSave(values: CustomerEditorFormValues) {
         if (!customer) return
 
         try {
-            await updateMutation.mutateAsync({
-                id: customer.id,
-                companyName: draft.companyName || null,
-                fullName: draft.fullName,
-                phone: draft.phone,
-                email: draft.email,
-                note: draft.note || null,
-                status: draft.status,
-                assignedSalesUserId: draft.assignedSalesUserId || null,
-                sectorValueId: draft.sectorValueId || null,
-                productionGroupValueId: draft.productionGroupValueId || null,
-                usageAreaValueIds: draft.usageAreaValueId ? [draft.usageAreaValueId] : [],
-                addresses: draft.addresses
-                    .filter((address) => address.label.trim() && address.city.trim() && address.line1.trim())
-                    .map((address, index) => ({
-                        label: address.label.trim(),
-                        contactName: address.contactName.trim() || null,
-                        phone: address.phone.trim() || null,
-                        email: address.email.trim() || null,
-                        countryId: address.countryId ?? null,
-                        stateId: address.stateId ?? null,
-                        cityId: address.cityId ?? null,
-                        country: address.country.trim() || "Turkiye",
-                        city: address.city.trim(),
-                        district: address.district.trim() || null,
-                        line1: address.line1.trim(),
-                        line2: address.line2.trim() || null,
-                        postalCode: address.postalCode.trim() || null,
-                        taxOffice: address.taxOffice.trim() || null,
-                        taxNumber: address.taxNumber.trim() || null,
-                        isPrimary: address.isPrimary || index === 0,
-                        isBilling: address.isBilling,
-                        isShipping: address.isShipping,
-                        note: address.note.trim() || null,
-                    })),
-            })
+            await updateMutation.mutateAsync(buildCustomerUpdatePayload(customer.id, values))
             toast.success("Müşteri bilgileri güncellendi")
         } catch {
             toast.error("Müşteri bilgileri güncellenemedi")
+            throw new Error("Customer update failed")
         }
-    }
-
-    function updateAddress(index: number, patch: Partial<AddressDraft>) {
-        setDraft((prev) => ({
-            ...prev,
-            addresses: prev.addresses.map((address, currentIndex) =>
-                currentIndex === index ? { ...address, ...patch } : address,
-            ),
-        }))
-    }
-
-    function removeAddress(index: number) {
-        setDraft((prev) => ({
-            ...prev,
-            addresses: prev.addresses.filter((_, currentIndex) => currentIndex !== index),
-        }))
-    }
-
-    function addAddress() {
-        setDraft((prev) => ({
-            ...prev,
-            addresses: [...prev.addresses, emptyAddress()],
-        }))
     }
 
     async function handleConvert() {
@@ -247,9 +95,9 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
             <div className="rounded-3xl border bg-white p-6 shadow-sm">
                 <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold text-neutral-950">Genel Bilgiler</h2>
+                        <h2 className="text-xl font-semibold text-neutral-950">Müşteri Özeti</h2>
                         <p className="mt-1 text-sm text-neutral-500">
-                            İletişim, sektör eşleşmesi ve satış sorumlusu bilgisini yönetin.
+                            Temel iletişim ve ticari şartları tek bakışta izleyin, gerekirse dialog ile güncelleyin.
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -258,222 +106,158 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                                 Potansiyeli Müşteriye Çevir
                             </Button>
                         ) : null}
-                        <Button onClick={handleSave} disabled={updateMutation.isPending}>
-                            {updateMutation.isPending ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
+                        <Button onClick={() => setDialogOpen(true)}>
+                            Müşteriyi Düzenle
                         </Button>
                     </div>
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-2">
-                    <div className="space-y-2">
-                        <Label htmlFor="companyName">Firma Adı</Label>
-                        <Input id="companyName" value={draft.companyName} onChange={(e) => setDraft((prev) => ({ ...prev, companyName: e.target.value }))} />
+                <div className="grid gap-4 xl:grid-cols-2">
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
+                                <UserRound className="h-4 w-4" />
+                                Yetkili
+                            </div>
+                            <div className="mt-2 text-sm font-medium text-neutral-900">{customer.fullName}</div>
+                            <div className="mt-1 text-xs text-neutral-500">{customer.companyName || "Firma bilgisi yok"}</div>
+                        </div>
+                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
+                                <Mail className="h-4 w-4" />
+                                İletişim
+                            </div>
+                            <div className="mt-2 text-sm font-medium text-neutral-900">{customer.email}</div>
+                            <div className="mt-1 text-xs text-neutral-500">{customer.phone}</div>
+                        </div>
+                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
+                                <BadgePercent className="h-4 w-4" />
+                                Genel İskonto
+                            </div>
+                            <div className="mt-2 text-sm font-medium text-neutral-900">
+                                {formatDiscountBadge(customer.generalDiscountPercent) ?? "Tanımlı değil"}
+                            </div>
+                            {customer.paymentTermNote ? (
+                                <div className="mt-1 text-xs leading-5 text-neutral-500">{customer.paymentTermNote}</div>
+                            ) : null}
+                        </div>
+                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
+                                <CalendarClock className="h-4 w-4" />
+                                Vade ve Limit
+                            </div>
+                            <div className="mt-2 text-sm font-medium text-neutral-900">
+                                {formatPaymentTermLabel(customer.defaultPaymentTermDays) ?? "Vade tanımsız"}
+                            </div>
+                            <div className="mt-1 inline-flex items-center gap-2 text-xs text-neutral-500">
+                                <CreditCard className="h-3.5 w-3.5" />
+                                {customer.creditLimit !== null && customer.creditLimit !== undefined
+                                    ? `Limit ${formatMoney(customer.creditLimit)}`
+                                    : "Kredi limiti tanımsız"}
+                            </div>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="fullName">Yetkili Kişi</Label>
-                        <Input id="fullName" value={draft.fullName} onChange={(e) => setDraft((prev) => ({ ...prev, fullName: e.target.value }))} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="phone">Telefon</Label>
-                        <Input id="phone" value={draft.phone} onChange={(e) => setDraft((prev) => ({ ...prev, phone: e.target.value }))} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">E-posta</Label>
-                        <Input id="email" type="email" value={draft.email} onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Durum</Label>
-                        <Select value={draft.status} onValueChange={(value) => setDraft((prev) => ({ ...prev, status: value as "LEAD" | "CUSTOMER" }))}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="LEAD">Potansiyel Müşteri</SelectItem>
-                                <SelectItem value="CUSTOMER">Müşteri</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Satış Temsilcisi</Label>
-                        <Select value={draft.assignedSalesUserId || "__none__"} onValueChange={(value) => setDraft((prev) => ({ ...prev, assignedSalesUserId: value === "__none__" ? "" : value }))}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Atama yok" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="__none__">Atama yok</SelectItem>
-                                {salesUsers.map((user) => (
-                                    <SelectItem key={user.id} value={user.id}>
-                                        {user.identifier}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Sektör</Label>
-                        <Select value={draft.sectorValueId || "__none__"} onValueChange={(value) => setDraft((prev) => ({ ...prev, sectorValueId: value === "__none__" ? "" : value, productionGroupValueId: "", usageAreaValueId: "" }))}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Seçilmedi" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="__none__">Seçilmedi</SelectItem>
-                                {sectorValues.map((value) => (
-                                    <SelectItem key={value.id} value={value.id}>{value.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Üretim Grubu</Label>
-                        <Select value={draft.productionGroupValueId || "__none__"} onValueChange={(value) => setDraft((prev) => ({ ...prev, productionGroupValueId: value === "__none__" ? "" : value, usageAreaValueId: "" }))}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Seçilmedi" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="__none__">Seçilmedi</SelectItem>
-                                {productionGroupValues.map((value) => (
-                                    <SelectItem key={value.id} value={value.id}>{value.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                        <Label>Kullanım Alanı</Label>
-                        <Select value={draft.usageAreaValueId || "__none__"} onValueChange={(value) => setDraft((prev) => ({ ...prev, usageAreaValueId: value === "__none__" ? "" : value }))}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Seçilmedi" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="__none__">Seçilmedi</SelectItem>
-                                {usageAreaValues.map((value) => (
-                                    <SelectItem key={value.id} value={value.id}>{value.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="note">Not</Label>
-                        <Textarea id="note" value={draft.note} onChange={(e) => setDraft((prev) => ({ ...prev, note: e.target.value }))} rows={5} />
+
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                        <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Ticari ve Segment Bilgisi</div>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <div className="text-xs text-neutral-400">Satış Temsilcisi</div>
+                                <div className="mt-1 text-sm font-medium text-neutral-900">
+                                    {customer.assignedSalesUser ? (getUserDisplayName(customer.assignedSalesUser) || customer.assignedSalesUser.email) : "Atama yok"}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-xs text-neutral-400">Durum</div>
+                                <div className="mt-1">
+                                    <Badge variant={customer.status === "CUSTOMER" ? "default" : "secondary"}>
+                                        {customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}
+                                    </Badge>
+                                </div>
+                            </div>
+                            <div>
+                                <div className="text-xs text-neutral-400">Sektör</div>
+                                <div className="mt-1 text-sm font-medium text-neutral-900">{customer.sectorValue?.name ?? "-"}</div>
+                            </div>
+                            <div>
+                                <div className="text-xs text-neutral-400">Üretim Grubu</div>
+                                <div className="mt-1 text-sm font-medium text-neutral-900">{customer.productionGroupValue?.name ?? "-"}</div>
+                            </div>
+                            <div className="sm:col-span-2">
+                                <div className="text-xs text-neutral-400">Kullanım Alanları</div>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {(customer.usageAreaValues ?? []).length === 0 ? (
+                                        <span className="text-sm text-neutral-500">Tanımlı kullanım alanı yok</span>
+                                    ) : (
+                                        customer.usageAreaValues?.map((value) => (
+                                            <Badge key={value.id} variant="secondary">
+                                                {value.name}
+                                            </Badge>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                            {customer.note ? (
+                                <div className="sm:col-span-2">
+                                    <div className="text-xs text-neutral-400">Not</div>
+                                    <div className="mt-1 text-sm leading-6 text-neutral-700">{customer.note}</div>
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <h2 className="text-xl font-semibold text-neutral-950">Adresler</h2>
-                        <p className="mt-1 text-sm text-neutral-500">
-                            Fatura, sevkiyat ve operasyon iletişimi için profesyonel adres kayıtlarını yönetin.
-                        </p>
-                    </div>
-                    <Button type="button" variant="outline" onClick={addAddress}>
-                        Adres Ekle
-                    </Button>
+                <div className="mb-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
+                    <MapPin className="h-4 w-4" />
+                    Adresler
                 </div>
-
-                {draft.addresses.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-4 py-8 text-sm text-neutral-500">
-                        Henüz tanımlı adres bulunmuyor.
-                    </div>
-                ) : (
-                    <div className="space-y-5">
-                        {draft.addresses.map((address, index) => (
-                            <div key={`address-${index}`} className="rounded-2xl border border-neutral-200 p-4">
-                                <div className="mb-4 flex items-center justify-between gap-3">
-                                    <div className="text-sm font-semibold text-neutral-900">
-                                        {address.label.trim() || `Adres ${index + 1}`}
-                                    </div>
-                                    <Button type="button" variant="ghost" className="text-red-600 hover:text-red-700" onClick={() => removeAddress(index)}>
-                                        Kaldır
-                                    </Button>
+                {(customer.addresses?.length ?? 0) > 0 ? (
+                    <div className="grid gap-3 xl:grid-cols-2">
+                        {customer.addresses?.map((address) => (
+                            <div key={address.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <div className="font-medium text-neutral-900">{address.label}</div>
+                                    {address.isPrimary ? <Badge variant="secondary">Birincil</Badge> : null}
+                                    {address.isBilling ? <Badge variant="outline">Fatura</Badge> : null}
+                                    {address.isShipping ? <Badge variant="outline">Sevkiyat</Badge> : null}
                                 </div>
-
-                                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                    <div className="space-y-2">
-                                        <Label>Adres Etiketi</Label>
-                                        <Input value={address.label} onChange={(e) => updateAddress(index, { label: e.target.value })} placeholder="Merkez, Depo, Fatura..." />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>İrtibat Kişisi</Label>
-                                        <Input value={address.contactName} onChange={(e) => updateAddress(index, { contactName: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Telefon</Label>
-                                        <Input value={address.phone} onChange={(e) => updateAddress(index, { phone: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>E-posta</Label>
-                                        <Input type="email" value={address.email} onChange={(e) => updateAddress(index, { email: e.target.value })} />
-                                    </div>
-                                    <div className="md:col-span-2 xl:col-span-3 grid gap-4 xl:grid-cols-3">
-                                        <GeoAddressFields
-                                            countryId={address.countryId}
-                                            stateId={address.stateId}
-                                            cityId={address.cityId}
-                                            onChange={(patch) => updateAddress(index, patch)}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Mahalle / Bölge</Label>
-                                        <Input value={address.district} onChange={(e) => updateAddress(index, { district: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Posta Kodu</Label>
-                                        <Input value={address.postalCode} onChange={(e) => updateAddress(index, { postalCode: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Vergi Dairesi</Label>
-                                        <Input value={address.taxOffice} onChange={(e) => updateAddress(index, { taxOffice: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Vergi Numarası</Label>
-                                        <Input value={address.taxNumber} onChange={(e) => updateAddress(index, { taxNumber: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2 xl:col-span-3">
-                                        <Label>Adres Satırı 1</Label>
-                                        <Input value={address.line1} onChange={(e) => updateAddress(index, { line1: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2 xl:col-span-3">
-                                        <Label>Adres Satırı 2</Label>
-                                        <Input value={address.line2} onChange={(e) => updateAddress(index, { line2: e.target.value })} />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2 xl:col-span-3">
-                                        <Label>Adres Notu</Label>
-                                        <Textarea value={address.note} onChange={(e) => updateAddress(index, { note: e.target.value })} rows={3} />
-                                    </div>
+                                <div className="mt-2 text-sm text-neutral-700">
+                                    {[address.line1, address.line2, address.district, address.city, address.stateRef?.name, address.country]
+                                        .filter(Boolean)
+                                        .join(", ")}
                                 </div>
-
-                                <div className="mt-4 flex flex-wrap gap-4 text-sm text-neutral-600">
-                                    <label className="inline-flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={address.isPrimary}
-                                            onChange={(e) => updateAddress(index, { isPrimary: e.target.checked })}
-                                        />
-                                        Birincil adres
-                                    </label>
-                                    <label className="inline-flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={address.isBilling}
-                                            onChange={(e) => updateAddress(index, { isBilling: e.target.checked })}
-                                        />
-                                        Fatura adresi
-                                    </label>
-                                    <label className="inline-flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={address.isShipping}
-                                            onChange={(e) => updateAddress(index, { isShipping: e.target.checked })}
-                                        />
-                                        Sevkiyat adresi
-                                    </label>
+                                <div className="mt-3 space-y-1 text-xs text-neutral-500">
+                                    {address.contactName ? <div>İrtibat: {address.contactName}</div> : null}
+                                    {address.phone ? <div>Telefon: {address.phone}</div> : null}
+                                    {address.email ? <div>E-posta: {address.email}</div> : null}
+                                    {address.postalCode ? <div>Posta Kodu: {address.postalCode}</div> : null}
+                                    {address.taxOffice ? <div>Vergi Dairesi: {address.taxOffice}</div> : null}
+                                    {address.taxNumber ? <div>Vergi Numarası: {address.taxNumber}</div> : null}
                                 </div>
                             </div>
                         ))}
                     </div>
+                ) : (
+                    <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-4 py-8 text-sm text-neutral-500">
+                        Tanımlı adres bulunmuyor.
+                    </div>
                 )}
             </div>
+
+            <EditCustomerProfileDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                customer={customer}
+                salesUsers={salesUsers}
+                sectorValues={sectorValues}
+                allProductionGroupValues={allProductionGroupValues}
+                allUsageAreaValues={allUsageAreaValues}
+                onSubmit={(values) => handleSave(values)}
+                isPending={updateMutation.isPending}
+            />
         </div>
     )
 }

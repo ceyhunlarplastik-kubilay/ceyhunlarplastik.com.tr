@@ -70,6 +70,8 @@ export interface IPrismaUserRepository {
         id: string
         email: string
         identifier: string
+        firstName?: string | null
+        lastName?: string | null
         groups: string[]
     }>>
     updateGroups(id: string, groups: string[]): Promise<IUser>
@@ -87,6 +89,19 @@ export interface IPrismaUserRepository {
             accessStatusReason?: string | null
         },
     ): Promise<UserWithRelations>
+    updateProfile(
+        id: string,
+        data: {
+            email?: string
+            identifier?: string
+            firstName?: string | null
+            lastName?: string | null
+            phone?: string | null
+            customerContactTitle?: string | null
+            customerContactDepartment?: string | null
+            isPrimaryCustomerContact?: boolean
+        },
+    ): Promise<UserWithRelations>
     updateImageKey(id: string, imageKey: string | null): Promise<UserWithRelations>
 }
 
@@ -100,7 +115,7 @@ export const userRepository = (): IPrismaUserRepository => {
             page,
             limit,
         } = buildPaginationQuery<User>(query, {
-            searchableFields: ["email", "identifier"],
+            searchableFields: ["email", "identifier", "firstName", "lastName", "phone"],
             defaultSort: "createdAt",
         })
 
@@ -155,6 +170,8 @@ export const userRepository = (): IPrismaUserRepository => {
                 id: true,
                 email: true,
                 identifier: true,
+                firstName: true,
+                lastName: true,
                 groups: true,
             },
             orderBy: {
@@ -183,6 +200,13 @@ export const userRepository = (): IPrismaUserRepository => {
         },
     ) => {
         return prisma.$transaction(async (tx) => {
+            const existing = await tx.user.findUniqueOrThrow({
+                where: { id },
+                select: {
+                    customerId: true,
+                },
+            })
+
             await tx.user.update({
                 where: { id },
                 data: {
@@ -193,6 +217,17 @@ export const userRepository = (): IPrismaUserRepository => {
                     ...(assignments.accessStatusReason !== undefined ? { accessStatusReason: assignments.accessStatusReason } : {}),
                     ...(assignments.supplierId !== undefined ? { supplierId: assignments.supplierId } : {}),
                     ...(assignments.customerId !== undefined ? { customerId: assignments.customerId } : {}),
+                    ...(
+                        assignments.customerId !== undefined
+                        ? assignments.customerId === null || assignments.customerId !== existing.customerId
+                            ? {
+                                customerContactTitle: null,
+                                customerContactDepartment: null,
+                                isPrimaryCustomerContact: false,
+                            }
+                            : {}
+                        : {}
+                    ),
                 },
             })
 
@@ -249,6 +284,68 @@ export const userRepository = (): IPrismaUserRepository => {
         })
     }
 
+    const updateProfile = async (
+        id: string,
+        data: {
+            email?: string
+            identifier?: string
+            firstName?: string | null
+            lastName?: string | null
+            phone?: string | null
+            customerContactTitle?: string | null
+            customerContactDepartment?: string | null
+            isPrimaryCustomerContact?: boolean
+        },
+    ) =>
+        prisma.$transaction(async (tx) => {
+            const existing = await tx.user.findUniqueOrThrow({
+                where: { id },
+                select: {
+                    customerId: true,
+                },
+            })
+
+            const hasCustomerLink = Boolean(existing.customerId)
+            const normalizedTitle = hasCustomerLink
+                ? (data.customerContactTitle === undefined ? undefined : data.customerContactTitle)
+                : null
+            const normalizedDepartment = hasCustomerLink
+                ? (data.customerContactDepartment === undefined ? undefined : data.customerContactDepartment)
+                : null
+            const normalizedPrimary = hasCustomerLink
+                ? (data.isPrimaryCustomerContact === undefined ? undefined : data.isPrimaryCustomerContact)
+                : false
+
+            if (hasCustomerLink && normalizedPrimary && existing.customerId) {
+                await tx.user.updateMany({
+                    where: {
+                        customerId: existing.customerId,
+                        id: {
+                            not: id,
+                        },
+                    },
+                    data: {
+                        isPrimaryCustomerContact: false,
+                    },
+                })
+            }
+
+            return tx.user.update({
+                where: { id },
+                data: {
+                    ...(data.email !== undefined ? { email: data.email } : {}),
+                    ...(data.identifier !== undefined ? { identifier: data.identifier } : {}),
+                    ...(data.firstName !== undefined ? { firstName: data.firstName } : {}),
+                    ...(data.lastName !== undefined ? { lastName: data.lastName } : {}),
+                    ...(data.phone !== undefined ? { phone: data.phone } : {}),
+                    ...(normalizedTitle !== undefined ? { customerContactTitle: normalizedTitle } : {}),
+                    ...(normalizedDepartment !== undefined ? { customerContactDepartment: normalizedDepartment } : {}),
+                    ...(normalizedPrimary !== undefined ? { isPrimaryCustomerContact: normalizedPrimary } : {}),
+                },
+                include: userInclude,
+            })
+        })
+
     const updateImageKey = async (id: string, imageKey: string | null) =>
         prisma.user.update({
             where: { id },
@@ -267,6 +364,7 @@ export const userRepository = (): IPrismaUserRepository => {
         listActiveUsersByGroups,
         updateGroups,
         updateAssignments,
+        updateProfile,
         updateImageKey,
     }
 }

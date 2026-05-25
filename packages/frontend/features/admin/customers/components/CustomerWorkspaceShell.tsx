@@ -2,13 +2,17 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowLeft, Building2, Boxes, CalendarDays, Mail, Phone } from "lucide-react"
+import { ArrowLeft, Building2, Boxes, CalendarDays, PackageCheck, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
 import { Spinner } from "@/components/ui/spinner"
+import { UserContactCard } from "@/components/ui/user-contact-card"
+import { buildCustomerContactCards } from "@/lib/customers/contactCards"
 import { cn } from "@/lib/utils"
 import { useCustomer } from "@/features/admin/customers/hooks/useCustomer"
 import { useManagedCustomer } from "@/features/sales/customers/hooks/useManagedCustomer"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 const navItems = [
     { label: "Genel Bilgiler", href: "" },
@@ -39,11 +43,21 @@ export function CustomerWorkspaceShell({
     const visibleNavItems = scope === "sales"
         ? navItems.filter((item) => item.label !== "Ziyaretler")
         : navItems
+    const assignedSalesDisplayName = customer?.assignedSalesUser
+        ? getUserDisplayName(customer.assignedSalesUser)
+        : ""
+    const customerContacts = customer ? buildCustomerContactCards(customer).map((contact) => ({
+        ...contact,
+        description: contact.isPrimary
+            ? "Müşteri tarafındaki ana portal ve talep iletişimi."
+            : "Bu müşteri için ek iletişim kişisi.",
+        badge: <Badge variant={contact.isPrimary ? "default" : "secondary"}>{contact.isPrimary ? "Ana Yetkili" : "İletişim"}</Badge>,
+    })) : []
 
     return (
         <div className="space-y-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-4">
+                <div className="space-y-4 lg:max-w-4xl">
                     <Button asChild variant="ghost" className="w-fit px-0 text-neutral-500 hover:bg-transparent hover:text-neutral-900">
                         <Link href={scope === "sales" ? "/satis" : scope === "portal" ? "/musteri" : "/admin/customers"}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -67,19 +81,25 @@ export function CustomerWorkspaceShell({
                                 </Badge>
                             </div>
 
-                            <div className="flex flex-wrap gap-3 text-sm text-neutral-500">
-                                <span className="inline-flex items-center gap-2">
-                                    <Building2 className="h-4 w-4" />
-                                    {customer.fullName}
-                                </span>
-                                <span className="inline-flex items-center gap-2">
-                                    <Mail className="h-4 w-4" />
-                                    {customer.email}
-                                </span>
-                                <span className="inline-flex items-center gap-2">
-                                    <Phone className="h-4 w-4" />
-                                    {customer.phone}
-                                </span>
+                            <div className="grid gap-3 xl:grid-cols-2">
+                                <CustomerContactCarousel
+                                    contacts={customerContacts}
+                                    eyebrow="Müşteri İletişimi"
+                                    icon={UserRound}
+                                    size="compact"
+                                />
+                                <UserContactCard
+                                    eyebrow="Ceyhunlar Yetkilisi"
+                                    icon={PackageCheck}
+                                    name={assignedSalesDisplayName}
+                                    roleLabel="Satış Temsilcisi"
+                                    subtitle="Atanmış sorumlu"
+                                    email={customer.assignedSalesUser?.email}
+                                    phone={customer.assignedSalesUser?.phone}
+                                    imageUrl={customer.assignedSalesUser?.imageUrl}
+                                    emptyMessage="Bu müşteri için henüz temsilci atanmamış."
+                                    size="compact"
+                                />
                             </div>
                         </div>
                     ) : (
@@ -92,7 +112,7 @@ export function CustomerWorkspaceShell({
                         <div className="rounded-2xl bg-neutral-50 px-4 py-3">
                             <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Satış Temsilcisi</div>
                             <div className="mt-2 text-sm font-medium text-neutral-900">
-                                {customer.assignedSalesUser?.identifier ?? "Atama yok"}
+                                {assignedSalesDisplayName || "Atama yok"}
                             </div>
                         </div>
                         <div className="rounded-2xl bg-neutral-50 px-4 py-3">

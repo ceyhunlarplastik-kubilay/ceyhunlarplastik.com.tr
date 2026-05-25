@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "motion/react"
-import { RefreshCw } from "lucide-react"
+import { ClipboardList, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BusinessRequestFilters } from "@/features/businessRequests/components/BusinessRequestFilters"
 import { BusinessRequestTable } from "@/features/businessRequests/components/BusinessRequestTable"
@@ -10,6 +10,7 @@ import { useBusinessRequests } from "@/features/businessRequests/hooks/useBusine
 import { useDecideBusinessRequest } from "@/features/businessRequests/hooks/useDecideBusinessRequest"
 import { CUSTOMER_PORTAL_REQUEST_TYPES } from "@/features/businessRequests/config"
 import { CustomerPortalRequestComposer } from "@/features/customerPortal/components/CustomerPortalRequestComposer"
+import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 
 export function CustomerPortalRequestsPageClient() {
     const {
@@ -37,20 +38,24 @@ export function CustomerPortalRequestsPageClient() {
 
     return (
         <div className="space-y-6">
-            <div className="rounded-[32px] border border-neutral-200 bg-white p-6 shadow-sm lg:p-8">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="space-y-3">
-                        <h1 className="text-2xl font-bold tracking-tight text-neutral-950">Taleplerim</h1>
-                        <p className="max-w-3xl text-sm leading-6 text-neutral-500">
-                            Sipariş, fiyat, profil değişikliği ve doküman taleplerinizi tek merkezden oluşturun.
-                            Tüm kayıtlar satış workflow’u üzerinden izlenir ve geçmişi burada görünür.
-                        </p>
-                    </div>
-
+            <CustomerPortalPageHeader
+                eyebrow="Talep Merkezi"
+                icon={ClipboardList}
+                title="Taleplerim"
+                description={(
+                    <>
+                        Sipariş, fiyat, profil değişikliği ve doküman taleplerinizi tek merkezden oluşturun.
+                        Tüm kayıtlar satış workflow’u üzerinden izlenir ve geçmişi burada görünür.
+                    </>
+                )}
+                meta={[
+                    { value: lastUpdatedLabel, label: "son güncelleme" },
+                ]}
+                aside={(
                     <Button
                         type="button"
                         variant="outline"
-                        className="gap-2"
+                        className="gap-2 bg-white/80 backdrop-blur"
                         disabled={requestsQuery.isFetching}
                         onClick={() => void requestsQuery.refetch()}
                     >
@@ -65,8 +70,8 @@ export function CustomerPortalRequestsPageClient() {
                         </motion.span>
                         Yenile
                     </Button>
-                </div>
-            </div>
+                )}
+            />
 
             <CustomerPortalRequestComposer />
 

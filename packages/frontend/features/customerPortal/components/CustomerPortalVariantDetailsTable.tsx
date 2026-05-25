@@ -22,6 +22,7 @@ import type {
 } from "@/features/public/products/components/ProductVariantTable"
 import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
+import { formatMoney, resolveCustomerDiscountedPrice } from "@/lib/customers/pricing"
 
 interface Props {
     variants: VariantTableData[]
@@ -32,6 +33,7 @@ interface Props {
     productSlug: string
     productCode: string
     categoryName?: string
+    customerDiscountPercent?: number | null
 }
 
 function decimalLikeToText(
@@ -92,6 +94,7 @@ export function CustomerPortalVariantDetailsTable({
     productSlug,
     productCode,
     categoryName,
+    customerDiscountPercent,
 }: Props) {
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
     const totalDraftItems = usePortalRequestDraftStore((state) => state.items.length)
@@ -123,6 +126,7 @@ export function CustomerPortalVariantDetailsTable({
     function handleAddToDraft(variant: VariantTableData) {
         const quantity = resolveQuantity(variant.id)
         const minListPrice = resolveMinListPrice(variant)
+        const discountedPricing = resolveCustomerDiscountedPrice(minListPrice?.value, customerDiscountPercent)
         addItem({
             productId,
             productSlug,
@@ -134,6 +138,8 @@ export function CustomerPortalVariantDetailsTable({
             variantFullCode: variant.fullCode,
             quantity,
             listUnitPrice: minListPrice?.value ?? null,
+            customerUnitPrice: discountedPricing?.customerUnitPrice ?? minListPrice?.value ?? null,
+            appliedDiscountPercent: discountedPricing?.appliedDiscountPercent ?? 0,
             currency: minListPrice?.currency ?? "TRY",
             targetUnitPrice: null,
             customerNote: "",
@@ -209,8 +215,8 @@ export function CustomerPortalVariantDetailsTable({
                                         {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
                                         {formatMeasurementValue(measurement)}
                                         {measurement.measurementType.baseUnit &&
-                                        measurement.measurementType.code !== "D" &&
-                                        measurement.measurementType.code !== "M"
+                                            measurement.measurementType.code !== "D" &&
+                                            measurement.measurementType.code !== "M"
                                             ? ` ${measurement.measurementType.baseUnit}`
                                             : ""}
                                     </Badge>
@@ -266,6 +272,7 @@ export function CustomerPortalVariantDetailsTable({
                             <TableBody>
                                 {variants.map((variant, index) => {
                                     const minListPrice = resolveMinListPrice(variant)
+                                    const discountedPricing = resolveCustomerDiscountedPrice(minListPrice?.value, customerDiscountPercent)
 
                                     return (
                                         <motion.tr
@@ -291,8 +298,8 @@ export function CustomerPortalVariantDetailsTable({
 
                                                 const withUnit =
                                                     measurement.measurementType.baseUnit &&
-                                                    measurement.measurementType.code !== "D" &&
-                                                    measurement.measurementType.code !== "M"
+                                                        measurement.measurementType.code !== "D" &&
+                                                        measurement.measurementType.code !== "M"
                                                         ? ` ${measurement.measurementType.baseUnit}`
                                                         : ""
 
@@ -328,11 +335,30 @@ export function CustomerPortalVariantDetailsTable({
                                             </TableCell>
                                             <TableCell className="font-medium text-neutral-900">
                                                 {minListPrice ? (
-                                                    <div className="space-y-1">
-                                                        <div>{`${minListPrice.value.toFixed(2)} ${minListPrice.currency}`}</div>
-                                                        <Badge variant="outline" className="font-normal">
-                                                            Liste fiyatı
-                                                        </Badge>
+                                                    <div className="space-y-1.5">
+                                                        {discountedPricing && discountedPricing.appliedDiscountPercent > 0 ? (
+                                                            <>
+                                                                <div className="text-xs text-neutral-400 line-through">
+                                                                    {formatMoney(discountedPricing.listUnitPrice, minListPrice.currency)}
+                                                                </div>
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <span className="text-base font-semibold text-emerald-700">
+                                                                        {formatMoney(discountedPricing.customerUnitPrice, minListPrice.currency)}
+                                                                    </span>
+                                                                    <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
+                                                                        %{discountedPricing.appliedDiscountPercent.toLocaleString("tr-TR", {
+                                                                            minimumFractionDigits: discountedPricing.appliedDiscountPercent % 1 === 0 ? 0 : 2,
+                                                                            maximumFractionDigits: 2,
+                                                                        })} müşteri indirimi
+                                                                    </Badge>
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <div>{formatMoney(minListPrice.value, minListPrice.currency)}</div>
+                                                        )}
+                                                        {/* <Badge variant="outline" className="font-normal">
+                                                            Liste satış fiyatı baz alınır
+                                                        </Badge> */}
                                                     </div>
                                                 ) : "-"}
                                             </TableCell>

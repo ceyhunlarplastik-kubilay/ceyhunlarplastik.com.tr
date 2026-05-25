@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/input-group"
 import { Textarea } from "@/components/ui/textarea"
 import type { PortalRequestDraftItem } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
+import { formatMoney } from "@/lib/customers/pricing"
 
 type Props = {
     highlighted?: boolean
@@ -23,20 +24,6 @@ type Props = {
     updateItem: (variantId: string, patch: Partial<PortalRequestDraftItem>) => void
     removeItem: (variantId: string) => void
     clear: () => void
-}
-
-function formatMoney(value?: number | null, currency = "TRY") {
-    if (value === null || value === undefined || !Number.isFinite(value)) return "-"
-
-    try {
-        return new Intl.NumberFormat("tr-TR", {
-            style: "currency",
-            currency,
-            maximumFractionDigits: 2,
-        }).format(value)
-    } catch {
-        return `${value.toFixed(2)} ${currency}`
-    }
 }
 
 export function CustomerPortalRequestDraftPanel({
@@ -116,7 +103,7 @@ export function CustomerPortalRequestDraftPanel({
                                 </Button>
                             </div>
 
-                            <div className="mt-4 grid gap-4 md:grid-cols-3">
+                            <div className="mt-4 grid gap-4 md:grid-cols-4">
                                 <div className="space-y-2">
                                     <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
                                         Miktar
@@ -134,7 +121,36 @@ export function CustomerPortalRequestDraftPanel({
                                         Liste Fiyatı
                                     </div>
                                     <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-900">
-                                        {formatMoney(item.listUnitPrice, item.currency ?? "TRY")}
+                                        {item.customerUnitPrice !== null
+                                        && item.customerUnitPrice !== undefined
+                                        && item.appliedDiscountPercent
+                                        && item.appliedDiscountPercent > 0 ? (
+                                            <div className="space-y-1">
+                                                <div className="text-xs text-neutral-400 line-through">
+                                                    {formatMoney(item.listUnitPrice, item.currency ?? "TRY")}
+                                                </div>
+                                                <div>{formatMoney(item.customerUnitPrice, item.currency ?? "TRY")}</div>
+                                            </div>
+                                        ) : (
+                                            formatMoney(item.listUnitPrice, item.currency ?? "TRY")
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
+                                        Müşteri Fiyatı
+                                    </div>
+                                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-900">
+                                        {formatMoney(item.customerUnitPrice ?? item.listUnitPrice, item.currency ?? "TRY")}
+                                        {item.appliedDiscountPercent && item.appliedDiscountPercent > 0 ? (
+                                            <div className="mt-1 text-[11px] font-medium text-emerald-700">
+                                                %{item.appliedDiscountPercent.toLocaleString("tr-TR", {
+                                                    minimumFractionDigits: item.appliedDiscountPercent % 1 === 0 ? 0 : 2,
+                                                    maximumFractionDigits: 2,
+                                                })} genel iskonto uygulandı
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </div>
 

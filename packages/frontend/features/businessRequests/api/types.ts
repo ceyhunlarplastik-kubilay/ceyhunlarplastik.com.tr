@@ -18,6 +18,8 @@ export type BusinessRequestUserSummary = {
     id: string
     email: string
     identifier: string
+    firstName?: string | null
+    lastName?: string | null
     groups?: string[]
 }
 

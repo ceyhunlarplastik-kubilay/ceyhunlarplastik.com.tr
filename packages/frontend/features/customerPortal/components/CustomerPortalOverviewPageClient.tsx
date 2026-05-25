@@ -1,14 +1,32 @@
 "use client"
 
 import Link from "next/link"
-import { BookMarked, Building2, Mail, MapPin, PackageCheck, Phone, UserRound } from "lucide-react"
+import { BookMarked, Building2, MapPin, PackageCheck, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
 import { Spinner } from "@/components/ui/spinner"
+import { UserContactCard } from "@/components/ui/user-contact-card"
 import { usePortalCustomer } from "@/features/customerPortal/hooks/usePortalCustomer"
+import {
+    CustomerPortalPageHeader,
+    CustomerPortalPageHeaderStat,
+} from "@/features/customerPortal/components/CustomerPortalPageHeader"
+import { buildCustomerContactCards } from "@/lib/customers/contactCards"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 export function CustomerPortalOverviewPageClient() {
     const query = usePortalCustomer()
     const customer = query.data
+    const assignedSalesDisplayName = customer?.assignedSalesUser
+        ? getUserDisplayName(customer.assignedSalesUser)
+        : ""
+    const customerContacts = customer ? buildCustomerContactCards(customer).map((contact) => ({
+        ...contact,
+        description: contact.isPrimary
+            ? "Portal girişleri, talep akışı ve ürün iletişimi için kullanılan ana müşteri hesabı."
+            : "Portal ve operasyon iletişiminde kullanılacak ek müşteri irtibat kişisi.",
+        badge: <Badge variant={contact.isPrimary ? "default" : "secondary"}>{contact.isPrimary ? "Ana Yetkili" : "Portal"}</Badge>,
+    })) : []
 
     if (query.isLoading) {
         return (
@@ -24,91 +42,62 @@ export function CustomerPortalOverviewPageClient() {
 
     return (
         <div className="space-y-8">
-            <div className="rounded-[32px] border bg-white p-6 shadow-sm lg:p-8 2xl:p-10">
-                <div className="flex flex-col gap-6 2xl:grid 2xl:grid-cols-[minmax(0,1.35fr)_minmax(420px,0.95fr)] 2xl:items-end">
-                    <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600">
-                            <Building2 className="h-3.5 w-3.5" />
-                            Müşteri Portalı
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3">
-                            <h1 className="text-3xl font-bold tracking-tight text-neutral-950">
-                                {customer.companyName || customer.fullName}
-                            </h1>
-                            <Badge variant={customer.status === "CUSTOMER" ? "default" : "secondary"}>
-                                {customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}
-                            </Badge>
-                        </div>
-                        <p className="max-w-3xl text-sm leading-6 text-neutral-500">
-                            İlgili ürünlerinizi, tanımlı ürün portföyünüzü ve Ceyhunlar Plastik iletişim noktalarınızı tek ekrandan görüntüleyebilirsiniz.
-                        </p>
+            <CustomerPortalPageHeader
+                eyebrow="Müşteri Portalı"
+                icon={Building2}
+                title={customer.companyName || customer.fullName}
+                badge={(
+                    <Badge variant={customer.status === "CUSTOMER" ? "default" : "secondary"}>
+                        {customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}
+                    </Badge>
+                )}
+                description="İlgili ürünlerinizi, tanımlı ürün portföyünüzü ve Ceyhunlar Plastik iletişim noktalarınızı tek ekrandan görüntüleyebilirsiniz."
+                aside={(
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <CustomerPortalPageHeaderStat
+                            label="İlgili Ürün"
+                            value={customer.featuredProducts?.length ?? 0}
+                        />
+                        <CustomerPortalPageHeaderStat
+                            label="Tanımlı Ürün"
+                            value={customer.assignedProducts?.length ?? 0}
+                        />
+                        <CustomerPortalPageHeaderStat
+                            label="Adres Kaydı"
+                            value={customer.addresses?.length ?? 0}
+                        />
+                        <CustomerPortalPageHeaderStat
+                            label="Temsilci"
+                            value={(
+                                <div className="line-clamp-2 text-sm font-semibold text-slate-950">
+                                    {assignedSalesDisplayName || "Atanmadı"}
+                                </div>
+                            )}
+                        />
                     </div>
-
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-4">
-                            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-400">İlgili Ürün</div>
-                            <div className="mt-2 text-2xl font-semibold text-neutral-950">{customer.featuredProducts?.length ?? 0}</div>
-                        </div>
-                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-4">
-                            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-400">Tanımlı Ürün</div>
-                            <div className="mt-2 text-2xl font-semibold text-neutral-950">{customer.assignedProducts?.length ?? 0}</div>
-                        </div>
-                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-4">
-                            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-400">Adres Kaydı</div>
-                            <div className="mt-2 text-2xl font-semibold text-neutral-950">{customer.addresses?.length ?? 0}</div>
-                        </div>
-                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-4">
-                            <div className="text-[11px] uppercase tracking-[0.18em] text-neutral-400">Temsilci</div>
-                            <div className="mt-2 line-clamp-2 text-sm font-semibold text-neutral-950">
-                                {customer.assignedSalesUser?.identifier ?? "Atanmadı"}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                )}
+            />
 
             <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.3fr)_minmax(360px,0.9fr)]">
                 <div className="grid gap-5 xl:grid-cols-2">
-                    <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
-                            <UserRound className="h-3.5 w-3.5" />
-                            Portal İletişimi
-                        </div>
-                        <div className="mt-4 space-y-3 text-sm">
-                            <div>
-                                <div className="font-medium text-neutral-900">{customer.fullName}</div>
-                                <div className="mt-1 inline-flex items-center gap-2 text-neutral-500">
-                                    <Mail className="h-4 w-4" />
-                                    {customer.email}
-                                </div>
-                            </div>
-                            <div className="inline-flex items-center gap-2 text-neutral-500">
-                                <Phone className="h-4 w-4" />
-                                {customer.phone}
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
-                            <PackageCheck className="h-3.5 w-3.5" />
-                            Ceyhunlar Yetkilisi
-                        </div>
-                        <div className="mt-4 space-y-2 text-sm">
-                            <div className="font-medium text-neutral-900">
-                                {customer.assignedSalesUser?.identifier ?? "Henüz atanmış temsilci yok"}
-                            </div>
-                            {customer.assignedSalesUser?.email ? (
-                                <div className="inline-flex items-center gap-2 text-neutral-500">
-                                    <Mail className="h-4 w-4" />
-                                    {customer.assignedSalesUser.email}
-                                </div>
-                            ) : (
-                                <div className="text-neutral-500">
-                                    Atama yapıldığında ilgili temsilci burada görünecek.
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    <CustomerContactCarousel
+                        contacts={customerContacts}
+                        eyebrow="Portal İletişimi"
+                        icon={UserRound}
+                    />
+                    <UserContactCard
+                        eyebrow="Ceyhunlar Yetkilisi"
+                        icon={PackageCheck}
+                        name={assignedSalesDisplayName}
+                        roleLabel="Satış Temsilcisi"
+                        subtitle="Atanmış temsilci"
+                        description="Teklif, operasyon ve ürün eşleştirmelerinde doğrudan temas kuracağınız Ceyhunlar yetkilisi."
+                        email={customer.assignedSalesUser?.email}
+                        phone={customer.assignedSalesUser?.phone}
+                        imageUrl={customer.assignedSalesUser?.imageUrl}
+                        emptyMessage="Henüz atanmış temsilci yok. Atama yapıldığında iletişim bilgileri burada görünecek."
+                        badge={<Badge variant="outline">Ceyhunlar</Badge>}
+                    />
                     <div className="rounded-3xl border bg-white p-6 shadow-sm">
                         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
                             <BookMarked className="h-3.5 w-3.5" />

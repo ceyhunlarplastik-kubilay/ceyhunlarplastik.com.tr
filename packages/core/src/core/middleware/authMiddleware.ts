@@ -4,6 +4,7 @@ import { APIGatewayProxyResultV2 } from "aws-lambda";
 import createError from "http-errors";
 
 import { prisma } from "@/core/db/prisma";
+import { buildUserDisplayName } from "@/core/helpers/users/displayName";
 import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types";
 
 export type IPermissionGroups = {
@@ -84,6 +85,8 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
 
     const sub = claims.sub as string | undefined;
     const email = claims.email as string | undefined;
+    const firstName = typeof claims.given_name === "string" ? claims.given_name.trim() || null : null;
+    const lastName = typeof claims.family_name === "string" ? claims.family_name.trim() || null : null;
 
     if (!sub) {
       throw createError.Unauthorized("Invalid token");
@@ -109,16 +112,29 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
         data: {
           cognitoSub: sub,
           email,
-          identifier: email.split("@")[0],
+          identifier: buildUserDisplayName({ firstName, lastName, email }) || email.split("@")[0],
+          firstName,
+          lastName,
           groups: cognitoGroups,
           accessStatus: cognitoGroups.includes("user") ? "PENDING_REVIEW" : "ACTIVE",
           isActive: true,
         },
       });
-    } else if (user.email !== email) {
+    } else if (
+      user.email !== email
+      || user.firstName !== firstName
+      || user.lastName !== lastName
+    ) {
       user = await prisma.user.update({
         where: { id: user.id },
-        data: { email },
+        data: {
+          email,
+          ...(firstName !== user.firstName ? { firstName } : {}),
+          ...(lastName !== user.lastName ? { lastName } : {}),
+          ...(buildUserDisplayName({ firstName, lastName, email }) !== user.identifier
+            ? { identifier: buildUserDisplayName({ firstName, lastName, email }) || user.identifier }
+            : {}),
+        },
       });
     }
 
@@ -134,6 +150,8 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
       id: user.id,
       dbUserId: user.id,
       identifier: user.identifier,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       groups: user.groups,
       accessStatus: user.accessStatus,

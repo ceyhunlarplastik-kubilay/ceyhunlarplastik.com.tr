@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
-import { Label } from "@/components/ui/label"
 import { decimalLikeToFixedText } from "@/lib/utils/decimal"
 import {
     Table,
@@ -35,13 +34,10 @@ import { useVariantReferences } from "@/features/admin/productVariants/hooks/use
 import { useProductVariants } from "@/features/admin/productVariants/hooks/useProductVariants"
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
-import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import { EditSupplierDialog } from "@/features/admin/suppliers/components/EditSupplierDialog"
+import { SupplierBulkPricingForm } from "@/features/admin/suppliers/components/SupplierBulkPricingForm"
+import { useSupplierWorkspaceState } from "@/features/admin/suppliers/hooks/useSupplierWorkspaceState"
+import { getUserDisplayName } from "@/lib/users/displayName"
 
 export function SuppliersPageClient() {
     const {
@@ -55,27 +51,18 @@ export function SuppliersPageClient() {
 
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
     const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
-    const [supplierDraft, setSupplierDraft] = useState({
-        name: "",
-        contactName: "",
-        phone: "",
-        address: "",
-        taxNumber: "",
-        defaultPaymentTermDays: "",
-        assignedPurchasingUserIds: [] as string[],
-    })
-    const [selectedCategoryId, setSelectedCategoryId] = useState("")
-    const [productSearch, setProductSearch] = useState("")
-    const [productPage, setProductPage] = useState(1)
-    const [productLimit, setProductLimit] = useState(12)
-    const [selectedProductId, setSelectedProductId] = useState("")
-
-    const [detailSearch, setDetailSearch] = useState("")
-    const [detailPage, setDetailPage] = useState(1)
-    const [detailLimit, setDetailLimit] = useState(20)
-    const [bulkOperationalRate, setBulkOperationalRate] = useState("")
-    const [bulkProfitRate, setBulkProfitRate] = useState("")
     const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null)
+    const supplierWorkspace = useSupplierWorkspaceState()
+    const {
+        selectedCategoryId,
+        productSearch,
+        productPage,
+        productLimit,
+        selectedProductId,
+        detailSearch,
+        detailPage,
+        detailLimit,
+    } = supplierWorkspace.state
 
     const supplierQuery = useSuppliers({
         params: supplierParams,
@@ -112,6 +99,14 @@ export function SuppliersPageClient() {
     const categories = categoriesQuery.data ?? []
     const products = productsQuery.data?.data ?? []
     const purchasingUsers = (usersQuery.data?.data ?? []).filter((user) => user.groups.includes("purchasing") || user.groups.includes("admin") || user.groups.includes("owner"))
+    const purchasingUserOptions = useMemo(
+        () => purchasingUsers.map((user) => ({
+            id: user.id,
+            label: getUserDisplayName(user) || user.email,
+            caption: user.email,
+        })),
+        [purchasingUsers],
+    )
     const productMeta = productsQuery.data?.meta
     const supplierRows = detailQuery.data?.data ?? []
     const supplierRowsMeta = detailQuery.data?.meta
@@ -120,6 +115,40 @@ export function SuppliersPageClient() {
         () => new Map((productVariantsQuery.data ?? []).map((variant) => [variant.id, variant])),
         [productVariantsQuery.data]
     )
+
+    async function handleSupplierUpdate(payload: {
+        id: string
+        name?: string
+        contactName?: string
+        phone?: string
+        address?: string
+        taxNumber?: string
+        defaultPaymentTermDays?: number
+        assignedPurchasingUserIds?: string[]
+    }) {
+        const updatedSupplier = await updateSupplierMutation.mutateAsync(payload)
+        setSelectedSupplier((current) => (
+            current?.id === updatedSupplier.id
+                ? updatedSupplier
+                : current
+        ))
+        setEditingSupplier(null)
+    }
+
+    async function handleBulkPricingSubmit(payload: {
+        operationalCostRate?: number
+        profitRate?: number
+    }) {
+        if (!selectedSupplier || !selectedProductId) return
+
+        await bulkUpdatePricingMutation.mutateAsync({
+            productId: selectedProductId,
+            supplierId: selectedSupplier.id,
+            ...payload,
+        })
+        await detailQuery.refetch()
+        await productVariantsQuery.refetch()
+    }
 
     return (
         <div className="space-y-6">
@@ -165,7 +194,7 @@ export function SuppliersPageClient() {
                                 <TableCell className="font-medium">{supplier.name}</TableCell>
                                 <TableCell>
                                     {(supplier.assignedPurchasingSuppliers ?? []).length > 0
-                                        ? (supplier.assignedPurchasingSuppliers ?? []).map((user) => user.identifier).join(", ")
+                                        ? (supplier.assignedPurchasingSuppliers ?? []).map((user) => getUserDisplayName(user) || user.email).join(", ")
                                         : "-"}
                                 </TableCell>
                                 <TableCell>
@@ -182,11 +211,7 @@ export function SuppliersPageClient() {
                                         variant={selectedSupplier?.id === supplier.id ? "default" : "outline"}
                                         onClick={() => {
                                             setSelectedSupplier(supplier)
-                                            setSelectedCategoryId("")
-                                            setProductSearch("")
-                                            setSelectedProductId("")
-                                            setProductPage(1)
-                                            setDetailPage(1)
+                                            supplierWorkspace.resetForSupplierSelection()
                                         }}
                                         className="gap-2"
                                     >
@@ -197,22 +222,7 @@ export function SuppliersPageClient() {
                                         size="sm"
                                         variant="ghost"
                                         className="ml-1"
-                                        onClick={() => {
-                                            setEditingSupplier(supplier)
-                                            setSupplierDraft({
-                                                name: supplier.name ?? "",
-                                                contactName: supplier.contactName ?? "",
-                                                phone: supplier.phone ?? "",
-                                                address: supplier.address ?? "",
-                                                taxNumber: supplier.taxNumber ?? "",
-                                                defaultPaymentTermDays:
-                                                    supplier.defaultPaymentTermDays !== null &&
-                                                        supplier.defaultPaymentTermDays !== undefined
-                                                        ? String(supplier.defaultPaymentTermDays)
-                                                        : "",
-                                                assignedPurchasingUserIds: (supplier.assignedPurchasingSuppliers ?? []).map((user) => user.id),
-                                            })
-                                        }}
+                                        onClick={() => setEditingSupplier(supplier)}
                                     >
                                         Düzenle
                                     </Button>
@@ -253,10 +263,7 @@ export function SuppliersPageClient() {
                         <select
                             value={selectedCategoryId}
                             onChange={(e) => {
-                                setSelectedCategoryId(e.target.value)
-                                setSelectedProductId("")
-                                setProductPage(1)
-                                setDetailPage(1)
+                                supplierWorkspace.setSelectedCategoryId(e.target.value)
                             }}
                             className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
                         >
@@ -272,17 +279,14 @@ export function SuppliersPageClient() {
                             placeholder="Ürün modeli ara..."
                             value={productSearch}
                             onChange={(e) => {
-                                setProductSearch(e.target.value)
-                                setSelectedProductId("")
-                                setProductPage(1)
+                                supplierWorkspace.setProductSearch(e.target.value)
                             }}
                         />
 
                         <select
                             value={String(productLimit)}
                             onChange={(e) => {
-                                setProductLimit(Number(e.target.value))
-                                setProductPage(1)
+                                supplierWorkspace.setProductLimit(Number(e.target.value))
                             }}
                             className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
                         >
@@ -311,8 +315,7 @@ export function SuppliersPageClient() {
                                             key={product.id}
                                             type="button"
                                             onClick={() => {
-                                                setSelectedProductId(product.id)
-                                                setDetailPage(1)
+                                                supplierWorkspace.setSelectedProductId(product.id)
                                             }}
                                             className={`flex items-center gap-3 rounded-lg border p-2 text-left transition ${isSelected
                                                 ? "border-red-400 bg-red-50"
@@ -353,7 +356,7 @@ export function SuppliersPageClient() {
                             variant="outline"
                             size="sm"
                             disabled={(productMeta?.page ?? productPage) <= 1}
-                            onClick={() => setProductPage((p) => Math.max(1, p - 1))}
+                            onClick={() => supplierWorkspace.setProductPage((p) => Math.max(1, p - 1))}
                         >
                             Model Önceki
                         </Button>
@@ -364,7 +367,7 @@ export function SuppliersPageClient() {
                             variant="outline"
                             size="sm"
                             disabled={(productMeta?.page ?? productPage) >= (productMeta?.totalPages ?? 1)}
-                            onClick={() => setProductPage((p) => p + 1)}
+                            onClick={() => supplierWorkspace.setProductPage((p) => p + 1)}
                         >
                             Model Sonraki
                         </Button>
@@ -382,16 +385,14 @@ export function SuppliersPageClient() {
                             placeholder="Varyant ara (kod/ad)..."
                             value={detailSearch}
                             onChange={(e) => {
-                                setDetailSearch(e.target.value)
-                                setDetailPage(1)
+                                supplierWorkspace.setDetailSearch(e.target.value)
                             }}
                         />
                         <select
                             className="h-10 rounded-md border border-neutral-200 px-3 text-sm"
                             value={String(detailLimit)}
                             onChange={(e) => {
-                                setDetailLimit(Number(e.target.value))
-                                setDetailPage(1)
+                                supplierWorkspace.setDetailLimit(Number(e.target.value))
                             }}
                         >
                             <option value="10">10 varyant / sayfa</option>
@@ -400,61 +401,11 @@ export function SuppliersPageClient() {
                         </select>
                     </div>
 
-                    {selectedProductId && (
-                        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-                            <div className="mb-2 text-sm font-medium text-neutral-800">
-                                Seçili modelde toplu oran güncelle
-                            </div>
-                            <div className="grid gap-2 md:grid-cols-4">
-                                <Input
-                                    inputMode="decimal"
-                                    placeholder="Operasyonel Maliyet %"
-                                    value={bulkOperationalRate}
-                                    onChange={(e) => setBulkOperationalRate(e.target.value.replace(",", "."))}
-                                />
-                                <Input
-                                    inputMode="decimal"
-                                    placeholder="Kâr Oranı %"
-                                    value={bulkProfitRate}
-                                    onChange={(e) => setBulkProfitRate(e.target.value.replace(",", "."))}
-                                />
-                                <div className="md:col-span-2">
-                                    <Button
-                                        className="w-full"
-                                        disabled={bulkUpdatePricingMutation.isPending}
-                                        onClick={async () => {
-                                            const parsedOperational = bulkOperationalRate
-                                                ? Number(bulkOperationalRate)
-                                                : undefined
-                                            const parsedProfit = bulkProfitRate ? Number(bulkProfitRate) : undefined
-
-                                            if (
-                                                parsedOperational === undefined &&
-                                                parsedProfit === undefined
-                                            ) {
-                                                return
-                                            }
-
-                                            await bulkUpdatePricingMutation.mutateAsync({
-                                                productId: selectedProductId,
-                                                supplierId: selectedSupplier.id,
-                                                ...(parsedOperational !== undefined && Number.isFinite(parsedOperational)
-                                                    ? { operationalCostRate: parsedOperational }
-                                                    : {}),
-                                                ...(parsedProfit !== undefined && Number.isFinite(parsedProfit)
-                                                    ? { profitRate: parsedProfit }
-                                                    : {}),
-                                            })
-                                            await detailQuery.refetch()
-                                            await productVariantsQuery.refetch()
-                                        }}
-                                    >
-                                        {bulkUpdatePricingMutation.isPending ? "Güncelleniyor..." : "Seçili Modelde Toplu Güncelle"}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <SupplierBulkPricingForm
+                        visible={Boolean(selectedProductId)}
+                        isPending={bulkUpdatePricingMutation.isPending}
+                        onSubmit={handleBulkPricingSubmit}
+                    />
 
                     <div className="rounded-xl border overflow-hidden">
                         {selectedProduct ? (
@@ -558,121 +509,29 @@ export function SuppliersPageClient() {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Button variant="outline" size="sm" disabled={(supplierRowsMeta?.page ?? detailPage) <= 1} onClick={() => setDetailPage((p) => Math.max(1, p - 1))}>
+                        <Button variant="outline" size="sm" disabled={(supplierRowsMeta?.page ?? detailPage) <= 1} onClick={() => supplierWorkspace.setDetailPage((p) => Math.max(1, p - 1))}>
                             Önceki
                         </Button>
                         <span className="text-sm text-neutral-600">
                             Sayfa {supplierRowsMeta?.page ?? detailPage} / {supplierRowsMeta?.totalPages ?? 1}
                         </span>
-                        <Button variant="outline" size="sm" disabled={(supplierRowsMeta?.page ?? detailPage) >= (supplierRowsMeta?.totalPages ?? 1)} onClick={() => setDetailPage((p) => p + 1)}>
+                        <Button variant="outline" size="sm" disabled={(supplierRowsMeta?.page ?? detailPage) >= (supplierRowsMeta?.totalPages ?? 1)} onClick={() => supplierWorkspace.setDetailPage((p) => p + 1)}>
                             Sonraki
                         </Button>
                     </div>
                 </div>
             )}
 
-            <Dialog open={Boolean(editingSupplier)} onOpenChange={(next) => !next && setEditingSupplier(null)}>
-                <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>Tedarikçi Bilgileri</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-3">
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-name">Firma Adı</Label>
-                            <Input
-                                id="supplier-name"
-                                placeholder="Firma Adı"
-                                value={supplierDraft.name}
-                                onChange={(e) => setSupplierDraft((p) => ({ ...p, name: e.target.value }))}
-                            />
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-contact-name">Yetkili Adı</Label>
-                            <Input
-                                id="supplier-contact-name"
-                                placeholder="Yetkili Adı"
-                                value={supplierDraft.contactName}
-                                onChange={(e) => setSupplierDraft((p) => ({ ...p, contactName: e.target.value }))}
-                            />
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-phone">Telefon</Label>
-                            <Input
-                                id="supplier-phone"
-                                placeholder="Telefon"
-                                value={supplierDraft.phone}
-                                onChange={(e) => setSupplierDraft((p) => ({ ...p, phone: e.target.value }))}
-                            />
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-tax-number">Vergi No</Label>
-                            <Input
-                                id="supplier-tax-number"
-                                placeholder="Vergi No"
-                                value={supplierDraft.taxNumber}
-                                onChange={(e) => setSupplierDraft((p) => ({ ...p, taxNumber: e.target.value }))}
-                            />
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-address">Adres</Label>
-                            <Input
-                                id="supplier-address"
-                                placeholder="Adres"
-                                value={supplierDraft.address}
-                                onChange={(e) => setSupplierDraft((p) => ({ ...p, address: e.target.value }))}
-                            />
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-default-payment-term">Varsayılan Vade (Gün)</Label>
-                            <Input
-                                id="supplier-default-payment-term"
-                                type="number"
-                                min={0}
-                                placeholder="Varsayılan Vade (Gün)"
-                                value={supplierDraft.defaultPaymentTermDays}
-                                onChange={(e) => setSupplierDraft((p) => ({ ...p, defaultPaymentTermDays: e.target.value }))}
-                            />
-                        </div>
-                        <div className="grid gap-1.5">
-                            <Label htmlFor="supplier-purchasing-user">Satın Alma Sorumluları</Label>
-                            <EntityAssignmentSelect
-                                value={supplierDraft.assignedPurchasingUserIds}
-                                options={purchasingUsers.map((user) => ({
-                                    id: user.id,
-                                    label: user.identifier,
-                                    caption: user.email,
-                                }))}
-                                placeholder="Satın almacı seç"
-                                emptyLabel="Kullanıcı bulunamadı"
-                                onChange={(value) => setSupplierDraft((p) => ({ ...p, assignedPurchasingUserIds: value }))}
-                            />
-                        </div>
-                        <div className="flex justify-end">
-                            <Button
-                                onClick={async () => {
-                                    if (!editingSupplier) return
-                                    await updateSupplierMutation.mutateAsync({
-                                        id: editingSupplier.id,
-                                        name: supplierDraft.name.trim(),
-                                        contactName: supplierDraft.contactName.trim() || undefined,
-                                        phone: supplierDraft.phone.trim() || undefined,
-                                        taxNumber: supplierDraft.taxNumber.trim() || undefined,
-                                        address: supplierDraft.address.trim() || undefined,
-                                        defaultPaymentTermDays: supplierDraft.defaultPaymentTermDays
-                                            ? Number(supplierDraft.defaultPaymentTermDays)
-                                            : undefined,
-                                        assignedPurchasingUserIds: supplierDraft.assignedPurchasingUserIds,
-                                    })
-                                    setEditingSupplier(null)
-                                }}
-                                disabled={updateSupplierMutation.isPending}
-                            >
-                                {updateSupplierMutation.isPending ? "Kaydediliyor..." : "Kaydet"}
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <EditSupplierDialog
+                open={Boolean(editingSupplier)}
+                supplier={editingSupplier}
+                purchasingUserOptions={purchasingUserOptions}
+                isPending={updateSupplierMutation.isPending}
+                onOpenChange={(next) => {
+                    if (!next) setEditingSupplier(null)
+                }}
+                onSubmit={handleSupplierUpdate}
+            />
 
             {editingVariant && referencesQuery.data ? (
                 <CreateVariantDialog

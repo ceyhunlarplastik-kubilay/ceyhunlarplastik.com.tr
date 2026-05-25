@@ -1,4 +1,5 @@
 import createError from "http-errors"
+import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
 import { ICustomerDependencies, IUpdateCustomerEvent } from "@/functions/AdminApi/types/customers"
@@ -8,6 +9,11 @@ export const updateCustomerHandler = ({
     productAttributeValueRepository,
 }: ICustomerDependencies) => {
     return async (event: IUpdateCustomerEvent) => {
+        const requester = event.user
+        if (!requester || (!requester.isOwner && !requester.isAdmin && !requester.isSalesDirector && !requester.isSales)) {
+            throw new createError.Forbidden("Customer update access denied")
+        }
+
         if (!productAttributeValueRepository) {
             throw new createError.InternalServerError("Product attribute value repository not configured")
         }
@@ -22,7 +28,7 @@ export const updateCustomerHandler = ({
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { customer },
+            payload: { customer: mapCustomerForApi(customer) },
         })
     }
 }

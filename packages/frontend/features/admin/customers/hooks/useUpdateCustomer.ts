@@ -11,6 +11,9 @@ export function useUpdateCustomer() {
         onSuccess(customer) {
             qc.invalidateQueries({ queryKey: ["admin-customers"] })
             qc.invalidateQueries({ queryKey: ["admin-customer", customer.id] })
+            qc.invalidateQueries({ queryKey: ["sales-managed-customer", customer.id] })
+            qc.invalidateQueries({ queryKey: ["sales-managed-customers"] })
+            qc.invalidateQueries({ queryKey: ["customer-portal-profile"] })
         },
     })
 }

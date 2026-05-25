@@ -42,6 +42,10 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
         email?: string
         note?: string | null
         status?: CustomerStatus
+        generalDiscountPercent?: number | null
+        defaultPaymentTermDays?: number | null
+        creditLimit?: number | null
+        paymentTermNote?: string | null
         assignedSalesUserId?: string | null
         sectorValueId?: string | null
         productionGroupValueId?: string | null

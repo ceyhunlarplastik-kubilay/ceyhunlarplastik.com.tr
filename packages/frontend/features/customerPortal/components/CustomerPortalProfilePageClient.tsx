@@ -2,19 +2,22 @@
 
 import Link from "next/link"
 import { motion } from "motion/react"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Building2 } from "lucide-react"
 import { ProductCard } from "@/components/navigation/ProductCard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { usePortalCustomer } from "@/features/customerPortal/hooks/usePortalCustomer"
 import { usePortalFeaturedProducts } from "@/features/customerPortal/hooks/usePortalFeaturedProducts"
+import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
+import { getPrimaryCustomerContact } from "@/lib/customers/contactCards"
 
 export function CustomerPortalProfilePageClient() {
     const query = usePortalCustomer()
     const customer = query.data
     const featuredQuery = usePortalFeaturedProducts()
     const featuredProducts = (featuredQuery.data ?? []).slice(0, 3)
+    const primaryContact = customer ? getPrimaryCustomerContact(customer) : null
 
     if (query.isLoading) {
         return (
@@ -30,24 +33,34 @@ export function CustomerPortalProfilePageClient() {
 
     return (
         <div className="space-y-6">
+            <CustomerPortalPageHeader
+                eyebrow="Kurumsal Profil"
+                icon={Building2}
+                title="Profil / Firma Bilgileri"
+                description="Firma kayıtlarınızı, irtibat bilgilerinizi ve sektörel eşleşmenizi bu ekrandan takip edebilirsiniz."
+                meta={[
+                    { value: customer.companyName || "-", label: "firma" },
+                    { value: primaryContact?.name || customer.fullName, label: "yetkili" },
+                ]}
+            />
+
             <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                <h1 className="text-2xl font-bold tracking-tight text-neutral-950">Profil / Firma Bilgileri</h1>
-                <div className="mt-6 grid gap-5 md:grid-cols-2">
+                <div className="grid gap-5 md:grid-cols-2">
                     <div>
                         <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Firma</div>
                         <div className="mt-2 text-sm font-medium text-neutral-900">{customer.companyName || "-"}</div>
                     </div>
                     <div>
                         <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Yetkili Kişi</div>
-                        <div className="mt-2 text-sm font-medium text-neutral-900">{customer.fullName}</div>
+                        <div className="mt-2 text-sm font-medium text-neutral-900">{primaryContact?.name || customer.fullName}</div>
                     </div>
                     <div>
                         <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">E-posta</div>
-                        <div className="mt-2 text-sm font-medium text-neutral-900">{customer.email}</div>
+                        <div className="mt-2 text-sm font-medium text-neutral-900">{primaryContact?.email || customer.email}</div>
                     </div>
                     <div>
                         <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Telefon</div>
-                        <div className="mt-2 text-sm font-medium text-neutral-900">{customer.phone}</div>
+                        <div className="mt-2 text-sm font-medium text-neutral-900">{primaryContact?.phone || customer.phone}</div>
                     </div>
                     <div>
                         <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Sektör</div>

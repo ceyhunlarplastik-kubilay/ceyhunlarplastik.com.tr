@@ -1,6 +1,7 @@
 import createError from "http-errors"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import {
@@ -61,7 +62,7 @@ export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCr
         return apiResponseDTO({
             statusCode: 200,
             payload: {
-                data: result.data,
+                data: result.data.map(mapCustomerForApi),
                 meta: result.meta,
             },
         })
@@ -77,7 +78,7 @@ export const getManagedCustomerHandler = ({ customerRepository }: IProtectedCrmD
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { customer },
+            payload: { customer: mapCustomerForApi(customer) },
         })
     }
 }
@@ -87,6 +88,11 @@ export const updateManagedCustomerHandler = ({
     productAttributeValueRepository,
 }: IProtectedCrmDependencies) => {
     return async (event: IUpdateManagedCustomerEvent) => {
+        const requester = event.user
+        if (!requester || (!requester.isOwner && !requester.isAdmin && !requester.isSalesDirector && !requester.isSales)) {
+            throw new createError.Forbidden("Customer update access denied")
+        }
+
         if (!productAttributeValueRepository) {
             throw new createError.InternalServerError("Product attribute value repository not configured")
         }
@@ -94,14 +100,14 @@ export const updateManagedCustomerHandler = ({
         const existing = await customerRepository.getCustomer(event.pathParameters.id)
         if (!existing) throw new createError.NotFound("Customer not found")
 
-        assertCustomerManagementAccess(event.user, existing)
+        assertCustomerManagementAccess(requester, existing)
 
         const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {})
         const customer = await customerRepository.updateCustomer(existing.id, data)
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { customer },
+            payload: { customer: mapCustomerForApi(customer) },
         })
     }
 }
@@ -120,7 +126,7 @@ export const convertManagedCustomerHandler = ({ customerRepository }: IProtected
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { customer: updated },
+            payload: { customer: mapCustomerForApi(updated) },
         })
     }
 }
@@ -368,7 +374,7 @@ export const getPortalCustomerHandler = ({ customerRepository }: IProtectedCrmDe
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { customer },
+            payload: { customer: mapCustomerForApi(customer) },
         })
     }
 }

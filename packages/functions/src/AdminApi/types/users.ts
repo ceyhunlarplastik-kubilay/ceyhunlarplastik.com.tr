@@ -26,7 +26,7 @@ export type IUpdateUserSupplierEvent =
     IAPIGatewayProxyEventWithUserGeneric<IUpdateUserSupplierBody, { id: string }>
 
 export type IUpdateUserRoleBody = {
-    group: "owner" | "admin" | "user" | "supplier" | "purchasing" | "sales" | "customer"
+    group: "owner" | "admin" | "user" | "supplier" | "purchasing" | "sales" | "sales_director" | "customer"
     accessStatus?: UserAccessStatus
     supplierId?: string | null
     customerId?: string | null
@@ -35,6 +35,20 @@ export type IUpdateUserRoleBody = {
 
 export type IUpdateUserRoleEvent =
     IAPIGatewayProxyEventWithUserGeneric<IUpdateUserRoleBody, { id: string }>
+
+export type IUpdateUserProfileBody = {
+    email?: string
+    identifier?: string
+    firstName?: string
+    lastName?: string
+    phone?: string | null
+    customerContactTitle?: string | null
+    customerContactDepartment?: string | null
+    isPrimaryCustomerContact?: boolean
+}
+
+export type IUpdateUserProfileEvent =
+    IAPIGatewayProxyEventWithUserGeneric<IUpdateUserProfileBody, { id: string }>
 
 export interface IUpdateUserRoleDependencies extends IUsersDependencies {
     cognitoRepository: ICognitoUserRepository

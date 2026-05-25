@@ -918,14 +918,6 @@ export type NullableBigIntFieldUpdateOperationsInput = {
   divide?: bigint | number
 }
 
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
 export type GeoCountryCreateNestedOneWithoutStatesInput = {
   create?: Prisma.XOR<Prisma.GeoCountryCreateWithoutStatesInput, Prisma.GeoCountryUncheckedCreateWithoutStatesInput>
   connectOrCreate?: Prisma.GeoCountryCreateOrConnectWithoutStatesInput

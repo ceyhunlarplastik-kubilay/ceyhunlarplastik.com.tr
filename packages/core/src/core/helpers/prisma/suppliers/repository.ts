@@ -10,6 +10,8 @@ const supplierInclude = {
             id: true,
             email: true,
             identifier: true,
+            firstName: true,
+            lastName: true,
             groups: true,
         },
         orderBy: {

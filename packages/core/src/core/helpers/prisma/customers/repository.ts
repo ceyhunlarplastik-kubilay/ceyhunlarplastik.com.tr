@@ -5,6 +5,20 @@ import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { Customer, Prisma } from "@/prisma/generated/prisma/client"
 
+const customerUserSummarySelect = {
+    id: true,
+    email: true,
+    identifier: true,
+    firstName: true,
+    lastName: true,
+    groups: true,
+    imageKey: true,
+    phone: true,
+    customerContactTitle: true,
+    customerContactDepartment: true,
+    isPrimaryCustomerContact: true,
+} as any
+
 const customerBaseInclude = {
     sectorValue: {
         include: {
@@ -22,30 +36,16 @@ const customerBaseInclude = {
         },
     },
     assignedSalesUser: {
-        select: {
-            id: true,
-            email: true,
-            identifier: true,
-            groups: true,
-        },
+        select: customerUserSummarySelect,
     },
     convertedByUser: {
-        select: {
-            id: true,
-            email: true,
-            identifier: true,
-            groups: true,
-        },
+        select: customerUserSummarySelect,
     },
 } satisfies Prisma.CustomerInclude
 
 const customerProductInclude = {
     createdByUser: {
-        select: {
-            id: true,
-            email: true,
-            identifier: true,
-        },
+        select: customerUserSummarySelect,
     },
     product: {
         include: {
@@ -73,6 +73,13 @@ const customerDetailInclude = {
             displayOrder: "asc",
         },
         include: customerProductInclude,
+    },
+    portalUsers: {
+        orderBy: [
+            { isPrimaryCustomerContact: "desc" },
+            { createdAt: "asc" },
+        ],
+        select: customerUserSummarySelect,
     },
     addresses: {
         orderBy: [
@@ -109,20 +116,10 @@ const customerDetailInclude = {
         ],
         include: {
             ownerUser: {
-                select: {
-                    id: true,
-                    email: true,
-                    identifier: true,
-                    groups: true,
-                },
+                select: customerUserSummarySelect,
             },
             createdByUser: {
-                select: {
-                    id: true,
-                    email: true,
-                    identifier: true,
-                    groups: true,
-                },
+                select: customerUserSummarySelect,
             },
         },
     },

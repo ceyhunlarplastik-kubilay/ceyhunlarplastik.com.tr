@@ -11,6 +11,8 @@ type AuthenticatedUser = {
     dbUserId: string
     email: string
     identifier: string
+    firstName?: string | null
+    lastName?: string | null
     name?: string
     image?: string
     groups: string[]
@@ -70,6 +72,8 @@ export const authOptions: NextAuthOptions = {
                 token.dbUserId = typedUser.dbUserId
                 token.email = typedUser.email
                 token.identifier = typedUser.identifier
+                token.firstName = typedUser.firstName
+                token.lastName = typedUser.lastName
                 token.name = typedUser.name
                 token.picture = typedUser.image
                 token.groups = typedUser.groups
@@ -112,6 +116,9 @@ export const authOptions: NextAuthOptions = {
                 token.sub = profile.sub ?? token.sub
                 token.dbUserId = accessState?.dbUserId ?? token.dbUserId
                 token.identifier = accessState?.identifier ?? token.identifier
+                token.firstName = accessState?.firstName ?? token.firstName
+                token.lastName = accessState?.lastName ?? token.lastName
+                token.name = accessState?.displayName ?? profile.name ?? token.name
                 token.customerId = accessState?.customerId ?? token.customerId
                 token.supplierId = accessState?.supplierId ?? token.supplierId
                 token.error = undefined
@@ -140,6 +147,14 @@ export const authOptions: NextAuthOptions = {
                     ?? (typeof token.picture === "string" ? token.picture : session.user.image)
                 session.user.dbUserId = typeof token.dbUserId === "string" ? token.dbUserId : accessState?.dbUserId
                 session.user.identifier = typeof token.identifier === "string" ? token.identifier : accessState?.identifier
+                session.user.firstName = typeof token.firstName === "string" || token.firstName === null
+                    ? token.firstName
+                    : accessState?.firstName
+                session.user.lastName = typeof token.lastName === "string" || token.lastName === null
+                    ? token.lastName
+                    : accessState?.lastName
+                session.user.name = accessState?.displayName
+                    ?? session.user.name
                 session.user.groups = accessState?.groups ?? (Array.isArray(token.groups) ? token.groups : [])
                 session.user.accessStatus = accessState?.accessStatus ?? token.accessStatus
                 session.user.customerId = typeof accessState?.customerId === "string" || accessState?.customerId === null

@@ -2472,7 +2472,10 @@ export const UserScalarFieldEnum = {
   cognitoSub: 'cognitoSub',
   email: 'email',
   identifier: 'identifier',
+  firstName: 'firstName',
+  lastName: 'lastName',
   imageKey: 'imageKey',
+  phone: 'phone',
   groups: 'groups',
   accessStatus: 'accessStatus',
   accessStatusChangedAt: 'accessStatusChangedAt',
@@ -2480,6 +2483,9 @@ export const UserScalarFieldEnum = {
   accessStatusReason: 'accessStatusReason',
   supplierId: 'supplierId',
   customerId: 'customerId',
+  customerContactTitle: 'customerContactTitle',
+  customerContactDepartment: 'customerContactDepartment',
+  isPrimaryCustomerContact: 'isPrimaryCustomerContact',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2582,6 +2588,10 @@ export const CustomerScalarFieldEnum = {
   email: 'email',
   note: 'note',
   status: 'status',
+  generalDiscountPercent: 'generalDiscountPercent',
+  defaultPaymentTermDays: 'defaultPaymentTermDays',
+  creditLimit: 'creditLimit',
+  paymentTermNote: 'paymentTermNote',
   assignedSalesUserId: 'assignedSalesUserId',
   convertedAt: 'convertedAt',
   convertedByUserId: 'convertedByUserId',
@@ -3124,20 +3134,6 @@ export type ListEnumCustomerStatusFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
- * Reference to a field of type 'BigInt'
- */
-export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
-    
-
-
-/**
- * Reference to a field of type 'BigInt[]'
- */
-export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
-    
-
-
-/**
  * Reference to a field of type 'Decimal'
  */
 export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -3148,6 +3144,20 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Decimal[]'
  */
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt[]'
+ */
+export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
     
 
 

@@ -1,4 +1,5 @@
 import createError from "http-errors"
+import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICustomerDependencies, IListCustomersEvent } from "@/functions/AdminApi/types/customers"
@@ -29,7 +30,7 @@ export const listCustomersHandler = ({ customerRepository }: ICustomerDependenci
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: result.data,
+                    data: result.data.map(mapCustomerForApi),
                     meta: result.meta,
                 },
             })

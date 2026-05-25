@@ -6,6 +6,10 @@ import { ProductCard } from "@/components/navigation/ProductCard"
 import { Spinner } from "@/components/ui/spinner"
 import { usePortalAssignedProducts } from "@/features/customerPortal/hooks/usePortalAssignedProducts"
 import { usePortalFeaturedProducts } from "@/features/customerPortal/hooks/usePortalFeaturedProducts"
+import {
+    CustomerPortalPageHeader,
+    CustomerPortalPageHeaderStat,
+} from "@/features/customerPortal/components/CustomerPortalPageHeader"
 
 type Props = {
     mode?: "featured" | "assigned"
@@ -39,25 +43,21 @@ export function CustomerPortalProductsPageClient({ mode = "featured" }: Props) {
 
     return (
         <div className="space-y-6">
-            <div className="rounded-[28px] border border-neutral-200 bg-white p-6 shadow-sm">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600">
-                            {mode === "assigned" ? <Boxes className="h-3.5 w-3.5" /> : <BookMarked className="h-3.5 w-3.5" />}
-                            {content.chip}
-                        </div>
-                        <h1 className="text-2xl font-bold tracking-tight text-neutral-950">{content.title}</h1>
-                        <p className="max-w-2xl text-sm leading-6 text-neutral-500">
-                            {content.description}
-                        </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
-                        <div className="font-semibold text-neutral-900">{featuredProducts.length} ürün</div>
-                        <div className="mt-1 text-xs text-neutral-500">{content.countDescription}</div>
-                    </div>
-                </div>
-            </div>
+            <CustomerPortalPageHeader
+                eyebrow={content.chip}
+                icon={mode === "assigned" ? Boxes : BookMarked}
+                title={content.title}
+                description={content.description}
+                meta={[
+                    { value: `${featuredProducts.length}`, label: "ürün" },
+                ]}
+                aside={(
+                    <CustomerPortalPageHeaderStat
+                        label={content.countDescription}
+                        value={`${featuredProducts.length} ürün`}
+                    />
+                )}
+            />
 
             <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm">
                 {query.isLoading ? (

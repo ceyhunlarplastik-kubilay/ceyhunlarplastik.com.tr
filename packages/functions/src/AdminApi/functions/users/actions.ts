@@ -8,16 +8,19 @@ import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import {
     listUsersHandler,
     getUserHandler,
+    updateUserProfileHandler,
     updateUserSupplierHandler,
     updateUserRoleHandler,
 } from "./handlers"
 
 import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
-import { IGetUserEvent, IUpdateUserRoleEvent, IUpdateUserSupplierEvent } from "@/functions/AdminApi/types/users"
+import { IGetUserEvent, IUpdateUserProfileEvent, IUpdateUserRoleEvent, IUpdateUserSupplierEvent } from "@/functions/AdminApi/types/users"
 import {
     listUsersResponseValidator,
     getUserResponseValidator,
     idValidator,
+    updateUserProfileResponseValidator,
+    updateUserProfileValidator,
     updateUserRoleResponseValidator,
     updateUserRoleValidator,
     updateUserSupplierValidator,
@@ -78,6 +81,23 @@ export const updateUserSupplier = lambdaHandler(
 )
 
 export const updateUserAssignment = updateUserSupplier
+
+export const updateUserProfile = lambdaHandler(
+    async (event) =>
+        updateUserProfileHandler({
+            cognitoRepository: cognitoUserRepository(),
+            userRepository: userRepository(),
+            supplierRepository: supplierRepository(),
+            customerRepository: customerRepository(),
+            userPoolId: Resource.CeyhunlarUserPool.id,
+            publishEvent: publishUserAccessUpdated,
+        })(event as IUpdateUserProfileEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: updateUserProfileValidator,
+        responseValidator: updateUserProfileResponseValidator,
+    }
+)
 
 export const updateUserRole = lambdaHandler(
     async (event) =>

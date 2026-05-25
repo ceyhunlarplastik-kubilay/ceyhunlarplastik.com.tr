@@ -1,4 +1,5 @@
 import createError from "http-errors"
+import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IConvertCustomerEvent, ICustomerDependencies } from "@/functions/AdminApi/types/customers"
 
@@ -18,7 +19,7 @@ export const convertCustomerHandler = ({ customerRepository }: ICustomerDependen
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { customer },
+            payload: { customer: mapCustomerForApi(customer) },
         })
     }
 }

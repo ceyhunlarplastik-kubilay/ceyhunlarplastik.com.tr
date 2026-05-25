@@ -77,6 +77,8 @@ export const supplierSchema = z.object({
     id: z.uuid(),
     email: z.string(),
     identifier: z.string(),
+    firstName: z.string().nullable().optional(),
+    lastName: z.string().nullable().optional(),
     groups: z.array(z.string()).optional(),
   }).loose()).optional(),
   createdAt: z.string(),

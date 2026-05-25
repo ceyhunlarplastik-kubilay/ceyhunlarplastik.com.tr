@@ -40,6 +40,8 @@ import { CustomerPortalRequestDraftPanel } from "@/features/customerPortal/compo
 import { usePortalCustomer } from "@/features/customerPortal/hooks/usePortalCustomer"
 import { GeoAddressFields } from "@/features/geo/components/GeoAddressFields"
 import { type PortalRequestDraftItem, usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
+import { getPrimaryCustomerContact } from "@/lib/customers/contactCards"
+import { getUserDisplayName } from "@/lib/users/displayName"
 import { cn } from "@/lib/utils"
 
 const draftPanelStateValues = ["closed", "open"] as const
@@ -312,6 +314,8 @@ function buildRequestItemPayload(items: PortalRequestDraftItem[]) {
             variantKey: item.variantKey,
             variantFullCode: item.variantFullCode,
             listUnitPrice: item.listUnitPrice ?? null,
+            customerUnitPrice: item.customerUnitPrice ?? null,
+            appliedDiscountPercent: item.appliedDiscountPercent ?? null,
             targetUnitPrice: item.targetUnitPrice ?? null,
             currency: item.currency ?? "TRY",
         },
@@ -385,6 +389,10 @@ export function CustomerPortalRequestComposer() {
         () => customer?.addresses?.find((address) => address.id === shippingAddressId) ?? null,
         [customer?.addresses, shippingAddressId],
     )
+    const primaryContact = useMemo(
+        () => customer ? getPrimaryCustomerContact(customer) : null,
+        [customer],
+    )
 
     const getAddressFieldError = (index: number, key: keyof z.infer<typeof addressDraftSchema>) => {
         const issue = form.formState.errors.addresses?.[index]?.[key]
@@ -415,9 +423,9 @@ export function CustomerPortalRequestComposer() {
             ...form.getValues(),
             type: composerState.composeType,
             profileCompanyName: customer.companyName ?? "",
-            profileFullName: customer.fullName,
-            profilePhone: customer.phone,
-            profileEmail: customer.email,
+            profileFullName: primaryContact?.name || customer.fullName,
+            profilePhone: primaryContact?.phone || customer.phone,
+            profileEmail: primaryContact?.email || customer.email,
             profileNote: customer.note ?? "",
             addresses: (customer.addresses ?? []).map((address) => ({
                 label: address.label,
@@ -443,7 +451,7 @@ export function CustomerPortalRequestComposer() {
             })),
             shippingAddressId: primaryShippingAddress?.id ?? "",
         })
-    }, [composerState.composeType, customer, form])
+    }, [composerState.composeType, customer, form, primaryContact])
 
     useEffect(() => {
         if (composerState.draft !== "open" || !isItemBasedRequest) return
@@ -486,10 +494,12 @@ export function CustomerPortalRequestComposer() {
         const commonContext = {
             channel: "CUSTOMER_PORTAL",
             companyName: customer.companyName ?? null,
-            customerFullName: customer.fullName,
-            customerEmail: customer.email,
-            customerPhone: customer.phone,
-            assignedSalesUser: customer.assignedSalesUser?.identifier ?? null,
+            customerFullName: primaryContact?.name || customer.fullName,
+            customerEmail: primaryContact?.email || customer.email,
+            customerPhone: primaryContact?.phone || customer.phone,
+            assignedSalesUser: customer.assignedSalesUser
+                ? getUserDisplayName(customer.assignedSalesUser) || customer.assignedSalesUser.email
+                : null,
         }
 
         switch (values.type) {
@@ -540,9 +550,9 @@ export function CustomerPortalRequestComposer() {
                         },
                         currentProfileSummary: {
                             companyName: customer.companyName ?? null,
-                            fullName: customer.fullName,
-                            phone: customer.phone,
-                            email: customer.email,
+                            fullName: primaryContact?.name || customer.fullName,
+                            phone: primaryContact?.phone || customer.phone,
+                            email: primaryContact?.email || customer.email,
                             note: customer.note ?? null,
                             addressCount: customer.addresses?.length ?? 0,
                         },
@@ -672,7 +682,9 @@ export function CustomerPortalRequestComposer() {
                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
                         Atanmış satış temsilcisi:
                         <span className="ml-1 font-medium text-neutral-900">
-                            {customer?.assignedSalesUser?.identifier ?? "Henüz atanmadı"}
+                            {customer?.assignedSalesUser
+                                ? getUserDisplayName(customer.assignedSalesUser) || customer.assignedSalesUser.email
+                                : "Henüz atanmadı"}
                         </span>
                     </div>
                 </div>

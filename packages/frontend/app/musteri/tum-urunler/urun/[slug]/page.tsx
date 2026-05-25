@@ -2,11 +2,16 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Product3DModelSection from "@/features/public/products/components/Product3DModelSection"
+import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
+import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
 import ProductHero from "@/features/public/products/components/ProductHero"
+import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
+import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
 
 export default async function CustomerPortalProductDetailPage({
@@ -19,7 +24,14 @@ export default async function CustomerPortalProductDetailPage({
     const product = await getProductBySlug(slug)
     if (!product) notFound()
 
-    const variants = await getProductVariantTable(product.id)
+    const [variants, productsByCategory] = await Promise.all([
+        getProductVariantTable(product.id),
+        getProductsByCategory(product.categoryId, "id"),
+    ])
+
+    const similarProducts = productsByCategory
+        .filter((item) => item.id !== product.id)
+        .slice(0, 12)
 
     return (
         <div className="space-y-6">
@@ -45,15 +57,37 @@ export default async function CustomerPortalProductDetailPage({
                 <ProductHero product={product} />
             </div>
 
-            <ProductVariantTable
-                variants={variants}
-                productSlug={product.slug}
-                productId={product.id}
-                technicalDrawing={<ProductTechnicalDrawingSection product={product} compact />}
-                variantDetailsPathname={`/musteri/tum-urunler/urun/${product.slug}/varyantlar`}
-            />
+            <div id="product-variants">
+                <ProductVariantTable
+                    variants={variants}
+                    productSlug={product.slug}
+                    productId={product.id}
+                    technicalDrawing={(
+                        <div id="product-technical-drawing">
+                            <ProductTechnicalDrawingSection product={product} compact />
+                        </div>
+                    )}
+                    variantDetailsPathname={`/musteri/tum-urunler/urun/${product.slug}/varyantlar`}
+                    focusOnMeasurements
+                />
+            </div>
 
-            <ProductUsageAreasTable product={product} />
+            <ProductUsageAreasTable product={product} collapsible />
+
+            <div id="product-3d-model">
+                <Product3DModelSection product={product} />
+            </div>
+            <div id="product-assembly-video">
+                <ProductAssemblyVideoSection product={product} />
+            </div>
+            <div id="product-certificate">
+                <ProductCertificateSection product={product} />
+            </div>
+
+            <SimilarProductsRow
+                products={similarProducts}
+                hrefBasePath="/musteri/tum-urunler/urun"
+            />
         </div>
     )
 }

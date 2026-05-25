@@ -3,11 +3,14 @@ import Image from "next/image"
 import { notFound } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { auth } from "@/lib/auth/auth"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
 import { buildMeasurementKey } from "@/features/public/products/utils/measurement"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
+import { prisma } from "../../../../../../../core/src/core/db/prisma"
+import { normalizeCustomerDiscountPercent } from "../../../../../../../core/src/core/helpers/pricing/customerPricing"
 
 type PageProps = {
     params: Promise<{ slug: string }>
@@ -17,6 +20,7 @@ type PageProps = {
 export default async function CustomerPortalVariantDetailPage({ params, searchParams }: PageProps) {
     const { slug } = await params
     const resolvedSearchParams = await searchParams
+    const session = await auth()
 
     const measurementKey =
         typeof resolvedSearchParams?.m === "string" ? resolvedSearchParams.m : undefined
@@ -35,6 +39,14 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
             .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder) ?? []
 
     const primaryAsset = product.assets?.find((asset) => asset?.role === "PRIMARY")
+    const portalCustomer = session?.user?.customerId
+        ? await prisma.customer.findUnique({
+            where: { id: session.user.customerId },
+            select: {
+                generalDiscountPercent: true,
+            },
+        })
+        : null
 
     return (
         <div className="space-y-6">
@@ -85,6 +97,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                 productSlug={product.slug}
                 productCode={product.code}
                 categoryName={product.category?.name}
+                customerDiscountPercent={normalizeCustomerDiscountPercent(portalCustomer?.generalDiscountPercent)}
             />
         </div>
     )

@@ -1,3 +1,14 @@
+"use client"
+
+import { useState } from "react"
+import { motion } from "motion/react"
+import { Activity } from "lucide-react"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
 import {
     Table,
     TableBody,
@@ -23,6 +34,7 @@ type ProductLike = {
 
 type Props = {
     product: ProductLike
+    collapsible?: boolean
 }
 
 type Row = {
@@ -75,10 +87,36 @@ function buildRows(attributeValues: AttributeValue[]): Row[] {
     return rows
 }
 
-export default function ProductUsageAreasTable({ product }: Props) {
+export default function ProductUsageAreasTable({ product, collapsible = false }: Props) {
+    const [isOpen, setIsOpen] = useState(false)
     const rows = buildRows((product.attributeValues ?? []) as AttributeValue[])
 
     if (!rows.length) return null
+
+    const table = (
+        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+            <Table>
+                <TableHeader className="bg-neutral-50">
+                    <TableRow>
+                        <TableHead className="w-14 px-4">#</TableHead>
+                        <TableHead className="px-4">Sektör</TableHead>
+                        <TableHead className="px-4">Üretim Grubu</TableHead>
+                        <TableHead className="px-4">Kullanıldığı Endüstriyel Ürün</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {rows.map((row, index) => (
+                        <TableRow key={`${row.sector}-${row.productionGroup}-${row.usageArea}`} className="hover:bg-neutral-50/50 transition-colors">
+                            <TableCell className="px-4 text-neutral-500">{index + 1}</TableCell>
+                            <TableCell className="px-4 font-medium text-neutral-900">{row.sector}</TableCell>
+                            <TableCell className="px-4 text-neutral-600">{row.productionGroup}</TableCell>
+                            <TableCell className="px-4 text-neutral-600">{row.usageArea}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    )
 
     return (
         <section id="usage-area-table" className="pt-10">
@@ -91,29 +129,101 @@ export default function ProductUsageAreasTable({ product }: Props) {
                 </p>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-                <Table>
-                    <TableHeader className="bg-neutral-50">
-                        <TableRow>
-                            <TableHead className="w-14 px-4">#</TableHead>
-                            <TableHead className="px-4">Sektör</TableHead>
-                            <TableHead className="px-4">Üretim Grubu</TableHead>
-                            {/* Kullanım Alanı */}
-                            <TableHead className="px-4">Kullanıldığı Endüstriyel Ürün</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {rows.map((row, index) => (
-                            <TableRow key={`${row.sector}-${row.productionGroup}-${row.usageArea}`}>
-                                <TableCell className="px-4 text-neutral-500">{index + 1}</TableCell>
-                                <TableCell className="px-4 font-medium">{row.sector}</TableCell>
-                                <TableCell className="px-4">{row.productionGroup}</TableCell>
-                                <TableCell className="px-4">{row.usageArea}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+            {collapsible ? (
+                <motion.div
+                    animate={isOpen ? {
+                        scale: 1,
+                        borderColor: "rgba(229, 231, 235, 1)",
+                        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+                    } : {
+                        scale: [1, 1.008, 0.996, 1.012, 1, 1],
+                        borderColor: [
+                            "rgba(229, 231, 235, 1)",
+                            "rgba(204, 179, 110, 0.5)",
+                            "rgba(229, 231, 235, 1)",
+                            "rgba(204, 179, 110, 0.8)",
+                            "rgba(229, 231, 235, 1)",
+                            "rgba(229, 231, 235, 1)"
+                        ],
+                        boxShadow: [
+                            "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                            "0 0 12px 2px rgba(204, 179, 110, 0.2)",
+                            "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                            "0 0 18px 4px rgba(204, 179, 110, 0.35)",
+                            "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                            "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+                        ]
+                    }}
+                    transition={isOpen ? { duration: 0.3 } : {
+                        duration: 2.2,
+                        repeat: Infinity,
+                        repeatDelay: 1.5,
+                        ease: "easeInOut"
+                    }}
+                    className="overflow-hidden rounded-2xl border bg-white"
+                >
+                    <Accordion
+                        type="single"
+                        collapsible
+                        value={isOpen ? "usage-areas" : ""}
+                        onValueChange={(val) => setIsOpen(val === "usage-areas")}
+                    >
+                        <AccordionItem value="usage-areas" className="border-b-0">
+                            <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-neutral-900 hover:no-underline hover:bg-brand/[0.02] transition-colors duration-200">
+                                <div className="flex flex-1 items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                                            <motion.div
+                                                animate={isOpen ? { scale: 1 } : { scale: [1, 1.2, 0.95, 1.25, 1, 1] }}
+                                                transition={isOpen ? {} : {
+                                                    duration: 2.2,
+                                                    repeat: Infinity,
+                                                    repeatDelay: 1.5,
+                                                    ease: "easeInOut"
+                                                }}
+                                            >
+                                                <Activity className="h-5 w-5" />
+                                            </motion.div>
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="font-semibold text-neutral-900">
+                                                Kullanıldığı Endüstriyel Alanlar
+                                            </p>
+                                            <p className="text-xs font-normal text-neutral-500 hidden sm:block">
+                                                Ürünün kullanıldığı sektör, üretim grubu ve endüstriyel alanlar.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3 mr-2">
+                                        {!isOpen && (
+                                            <motion.span
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-medium text-brand"
+                                            >
+                                                <span className="relative flex h-1.5 w-1.5">
+                                                    <span className="absolute inline-flex h-full w-full rounded-full bg-brand opacity-75 animate-ping"></span>
+                                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand"></span>
+                                                </span>
+                                                Detayları İncele
+                                            </motion.span>
+                                        )}
+                                    </div>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 pb-4">
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {table}
+                                </motion.div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </motion.div>
+            ) : table}
         </section>
     )
 }

@@ -15,7 +15,7 @@ export default function ProductFilterList({
     fixedCategorySlug?: string
     basePath?: string
 }) {
-    const { category, attributes, page, limit } = useFilterStore()
+    const { category, search, attributes, page, limit } = useFilterStore()
 
     const params: Record<string, string | number> = {
         page,
@@ -26,6 +26,10 @@ export default function ProductFilterList({
         params.category = fixedCategorySlug
     } else if (category) {
         params.category = category
+    }
+
+    if (search.trim()) {
+        params.search = search.trim()
     }
 
     // 🔥 attributes flatten

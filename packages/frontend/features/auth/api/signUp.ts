@@ -1,6 +1,8 @@
 import { postAuthRequest } from "@/features/auth/api/request"
 
 export type SignUpPayload = {
+    firstName: string
+    lastName: string
     email: string
     password: string
 }

@@ -79,6 +79,8 @@ const businessRequestSchema = z.object({
             id: z.uuid(),
             email: z.string(),
             identifier: z.string(),
+            firstName: z.string().nullable().optional(),
+            lastName: z.string().nullable().optional(),
             groups: z.array(z.string()).optional(),
         }).loose()).optional(),
     }).loose().nullable().optional(),
@@ -86,6 +88,8 @@ const businessRequestSchema = z.object({
         id: z.uuid(),
         email: z.string(),
         identifier: z.string(),
+        firstName: z.string().nullable().optional(),
+        lastName: z.string().nullable().optional(),
         groups: z.array(z.string()).optional(),
     }).loose(),
     items: z.array(z.object({

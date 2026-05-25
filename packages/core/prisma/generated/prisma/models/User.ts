@@ -29,13 +29,19 @@ export type UserMinAggregateOutputType = {
   cognitoSub: string | null
   email: string | null
   identifier: string | null
+  firstName: string | null
+  lastName: string | null
   imageKey: string | null
+  phone: string | null
   accessStatus: $Enums.UserAccessStatus | null
   accessStatusChangedAt: Date | null
   accessStatusChangedByUserId: string | null
   accessStatusReason: string | null
   supplierId: string | null
   customerId: string | null
+  customerContactTitle: string | null
+  customerContactDepartment: string | null
+  isPrimaryCustomerContact: boolean | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -46,13 +52,19 @@ export type UserMaxAggregateOutputType = {
   cognitoSub: string | null
   email: string | null
   identifier: string | null
+  firstName: string | null
+  lastName: string | null
   imageKey: string | null
+  phone: string | null
   accessStatus: $Enums.UserAccessStatus | null
   accessStatusChangedAt: Date | null
   accessStatusChangedByUserId: string | null
   accessStatusReason: string | null
   supplierId: string | null
   customerId: string | null
+  customerContactTitle: string | null
+  customerContactDepartment: string | null
+  isPrimaryCustomerContact: boolean | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -63,7 +75,10 @@ export type UserCountAggregateOutputType = {
   cognitoSub: number
   email: number
   identifier: number
+  firstName: number
+  lastName: number
   imageKey: number
+  phone: number
   groups: number
   accessStatus: number
   accessStatusChangedAt: number
@@ -71,6 +86,9 @@ export type UserCountAggregateOutputType = {
   accessStatusReason: number
   supplierId: number
   customerId: number
+  customerContactTitle: number
+  customerContactDepartment: number
+  isPrimaryCustomerContact: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -83,13 +101,19 @@ export type UserMinAggregateInputType = {
   cognitoSub?: true
   email?: true
   identifier?: true
+  firstName?: true
+  lastName?: true
   imageKey?: true
+  phone?: true
   accessStatus?: true
   accessStatusChangedAt?: true
   accessStatusChangedByUserId?: true
   accessStatusReason?: true
   supplierId?: true
   customerId?: true
+  customerContactTitle?: true
+  customerContactDepartment?: true
+  isPrimaryCustomerContact?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -100,13 +124,19 @@ export type UserMaxAggregateInputType = {
   cognitoSub?: true
   email?: true
   identifier?: true
+  firstName?: true
+  lastName?: true
   imageKey?: true
+  phone?: true
   accessStatus?: true
   accessStatusChangedAt?: true
   accessStatusChangedByUserId?: true
   accessStatusReason?: true
   supplierId?: true
   customerId?: true
+  customerContactTitle?: true
+  customerContactDepartment?: true
+  isPrimaryCustomerContact?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -117,7 +147,10 @@ export type UserCountAggregateInputType = {
   cognitoSub?: true
   email?: true
   identifier?: true
+  firstName?: true
+  lastName?: true
   imageKey?: true
+  phone?: true
   groups?: true
   accessStatus?: true
   accessStatusChangedAt?: true
@@ -125,6 +158,9 @@ export type UserCountAggregateInputType = {
   accessStatusReason?: true
   supplierId?: true
   customerId?: true
+  customerContactTitle?: true
+  customerContactDepartment?: true
+  isPrimaryCustomerContact?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -208,7 +244,10 @@ export type UserGroupByOutputType = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName: string | null
+  lastName: string | null
   imageKey: string | null
+  phone: string | null
   groups: string[]
   accessStatus: $Enums.UserAccessStatus
   accessStatusChangedAt: Date | null
@@ -216,6 +255,9 @@ export type UserGroupByOutputType = {
   accessStatusReason: string | null
   supplierId: string | null
   customerId: string | null
+  customerContactTitle: string | null
+  customerContactDepartment: string | null
+  isPrimaryCustomerContact: boolean
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -247,7 +289,10 @@ export type UserWhereInput = {
   cognitoSub?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   identifier?: Prisma.StringFilter<"User"> | string
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
   imageKey?: Prisma.StringNullableFilter<"User"> | string | null
+  phone?: Prisma.StringNullableFilter<"User"> | string | null
   groups?: Prisma.StringNullableListFilter<"User">
   accessStatus?: Prisma.EnumUserAccessStatusFilter<"User"> | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -255,6 +300,9 @@ export type UserWhereInput = {
   accessStatusReason?: Prisma.StringNullableFilter<"User"> | string | null
   supplierId?: Prisma.StringNullableFilter<"User"> | string | null
   customerId?: Prisma.StringNullableFilter<"User"> | string | null
+  customerContactTitle?: Prisma.StringNullableFilter<"User"> | string | null
+  customerContactDepartment?: Prisma.StringNullableFilter<"User"> | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -279,7 +327,10 @@ export type UserOrderByWithRelationInput = {
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
   identifier?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   imageKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
   groups?: Prisma.SortOrder
   accessStatus?: Prisma.SortOrder
   accessStatusChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -287,6 +338,9 @@ export type UserOrderByWithRelationInput = {
   accessStatusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   customerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerContactTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerContactDepartment?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPrimaryCustomerContact?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -314,7 +368,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   identifier?: Prisma.StringFilter<"User"> | string
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
   imageKey?: Prisma.StringNullableFilter<"User"> | string | null
+  phone?: Prisma.StringNullableFilter<"User"> | string | null
   groups?: Prisma.StringNullableListFilter<"User">
   accessStatus?: Prisma.EnumUserAccessStatusFilter<"User"> | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -322,6 +379,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   accessStatusReason?: Prisma.StringNullableFilter<"User"> | string | null
   supplierId?: Prisma.StringNullableFilter<"User"> | string | null
   customerId?: Prisma.StringNullableFilter<"User"> | string | null
+  customerContactTitle?: Prisma.StringNullableFilter<"User"> | string | null
+  customerContactDepartment?: Prisma.StringNullableFilter<"User"> | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -346,7 +406,10 @@ export type UserOrderByWithAggregationInput = {
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
   identifier?: Prisma.SortOrder
+  firstName?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastName?: Prisma.SortOrderInput | Prisma.SortOrder
   imageKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
   groups?: Prisma.SortOrder
   accessStatus?: Prisma.SortOrder
   accessStatusChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -354,6 +417,9 @@ export type UserOrderByWithAggregationInput = {
   accessStatusReason?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   customerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerContactTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  customerContactDepartment?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPrimaryCustomerContact?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -370,7 +436,10 @@ export type UserScalarWhereWithAggregatesInput = {
   cognitoSub?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   identifier?: Prisma.StringWithAggregatesFilter<"User"> | string
+  firstName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   imageKey?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   groups?: Prisma.StringNullableListFilter<"User">
   accessStatus?: Prisma.EnumUserAccessStatusWithAggregatesFilter<"User"> | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -378,6 +447,9 @@ export type UserScalarWhereWithAggregatesInput = {
   accessStatusReason?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   supplierId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   customerId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  customerContactTitle?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  customerContactDepartment?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  isPrimaryCustomerContact?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -388,12 +460,18 @@ export type UserCreateInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -418,7 +496,10 @@ export type UserUncheckedCreateInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -426,6 +507,9 @@ export type UserUncheckedCreateInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -448,12 +532,18 @@ export type UserUpdateInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -478,7 +568,10 @@ export type UserUncheckedUpdateInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -486,6 +579,9 @@ export type UserUncheckedUpdateInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -508,7 +604,10 @@ export type UserCreateManyInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -516,6 +615,9 @@ export type UserCreateManyInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -526,12 +628,18 @@ export type UserUpdateManyMutationInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -542,7 +650,10 @@ export type UserUncheckedUpdateManyInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -550,6 +661,9 @@ export type UserUncheckedUpdateManyInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -568,7 +682,10 @@ export type UserCountOrderByAggregateInput = {
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
   identifier?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
   imageKey?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
   groups?: Prisma.SortOrder
   accessStatus?: Prisma.SortOrder
   accessStatusChangedAt?: Prisma.SortOrder
@@ -576,6 +693,9 @@ export type UserCountOrderByAggregateInput = {
   accessStatusReason?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  customerContactTitle?: Prisma.SortOrder
+  customerContactDepartment?: Prisma.SortOrder
+  isPrimaryCustomerContact?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -586,13 +706,19 @@ export type UserMaxOrderByAggregateInput = {
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
   identifier?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
   imageKey?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
   accessStatus?: Prisma.SortOrder
   accessStatusChangedAt?: Prisma.SortOrder
   accessStatusChangedByUserId?: Prisma.SortOrder
   accessStatusReason?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  customerContactTitle?: Prisma.SortOrder
+  customerContactDepartment?: Prisma.SortOrder
+  isPrimaryCustomerContact?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -603,13 +729,19 @@ export type UserMinOrderByAggregateInput = {
   cognitoSub?: Prisma.SortOrder
   email?: Prisma.SortOrder
   identifier?: Prisma.SortOrder
+  firstName?: Prisma.SortOrder
+  lastName?: Prisma.SortOrder
   imageKey?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
   accessStatus?: Prisma.SortOrder
   accessStatusChangedAt?: Prisma.SortOrder
   accessStatusChangedByUserId?: Prisma.SortOrder
   accessStatusReason?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  customerContactTitle?: Prisma.SortOrder
+  customerContactDepartment?: Prisma.SortOrder
+  isPrimaryCustomerContact?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -959,12 +1091,18 @@ export type UserCreateWithoutNotificationsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -988,7 +1126,10 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -996,6 +1137,9 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1033,12 +1177,18 @@ export type UserUpdateWithoutNotificationsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1062,7 +1212,10 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1070,6 +1223,9 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1091,12 +1247,18 @@ export type UserCreateWithoutAssignedSalesCustomersInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1120,7 +1282,10 @@ export type UserUncheckedCreateWithoutAssignedSalesCustomersInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -1128,6 +1293,9 @@ export type UserUncheckedCreateWithoutAssignedSalesCustomersInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1154,12 +1322,18 @@ export type UserCreateWithoutConvertedCustomersInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1183,7 +1357,10 @@ export type UserUncheckedCreateWithoutConvertedCustomersInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -1191,6 +1368,9 @@ export type UserUncheckedCreateWithoutConvertedCustomersInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1217,12 +1397,18 @@ export type UserCreateWithoutCustomerInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1246,13 +1432,19 @@ export type UserUncheckedCreateWithoutCustomerInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
   supplierId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1296,12 +1488,18 @@ export type UserUpdateWithoutAssignedSalesCustomersInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1325,7 +1523,10 @@ export type UserUncheckedUpdateWithoutAssignedSalesCustomersInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1333,6 +1534,9 @@ export type UserUncheckedUpdateWithoutAssignedSalesCustomersInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1365,12 +1569,18 @@ export type UserUpdateWithoutConvertedCustomersInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1394,7 +1604,10 @@ export type UserUncheckedUpdateWithoutConvertedCustomersInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1402,6 +1615,9 @@ export type UserUncheckedUpdateWithoutConvertedCustomersInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1442,7 +1658,10 @@ export type UserScalarWhereInput = {
   cognitoSub?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   identifier?: Prisma.StringFilter<"User"> | string
+  firstName?: Prisma.StringNullableFilter<"User"> | string | null
+  lastName?: Prisma.StringNullableFilter<"User"> | string | null
   imageKey?: Prisma.StringNullableFilter<"User"> | string | null
+  phone?: Prisma.StringNullableFilter<"User"> | string | null
   groups?: Prisma.StringNullableListFilter<"User">
   accessStatus?: Prisma.EnumUserAccessStatusFilter<"User"> | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -1450,6 +1669,9 @@ export type UserScalarWhereInput = {
   accessStatusReason?: Prisma.StringNullableFilter<"User"> | string | null
   supplierId?: Prisma.StringNullableFilter<"User"> | string | null
   customerId?: Prisma.StringNullableFilter<"User"> | string | null
+  customerContactTitle?: Prisma.StringNullableFilter<"User"> | string | null
+  customerContactDepartment?: Prisma.StringNullableFilter<"User"> | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFilter<"User"> | boolean
   isActive?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -1460,12 +1682,18 @@ export type UserCreateWithoutAssignedPurchasingSuppliersInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1489,7 +1717,10 @@ export type UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -1497,6 +1728,9 @@ export type UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1523,12 +1757,18 @@ export type UserCreateWithoutSupplierInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1552,13 +1792,19 @@ export type UserUncheckedCreateWithoutSupplierInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1623,12 +1869,18 @@ export type UserCreateWithoutCreatedCustomerFeaturedProductsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1652,7 +1904,10 @@ export type UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -1660,6 +1915,9 @@ export type UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1697,12 +1955,18 @@ export type UserUpdateWithoutCreatedCustomerFeaturedProductsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1726,7 +1990,10 @@ export type UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1734,6 +2001,9 @@ export type UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1755,12 +2025,18 @@ export type UserCreateWithoutCreatedCustomerAssignedProductsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1784,7 +2060,10 @@ export type UserUncheckedCreateWithoutCreatedCustomerAssignedProductsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -1792,6 +2071,9 @@ export type UserUncheckedCreateWithoutCreatedCustomerAssignedProductsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1829,12 +2111,18 @@ export type UserUpdateWithoutCreatedCustomerAssignedProductsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1858,7 +2146,10 @@ export type UserUncheckedUpdateWithoutCreatedCustomerAssignedProductsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1866,6 +2157,9 @@ export type UserUncheckedUpdateWithoutCreatedCustomerAssignedProductsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1887,12 +2181,18 @@ export type UserCreateWithoutOwnedCustomerVisitsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1916,7 +2216,10 @@ export type UserUncheckedCreateWithoutOwnedCustomerVisitsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -1924,6 +2227,9 @@ export type UserUncheckedCreateWithoutOwnedCustomerVisitsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1950,12 +2256,18 @@ export type UserCreateWithoutCreatedCustomerVisitsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1979,7 +2291,10 @@ export type UserUncheckedCreateWithoutCreatedCustomerVisitsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -1987,6 +2302,9 @@ export type UserUncheckedCreateWithoutCreatedCustomerVisitsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2024,12 +2342,18 @@ export type UserUpdateWithoutOwnedCustomerVisitsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2053,7 +2377,10 @@ export type UserUncheckedUpdateWithoutOwnedCustomerVisitsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2061,6 +2388,9 @@ export type UserUncheckedUpdateWithoutOwnedCustomerVisitsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2093,12 +2423,18 @@ export type UserUpdateWithoutCreatedCustomerVisitsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2122,7 +2458,10 @@ export type UserUncheckedUpdateWithoutCreatedCustomerVisitsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2130,6 +2469,9 @@ export type UserUncheckedUpdateWithoutCreatedCustomerVisitsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2151,12 +2493,18 @@ export type UserCreateWithoutRequestedBusinessRequestsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2180,7 +2528,10 @@ export type UserUncheckedCreateWithoutRequestedBusinessRequestsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -2188,6 +2539,9 @@ export type UserUncheckedCreateWithoutRequestedBusinessRequestsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2225,12 +2579,18 @@ export type UserUpdateWithoutRequestedBusinessRequestsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2254,7 +2614,10 @@ export type UserUncheckedUpdateWithoutRequestedBusinessRequestsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2262,6 +2625,9 @@ export type UserUncheckedUpdateWithoutRequestedBusinessRequestsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2283,12 +2649,18 @@ export type UserCreateWithoutAssignedBusinessRequestStepsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2312,7 +2684,10 @@ export type UserUncheckedCreateWithoutAssignedBusinessRequestStepsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -2320,6 +2695,9 @@ export type UserUncheckedCreateWithoutAssignedBusinessRequestStepsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2346,12 +2724,18 @@ export type UserCreateWithoutDecidedBusinessRequestStepsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2375,7 +2759,10 @@ export type UserUncheckedCreateWithoutDecidedBusinessRequestStepsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -2383,6 +2770,9 @@ export type UserUncheckedCreateWithoutDecidedBusinessRequestStepsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2420,12 +2810,18 @@ export type UserUpdateWithoutAssignedBusinessRequestStepsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2449,7 +2845,10 @@ export type UserUncheckedUpdateWithoutAssignedBusinessRequestStepsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2457,6 +2856,9 @@ export type UserUncheckedUpdateWithoutAssignedBusinessRequestStepsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2489,12 +2891,18 @@ export type UserUpdateWithoutDecidedBusinessRequestStepsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2518,7 +2926,10 @@ export type UserUncheckedUpdateWithoutDecidedBusinessRequestStepsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2526,6 +2937,9 @@ export type UserUncheckedUpdateWithoutDecidedBusinessRequestStepsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2547,12 +2961,18 @@ export type UserCreateWithoutActivityLogsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2576,7 +2996,10 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
@@ -2584,6 +3007,9 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   accessStatusReason?: string | null
   supplierId?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2621,12 +3047,18 @@ export type UserUpdateWithoutActivityLogsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2650,7 +3082,10 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2658,6 +3093,9 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2679,13 +3117,19 @@ export type UserCreateManyCustomerInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
   supplierId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2696,12 +3140,18 @@ export type UserUpdateWithoutCustomerInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2725,13 +3175,19 @@ export type UserUncheckedUpdateWithoutCustomerInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2754,13 +3210,19 @@ export type UserUncheckedUpdateManyWithoutCustomerInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2771,13 +3233,19 @@ export type UserCreateManySupplierInput = {
   cognitoSub: string
   email: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   imageKey?: string | null
+  phone?: string | null
   groups?: Prisma.UserCreategroupsInput | string[]
   accessStatus?: $Enums.UserAccessStatus
   accessStatusChangedAt?: Date | string | null
   accessStatusChangedByUserId?: string | null
   accessStatusReason?: string | null
   customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2788,12 +3256,18 @@ export type UserUpdateWithoutAssignedPurchasingSuppliersInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2817,7 +3291,10 @@ export type UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2825,6 +3302,9 @@ export type UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2846,7 +3326,10 @@ export type UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2854,6 +3337,9 @@ export type UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersInput = {
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2864,12 +3350,18 @@ export type UserUpdateWithoutSupplierInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2893,13 +3385,19 @@ export type UserUncheckedUpdateWithoutSupplierInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2922,13 +3420,19 @@ export type UserUncheckedUpdateManyWithoutSupplierInput = {
   cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   groups?: Prisma.UserUpdategroupsInput | string[]
   accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
   accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3069,7 +3573,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   cognitoSub?: boolean
   email?: boolean
   identifier?: boolean
+  firstName?: boolean
+  lastName?: boolean
   imageKey?: boolean
+  phone?: boolean
   groups?: boolean
   accessStatus?: boolean
   accessStatusChangedAt?: boolean
@@ -3077,6 +3584,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   accessStatusReason?: boolean
   supplierId?: boolean
   customerId?: boolean
+  customerContactTitle?: boolean
+  customerContactDepartment?: boolean
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3102,7 +3612,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   cognitoSub?: boolean
   email?: boolean
   identifier?: boolean
+  firstName?: boolean
+  lastName?: boolean
   imageKey?: boolean
+  phone?: boolean
   groups?: boolean
   accessStatus?: boolean
   accessStatusChangedAt?: boolean
@@ -3110,6 +3623,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   accessStatusReason?: boolean
   supplierId?: boolean
   customerId?: boolean
+  customerContactTitle?: boolean
+  customerContactDepartment?: boolean
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3122,7 +3638,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   cognitoSub?: boolean
   email?: boolean
   identifier?: boolean
+  firstName?: boolean
+  lastName?: boolean
   imageKey?: boolean
+  phone?: boolean
   groups?: boolean
   accessStatus?: boolean
   accessStatusChangedAt?: boolean
@@ -3130,6 +3649,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   accessStatusReason?: boolean
   supplierId?: boolean
   customerId?: boolean
+  customerContactTitle?: boolean
+  customerContactDepartment?: boolean
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3142,7 +3664,10 @@ export type UserSelectScalar = {
   cognitoSub?: boolean
   email?: boolean
   identifier?: boolean
+  firstName?: boolean
+  lastName?: boolean
   imageKey?: boolean
+  phone?: boolean
   groups?: boolean
   accessStatus?: boolean
   accessStatusChangedAt?: boolean
@@ -3150,12 +3675,15 @@ export type UserSelectScalar = {
   accessStatusReason?: boolean
   supplierId?: boolean
   customerId?: boolean
+  customerContactTitle?: boolean
+  customerContactDepartment?: boolean
+  isPrimaryCustomerContact?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "identifier" | "imageKey" | "groups" | "accessStatus" | "accessStatusChangedAt" | "accessStatusChangedByUserId" | "accessStatusReason" | "supplierId" | "customerId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cognitoSub" | "email" | "identifier" | "firstName" | "lastName" | "imageKey" | "phone" | "groups" | "accessStatus" | "accessStatusChangedAt" | "accessStatusChangedByUserId" | "accessStatusReason" | "supplierId" | "customerId" | "customerContactTitle" | "customerContactDepartment" | "isPrimaryCustomerContact" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.User$supplierArgs<ExtArgs>
   customer?: boolean | Prisma.User$customerArgs<ExtArgs>
@@ -3205,7 +3733,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     cognitoSub: string
     email: string
     identifier: string
+    firstName: string | null
+    lastName: string | null
     imageKey: string | null
+    phone: string | null
     groups: string[]
     accessStatus: $Enums.UserAccessStatus
     accessStatusChangedAt: Date | null
@@ -3213,6 +3744,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     accessStatusReason: string | null
     supplierId: string | null
     customerId: string | null
+    customerContactTitle: string | null
+    customerContactDepartment: string | null
+    isPrimaryCustomerContact: boolean
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -3657,7 +4191,10 @@ export interface UserFieldRefs {
   readonly cognitoSub: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly identifier: Prisma.FieldRef<"User", 'String'>
+  readonly firstName: Prisma.FieldRef<"User", 'String'>
+  readonly lastName: Prisma.FieldRef<"User", 'String'>
   readonly imageKey: Prisma.FieldRef<"User", 'String'>
+  readonly phone: Prisma.FieldRef<"User", 'String'>
   readonly groups: Prisma.FieldRef<"User", 'String[]'>
   readonly accessStatus: Prisma.FieldRef<"User", 'UserAccessStatus'>
   readonly accessStatusChangedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -3665,6 +4202,9 @@ export interface UserFieldRefs {
   readonly accessStatusReason: Prisma.FieldRef<"User", 'String'>
   readonly supplierId: Prisma.FieldRef<"User", 'String'>
   readonly customerId: Prisma.FieldRef<"User", 'String'>
+  readonly customerContactTitle: Prisma.FieldRef<"User", 'String'>
+  readonly customerContactDepartment: Prisma.FieldRef<"User", 'String'>
+  readonly isPrimaryCustomerContact: Prisma.FieldRef<"User", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>

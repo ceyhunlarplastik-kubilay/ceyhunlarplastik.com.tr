@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useMemo, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { PackageSearch } from "lucide-react"
 import { ProductCard } from "@/components/navigation/ProductCard"
 import { Spinner } from "@/components/ui/spinner"
 import type { Category } from "@/features/public/categories/types"
@@ -13,6 +14,7 @@ import ProductFilterSidebar from "@/features/public/products/components/ProductF
 import { useProducts } from "@/features/public/products/hooks/useProducts"
 import { useFilterStore } from "@/features/public/products/store/filterStore"
 import { ProductCategoryFilterRail } from "@/features/admin/products/components/ProductCategoryFilterRail"
+import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 
 type Props = {
     categories: Category[]
@@ -25,7 +27,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
     const router = useRouter()
     const searchParams = useSearchParams()
     const [, startTransition] = useTransition()
-    const { category, attributes: selectedAttributes, page, limit, setFromUrl } = useFilterStore()
+    const { category, search, attributes: selectedAttributes, page, limit, setFromUrl } = useFilterStore()
 
     useEffect(() => {
         setFromUrl(new URLSearchParams(searchParams.toString()))
@@ -47,6 +49,10 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
             nextParams.category = categorySlug
         }
 
+        if (search.trim()) {
+            nextParams.search = search.trim()
+        }
+
         Object.entries(selectedAttributes).forEach(([key, values]) => {
             if (values.length > 0) {
                 nextParams[key] = values.join(",")
@@ -54,7 +60,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
         })
 
         return nextParams
-    }, [categorySlug, limit, page, selectedAttributes])
+    }, [categorySlug, limit, page, search, selectedAttributes])
 
     const productsQuery = useProducts(params)
     const products = productsQuery.data?.data ?? []
@@ -81,25 +87,28 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
     }
 
     return (
-        <div className="space-y-6">
-            <div className="rounded-[32px] border border-neutral-200 bg-white p-6 shadow-sm lg:p-8">
-                <div className="space-y-3">
-                    <h1 className="text-2xl font-bold tracking-tight text-neutral-950">Tüm Ürünler</h1>
-                    <p className="max-w-3xl text-sm leading-6 text-neutral-500">
-                        Kategori ve özellik filtreleriyle tüm ürün kataloğunu inceleyin. Bir ürün modeli seçtiğinizde portal içindeki detay sayfasına geçebilirsiniz.
-                    </p>
-                </div>
-            </div>
+        <div className="space-y-4 lg:space-y-5">
+            <CustomerPortalPageHeader
+                eyebrow="Katalog Tarama"
+                icon={PackageSearch}
+                title="Tüm Ürünler"
+                description="Kategori ve özellik filtreleriyle tüm ürün kataloğunu inceleyin. Bir ürün modeli seçtiğinizde portal içindeki detay sayfasına geçebilirsiniz."
+                meta={[
+                    { value: `${categories.length}`, label: "kategori" },
+                    { value: `${Object.keys(selectedAttributes).length}`, label: "aktif filtre grubu" },
+                ]}
+            />
 
-            <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm lg:p-6">
+            <div className="rounded-[28px] border border-neutral-200 bg-white p-4 shadow-sm lg:p-5">
                 <ProductCategoryFilterRail
                     categories={categories}
                     categoryId={selectedCategory?.id ?? ""}
                     onCategoryIdChange={handleCategoryIdChange}
+                    railMode="all"
                 />
             </div>
 
-            <div className="grid gap-6 2xl:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="grid gap-5 xl:grid-cols-[320px_minmax(0,1fr)]">
                 <div className="min-w-0">
                     <ProductFilterSidebar
                         categories={categories}
@@ -107,10 +116,15 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                         hideCategoryFilter
                         fixedCategorySlug={categorySlug}
                         basePath={basePath}
+                        showSelectedCategoryPreview
+                        showProductSearch
+                        productSearchPlaceholder="Ürün kodu veya adı ara"
+                        attributeSelectorVariant="popover"
+                        hiddenAttributeCodesWhenCategorySelected={["sector", "production_group", "usage_area"]}
                     />
                 </div>
 
-                <div className="space-y-6 min-w-0">
+                <div className="space-y-5 min-w-0">
                     <ProductActiveFilters basePath={basePath} />
 
                     <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm">

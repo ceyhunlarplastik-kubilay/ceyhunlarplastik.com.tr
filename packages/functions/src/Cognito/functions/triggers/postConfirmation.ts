@@ -1,5 +1,6 @@
 import { PostConfirmationTriggerEvent } from "aws-lambda";
 import { userRepository } from "@/core/helpers/prisma/users/repository";
+import { buildUserDisplayName } from "@/core/helpers/users/displayName";
 
 export const handler = async (
     event: PostConfirmationTriggerEvent
@@ -14,6 +15,8 @@ export const handler = async (
 
     const cognitoSub = attrs.sub;
     const email = attrs.email;
+    const firstName = attrs.given_name?.trim() || null;
+    const lastName = attrs.family_name?.trim() || null;
 
     if (!cognitoSub || !email) {
         console.error("Missing cognito attributes", attrs);
@@ -28,12 +31,15 @@ export const handler = async (
         await repo.createUser({
             cognitoSub,
             email,
-            identifier: email.split("@")[0],
+            identifier: buildUserDisplayName({ firstName, lastName, email }) || email.split("@")[0],
+            firstName,
+            lastName,
+            phone: attrs.phone_number?.trim() || null,
             groups: ["user"],
             accessStatus: "PENDING_REVIEW",
             accessStatusChangedAt: new Date(),
             isActive: true,
-        });
+        } as any);
     }
 
     return event;

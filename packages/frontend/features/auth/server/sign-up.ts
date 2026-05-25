@@ -3,7 +3,11 @@ import { getCognitoClient } from "@/features/auth/server/cognito-client"
 import { toCognitoAuthError } from "@/features/auth/server/errors"
 import { computeSecretHash } from "@/features/auth/server/secret-hash"
 
-export async function signUpWithCognito(email: string, password: string) {
+export async function signUpWithCognito(email: string, password: string, firstName: string, lastName: string) {
+    const normalizedFirstName = firstName.trim()
+    const normalizedLastName = lastName.trim()
+    const fullName = `${normalizedFirstName} ${normalizedLastName}`.trim()
+
     try {
         const client = getCognitoClient()
 
@@ -14,6 +18,9 @@ export async function signUpWithCognito(email: string, password: string) {
             Password: password,
             UserAttributes: [
                 { Name: "email", Value: email },
+                { Name: "given_name", Value: normalizedFirstName },
+                { Name: "family_name", Value: normalizedLastName },
+                { Name: "name", Value: fullName },
             ],
         }))
 

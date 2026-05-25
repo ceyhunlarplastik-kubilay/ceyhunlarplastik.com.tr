@@ -40,6 +40,9 @@ export interface ICognitoIdTokenDecoded {
 export interface ICognitoIdTokenDecoded {
   sub: string
   email?: string
+  given_name?: string
+  family_name?: string
+  name?: string
   'cognito:groups'?: string[] | string;
   aud?: string
   iss?: string
@@ -67,6 +70,8 @@ export interface IAuthenticatedUser {
   id: string
   dbUserId?: string
   identifier: string
+  firstName?: string | null
+  lastName?: string | null
   email: string
   groups: string[]
   accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"

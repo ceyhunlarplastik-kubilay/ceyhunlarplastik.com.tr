@@ -11,6 +11,8 @@ export type Supplier = {
         id: string
         email: string
         identifier: string
+        firstName?: string | null
+        lastName?: string | null
         groups?: string[]
     }>
     createdAt: string
