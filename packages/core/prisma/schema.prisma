@@ -43,6 +43,7 @@ model User {
   convertedCustomers                Customer[]                    @relation("CustomerConvertedBy")
   assignedPurchasingSuppliers       Supplier[]                    @relation("SupplierPurchasingAssignments")
   requestedBusinessRequests         BusinessRequest[]             @relation("BusinessRequestRequestedBy")
+  requestedOrders                   Order[]                       @relation("CustomerOrderRequestedBy")
   assignedBusinessRequestSteps      BusinessRequestApprovalStep[] @relation("BusinessRequestStepAssignedUser")
   decidedBusinessRequestSteps       BusinessRequestApprovalStep[] @relation("BusinessRequestStepDecidedBy")
   activityLogs                      ActivityLog[]                 @relation("ActivityLogActor")
@@ -250,6 +251,7 @@ model Customer {
   addresses        CustomerAddress[]
   visits           CustomerVisit[]
   businessRequests BusinessRequest[]
+  orders           Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -416,6 +418,7 @@ model ProductVariant {
   updatedAt        DateTime                 @updatedAt
   variantSuppliers ProductVariantSupplier[]
   requestItems     BusinessRequestItem[]
+  orderItems       OrderItem[]
 
   @@unique([productId, supplierCode, versionCode, variantIndex])
   @@index([productId])
@@ -558,6 +561,7 @@ model CustomerAddress {
 
   customerId String
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  shippingOrders Order[]
 
   label        String
   contactName  String?
@@ -708,6 +712,15 @@ enum BusinessRequestPriority {
   URGENT
 }
 
+enum OrderStatus {
+  APPROVED
+  IN_PRODUCTION
+  READY_TO_SHIP
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
 enum ApprovalRole {
   CUSTOMER
   SUPPLIER
@@ -757,6 +770,8 @@ model BusinessRequest {
   currentSnapshot   Json?
   completedSnapshot Json?
 
+  order Order?
+
   decidedAt   DateTime?
   completedAt DateTime?
   cancelledAt DateTime?
@@ -773,6 +788,77 @@ model BusinessRequest {
   @@index([requestedByUserId, createdAt])
   @@index([customerId, status, createdAt])
   @@index([supplierId, status, createdAt])
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  orderNumber String      @unique
+  status      OrderStatus @default(APPROVED)
+  title       String
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  requestedByUserId String?
+  requestedByUser   User?   @relation("CustomerOrderRequestedBy", fields: [requestedByUserId], references: [id], onDelete: SetNull)
+
+  sourceRequestId String?          @unique
+  sourceRequest   BusinessRequest? @relation(fields: [sourceRequestId], references: [id], onDelete: SetNull)
+
+  shippingAddressId       String?
+  shippingAddress         CustomerAddress? @relation(fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  shippingAddressLabel    String?
+  shippingAddressSnapshot Json?
+
+  referenceCode         String?
+  currency              String   @default("TRY")
+  totalQuantity         Int      @default(0)
+  discountPercent       Decimal? @db.Decimal(5, 2)
+  listSubtotal          Decimal? @db.Decimal(12, 2)
+  customerSubtotal      Decimal? @db.Decimal(12, 2)
+  requestedDeliveryDate DateTime?
+  paymentTermDays       Int?
+  paymentTermNote       String?  @db.Text
+  commercialNote        String?  @db.Text
+  negotiationNote       String?  @db.Text
+  approvedFromRequestAt DateTime?
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId, createdAt])
+  @@index([status, createdAt])
+  @@index([requestedByUserId, createdAt])
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  orderId String
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productVariantId String?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: SetNull)
+
+  quantity          Int      @default(1)
+  listUnitPrice     Decimal? @db.Decimal(12, 2)
+  customerUnitPrice Decimal? @db.Decimal(12, 2)
+  listLineTotal     Decimal? @db.Decimal(12, 2)
+  customerLineTotal Decimal? @db.Decimal(12, 2)
+  currency          String   @default("TRY")
+  note              String?  @db.Text
+  data              Json?
+
+  displayOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId, displayOrder])
+  @@index([productVariantId])
 }
 
 model BusinessRequestItem {

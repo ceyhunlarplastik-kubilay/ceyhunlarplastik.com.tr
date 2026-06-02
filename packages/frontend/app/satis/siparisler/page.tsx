@@ -1,11 +1,11 @@
-import { BusinessRequestOrdersPageClient } from "@/features/businessRequests/components/BusinessRequestOrdersPageClient"
+import { OrdersPageClient } from "@/features/orders/components/OrdersPageClient"
 
 export default function SalesOrdersPage() {
     return (
-        <BusinessRequestOrdersPageClient
+        <OrdersPageClient
             scope="sales"
             title="Siparişler"
-            description="Atanmış müşterilerinizden gelen sipariş taleplerini ve pazarlık notlarını tek ekranda takip edin."
+            description="Atanmış müşterileriniz için onaylanmış siparişleri, terminleri ve toplamları tek ekranda takip edin."
         />
     )
 }

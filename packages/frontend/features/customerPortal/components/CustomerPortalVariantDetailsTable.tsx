@@ -1,10 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { motion } from "motion/react"
 import { toast } from "sonner"
-import { CalendarClock, Plus, ShoppingCart, Tags } from "lucide-react"
+import { Plus, ShoppingCart, Tags } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,19 +21,26 @@ import type {
     VariantTableData,
 } from "@/features/public/products/components/ProductVariantTable"
 import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { CustomerPortalVariantFilters } from "@/features/customerPortal/components/CustomerPortalVariantFilters"
+import {
+    buildVariantFilterDefaultValues,
+    countActiveVariantFilters,
+    normalizeVariantPriceRange,
+    type AppliedVariantFilters,
+} from "@/features/customerPortal/schema/customerPortalVariantFilters"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { formatMoney, resolveCustomerDiscountedPrice } from "@/lib/customers/pricing"
 
 interface Props {
     variants: VariantTableData[]
     selectedMeasurements: VariantMeasurement[]
-    technicalDrawing?: React.ReactNode
     productName: string
     productId: string
     productSlug: string
     productCode: string
     categoryName?: string
     customerDiscountPercent?: number | null
+    productImageUrl?: string | null
 }
 
 function decimalLikeToText(
@@ -85,20 +92,31 @@ function formatPriceDate(value: string | null | undefined) {
     }).format(date)
 }
 
+function toPriceBound(value: number) {
+    return Number(value.toFixed(2))
+}
+
+type PreparedVariant = {
+    variant: VariantTableData
+    minListPrice: ReturnType<typeof resolveMinListPrice>
+}
+
 export function CustomerPortalVariantDetailsTable({
     variants,
     selectedMeasurements,
-    technicalDrawing,
     productName,
     productId,
     productSlug,
     productCode,
     categoryName,
     customerDiscountPercent,
+    productImageUrl,
 }: Props) {
+    const lastAppliedBoundsKeyRef = useRef<string | null>(null)
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
     const totalDraftItems = usePortalRequestDraftStore((state) => state.items.length)
     const [quantityByVariantId, setQuantityByVariantId] = useState<Record<string, string>>({})
+    const [refreshKey, setRefreshKey] = useState(0)
     const measurementColumns = Array.from(
         variants
             .flatMap((variant) => variant.measurements)
@@ -108,6 +126,52 @@ export function CustomerPortalVariantDetailsTable({
             }, new Map<string, VariantMeasurement["measurementType"]>())
             .values(),
     ).sort((a, b) => a.displayOrder - b.displayOrder)
+    const preparedVariants = useMemo<PreparedVariant[]>(
+        () =>
+            variants.map((variant) => ({
+                variant,
+                minListPrice: resolveMinListPrice(variant),
+            })),
+        [variants],
+    )
+    const priceCurrencies = useMemo(
+        () =>
+            Array.from(
+                new Set(
+                    preparedVariants
+                        .map((item) => item.minListPrice?.currency)
+                        .filter((currency): currency is string => Boolean(currency)),
+                ),
+            ),
+        [preparedVariants],
+    )
+    const priceBounds = useMemo(() => {
+        if (priceCurrencies.length !== 1) return null
+
+        const pricedValues = preparedVariants
+            .map((item) => item.minListPrice?.value)
+            .filter((value): value is number => Number.isFinite(value))
+
+        if (pricedValues.length === 0) return null
+
+        return {
+            min: toPriceBound(Math.min(...pricedValues)),
+            max: toPriceBound(Math.max(...pricedValues)),
+            currency: priceCurrencies[0] ?? "TRY",
+        }
+    }, [preparedVariants, priceCurrencies])
+    const priceBoundsKey = `${priceBounds?.currency ?? "none"}:${priceBounds?.min ?? "none"}:${priceBounds?.max ?? "none"}`
+    const [appliedFilters, setAppliedFilters] = useState<AppliedVariantFilters>(() => {
+        const defaults = buildVariantFilterDefaultValues(null)
+        const range = normalizeVariantPriceRange(defaults, null)
+
+        return {
+            colorIds: defaults.colorIds,
+            materialIds: defaults.materialIds,
+            minPrice: range.minPrice,
+            maxPrice: range.maxPrice,
+        }
+    })
     const totalQuantity = useMemo(
         () =>
             Object.values(quantityByVariantId)
@@ -116,6 +180,87 @@ export function CustomerPortalVariantDetailsTable({
                 .reduce((sum, value) => sum + value, 0),
         [quantityByVariantId],
     )
+    const colorOptions = useMemo(() => {
+        const counts = new Map<string, { id: string; label: string; count: number; hex?: string | null }>()
+
+        for (const { variant } of preparedVariants) {
+            if (!variant.color) continue
+
+            const current = counts.get(variant.color.id)
+            counts.set(variant.color.id, {
+                id: variant.color.id,
+                label: variant.color.name,
+                count: (current?.count ?? 0) + 1,
+                hex: variant.color.hex ?? null,
+            })
+        }
+
+        return Array.from(counts.values()).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "tr"))
+    }, [preparedVariants])
+    const materialOptions = useMemo(() => {
+        const counts = new Map<string, { id: string; label: string; count: number }>()
+
+        for (const { variant } of preparedVariants) {
+            for (const material of variant.materials) {
+                const current = counts.get(material.id)
+                counts.set(material.id, {
+                    id: material.id,
+                    label: material.code ? `${material.name} (${material.code})` : material.name,
+                    count: (current?.count ?? 0) + 1,
+                })
+            }
+        }
+
+        return Array.from(counts.values()).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, "tr"))
+    }, [preparedVariants])
+    const filteredVariants = useMemo(() => {
+        return preparedVariants.filter(({ variant, minListPrice }) => {
+            if (
+                appliedFilters.colorIds.length > 0 &&
+                (!variant.color || !appliedFilters.colorIds.includes(variant.color.id))
+            ) {
+                return false
+            }
+
+            if (
+                appliedFilters.materialIds.length > 0 &&
+                !variant.materials.some((material) => appliedFilters.materialIds.includes(material.id))
+            ) {
+                return false
+            }
+
+            if (
+                priceBounds &&
+                appliedFilters.minPrice !== null &&
+                appliedFilters.maxPrice !== null
+            ) {
+                if (!minListPrice) return false
+                if (minListPrice.value < appliedFilters.minPrice || minListPrice.value > appliedFilters.maxPrice) {
+                    return false
+                }
+            }
+
+            return true
+        })
+    }, [appliedFilters, preparedVariants, priceBounds])
+    const activeFilterCount = useMemo(
+        () => countActiveVariantFilters(appliedFilters, priceBounds),
+        [appliedFilters, priceBounds],
+    )
+
+    useEffect(() => {
+        if (lastAppliedBoundsKeyRef.current === priceBoundsKey) return
+        lastAppliedBoundsKeyRef.current = priceBoundsKey
+        const defaults = buildVariantFilterDefaultValues(priceBounds)
+        const range = normalizeVariantPriceRange(defaults, priceBounds)
+
+        setAppliedFilters({
+            colorIds: defaults.colorIds,
+            materialIds: defaults.materialIds,
+            minPrice: range.minPrice,
+            maxPrice: range.maxPrice,
+        })
+    }, [priceBoundsKey])
 
     function resolveQuantity(variantId: string) {
         const raw = Number(quantityByVariantId[variantId] ?? "1")
@@ -132,6 +277,7 @@ export function CustomerPortalVariantDetailsTable({
             productSlug,
             productName,
             productCode,
+            productImageUrl,
             variantId: variant.id,
             variantName: variant.name,
             variantKey: selectedMeasurements.map((measurement) => `${measurement.measurementType.code}:${measurement.value}`).join("|"),
@@ -145,6 +291,11 @@ export function CustomerPortalVariantDetailsTable({
             customerNote: "",
         })
         toast.success("Varyant talep taslağına eklendi.")
+    }
+
+    function handleApplyFilters(filters: AppliedVariantFilters) {
+        setAppliedFilters(filters)
+        setRefreshKey((current) => current + 1)
     }
 
     return (
@@ -170,67 +321,29 @@ export function CustomerPortalVariantDetailsTable({
                         <Badge variant="secondary">{totalDraftItems} kalem</Badge>
                         {totalQuantity > 0 ? <Badge variant="outline">Bu ekranda seçilen: {totalQuantity}</Badge> : null}
                         <Button asChild variant="outline">
-                            <Link href="/musteri/talepler?composeType=CUSTOMER_ORDER_REQUEST&draft=open">
+                            <Link href="/musteri/talepler/siparis-talebi">
                                 Sepete Git
                             </Link>
                         </Button>
                     </div>
                 </div>
+            </motion.div>
 
-                <div className="mb-4 grid gap-3 md:grid-cols-3">
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-                        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
-                            <Tags className="h-3.5 w-3.5" />
-                            Uygun Varyant
-                        </div>
-                        <div className="mt-2 text-2xl font-semibold text-neutral-950">{variants.length}</div>
-                    </div>
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-                        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
-                            <ShoppingCart className="h-3.5 w-3.5" />
-                            Taslak Kalemi
-                        </div>
-                        <div className="mt-2 text-2xl font-semibold text-neutral-950">{totalDraftItems}</div>
-                    </div>
-                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-                        <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
-                            <CalendarClock className="h-3.5 w-3.5" />
-                            Fiyat Takibi
-                        </div>
-                        <div className="mt-2 text-sm font-medium leading-6 text-neutral-700">
-                            Liste fiyatı gösterilen supplier kaydının son fiyat güncellemesi tabloda ayrıca görünür.
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-                    <div>
-                        <p className="mb-3 text-sm font-medium text-neutral-700">Seçilen Ölçü</p>
-                        <div className="flex flex-col items-start gap-2">
-                            {selectedMeasurements.length === 0 ? (
-                                <p className="text-sm text-neutral-400">Geçerli bir ölçü seçimi bulunamadı.</p>
-                            ) : (
-                                selectedMeasurements.map((measurement) => (
-                                    <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-left">
-                                        {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
-                                        {formatMeasurementValue(measurement)}
-                                        {measurement.measurementType.baseUnit &&
-                                            measurement.measurementType.code !== "D" &&
-                                            measurement.measurementType.code !== "M"
-                                            ? ` ${measurement.measurementType.baseUnit}`
-                                            : ""}
-                                    </Badge>
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="min-w-0 overflow-hidden rounded-lg border border-neutral-200 p-2">
-                        {technicalDrawing ?? (
-                            <p className="p-2 text-sm text-neutral-400">Teknik çizim bulunamadı.</p>
-                        )}
-                    </div>
-                </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.28, delay: 0.04 }}
+            >
+                <CustomerPortalVariantFilters
+                    colorOptions={colorOptions}
+                    materialOptions={materialOptions}
+                    priceBounds={priceBounds}
+                    hasMixedPriceCurrencies={priceCurrencies.length > 1}
+                    activeFilterCount={activeFilterCount}
+                    visibleCount={filteredVariants.length}
+                    totalCount={preparedVariants.length}
+                    onApply={handleApplyFilters}
+                />
             </motion.div>
 
             <motion.div
@@ -240,22 +353,49 @@ export function CustomerPortalVariantDetailsTable({
                 className="overflow-hidden rounded-[24px] border border-neutral-200 bg-white shadow-sm"
             >
                 <div className="border-b border-neutral-100 px-4 py-3">
-                    <h2 className="text-base font-semibold text-neutral-900">Varyantlar</h2>
-                    <p className="mt-1 text-sm text-neutral-500">
-                        {categoryName
-                            ? `${categoryName} kategorisindeki ${productName} için ölçüye uygun varyantlar ve satış fiyatları aşağıda listelenir.`
-                            : `${productName} için ölçüye uygun varyantlar ve satış fiyatları aşağıda listelenir.`}
-                    </p>
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <h2 className="text-base font-semibold text-neutral-900">Varyantlar</h2>
+                            <p className="mt-1 text-sm text-neutral-500">
+                                {categoryName
+                                    ? `${categoryName} kategorisindeki ${productName} için ölçüye uygun varyantlar ve satış fiyatları aşağıda listelenir.`
+                                    : `${productName} için ölçüye uygun varyantlar ve satış fiyatları aşağıda listelenir.`}
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="secondary">{filteredVariants.length} görünen varyant</Badge>
+                            {activeFilterCount > 0 ? <Badge variant="outline">{activeFilterCount} filtre aktif</Badge> : null}
+                        </div>
+                    </div>
                 </div>
 
                 {variants.length === 0 ? (
                     <div className="p-4 text-sm text-neutral-400">Bu ölçü için varyant bulunamadı.</div>
+                ) : filteredVariants.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center gap-4 px-4 py-14 text-center">
+                        <div className="rounded-full border border-neutral-200 bg-neutral-50 p-4 text-neutral-600 shadow-sm">
+                            <Tags className="h-6 w-6" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-base font-semibold text-neutral-900">Filtreyle eslesen varyant bulunamadi</h3>
+                            <p className="max-w-xl text-sm leading-6 text-neutral-500">
+                                Seçili renk, ham madde veya fiyat aralığına uyan varyant yok. Filtreleri sıfırlayarak tüm uygun varyantları yeniden görebilirsiniz.
+                            </p>
+                        </div>
+                        <Badge variant="outline">Filtre panelinden sıfırlama yapabilirsiniz</Badge>
+                    </div>
                 ) : (
-                    <div className="overflow-x-auto">
+                    <motion.div
+                        key={refreshKey}
+                        initial={{ opacity: 0.72, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.22, ease: "easeOut" }}
+                        className="overflow-x-auto"
+                    >
                         <Table className="min-w-[1120px]">
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Full Code</TableHead>
+                                    <TableHead>Ürün Kodu</TableHead>
                                     {measurementColumns.map((column) => (
                                         <TableHead key={column.id}>
                                             {column.name} ({column.code})
@@ -270,8 +410,7 @@ export function CustomerPortalVariantDetailsTable({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {variants.map((variant, index) => {
-                                    const minListPrice = resolveMinListPrice(variant)
+                                {filteredVariants.map(({ variant, minListPrice }, index) => {
                                     const discountedPricing = resolveCustomerDiscountedPrice(minListPrice?.value, customerDiscountPercent)
 
                                     return (
@@ -405,7 +544,7 @@ export function CustomerPortalVariantDetailsTable({
                                 })}
                             </TableBody>
                         </Table>
-                    </div>
+                    </motion.div>
                 )}
             </motion.div>
         </div>

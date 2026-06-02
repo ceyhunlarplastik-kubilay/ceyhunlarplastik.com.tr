@@ -12,6 +12,7 @@ import {
     ClipboardList,
     LayoutDashboard,
     Menu,
+    PackageCheck,
     PackageSearch,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
@@ -25,14 +26,15 @@ const items = [
     { href: "/musteri/tanimli-urunler", label: "İlgili Ürünler", icon: BookMarked },
     { href: "/musteri/musteriye-tanimli-urunler", label: "Tanımlı Ürünler", icon: Boxes },
     { href: "/musteri/tum-urunler", label: "Tüm Ürünler", icon: PackageSearch },
+    { href: "/musteri/siparisler", label: "Siparişlerim", icon: PackageCheck },
     { href: "/musteri/talepler", label: "Taleplerim", icon: ClipboardList },
 ]
 
 const quickRequestItems = [
-    { href: "/musteri/talepler?composeType=CUSTOMER_PROFILE_CHANGE", label: "Profil" },
-    { href: "/musteri/talepler?composeType=CUSTOMER_ORDER_REQUEST&draft=open", label: "Sipariş" },
-    { href: "/musteri/talepler?composeType=CUSTOMER_DOCUMENT_REQUEST", label: "Döküman" },
-    { href: "/musteri/talepler?composeType=CUSTOMER_PRICING_REQUEST&draft=open", label: "Fiyat" },
+    { href: "/musteri/talepler/profil-degisikligi", label: "Profil" },
+    { href: "/musteri/talepler/siparis-talebi", label: "Sipariş" },
+    { href: "/musteri/talepler/dokuman-talebi", label: "Döküman" },
+    { href: "/musteri/talepler/fiyat-talebi", label: "Fiyat" },
 ]
 
 function NavItem({

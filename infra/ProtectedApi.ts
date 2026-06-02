@@ -259,6 +259,16 @@ protectedApi.route('POST /sales/customers/{id}/convert', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /portal/customer/orders', {
+    handler: `${folderPrefix}/orders/actions.listPortalOrders`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/orders', {
+    handler: `${folderPrefix}/orders/actions.listSalesOrders`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/customers/{id}/featured-products', {
     handler: `${folderPrefix}/crm/actions.listManagedCustomerFeaturedProducts`,
     ...defaultRouteOptions

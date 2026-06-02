@@ -229,6 +229,11 @@ adminApi.route("DELETE /customers/{id}/visits/{visitId}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /orders", {
+    handler: `${folderPrefix}/orders/actions.listOrders`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /approval-requests", {
     handler: `${folderPrefix}/businessRequests/actions.listBusinessRequests`,
     ...defaultRouteOptions,

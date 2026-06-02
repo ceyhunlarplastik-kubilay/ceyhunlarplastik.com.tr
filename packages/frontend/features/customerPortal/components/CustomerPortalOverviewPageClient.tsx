@@ -82,7 +82,8 @@ export function CustomerPortalOverviewPageClient() {
                 <div className="grid gap-5 xl:grid-cols-2">
                     <CustomerContactCarousel
                         contacts={customerContacts}
-                        eyebrow="Portal İletişimi"
+                        /* eyebrow="Portal İletişimi" */
+                        eyebrow="Müşteri İletişim Kişileri"
                         icon={UserRound}
                     />
                     <UserContactCard

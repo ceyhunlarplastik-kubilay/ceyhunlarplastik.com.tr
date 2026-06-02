@@ -152,6 +152,16 @@ export type ProductVariantSupplier = Prisma.ProductVariantSupplierModel
  */
 export type BusinessRequest = Prisma.BusinessRequestModel
 /**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel
+/**
  * Model BusinessRequestItem
  * 
  */

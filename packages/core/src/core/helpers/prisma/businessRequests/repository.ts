@@ -16,7 +16,12 @@ export const businessRequestInclude = {
             id: true,
             fullName: true,
             companyName: true,
+            email: true,
+            phone: true,
             assignedSalesUserId: true,
+            generalDiscountPercent: true,
+            defaultPaymentTermDays: true,
+            paymentTermNote: true,
             assignedSalesUser: {
                 select: {
                     id: true,

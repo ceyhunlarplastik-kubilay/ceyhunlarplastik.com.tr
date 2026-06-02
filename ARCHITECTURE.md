@@ -224,6 +224,16 @@ Current operational limitation:
 Customer-facing operational requests are now modeled separately from profile/catalog data.
 Portal-originated order, document, pricing, and profile-change intents should go through the generic `BusinessRequest` workflow engine instead of mutating domain records directly from the portal UI.
 
+Customer portal request creation is intentionally type-specific at the UI layer:
+- `Taleplerim` is the historical list surface
+- create routes under `/musteri/talepler/*` can diverge visually by request type while preserving the same backend request contract
+- item-based request types such as order and pricing should not be forced into the same layout when their review experience differs
+
+Customer portal cart visibility is treated as part of portal chrome, not as an ad hoc overlay:
+- desktop customer layouts can surface the cart summary in the topbar action area
+- mobile customer layouts can use a safe-area-aware sticky bottom bar
+- the cart preview data in the portal draft store may include client-only preview fields such as product image URLs, but these should not be forwarded into backend request payloads
+
 ### Sales and purchasing role topology
 The application now treats `sales_director` as a first-class business role between `sales` and `admin`.
 
@@ -273,6 +283,11 @@ Supplier-specific usage rules:
 - Review UIs should keep the diff-first presentation style by comparing `currentSnapshot` and `requestedData`.
   `business-request.completed`
 - EventBridge subscribers persist activity logs, user notifications, and workflow emails.
+
+Customer-specific request UX rules:
+- `CUSTOMER_ORDER_REQUEST` may use a checkout-style stacked draft preview above its form because line-item verification is the primary task
+- `CUSTOMER_PRICING_REQUEST` can continue using an item-based comparison layout, but it should remain separate from order request layout decisions
+- profile and document request forms should remain simpler non-cart flows even though they share the same `BusinessRequest` backbone
 
 This split is intentional:
 - EventBridge answers “what happened?”

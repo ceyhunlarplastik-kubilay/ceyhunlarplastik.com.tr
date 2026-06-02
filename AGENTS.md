@@ -180,6 +180,11 @@ If a client component starts handling multiple responsibilities, split it into s
 - pagination
 - dialog/form
 
+For multi-flow feature surfaces such as request composers or workflow creation screens:
+- keep the container/orchestrator in one file
+- move type-specific UI into smaller internal feature components
+- do not keep large render trees for unrelated flows inside a single client component
+
 ### Tables
 - Prefer simple table composition for small static tables.
 - Prefer TanStack Table for complex operational tables with evolving requirements such as sorting, filtering, expansion, visibility control, or column-level behaviors.
@@ -397,6 +402,10 @@ Protected/admin UIs should feel operational and efficient:
 - reusable filters/toolbars
 - tables split from orchestration logic
 - review and approval screens should emphasize changed values first instead of dumping full before/after records
+
+Customer portal operational chrome should follow the same principle:
+- persistent cart or workflow state should live in layout/topbar/mobile chrome when it needs continuous visibility
+- avoid random floating overlays when the same state can be integrated into the panel shell more cleanly
 
 ### Animations
 Use `motion/react` sparingly and intentionally:

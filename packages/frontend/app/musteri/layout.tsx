@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth/auth"
 import { redirect } from "next/navigation"
 import { AdminTopbar } from "@/components/admin/AdminTopbar"
+import { CustomerPortalCartDock } from "@/features/customerPortal/components/CustomerPortalCartDock"
 import { CustomerPortalSidebar } from "@/features/customerPortal/components/CustomerPortalSidebar"
 
 export default async function CustomerPortalLayout({
@@ -37,14 +38,17 @@ export default async function CustomerPortalLayout({
                         email={session.user?.email}
                         image={session.user?.image}
                         groups={groups}
+                        actionSlot={<CustomerPortalCartDock mode="topbar" />}
                     />
                 </div>
 
-                <main className="flex-1 px-4 pb-5 pt-2 sm:px-5 sm:pb-6 sm:pt-3 md:px-6 md:pb-7 md:pt-3 lg:px-8 lg:pb-8 lg:pt-3">
+                <main className="flex-1 px-4 pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-2 sm:px-5 sm:pt-3 md:px-6 md:pb-7 md:pt-3 lg:px-8 lg:pb-8 lg:pt-3">
                     <section className="mx-auto w-full max-w-[124rem] min-w-0">
                         {children}
                     </section>
                 </main>
+
+                <CustomerPortalCartDock mode="mobile-sticky" />
             </div>
         </div>
     )

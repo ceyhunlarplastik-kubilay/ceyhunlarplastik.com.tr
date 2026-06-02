@@ -15,6 +15,7 @@ const httpErrorHandlerMiddleware = () => {
             console.error("Error Raw:", err);
         // Custom validation error
         if (isMiddyValidatorError(err)) {
+            console.error("Middy validator details:", JSON.stringify(err.cause.data, null, 2));
             const errors = err.cause.data.map((e) => {
                 let message = e.message;
                 let field = e.instancePath.replace(/\//g, ".").slice(1);

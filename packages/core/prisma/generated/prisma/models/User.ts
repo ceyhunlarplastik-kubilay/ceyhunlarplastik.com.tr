@@ -312,6 +312,7 @@ export type UserWhereInput = {
   convertedCustomers?: Prisma.CustomerListRelationFilter
   assignedPurchasingSuppliers?: Prisma.SupplierListRelationFilter
   requestedBusinessRequests?: Prisma.BusinessRequestListRelationFilter
+  requestedOrders?: Prisma.OrderListRelationFilter
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
@@ -350,6 +351,7 @@ export type UserOrderByWithRelationInput = {
   convertedCustomers?: Prisma.CustomerOrderByRelationAggregateInput
   assignedPurchasingSuppliers?: Prisma.SupplierOrderByRelationAggregateInput
   requestedBusinessRequests?: Prisma.BusinessRequestOrderByRelationAggregateInput
+  requestedOrders?: Prisma.OrderOrderByRelationAggregateInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepOrderByRelationAggregateInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepOrderByRelationAggregateInput
   activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
@@ -391,6 +393,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   convertedCustomers?: Prisma.CustomerListRelationFilter
   assignedPurchasingSuppliers?: Prisma.SupplierListRelationFilter
   requestedBusinessRequests?: Prisma.BusinessRequestListRelationFilter
+  requestedOrders?: Prisma.OrderListRelationFilter
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
@@ -481,6 +484,7 @@ export type UserCreateInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -517,6 +521,7 @@ export type UserUncheckedCreateInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -553,6 +558,7 @@ export type UserUpdateInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -589,6 +595,7 @@ export type UserUncheckedUpdateInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -1038,6 +1045,22 @@ export type UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRequestedBusinessRequestsInput, Prisma.UserUpdateWithoutRequestedBusinessRequestsInput>, Prisma.UserUncheckedUpdateWithoutRequestedBusinessRequestsInput>
 }
 
+export type UserCreateNestedOneWithoutRequestedOrdersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRequestedOrdersInput, Prisma.UserUncheckedCreateWithoutRequestedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRequestedOrdersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutRequestedOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRequestedOrdersInput, Prisma.UserUncheckedCreateWithoutRequestedOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRequestedOrdersInput
+  upsert?: Prisma.UserUpsertWithoutRequestedOrdersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRequestedOrdersInput, Prisma.UserUpdateWithoutRequestedOrdersInput>, Prisma.UserUncheckedUpdateWithoutRequestedOrdersInput>
+}
+
 export type UserCreateNestedOneWithoutAssignedBusinessRequestStepsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedBusinessRequestStepsInput, Prisma.UserUncheckedCreateWithoutAssignedBusinessRequestStepsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedBusinessRequestStepsInput
@@ -1112,6 +1135,7 @@ export type UserCreateWithoutNotificationsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -1147,6 +1171,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -1198,6 +1223,7 @@ export type UserUpdateWithoutNotificationsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -1233,6 +1259,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -1267,6 +1294,7 @@ export type UserCreateWithoutAssignedSalesCustomersInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -1302,6 +1330,7 @@ export type UserUncheckedCreateWithoutAssignedSalesCustomersInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -1342,6 +1371,7 @@ export type UserCreateWithoutConvertedCustomersInput = {
   assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -1377,6 +1407,7 @@ export type UserUncheckedCreateWithoutConvertedCustomersInput = {
   assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -1417,6 +1448,7 @@ export type UserCreateWithoutCustomerInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -1452,6 +1484,7 @@ export type UserUncheckedCreateWithoutCustomerInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -1508,6 +1541,7 @@ export type UserUpdateWithoutAssignedSalesCustomersInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -1543,6 +1577,7 @@ export type UserUncheckedUpdateWithoutAssignedSalesCustomersInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -1589,6 +1624,7 @@ export type UserUpdateWithoutConvertedCustomersInput = {
   assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -1624,6 +1660,7 @@ export type UserUncheckedUpdateWithoutConvertedCustomersInput = {
   assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -1702,6 +1739,7 @@ export type UserCreateWithoutAssignedPurchasingSuppliersInput = {
   assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -1737,6 +1775,7 @@ export type UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
   assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -1777,6 +1816,7 @@ export type UserCreateWithoutSupplierInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -1812,6 +1852,7 @@ export type UserUncheckedCreateWithoutSupplierInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -1890,6 +1931,7 @@ export type UserCreateWithoutCreatedCustomerFeaturedProductsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -1925,6 +1967,7 @@ export type UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -1976,6 +2019,7 @@ export type UserUpdateWithoutCreatedCustomerFeaturedProductsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -2011,6 +2055,7 @@ export type UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -2046,6 +2091,7 @@ export type UserCreateWithoutCreatedCustomerAssignedProductsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -2081,6 +2127,7 @@ export type UserUncheckedCreateWithoutCreatedCustomerAssignedProductsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -2132,6 +2179,7 @@ export type UserUpdateWithoutCreatedCustomerAssignedProductsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -2167,6 +2215,7 @@ export type UserUncheckedUpdateWithoutCreatedCustomerAssignedProductsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -2202,6 +2251,7 @@ export type UserCreateWithoutOwnedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -2237,6 +2287,7 @@ export type UserUncheckedCreateWithoutOwnedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -2277,6 +2328,7 @@ export type UserCreateWithoutCreatedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -2312,6 +2364,7 @@ export type UserUncheckedCreateWithoutCreatedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -2363,6 +2416,7 @@ export type UserUpdateWithoutOwnedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -2398,6 +2452,7 @@ export type UserUncheckedUpdateWithoutOwnedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -2444,6 +2499,7 @@ export type UserUpdateWithoutCreatedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -2479,6 +2535,7 @@ export type UserUncheckedUpdateWithoutCreatedCustomerVisitsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -2513,6 +2570,7 @@ export type UserCreateWithoutRequestedBusinessRequestsInput = {
   assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
@@ -2548,6 +2606,7 @@ export type UserUncheckedCreateWithoutRequestedBusinessRequestsInput = {
   assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
@@ -2599,6 +2658,7 @@ export type UserUpdateWithoutRequestedBusinessRequestsInput = {
   assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -2634,6 +2694,167 @@ export type UserUncheckedUpdateWithoutRequestedBusinessRequestsInput = {
   assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutRequestedOrdersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutRequestedOrdersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutRequestedOrdersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRequestedOrdersInput, Prisma.UserUncheckedCreateWithoutRequestedOrdersInput>
+}
+
+export type UserUpsertWithoutRequestedOrdersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRequestedOrdersInput, Prisma.UserUncheckedUpdateWithoutRequestedOrdersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRequestedOrdersInput, Prisma.UserUncheckedCreateWithoutRequestedOrdersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRequestedOrdersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRequestedOrdersInput, Prisma.UserUncheckedUpdateWithoutRequestedOrdersInput>
+}
+
+export type UserUpdateWithoutRequestedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRequestedOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -2670,6 +2891,7 @@ export type UserCreateWithoutAssignedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
@@ -2705,6 +2927,7 @@ export type UserUncheckedCreateWithoutAssignedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -2745,6 +2968,7 @@ export type UserCreateWithoutDecidedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
@@ -2780,6 +3004,7 @@ export type UserUncheckedCreateWithoutDecidedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -2831,6 +3056,7 @@ export type UserUpdateWithoutAssignedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
@@ -2866,6 +3092,7 @@ export type UserUncheckedUpdateWithoutAssignedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -2912,6 +3139,7 @@ export type UserUpdateWithoutDecidedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
@@ -2947,6 +3175,7 @@ export type UserUncheckedUpdateWithoutDecidedBusinessRequestStepsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -2982,6 +3211,7 @@ export type UserCreateWithoutActivityLogsInput = {
   convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
@@ -3017,6 +3247,7 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -3068,6 +3299,7 @@ export type UserUpdateWithoutActivityLogsInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
@@ -3103,6 +3335,7 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -3160,6 +3393,7 @@ export type UserUpdateWithoutCustomerInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -3195,6 +3429,7 @@ export type UserUncheckedUpdateWithoutCustomerInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -3276,6 +3511,7 @@ export type UserUpdateWithoutAssignedPurchasingSuppliersInput = {
   assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -3311,6 +3547,7 @@ export type UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
   assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -3370,6 +3607,7 @@ export type UserUpdateWithoutSupplierInput = {
   convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
@@ -3405,6 +3643,7 @@ export type UserUncheckedUpdateWithoutSupplierInput = {
   convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
   assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
   requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
@@ -3448,6 +3687,7 @@ export type UserCountOutputType = {
   convertedCustomers: number
   assignedPurchasingSuppliers: number
   requestedBusinessRequests: number
+  requestedOrders: number
   assignedBusinessRequestSteps: number
   decidedBusinessRequestSteps: number
   activityLogs: number
@@ -3463,6 +3703,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   convertedCustomers?: boolean | UserCountOutputTypeCountConvertedCustomersArgs
   assignedPurchasingSuppliers?: boolean | UserCountOutputTypeCountAssignedPurchasingSuppliersArgs
   requestedBusinessRequests?: boolean | UserCountOutputTypeCountRequestedBusinessRequestsArgs
+  requestedOrders?: boolean | UserCountOutputTypeCountRequestedOrdersArgs
   assignedBusinessRequestSteps?: boolean | UserCountOutputTypeCountAssignedBusinessRequestStepsArgs
   decidedBusinessRequestSteps?: boolean | UserCountOutputTypeCountDecidedBusinessRequestStepsArgs
   activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
@@ -3509,6 +3750,13 @@ export type UserCountOutputTypeCountAssignedPurchasingSuppliersArgs<ExtArgs exte
  */
 export type UserCountOutputTypeCountRequestedBusinessRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BusinessRequestWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRequestedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
 }
 
 /**
@@ -3596,6 +3844,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   convertedCustomers?: boolean | Prisma.User$convertedCustomersArgs<ExtArgs>
   assignedPurchasingSuppliers?: boolean | Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs>
   requestedBusinessRequests?: boolean | Prisma.User$requestedBusinessRequestsArgs<ExtArgs>
+  requestedOrders?: boolean | Prisma.User$requestedOrdersArgs<ExtArgs>
   assignedBusinessRequestSteps?: boolean | Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs>
   decidedBusinessRequestSteps?: boolean | Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
@@ -3691,6 +3940,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   convertedCustomers?: boolean | Prisma.User$convertedCustomersArgs<ExtArgs>
   assignedPurchasingSuppliers?: boolean | Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs>
   requestedBusinessRequests?: boolean | Prisma.User$requestedBusinessRequestsArgs<ExtArgs>
+  requestedOrders?: boolean | Prisma.User$requestedOrdersArgs<ExtArgs>
   assignedBusinessRequestSteps?: boolean | Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs>
   decidedBusinessRequestSteps?: boolean | Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
@@ -3719,6 +3969,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     convertedCustomers: Prisma.$CustomerPayload<ExtArgs>[]
     assignedPurchasingSuppliers: Prisma.$SupplierPayload<ExtArgs>[]
     requestedBusinessRequests: Prisma.$BusinessRequestPayload<ExtArgs>[]
+    requestedOrders: Prisma.$OrderPayload<ExtArgs>[]
     assignedBusinessRequestSteps: Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>[]
     decidedBusinessRequestSteps: Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>[]
     activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
@@ -4150,6 +4401,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   convertedCustomers<T extends Prisma.User$convertedCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$convertedCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedPurchasingSuppliers<T extends Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedPurchasingSuppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   requestedBusinessRequests<T extends Prisma.User$requestedBusinessRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$requestedBusinessRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  requestedOrders<T extends Prisma.User$requestedOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$requestedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedBusinessRequestSteps<T extends Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   decidedBusinessRequestSteps<T extends Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activityLogs<T extends Prisma.User$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4740,6 +4992,30 @@ export type User$requestedBusinessRequestsArgs<ExtArgs extends runtime.Types.Ext
   take?: number
   skip?: number
   distinct?: Prisma.BusinessRequestScalarFieldEnum | Prisma.BusinessRequestScalarFieldEnum[]
+}
+
+/**
+ * User.requestedOrders
+ */
+export type User$requestedOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
 }
 
 /**

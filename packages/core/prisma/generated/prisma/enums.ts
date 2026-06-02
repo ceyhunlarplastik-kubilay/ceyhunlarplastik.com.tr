@@ -157,6 +157,18 @@ export const BusinessRequestPriority = {
 export type BusinessRequestPriority = (typeof BusinessRequestPriority)[keyof typeof BusinessRequestPriority]
 
 
+export const OrderStatus = {
+  APPROVED: 'APPROVED',
+  IN_PRODUCTION: 'IN_PRODUCTION',
+  READY_TO_SHIP: 'READY_TO_SHIP',
+  SHIPPED: 'SHIPPED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+
+
 export const ApprovalRole = {
   CUSTOMER: 'CUSTOMER',
   SUPPLIER: 'SUPPLIER',

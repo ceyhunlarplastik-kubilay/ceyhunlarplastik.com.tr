@@ -41,8 +41,9 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     ] */
     runtime: 'nodejs22.x',
     vpc: vpc,
-    link: [rds],
+    link: [rds, publicBucket],
     environment: {
+        BUCKET_NAME: publicBucket.name,
         ASSET_PUBLIC_BASE_URL:
             $app.stage === "prod"
                 ? `https://cdn.${config.DOMAIN}`

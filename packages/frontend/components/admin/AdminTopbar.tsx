@@ -7,6 +7,7 @@ type Props = {
     email?: string | null
     image?: string | null
     groups?: string[]
+    actionSlot?: React.ReactNode
 }
 
 export function AdminTopbar({
@@ -16,6 +17,7 @@ export function AdminTopbar({
     email,
     image,
     groups = [],
+    actionSlot,
 }: Props) {
     return (
         <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl">
@@ -29,12 +31,15 @@ export function AdminTopbar({
                     </h1>
                 </div>
 
-                <AdminUserMenu
-                    name={name}
-                    email={email}
-                    image={image}
-                    groups={groups}
-                />
+                <div className="flex items-center gap-3">
+                    {actionSlot}
+                    <AdminUserMenu
+                        name={name}
+                        email={email}
+                        image={image}
+                        groups={groups}
+                    />
+                </div>
             </div>
         </header>
     )

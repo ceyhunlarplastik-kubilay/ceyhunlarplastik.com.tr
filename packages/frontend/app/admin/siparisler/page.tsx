@@ -1,11 +1,11 @@
-import { BusinessRequestOrdersPageClient } from "@/features/businessRequests/components/BusinessRequestOrdersPageClient"
+import { OrdersPageClient } from "@/features/orders/components/OrdersPageClient"
 
 export default function AdminOrdersPage() {
     return (
-        <BusinessRequestOrdersPageClient
+        <OrdersPageClient
             scope="admin"
             title="Siparişler"
-            description="Müşteri portalından açılan sipariş taleplerini firma, durum ve tarihe göre inceleyin."
+            description="Onaylanmış siparişleri müşteri, durum ve ticari özetleriyle birlikte operasyonel olarak takip edin."
         />
     )
 }

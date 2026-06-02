@@ -8,6 +8,7 @@ export type PortalRequestDraftItem = {
     productSlug: string
     productName: string
     productCode: string
+    productImageUrl?: string | null
     variantId: string
     variantName?: string
     variantKey: string
@@ -115,7 +116,7 @@ export const usePortalRequestDraftStore = create<PortalRequestDraftState>()(
             clear: () => set({ items: [] }),
         }),
         {
-            name: "customer-portal-request-draft-v3",
+            name: "customer-portal-request-draft-v4",
             storage: createJSONStorage(() => localStorage),
         },
     ),

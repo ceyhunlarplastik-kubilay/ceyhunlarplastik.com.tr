@@ -73,6 +73,8 @@ export const ModelName = {
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
   BusinessRequest: 'BusinessRequest',
+  Order: 'Order',
+  OrderItem: 'OrderItem',
   BusinessRequestItem: 'BusinessRequestItem',
   BusinessRequestApprovalStep: 'BusinessRequestApprovalStep',
   ActivityLog: 'ActivityLog',
@@ -512,6 +514,56 @@ export const BusinessRequestScalarFieldEnum = {
 } as const
 
 export type BusinessRequestScalarFieldEnum = (typeof BusinessRequestScalarFieldEnum)[keyof typeof BusinessRequestScalarFieldEnum]
+
+
+export const OrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  status: 'status',
+  title: 'title',
+  customerId: 'customerId',
+  requestedByUserId: 'requestedByUserId',
+  sourceRequestId: 'sourceRequestId',
+  shippingAddressId: 'shippingAddressId',
+  shippingAddressLabel: 'shippingAddressLabel',
+  shippingAddressSnapshot: 'shippingAddressSnapshot',
+  referenceCode: 'referenceCode',
+  currency: 'currency',
+  totalQuantity: 'totalQuantity',
+  discountPercent: 'discountPercent',
+  listSubtotal: 'listSubtotal',
+  customerSubtotal: 'customerSubtotal',
+  requestedDeliveryDate: 'requestedDeliveryDate',
+  paymentTermDays: 'paymentTermDays',
+  paymentTermNote: 'paymentTermNote',
+  commercialNote: 'commercialNote',
+  negotiationNote: 'negotiationNote',
+  approvedFromRequestAt: 'approvedFromRequestAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productVariantId: 'productVariantId',
+  quantity: 'quantity',
+  listUnitPrice: 'listUnitPrice',
+  customerUnitPrice: 'customerUnitPrice',
+  listLineTotal: 'listLineTotal',
+  customerLineTotal: 'customerLineTotal',
+  currency: 'currency',
+  note: 'note',
+  data: 'data',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
 export const BusinessRequestItemScalarFieldEnum = {

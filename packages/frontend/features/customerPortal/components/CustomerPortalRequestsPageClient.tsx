@@ -9,7 +9,6 @@ import { useBusinessRequestFilters } from "@/features/businessRequests/hooks/use
 import { useBusinessRequests } from "@/features/businessRequests/hooks/useBusinessRequests"
 import { useDecideBusinessRequest } from "@/features/businessRequests/hooks/useDecideBusinessRequest"
 import { CUSTOMER_PORTAL_REQUEST_TYPES } from "@/features/businessRequests/config"
-import { CustomerPortalRequestComposer } from "@/features/customerPortal/components/CustomerPortalRequestComposer"
 import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 
 export function CustomerPortalRequestsPageClient() {
@@ -44,8 +43,8 @@ export function CustomerPortalRequestsPageClient() {
                 title="Taleplerim"
                 description={(
                     <>
-                        Sipariş, fiyat, profil değişikliği ve doküman taleplerinizi tek merkezden oluşturun.
-                        Tüm kayıtlar satış workflow’u üzerinden izlenir ve geçmişi burada görünür.
+                        Gönderdiğiniz sipariş, fiyat, profil değişikliği ve doküman taleplerini burada izleyin.
+                        Yeni talep girişleri sol menüdeki özel akışlardan açılır.
                     </>
                 )}
                 meta={[
@@ -72,9 +71,6 @@ export function CustomerPortalRequestsPageClient() {
                     </Button>
                 )}
             />
-
-            <CustomerPortalRequestComposer />
-
             <div className="space-y-4 rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
                     <span>Son güncelleme: {lastUpdatedLabel}</span>

@@ -317,6 +317,7 @@ export type BusinessRequestWhereInput = {
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   requestedByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   items?: Prisma.BusinessRequestItemListRelationFilter
   approvalSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
@@ -349,6 +350,7 @@ export type BusinessRequestOrderByWithRelationInput = {
   customer?: Prisma.CustomerOrderByWithRelationInput
   supplier?: Prisma.SupplierOrderByWithRelationInput
   requestedByUser?: Prisma.UserOrderByWithRelationInput
+  order?: Prisma.OrderOrderByWithRelationInput
   items?: Prisma.BusinessRequestItemOrderByRelationAggregateInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepOrderByRelationAggregateInput
   activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
@@ -384,6 +386,7 @@ export type BusinessRequestWhereUniqueInput = Prisma.AtLeast<{
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   requestedByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
   items?: Prisma.BusinessRequestItemListRelationFilter
   approvalSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
@@ -471,6 +474,7 @@ export type BusinessRequestCreateInput = {
   customer?: Prisma.CustomerCreateNestedOneWithoutBusinessRequestsInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBusinessRequestsInput
   requestedByUser: Prisma.UserCreateNestedOneWithoutRequestedBusinessRequestsInput
+  order?: Prisma.OrderCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutRequestInput
@@ -500,6 +504,7 @@ export type BusinessRequestUncheckedCreateInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutRequestInput
@@ -529,6 +534,7 @@ export type BusinessRequestUpdateInput = {
   customer?: Prisma.CustomerUpdateOneWithoutBusinessRequestsNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBusinessRequestsNestedInput
   requestedByUser?: Prisma.UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutRequestNestedInput
@@ -558,6 +564,7 @@ export type BusinessRequestUncheckedUpdateInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutRequestNestedInput
@@ -720,14 +727,14 @@ export type BusinessRequestMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type BusinessRequestScalarRelationFilter = {
-  is?: Prisma.BusinessRequestWhereInput
-  isNot?: Prisma.BusinessRequestWhereInput
-}
-
 export type BusinessRequestNullableScalarRelationFilter = {
   is?: Prisma.BusinessRequestWhereInput | null
   isNot?: Prisma.BusinessRequestWhereInput | null
+}
+
+export type BusinessRequestScalarRelationFilter = {
+  is?: Prisma.BusinessRequestWhereInput
+  isNot?: Prisma.BusinessRequestWhereInput
 }
 
 export type BusinessRequestCreateNestedManyWithoutRequestedByUserInput = {
@@ -880,6 +887,22 @@ export type EnumApprovalRoleFieldUpdateOperationsInput = {
   set?: $Enums.ApprovalRole
 }
 
+export type BusinessRequestCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.BusinessRequestCreateWithoutOrderInput, Prisma.BusinessRequestUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.BusinessRequestCreateOrConnectWithoutOrderInput
+  connect?: Prisma.BusinessRequestWhereUniqueInput
+}
+
+export type BusinessRequestUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessRequestCreateWithoutOrderInput, Prisma.BusinessRequestUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.BusinessRequestCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.BusinessRequestUpsertWithoutOrderInput
+  disconnect?: Prisma.BusinessRequestWhereInput | boolean
+  delete?: Prisma.BusinessRequestWhereInput | boolean
+  connect?: Prisma.BusinessRequestWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessRequestUpdateToOneWithWhereWithoutOrderInput, Prisma.BusinessRequestUpdateWithoutOrderInput>, Prisma.BusinessRequestUncheckedUpdateWithoutOrderInput>
+}
+
 export type BusinessRequestCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.BusinessRequestCreateWithoutItemsInput, Prisma.BusinessRequestUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.BusinessRequestCreateOrConnectWithoutItemsInput
@@ -947,6 +970,7 @@ export type BusinessRequestCreateWithoutRequestedByUserInput = {
   updatedAt?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBusinessRequestsInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBusinessRequestsInput
+  order?: Prisma.OrderCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutRequestInput
@@ -975,6 +999,7 @@ export type BusinessRequestUncheckedCreateWithoutRequestedByUserInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutRequestInput
@@ -1058,6 +1083,7 @@ export type BusinessRequestCreateWithoutCustomerInput = {
   updatedAt?: Date | string
   supplier?: Prisma.SupplierCreateNestedOneWithoutBusinessRequestsInput
   requestedByUser: Prisma.UserCreateNestedOneWithoutRequestedBusinessRequestsInput
+  order?: Prisma.OrderCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutRequestInput
@@ -1086,6 +1112,7 @@ export type BusinessRequestUncheckedCreateWithoutCustomerInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutRequestInput
@@ -1140,6 +1167,7 @@ export type BusinessRequestCreateWithoutSupplierInput = {
   updatedAt?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutBusinessRequestsInput
   requestedByUser: Prisma.UserCreateNestedOneWithoutRequestedBusinessRequestsInput
+  order?: Prisma.OrderCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutRequestInput
@@ -1168,6 +1196,7 @@ export type BusinessRequestUncheckedCreateWithoutSupplierInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutRequestInput
@@ -1199,6 +1228,138 @@ export type BusinessRequestUpdateManyWithWhereWithoutSupplierInput = {
   data: Prisma.XOR<Prisma.BusinessRequestUpdateManyMutationInput, Prisma.BusinessRequestUncheckedUpdateManyWithoutSupplierInput>
 }
 
+export type BusinessRequestCreateWithoutOrderInput = {
+  id?: string
+  domain: $Enums.BusinessRequestDomain
+  type: $Enums.BusinessRequestType
+  status?: $Enums.BusinessRequestStatus
+  priority?: $Enums.BusinessRequestPriority
+  title: string
+  description?: string | null
+  entityType?: $Enums.BusinessRequestEntityType | null
+  entityId?: string | null
+  requesterRole: $Enums.ApprovalRole
+  workflowExecutionArn?: string | null
+  workflowTaskToken?: string | null
+  requestedData: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  decidedAt?: Date | string | null
+  completedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer?: Prisma.CustomerCreateNestedOneWithoutBusinessRequestsInput
+  supplier?: Prisma.SupplierCreateNestedOneWithoutBusinessRequestsInput
+  requestedByUser: Prisma.UserCreateNestedOneWithoutRequestedBusinessRequestsInput
+  items?: Prisma.BusinessRequestItemCreateNestedManyWithoutRequestInput
+  approvalSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutRequestInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutRequestInput
+}
+
+export type BusinessRequestUncheckedCreateWithoutOrderInput = {
+  id?: string
+  domain: $Enums.BusinessRequestDomain
+  type: $Enums.BusinessRequestType
+  status?: $Enums.BusinessRequestStatus
+  priority?: $Enums.BusinessRequestPriority
+  title: string
+  description?: string | null
+  entityType?: $Enums.BusinessRequestEntityType | null
+  entityId?: string | null
+  customerId?: string | null
+  supplierId?: string | null
+  requestedByUserId: string
+  requesterRole: $Enums.ApprovalRole
+  workflowExecutionArn?: string | null
+  workflowTaskToken?: string | null
+  requestedData: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  decidedAt?: Date | string | null
+  completedAt?: Date | string | null
+  cancelledAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutRequestInput
+  approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutRequestInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutRequestInput
+}
+
+export type BusinessRequestCreateOrConnectWithoutOrderInput = {
+  where: Prisma.BusinessRequestWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessRequestCreateWithoutOrderInput, Prisma.BusinessRequestUncheckedCreateWithoutOrderInput>
+}
+
+export type BusinessRequestUpsertWithoutOrderInput = {
+  update: Prisma.XOR<Prisma.BusinessRequestUpdateWithoutOrderInput, Prisma.BusinessRequestUncheckedUpdateWithoutOrderInput>
+  create: Prisma.XOR<Prisma.BusinessRequestCreateWithoutOrderInput, Prisma.BusinessRequestUncheckedCreateWithoutOrderInput>
+  where?: Prisma.BusinessRequestWhereInput
+}
+
+export type BusinessRequestUpdateToOneWithWhereWithoutOrderInput = {
+  where?: Prisma.BusinessRequestWhereInput
+  data: Prisma.XOR<Prisma.BusinessRequestUpdateWithoutOrderInput, Prisma.BusinessRequestUncheckedUpdateWithoutOrderInput>
+}
+
+export type BusinessRequestUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.EnumBusinessRequestDomainFieldUpdateOperationsInput | $Enums.BusinessRequestDomain
+  type?: Prisma.EnumBusinessRequestTypeFieldUpdateOperationsInput | $Enums.BusinessRequestType
+  status?: Prisma.EnumBusinessRequestStatusFieldUpdateOperationsInput | $Enums.BusinessRequestStatus
+  priority?: Prisma.EnumBusinessRequestPriorityFieldUpdateOperationsInput | $Enums.BusinessRequestPriority
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityType?: Prisma.NullableEnumBusinessRequestEntityTypeFieldUpdateOperationsInput | $Enums.BusinessRequestEntityType | null
+  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requesterRole?: Prisma.EnumApprovalRoleFieldUpdateOperationsInput | $Enums.ApprovalRole
+  workflowExecutionArn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workflowTaskToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneWithoutBusinessRequestsNestedInput
+  supplier?: Prisma.SupplierUpdateOneWithoutBusinessRequestsNestedInput
+  requestedByUser?: Prisma.UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput
+  items?: Prisma.BusinessRequestItemUpdateManyWithoutRequestNestedInput
+  approvalSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutRequestNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutRequestNestedInput
+}
+
+export type BusinessRequestUncheckedUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  domain?: Prisma.EnumBusinessRequestDomainFieldUpdateOperationsInput | $Enums.BusinessRequestDomain
+  type?: Prisma.EnumBusinessRequestTypeFieldUpdateOperationsInput | $Enums.BusinessRequestType
+  status?: Prisma.EnumBusinessRequestStatusFieldUpdateOperationsInput | $Enums.BusinessRequestStatus
+  priority?: Prisma.EnumBusinessRequestPriorityFieldUpdateOperationsInput | $Enums.BusinessRequestPriority
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityType?: Prisma.NullableEnumBusinessRequestEntityTypeFieldUpdateOperationsInput | $Enums.BusinessRequestEntityType | null
+  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  requesterRole?: Prisma.EnumApprovalRoleFieldUpdateOperationsInput | $Enums.ApprovalRole
+  workflowExecutionArn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workflowTaskToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requestedData?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  currentSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  completedSnapshot?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  decidedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutRequestNestedInput
+  approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutRequestNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutRequestNestedInput
+}
+
 export type BusinessRequestCreateWithoutItemsInput = {
   id?: string
   domain: $Enums.BusinessRequestDomain
@@ -1223,6 +1384,7 @@ export type BusinessRequestCreateWithoutItemsInput = {
   customer?: Prisma.CustomerCreateNestedOneWithoutBusinessRequestsInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBusinessRequestsInput
   requestedByUser: Prisma.UserCreateNestedOneWithoutRequestedBusinessRequestsInput
+  order?: Prisma.OrderCreateNestedOneWithoutSourceRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutRequestInput
 }
@@ -1251,6 +1413,7 @@ export type BusinessRequestUncheckedCreateWithoutItemsInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutSourceRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutRequestInput
 }
@@ -1295,6 +1458,7 @@ export type BusinessRequestUpdateWithoutItemsInput = {
   customer?: Prisma.CustomerUpdateOneWithoutBusinessRequestsNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBusinessRequestsNestedInput
   requestedByUser?: Prisma.UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutSourceRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutRequestNestedInput
 }
@@ -1323,6 +1487,7 @@ export type BusinessRequestUncheckedUpdateWithoutItemsInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutSourceRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutRequestNestedInput
 }
@@ -1351,6 +1516,7 @@ export type BusinessRequestCreateWithoutApprovalStepsInput = {
   customer?: Prisma.CustomerCreateNestedOneWithoutBusinessRequestsInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBusinessRequestsInput
   requestedByUser: Prisma.UserCreateNestedOneWithoutRequestedBusinessRequestsInput
+  order?: Prisma.OrderCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutRequestInput
 }
@@ -1379,6 +1545,7 @@ export type BusinessRequestUncheckedCreateWithoutApprovalStepsInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutRequestInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutRequestInput
 }
@@ -1423,6 +1590,7 @@ export type BusinessRequestUpdateWithoutApprovalStepsInput = {
   customer?: Prisma.CustomerUpdateOneWithoutBusinessRequestsNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBusinessRequestsNestedInput
   requestedByUser?: Prisma.UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutRequestNestedInput
 }
@@ -1451,6 +1619,7 @@ export type BusinessRequestUncheckedUpdateWithoutApprovalStepsInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutRequestNestedInput
 }
@@ -1479,6 +1648,7 @@ export type BusinessRequestCreateWithoutActivityLogsInput = {
   customer?: Prisma.CustomerCreateNestedOneWithoutBusinessRequestsInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBusinessRequestsInput
   requestedByUser: Prisma.UserCreateNestedOneWithoutRequestedBusinessRequestsInput
+  order?: Prisma.OrderCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutRequestInput
 }
@@ -1507,6 +1677,7 @@ export type BusinessRequestUncheckedCreateWithoutActivityLogsInput = {
   cancelledAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutSourceRequestInput
   items?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutRequestInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutRequestInput
 }
@@ -1551,6 +1722,7 @@ export type BusinessRequestUpdateWithoutActivityLogsInput = {
   customer?: Prisma.CustomerUpdateOneWithoutBusinessRequestsNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBusinessRequestsNestedInput
   requestedByUser?: Prisma.UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutRequestNestedInput
 }
@@ -1579,6 +1751,7 @@ export type BusinessRequestUncheckedUpdateWithoutActivityLogsInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutRequestNestedInput
 }
@@ -1631,6 +1804,7 @@ export type BusinessRequestUpdateWithoutRequestedByUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBusinessRequestsNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBusinessRequestsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutRequestNestedInput
@@ -1659,6 +1833,7 @@ export type BusinessRequestUncheckedUpdateWithoutRequestedByUserInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutRequestNestedInput
@@ -1737,6 +1912,7 @@ export type BusinessRequestUpdateWithoutCustomerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneWithoutBusinessRequestsNestedInput
   requestedByUser?: Prisma.UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutRequestNestedInput
@@ -1765,6 +1941,7 @@ export type BusinessRequestUncheckedUpdateWithoutCustomerInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutRequestNestedInput
@@ -1843,6 +2020,7 @@ export type BusinessRequestUpdateWithoutSupplierInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutBusinessRequestsNestedInput
   requestedByUser?: Prisma.UserUpdateOneRequiredWithoutRequestedBusinessRequestsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutRequestNestedInput
@@ -1871,6 +2049,7 @@ export type BusinessRequestUncheckedUpdateWithoutSupplierInput = {
   cancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutSourceRequestNestedInput
   items?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutRequestNestedInput
   approvalSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutRequestNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutRequestNestedInput
@@ -1977,6 +2156,7 @@ export type BusinessRequestSelect<ExtArgs extends runtime.Types.Extensions.Inter
   customer?: boolean | Prisma.BusinessRequest$customerArgs<ExtArgs>
   supplier?: boolean | Prisma.BusinessRequest$supplierArgs<ExtArgs>
   requestedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.BusinessRequest$orderArgs<ExtArgs>
   items?: boolean | Prisma.BusinessRequest$itemsArgs<ExtArgs>
   approvalSteps?: boolean | Prisma.BusinessRequest$approvalStepsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.BusinessRequest$activityLogsArgs<ExtArgs>
@@ -2072,6 +2252,7 @@ export type BusinessRequestInclude<ExtArgs extends runtime.Types.Extensions.Inte
   customer?: boolean | Prisma.BusinessRequest$customerArgs<ExtArgs>
   supplier?: boolean | Prisma.BusinessRequest$supplierArgs<ExtArgs>
   requestedByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.BusinessRequest$orderArgs<ExtArgs>
   items?: boolean | Prisma.BusinessRequest$itemsArgs<ExtArgs>
   approvalSteps?: boolean | Prisma.BusinessRequest$approvalStepsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.BusinessRequest$activityLogsArgs<ExtArgs>
@@ -2094,6 +2275,7 @@ export type $BusinessRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     customer: Prisma.$CustomerPayload<ExtArgs> | null
     supplier: Prisma.$SupplierPayload<ExtArgs> | null
     requestedByUser: Prisma.$UserPayload<ExtArgs>
+    order: Prisma.$OrderPayload<ExtArgs> | null
     items: Prisma.$BusinessRequestItemPayload<ExtArgs>[]
     approvalSteps: Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>[]
     activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
@@ -2519,6 +2701,7 @@ export interface Prisma__BusinessRequestClient<T, Null = never, ExtArgs extends 
   customer<T extends Prisma.BusinessRequest$customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessRequest$customerArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supplier<T extends Prisma.BusinessRequest$supplierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessRequest$supplierArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   requestedByUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  order<T extends Prisma.BusinessRequest$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessRequest$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.BusinessRequest$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessRequest$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   approvalSteps<T extends Prisma.BusinessRequest$approvalStepsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessRequest$approvalStepsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activityLogs<T extends Prisma.BusinessRequest$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessRequest$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3010,6 +3193,25 @@ export type BusinessRequest$supplierArgs<ExtArgs extends runtime.Types.Extension
    */
   include?: Prisma.SupplierInclude<ExtArgs> | null
   where?: Prisma.SupplierWhereInput
+}
+
+/**
+ * BusinessRequest.order
+ */
+export type BusinessRequest$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
 }
 
 /**

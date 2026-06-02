@@ -4,6 +4,7 @@ import slugify from "slugify"
 import { prisma } from "@/core/db/prisma"
 import { businessRequestInclude, businessRequestRepository, type BusinessRequestApprovalStepWithRelations, type BusinessRequestWithRelations } from "@/core/helpers/prisma/businessRequests/repository"
 import type { CustomerDetail } from "@/core/helpers/prisma/customers/repository"
+import { createOrderFromApprovedCustomerRequestTx } from "@/core/helpers/orders/createOrderFromBusinessRequest"
 import type { ProductVariantSupplierWithRelations } from "@/core/helpers/prisma/productVariantSuppliers/repository"
 import type { SupplierWithRelations } from "@/core/helpers/prisma/suppliers/repository"
 import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/productVariantSupplier"
@@ -129,6 +130,11 @@ async function applyApprovedBusinessRequestTx(
     const requestedData = asRecord(request.requestedData)
 
     if (request.requesterRole === "CUSTOMER" && request.domain === "SALES") {
+        if (request.type === "CUSTOMER_ORDER_REQUEST") {
+            await createOrderFromApprovedCustomerRequestTx(tx, request)
+            return
+        }
+
         if (request.type !== "CUSTOMER_PROFILE_CHANGE") {
             return
         }
