@@ -2,6 +2,7 @@ import createError from "http-errors"
 import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
+import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
 import { ICustomerDependencies, IUpdateCustomerEvent } from "@/functions/AdminApi/types/customers"
 
 export const updateCustomerHandler = ({
@@ -24,7 +25,13 @@ export const updateCustomerHandler = ({
         }
 
         const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {})
-        const customer = await customerRepository.updateCustomer(existing.id, data)
+        const updated = await customerRepository.updateCustomer(existing.id, data)
+        const customer = event.body?.companyContactAssignments !== undefined
+            ? await customerRepository.replaceCompanyContactAssignments(
+                existing.id,
+                normalizeCompanyContactAssignments(event.body.companyContactAssignments),
+            )
+            : updated
 
         return apiResponseDTO({
             statusCode: 200,

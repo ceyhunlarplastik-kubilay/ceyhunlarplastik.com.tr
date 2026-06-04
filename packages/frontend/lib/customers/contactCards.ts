@@ -57,3 +57,29 @@ export function buildCustomerContactCards(customer: AdminCustomer): CustomerCont
 export function getPrimaryCustomerContact(customer: AdminCustomer) {
     return buildCustomerContactCards(customer)[0] ?? null
 }
+
+export function buildCompanyContactCards(customer: AdminCustomer): CustomerContactCardModel[] {
+    return [...(customer.companyContactAssignments ?? [])]
+        .filter((assignment) => assignment.isActive && assignment.companyContact?.isActive)
+        .sort((left, right) => {
+            if (left.displayOrder !== right.displayOrder) return left.displayOrder - right.displayOrder
+            if (left.companyContact.displayOrder !== right.companyContact.displayOrder) {
+                return left.companyContact.displayOrder - right.companyContact.displayOrder
+            }
+            return left.companyContact.name.localeCompare(right.companyContact.name, "tr")
+        })
+        .map((assignment) => {
+            const contact = assignment.companyContact
+
+            return {
+                id: assignment.id,
+                name: contact.name,
+                roleLabel: contact.roleLabel || contact.department,
+                subtitle: contact.department,
+                email: contact.email,
+                phone: contact.whatsappPhone || contact.phone,
+                imageUrl: null,
+                isPrimary: false,
+            }
+        })
+}

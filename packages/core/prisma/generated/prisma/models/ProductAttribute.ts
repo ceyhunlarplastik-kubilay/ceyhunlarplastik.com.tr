@@ -40,6 +40,7 @@ export type ProductAttributeMinAggregateOutputType = {
   name: string | null
   displayOrder: number | null
   isActive: boolean | null
+  isCustomerAssignable: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +51,7 @@ export type ProductAttributeMaxAggregateOutputType = {
   name: string | null
   displayOrder: number | null
   isActive: boolean | null
+  isCustomerAssignable: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,6 +62,7 @@ export type ProductAttributeCountAggregateOutputType = {
   name: number
   displayOrder: number
   isActive: number
+  isCustomerAssignable: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -80,6 +83,7 @@ export type ProductAttributeMinAggregateInputType = {
   name?: true
   displayOrder?: true
   isActive?: true
+  isCustomerAssignable?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -90,6 +94,7 @@ export type ProductAttributeMaxAggregateInputType = {
   name?: true
   displayOrder?: true
   isActive?: true
+  isCustomerAssignable?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +105,7 @@ export type ProductAttributeCountAggregateInputType = {
   name?: true
   displayOrder?: true
   isActive?: true
+  isCustomerAssignable?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -197,6 +203,7 @@ export type ProductAttributeGroupByOutputType = {
   name: string
   displayOrder: number
   isActive: boolean
+  isCustomerAssignable: boolean
   createdAt: Date
   updatedAt: Date
   _count: ProductAttributeCountAggregateOutputType | null
@@ -230,6 +237,7 @@ export type ProductAttributeWhereInput = {
   name?: Prisma.StringFilter<"ProductAttribute"> | string
   displayOrder?: Prisma.IntFilter<"ProductAttribute"> | number
   isActive?: Prisma.BoolFilter<"ProductAttribute"> | boolean
+  isCustomerAssignable?: Prisma.BoolFilter<"ProductAttribute"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   values?: Prisma.ProductAttributeValueListRelationFilter
@@ -241,6 +249,7 @@ export type ProductAttributeOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustomerAssignable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   values?: Prisma.ProductAttributeValueOrderByRelationAggregateInput
@@ -255,6 +264,7 @@ export type ProductAttributeWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"ProductAttribute"> | string
   displayOrder?: Prisma.IntFilter<"ProductAttribute"> | number
   isActive?: Prisma.BoolFilter<"ProductAttribute"> | boolean
+  isCustomerAssignable?: Prisma.BoolFilter<"ProductAttribute"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   values?: Prisma.ProductAttributeValueListRelationFilter
@@ -266,6 +276,7 @@ export type ProductAttributeOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustomerAssignable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductAttributeCountOrderByAggregateInput
@@ -284,6 +295,7 @@ export type ProductAttributeScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"ProductAttribute"> | string
   displayOrder?: Prisma.IntWithAggregatesFilter<"ProductAttribute"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"ProductAttribute"> | boolean
+  isCustomerAssignable?: Prisma.BoolWithAggregatesFilter<"ProductAttribute"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductAttribute"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductAttribute"> | Date | string
 }
@@ -294,6 +306,7 @@ export type ProductAttributeCreateInput = {
   name: string
   displayOrder?: number
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   values?: Prisma.ProductAttributeValueCreateNestedManyWithoutAttributeInput
@@ -305,6 +318,7 @@ export type ProductAttributeUncheckedCreateInput = {
   name: string
   displayOrder?: number
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   values?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutAttributeInput
@@ -316,6 +330,7 @@ export type ProductAttributeUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductAttributeValueUpdateManyWithoutAttributeNestedInput
@@ -327,6 +342,7 @@ export type ProductAttributeUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutAttributeNestedInput
@@ -338,6 +354,7 @@ export type ProductAttributeCreateManyInput = {
   name: string
   displayOrder?: number
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -348,6 +365,7 @@ export type ProductAttributeUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -358,6 +376,7 @@ export type ProductAttributeUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -368,6 +387,7 @@ export type ProductAttributeCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustomerAssignable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -382,6 +402,7 @@ export type ProductAttributeMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustomerAssignable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -392,6 +413,7 @@ export type ProductAttributeMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  isCustomerAssignable?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -425,6 +447,7 @@ export type ProductAttributeCreateWithoutValuesInput = {
   name: string
   displayOrder?: number
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -435,6 +458,7 @@ export type ProductAttributeUncheckedCreateWithoutValuesInput = {
   name: string
   displayOrder?: number
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -461,6 +485,7 @@ export type ProductAttributeUpdateWithoutValuesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -471,6 +496,7 @@ export type ProductAttributeUncheckedUpdateWithoutValuesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -512,6 +538,7 @@ export type ProductAttributeSelect<ExtArgs extends runtime.Types.Extensions.Inte
   name?: boolean
   displayOrder?: boolean
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   values?: boolean | Prisma.ProductAttribute$valuesArgs<ExtArgs>
@@ -524,6 +551,7 @@ export type ProductAttributeSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   name?: boolean
   displayOrder?: boolean
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["productAttribute"]>
@@ -534,6 +562,7 @@ export type ProductAttributeSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   name?: boolean
   displayOrder?: boolean
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["productAttribute"]>
@@ -544,11 +573,12 @@ export type ProductAttributeSelectScalar = {
   name?: boolean
   displayOrder?: boolean
   isActive?: boolean
+  isCustomerAssignable?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductAttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "displayOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["productAttribute"]>
+export type ProductAttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "displayOrder" | "isActive" | "isCustomerAssignable" | "createdAt" | "updatedAt", ExtArgs["result"]["productAttribute"]>
 export type ProductAttributeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   values?: boolean | Prisma.ProductAttribute$valuesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductAttributeCountOutputTypeDefaultArgs<ExtArgs>
@@ -567,6 +597,7 @@ export type $ProductAttributePayload<ExtArgs extends runtime.Types.Extensions.In
     name: string
     displayOrder: number
     isActive: boolean
+    isCustomerAssignable: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productAttribute"]>
@@ -998,6 +1029,7 @@ export interface ProductAttributeFieldRefs {
   readonly name: Prisma.FieldRef<"ProductAttribute", 'String'>
   readonly displayOrder: Prisma.FieldRef<"ProductAttribute", 'Int'>
   readonly isActive: Prisma.FieldRef<"ProductAttribute", 'Boolean'>
+  readonly isCustomerAssignable: Prisma.FieldRef<"ProductAttribute", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"ProductAttribute", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductAttribute", 'DateTime'>
 }

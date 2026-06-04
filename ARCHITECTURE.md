@@ -70,6 +70,26 @@ Main architecture choices:
 - `nuqs` for URL query state
 - `shadcn/ui` primitives for UI consistency
 
+### Loading and refetch UX
+Data-heavy screens such as lists, grids, tables, and filtered result pages should distinguish between initial loading and background refetch states.
+
+Expected behavior:
+- initial loading should use skeleton grids, skeleton tables, or placeholder content that preserves the expected layout
+- background refetch triggered by filters, search, sorting, pagination, tabs, or query changes should keep the current layout stable whenever possible
+- avoid full-page blocking loaders for localized data refresh
+- prefer localized content-region feedback such as subtle overlays, shimmer cards, skeleton rows, or inline status indicators
+- headers, filters, navigation, and surrounding context should remain visible during refetch unless the route truly changes
+- loading components should stay feature-local unless the same interaction pattern is reused across multiple modules
+- loading states should include accessible feedback such as `aria-busy`, `aria-live`, or screen-reader-only status text
+
+Current reference pattern:
+- customer portal product listing uses an initial skeleton grid for first load
+- filter-driven refetch keeps existing product cards rendered and applies a subtle grid overlay/loading state only over the affected listing region
+
+Related route-transition pattern:
+- when a user triggers a client-side navigation from a focused list, table, or detail module, prefer localized pending feedback near that module instead of replacing the full route shell immediately
+- clicked CTA states, compact overlays, or section-level transition indicators are preferred when the destination is a deeper detail flow and the current context still helps orientation
+
 ### `packages/functions`
 This package contains Lambda entrypoints organized by execution boundary instead of by shared domain.
 
@@ -199,6 +219,35 @@ Customer management now distinguishes between two different product relationship
 
 The distinction is intentional and should be preserved in future UI and API work. Do not overload one relation for both concerns.
 
+Customer profile attribute matching now uses the same shared dictionary as products:
+- `ProductAttribute` / `ProductAttributeValue` remain the single source of truth for selectable attribute metadata
+- customer eligibility is controlled by attribute metadata such as `ProductAttribute.isCustomerAssignable`
+- `sector`, `production_group`, and `usage_area` are system customer-profile attributes and are treated as customer-assignable even if their stored metadata flag is false
+- customer assignments are stored generically through `CustomerAttributeValueAssignment`
+- legacy customer fields such as `sectorValueId`, `productionGroupValueId`, and `usageAreaValues` remain in place during the transition and are dual-written from the generic assignment layer
+
+Matching boundaries are intentionally scoped:
+- generic customer assignment can support any attribute marked customer-assignable
+- automatic product enrichment for `/musteri/tanimli-urunler` is currently limited to the hierarchical family `sector`, `production_group`, `usage_area`
+- future customer-assignable attributes may appear in customer profile forms without affecting product matching unless matching logic is explicitly extended later
+- product category-based allowed attribute value logic remains product-only and must not be reused as a customer assignment constraint
+
+Product industrial usage is separate from normal category-scoped product filtering:
+- `ProductAttribute` / `ProductAttributeValue` still own the shared taxonomy dictionary for `sector`, `production_group`, and `usage_area`
+- those three taxonomy families are no longer assigned to products through `Product.attributeValues`
+- product-specific industrial usage rows live in `ProductIndustrialUsage`
+- `ProductIndustrialUsage` references dictionary values by field role and stores product-specific `usageFunction` text on the row
+- `Category.allowedAttributeValueIds` remains only for real category-scoped product filters such as `model_type`, `connection_type`, `profile_type`, `material_type`, `usage_type`, and `hat_type`
+- public and customer product filters should present category-scoped product filters separately from industrial usage filters
+- `/musteri/tanimli-urunler` profile matching uses customer assignments against `ProductIndustrialUsage`; `usageFunction` is display and SEO content only, not a matching criterion
+
+Customer portal contact data is split into three intentionally different groups:
+- customer-side contact people and portal accounts remain `User` records connected through `User.customerId`
+- the primary Ceyhunlar sales representative remains `Customer.assignedSalesUser`
+- additional Ceyhunlar department contact points live in `CompanyContact` and are exposed per customer through `CustomerCompanyContactAssignment`
+
+`CompanyContact` records are display/contact records only. They do not create login accounts, panel roles, or authorization state. Admin/owner users manage the contact master data; sales users can manage assignments only for customers they are allowed to access. Customer portal reads should include only active contacts with active assignments, ordered by assignment display order, company contact display order, and creation time. Admin and sales detail surfaces may show inactive records for maintenance, but the portal must keep them hidden.
+
 Customer records also support professional multi-address data through `CustomerAddress`.
 Address records are ordered and can be marked as primary, billing, and shipping so the portal and CRM can present operational contact points without flattening them into a single text field.
 Address normalization is intentionally progressive:
@@ -233,6 +282,13 @@ Customer portal cart visibility is treated as part of portal chrome, not as an a
 - desktop customer layouts can surface the cart summary in the topbar action area
 - mobile customer layouts can use a safe-area-aware sticky bottom bar
 - the cart preview data in the portal draft store may include client-only preview fields such as product image URLs, but these should not be forwarded into backend request payloads
+
+The `/musteri/tanimli-urunler` experience is now a merged view:
+- manual `featuredProducts` remain curated by sales/admin users
+- hierarchy-based matched products are appended from the customer profile assignment layer
+- duplicates are removed by `productId`
+- manual selections stay first
+- `assignedProducts` and `/musteri/musteriye-tanimli-urunler` remain strictly manual and operational
 
 ### Sales and purchasing role topology
 The application now treats `sales_director` as a first-class business role between `sales` and `admin`.

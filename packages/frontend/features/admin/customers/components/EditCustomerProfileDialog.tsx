@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
 import { motion, AnimatePresence } from "motion/react"
-import { BadgePercent, Building2, CalendarClock, CreditCard, Mail, Phone, ReceiptText, Shapes, UserRound } from "lucide-react"
+import { BadgePercent, Building2, CalendarClock, Check, CreditCard, Mail, Phone, ReceiptText, Shapes, UserRound } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -17,7 +17,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
+import type { CompanyContact } from "@/features/admin/companyContacts/api/types"
 import {
     createCustomerEditorDefaults,
     customerEditorSchema,
@@ -36,6 +38,13 @@ type FilterValueOption = {
     parentValueId?: string | null
 }
 
+type CustomerAssignableAttribute = {
+    id: string
+    code: string
+    name: string
+    values?: FilterValueOption[]
+}
+
 type Props = {
     open: boolean
     onOpenChange: (open: boolean) => void
@@ -44,11 +53,14 @@ type Props = {
     sectorValues: FilterValueOption[]
     allProductionGroupValues: FilterValueOption[]
     allUsageAreaValues: FilterValueOption[]
+    customerAssignableAttributes: CustomerAssignableAttribute[]
+    companyContacts: CompanyContact[]
     onSubmit: (values: CustomerEditorFormValues, customer: AdminCustomer) => Promise<void>
     isPending?: boolean
 }
 
 const NONE_VALUE = "__none__"
+const HIERARCHY_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
 
 function NumericInputField({
     value,
@@ -86,6 +98,8 @@ export function EditCustomerProfileDialog({
     sectorValues,
     allProductionGroupValues,
     allUsageAreaValues,
+    customerAssignableAttributes,
+    companyContacts,
     onSubmit,
     isPending = false,
 }: Props) {
@@ -106,6 +120,14 @@ export function EditCustomerProfileDialog({
     const selectedProductionGroupValueId = useWatch({
         control: form.control,
         name: "productionGroupValueId",
+    })
+    const selectedGenericAttributeValueIds = useWatch({
+        control: form.control,
+        name: "attributeValueIds",
+    })
+    const selectedCompanyContactAssignments = useWatch({
+        control: form.control,
+        name: "companyContactAssignments",
     })
 
     const productionGroupValues = useMemo(() => {
@@ -130,6 +152,49 @@ export function EditCustomerProfileDialog({
 
         return allUsageAreaValues
     }, [allProductionGroupValues, allUsageAreaValues, selectedProductionGroupValueId, selectedSectorValueId])
+
+    const genericCustomerAttributes = useMemo(
+        () => customerAssignableAttributes.filter((attribute) => !HIERARCHY_ATTRIBUTE_CODES.has(attribute.code)),
+        [customerAssignableAttributes],
+    )
+
+    function toggleMultiValue(fieldName: "attributeValueIds" | "usageAreaValueIds", valueId: string) {
+        const current = form.getValues(fieldName) ?? []
+        const next = current.includes(valueId)
+            ? current.filter((item) => item !== valueId)
+            : [...current, valueId]
+
+        form.setValue(fieldName, next, {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+        })
+    }
+
+    function toggleCompanyContact(companyContactId: string) {
+        const current = form.getValues("companyContactAssignments") ?? []
+        const exists = current.some((assignment) => assignment.companyContactId === companyContactId)
+        const next = exists
+            ? current.filter((assignment) => assignment.companyContactId !== companyContactId)
+            : [
+                ...current,
+                {
+                    companyContactId,
+                    isActive: true,
+                    displayOrder: current.length,
+                    note: null,
+                },
+            ]
+
+        form.setValue("companyContactAssignments", next.map((assignment, index) => ({
+            ...assignment,
+            displayOrder: index,
+        })), {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+        })
+    }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -292,7 +357,7 @@ export function EditCustomerProfileDialog({
                                                             const normalized = value === NONE_VALUE ? "" : value
                                                             field.onChange(normalized)
                                                             form.setValue("productionGroupValueId", "")
-                                                            form.setValue("usageAreaValueId", "")
+                                                            form.setValue("usageAreaValueIds", [])
                                                         }}
                                                     >
                                                         <FormControl>
@@ -324,7 +389,7 @@ export function EditCustomerProfileDialog({
                                                         onValueChange={(value) => {
                                                             const normalized = value === NONE_VALUE ? "" : value
                                                             field.onChange(normalized)
-                                                            form.setValue("usageAreaValueId", "")
+                                                            form.setValue("usageAreaValueIds", [])
                                                         }}
                                                     >
                                                         <FormControl>
@@ -347,28 +412,41 @@ export function EditCustomerProfileDialog({
                                         />
                                         <FormField
                                             control={form.control}
-                                            name="usageAreaValueId"
+                                            name="usageAreaValueIds"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>Kullanım Alanı</FormLabel>
-                                                    <Select
-                                                        value={field.value || NONE_VALUE}
-                                                        onValueChange={(value) => field.onChange(value === NONE_VALUE ? "" : value)}
-                                                    >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Seçilmedi" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value={NONE_VALUE}>Seçilmedi</SelectItem>
-                                                            {usageAreaValues.map((value) => (
-                                                                <SelectItem key={value.id} value={value.id}>
-                                                                    {value.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
+                                                    <FormControl>
+                                                        <div className="space-y-2">
+                                                            <div className="grid gap-2 sm:grid-cols-2">
+                                                                {usageAreaValues.map((value) => {
+                                                                    const isSelected = (field.value ?? []).includes(value.id)
+
+                                                                    return (
+                                                                        <button
+                                                                            key={value.id}
+                                                                            type="button"
+                                                                            onClick={() => toggleMultiValue("usageAreaValueIds", value.id)}
+                                                                            className={cn(
+                                                                                "flex min-h-11 items-center justify-between rounded-2xl border px-3 py-2 text-left text-sm transition",
+                                                                                isSelected
+                                                                                    ? "border-[var(--color-brand)] bg-[var(--color-brand)]/8 text-neutral-950 shadow-sm"
+                                                                                    : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300",
+                                                                            )}
+                                                                        >
+                                                                            <span>{value.name}</span>
+                                                                            {isSelected ? <Check className="h-4 w-4 text-[var(--color-brand)]" /> : null}
+                                                                        </button>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                            {usageAreaValues.length === 0 ? (
+                                                                <p className="text-xs text-neutral-500">
+                                                                    Seçilen sektör ve üretim grubuna bağlı kullanım alanı bulunamadı.
+                                                                </p>
+                                                            ) : null}
+                                                        </div>
+                                                    </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
@@ -386,6 +464,91 @@ export function EditCustomerProfileDialog({
                                                 </FormItem>
                                             )}
                                         />
+                                    </div>
+                                </div>
+
+                                {genericCustomerAttributes.length > 0 ? (
+                                    <div className="rounded-3xl border border-sky-200 bg-sky-50/60 p-4">
+                                        <div className="mb-4 text-xs font-medium uppercase tracking-[0.16em] text-sky-700">
+                                            Profil Eşleşme Alanları
+                                        </div>
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            {genericCustomerAttributes.map((attribute) => (
+                                                <div key={attribute.id} className="space-y-2">
+                                                    <div className="text-sm font-medium text-neutral-900">{attribute.name}</div>
+                                                    <div className="grid gap-2">
+                                                        {(attribute.values ?? []).map((value) => {
+                                                            const isSelected = (selectedGenericAttributeValueIds ?? []).includes(value.id)
+
+                                                            return (
+                                                                <button
+                                                                    key={value.id}
+                                                                    type="button"
+                                                                    onClick={() => toggleMultiValue("attributeValueIds", value.id)}
+                                                                    className={cn(
+                                                                        "flex min-h-11 items-center justify-between rounded-2xl border px-3 py-2 text-left text-sm transition",
+                                                                        isSelected
+                                                                            ? "border-sky-400 bg-white text-neutral-950 shadow-sm"
+                                                                            : "border-sky-100 bg-white/80 text-neutral-600 hover:border-sky-200",
+                                                                    )}
+                                                                >
+                                                                    <span>{value.name}</span>
+                                                                    {isSelected ? <Check className="h-4 w-4 text-sky-600" /> : null}
+                                                                </button>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : null}
+
+                                <div className="rounded-3xl border border-emerald-200 bg-emerald-50/60 p-4">
+                                    <div className="mb-4">
+                                        <div className="text-xs font-medium uppercase tracking-[0.16em] text-emerald-700">
+                                            Ceyhunlar İletişimleri
+                                        </div>
+                                        <p className="mt-1 text-xs leading-5 text-emerald-900/70">
+                                            Bu müşterinin portalında görünecek Ceyhunlar departman iletişim kişilerini seçin.
+                                        </p>
+                                    </div>
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                        {companyContacts.map((contact) => {
+                                            const isSelected = (selectedCompanyContactAssignments ?? [])
+                                                .some((assignment) => assignment.companyContactId === contact.id)
+
+                                            return (
+                                                <button
+                                                    key={contact.id}
+                                                    type="button"
+                                                    onClick={() => toggleCompanyContact(contact.id)}
+                                                    className={cn(
+                                                        "flex min-h-20 items-start justify-between gap-3 rounded-2xl border px-3 py-3 text-left text-sm transition",
+                                                        isSelected
+                                                            ? "border-emerald-300 bg-white text-neutral-950 shadow-sm"
+                                                            : "border-emerald-100 bg-white/80 text-neutral-600 hover:border-emerald-200",
+                                                    )}
+                                                >
+                                                    <span className="min-w-0">
+                                                        <span className="block font-medium">{contact.department}</span>
+                                                        <span className="mt-1 block text-xs text-neutral-500">
+                                                            {contact.name}
+                                                            {contact.roleLabel ? ` · ${contact.roleLabel}` : ""}
+                                                        </span>
+                                                        <span className="mt-1 block truncate text-xs text-neutral-400">
+                                                            {[contact.email, contact.phone || contact.whatsappPhone].filter(Boolean).join(" · ") || "İletişim kanalı yok"}
+                                                        </span>
+                                                    </span>
+                                                    {isSelected ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /> : null}
+                                                </button>
+                                            )
+                                        })}
+                                        {companyContacts.length === 0 ? (
+                                            <div className="rounded-2xl border border-dashed border-emerald-200 bg-white/70 px-4 py-8 text-sm text-emerald-900/70 md:col-span-2">
+                                                Henüz Ceyhunlar iletişim kaydı yok. Önce admin panelinden departman iletişimi oluşturun.
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </div>
 

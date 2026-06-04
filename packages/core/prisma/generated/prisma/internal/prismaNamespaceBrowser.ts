@@ -58,7 +58,11 @@ export const ModelName = {
   Product: 'Product',
   ProductAttribute: 'ProductAttribute',
   ProductAttributeValue: 'ProductAttributeValue',
+  ProductIndustrialUsage: 'ProductIndustrialUsage',
   Customer: 'Customer',
+  CustomerAttributeValueAssignment: 'CustomerAttributeValueAssignment',
+  CompanyContact: 'CompanyContact',
+  CustomerCompanyContactAssignment: 'CustomerCompanyContactAssignment',
   GeoCountry: 'GeoCountry',
   GeoState: 'GeoState',
   GeoCity: 'GeoCity',
@@ -189,6 +193,7 @@ export const ProductAttributeScalarFieldEnum = {
   name: 'name',
   displayOrder: 'displayOrder',
   isActive: 'isActive',
+  isCustomerAssignable: 'isCustomerAssignable',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -209,6 +214,21 @@ export const ProductAttributeValueScalarFieldEnum = {
 } as const
 
 export type ProductAttributeValueScalarFieldEnum = (typeof ProductAttributeValueScalarFieldEnum)[keyof typeof ProductAttributeValueScalarFieldEnum]
+
+
+export const ProductIndustrialUsageScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  sectorValueId: 'sectorValueId',
+  productionGroupValueId: 'productionGroupValueId',
+  usageAreaValueId: 'usageAreaValueId',
+  usageFunction: 'usageFunction',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductIndustrialUsageScalarFieldEnum = (typeof ProductIndustrialUsageScalarFieldEnum)[keyof typeof ProductIndustrialUsageScalarFieldEnum]
 
 
 export const CustomerScalarFieldEnum = {
@@ -233,6 +253,50 @@ export const CustomerScalarFieldEnum = {
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const CustomerAttributeValueAssignmentScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  attributeValueId: 'attributeValueId',
+  source: 'source',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerAttributeValueAssignmentScalarFieldEnum = (typeof CustomerAttributeValueAssignmentScalarFieldEnum)[keyof typeof CustomerAttributeValueAssignmentScalarFieldEnum]
+
+
+export const CompanyContactScalarFieldEnum = {
+  id: 'id',
+  department: 'department',
+  name: 'name',
+  roleLabel: 'roleLabel',
+  email: 'email',
+  phone: 'phone',
+  whatsappPhone: 'whatsappPhone',
+  note: 'note',
+  isActive: 'isActive',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyContactScalarFieldEnum = (typeof CompanyContactScalarFieldEnum)[keyof typeof CompanyContactScalarFieldEnum]
+
+
+export const CustomerCompanyContactAssignmentScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  companyContactId: 'companyContactId',
+  isActive: 'isActive',
+  displayOrder: 'displayOrder',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerCompanyContactAssignmentScalarFieldEnum = (typeof CustomerCompanyContactAssignmentScalarFieldEnum)[keyof typeof CustomerCompanyContactAssignmentScalarFieldEnum]
 
 
 export const GeoCountryScalarFieldEnum = {

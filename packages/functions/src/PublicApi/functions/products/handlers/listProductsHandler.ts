@@ -51,7 +51,8 @@ export const listProductsHandler =
                         "sort",
                         "order",
                         "categoryId",
-                        "category" // 🔥 BUNU EKLE
+                        "category",
+                        "attributeValueIds",
                     ].includes(key)
             )
 

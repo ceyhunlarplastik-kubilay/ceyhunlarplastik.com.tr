@@ -2,7 +2,9 @@ import { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repos
 import { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
+import { IPrismaCompanyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
+import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
 import type { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 
 export interface IProtectedCrmDependencies {
@@ -10,6 +12,7 @@ export interface IProtectedCrmDependencies {
     supplierRepository: IPrismaSupplierRepository
     productAttributeValueRepository?: IPrismaProductAttributeValueRepository
     productRepository?: IPrismaProductRepository
+    companyContactRepository?: IPrismaCompanyContactRepository
 }
 
 export type IListManagedCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
@@ -34,6 +37,31 @@ export type IManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     { id: string }
 >
 
+export type ICreatePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {
+        label: string
+        contactName?: string | null
+        phone?: string | null
+        email?: string | null
+        countryId: number
+        stateId: number
+        cityId: number
+        country?: string | null
+        stateName?: string | null
+        city: string
+        district?: string | null
+        line1: string
+        line2?: string | null
+        postalCode?: string | null
+        taxOffice?: string | null
+        taxNumber?: string | null
+        isPrimary?: boolean
+        isBilling?: boolean
+        isShipping?: boolean
+        note?: string | null
+    }
+>
+
 export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     {
         companyName?: string | null
@@ -47,9 +75,11 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
         creditLimit?: number | null
         paymentTermNote?: string | null
         assignedSalesUserId?: string | null
+        attributeValueIds?: string[]
         sectorValueId?: string | null
         productionGroupValueId?: string | null
         usageAreaValueIds?: string[]
+        companyContactAssignments?: CustomerCompanyContactAssignmentInput[]
         addresses?: Array<{
             label: string
             contactName?: string | null

@@ -24,6 +24,7 @@ import { useCustomers } from "@/features/admin/customers/hooks/useCustomers"
 import { useCustomerListFilters } from "@/features/admin/customers/hooks/useCustomerListFilters"
 import { useUpdateCustomer } from "@/features/admin/customers/hooks/useUpdateCustomer"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
+import { useCompanyContacts } from "@/features/admin/companyContacts/hooks/useCompanyContacts"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
 import { formatDiscountBadge, formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
@@ -69,6 +70,10 @@ export function CustomersPageClient({
     })
     const updateMutation = useUpdateCustomer()
     const attrsQuery = useAttributesForFilter()
+    const companyContactsQuery = useCompanyContacts({
+        page: 1,
+        limit: 500,
+    })
     const usersQuery = useUsers({
         params: {
             page: 1,
@@ -80,6 +85,7 @@ export function CustomersPageClient({
     const meta = customersQuery.data?.meta
 
     const attributes = useMemo(() => attrsQuery.data ?? [], [attrsQuery.data])
+    const companyContacts = companyContactsQuery.data?.data ?? []
     const editingCustomer = useMemo(
         () => customers?.find((customer) => customer.id === editingCustomerId) ?? null,
         [customers, editingCustomerId],
@@ -104,6 +110,10 @@ export function CustomersPageClient({
     )
     const allUsageAreaValues = useMemo(
         () => attributes.find((attribute) => attribute.code === "usage_area")?.values ?? [],
+        [attributes],
+    )
+    const customerAssignableAttributes = useMemo(
+        () => attributes.filter((attribute) => attribute.isCustomerAssignable),
         [attributes],
     )
 
@@ -319,6 +329,8 @@ export function CustomersPageClient({
                 sectorValues={sectorValues}
                 allProductionGroupValues={allProductionGroupValues}
                 allUsageAreaValues={allUsageAreaValues}
+                customerAssignableAttributes={customerAssignableAttributes}
+                companyContacts={companyContacts}
                 onSubmit={(values, customer) => handleDialogSubmit(values, customer.id)}
                 isPending={updateMutation.isPending}
             />

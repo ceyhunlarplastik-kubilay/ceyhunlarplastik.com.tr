@@ -18,40 +18,40 @@ datasource db {
 ///////////////////////////////////////////////////////
 
 model User {
-  id                                String                        @id @default(uuid())
-  cognitoSub                        String                        @unique
-  email                             String                        @unique
-  identifier                        String
-  firstName                         String?
-  lastName                          String?
-  imageKey                          String?
-  phone                             String?
-  groups                            String[]
-  accessStatus                      UserAccessStatus              @default(PENDING_REVIEW)
-  accessStatusChangedAt             DateTime?
-  accessStatusChangedByUserId       String?
-  accessStatusReason                String?                       @db.Text
-  supplierId                        String?
-  supplier                          Supplier?                     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  customerId                        String?
-  customer                          Customer?                     @relation("CustomerPortalUsers", fields: [customerId], references: [id], onDelete: SetNull)
-  customerContactTitle             String?
-  customerContactDepartment        String?
-  isPrimaryCustomerContact         Boolean                       @default(false)
-  isActive                          Boolean                       @default(true)
-  assignedSalesCustomers            Customer[]                    @relation("AssignedSalesUser")
-  convertedCustomers                Customer[]                    @relation("CustomerConvertedBy")
-  assignedPurchasingSuppliers       Supplier[]                    @relation("SupplierPurchasingAssignments")
-  requestedBusinessRequests         BusinessRequest[]             @relation("BusinessRequestRequestedBy")
-  requestedOrders                   Order[]                       @relation("CustomerOrderRequestedBy")
-  assignedBusinessRequestSteps      BusinessRequestApprovalStep[] @relation("BusinessRequestStepAssignedUser")
-  decidedBusinessRequestSteps       BusinessRequestApprovalStep[] @relation("BusinessRequestStepDecidedBy")
-  activityLogs                      ActivityLog[]                 @relation("ActivityLogActor")
-  createdCustomerFeaturedProducts   CustomerFeaturedProduct[]     @relation("CustomerFeaturedProductCreatedBy")
-  createdCustomerAssignedProducts   CustomerAssignedProduct[]     @relation("CustomerAssignedProductCreatedBy")
-  ownedCustomerVisits               CustomerVisit[]               @relation("CustomerVisitOwner")
-  createdCustomerVisits             CustomerVisit[]               @relation("CustomerVisitCreatedBy")
-  notifications                     UserNotification[]
+  id                              String                        @id @default(uuid())
+  cognitoSub                      String                        @unique
+  email                           String                        @unique
+  identifier                      String
+  firstName                       String?
+  lastName                        String?
+  imageKey                        String?
+  phone                           String?
+  groups                          String[]
+  accessStatus                    UserAccessStatus              @default(PENDING_REVIEW)
+  accessStatusChangedAt           DateTime?
+  accessStatusChangedByUserId     String?
+  accessStatusReason              String?                       @db.Text
+  supplierId                      String?
+  supplier                        Supplier?                     @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  customerId                      String?
+  customer                        Customer?                     @relation("CustomerPortalUsers", fields: [customerId], references: [id], onDelete: SetNull)
+  customerContactTitle            String?
+  customerContactDepartment       String?
+  isPrimaryCustomerContact        Boolean                       @default(false)
+  isActive                        Boolean                       @default(true)
+  assignedSalesCustomers          Customer[]                    @relation("AssignedSalesUser")
+  convertedCustomers              Customer[]                    @relation("CustomerConvertedBy")
+  assignedPurchasingSuppliers     Supplier[]                    @relation("SupplierPurchasingAssignments")
+  requestedBusinessRequests       BusinessRequest[]             @relation("BusinessRequestRequestedBy")
+  requestedOrders                 Order[]                       @relation("CustomerOrderRequestedBy")
+  assignedBusinessRequestSteps    BusinessRequestApprovalStep[] @relation("BusinessRequestStepAssignedUser")
+  decidedBusinessRequestSteps     BusinessRequestApprovalStep[] @relation("BusinessRequestStepDecidedBy")
+  activityLogs                    ActivityLog[]                 @relation("ActivityLogActor")
+  createdCustomerFeaturedProducts CustomerFeaturedProduct[]     @relation("CustomerFeaturedProductCreatedBy")
+  createdCustomerAssignedProducts CustomerAssignedProduct[]     @relation("CustomerAssignedProductCreatedBy")
+  ownedCustomerVisits             CustomerVisit[]               @relation("CustomerVisitOwner")
+  createdCustomerVisits           CustomerVisit[]               @relation("CustomerVisitCreatedBy")
+  notifications                   UserNotification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -161,6 +161,7 @@ model Product {
   variants            ProductVariant[]
   assets              Asset[]
   attributeValues     ProductAttributeValue[]
+  industrialUsages    ProductIndustrialUsage[]
   featuredByCustomers CustomerFeaturedProduct[]
   assignedToCustomers CustomerAssignedProduct[]
 
@@ -177,8 +178,9 @@ model ProductAttribute {
   code String @unique // usage_area, model_type, connection_type, profile_type, material_type, usage_type, hat_type
   name String
 
-  displayOrder Int     @default(0)
-  isActive     Boolean @default(true)
+  displayOrder         Int     @default(0)
+  isActive             Boolean @default(true)
+  isCustomerAssignable Boolean @default(false)
 
   values ProductAttributeValue[]
 
@@ -200,11 +202,15 @@ model ProductAttributeValue {
   childValues   ProductAttributeValue[] @relation("AttributeValueHierarchy")
 
   // 🔥 MANY TO MANY
-  products                 Product[]
-  assets                   Asset[]
-  customerSectors          Customer[] @relation("CustomerSector")
-  customerProductionGroups Customer[] @relation("CustomerProductionGroup")
-  customerUsageAreas       Customer[] @relation("CustomerUsageAreas")
+  products                         Product[]
+  assets                           Asset[]
+  customerSectors                  Customer[]                         @relation("CustomerSector")
+  customerProductionGroups         Customer[]                         @relation("CustomerProductionGroup")
+  customerUsageAreas               Customer[]                         @relation("CustomerUsageAreas")
+  customerAttributeAssignments CustomerAttributeValueAssignment[]
+  productIndustrialSectors         ProductIndustrialUsage[]           @relation("ProductIndustrialUsageSector")
+  productIndustrialProductionGroups ProductIndustrialUsage[]          @relation("ProductIndustrialUsageProductionGroup")
+  productIndustrialUsageAreas      ProductIndustrialUsage[]           @relation("ProductIndustrialUsageArea")
 
   displayOrder Int     @default(0)
   isActive     Boolean @default(true)
@@ -217,19 +223,46 @@ model ProductAttributeValue {
   @@index([parentValueId])
 }
 
+model ProductIndustrialUsage {
+  id String @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sectorValueId String?
+  sectorValue   ProductAttributeValue? @relation("ProductIndustrialUsageSector", fields: [sectorValueId], references: [id], onDelete: SetNull)
+
+  productionGroupValueId String?
+  productionGroupValue   ProductAttributeValue? @relation("ProductIndustrialUsageProductionGroup", fields: [productionGroupValueId], references: [id], onDelete: SetNull)
+
+  usageAreaValueId String?
+  usageAreaValue   ProductAttributeValue? @relation("ProductIndustrialUsageArea", fields: [usageAreaValueId], references: [id], onDelete: SetNull)
+
+  usageFunction String? @db.Text
+  displayOrder  Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId, displayOrder])
+  @@index([sectorValueId])
+  @@index([productionGroupValueId])
+  @@index([usageAreaValueId])
+}
+
 model Customer {
   id String @id @default(uuid())
 
-  companyName String?
-  fullName    String
-  phone       String
-  email       String
-  note        String?        @db.Text
-  status      CustomerStatus @default(LEAD)
-  generalDiscountPercent Decimal? @db.Decimal(5, 2)
+  companyName            String?
+  fullName               String
+  phone                  String
+  email                  String
+  note                   String?        @db.Text
+  status                 CustomerStatus @default(LEAD)
+  generalDiscountPercent Decimal?       @db.Decimal(5, 2)
   defaultPaymentTermDays Int?
-  creditLimit            Decimal? @db.Decimal(12, 2)
-  paymentTermNote        String?  @db.Text
+  creditLimit            Decimal?       @db.Decimal(12, 2)
+  paymentTermNote        String?        @db.Text
 
   assignedSalesUserId String?
   assignedSalesUser   User?   @relation("AssignedSalesUser", fields: [assignedSalesUserId], references: [id], onDelete: SetNull)
@@ -245,6 +278,8 @@ model Customer {
   productionGroupValue   ProductAttributeValue? @relation("CustomerProductionGroup", fields: [productionGroupValueId], references: [id], onDelete: SetNull)
 
   usageAreaValues  ProductAttributeValue[]   @relation("CustomerUsageAreas")
+  attributeValueAssignments CustomerAttributeValueAssignment[]
+  companyContactAssignments CustomerCompanyContactAssignment[]
   portalUsers      User[]                    @relation("CustomerPortalUsers")
   featuredProducts CustomerFeaturedProduct[]
   assignedProducts CustomerAssignedProduct[]
@@ -263,35 +298,97 @@ model Customer {
   @@index([productionGroupValueId])
 }
 
+model CustomerAttributeValueAssignment {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  attributeValueId String
+  attributeValue   ProductAttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  source CustomerAttributeValueAssignmentSource @default(MANUAL)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerId, attributeValueId])
+  @@index([customerId])
+  @@index([attributeValueId])
+}
+
+model CompanyContact {
+  id String @id @default(uuid())
+
+  department    String
+  name          String
+  roleLabel     String?
+  email         String?
+  phone         String?
+  whatsappPhone String?
+  note          String? @db.Text
+  isActive      Boolean @default(true)
+  displayOrder  Int     @default(0)
+
+  customerAssignments CustomerCompanyContactAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, displayOrder])
+  @@index([department])
+}
+
+model CustomerCompanyContactAssignment {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  companyContactId String
+  companyContact   CompanyContact @relation(fields: [companyContactId], references: [id], onDelete: Cascade)
+
+  isActive     Boolean @default(true)
+  displayOrder Int     @default(0)
+  note         String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerId, companyContactId])
+  @@index([customerId, isActive, displayOrder])
+  @@index([companyContactId])
+}
+
 model GeoCountry {
-  id                Int      @id
-  name              String
-  iso3              String?
-  iso2              String   @unique
-  numericCode       String?  @map("numeric_code")
-  phoneCode         String?  @map("phonecode")
-  capital           String?
-  currency          String?
-  currencyName      String?  @map("currency_name")
-  currencySymbol    String?  @map("currency_symbol")
-  tld               String?
-  native            String?
-  population        BigInt?
-  gdp               String?
-  region            String?
-  regionId          Int?     @map("region_id")
-  subregion         String?
-  subregionId       Int?     @map("subregion_id")
-  nationality       String?
-  areaSqKm          String?  @map("area_sq_km")
-  postalCodeFormat  String?  @map("postal_code_format")
-  postalCodeRegex   String?  @map("postal_code_regex")
-  timezones         Json?
-  latitude          Decimal? @db.Decimal(10, 8)
-  longitude         Decimal? @db.Decimal(11, 8)
-  emoji             String?
-  emojiU            String?
-  wikiDataId        String?
+  id               Int      @id
+  name             String
+  iso3             String?
+  iso2             String   @unique
+  numericCode      String?  @map("numeric_code")
+  phoneCode        String?  @map("phonecode")
+  capital          String?
+  currency         String?
+  currencyName     String?  @map("currency_name")
+  currencySymbol   String?  @map("currency_symbol")
+  tld              String?
+  native           String?
+  population       BigInt?
+  gdp              String?
+  region           String?
+  regionId         Int?     @map("region_id")
+  subregion        String?
+  subregionId      Int?     @map("subregion_id")
+  nationality      String?
+  areaSqKm         String?  @map("area_sq_km")
+  postalCodeFormat String?  @map("postal_code_format")
+  postalCodeRegex  String?  @map("postal_code_regex")
+  timezones        Json?
+  latitude         Decimal? @db.Decimal(10, 8)
+  longitude        Decimal? @db.Decimal(11, 8)
+  emoji            String?
+  emojiU           String?
+  wikiDataId       String?
 
   states            GeoState[]
   cities            GeoCity[]
@@ -320,7 +417,7 @@ model GeoState {
   wikiDataId  String?
   population  BigInt?
 
-  country           GeoCountry       @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  country           GeoCountry        @relation(fields: [countryId], references: [id], onDelete: Restrict)
   cities            GeoCity[]
   customerAddresses CustomerAddress[]
 
@@ -330,27 +427,27 @@ model GeoState {
 }
 
 model GeoCity {
-  id          Int      @id
-  name        String
-  stateId     Int?     @map("state_id")
-  stateCode   String?  @map("state_code")
-  stateName   String?  @map("state_name")
-  countryId   Int      @map("country_id")
-  countryCode String?  @map("country_code")
-  countryName String?  @map("country_name")
-  latitude    Decimal? @db.Decimal(10, 8)
-  longitude   Decimal? @db.Decimal(11, 8)
-  native      String?
-  type        String?
-  level       String?
-  parentId    Int?     @map("parent_id")
-  population  BigInt?
-  timezone    String?
+  id           Int      @id
+  name         String
+  stateId      Int?     @map("state_id")
+  stateCode    String?  @map("state_code")
+  stateName    String?  @map("state_name")
+  countryId    Int      @map("country_id")
+  countryCode  String?  @map("country_code")
+  countryName  String?  @map("country_name")
+  latitude     Decimal? @db.Decimal(10, 8)
+  longitude    Decimal? @db.Decimal(11, 8)
+  native       String?
+  type         String?
+  level        String?
+  parentId     Int?     @map("parent_id")
+  population   BigInt?
+  timezone     String?
   translations Json?
-  wikiDataId  String?
+  wikiDataId   String?
 
-  country           GeoCountry       @relation(fields: [countryId], references: [id], onDelete: Restrict)
-  state             GeoState?        @relation(fields: [stateId], references: [id], onDelete: SetNull)
+  country           GeoCountry        @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  state             GeoState?         @relation(fields: [stateId], references: [id], onDelete: SetNull)
   customerAddresses CustomerAddress[]
 
   @@index([countryId, name])
@@ -361,6 +458,12 @@ model GeoCity {
 enum CustomerStatus {
   LEAD
   CUSTOMER
+}
+
+enum CustomerAttributeValueAssignmentSource {
+  MANUAL
+  LEGACY_BACKFILL
+  SYSTEM
 }
 
 model WebRequest {
@@ -491,14 +594,14 @@ model ProductMeasurement {
 model Supplier {
   id String @id @default(uuid())
 
-  name                     String
-  contactName              String?
-  phone                    String?
-  address                  String? @db.Text
-  taxNumber                String?
-  defaultPaymentTermDays   Int?
-  isActive                 Boolean @default(true)
-  assignedPurchasingSuppliers User[] @relation("SupplierPurchasingAssignments")
+  name                        String
+  contactName                 String?
+  phone                       String?
+  address                     String? @db.Text
+  taxNumber                   String?
+  defaultPaymentTermDays      Int?
+  isActive                    Boolean @default(true)
+  assignedPurchasingSuppliers User[]  @relation("SupplierPurchasingAssignments")
 
   variantSuppliers ProductVariantSupplier[]
   users            User[]
@@ -559,17 +662,17 @@ model CustomerAssignedProduct {
 model CustomerAddress {
   id String @id @default(uuid())
 
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   shippingOrders Order[]
 
   label        String
   contactName  String?
   phone        String?
   email        String?
-  countryId     Int?
-  stateId       Int?
-  cityId        Int?
+  countryId    Int?
+  stateId      Int?
+  cityId       Int?
   country      String  @default("Turkiye")
   city         String
   district     String?
@@ -640,22 +743,22 @@ model ProductVariantSupplier {
   supplierId String
   supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
-  isActive              Boolean                   @default(false)
-  price                 Decimal                   @default(0) @db.Decimal(10, 2)
-  operationalCostRate   Decimal?                  @db.Decimal(5, 2)
-  netCost               Decimal?                  @db.Decimal(10, 2)
-  profitRate            Decimal?                  @db.Decimal(5, 2)
-  listPrice             Decimal?                  @db.Decimal(10, 2)
+  isActive              Boolean   @default(false)
+  price                 Decimal   @default(0) @db.Decimal(10, 2)
+  operationalCostRate   Decimal?  @db.Decimal(5, 2)
+  netCost               Decimal?  @db.Decimal(10, 2)
+  profitRate            Decimal?  @db.Decimal(5, 2)
+  listPrice             Decimal?  @db.Decimal(10, 2)
   paymentTermDays       Int?
   supplierVariantCode   String?
-  supplierNote          String?                   @db.Text
+  supplierNote          String?   @db.Text
   pricingUpdatedAt      DateTime?
   minOrderQty           Int?
   stockQty              Int?
   availabilityUpdatedAt DateTime?
-  currency              String                    @default("TRY")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  currency              String    @default("TRY")
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@unique([variantId, supplierId])
   @@index([variantId])
@@ -812,16 +915,16 @@ model Order {
   shippingAddressSnapshot Json?
 
   referenceCode         String?
-  currency              String   @default("TRY")
-  totalQuantity         Int      @default(0)
-  discountPercent       Decimal? @db.Decimal(5, 2)
-  listSubtotal          Decimal? @db.Decimal(12, 2)
-  customerSubtotal      Decimal? @db.Decimal(12, 2)
+  currency              String    @default("TRY")
+  totalQuantity         Int       @default(0)
+  discountPercent       Decimal?  @db.Decimal(5, 2)
+  listSubtotal          Decimal?  @db.Decimal(12, 2)
+  customerSubtotal      Decimal?  @db.Decimal(12, 2)
   requestedDeliveryDate DateTime?
   paymentTermDays       Int?
-  paymentTermNote       String?  @db.Text
-  commercialNote        String?  @db.Text
-  negotiationNote       String?  @db.Text
+  paymentTermNote       String?   @db.Text
+  commercialNote        String?   @db.Text
+  negotiationNote       String?   @db.Text
   approvedFromRequestAt DateTime?
 
   items OrderItem[]
@@ -838,7 +941,7 @@ model OrderItem {
   id String @id @default(uuid())
 
   orderId String
-  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   productVariantId String?
   productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: SetNull)

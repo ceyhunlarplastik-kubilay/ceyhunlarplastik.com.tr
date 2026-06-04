@@ -2,6 +2,7 @@ import { prisma } from "@/core/db/prisma"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
 import { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { Customer, Prisma } from "@/prisma/generated/prisma/client"
 
@@ -23,17 +24,47 @@ const customerBaseInclude = {
     sectorValue: {
         include: {
             attribute: true,
+            assets: true,
         },
     },
     productionGroupValue: {
         include: {
             attribute: true,
+            assets: true,
         },
     },
     usageAreaValues: {
         include: {
             attribute: true,
+            assets: true,
         },
+    },
+    attributeValueAssignments: {
+        include: {
+            attributeValue: {
+                include: {
+                    attribute: true,
+                    assets: true,
+                    parentValue: {
+                        include: {
+                            attribute: true,
+                            assets: true,
+                            parentValue: {
+                                include: {
+                                    attribute: true,
+                                    assets: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        orderBy: [
+            {
+                createdAt: "asc",
+            },
+        ],
     },
     assignedSalesUser: {
         select: customerUserSummarySelect,
@@ -41,9 +72,18 @@ const customerBaseInclude = {
     convertedByUser: {
         select: customerUserSummarySelect,
     },
+    companyContactAssignments: {
+        orderBy: [
+            { displayOrder: "asc" },
+            { createdAt: "asc" },
+        ],
+        include: {
+            companyContact: true,
+        },
+    },
 } satisfies Prisma.CustomerInclude
 
-const customerProductInclude = {
+export const customerProductInclude = {
     createdByUser: {
         select: customerUserSummarySelect,
     },
@@ -54,6 +94,53 @@ const customerProductInclude = {
             attributeValues: {
                 include: {
                     attribute: true,
+                    parentValue: {
+                        include: {
+                            attribute: true,
+                            parentValue: {
+                                include: {
+                                    attribute: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            industrialUsages: {
+                orderBy: {
+                    displayOrder: "asc",
+                },
+                include: {
+                    sectorValue: {
+                        include: {
+                            attribute: true,
+                        },
+                    },
+                    productionGroupValue: {
+                        include: {
+                            attribute: true,
+                            parentValue: {
+                                include: {
+                                    attribute: true,
+                                },
+                            },
+                        },
+                    },
+                    usageAreaValue: {
+                        include: {
+                            attribute: true,
+                            parentValue: {
+                                include: {
+                                    attribute: true,
+                                    parentValue: {
+                                        include: {
+                                            attribute: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
             },
         },
@@ -133,6 +220,10 @@ export type CustomerDetail = Prisma.CustomerGetPayload<{
     include: typeof customerDetailInclude
 }>
 
+export type CustomerAttributeValueAssignmentWithRelations = Prisma.CustomerAttributeValueAssignmentGetPayload<{
+    include: typeof customerBaseInclude.attributeValueAssignments.include
+}>
+
 export type CustomerFeaturedProductWithRelations = Prisma.CustomerFeaturedProductGetPayload<{
     include: typeof customerProductInclude
 }>
@@ -170,6 +261,39 @@ export interface IPrismaCustomerRepository {
     getCustomer(id: string): Promise<CustomerDetail | null>
     createCustomer(data: Prisma.CustomerCreateInput): Promise<CustomerWithRelations>
     updateCustomer(id: string, data: Prisma.CustomerUpdateInput): Promise<CustomerWithRelations>
+    createAddress(
+        customerId: string,
+        data: {
+            label: string
+            contactName?: string | null
+            phone?: string | null
+            email?: string | null
+            countryId?: number | null
+            stateId?: number | null
+            cityId?: number | null
+            country?: string | null
+            city: string
+            district?: string | null
+            line1: string
+            line2?: string | null
+            postalCode?: string | null
+            taxOffice?: string | null
+            taxNumber?: string | null
+            isPrimary?: boolean
+            isBilling?: boolean
+            isShipping?: boolean
+            note?: string | null
+        },
+    ): Promise<CustomerDetail>
+    replaceCompanyContactAssignments(
+        customerId: string,
+        assignments: Array<{
+            companyContactId: string
+            isActive?: boolean
+            displayOrder?: number
+            note?: string | null
+        }>,
+    ): Promise<CustomerWithRelations>
     convertCustomer(id: string, convertedByUserId: string): Promise<CustomerWithRelations>
     replaceFeaturedProducts(
         customerId: string,
@@ -260,6 +384,107 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             data,
             include: customerBaseInclude,
         })
+
+    const createAddress = async (
+        customerId: string,
+        data: {
+            label: string
+            contactName?: string | null
+            phone?: string | null
+            email?: string | null
+            countryId?: number | null
+            stateId?: number | null
+            cityId?: number | null
+            country?: string | null
+            city: string
+            district?: string | null
+            line1: string
+            line2?: string | null
+            postalCode?: string | null
+            taxOffice?: string | null
+            taxNumber?: string | null
+            isPrimary?: boolean
+            isBilling?: boolean
+            isShipping?: boolean
+            note?: string | null
+        },
+    ) =>
+        prisma.$transaction(async (tx) => {
+            const currentMax = await tx.customerAddress.aggregate({
+                where: { customerId },
+                _max: { displayOrder: true },
+            })
+
+            if (data.isPrimary) {
+                await tx.customerAddress.updateMany({
+                    where: { customerId },
+                    data: { isPrimary: false },
+                })
+            }
+
+            await tx.customerAddress.create({
+                data: {
+                    customerId,
+                    label: data.label,
+                    contactName: data.contactName ?? null,
+                    phone: data.phone ?? null,
+                    email: data.email ?? null,
+                    countryId: data.countryId ?? null,
+                    stateId: data.stateId ?? null,
+                    cityId: data.cityId ?? null,
+                    country: data.country?.trim() || "Turkiye",
+                    city: data.city,
+                    district: data.district ?? null,
+                    line1: data.line1,
+                    line2: data.line2 ?? null,
+                    postalCode: data.postalCode ?? null,
+                    taxOffice: data.taxOffice ?? null,
+                    taxNumber: data.taxNumber ?? null,
+                    isPrimary: Boolean(data.isPrimary),
+                    isBilling: Boolean(data.isBilling),
+                    isShipping: data.isShipping ?? true,
+                    note: data.note ?? null,
+                    displayOrder: (currentMax._max.displayOrder ?? 0) + 1,
+                },
+            })
+
+            return tx.customer.findUniqueOrThrow({
+                where: { id: customerId },
+                include: customerDetailInclude,
+            })
+        })
+
+    const replaceCompanyContactAssignments = async (
+        customerId: string,
+        assignments: Array<{
+            companyContactId: string
+            isActive?: boolean
+            displayOrder?: number
+            note?: string | null
+        }>,
+    ) => {
+        const uniqueAssignments = normalizeCompanyContactAssignments(assignments)
+
+        return prisma.$transaction(async (tx) => {
+            await tx.customerCompanyContactAssignment.deleteMany({
+                where: { customerId },
+            })
+
+            if (uniqueAssignments.length > 0) {
+                await tx.customerCompanyContactAssignment.createMany({
+                    data: uniqueAssignments.map((assignment) => ({
+                        customerId,
+                        ...assignment,
+                    })),
+                })
+            }
+
+            return tx.customer.findUniqueOrThrow({
+                where: { id: customerId },
+                include: customerBaseInclude,
+            })
+        })
+    }
 
     const convertCustomer = async (id: string, convertedByUserId: string) =>
         prisma.customer.update({
@@ -380,6 +605,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         getCustomer,
         createCustomer,
         updateCustomer,
+        createAddress,
+        replaceCompanyContactAssignments,
         convertCustomer,
         replaceFeaturedProducts,
         listFeaturedProducts,

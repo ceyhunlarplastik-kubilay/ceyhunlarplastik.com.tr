@@ -348,6 +348,23 @@ export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
 }
 
+export type EnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAttributeValueAssignmentSource | Prisma.EnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel> | $Enums.CustomerAttributeValueAssignmentSource
+}
+
+export type EnumCustomerAttributeValueAssignmentSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAttributeValueAssignmentSource | Prisma.EnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAttributeValueAssignmentSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel>
+}
+
 export type BigIntNullableFilter<$PrismaModel = never> = {
   equals?: bigint | number | Prisma.BigIntFieldRefInput<$PrismaModel> | null
   in?: bigint[] | number[] | Prisma.ListBigIntFieldRefInput<$PrismaModel> | null
@@ -1019,6 +1036,23 @@ export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAttributeValueAssignmentSource | Prisma.EnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel> | $Enums.CustomerAttributeValueAssignmentSource
+}
+
+export type NestedEnumCustomerAttributeValueAssignmentSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAttributeValueAssignmentSource | Prisma.EnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAttributeValueAssignmentSource[] | Prisma.ListEnumCustomerAttributeValueAssignmentSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAttributeValueAssignmentSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAttributeValueAssignmentSourceFilter<$PrismaModel>
 }
 
 export type NestedBigIntNullableFilter<$PrismaModel = never> = {

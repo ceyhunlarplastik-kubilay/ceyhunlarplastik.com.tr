@@ -7,6 +7,7 @@ export const createProductAttributeValidator = validatorWrapper(
             code: z.string().min(2).max(100),
             name: z.string().min(2).max(100),
             displayOrder: z.number().optional(),
+            isCustomerAssignable: z.boolean().optional(),
         }),
     }),
     {
@@ -46,6 +47,7 @@ export const updateProductAttributeValidator = validatorWrapper(
             code: z.string().min(2).max(100).optional(),
             name: z.string().min(2).max(100).optional(),
             displayOrder: z.number().optional(),
+            isCustomerAssignable: z.boolean().optional(),
         }),
     }),
     {
@@ -60,6 +62,7 @@ export const productAttributeSchema = z.object({
     name: z.string(),
     displayOrder: z.number(),
     isActive: z.boolean(),
+    isCustomerAssignable: z.boolean(),
     createdAt: z.string(),
     updatedAt: z.string(),
 })
@@ -102,6 +105,7 @@ const productAttributeFilterSchema = z.object({
     id: z.uuid(),
     code: z.string(),
     name: z.string(),
+    isCustomerAssignable: z.boolean(),
     values: z.array(
         z.object({
             id: z.uuid(),

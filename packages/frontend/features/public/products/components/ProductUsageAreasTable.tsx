@@ -30,6 +30,16 @@ type AttributeValue = {
 
 type ProductLike = {
     attributeValues?: AttributeValue[]
+    industrialUsages?: ProductIndustrialUsage[]
+}
+
+type ProductIndustrialUsage = {
+    id?: string
+    sectorValue?: AttributeValue | null
+    productionGroupValue?: AttributeValue | null
+    usageAreaValue?: AttributeValue | null
+    usageFunction?: string | null
+    displayOrder?: number
 }
 
 type Props = {
@@ -41,6 +51,7 @@ type Row = {
     sector: string
     productionGroup: string
     usageArea: string
+    usageFunction: string
 }
 
 function getAttributeCode(value?: AttributeValue | null) {
@@ -76,6 +87,7 @@ function buildRows(attributeValues: AttributeValue[]): Row[] {
             sector: sector?.name ?? "-",
             productionGroup: productionGroup?.name ?? "-",
             usageArea: usageValue.name,
+            usageFunction: "-",
         }
 
         const rowKey = `${row.sector}|${row.productionGroup}|${row.usageArea}`
@@ -87,9 +99,22 @@ function buildRows(attributeValues: AttributeValue[]): Row[] {
     return rows
 }
 
+function buildRowsFromIndustrialUsages(industrialUsages: ProductIndustrialUsage[]): Row[] {
+    return [...industrialUsages]
+        .sort((left, right) => (left.displayOrder ?? 0) - (right.displayOrder ?? 0))
+        .map((usage) => ({
+            sector: usage.sectorValue?.name ?? "-",
+            productionGroup: usage.productionGroupValue?.name ?? "-",
+            usageArea: usage.usageAreaValue?.name ?? "-",
+            usageFunction: usage.usageFunction?.trim() || "-",
+        }))
+}
+
 export default function ProductUsageAreasTable({ product, collapsible = false }: Props) {
     const [isOpen, setIsOpen] = useState(false)
-    const rows = buildRows((product.attributeValues ?? []) as AttributeValue[])
+    const rows = product.industrialUsages?.length
+        ? buildRowsFromIndustrialUsages(product.industrialUsages)
+        : buildRows((product.attributeValues ?? []) as AttributeValue[])
 
     if (!rows.length) return null
 
@@ -102,15 +127,17 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                         <TableHead className="px-4">Sektör</TableHead>
                         <TableHead className="px-4">Üretim Grubu</TableHead>
                         <TableHead className="px-4">Kullanıldığı Endüstriyel Ürün</TableHead>
+                        <TableHead className="px-4">Kullanım Fonksiyonu</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {rows.map((row, index) => (
-                        <TableRow key={`${row.sector}-${row.productionGroup}-${row.usageArea}`} className="hover:bg-neutral-50/50 transition-colors">
+                        <TableRow key={`${row.sector}-${row.productionGroup}-${row.usageArea}-${index}`} className="hover:bg-neutral-50/50 transition-colors">
                             <TableCell className="px-4 text-neutral-500">{index + 1}</TableCell>
                             <TableCell className="px-4 font-medium text-neutral-900">{row.sector}</TableCell>
                             <TableCell className="px-4 text-neutral-600">{row.productionGroup}</TableCell>
                             <TableCell className="px-4 text-neutral-600">{row.usageArea}</TableCell>
+                            <TableCell className="max-w-md px-4 text-neutral-600">{row.usageFunction}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

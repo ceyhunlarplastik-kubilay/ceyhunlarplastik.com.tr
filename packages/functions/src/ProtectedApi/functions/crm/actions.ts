@@ -1,5 +1,6 @@
 import { lambdaHandler } from "@/core/middy"
 import { customerRepository } from "@/core/helpers/prisma/customers/repository"
+import { companyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
@@ -10,8 +11,10 @@ import {
     getManagedCustomerHandler,
     getManagedSupplierHandler,
     getPortalCustomerAssignedProductsHandler,
+    createPortalCustomerAddressHandler,
     getPortalCustomerFeaturedProductsHandler,
     getPortalCustomerHandler,
+    listManagedCompanyContactsHandler,
     listManagedCustomerAssignedProductsHandler,
     listManagedCustomerFeaturedProductsHandler,
     listManagedCustomersHandler,
@@ -24,6 +27,7 @@ import {
 } from "@/functions/ProtectedApi/functions/crm/handlers"
 import type {
     ICreateManagedCustomerVisitEvent,
+    ICreatePortalCustomerAddressEvent,
     IDeleteManagedCustomerVisitEvent,
     IListManagedCustomersEvent,
     IListManagedSuppliersEvent,
@@ -49,6 +53,8 @@ import {
     updateCustomerValidator,
     updateCustomerVisitValidator,
 } from "@/functions/AdminApi/validators/customers"
+import { listCompanyContactsResponseValidator } from "@/functions/AdminApi/validators/companyContacts"
+import { createPortalCustomerAddressValidator } from "@/functions/ProtectedApi/validators/crm"
 import {
     getSupplierValidator,
     listSuppliersResponseValidator,
@@ -60,6 +66,7 @@ const deps = {
     supplierRepository: supplierRepository(),
     productAttributeValueRepository: productAttributeValueRepository(),
     productRepository: productRepository(),
+    companyContactRepository: companyContactRepository(),
 }
 
 export const listManagedCustomers = lambdaHandler(
@@ -76,6 +83,14 @@ export const getManagedCustomer = lambdaHandler(
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerResponseValidator,
+    },
+)
+
+export const listManagedCompanyContacts = lambdaHandler(
+    async () => listManagedCompanyContactsHandler(deps)(),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        responseValidator: listCompanyContactsResponseValidator,
     },
 )
 
@@ -201,6 +216,15 @@ export const getPortalCustomerFeaturedProducts = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
         responseValidator: customerFeaturedProductsResponseValidator,
+    },
+)
+
+export const createPortalCustomerAddress = lambdaHandler(
+    async (event) => createPortalCustomerAddressHandler(deps)(event as ICreatePortalCustomerAddressEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        requestValidator: createPortalCustomerAddressValidator,
+        responseValidator: customerResponseValidator,
     },
 )
 

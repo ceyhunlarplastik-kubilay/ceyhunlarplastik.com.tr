@@ -9,6 +9,7 @@ export interface ICreateProductAttributeBody {
     code: string
     name: string
     displayOrder?: number
+    isCustomerAssignable?: boolean
 }
 
 export type ICreateProductAttributeEvent =

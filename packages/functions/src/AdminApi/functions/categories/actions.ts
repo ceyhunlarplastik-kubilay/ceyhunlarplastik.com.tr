@@ -1,6 +1,7 @@
 import { lambdaHandler } from "@/core/middy"
 import { categoryRepository } from "@/core/helpers/prisma/categories/repository"
 import { assetRepository } from "@/core/helpers/prisma/assets/repository"
+import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import {
     createCategoryHandler,
     listCategoryHandler,
@@ -39,7 +40,8 @@ export const createCategory = lambdaHandler(
     async (event) => {
         const deps: ICreateCategoryDependencies = {
             categoryRepository: categoryRepository(),
-            assetRepository: assetRepository()
+            assetRepository: assetRepository(),
+            productAttributeValueRepository: productAttributeValueRepository(),
         }
 
         return createCategoryHandler(deps)(
@@ -124,6 +126,7 @@ export const updateCategory = lambdaHandler(
         const deps: IUpdateCategoryDependencies = {
             categoryRepository: categoryRepository(),
             assetRepository: assetRepository(),
+            productAttributeValueRepository: productAttributeValueRepository(),
         }
         return updateCategoryHandler(deps)(
             event as IUpdateCategoryEvent

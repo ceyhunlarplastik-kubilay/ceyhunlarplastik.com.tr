@@ -9,6 +9,7 @@ import { AdminUserMenu } from "@/components/admin/AdminUserMenu"
 
 import {
     LayoutDashboard,
+    Building2,
     Boxes,
     Folder,
     Settings,
@@ -63,6 +64,11 @@ const navItems = [
         href: "/admin/cari-musteriler",
         label: "Cari Müşteriler",
         icon: Users,
+    },
+    {
+        href: "/admin/company-contacts",
+        label: "Departman İletişimleri",
+        icon: Building2,
     },
     {
         href: "/admin/web-requests",

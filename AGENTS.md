@@ -283,6 +283,25 @@ When adding new backend functionality, first ask whether it belongs in:
 
 Do not skip the established helper/repository layers just because a handler can technically do the work inline.
 
+When extending customer-to-product profile matching:
+- keep dictionary ownership in `ProductAttribute` / `ProductAttributeValue`
+- do not create a duplicate customer-specific attribute dictionary unless explicitly requested
+- customer assignability should be driven by attribute metadata such as `isCustomerAssignable`, not by scattered UI allowlists
+- treat `sector`, `production_group`, and `usage_area` as system customer-profile attributes; they are customer-assignable by default and should not depend on an editable checkbox
+- keep product matching logic in repository/service helpers, not in UI components
+- treat “customer profilinde seçilebilir” and “ürün eşleştirmede kullanılır” as separate concerns so future customer attributes do not accidentally change matching behavior
+- keep category-scoped product filters and industrial usage taxonomy separate
+- `model_type`, `connection_type`, `profile_type`, `material_type`, `usage_type`, and `hat_type` stay on `Product.attributeValues` and may be constrained by `Category.allowedAttributeValueIds`
+- `sector`, `production_group`, and `usage_area` stay in the shared dictionary but must be assigned to products through `ProductIndustrialUsage`, not through `Product.attributeValues`
+- product-specific usage descriptions belong on `ProductIndustrialUsage.usageFunction`, not in `ProductAttributeValue`
+
+When extending customer portal contact surfaces:
+- keep external customer-side portal/contact users as `User` records linked by `User.customerId`
+- keep Ceyhunlar department contact points as `CompanyContact` display records, not login accounts or roles
+- assign Ceyhunlar contacts to customers through `CustomerCompanyContactAssignment`
+- preserve `assignedSalesUser` as the primary sales representative and render company contacts as additional department contact points
+- portal responses should hide inactive company contacts or inactive assignments, while admin/sales management surfaces may show them for maintenance
+
 ## Database Rules
 
 ### Prisma
@@ -407,11 +426,23 @@ Customer portal operational chrome should follow the same principle:
 - persistent cart or workflow state should live in layout/topbar/mobile chrome when it needs continuous visibility
 - avoid random floating overlays when the same state can be integrated into the panel shell more cleanly
 
+For filter/search/sort/pagination interactions that trigger client-side refetching:
+- always provide localized loading feedback near the affected content area
+- prefer skeletons or subtle section overlays instead of full-page blocking spinners
+- preserve previous content during background refetch when possible
+- avoid layout shift and keep surrounding filters, headers, and context stable
+- reuse existing shadcn/ui, Tailwind, and motion/react patterns before adding packages
+
 ### Animations
 Use `motion/react` sparingly and intentionally:
 - feedback for refresh/loading
 - subtle reveal/transition states
 - no decorative motion that harms clarity
+
+For client-side route transitions triggered from a focused module such as a table, grid, or detail CTA:
+- prefer localized pending feedback near the initiating control or affected section
+- avoid full-page blocking spinners when surrounding context can remain stable
+- keep the clicked context visible long enough for the user to understand what is opening
 
 ## Change Strategy
 

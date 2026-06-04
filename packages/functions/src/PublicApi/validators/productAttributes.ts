@@ -4,6 +4,7 @@ const productAttributeFilterSchema = z.object({
     id: z.uuid(),
     code: z.string(),
     name: z.string(),
+    isCustomerAssignable: z.boolean(),
     values: z.array(
         z.object({
             id: z.uuid(),

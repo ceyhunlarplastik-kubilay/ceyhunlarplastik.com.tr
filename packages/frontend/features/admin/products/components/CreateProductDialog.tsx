@@ -39,6 +39,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useCreateProduct } from "@/features/admin/products/hooks/useCreateProduct"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
+import { ProductIndustrialUsageEditor } from "@/features/admin/products/components/ProductIndustrialUsageEditor"
 import { presignProductAsset } from "@/features/admin/products/api/presignProductAsset"
 import { productFormSchema, ProductFormValues } from "../schema/productFormSchema"
 import type { Product } from "@/features/public/products/types"
@@ -51,6 +52,8 @@ type Props = {
     categories: Category[]
     onCreated: (product: Product) => void
 }
+
+const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"]
 
 function getAcceptByType(assetType: AssetType) {
     switch (assetType) {
@@ -76,6 +79,7 @@ export function CreateProductDialog({
     const [assetType, setAssetType] = useState<AssetType>("IMAGE")
     const [assetRole, setAssetRole] = useState<AssetRole>("PRIMARY")
     const [uploadProgress, setUploadProgress] = useState(0)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -85,6 +89,7 @@ export function CreateProductDialog({
             description: "",
             categoryId: "",
             attributeValueIds: [],
+            industrialUsages: [],
         },
     })
 
@@ -99,6 +104,9 @@ export function CreateProductDialog({
     )
 
     async function onSubmit(values: ProductFormValues) {
+        if (isSubmitting) return
+        setIsSubmitting(true)
+
         try {
             let assetKey: string | undefined
             let mimeType: string | undefined
@@ -140,6 +148,7 @@ export function CreateProductDialog({
                 description: "",
                 categoryId: "",
                 attributeValueIds: [],
+                industrialUsages: [],
             })
             setFile(null)
             setUploadProgress(0)
@@ -147,6 +156,8 @@ export function CreateProductDialog({
             setAssetRole("PRIMARY")
         } catch {
             toast.error("Ürün oluşturulamadı")
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -337,7 +348,7 @@ export function CreateProductDialog({
                                     <div className="space-y-1">
                                         <div className="text-sm font-semibold text-neutral-900">Attribute Alanları</div>
                                         <div className="text-xs text-neutral-500">
-                                            Sektör, üretim grubu ve kullanım alanı seçimleri arama destekli çoklu yapıda yönetilir.
+                                            Kategoriye bağlı ürün filtre attribute&apos;larını yönetin. Sektör, üretim grubu ve kullanım alanı aşağıdaki ayrı bölümde tutulur.
                                         </div>
                                     </div>
                                     <Badge variant="secondary" className="rounded-full bg-brand/10 text-brand">
@@ -355,19 +366,31 @@ export function CreateProductDialog({
                                             onChange={field.onChange}
                                             allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
                                             singleSelectNonHierarchy
+                                            excludeAttributeCodes={PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES}
                                         />
                                     )}
                                 />
                             </div>
+
+                            <Controller
+                                name="industrialUsages"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <ProductIndustrialUsageEditor
+                                        value={field.value ?? []}
+                                        onChange={field.onChange}
+                                    />
+                                )}
+                            />
                         </div>
                     </div>
 
                     <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                             Vazgeç
                         </Button>
-                        <Button type="submit" disabled={createMutation.isPending}>
-                            {createMutation.isPending ? "Ürün oluşturuluyor..." : "Ürün Oluştur"}
+                        <Button type="submit" disabled={isSubmitting || createMutation.isPending}>
+                            {isSubmitting || createMutation.isPending ? "Ürün oluşturuluyor..." : "Ürün Oluştur"}
                         </Button>
                     </div>
                 </form>

@@ -1,4 +1,5 @@
 import { ProductAttributeValuesManager } from "@/features/admin/productAttributes/components/ProductAttributeValuesManager"
+import { EditProductAttributeMetadataCard } from "@/features/admin/productAttributes/components/EditProductAttributeMetadataCard"
 import { getProductAttribute } from "@/features/admin/productAttributes/server/getProductAttribute"
 // import { adminApiClient } from "@/lib/http/client"
 
@@ -15,7 +16,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     return (
         <div className="space-y-6 p-6">
 
-            {/* HEADER */}
             <div>
                 <h1 className="text-2xl font-bold">
                     {attribute.name}
@@ -24,6 +24,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                     {attribute.code}
                 </p>
             </div>
+
+            <EditProductAttributeMetadataCard attribute={attribute} />
 
             {/* VALUES MANAGER */}
             <div className="max-w-5xl">

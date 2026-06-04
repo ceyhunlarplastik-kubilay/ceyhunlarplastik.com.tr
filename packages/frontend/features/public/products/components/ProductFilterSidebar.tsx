@@ -52,7 +52,12 @@ type Props = {
     hiddenAttributeCodesWhenCategorySelected?: string[]
     showProductSearch?: boolean
     productSearchPlaceholder?: string
+    showProductFiltersOnlyWhenCategorySelected?: boolean
+    hideIndustrialFiltersWhenCategorySelected?: boolean
 }
+
+const INDUSTRIAL_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"] as const
+const INDUSTRIAL_ATTRIBUTE_CODE_SET = new Set<string>(INDUSTRIAL_ATTRIBUTE_CODES)
 
 function ProductSidebarSearchControl({
     committedSearch,
@@ -116,6 +121,8 @@ export default function ProductFilterSidebar({
     hiddenAttributeCodesWhenCategorySelected = [],
     showProductSearch = false,
     productSearchPlaceholder = "Ürün kodu veya adı ara",
+    showProductFiltersOnlyWhenCategorySelected = false,
+    hideIndustrialFiltersWhenCategorySelected = false,
 }: Props) {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -160,10 +167,13 @@ export default function ProductFilterSidebar({
         [categories, scopedCategorySlug],
     )
 
-    const categoryScopedAttributes = useMemo(() => {
+    const productFilterAttributes = useMemo(() => {
+        if (showProductFiltersOnlyWhenCategorySelected && !scopedCategorySlug) return []
+
+        const nonIndustrialAttributes = attributes.filter((attribute) => !INDUSTRIAL_ATTRIBUTE_CODE_SET.has(attribute.code))
         const scopedAttributes = !scopedAllowedValueIds
-            ? attributes
-            : attributes
+            ? nonIndustrialAttributes
+            : nonIndustrialAttributes
                 .map((attribute) => {
                     return {
                         ...attribute,
@@ -181,7 +191,20 @@ export default function ProductFilterSidebar({
         }
 
         return scopedAttributes.filter((attribute) => !hiddenAttributeCodesSet.has(attribute.code))
-    }, [attributes, scopedAllowedValueIds, scopedCategorySlug, hiddenAttributeCodesSet])
+    }, [attributes, scopedAllowedValueIds, scopedCategorySlug, hiddenAttributeCodesSet, showProductFiltersOnlyWhenCategorySelected])
+
+    const industrialUsageAttributes = useMemo(() => {
+        if (hideIndustrialFiltersWhenCategorySelected && scopedCategorySlug) return []
+
+        return INDUSTRIAL_ATTRIBUTE_CODES
+            .map((code) => attributes.find((attribute) => attribute.code === code))
+            .filter((attribute): attribute is Attribute => Boolean(attribute && (attribute.values?.length ?? 0) > 0))
+    }, [attributes, hideIndustrialFiltersWhenCategorySelected, scopedCategorySlug])
+
+    const filterableAttributes = useMemo(
+        () => [...productFilterAttributes, ...industrialUsageAttributes],
+        [productFilterAttributes, industrialUsageAttributes],
+    )
 
     const pushStateToUrl = useCallback((
         nextCategory: string | undefined,
@@ -204,9 +227,9 @@ export default function ProductFilterSidebar({
         })
     }, [basePath, fixedCategorySlug, router, startTransition])
 
-    const categoryScopedAttributeMap = useMemo(
-        () => new Map(categoryScopedAttributes.map((attribute) => [attribute.code, attribute])),
-        [categoryScopedAttributes]
+    const filterableAttributeMap = useMemo(
+        () => new Map(filterableAttributes.map((attribute) => [attribute.code, attribute])),
+        [filterableAttributes]
     )
 
     useEffect(() => {
@@ -215,7 +238,7 @@ export default function ProductFilterSidebar({
         let changed = false
 
         Object.entries(currentAttributes).forEach(([code, selectedSlugs]) => {
-            const attribute = categoryScopedAttributeMap.get(code)
+            const attribute = filterableAttributeMap.get(code)
             if (!attribute) {
                 if (selectedSlugs.length > 0) changed = true
                 return
@@ -232,7 +255,7 @@ export default function ProductFilterSidebar({
 
         setAttributes(normalized)
         pushStateToUrl(fixedCategorySlug ?? category, normalized)
-    }, [categoryScopedAttributeMap, fixedCategorySlug, category, setAttributes, pushStateToUrl])
+    }, [filterableAttributeMap, fixedCategorySlug, category, setAttributes, pushStateToUrl])
 
     function handleCategory(slug: string) {
         if (hideCategoryFilter) return
@@ -250,7 +273,7 @@ export default function ProductFilterSidebar({
             ? list.filter((value) => value !== slug)
             : [...list, slug]
 
-        const localAttributeMap = new Map(categoryScopedAttributes.map((attr) => [attr.code, attr]))
+        const localAttributeMap = new Map(filterableAttributes.map((attr) => [attr.code, attr]))
         const sectorValues = localAttributeMap.get("sector")?.values ?? []
         const productionGroupValues = localAttributeMap.get("production_group")?.values ?? []
         const usageAreaValues = localAttributeMap.get("usage_area")?.values ?? []
@@ -271,13 +294,9 @@ export default function ProductFilterSidebar({
                 : null
 
         if (allowedProductionGroupSlugs) {
-            if (code === "sector") {
-                next["production_group"] = Array.from(allowedProductionGroupSlugs)
-            } else {
-                next["production_group"] = (next["production_group"] ?? []).filter((value) =>
-                    allowedProductionGroupSlugs.has(value)
-                )
-            }
+            next["production_group"] = (next["production_group"] ?? []).filter((value) =>
+                allowedProductionGroupSlugs.has(value)
+            )
         }
 
         const selectedProductionGroupIds = new Set(
@@ -293,24 +312,26 @@ export default function ProductFilterSidebar({
                         .filter((value) => value.parentValueId && selectedProductionGroupIds.has(value.parentValueId))
                         .map((value) => value.slug)
                 )
+                : selectedSectorIds.size > 0
+                    ? new Set(
+                        usageAreaValues
+                            .filter((value) => {
+                                const parentGroup = productionGroupValues.find((group) => group.id === value.parentValueId)
+                                return Boolean(parentGroup?.parentValueId && selectedSectorIds.has(parentGroup.parentValueId))
+                            })
+                            .map((value) => value.slug)
+                    )
                 : null
 
         if (allowedUsageAreaSlugs) {
-            if (code === "sector") {
-                next["usage_area"] = Array.from(allowedUsageAreaSlugs)
-            } else {
-                next["usage_area"] = (next["usage_area"] ?? []).filter((value) =>
-                    allowedUsageAreaSlugs.has(value)
-                )
-            }
-        } else if (code === "sector") {
-            next["usage_area"] = []
+            next["usage_area"] = (next["usage_area"] ?? []).filter((value) =>
+                allowedUsageAreaSlugs.has(value)
+            )
         }
 
-        if (code === "sector" && selectedSectorIds.size === 0) {
-            next["production_group"] = []
-            next["usage_area"] = []
-        }
+        Object.keys(next).forEach((key) => {
+            if ((next[key] ?? []).length === 0) delete next[key]
+        })
 
         setAttributes(next)
         pushStateToUrl(category, next)
@@ -335,24 +356,8 @@ export default function ProductFilterSidebar({
     }, [category, fixedCategorySlug, search, storeAttributes])
 
     const attributeMap = useMemo(() => {
-        return new Map(categoryScopedAttributes.map((attr) => [attr.code, attr]))
-    }, [categoryScopedAttributes])
-
-    const orderedAttributes = useMemo(() => {
-        const priorityCodes = ["sector", "production_group", "usage_area"]
-        const seen = new Set<string>()
-
-        const prioritized = priorityCodes
-            .map((code) => categoryScopedAttributes.find((attr) => attr.code === code))
-            .filter((attr): attr is Attribute => Boolean(attr))
-            .map((attr) => {
-                seen.add(attr.id)
-                return attr
-            })
-
-        const rest = categoryScopedAttributes.filter((attr) => !seen.has(attr.id))
-        return [...prioritized, ...rest]
-    }, [categoryScopedAttributes])
+        return new Map(filterableAttributes.map((attr) => [attr.code, attr]))
+    }, [filterableAttributes])
 
     const selectedSectorSlugs = useMemo(() => storeAttributes["sector"] ?? [], [storeAttributes])
     const selectedProductionGroupSlugs = useMemo(() => storeAttributes["production_group"] ?? [], [storeAttributes])
@@ -389,6 +394,80 @@ export default function ProductFilterSidebar({
         const anyImage = selectedCategory.assets.find((asset) => asset.type === "IMAGE")
         return anyImage?.url ?? null
     }, [selectedCategory])
+
+    function getVisibleAttributeValues(attr: Attribute) {
+        const baseValues = attr.values ?? []
+
+        if (attr.code === "production_group" && selectedSectorIds.length > 0) {
+            return baseValues.filter((value) => value.parentValueId && selectedSectorIds.includes(value.parentValueId))
+        }
+
+        if (attr.code === "usage_area") {
+            if (selectedProductionGroupIds.length > 0) {
+                return baseValues.filter((value) => value.parentValueId && selectedProductionGroupIds.includes(value.parentValueId))
+            }
+
+            if (selectedSectorIds.length > 0) {
+                const productionGroupValues = attributeMap.get("production_group")?.values ?? []
+                const productionGroupIdsUnderSelectedSectors = new Set(
+                    productionGroupValues
+                        .filter((value) => value.parentValueId && selectedSectorIds.includes(value.parentValueId))
+                        .map((value) => value.id),
+                )
+
+                return baseValues.filter((value) => value.parentValueId && productionGroupIdsUnderSelectedSectors.has(value.parentValueId))
+            }
+        }
+
+        return baseValues
+    }
+
+    function renderAttributeFilter(attr: Attribute) {
+        const values = getVisibleAttributeValues(attr)
+        if (values.length === 0) return null
+
+        const selected = storeAttributes[attr.code] ?? []
+        const usePopoverSelector =
+            attributeSelectorVariant === "popover" || values.length > 8
+
+        return (
+            <section key={attr.id}>
+                {usePopoverSelector ? (
+                    <ProductFilterPopoverSelect
+                        label={attr.name}
+                        options={values.map((value) => ({
+                            id: value.id,
+                            label: value.name,
+                            value: value.slug,
+                        }))}
+                        selectedValues={selected}
+                        onToggle={(slug) => handleAttribute(attr.code, slug)}
+                    />
+                ) : (
+                    <div className="space-y-1.5">
+                        <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                            {attr.name}
+                        </h3>
+                        {values.map((val) => {
+                            const checked = selected.includes(val.slug)
+                            return (
+                                <Label
+                                    key={val.id}
+                                    className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-[13px] transition hover:bg-neutral-50"
+                                >
+                                    <Checkbox
+                                        checked={checked}
+                                        onCheckedChange={() => handleAttribute(attr.code, val.slug)}
+                                    />
+                                    {val.name}
+                                </Label>
+                            )
+                        })}
+                    </div>
+                )}
+            </section>
+        )
+    }
 
     return (
         <aside className="sticky top-24">
@@ -486,59 +565,33 @@ export default function ProductFilterSidebar({
                         </section>
                     )}
 
-                    {orderedAttributes.map((attr) => {
-                        const baseValues = attr.values ?? []
-                        const values =
-                            attr.code === "production_group" && selectedSectorIds.length > 0
-                                ? baseValues.filter((value) => value.parentValueId && selectedSectorIds.includes(value.parentValueId))
-                                : attr.code === "usage_area" && selectedProductionGroupIds.length > 0
-                                    ? baseValues.filter((value) => value.parentValueId && selectedProductionGroupIds.includes(value.parentValueId))
-                                    : baseValues
+                    {productFilterAttributes.length > 0 ? (
+                        <section className="space-y-3">
+                            <div>
+                                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                                    Ürün Filtreleri
+                                </h3>
+                                <p className="mt-1 text-xs leading-5 text-neutral-500">
+                                    Kategoriye bağlı model, bağlantı, profil, malzeme ve benzeri filtreler.
+                                </p>
+                            </div>
+                            {productFilterAttributes.map((attr) => renderAttributeFilter(attr))}
+                        </section>
+                    ) : null}
 
-                        if (values.length === 0) return null
-
-                        const selected = storeAttributes[attr.code] ?? []
-                        const usePopoverSelector =
-                            attributeSelectorVariant === "popover" || values.length > 8
-
-                        return (
-                            <section key={attr.id}>
-                                {usePopoverSelector ? (
-                                    <ProductFilterPopoverSelect
-                                        label={attr.name}
-                                        options={values.map((value) => ({
-                                            id: value.id,
-                                            label: value.name,
-                                            value: value.slug,
-                                        }))}
-                                        selectedValues={selected}
-                                        onToggle={(slug) => handleAttribute(attr.code, slug)}
-                                    />
-                                ) : (
-                                    <div className="space-y-1.5">
-                                        <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-                                            {attr.name}
-                                        </h3>
-                                        {values.map((val) => {
-                                            const checked = selected.includes(val.slug)
-                                            return (
-                                                <Label
-                                                    key={val.id}
-                                                    className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-[13px] transition hover:bg-neutral-50"
-                                                >
-                                                    <Checkbox
-                                                        checked={checked}
-                                                        onCheckedChange={() => handleAttribute(attr.code, val.slug)}
-                                                    />
-                                                    {val.name}
-                                                </Label>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-                            </section>
-                        )
-                    })}
+                    {industrialUsageAttributes.length > 0 ? (
+                        <section className="space-y-3 rounded-2xl border border-amber-200/70 bg-amber-50/45 p-3">
+                            <div>
+                                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                                    Endüstriyel Kullanım
+                                </h3>
+                                <p className="mt-1 text-xs leading-5 text-amber-900/70">
+                                    Sektör, üretim grubu ve kullanım alanı ürünün industrial usage satırlarından filtrelenir.
+                                </p>
+                            </div>
+                            {industrialUsageAttributes.map((attr) => renderAttributeFilter(attr))}
+                        </section>
+                    ) : null}
 
                     <div className="flex items-center gap-2 text-xs text-neutral-500">
                         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}

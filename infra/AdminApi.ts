@@ -229,6 +229,27 @@ adminApi.route("DELETE /customers/{id}/visits/{visitId}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+/*----------------------- COMPANY CONTACTS -----------------------*/
+adminApi.route("GET /company-contacts", {
+    handler: `${folderPrefix}/companyContacts/actions.listCompanyContacts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("GET /company-contacts/{id}", {
+    handler: `${folderPrefix}/companyContacts/actions.getCompanyContact`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /company-contacts", {
+    handler: `${folderPrefix}/companyContacts/actions.createCompanyContact`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /company-contacts/{id}", {
+    handler: `${folderPrefix}/companyContacts/actions.updateCompanyContact`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /orders", {
     handler: `${folderPrefix}/orders/actions.listOrders`,
     ...defaultRouteOptions,

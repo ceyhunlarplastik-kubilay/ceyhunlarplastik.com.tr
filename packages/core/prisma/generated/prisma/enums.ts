@@ -49,6 +49,15 @@ export const CustomerStatus = {
 export type CustomerStatus = (typeof CustomerStatus)[keyof typeof CustomerStatus]
 
 
+export const CustomerAttributeValueAssignmentSource = {
+  MANUAL: 'MANUAL',
+  LEGACY_BACKFILL: 'LEGACY_BACKFILL',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type CustomerAttributeValueAssignmentSource = (typeof CustomerAttributeValueAssignmentSource)[keyof typeof CustomerAttributeValueAssignmentSource]
+
+
 export const WebRequestStatus = {
   NEW: 'NEW',
   CONTACTED: 'CONTACTED',

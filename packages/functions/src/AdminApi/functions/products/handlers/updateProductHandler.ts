@@ -94,6 +94,11 @@ import slugify from "slugify"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateProductDependencies, IUpdateProductEvent } from "@/functions/AdminApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import {
+    assertNoIndustrialAttributeValues,
+    buildProductIndustrialUsageCreateInputs,
+    normalizeProductIndustrialUsages,
+} from "@/core/helpers/products/productIndustrialUsages"
 
 function isAttributeValueAllowedWithParents(
     allowedIds: Set<string>,
@@ -126,7 +131,7 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
         const body = event.body;
 
         // 🔥 asset alanlarını ayır
-        const { assetType, assetRole, assetKey, mimeType, attributeValueIds, categoryId, ...productData } = body;
+        const { assetType, assetRole, assetKey, mimeType, attributeValueIds, industrialUsages, categoryId, ...productData } = body;
 
         try {
 
@@ -176,6 +181,11 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
 
             if (!targetCategory) throw new createError.NotFound("Category not found")
 
+            await assertNoIndustrialAttributeValues(productAttributeValueRepository, attributeValueIds)
+            const normalizedIndustrialUsages = industrialUsages !== undefined
+                ? await normalizeProductIndustrialUsages(productAttributeValueRepository, industrialUsages)
+                : undefined
+
             const allowedAttributeValueIds = (targetCategory as any).allowedAttributeValueIds as string[] | undefined
             if (attributeValueIds !== undefined && allowedAttributeValueIds && allowedAttributeValueIds.length > 0) {
                 const allowedSet = new Set(allowedAttributeValueIds)
@@ -211,7 +221,16 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
                     attributeValues: {
                         set: attributeValueIds.map((id: string) => ({ id }))
                     }
-                })
+                }),
+
+                ...(normalizedIndustrialUsages !== undefined && {
+                    industrialUsages: {
+                        deleteMany: {},
+                        ...(normalizedIndustrialUsages.length > 0 && {
+                            create: buildProductIndustrialUsageCreateInputs(normalizedIndustrialUsages),
+                        }),
+                    },
+                }),
             })
 
             // 🔥 asset lifecycle

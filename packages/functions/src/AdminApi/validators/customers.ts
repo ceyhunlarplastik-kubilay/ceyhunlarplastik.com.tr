@@ -31,6 +31,51 @@ const customerValueSchema = z.object({
         code: z.string(),
         name: z.string(),
     }).loose().optional(),
+    assets: z.array(z.object({
+        id: z.uuid(),
+        key: z.string(),
+        mimeType: z.string(),
+        type: z.string(),
+        role: z.string(),
+        url: z.string().optional(),
+    }).loose()).optional(),
+}).loose()
+
+const customerAttributeAssignmentSchema = z.object({
+    id: z.uuid(),
+    customerId: z.uuid(),
+    attributeValueId: z.uuid(),
+    source: z.enum(["MANUAL", "LEGACY_BACKFILL", "SYSTEM"]),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    attributeValue: customerValueSchema,
+}).loose()
+
+const companyContactSchema = z.object({
+    id: z.uuid(),
+    department: z.string(),
+    name: z.string(),
+    roleLabel: z.string().nullable().optional(),
+    email: z.string().nullable().optional(),
+    phone: z.string().nullable().optional(),
+    whatsappPhone: z.string().nullable().optional(),
+    note: z.string().nullable().optional(),
+    isActive: z.boolean(),
+    displayOrder: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
+
+const customerCompanyContactAssignmentSchema = z.object({
+    id: z.uuid(),
+    customerId: z.uuid(),
+    companyContactId: z.uuid(),
+    isActive: z.boolean(),
+    displayOrder: z.number(),
+    note: z.string().nullable().optional(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    companyContact: companyContactSchema,
 }).loose()
 
 const featuredProductSchema = z.object({
@@ -38,9 +83,13 @@ const featuredProductSchema = z.object({
     customerId: z.uuid(),
     productId: z.uuid(),
     displayOrder: z.number(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    createdByUserId: z.uuid(),
+    source: z.enum(["MANUAL", "ATTRIBUTE_MATCH"]).optional(),
+    isProfileMatched: z.boolean().optional(),
+    matchedAttributeValueIds: z.array(z.uuid()).optional(),
+    matchedAttributeLabels: z.array(z.string()).optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    createdByUserId: z.uuid().optional(),
     createdByUser: userSummarySchema.optional(),
     product: z.object({
         id: z.uuid(),
@@ -141,6 +190,8 @@ const customerSchema = z.object({
     convertedByUserId: z.uuid().nullable().optional(),
     sectorValueId: z.uuid().nullable().optional(),
     productionGroupValueId: z.uuid().nullable().optional(),
+    attributeValueAssignments: z.array(customerAttributeAssignmentSchema).optional(),
+    companyContactAssignments: z.array(customerCompanyContactAssignmentSchema).optional(),
     createdAt: z.string(),
     updatedAt: z.string(),
     sectorValue: customerValueSchema.nullable().optional(),
@@ -195,9 +246,16 @@ export const updateCustomerValidator = validatorWrapper(
             creditLimit: z.number().min(0).nullable().optional(),
             paymentTermNote: z.string().trim().max(5000).nullable().optional(),
             assignedSalesUserId: z.uuid().nullable().optional(),
+            attributeValueIds: z.array(z.uuid()).max(100).optional(),
             sectorValueId: z.uuid().nullable().optional(),
             productionGroupValueId: z.uuid().nullable().optional(),
             usageAreaValueIds: z.array(z.uuid()).max(30).optional(),
+            companyContactAssignments: z.array(z.object({
+                companyContactId: z.uuid(),
+                isActive: z.boolean().optional(),
+                displayOrder: z.number().int().min(0).optional(),
+                note: z.string().trim().max(2000).nullable().optional(),
+            })).max(50).optional(),
             addresses: z.array(z.object({
                 label: z.string().trim().min(2).max(120),
                 contactName: z.string().trim().max(120).nullable().optional(),

@@ -1,6 +1,7 @@
 import { IAPIGatewayProxyEventWithUser, IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repository"
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository";
+import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository";
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 
 export interface ICreateCategoryBody {
@@ -64,6 +65,7 @@ export interface IListCategoriesDependencies {
 export interface ICreateCategoryDependencies {
     categoryRepository: IPrismaCategoryRepository
     assetRepository: IPrismaAssetRepository
+    productAttributeValueRepository: IPrismaProductAttributeValueRepository
 }
 
 // export interface IDeleteCategoryDependencies extends IGetCategoryDependencies { }
@@ -78,6 +80,7 @@ export interface IDeleteCategoryDependencies {
 export interface IUpdateCategoryDependencies {
     categoryRepository: IPrismaCategoryRepository,
     assetRepository: IPrismaAssetRepository,
+    productAttributeValueRepository: IPrismaProductAttributeValueRepository
 }
 
 // ✅ Presign request

@@ -23,6 +23,7 @@ import type {
     Prisma,
 } from "@/prisma/generated/prisma/client"
 import { buildApprovalSteps, getBusinessRequestDefaultTitle, getBusinessRequestDomain, getRequesterApprovalRole } from "@/core/helpers/businessRequests/policy"
+import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
 
 type RequestWithApprovalSteps<TStep> = {
     approvalSteps: TStep[]
@@ -40,6 +41,31 @@ function asRecord(value: unknown) {
     return value && typeof value === "object" && !Array.isArray(value)
         ? value as Record<string, unknown>
         : {}
+}
+
+async function assertNoIndustrialAttributeValuesInTransaction(
+    tx: PrismaTransactionClient,
+    attributeValueIds: string[],
+    targetLabel: string,
+) {
+    if (attributeValueIds.length === 0) return
+
+    const count = await tx.productAttributeValue.count({
+        where: {
+            id: {
+                in: Array.from(new Set(attributeValueIds)),
+            },
+            attribute: {
+                code: {
+                    in: Object.values(INDUSTRIAL_ATTRIBUTE_CODES),
+                },
+            },
+        },
+    })
+
+    if (count > 0) {
+        throw new createError.BadRequest(`${targetLabel} cannot use sector, production_group or usage_area as category-scoped product attributes`)
+    }
 }
 
 function isFiniteNumber(value: unknown): value is number {
@@ -275,6 +301,8 @@ async function applyApprovedBusinessRequestTx(
             throw new createError.BadRequest("Supplier category create request payload is incomplete")
         }
 
+        await assertNoIndustrialAttributeValuesInTransaction(tx, allowedAttributeValueIds, "Supplier category create request")
+
         await tx.category.create({
             data: {
                 code,
@@ -306,6 +334,8 @@ async function applyApprovedBusinessRequestTx(
         if (Number(code.split(".")[0]) !== category.code) {
             throw new createError.BadRequest(`Product code must start with category code ${category.code}`)
         }
+
+        await assertNoIndustrialAttributeValuesInTransaction(tx, attributeValueIds, "Supplier product create request")
 
         await tx.product.create({
             data: {

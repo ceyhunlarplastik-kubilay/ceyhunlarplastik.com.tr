@@ -1,6 +1,6 @@
 import type { Prisma } from "@/prisma/generated/prisma/client"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
-import { validateCustomerAttributeSelection } from "@/core/helpers/crm/customerAttributes"
+import { resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
 
 type Input = {
     companyName?: string | null
@@ -14,6 +14,7 @@ type Input = {
     creditLimit?: number | null
     paymentTermNote?: string | null
     assignedSalesUserId?: string | null
+    attributeValueIds?: string[]
     sectorValueId?: string | null
     productionGroupValueId?: string | null
     usageAreaValueIds?: string[]
@@ -44,14 +45,12 @@ export async function buildCustomerUpdateData(
     productAttributeValueRepository: IPrismaProductAttributeValueRepository,
     input: Input,
 ): Promise<Prisma.CustomerUpdateInput> {
-    const { usageAreaIds } = await validateCustomerAttributeSelection(
-        productAttributeValueRepository,
-        {
-            sectorValueId: input.sectorValueId,
-            productionGroupValueId: input.productionGroupValueId,
-            usageAreaValueIds: input.usageAreaValueIds,
-        },
-    )
+    const resolvedAttributes = await resolveCustomerAttributeAssignments(productAttributeValueRepository, {
+        attributeValueIds: input.attributeValueIds,
+        sectorValueId: input.sectorValueId,
+        productionGroupValueId: input.productionGroupValueId,
+        usageAreaValueIds: input.usageAreaValueIds,
+    })
 
     const data: Prisma.CustomerUpdateInput = {
         ...(input.companyName !== undefined ? { companyName: input.companyName } : {}),
@@ -69,22 +68,45 @@ export async function buildCustomerUpdateData(
                 ? { assignedSalesUser: { connect: { id: input.assignedSalesUserId } } }
                 : { assignedSalesUser: { disconnect: true } }
             : {}),
-        ...(input.sectorValueId !== undefined
-            ? input.sectorValueId
-                ? { sectorValue: { connect: { id: input.sectorValueId } } }
+        ...(resolvedAttributes
+            ? resolvedAttributes.sectorValueId
+                ? { sectorValue: { connect: { id: resolvedAttributes.sectorValueId } } }
                 : { sectorValue: { disconnect: true } }
+            : input.sectorValueId !== undefined
+                ? input.sectorValueId
+                    ? { sectorValue: { connect: { id: input.sectorValueId } } }
+                    : { sectorValue: { disconnect: true } }
             : {}),
-        ...(input.productionGroupValueId !== undefined
-            ? input.productionGroupValueId
-                ? { productionGroupValue: { connect: { id: input.productionGroupValueId } } }
+        ...(resolvedAttributes
+            ? resolvedAttributes.productionGroupValueId
+                ? { productionGroupValue: { connect: { id: resolvedAttributes.productionGroupValueId } } }
                 : { productionGroupValue: { disconnect: true } }
+            : input.productionGroupValueId !== undefined
+                ? input.productionGroupValueId
+                    ? { productionGroupValue: { connect: { id: input.productionGroupValueId } } }
+                    : { productionGroupValue: { disconnect: true } }
             : {}),
-        ...(input.usageAreaValueIds !== undefined
+        ...(resolvedAttributes
             ? {
                 usageAreaValues: {
-                    set: usageAreaIds.map((id) => ({ id })),
+                    set: resolvedAttributes.usageAreaIds.map((id) => ({ id })),
+                },
+                attributeValueAssignments: {
+                    deleteMany: {},
+                    create: resolvedAttributes.assignmentValueIds.map((id) => ({
+                        source: resolvedAttributes.source,
+                        attributeValue: {
+                            connect: { id },
+                        },
+                    })),
                 },
             }
+            : input.usageAreaValueIds !== undefined
+                ? {
+                    usageAreaValues: {
+                        set: [],
+                    },
+                }
             : {}),
         ...(input.addresses !== undefined
             ? {

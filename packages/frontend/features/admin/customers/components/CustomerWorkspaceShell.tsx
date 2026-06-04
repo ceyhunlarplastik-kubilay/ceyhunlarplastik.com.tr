@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
 import { Spinner } from "@/components/ui/spinner"
 import { UserContactCard } from "@/components/ui/user-contact-card"
-import { buildCustomerContactCards } from "@/lib/customers/contactCards"
+import { buildCompanyContactCards, buildCustomerContactCards } from "@/lib/customers/contactCards"
 import { cn } from "@/lib/utils"
 import { useCustomer } from "@/features/admin/customers/hooks/useCustomer"
 import { useManagedCustomer } from "@/features/sales/customers/hooks/useManagedCustomer"
@@ -52,6 +52,11 @@ export function CustomerWorkspaceShell({
             ? "Müşteri tarafındaki ana portal ve talep iletişimi."
             : "Bu müşteri için ek iletişim kişisi.",
         badge: <Badge variant={contact.isPrimary ? "default" : "secondary"}>{contact.isPrimary ? "Ana Yetkili" : "İletişim"}</Badge>,
+    })) : []
+    const companyContacts = customer ? buildCompanyContactCards(customer).map((contact) => ({
+        ...contact,
+        description: "Bu müşteri için atanmış Ceyhunlar departman iletişim noktası.",
+        badge: <Badge variant="outline">Ceyhunlar</Badge>,
     })) : []
 
     return (
@@ -100,6 +105,14 @@ export function CustomerWorkspaceShell({
                                     emptyMessage="Bu müşteri için henüz temsilci atanmamış."
                                     size="compact"
                                 />
+                                {companyContacts.length > 0 ? (
+                                    <CustomerContactCarousel
+                                        contacts={companyContacts}
+                                        eyebrow="Ceyhunlar Departman İletişimleri"
+                                        icon={Building2}
+                                        size="compact"
+                                    />
+                                ) : null}
                             </div>
                         </div>
                     ) : (

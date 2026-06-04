@@ -1,17 +1,18 @@
 "use client"
 
 import Link from "next/link"
-import { BookMarked, Building2, MapPin, PackageCheck, UserRound } from "lucide-react"
+import { Building2, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
 import { Spinner } from "@/components/ui/spinner"
-import { UserContactCard } from "@/components/ui/user-contact-card"
 import { usePortalCustomer } from "@/features/customerPortal/hooks/usePortalCustomer"
 import {
     CustomerPortalPageHeader,
     CustomerPortalPageHeaderStat,
 } from "@/features/customerPortal/components/CustomerPortalPageHeader"
-import { buildCustomerContactCards } from "@/lib/customers/contactCards"
+import { CustomerPortalAddressCarousel } from "@/features/customerPortal/components/CustomerPortalAddressCarousel"
+import { CustomerPortalUsageAreaCarousel } from "@/features/customerPortal/components/CustomerPortalUsageAreaCarousel"
+import { buildCompanyContactCards, buildCustomerContactCards } from "@/lib/customers/contactCards"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
 export function CustomerPortalOverviewPageClient() {
@@ -27,6 +28,26 @@ export function CustomerPortalOverviewPageClient() {
             : "Portal ve operasyon iletişiminde kullanılacak ek müşteri irtibat kişisi.",
         badge: <Badge variant={contact.isPrimary ? "default" : "secondary"}>{contact.isPrimary ? "Ana Yetkili" : "Portal"}</Badge>,
     })) : []
+    const companyContacts = customer ? buildCompanyContactCards(customer).map((contact) => ({
+        ...contact,
+        description: "Ceyhunlar Plastik tarafında bu müşteri için atanmış departman iletişim noktası.",
+        badge: <Badge variant="outline">Ceyhunlar</Badge>,
+    })) : []
+    const ceyhunlarContacts = customer ? [
+        ...(customer.assignedSalesUser ? [{
+            id: `sales-${customer.assignedSalesUser.id}`,
+            name: assignedSalesDisplayName || customer.assignedSalesUser.email,
+            roleLabel: "Satış Temsilcisi",
+            subtitle: "Atanmış temsilci",
+            description: "Teklif, operasyon ve ürün eşleştirmelerinde doğrudan temas kuracağınız Ceyhunlar yetkilisi.",
+            email: customer.assignedSalesUser.email,
+            phone: customer.assignedSalesUser.phone,
+            imageUrl: customer.assignedSalesUser.imageUrl,
+            isPrimary: true,
+            badge: <Badge variant="outline">Satış Temsilcisi</Badge>,
+        }] : []),
+        ...companyContacts,
+    ] : []
 
     if (query.isLoading) {
         return (
@@ -82,44 +103,33 @@ export function CustomerPortalOverviewPageClient() {
                 <div className="grid gap-5 xl:grid-cols-2">
                     <CustomerContactCarousel
                         contacts={customerContacts}
-                        /* eyebrow="Portal İletişimi" */
                         eyebrow="Müşteri İletişim Kişileri"
                         icon={UserRound}
                     />
-                    <UserContactCard
-                        eyebrow="Ceyhunlar Yetkilisi"
-                        icon={PackageCheck}
-                        name={assignedSalesDisplayName}
-                        roleLabel="Satış Temsilcisi"
-                        subtitle="Atanmış temsilci"
-                        description="Teklif, operasyon ve ürün eşleştirmelerinde doğrudan temas kuracağınız Ceyhunlar yetkilisi."
-                        email={customer.assignedSalesUser?.email}
-                        phone={customer.assignedSalesUser?.phone}
-                        imageUrl={customer.assignedSalesUser?.imageUrl}
-                        emptyMessage="Henüz atanmış temsilci yok. Atama yapıldığında iletişim bilgileri burada görünecek."
-                        badge={<Badge variant="outline">Ceyhunlar</Badge>}
-                    />
-                    <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
-                            <BookMarked className="h-3.5 w-3.5" />
-                            Sektörel Eşleşme
-                        </div>
-                        <div className="mt-4 space-y-2 text-sm">
-                            <div className="text-neutral-900">Sektör: {customer.sectorValue?.name ?? "-"}</div>
-                            <div className="text-neutral-900">Üretim Grubu: {customer.productionGroupValue?.name ?? "-"}</div>
-                            <div className="text-neutral-500">
-                                {(customer.usageAreaValues?.length ?? 0) > 0
-                                    ? customer.usageAreaValues?.map((value) => value.name).join(", ")
-                                    : "Kullanım alanı seçilmedi."}
+                    <div>
+                        {ceyhunlarContacts.length > 0 ? (
+                            <CustomerContactCarousel
+                                contacts={ceyhunlarContacts}
+                                eyebrow="Ceyhunlar Departman İletişimleri"
+                                icon={Building2}
+                            />
+                        ) : (
+                            <div className="rounded-3xl border bg-white p-6 shadow-sm">
+                                <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">
+                                    Ceyhunlar Departman İletişimleri
+                                </div>
+                                <p className="mt-3 text-sm leading-6 text-neutral-500">
+                                    Bu müşteri için henüz muhasebe, depo veya operasyon departman iletişimi atanmamış.
+                                    Atama yapıldığında ilgili kişiler burada görünecek.
+                                </p>
                             </div>
-                        </div>
+                        )}
                     </div>
-                    <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                        <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Firma Özeti</div>
-                        <div className="mt-4 space-y-2 text-sm text-neutral-900">
-                            <div>Firma: {customer.companyName || "-"}</div>
-                            <div>Durum: {customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}</div>
-                        </div>
+                    <div className="min-w-0">
+                        <CustomerPortalUsageAreaCarousel customer={customer} />
+                    </div>
+                    <div className="min-w-0">
+                        <CustomerPortalAddressCarousel customer={customer} />
                     </div>
                     <div className="rounded-3xl border bg-white p-6 shadow-sm xl:col-span-2">
                         <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Müşteri Talepleri</div>
@@ -138,38 +148,12 @@ export function CustomerPortalOverviewPageClient() {
                 </div>
 
                 <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                    <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
-                        <MapPin className="h-3.5 w-3.5" />
-                        Adresler
-                    </div>
-                    <div className="mt-4 grid gap-3 lg:grid-cols-2 2xl:grid-cols-1">
-                        {(customer.addresses?.length ?? 0) > 0 ? customer.addresses?.map((address) => (
-                            <div key={address.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <div className="font-medium text-neutral-900">{address.label}</div>
-                                    {address.isPrimary ? <Badge variant="secondary">Birincil</Badge> : null}
-                                    {address.isBilling ? <Badge variant="outline">Fatura</Badge> : null}
-                                    {address.isShipping ? <Badge variant="outline">Sevkiyat</Badge> : null}
-                                </div>
-                                <div className="mt-2 text-sm text-neutral-700">
-                                    {[address.line1, address.line2, address.district, address.city, address.country]
-                                        .filter(Boolean)
-                                        .join(", ")}
-                                </div>
-                                <div className="mt-2 space-y-1 text-xs text-neutral-500">
-                                    {address.contactName ? <div>İrtibat: {address.contactName}</div> : null}
-                                    {address.phone ? <div>Telefon: {address.phone}</div> : null}
-                                    {address.email ? <div>E-posta: {address.email}</div> : null}
-                                    {address.postalCode ? <div>Posta Kodu: {address.postalCode}</div> : null}
-                                    {address.taxOffice ? <div>Vergi Dairesi: {address.taxOffice}</div> : null}
-                                    {address.taxNumber ? <div>Vergi Numarası: {address.taxNumber}</div> : null}
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-4 py-8 text-sm text-neutral-500">
-                                Henüz tanımlı adres bulunmuyor.
-                            </div>
-                        )}
+                    <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Portal Özeti</div>
+                    <div className="mt-4 space-y-3 text-sm text-neutral-700">
+                        <div>Firma: <span className="font-medium text-neutral-950">{customer.companyName || "-"}</span></div>
+                        <div>Durum: <span className="font-medium text-neutral-950">{customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}</span></div>
+                        <div>Adres: <span className="font-medium text-neutral-950">{customer.addresses?.length ?? 0} kayıt</span></div>
+                        <div>Profil eşleşmesi: <span className="font-medium text-neutral-950">{customer.usageAreaValues?.length ?? 0} kullanım alanı</span></div>
                     </div>
                 </div>
             </div>

@@ -249,6 +249,11 @@ protectedApi.route('GET /sales/customers/{id}', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /sales/company-contacts', {
+    handler: `${folderPrefix}/crm/actions.listManagedCompanyContacts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('PUT /sales/customers/{id}', {
     handler: `${folderPrefix}/crm/actions.updateManagedCustomer`,
     ...defaultRouteOptions
@@ -331,6 +336,11 @@ protectedApi.route('GET /purchasing/suppliers/{id}', {
 
 protectedApi.route('GET /portal/customer', {
     handler: `${folderPrefix}/crm/actions.getPortalCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /portal/customer/addresses', {
+    handler: `${folderPrefix}/crm/actions.createPortalCustomerAddress`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 

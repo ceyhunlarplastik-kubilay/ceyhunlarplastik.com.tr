@@ -21,6 +21,7 @@ export type ProductAttribute = {
     code: string
     name: string
     displayOrder: number
+    isCustomerAssignable?: boolean
     values: AttributeValue[]
 }
 

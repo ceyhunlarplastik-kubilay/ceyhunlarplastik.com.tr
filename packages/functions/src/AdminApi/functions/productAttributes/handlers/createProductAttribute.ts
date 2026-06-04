@@ -2,16 +2,20 @@ import createError from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductAttributeDependencies, ICreateProductAttributeEvent } from "@/functions/AdminApi/types/productAttributes"
+import { isSystemCustomerAssignableAttributeCode } from "@/core/helpers/productAttributes/customerAssignableAttributes"
 
 export const createProductAttributeHandler = ({ productAttributeRepository }: IProductAttributeDependencies) => {
     return async (event: ICreateProductAttributeEvent) => {
-        const { code, name, displayOrder } = event.body
+        const { code, name, displayOrder, isCustomerAssignable } = event.body
 
         try {
             const attribute = await productAttributeRepository.createProductAttribute({
                 code,
                 name,
                 displayOrder: displayOrder ?? 0,
+                isCustomerAssignable: isSystemCustomerAssignableAttributeCode(code)
+                    ? true
+                    : isCustomerAssignable ?? false,
             })
 
             return apiResponseDTO({

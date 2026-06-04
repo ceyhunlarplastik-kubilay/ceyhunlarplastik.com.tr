@@ -1,11 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useMemo, useTransition } from "react"
+import { useEffect, useMemo, useState, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { PackageSearch } from "lucide-react"
 import { ProductCard } from "@/components/navigation/ProductCard"
-import { Spinner } from "@/components/ui/spinner"
 import type { Category } from "@/features/public/categories/types"
 import type { ProductAttribute } from "@/features/public/productAttributes/types"
 import ProductActiveFilters from "@/features/public/products/components/ProductActiveFilters"
@@ -15,6 +14,8 @@ import { useProducts } from "@/features/public/products/hooks/useProducts"
 import { useFilterStore } from "@/features/public/products/store/filterStore"
 import { ProductCategoryFilterRail } from "@/features/admin/products/components/ProductCategoryFilterRail"
 import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
+import { CustomerPortalProductGridSkeleton } from "@/features/customerPortal/components/CustomerPortalProductGridSkeleton"
+import { CustomerPortalProductsLoadingOverlay } from "@/features/customerPortal/components/CustomerPortalProductsLoadingOverlay"
 
 type Props = {
     categories: Category[]
@@ -22,11 +23,13 @@ type Props = {
 }
 
 const basePath = "/musteri/tum-urunler"
+const INDUSTRIAL_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
 
 export function CustomerPortalAllProductsPageClient({ categories, attributes }: Props) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [, startTransition] = useTransition()
+    const [navigatingProductId, setNavigatingProductId] = useState<string | null>(null)
     const { category, search, attributes: selectedAttributes, page, limit, setFromUrl } = useFilterStore()
 
     useEffect(() => {
@@ -37,6 +40,10 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
     const selectedCategory = useMemo(
         () => categories.find((item) => item.slug === categorySlug),
         [categories, categorySlug],
+    )
+    const knownAttributeCodes = useMemo(
+        () => new Set(attributes.map((attribute) => attribute.code)),
+        [attributes],
     )
 
     const params = useMemo(() => {
@@ -54,17 +61,26 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
         }
 
         Object.entries(selectedAttributes).forEach(([key, values]) => {
+            if (!knownAttributeCodes.has(key)) return
+
+            const isIndustrialAttribute = INDUSTRIAL_ATTRIBUTE_CODES.has(key)
+            if (categorySlug && isIndustrialAttribute) return
+            if (!categorySlug && !isIndustrialAttribute) return
+
             if (values.length > 0) {
                 nextParams[key] = values.join(",")
             }
         })
 
         return nextParams
-    }, [categorySlug, limit, page, search, selectedAttributes])
+    }, [categorySlug, knownAttributeCodes, limit, page, search, selectedAttributes])
 
     const productsQuery = useProducts(params)
     const products = productsQuery.data?.data ?? []
     const meta = productsQuery.data?.meta
+    const isInitialLoading = productsQuery.isLoading && products.length === 0
+    const isBackgroundRefetch = productsQuery.isFetching && !isInitialLoading
+    const isNavigatingToProductDetail = navigatingProductId !== null
 
     function handleCategoryIdChange(categoryId: string) {
         const nextCategorySlug = categories.find((item) => item.id === categoryId)?.slug
@@ -76,10 +92,20 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
             params.delete("category")
         }
 
+        Array.from(params.keys()).forEach((key) => {
+            if (!knownAttributeCodes.has(key)) return
+
+            const isIndustrialAttribute = INDUSTRIAL_ATTRIBUTE_CODES.has(key)
+            if (nextCategorySlug && isIndustrialAttribute) params.delete(key)
+            if (!nextCategorySlug && !isIndustrialAttribute) params.delete(key)
+        })
+
         params.set("page", "1")
         if (!params.get("limit")) {
             params.set("limit", String(limit))
         }
+
+        setFromUrl(new URLSearchParams(params.toString()))
 
         startTransition(() => {
             router.replace(`${basePath}?${params.toString()}`, { scroll: false })
@@ -120,7 +146,8 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                         showProductSearch
                         productSearchPlaceholder="Ürün kodu veya adı ara"
                         attributeSelectorVariant="popover"
-                        hiddenAttributeCodesWhenCategorySelected={["sector", "production_group", "usage_area"]}
+                        showProductFiltersOnlyWhenCategorySelected
+                        hideIndustrialFiltersWhenCategorySelected
                     />
                 </div>
 
@@ -130,8 +157,11 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                     <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm">
                         <div className="mb-5 flex flex-col gap-2 border-b border-neutral-100 pb-4 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <div className="text-sm font-semibold text-neutral-900">
-                                    {productsQuery.isLoading ? "Ürünler yükleniyor" : `${meta?.total ?? 0} ürün bulundu`}
+                                <div
+                                    className="text-sm font-semibold text-neutral-900"
+                                    aria-live="polite"
+                                >
+                                    {isInitialLoading ? "Ürünler hazırlanıyor" : `${meta?.total ?? 0} ürün bulundu`}
                                 </div>
                                 <div className="mt-1 text-xs text-neutral-500">
                                     {selectedCategory
@@ -144,44 +174,84 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                             </div>
                         </div>
 
-                        {productsQuery.isLoading ? (
-                            <div className="flex min-h-[320px] items-center justify-center">
-                                <Spinner className="size-5" />
-                            </div>
-                        ) : products.length > 0 ? (
-                            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                                {products.map((product) => {
-                                    const primary = product.assets?.find((asset: { role?: string }) => asset.role === "PRIMARY")
-                                    const animated = product.assets?.find((asset: { role?: string }) => asset.role === "ANIMATION")
-                                    const fallback = product.assets?.find((asset: { type?: string }) => asset.type === "IMAGE")
+                        <div
+                            className="relative"
+                            aria-busy={isInitialLoading || isBackgroundRefetch || isNavigatingToProductDetail}
+                            aria-live="polite"
+                        >
+                            <span className="sr-only">
+                                {isInitialLoading
+                                    ? "Ürün listesi ilk kez yükleniyor"
+                                    : isNavigatingToProductDetail
+                                        ? "Ürün detay sayfası açılıyor"
+                                    : isBackgroundRefetch
+                                        ? "Ürün listesi filtrelere göre güncelleniyor"
+                                        : "Ürün listesi hazır"}
+                            </span>
 
-                                    return (
-                                        <li key={product.id}>
-                                            <ProductCard
-                                                title={product.name}
-                                                code={product.code}
-                                                href={`${basePath}/urun/${product.slug}`}
-                                                imageStatic={primary?.url || fallback?.url || "/placeholder.webp"}
-                                                imageAnimated={animated?.url}
-                                                attributeValues={product.attributeValues}
-                                            />
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        ) : (
-                            <div className="rounded-3xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-16 text-center">
-                                <p className="text-lg font-semibold text-neutral-900">Sonuç bulunamadı</p>
-                                <p className="mt-2 text-sm text-neutral-500">
-                                    Filtreleri azaltmayı veya farklı bir kategori seçmeyi deneyin.
-                                </p>
-                            </div>
-                        )}
+                            {isInitialLoading ? (
+                                <div className="min-h-[320px]">
+                                    <CustomerPortalProductGridSkeleton />
+                                </div>
+                            ) : products.length > 0 ? (
+                                <div className="relative">
+                                    {isBackgroundRefetch || isNavigatingToProductDetail ? (
+                                        <CustomerPortalProductsLoadingOverlay
+                                            label={
+                                                isNavigatingToProductDetail
+                                                    ? "Ürün detayı açılıyor"
+                                                    : "Ürünler güncelleniyor"
+                                            }
+                                            description={
+                                                isNavigatingToProductDetail
+                                                    ? "Seçtiğiniz ürün modeli hazırlanıyor."
+                                                    : "Liste yeni seçiminize göre hazırlanıyor."
+                                            }
+                                        />
+                                    ) : null}
+                                    <ul className="grid gap-5 transition-[filter,opacity] duration-200 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                                        {products.map((product) => {
+                                            const primary = product.assets?.find((asset: { role?: string }) => asset.role === "PRIMARY")
+                                            const animated = product.assets?.find((asset: { role?: string }) => asset.role === "ANIMATION")
+                                            const fallback = product.assets?.find((asset: { type?: string }) => asset.type === "IMAGE")
 
-                        {productsQuery.isFetching && !productsQuery.isLoading ? (
-                            <div className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-500">
-                                <Spinner className="size-4" />
-                                Liste güncelleniyor...
+                                            return (
+                                                <li key={product.id}>
+                                                    <ProductCard
+                                                        title={product.name}
+                                                        code={product.code}
+                                                        href={`${basePath}/urun/${product.slug}`}
+                                                        imageStatic={primary?.url || fallback?.url || "/placeholder.webp"}
+                                                        imageAnimated={animated?.url}
+                                                        attributeValues={product.attributeValues}
+                                                        onNavigationStart={() => setNavigatingProductId(product.id)}
+                                                        navigationPending={navigatingProductId === product.id}
+                                                        navigationPendingLabel="Detay hazırlanıyor"
+                                                    />
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <div className="rounded-3xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-16 text-center">
+                                    <p className="text-lg font-semibold text-neutral-900">Sonuç bulunamadı</p>
+                                    <p className="mt-2 text-sm text-neutral-500">
+                                        Filtreleri azaltmayı veya farklı bir kategori seçmeyi deneyin.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {isBackgroundRefetch || isNavigatingToProductDetail ? (
+                            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-600">
+                                <span className="relative flex h-2.5 w-2.5">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand/35" />
+                                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand" />
+                                </span>
+                                {isNavigatingToProductDetail
+                                    ? "Ürün detay sayfası açılıyor..."
+                                    : "Liste filtrelere göre güncelleniyor..."}
                             </div>
                         ) : null}
 

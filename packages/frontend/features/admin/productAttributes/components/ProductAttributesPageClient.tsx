@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useMemo } from "react"
-import { Layers3 } from "lucide-react"
+import { Layers3, UserRound } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import { AttributeHeader } from "@/features/admin/productAttributes/components/AttributeHeader"
 import { ProductAttributeListFilters } from "@/features/admin/productAttributes/components/ProductAttributeListFilters"
@@ -77,32 +77,42 @@ export function ProductAttributesPageClient() {
                 </p>
             ) : (
                 <div className="grid gap-4">
-                    {filteredAttributes.map((attribute) => (
-                        <Link
-                            key={attribute.id}
-                            href={`/admin/productAttributes/${attribute.id}`}
-                            className="rounded-2xl border bg-white p-4 shadow-sm transition hover:bg-neutral-50"
-                        >
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-semibold text-neutral-900">{attribute.name}</p>
-                                        {hierarchyCodes.has(attribute.code) && (
-                                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
-                                                <Layers3 className="h-3 w-3" />
-                                                Hiyerarşik
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-neutral-500">{attribute.code}</p>
-                                </div>
+                    {filteredAttributes.map((attribute) => {
+                        const isSystemCustomerAttribute = hierarchyCodes.has(attribute.code)
 
-                                <span className="text-xs text-neutral-400">
-                                    {attribute.values?.length ?? 0} değer
-                                </span>
-                            </div>
-                        </Link>
-                    ))}
+                        return (
+                            <Link
+                                key={attribute.id}
+                                href={`/admin/productAttributes/${attribute.id}`}
+                                className="rounded-2xl border bg-white p-4 shadow-sm transition hover:bg-neutral-50"
+                            >
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-semibold text-neutral-900">{attribute.name}</p>
+                                            {isSystemCustomerAttribute && (
+                                                <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                                                    <Layers3 className="h-3 w-3" />
+                                                    Sistem profil alanı
+                                                </span>
+                                            )}
+                                            {!isSystemCustomerAttribute && attribute.isCustomerAssignable && (
+                                                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                                                    <UserRound className="h-3 w-3" />
+                                                    Müşteri Profili
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-neutral-500">{attribute.code}</p>
+                                    </div>
+
+                                    <span className="text-xs text-neutral-400">
+                                        {attribute.values?.length ?? 0} değer
+                                    </span>
+                                </div>
+                            </Link>
+                        )
+                    })}
                 </div>
             )}
         </div>

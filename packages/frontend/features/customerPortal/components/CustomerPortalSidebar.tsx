@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils"
 
 const items = [
     { href: "/musteri", label: "Genel Bakış", icon: LayoutDashboard },
-    { href: "/musteri/profil", label: "Profil / Firma Bilgileri", icon: Building2 },
+    /* { href: "/musteri/profil", label: "Profil / Firma Bilgileri", icon: Building2 }, */
     { href: "/musteri/tanimli-urunler", label: "İlgili Ürünler", icon: BookMarked },
     { href: "/musteri/musteriye-tanimli-urunler", label: "Tanımlı Ürünler", icon: Boxes },
     { href: "/musteri/tum-urunler", label: "Tüm Ürünler", icon: PackageSearch },

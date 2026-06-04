@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 import Image from "next/image"
 import { motion } from "motion/react"
 import { Mail, Phone, type LucideIcon } from "lucide-react"
+import { SiWhatsapp } from "react-icons/si"
 import { cn } from "@/lib/utils"
 
 type UserContactCardProps = {
@@ -40,14 +41,14 @@ function getInitials(value?: string | null) {
 
 function ContactRow({
     icon: Icon,
-    label,
     value,
     href,
+    actions,
 }: {
     icon: LucideIcon
-    label: string
     value?: string | null
     href?: string
+    actions?: ReactNode
 }) {
     return (
         <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
@@ -55,29 +56,56 @@ function ContactRow({
                 <Icon className="h-3.5 w-3.5" />
             </div>
             <div className="min-w-0">
-                <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">
-                    {label}
-                </div>
                 {value ? (
-                    href ? (
-                        <a
-                            href={href}
-                            className="mt-1 block max-w-full break-all text-[13px] font-medium leading-5 text-slate-900 transition hover:text-brand"
-                            title={value}
-                        >
-                            {value}
-                        </a>
-                    ) : (
-                        <div className="mt-1 max-w-full break-words text-[13px] font-medium leading-5 text-slate-900" title={value}>
-                            {value}
-                        </div>
-                    )
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                        {href && !actions ? (
+                            <a
+                                href={href}
+                                target={href.startsWith("https://") ? "_blank" : undefined}
+                                rel={href.startsWith("https://") ? "noopener noreferrer" : undefined}
+                                className="max-w-full break-all text-[13px] font-medium leading-5 text-slate-900 transition hover:text-brand"
+                                title={value}
+                            >
+                                {value}
+                            </a>
+                        ) : (
+                            <div className="max-w-full break-words text-[13px] font-medium leading-5 text-slate-900" title={value}>
+                                {value}
+                            </div>
+                        )}
+                        {actions}
+                    </div>
                 ) : (
                     <div className="mt-1 text-sm text-slate-400">Bilgi eklenmedi</div>
                 )}
             </div>
         </div>
     )
+}
+
+function normalizeWhatsappPhone(phone?: string | null) {
+    if (!phone) return null
+
+    const digits = phone.replace(/\D/g, "")
+    if (!digits) return null
+
+    if (digits.startsWith("00")) return digits.slice(2)
+    if (digits.startsWith("90")) return digits
+    if (digits.startsWith("0")) return `90${digits.slice(1)}`
+    if (digits.length === 10) return `90${digits}`
+
+    return digits
+}
+
+function buildWhatsappHref(phone?: string | null, name?: string | null) {
+    const normalizedPhone = normalizeWhatsappPhone(phone)
+    if (!normalizedPhone) return null
+
+    const message = name
+        ? `Merhaba ${name}, size buradan ulasiyorum.`
+        : "Merhaba, size buradan ulasiyorum."
+
+    return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`
 }
 
 export function UserContactCard({
@@ -98,6 +126,7 @@ export function UserContactCard({
     const compact = size === "compact"
     const initials = getInitials(name || subtitle)
     const hasIdentity = Boolean(name || email || phone)
+    const whatsappHref = buildWhatsappHref(phone, name || subtitle)
 
     return (
         <motion.article
@@ -176,15 +205,28 @@ export function UserContactCard({
                 <div className={cn("grid gap-3", compact ? "md:grid-cols-1" : "sm:grid-cols-2")}>
                     <ContactRow
                         icon={Mail}
-                        label="E-posta"
                         value={email}
                         href={email ? `mailto:${email}` : undefined}
                     />
                     <ContactRow
                         icon={Phone}
-                        label="Telefon"
                         value={phone}
-                        href={phone ? `tel:${phone}` : undefined}
+                        actions={(
+                            <>
+                                {whatsappHref ? (
+                                    <a
+                                        href={whatsappHref}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={`${name || subtitle || "Kisi"} ile WhatsApp uzerinden iletisime gec`}
+                                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800"
+                                    >
+                                        <SiWhatsapp className="h-3.5 w-3.5" />
+                                        <span>{phone}</span>
+                                    </a>
+                                ) : null}
+                            </>
+                        )}
                     />
                 </div>
             </div>

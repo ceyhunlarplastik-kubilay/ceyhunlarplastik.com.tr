@@ -48,22 +48,6 @@ export default async function CategoryPage(
 
     if (!category) notFound()
 
-    const allowedIds = new Set(category.allowedAttributeValueIds ?? [])
-    const filteredAttributes = attributes
-        .map((attribute) => {
-            if (allowedIds.size === 0) return { ...attribute, values: [] }
-            return {
-                ...attribute,
-                values: (attribute.values ?? []).filter((value) => {
-                    if (allowedIds.has(value.id)) return true
-                    if (value.parentValueId && allowedIds.has(value.parentValueId)) return true
-                    return false
-                }),
-            }
-        })
-        .filter((attribute) => (attribute.values?.length ?? 0) > 0)
-        .filter((attribute) => !["sector", "production_group", "usage_area"].includes(attribute.code))
-
     return (
         <main>
 
@@ -80,8 +64,8 @@ export default async function CategoryPage(
             <section className="mx-auto max-w-7xl px-6 py-12 grid grid-cols-12 gap-8">
                 <aside className="col-span-3">
                     <ProductFilterSidebar
-                        categories={[]}
-                        attributes={filteredAttributes}
+                        categories={[category]}
+                        attributes={attributes}
                         hideCategoryFilter
                         fixedCategorySlug={category.slug}
                         basePath={`/urun-kategori/${category.slug}`}

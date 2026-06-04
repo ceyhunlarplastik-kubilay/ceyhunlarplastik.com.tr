@@ -36,7 +36,7 @@ export function CustomerPortalProductsPageClient({ mode = "featured" }: Props) {
         : {
             chip: "Müşteriye Özel Ürünler",
             title: "İlgili Ürünler",
-            description: "Satış temsilcimiz tarafından firmanızla ilgili görülen ürünleri burada bulabilirsiniz.",
+            description: "Satış temsilcimizin öne çıkardığı ürünleri ve profil eşleşmenize göre ilgili bulunan ürünleri burada bulabilirsiniz.",
             countDescription: "Firmanızla ilişkili ürünler",
             emptyMessage: "Henüz firmanız için ilgili ürün bulunmuyor.",
         }
@@ -73,6 +73,20 @@ export function CustomerPortalProductsPageClient({ mode = "featured" }: Props) {
 
                             return (
                                 <li key={item.id}>
+                                    {mode === "featured" ? (
+                                        <div className="mb-2 flex flex-wrap gap-2">
+                                            {item.source !== "ATTRIBUTE_MATCH" ? (
+                                                <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700">
+                                                    Satış temsilcisi seçimi
+                                                </span>
+                                            ) : null}
+                                            {item.isProfileMatched || item.source === "ATTRIBUTE_MATCH" ? (
+                                                <span className="inline-flex items-center rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-medium text-sky-700">
+                                                    Profil eşleşmesi
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                    ) : null}
                                     <ProductCard
                                         title={item.product.name}
                                         code={item.product.code}

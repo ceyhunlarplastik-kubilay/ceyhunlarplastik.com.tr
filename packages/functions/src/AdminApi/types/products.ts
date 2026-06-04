@@ -4,6 +4,7 @@ import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repo
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository";
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository";
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
+import type { ProductIndustrialUsageInput } from "@/core/helpers/products/productIndustrialUsages";
 
 export interface IProductDependencies {
     productRepository: IPrismaProductRepository
@@ -29,6 +30,7 @@ export interface ICreateProductBody {
     assetKey?: string
     mimeType?: string
     attributeValueIds?: string[]
+    industrialUsages?: ProductIndustrialUsageInput[]
 }
 
 export type ICreateProductEvent = IAPIGatewayProxyEventWithUserGeneric<ICreateProductBody>

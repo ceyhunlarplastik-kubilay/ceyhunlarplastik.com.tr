@@ -26,7 +26,10 @@ type Props = {
     onChange: (value: string[]) => void
     allowedAttributeValueIds?: string[]
     singleSelectNonHierarchy?: boolean
+    excludeAttributeCodes?: string[]
 }
+
+const DEFAULT_EXCLUDED_ATTRIBUTE_CODES: string[] = []
 
 type AttributeValue = {
     id: string
@@ -171,9 +174,11 @@ export function ProductAttributeSelect({
     onChange,
     allowedAttributeValueIds,
     singleSelectNonHierarchy = true,
+    excludeAttributeCodes = DEFAULT_EXCLUDED_ATTRIBUTE_CODES,
 }: Props) {
     const { data, isLoading } = useAttributesForFilter()
     const hasRestriction = allowedAttributeValueIds !== undefined
+    const excludedCodes = useMemo(() => new Set(excludeAttributeCodes), [excludeAttributeCodes])
 
     const allowedSet = useMemo(
         () => (hasRestriction ? new Set(allowedAttributeValueIds ?? []) : null),
@@ -181,7 +186,7 @@ export function ProductAttributeSelect({
     )
 
     const scopedAttributes = useMemo(() => {
-        const attrs = data ?? []
+        const attrs = (data ?? []).filter((attribute) => !excludedCodes.has(attribute.code))
         if (!hasRestriction || !allowedSet) return attrs
 
         return attrs
@@ -194,7 +199,7 @@ export function ProductAttributeSelect({
                 }),
             }))
             .filter((attribute) => (attribute.values?.length ?? 0) > 0)
-    }, [data, allowedSet, hasRestriction])
+    }, [data, allowedSet, hasRestriction, excludedCodes])
 
     const orderedAttributes = useMemo(() => {
         const priority = ["sector", "production_group", "usage_area"]

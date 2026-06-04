@@ -11,6 +11,7 @@ import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
 import { useManagedCustomer } from "@/features/sales/customers/hooks/useManagedCustomer"
+import { useManagedCompanyContacts } from "@/features/sales/customers/hooks/useManagedCompanyContacts"
 import { useUpdateManagedCustomer } from "@/features/sales/customers/hooks/useUpdateManagedCustomer"
 import { formatDiscountBadge, formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
 import { getUserDisplayName } from "@/lib/users/displayName"
@@ -19,15 +20,19 @@ type Props = {
     customerId: string
 }
 
+const HIERARCHY_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
+
 export function SalesCustomerOverviewPageClient({ customerId }: Props) {
     const customerQuery = useManagedCustomer(customerId)
     const updateMutation = useUpdateManagedCustomer(customerId)
     const attrsQuery = useAttributesForFilter()
+    const companyContactsQuery = useManagedCompanyContacts()
     const usersQuery = useUsers({ params: { page: 1, limit: 500 } })
     const [dialogOpen, setDialogOpen] = useState(false)
 
     const customer = customerQuery.data
     const attributes = useMemo(() => attrsQuery.data ?? [], [attrsQuery.data])
+    const companyContacts = companyContactsQuery.data?.data ?? []
     const salesUsers = useMemo(
         () => (usersQuery.data?.data ?? [])
             .filter((user) => user.groups.includes("sales") || user.groups.includes("sales_director") || user.groups.includes("admin") || user.groups.includes("owner"))
@@ -48,6 +53,14 @@ export function SalesCustomerOverviewPageClient({ customerId }: Props) {
     const allUsageAreaValues = useMemo(
         () => attributes.find((attribute) => attribute.code === "usage_area")?.values ?? [],
         [attributes],
+    )
+    const customerAssignableAttributes = useMemo(
+        () => attributes.filter((attribute) => attribute.isCustomerAssignable),
+        [attributes],
+    )
+    const genericProfileAssignments = useMemo(
+        () => (customer?.attributeValueAssignments ?? []).filter((assignment) => !HIERARCHY_ATTRIBUTE_CODES.has(assignment.attributeValue.attribute?.code ?? "")),
+        [customer?.attributeValueAssignments],
     )
 
     async function handleSave(values: CustomerEditorFormValues) {
@@ -160,6 +173,38 @@ export function SalesCustomerOverviewPageClient({ customerId }: Props) {
                                     <div className="text-xs text-neutral-400">Üretim Grubu</div>
                                     <div className="mt-1 text-sm font-medium text-neutral-900">{customer.productionGroupValue?.name ?? "-"}</div>
                                 </div>
+                                <div className="sm:col-span-2">
+                                    <div className="text-xs text-neutral-400">Ek Profil Alanları</div>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {genericProfileAssignments.length === 0 ? (
+                                            <span className="text-sm text-neutral-500">Tanımlı ek profil alanı yok</span>
+                                        ) : (
+                                            genericProfileAssignments.map((assignment) => (
+                                                <Badge key={assignment.id} variant="outline">
+                                                    {assignment.attributeValue.attribute?.name ? `${assignment.attributeValue.attribute.name}: ` : ""}
+                                                    {assignment.attributeValue.name}
+                                                </Badge>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <div className="text-xs text-neutral-400">Ceyhunlar İletişimleri</div>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {(customer.companyContactAssignments ?? []).length === 0 ? (
+                                            <span className="text-sm text-neutral-500">Atanmış departman iletişimi yok</span>
+                                        ) : (
+                                            customer.companyContactAssignments?.map((assignment) => (
+                                                <Badge
+                                                    key={assignment.id}
+                                                    variant={assignment.isActive && assignment.companyContact.isActive ? "outline" : "secondary"}
+                                                >
+                                                    {assignment.companyContact.department}: {assignment.companyContact.name}
+                                                </Badge>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -181,6 +226,8 @@ export function SalesCustomerOverviewPageClient({ customerId }: Props) {
                 sectorValues={sectorValues}
                 allProductionGroupValues={allProductionGroupValues}
                 allUsageAreaValues={allUsageAreaValues}
+                customerAssignableAttributes={customerAssignableAttributes}
+                companyContacts={companyContacts}
                 onSubmit={(values) => handleSave(values)}
                 isPending={updateMutation.isPending}
             />

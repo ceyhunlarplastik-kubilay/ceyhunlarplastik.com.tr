@@ -33,6 +33,8 @@ type Props = {
     onUpdated: (category: Category) => void;
 };
 
+const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"];
+
 /* -------------------------- */
 /* ZOD */
 /* -------------------------- */
@@ -223,6 +225,7 @@ export function EditCategoryDialog({
                                 value={allowedAttributeValueIds}
                                 onChange={setAllowedAttributeValueIds}
                                 singleSelectNonHierarchy={false}
+                                excludeAttributeCodes={PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES}
                             />
                         </div>
 

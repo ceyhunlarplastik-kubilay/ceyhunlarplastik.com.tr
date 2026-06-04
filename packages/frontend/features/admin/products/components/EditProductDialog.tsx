@@ -1,6 +1,6 @@
 "use client"
 
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
@@ -39,6 +39,7 @@ import {
 import { useUpdateProduct } from "@/features/admin/products/hooks/useUpdateProduct"
 import { ProductAssetManager } from "@/features/admin/products/components/asset/ProductAssetManager"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
+import { ProductIndustrialUsageEditor } from "@/features/admin/products/components/ProductIndustrialUsageEditor"
 import { productFormSchema, ProductFormValues } from "../schema/productFormSchema"
 
 import type { Product } from "@/features/public/products/types"
@@ -51,6 +52,8 @@ type Props = {
     categories: Category[]
     onUpdated: (product: Product) => void
 }
+
+const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"]
 
 export function EditProductDialog({
     product,
@@ -68,11 +71,20 @@ export function EditProductDialog({
             code: product.code,
             description: product.description ?? "",
             categoryId: product.categoryId,
-            attributeValueIds: product.attributeValues?.map((v) => v.id) ?? [],
+            attributeValueIds: product.attributeValues
+                ?.filter((value) => !PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES.includes(value.attribute?.code ?? ""))
+                .map((v) => v.id) ?? [],
+            industrialUsages: product.industrialUsages?.map((usage, index) => ({
+                sectorValueId: usage.sectorValueId ?? null,
+                productionGroupValueId: usage.productionGroupValueId ?? null,
+                usageAreaValueId: usage.usageAreaValueId ?? null,
+                usageFunction: usage.usageFunction ?? "",
+                displayOrder: usage.displayOrder ?? index,
+            })) ?? [],
         },
     })
 
-    const selectedCategoryId = form.watch("categoryId")
+    const selectedCategoryId = useWatch({ control: form.control, name: "categoryId" })
     const selectedCategory = categories.find((category) => category.id === selectedCategoryId)
 
     async function onSubmit(data: ProductFormValues) {
@@ -170,6 +182,7 @@ export function EditProductDialog({
                                             onChange={field.onChange}
                                             allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
                                             singleSelectNonHierarchy
+                                            excludeAttributeCodes={PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES}
                                         />
                                     )}
                                 />
@@ -184,6 +197,19 @@ export function EditProductDialog({
                             <ProductAssetManager
                                 product={product}
                                 refetchProduct={async () => location.reload()}
+                            />
+                        </div>
+
+                        <div className="col-span-12">
+                            <Controller
+                                name="industrialUsages"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <ProductIndustrialUsageEditor
+                                        value={field.value ?? []}
+                                        onChange={field.onChange}
+                                    />
+                                )}
                             />
                         </div>
                     </div>

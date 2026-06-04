@@ -22,6 +22,7 @@ export type ProductAttribute = {
     name: string
     displayOrder: number
     isActive: boolean
+    isCustomerAssignable?: boolean
     createdAt: string
     updatedAt: string
 

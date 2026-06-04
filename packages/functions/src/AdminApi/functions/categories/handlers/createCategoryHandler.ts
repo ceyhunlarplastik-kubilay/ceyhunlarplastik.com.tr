@@ -4,8 +4,9 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateCategoryDependencies, ICreateCategoryEvent } from "@/functions/AdminApi/types/categories"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { mapCategoryWithAssets } from "@/core/helpers/assets/mapCategoryWithAssets"
+import { assertNoIndustrialAttributeValues } from "@/core/helpers/products/productIndustrialUsages"
 
-export const createCategoryHandler = ({ categoryRepository, assetRepository }: ICreateCategoryDependencies) => {
+export const createCategoryHandler = ({ categoryRepository, assetRepository, productAttributeValueRepository }: ICreateCategoryDependencies) => {
     return async (event: ICreateCategoryEvent) => {
         const body = event.body
 
@@ -21,6 +22,8 @@ export const createCategoryHandler = ({ categoryRepository, assetRepository }: I
         const { code, name, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
         const slug = slugify(name, { lower: true, strict: true, locale: "tr" })
         try {
+            await assertNoIndustrialAttributeValues(productAttributeValueRepository, allowedAttributeValueIds)
+
             let category = await categoryRepository.createCategory({
                 code,
                 name,

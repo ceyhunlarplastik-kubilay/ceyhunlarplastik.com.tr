@@ -2,6 +2,7 @@ import { adminApiClient } from "@/lib/http/client"
 
 import type { Product } from "@/features/public/products/types"
 import type { AssetRole, AssetType } from "@/features/public/assets/types"
+import type { ProductIndustrialUsageFormValues } from "@/features/admin/products/schema/productFormSchema"
 
 import type { CreateProductResponse } from "./types"
 
@@ -15,6 +16,7 @@ type Params = {
     assetKey?: string
     mimeType?: string
     attributeValueIds?: string[]
+    industrialUsages?: ProductIndustrialUsageFormValues[]
 }
 
 export async function createProduct({
@@ -26,7 +28,8 @@ export async function createProduct({
     assetRole,
     assetKey,
     mimeType,
-    attributeValueIds
+    attributeValueIds,
+    industrialUsages
 }: Params): Promise<Product> {
     const res = await adminApiClient.post<CreateProductResponse>(
         "/products",
@@ -39,7 +42,8 @@ export async function createProduct({
             assetRole,
             assetKey,
             mimeType,
-            attributeValueIds
+            attributeValueIds,
+            industrialUsages
         }
     )
     return res.data.payload.product

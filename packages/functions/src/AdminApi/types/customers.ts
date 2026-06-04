@@ -2,6 +2,7 @@ import { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repos
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
+import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
 import type { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 
 export interface ICustomerDependencies {
@@ -45,9 +46,11 @@ export type IUpdateCustomerBody = {
     creditLimit?: number | null
     paymentTermNote?: string | null
     assignedSalesUserId?: string | null
+    attributeValueIds?: string[]
     sectorValueId?: string | null
     productionGroupValueId?: string | null
     usageAreaValueIds?: string[]
+    companyContactAssignments?: CustomerCompanyContactAssignmentInput[]
     addresses?: Array<{
         label: string
         contactName?: string | null

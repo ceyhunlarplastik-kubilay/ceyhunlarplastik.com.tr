@@ -4,6 +4,11 @@ import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateProductDependencies, ICreateProductEvent } from "@/functions/AdminApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import {
+    assertNoIndustrialAttributeValues,
+    buildProductIndustrialUsageCreateInputs,
+    normalizeProductIndustrialUsages,
+} from "@/core/helpers/products/productIndustrialUsages"
 
 function isAttributeValueAllowedWithParents(
     allowedIds: Set<string>,
@@ -31,7 +36,7 @@ function isAttributeValueAllowedWithParents(
 
 export const createProductHandler = ({ productRepository, categoryRepository, assetRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
     return async (event: ICreateProductEvent) => {
-        const { code, name, description, categoryId, attributeValueIds, assetType, assetRole, assetKey, mimeType } = event.body;
+        const { code, name, description, categoryId, attributeValueIds, industrialUsages, assetType, assetRole, assetKey, mimeType } = event.body;
 
         try {
             const category = await categoryRepository.getCategory(categoryId)
@@ -40,6 +45,12 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
             if (Number(code.split(".")[0]) !== category.code) {
                 throw new createError.BadRequest(`Product code must start with category code ${category.code}`);
             }
+
+            await assertNoIndustrialAttributeValues(productAttributeValueRepository, attributeValueIds)
+            const normalizedIndustrialUsages = await normalizeProductIndustrialUsages(
+                productAttributeValueRepository,
+                industrialUsages,
+            )
 
             const allowedAttributeValueIds = (category as any).allowedAttributeValueIds as string[] | undefined
             if (attributeValueIds?.length && allowedAttributeValueIds && allowedAttributeValueIds.length > 0) {
@@ -66,7 +77,12 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
                     ? {
                         connect: attributeValueIds.map((id: string) => ({ id }))
                     }
-                    : undefined
+                    : undefined,
+                industrialUsages: normalizedIndustrialUsages.length
+                    ? {
+                        create: buildProductIndustrialUsageCreateInputs(normalizedIndustrialUsages),
+                    }
+                    : undefined,
             })
 
             // ✅ Asset kaydı: client S3'e upload ettiyse sadece DB kaydı oluştur

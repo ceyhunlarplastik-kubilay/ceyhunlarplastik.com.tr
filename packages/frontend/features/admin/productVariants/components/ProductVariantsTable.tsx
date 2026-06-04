@@ -106,7 +106,9 @@ export function ProductVariantsTable({
 
     return (
         <div className="rounded-2xl border border-neutral-200/60 bg-white shadow-sm p-3 sm:p-4">
-            <div className={`grid ${showActions ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"} gap-3 border-b px-3 py-2 text-[11px] font-semibold text-neutral-500`}>
+            <div
+                className={`sticky top-[72px] z-20 grid ${showActions ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"} gap-3 border-b border-neutral-200/80 bg-white/95 px-3 py-2 text-[11px] font-semibold text-neutral-500 backdrop-blur supports-[backdrop-filter]:bg-white/85 md:top-[80px]`}
+            >
                 <div>Kod / Ad</div>
                 <div>Ölçüler</div>
                 <div>Tedarikçi Özeti</div>
@@ -245,9 +247,9 @@ export function ProductVariantsTable({
 
                                             <div className="mt-3 rounded-md border bg-white p-2">
                                                 <p className="text-[11px] text-neutral-500 mb-1">Tedarikçi Fiyat Detayları</p>
-                                                <div className="overflow-x-auto">
+                                                <div className="max-h-[360px] overflow-auto rounded-lg">
                                                     <Table>
-                                                        <TableHeader>
+                                                        <TableHeader className="sticky top-0 z-10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
                                                             <TableRow>
                                                                 <TableHead className="text-[11px]">Tedarikçi</TableHead>
                                                                 {visibility.showPrice ? <TableHead className="text-[11px]">{labels.price}</TableHead> : null}

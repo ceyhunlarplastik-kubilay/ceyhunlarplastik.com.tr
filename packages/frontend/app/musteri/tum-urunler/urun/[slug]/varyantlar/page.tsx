@@ -101,7 +101,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                     </div>
                 </div>
 
-                <div className="flex flex-col justify-center space-y-4">
+                <div className="flex flex-col justify-start space-y-4">
                     <div className="min-w-0 overflow-hidden rounded-[24px] border border-neutral-200 bg-neutral-50 p-3 sm:p-4">
                         <ProductTechnicalDrawingSection product={product} compact />
                     </div>

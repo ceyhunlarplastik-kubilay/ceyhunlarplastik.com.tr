@@ -4,10 +4,12 @@ import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IUpdateCategoryDependencies, IUpdateCategoryEvent } from "@/functions/AdminApi/types/categories"
 import { mapCategoryWithAssets } from "@/core/helpers/assets/mapCategoryWithAssets"
+import { assertNoIndustrialAttributeValues } from "@/core/helpers/products/productIndustrialUsages"
 
 export const updateCategoryHandler = ({
     categoryRepository,
     assetRepository,
+    productAttributeValueRepository,
 }: IUpdateCategoryDependencies) => {
     return async (event: IUpdateCategoryEvent) => {
         const id = event.pathParameters?.id
@@ -29,6 +31,10 @@ export const updateCategoryHandler = ({
             )
 
         const { name, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
+
+        if (allowedAttributeValueIds !== undefined) {
+            await assertNoIndustrialAttributeValues(productAttributeValueRepository, allowedAttributeValueIds)
+        }
 
         const updateData: Prisma.CategoryUpdateInput = {
             ...(name !== undefined && {

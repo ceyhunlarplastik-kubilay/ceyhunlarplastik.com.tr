@@ -20,6 +20,56 @@ export type CustomerAttributeValue = {
     slug: string
     attributeId: string
     parentValueId?: string | null
+    assets?: Array<{
+        id: string
+        key: string
+        mimeType: string
+        type: string
+        role: string
+        url?: string
+    }>
+    attribute?: {
+        id: string
+        code: string
+        name: string
+    }
+}
+
+export type CustomerAttributeValueAssignment = {
+    id: string
+    customerId: string
+    attributeValueId: string
+    source: "MANUAL" | "LEGACY_BACKFILL" | "SYSTEM"
+    createdAt: string
+    updatedAt: string
+    attributeValue: CustomerAttributeValue
+}
+
+export type CompanyContact = {
+    id: string
+    department: string
+    name: string
+    roleLabel?: string | null
+    email?: string | null
+    phone?: string | null
+    whatsappPhone?: string | null
+    note?: string | null
+    isActive: boolean
+    displayOrder: number
+    createdAt: string
+    updatedAt: string
+}
+
+export type CustomerCompanyContactAssignment = {
+    id: string
+    customerId: string
+    companyContactId: string
+    isActive: boolean
+    displayOrder: number
+    note?: string | null
+    createdAt: string
+    updatedAt: string
+    companyContact: CompanyContact
 }
 
 export type CustomerStatus = "LEAD" | "CUSTOMER"
@@ -30,9 +80,13 @@ export type CustomerFeaturedProduct = {
     customerId: string
     productId: string
     displayOrder: number
-    createdByUserId: string
-    createdAt: string
-    updatedAt: string
+    createdByUserId?: string
+    createdAt?: string
+    updatedAt?: string
+    source?: "MANUAL" | "ATTRIBUTE_MATCH"
+    isProfileMatched?: boolean
+    matchedAttributeValueIds?: string[]
+    matchedAttributeLabels?: string[]
     createdByUser?: UserSummary
     product: Product
 }
@@ -114,6 +168,8 @@ export type AdminCustomer = {
     productionGroupValueId?: string | null
     createdAt: string
     updatedAt: string
+    attributeValueAssignments?: CustomerAttributeValueAssignment[]
+    companyContactAssignments?: CustomerCompanyContactAssignment[]
     sectorValue?: CustomerAttributeValue | null
     productionGroupValue?: CustomerAttributeValue | null
     usageAreaValues?: CustomerAttributeValue[]

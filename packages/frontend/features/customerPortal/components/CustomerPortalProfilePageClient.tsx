@@ -12,12 +12,17 @@ import { usePortalFeaturedProducts } from "@/features/customerPortal/hooks/usePo
 import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 import { getPrimaryCustomerContact } from "@/lib/customers/contactCards"
 
+const HIERARCHY_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
+
 export function CustomerPortalProfilePageClient() {
     const query = usePortalCustomer()
     const customer = query.data
     const featuredQuery = usePortalFeaturedProducts()
     const featuredProducts = (featuredQuery.data ?? []).slice(0, 3)
     const primaryContact = customer ? getPrimaryCustomerContact(customer) : null
+    const genericProfileAssignments = (customer?.attributeValueAssignments ?? []).filter(
+        (assignment) => !HIERARCHY_ATTRIBUTE_CODES.has(assignment.attributeValue.attribute?.code ?? ""),
+    )
 
     if (query.isLoading) {
         return (
@@ -84,6 +89,22 @@ export function CustomerPortalProfilePageClient() {
                         </div>
                     </div>
                 ) : null}
+
+                <div className="mt-6">
+                    <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Ek Profil Alanları</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {genericProfileAssignments.length === 0 ? (
+                            <span className="text-sm text-neutral-500">Ek profil alanı tanımlanmadı.</span>
+                        ) : (
+                            genericProfileAssignments.map((assignment) => (
+                                <Badge key={assignment.id} variant="outline">
+                                    {assignment.attributeValue.attribute?.name ? `${assignment.attributeValue.attribute.name}: ` : ""}
+                                    {assignment.attributeValue.name}
+                                </Badge>
+                            ))
+                        )}
+                    </div>
+                </div>
             </div>
 
             <div className="rounded-3xl border bg-white p-6 shadow-sm">

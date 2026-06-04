@@ -2,6 +2,7 @@ import createError from "http-errors"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
+import { getCustomerFeaturedAndMatchedProducts } from "@/core/helpers/crm/getCustomerFeaturedAndMatchedProducts"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import {
@@ -10,7 +11,9 @@ import {
     assertSupplierManagementAccess,
 } from "@/core/helpers/crm/access"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
+import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
 import {
+    ICreatePortalCustomerAddressEvent,
     ICreateManagedCustomerVisitEvent,
     IDeleteManagedCustomerVisitEvent,
     IListManagedCustomersEvent,
@@ -62,8 +65,31 @@ export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCr
         return apiResponseDTO({
             statusCode: 200,
             payload: {
-                data: result.data.map(mapCustomerForApi),
+                data: result.data.map((customer) => mapCustomerForApi(customer)),
                 meta: result.meta,
+            },
+        })
+    }
+}
+
+export const listManagedCompanyContactsHandler = ({ companyContactRepository }: IProtectedCrmDependencies) => {
+    return async () => {
+        if (!companyContactRepository) {
+            throw new createError.InternalServerError("Company contact repository not configured")
+        }
+
+        const data = await companyContactRepository.listActiveCompanyContacts()
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                data,
+                meta: {
+                    page: 1,
+                    limit: data.length,
+                    total: data.length,
+                    totalPages: 1,
+                },
             },
         })
     }
@@ -103,7 +129,13 @@ export const updateManagedCustomerHandler = ({
         assertCustomerManagementAccess(requester, existing)
 
         const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {})
-        const customer = await customerRepository.updateCustomer(existing.id, data)
+        const updated = await customerRepository.updateCustomer(existing.id, data)
+        const customer = event.body?.companyContactAssignments !== undefined
+            ? await customerRepository.replaceCompanyContactAssignments(
+                existing.id,
+                normalizeCompanyContactAssignments(event.body.companyContactAssignments),
+            )
+            : updated
 
         return apiResponseDTO({
             statusCode: 200,
@@ -379,6 +411,45 @@ export const getPortalCustomerHandler = ({ customerRepository }: IProtectedCrmDe
     }
 }
 
+export const createPortalCustomerAddressHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: ICreatePortalCustomerAddressEvent) => {
+        const customerId = event.user?.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(event.user, customerId)
+
+        const customer = await customerRepository.getCustomer(customerId)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        const updated = await customerRepository.createAddress(customer.id, {
+            label: event.body.label.trim(),
+            contactName: event.body.contactName?.trim() || null,
+            phone: event.body.phone?.trim() || null,
+            email: event.body.email?.trim() || null,
+            countryId: event.body.countryId ?? null,
+            stateId: event.body.stateId ?? null,
+            cityId: event.body.cityId ?? null,
+            country: event.body.country?.trim() || "Turkiye",
+            city: event.body.city.trim(),
+            district: event.body.district?.trim() || null,
+            line1: event.body.line1.trim(),
+            line2: event.body.line2?.trim() || null,
+            postalCode: event.body.postalCode?.trim() || null,
+            taxOffice: event.body.taxOffice?.trim() || null,
+            taxNumber: event.body.taxNumber?.trim() || null,
+            isPrimary: event.body.isPrimary,
+            isBilling: event.body.isBilling,
+            isShipping: event.body.isShipping,
+            note: event.body.note?.trim() || null,
+        })
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updated) },
+        })
+    }
+}
+
 export const getPortalCustomerFeaturedProductsHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
     return async (event: IManagedCustomerEvent) => {
         const customerId = event.user?.customerId
@@ -386,7 +457,7 @@ export const getPortalCustomerFeaturedProductsHandler = ({ customerRepository }:
 
         assertCustomerPortalAccess(event.user, customerId)
 
-        const data = await customerRepository.listFeaturedProducts(customerId)
+        const data = await getCustomerFeaturedAndMatchedProducts(customerId)
 
         return apiResponseDTO({
             statusCode: 200,

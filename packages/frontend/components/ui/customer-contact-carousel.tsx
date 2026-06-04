@@ -63,7 +63,7 @@ export function CustomerContactCarousel({
         <div className={cn("space-y-3", className)}>
             <div className="flex items-center justify-between gap-3">
                 <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
-                    Yetkili Kartları
+                    {eyebrow}
                 </div>
                 {contacts.length > 1 ? (
                     <div className="flex items-center gap-2">

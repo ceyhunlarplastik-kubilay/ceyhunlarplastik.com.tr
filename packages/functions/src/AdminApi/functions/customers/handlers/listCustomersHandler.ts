@@ -30,7 +30,7 @@ export const listCustomersHandler = ({ customerRepository }: ICustomerDependenci
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: result.data.map(mapCustomerForApi),
+                    data: result.data.map((customer) => mapCustomerForApi(customer)),
                     meta: result.meta,
                 },
             })

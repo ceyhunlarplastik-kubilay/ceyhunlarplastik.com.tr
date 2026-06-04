@@ -1,6 +1,7 @@
 import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { validateCustomerAttributeSelection } from "@/core/helpers/crm/customerAttributes"
+import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
+import { resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
 import { ICreateCustomerEvent, ICustomerDependencies } from "@/functions/PublicApi/types/customers"
 
 export const createCustomerHandler = ({
@@ -14,15 +15,16 @@ export const createCustomerHandler = ({
             phone,
             email,
             note,
+            attributeValueIds,
             sectorValueId,
             productionGroupValueId,
             usageAreaValueIds,
         } = event.body
 
         try {
-            const { usageAreaIds } = await validateCustomerAttributeSelection(
+            const resolvedAttributes = await resolveCustomerAttributeAssignments(
                 productAttributeValueRepository,
-                { sectorValueId, productionGroupValueId, usageAreaValueIds },
+                { attributeValueIds, sectorValueId, productionGroupValueId, usageAreaValueIds },
             )
 
             const customer = await customerRepository.createCustomer({
@@ -31,18 +33,26 @@ export const createCustomerHandler = ({
                 phone,
                 email,
                 note,
-                ...(sectorValueId && { sectorValue: { connect: { id: sectorValueId } } }),
-                ...(productionGroupValueId && { productionGroupValue: { connect: { id: productionGroupValueId } } }),
-                ...(usageAreaIds.length > 0 && {
+                ...(resolvedAttributes?.sectorValueId && { sectorValue: { connect: { id: resolvedAttributes.sectorValueId } } }),
+                ...(resolvedAttributes?.productionGroupValueId && { productionGroupValue: { connect: { id: resolvedAttributes.productionGroupValueId } } }),
+                ...(resolvedAttributes && {
                     usageAreaValues: {
-                        connect: usageAreaIds.map((id) => ({ id })),
+                        connect: resolvedAttributes.usageAreaIds.map((id) => ({ id })),
+                    },
+                    attributeValueAssignments: {
+                        create: resolvedAttributes.assignmentValueIds.map((id) => ({
+                            source: resolvedAttributes.source,
+                            attributeValue: {
+                                connect: { id },
+                            },
+                        })),
                     },
                 }),
             })
 
             return apiResponseDTO({
                 statusCode: 201,
-                payload: { customer },
+                payload: { customer: mapCustomerForApi(customer) },
             })
         } catch (error) {
             if (error instanceof HttpError) throw error

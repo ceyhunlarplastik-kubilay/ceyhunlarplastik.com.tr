@@ -2,6 +2,8 @@ import { z } from "zod"
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
 import type { UpdateCustomerInput } from "@/features/admin/customers/api/updateCustomer"
 
+const HIERARCHY_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
+
 function optionalText(max: number) {
     return z.string().trim().max(max).optional().transform((value) => value || "")
 }
@@ -35,9 +37,16 @@ export const customerEditorSchema = z.object({
     note: optionalText(5000),
     status: z.enum(["LEAD", "CUSTOMER"]),
     assignedSalesUserId: z.string().trim().optional().transform((value) => value || ""),
+    companyContactAssignments: z.array(z.object({
+        companyContactId: z.string().trim().min(1),
+        isActive: z.boolean().default(true),
+        displayOrder: z.number().int().min(0).default(0),
+        note: z.string().trim().max(2000).nullable().optional(),
+    })).default([]),
+    attributeValueIds: z.array(z.string().trim()).default([]),
     sectorValueId: z.string().trim().optional().transform((value) => value || ""),
     productionGroupValueId: z.string().trim().optional().transform((value) => value || ""),
-    usageAreaValueId: z.string().trim().optional().transform((value) => value || ""),
+    usageAreaValueIds: z.array(z.string().trim()).default([]),
     generalDiscountPercent: optionalNullableNumber({
         min: 0,
         max: 100,
@@ -59,6 +68,10 @@ export type CustomerEditorFormInput = z.input<typeof customerEditorSchema>
 export type CustomerEditorFormValues = z.output<typeof customerEditorSchema>
 
 export function createCustomerEditorDefaults(customer?: AdminCustomer | null): CustomerEditorFormInput {
+    const genericAttributeValueIds = (customer?.attributeValueAssignments ?? [])
+        .filter((assignment) => !HIERARCHY_ATTRIBUTE_CODES.has(assignment.attributeValue.attribute?.code ?? ""))
+        .map((assignment) => assignment.attributeValueId)
+
     return {
         companyName: customer?.companyName ?? "",
         fullName: customer?.fullName ?? "",
@@ -67,9 +80,16 @@ export function createCustomerEditorDefaults(customer?: AdminCustomer | null): C
         note: customer?.note ?? "",
         status: customer?.status ?? "LEAD",
         assignedSalesUserId: customer?.assignedSalesUserId ?? "",
+        companyContactAssignments: (customer?.companyContactAssignments ?? []).map((assignment, index) => ({
+            companyContactId: assignment.companyContactId,
+            isActive: assignment.isActive,
+            displayOrder: assignment.displayOrder ?? index,
+            note: assignment.note ?? null,
+        })),
+        attributeValueIds: genericAttributeValueIds,
         sectorValueId: customer?.sectorValueId ?? "",
         productionGroupValueId: customer?.productionGroupValueId ?? "",
-        usageAreaValueId: customer?.usageAreaValues?.[0]?.id ?? "",
+        usageAreaValueIds: customer?.usageAreaValues?.map((value) => value.id) ?? [],
         generalDiscountPercent: customer?.generalDiscountPercent ?? null,
         defaultPaymentTermDays: customer?.defaultPaymentTermDays ?? null,
         creditLimit: customer?.creditLimit ?? null,
@@ -78,6 +98,13 @@ export function createCustomerEditorDefaults(customer?: AdminCustomer | null): C
 }
 
 export function buildCustomerUpdatePayload(customerId: string, values: CustomerEditorFormValues): UpdateCustomerInput {
+    const mergedAttributeValueIds = Array.from(new Set([
+        ...values.attributeValueIds,
+        values.sectorValueId || null,
+        values.productionGroupValueId || null,
+        ...values.usageAreaValueIds,
+    ].filter((value): value is string => Boolean(value))))
+
     return {
         id: customerId,
         companyName: values.companyName || null,
@@ -87,9 +114,16 @@ export function buildCustomerUpdatePayload(customerId: string, values: CustomerE
         note: values.note || null,
         status: values.status,
         assignedSalesUserId: values.assignedSalesUserId || null,
+        companyContactAssignments: values.companyContactAssignments.map((assignment, index) => ({
+            companyContactId: assignment.companyContactId,
+            isActive: assignment.isActive,
+            displayOrder: assignment.displayOrder ?? index,
+            note: assignment.note || null,
+        })),
+        attributeValueIds: mergedAttributeValueIds,
         sectorValueId: values.sectorValueId || null,
         productionGroupValueId: values.productionGroupValueId || null,
-        usageAreaValueIds: values.usageAreaValueId ? [values.usageAreaValueId] : [],
+        usageAreaValueIds: values.usageAreaValueIds,
         generalDiscountPercent: values.generalDiscountPercent,
         defaultPaymentTermDays: values.defaultPaymentTermDays,
         creditLimit: values.creditLimit,

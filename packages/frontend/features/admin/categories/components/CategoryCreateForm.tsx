@@ -42,6 +42,8 @@ type Props = {
     onCreated?: (category: Category) => void
 }
 
+const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"]
+
 const schema = z.object({
     code: z.number().int().positive("Kod pozitif olmalı"),
     name: z.string().min(2, "Kategori adı gerekli"),
@@ -256,12 +258,13 @@ export function CategoryCreateForm({ onCreated }: Props) {
                             <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
                                 <div className="mb-4 space-y-1">
                                     <div className="text-sm font-semibold text-neutral-900">İzinli Attribute Değerleri</div>
-                                    <div className="text-xs text-neutral-500">Bu kategori altında açılabilecek ürünlerde görünecek sektör, üretim grubu ve kullanım alanlarını tanımlayın.</div>
+                                    <div className="text-xs text-neutral-500">Bu kategori altında açılabilecek ürünlerde görünecek model, bağlantı, profil, malzeme ve benzeri filtre değerlerini tanımlayın.</div>
                                 </div>
                                 <ProductAttributeSelect
                                     value={allowedAttributeValueIds}
                                     onChange={setAllowedAttributeValueIds}
                                     singleSelectNonHierarchy={false}
+                                    excludeAttributeCodes={PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES}
                                 />
                             </div>
                         </div>

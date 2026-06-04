@@ -4,11 +4,13 @@ import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQ
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
+import { getEffectiveCustomerAssignable } from "@/core/helpers/productAttributes/customerAssignableAttributes"
 
 type ProductAttributeForFilter = {
     id: string
     code: string
     name: string
+    isCustomerAssignable: boolean
     values: {
         id: string
         name: string
@@ -44,6 +46,10 @@ export interface IPrismaProductAttributeRepository {
 }
 
 export const productAttributeRepository = (): IPrismaProductAttributeRepository => {
+    const applyEffectiveCustomerAssignable = <T extends { code: string; isCustomerAssignable: boolean }>(attribute: T): T => ({
+        ...attribute,
+        isCustomerAssignable: getEffectiveCustomerAssignable(attribute),
+    })
 
     const listProductAttributes = async (query: IPaginationQuery) => {
 
@@ -69,7 +75,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
             prisma.productAttribute.count({ where }),
         ])
 
-        return buildPaginationResponse(data, {
+        return buildPaginationResponse(data.map(applyEffectiveCustomerAssignable), {
             page,
             limit,
             total,
@@ -78,7 +84,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
     }
 
     const listAttributesWithValues = async () => {
-        return prisma.productAttribute.findMany({
+        const attributes = await prisma.productAttribute.findMany({
             where: {
                 isActive: true,
             },
@@ -96,6 +102,8 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                 },
             },
         })
+
+        return attributes.map(applyEffectiveCustomerAssignable)
     }
 
     const listAttributesForFilter = async () => {
@@ -105,6 +113,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                 id: true,
                 code: true,
                 name: true,
+                isCustomerAssignable: true,
                 values: {
                     where: { isActive: true },
                     select: {
@@ -131,6 +140,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
 
         return attributes.map((attribute) => ({
             ...attribute,
+            isCustomerAssignable: getEffectiveCustomerAssignable(attribute),
             values: attribute.values.map((value) => ({
                 ...value,
                 assets: value.assets.map((asset) => ({
@@ -141,10 +151,12 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
         }))
     }
 
-    const getProductAttribute = (id: string) =>
-        prisma.productAttribute.findUniqueOrThrow({
+    const getProductAttribute = async (id: string) => {
+        const attribute = await prisma.productAttribute.findUniqueOrThrow({
             where: { id },
         })
+        return applyEffectiveCustomerAssignable(attribute)
+    }
 
     const createProductAttribute = (data: Prisma.ProductAttributeCreateInput) =>
         prisma.productAttribute.create({

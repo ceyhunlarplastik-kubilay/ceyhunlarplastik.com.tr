@@ -2,6 +2,7 @@
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
+import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Product } from "@/prisma/generated/prisma/client"
@@ -137,6 +138,7 @@ import { prisma } from "@/core/db/prisma"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
+import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Product } from "@/prisma/generated/prisma/client"
@@ -154,6 +156,40 @@ export type ProductWithRelations = Prisma.ProductGetPayload<{
                         parentValue: {
                             include: {
                                 attribute: true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        industrialUsages: {
+            include: {
+                sectorValue: {
+                    include: {
+                        attribute: true
+                    }
+                }
+                productionGroupValue: {
+                    include: {
+                        attribute: true
+                        parentValue: {
+                            include: {
+                                attribute: true
+                            }
+                        }
+                    }
+                }
+                usageAreaValue: {
+                    include: {
+                        attribute: true
+                        parentValue: {
+                            include: {
+                                attribute: true
+                                parentValue: {
+                                    include: {
+                                        attribute: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -199,6 +235,43 @@ export const productRepository = (): IPrismaProductRepository => {
                     },
                 },
             }
+        },
+        industrialUsages: {
+            orderBy: {
+                displayOrder: "asc",
+            },
+            include: {
+                sectorValue: {
+                    include: {
+                        attribute: true,
+                    },
+                },
+                productionGroupValue: {
+                    include: {
+                        attribute: true,
+                        parentValue: {
+                            include: {
+                                attribute: true,
+                            },
+                        },
+                    },
+                },
+                usageAreaValue: {
+                    include: {
+                        attribute: true,
+                        parentValue: {
+                            include: {
+                                attribute: true,
+                                parentValue: {
+                                    include: {
+                                        attribute: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         }
     } satisfies Prisma.ProductInclude
 
@@ -221,35 +294,78 @@ export const productRepository = (): IPrismaProductRepository => {
             defaultSort: "code",
         })
 
-        const buildAttributeWhere = (attrCode: string, rawValue: unknown): Prisma.ProductWhereInput | null => {
-            const values = typeof rawValue === "string"
+        const buildFilterValues = (rawValue: unknown) => {
+            if (Array.isArray(rawValue)) {
+                return rawValue
+                    .flatMap((value) => String(value).split(","))
+                    .map((value) => value.trim())
+                    .filter(Boolean)
+            }
+
+            return typeof rawValue === "string"
                 ? rawValue.split(",").map((v) => v.trim()).filter(Boolean)
                 : []
+        }
+
+        const buildAttributeWhere = (attrCode: string, rawValue: unknown): Prisma.ProductWhereInput | null => {
+            const values = buildFilterValues(rawValue)
 
             if (values.length === 0) return null
 
-            if (attrCode === "sector") {
+            if (attrCode === INDUSTRIAL_ATTRIBUTE_CODES.sector) {
                 return {
-                    attributeValues: {
+                    industrialUsages: {
                         some: {
                             OR: [
                                 {
-                                    attribute: { code: "sector" },
-                                    slug: { in: values },
-                                },
-                                {
-                                    attribute: { code: "production_group" },
-                                    parentValue: {
-                                        attribute: { code: "sector" },
+                                    sectorValue: {
+                                        attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.sector },
                                         slug: { in: values },
                                     },
                                 },
                                 {
-                                    attribute: { code: "usage_area" },
-                                    parentValue: {
-                                        attribute: { code: "production_group" },
+                                    productionGroupValue: {
+                                        attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
                                         parentValue: {
-                                            attribute: { code: "sector" },
+                                            attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.sector },
+                                            slug: { in: values },
+                                        },
+                                    },
+                                },
+                                {
+                                    usageAreaValue: {
+                                        attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.usageArea },
+                                        parentValue: {
+                                            attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
+                                            parentValue: {
+                                                attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.sector },
+                                                slug: { in: values },
+                                            },
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                }
+            }
+
+            if (attrCode === INDUSTRIAL_ATTRIBUTE_CODES.productionGroup) {
+                return {
+                    industrialUsages: {
+                        some: {
+                            OR: [
+                                {
+                                    productionGroupValue: {
+                                        attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
+                                        slug: { in: values },
+                                    },
+                                },
+                                {
+                                    usageAreaValue: {
+                                        attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.usageArea },
+                                        parentValue: {
+                                            attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
                                             slug: { in: values },
                                         },
                                     },
@@ -260,23 +376,14 @@ export const productRepository = (): IPrismaProductRepository => {
                 }
             }
 
-            if (attrCode === "production_group") {
+            if (attrCode === INDUSTRIAL_ATTRIBUTE_CODES.usageArea) {
                 return {
-                    attributeValues: {
+                    industrialUsages: {
                         some: {
-                            OR: [
-                                {
-                                    attribute: { code: "production_group" },
-                                    slug: { in: values },
-                                },
-                                {
-                                    attribute: { code: "usage_area" },
-                                    parentValue: {
-                                        attribute: { code: "production_group" },
-                                        slug: { in: values },
-                                    },
-                                },
-                            ],
+                            usageAreaValue: {
+                                attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.usageArea },
+                                slug: { in: values },
+                            },
                         },
                     },
                 }

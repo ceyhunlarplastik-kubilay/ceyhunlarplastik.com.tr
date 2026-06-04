@@ -60,6 +60,14 @@ import { assetTypeEnum, assetRoleEnum, productSchema } from "@/functions/PublicA
    REQUEST VALIDATORS
 =========================== */
 
+const productIndustrialUsageInputSchema = z.object({
+    sectorValueId: z.uuid().nullable().optional(),
+    productionGroupValueId: z.uuid().nullable().optional(),
+    usageAreaValueId: z.uuid().nullable().optional(),
+    usageFunction: z.string().max(2000).nullable().optional(),
+    displayOrder: z.number().int().min(0).nullable().optional(),
+})
+
 export const createProductValidator = validatorWrapper(
     z.object({
         body: z.object({
@@ -72,6 +80,7 @@ export const createProductValidator = validatorWrapper(
             assetKey: z.string().optional(),
             mimeType: z.string().optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
+            industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
         }),
     }),
     {
@@ -95,6 +104,7 @@ export const updateProductValidator = validatorWrapper(
             assetKey: z.string().optional(),
             mimeType: z.string().optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
+            industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
         }),
     }),
     {

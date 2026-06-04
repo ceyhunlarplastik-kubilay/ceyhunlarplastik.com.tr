@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Hash } from "lucide-react";
+import { Hash, Loader2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 interface ProductCardProps {
     title: string;
@@ -27,6 +28,9 @@ interface ProductCardProps {
     /** 👇 SADECE NAVIGATION'DA true */
     asNavigationItem?: boolean;
     showSpecialAttributeValues?: boolean;
+    onNavigationStart?: () => void;
+    navigationPending?: boolean;
+    navigationPendingLabel?: string;
 }
 
 export function ProductCard({
@@ -39,6 +43,9 @@ export function ProductCard({
     children,
     asNavigationItem = false,
     showSpecialAttributeValues = false,
+    onNavigationStart,
+    navigationPending = false,
+    navigationPendingLabel = "Ürün detayı açılıyor",
 }: ProductCardProps) {
     const [hovered, setHovered] = useState(false);
     const hiddenCodes = showSpecialAttributeValues
@@ -50,12 +57,29 @@ export function ProductCard({
         .slice(0, 4);
     const remainingCount = Math.max(attributeValues.filter((value) => !hiddenCodes.has(value.attribute?.code ?? "")).length - compactAttributes.length, 0);
 
+    function isModifiedClick(event: MouseEvent<HTMLAnchorElement>) {
+        return (
+            event.metaKey ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.button !== 0
+        );
+    }
+
     const CardContent = (
         <Link
             href={href}
+            onClick={(event) => {
+                if (isModifiedClick(event)) {
+                    return;
+                }
+                onNavigationStart?.();
+            }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className="block select-none space-y-2 rounded-lg p-2 leading-none no-underline outline-none transition hover:bg-transparent"
+            aria-busy={navigationPending}
         >
             {/* IMAGE */}
             <div className="relative w-full aspect-square rounded-md overflow-hidden bg-white mb-2 flex items-center justify-center p-2 border border-neutral-100">
@@ -92,6 +116,27 @@ export function ProductCard({
                         className="object-contain"
                     />
                 )}
+
+                <AnimatePresence initial={false}>
+                    {navigationPending ? (
+                        <motion.div
+                            key="product-card-nav-overlay"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.16, ease: "easeOut" }}
+                            className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-white/80 text-center backdrop-blur-[1.5px]"
+                            aria-hidden="true"
+                        >
+                            <div className="inline-flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand shadow-sm">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            </div>
+                            <span className="max-w-[11rem] text-[11px] font-medium leading-4 text-neutral-700">
+                                {navigationPendingLabel}
+                            </span>
+                        </motion.div>
+                    ) : null}
+                </AnimatePresence>
             </div>
 
             {/* CONTENT */}

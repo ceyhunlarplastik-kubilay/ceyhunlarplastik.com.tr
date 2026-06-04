@@ -4,6 +4,7 @@ export type CreateCustomerPayload = {
     phone: string
     email: string
     note?: string
+    attributeValueIds?: string[]
     sectorValueId?: string
     productionGroupValueId?: string
     usageAreaValueIds?: string[]

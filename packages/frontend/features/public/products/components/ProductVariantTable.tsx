@@ -1,8 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { motion } from "motion/react"
-import { CircleHelp, Palette, Ruler, Layers3, Hash } from "lucide-react"
+import { useMemo, useState, type MouseEvent } from "react"
+import { AnimatePresence, motion } from "motion/react"
+import { CircleHelp, Loader2, Palette, Ruler, Layers3, Hash } from "lucide-react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 
@@ -30,6 +30,7 @@ import {
     toMeasurementLabel,
 } from "@/features/public/products/utils/measurement"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
+import ProductVariantNavigationOverlay from "@/features/public/products/components/ProductVariantNavigationOverlay"
 
 export type MeasurementTypeDetails = {
     id: string
@@ -204,6 +205,16 @@ function decimalLikeToNumber(
     return Number.isFinite(parsed) ? parsed : null
 }
 
+function isModifiedClick(event: MouseEvent) {
+    return (
+        event.metaKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.button !== 0
+    )
+}
+
 export default function ProductVariantTable({
     variants,
     productSlug,
@@ -214,6 +225,7 @@ export default function ProductVariantTable({
     measurementHelpVideoUrl = "https://www.youtube.com/embed/42mrTRiExjs?autoplay=1",
 }: ProductVariantTableProps) {
     const { data: session } = useSession()
+    const [pendingVariantKey, setPendingVariantKey] = useState<string | null>(null)
     const options = useMemo<GroupedMeasurementOption[]>(() => {
         const groups = new Map<string, GroupedMeasurementOption>()
 
@@ -308,7 +320,9 @@ export default function ProductVariantTable({
 
     const [selectedKey, setSelectedKey] = useState<string>("")
 
+    const isNavigatingToVariant = pendingVariantKey !== null
     const selected = options.find((option) => option.key === selectedKey) ?? options[0]
+    const pendingOption = options.find((option) => option.key === pendingVariantKey)
     const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
     const canManageVariants = groups.includes("owner") || groups.includes("admin")
     const adminVariantsUrl = `/admin/products/${productId}/variants`
@@ -333,28 +347,69 @@ export default function ProductVariantTable({
     }
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+        <div
+            className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+            aria-busy={isNavigatingToVariant}
+            aria-live="polite"
+        >
+            <AnimatePresence>
+                {isNavigatingToVariant ? (
+                    <ProductVariantNavigationOverlay measurementLabel={pendingOption?.label} />
+                ) : null}
+            </AnimatePresence>
+
+            <span className="sr-only" role="status">
+                {isNavigatingToVariant
+                    ? "Secilen varyant detay sayfasi aciliyor."
+                    : "Varyant tablosu hazir."}
+            </span>
+
             <div className="border-b border-neutral-100 px-6 py-4 bg-neutral-50/50">
-                <h2 className="text-base font-semibold text-neutral-900">Ölçü ve Seçenekler</h2>
-                <p className="mt-1 text-xs text-neutral-500 max-w-3xl leading-relaxed">
-                    {focusOnMeasurements
-                        ? "Ölçüler tekilleştirilmiştir. Başlıklardaki yardım ikonundan aynı açıklama videosunu açabilir, tabloyu ölçü matrisi gibi inceleyebilirsiniz."
-                        : "Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz."}
-                </p>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h2 className="text-base font-semibold text-neutral-900">Ölçü ve Seçenekler</h2>
+                        <p className="mt-1 max-w-3xl text-xs leading-relaxed text-neutral-500">
+                            {focusOnMeasurements
+                                ? "Ölçüler tekilleştirilmiştir. Başlıklardaki yardım ikonundan aynı açıklama videosunu açabilir, tabloyu ölçü matrisi gibi inceleyebilirsiniz."
+                                : "Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz."}
+                        </p>
+                    </div>
+
+                    <AnimatePresence initial={false}>
+                        {isNavigatingToVariant ? (
+                            <motion.div
+                                key="variant-nav-status"
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                transition={{ duration: 0.16, ease: "easeOut" }}
+                                className="inline-flex items-center gap-2 rounded-full border border-brand/15 bg-brand/10 px-3 py-1.5 text-[11px] font-medium text-brand"
+                            >
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                {pendingOption?.label
+                                    ? `${pendingOption.label} aciliyor`
+                                    : "Varyantlar aciliyor"}
+                            </motion.div>
+                        ) : null}
+                    </AnimatePresence>
+                </div>
             </div>
 
             <div className="grid gap-5 p-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]">
                 <div className="space-y-2">
                     <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Ölçü Seçenekleri</p>
-                    <div className="max-h-[860px] overflow-x-auto overflow-y-auto rounded-xl border border-neutral-200 bg-neutral-50/10 shadow-inner">
+                    <div className="relative max-h-[860px] overflow-auto rounded-xl border border-neutral-200 bg-neutral-50/10 shadow-inner">
                         <Table className={cn(
                             focusOnMeasurements ? "min-w-[620px]" : "min-w-[780px]",
-                            "[&_td]:px-3 [&_td]:py-2.5 [&_td]:text-xs [&_th]:h-10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-[10px] [&_th]:font-bold [&_th]:tracking-wider [&_th]:uppercase [&_tr]:leading-tight border-collapse"
+                            "[&_td]:px-3 [&_td]:py-2.5 [&_td]:text-xs [&_th]:h-10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-[10px] [&_th]:font-bold [&_th]:tracking-wider [&_th]:uppercase [&_tr]:leading-tight border-separate border-spacing-0"
                         )}>
-                            <TableHeader className="sticky top-0 z-20 bg-neutral-100/95 backdrop-blur-sm border-b border-neutral-200">
+                            <TableHeader>
                                 <TableRow className="hover:bg-transparent">
                                     {measurementColumns.map((column) => (
-                                        <TableHead key={column.id} className="font-semibold text-neutral-700">
+                                        <TableHead
+                                            key={column.id}
+                                            className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]"
+                                        >
                                             <div className="flex items-center gap-1.5">
                                                 <span>{column.code}</span>
                                                 <MeasurementHelpDialogButton
@@ -364,16 +419,41 @@ export default function ProductVariantTable({
                                             </div>
                                         </TableHead>
                                     ))}
-                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Renk</TableHead> : null}
-                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Ham Madde</TableHead> : null}
-                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Tedarikçi</TableHead> : null}
-                                    {!focusOnMeasurements ? <TableHead className="text-center font-semibold text-neutral-700">Kod</TableHead> : null}
-                                    <TableHead className="px-1 text-right font-semibold text-neutral-700">Detay</TableHead>
+                                    {!focusOnMeasurements ? (
+                                        <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
+                                            Renk
+                                        </TableHead>
+                                    ) : null}
+                                    {!focusOnMeasurements ? (
+                                        <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
+                                            Ham Madde
+                                        </TableHead>
+                                    ) : null}
+                                    {!focusOnMeasurements ? (
+                                        <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
+                                            Tedarikçi
+                                        </TableHead>
+                                    ) : null}
+                                    {!focusOnMeasurements ? (
+                                        <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
+                                            Kod
+                                        </TableHead>
+                                    ) : null}
+                                    <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
+                                        Detay
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {options.map((option) => {
                                     const isActive = selected?.key === option.key
+                                    const isPending = pendingVariantKey === option.key && isNavigatingToVariant
+                                    const variantDetailsHref = {
+                                        pathname:
+                                            variantDetailsPathname ??
+                                            `/urun/${productSlug}/varyantlar`,
+                                        query: { m: option.key },
+                                    }
 
                                     return (
                                         <TableRow
@@ -459,19 +539,29 @@ export default function ProductVariantTable({
                                             <TableCell className="px-3 py-2.5 pr-4 text-right align-middle">
                                                 <div className="flex items-center justify-end gap-1.5 leading-none">
                                                     <ButtonShine
-                                                        href={{
-                                                            pathname:
-                                                                variantDetailsPathname ??
-                                                                `/urun/${productSlug}/varyantlar`,
-                                                            query: { m: option.key },
+                                                        href={variantDetailsHref}
+                                                        onClick={(event) => {
+                                                            event.stopPropagation()
+
+                                                            if (isModifiedClick(event)) {
+                                                                return
+                                                            }
+
+                                                            setPendingVariantKey(option.key)
                                                         }}
-                                                        onClick={(e) => e.stopPropagation()}
+                                                        ariaLabel={`${option.label} varyantlarini goster`}
                                                         className={cn(
-                                                            "h-7 px-2.5 text-[11px] font-medium shadow-sm transition-transform active:scale-95",
-                                                            isActive ? "bg-brand text-white shadow-brand/10" : "bg-neutral-900 text-white"
+                                                            "h-7 min-w-[132px] px-2.5 text-[11px] font-medium shadow-sm transition-transform active:scale-95",
+                                                            isActive ? "bg-brand text-white shadow-brand/10" : "bg-neutral-900 text-white",
+                                                            isPending && "cursor-wait"
                                                         )}
                                                     >
-                                                        Varyantları Göster
+                                                        <span className="inline-flex items-center gap-1.5">
+                                                            {isPending ? (
+                                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                            ) : null}
+                                                            {isPending ? "Aciliyor..." : "Varyantları Göster"}
+                                                        </span>
                                                     </ButtonShine>
                                                     {canManageVariants && adminVariantsUrl && !focusOnMeasurements ? (
                                                         <Button
@@ -479,6 +569,7 @@ export default function ProductVariantTable({
                                                             size="sm"
                                                             className="h-7 bg-red-600 px-2.5 text-[11px] text-white hover:bg-red-700 active:scale-95"
                                                             onClick={(e) => e.stopPropagation()}
+                                                            disabled={isNavigatingToVariant}
                                                         >
                                                             <Link href={adminVariantsUrl} target="_blank" rel="noopener noreferrer">
                                                                 Adminde Aç

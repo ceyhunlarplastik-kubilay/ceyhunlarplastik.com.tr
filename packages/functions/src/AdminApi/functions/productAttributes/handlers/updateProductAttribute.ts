@@ -2,6 +2,7 @@ import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductAttributeDependencies, IUpdateProductAttributeEvent } from "@/functions/AdminApi/types/productAttributes"
+import { isSystemCustomerAssignableAttributeCode } from "@/core/helpers/productAttributes/customerAssignableAttributes"
 
 export const updateProductAttributeHandler = ({ productAttributeRepository }: IProductAttributeDependencies) => {
     return async (event: IUpdateProductAttributeEvent) => {
@@ -12,7 +13,13 @@ export const updateProductAttributeHandler = ({ productAttributeRepository }: IP
             const existing = await productAttributeRepository.getProductAttribute(id);
             if (!existing) throw new createError.NotFound("Product attribute not found");
 
-            const updated = await productAttributeRepository.updateProductAttribute(id, body);
+            const nextCode = body.code ?? existing.code
+            const updated = await productAttributeRepository.updateProductAttribute(id, {
+                ...body,
+                ...(isSystemCustomerAssignableAttributeCode(nextCode) && {
+                    isCustomerAssignable: true,
+                }),
+            });
 
             return apiResponseDTO({
                 statusCode: 200,

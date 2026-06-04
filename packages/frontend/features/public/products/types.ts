@@ -13,6 +13,22 @@ export type Product = {
     category?: Category;
     assets?: any[];
     attributeValues?: any[];
+    industrialUsages?: ProductIndustrialUsage[];
+};
+
+export type ProductIndustrialUsage = {
+    id?: string;
+    productId?: string;
+    sectorValueId?: string | null;
+    sectorValue?: any | null;
+    productionGroupValueId?: string | null;
+    productionGroupValue?: any | null;
+    usageAreaValueId?: string | null;
+    usageAreaValue?: any | null;
+    usageFunction?: string | null;
+    displayOrder?: number;
+    createdAt?: string;
+    updatedAt?: string;
 };
 
 

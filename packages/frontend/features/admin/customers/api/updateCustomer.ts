@@ -14,9 +14,16 @@ export type UpdateCustomerInput = {
     creditLimit?: number | null
     paymentTermNote?: string | null
     assignedSalesUserId?: string | null
+    attributeValueIds?: string[]
     sectorValueId?: string | null
     productionGroupValueId?: string | null
     usageAreaValueIds?: string[]
+    companyContactAssignments?: Array<{
+        companyContactId: string
+        isActive?: boolean
+        displayOrder?: number
+        note?: string | null
+    }>
     addresses?: Array<{
         label: string
         contactName?: string | null
