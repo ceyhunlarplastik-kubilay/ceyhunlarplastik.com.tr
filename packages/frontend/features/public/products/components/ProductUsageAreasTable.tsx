@@ -1,14 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { motion } from "motion/react"
-import { Activity } from "lucide-react"
+import { Activity, ImageOff } from "lucide-react"
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
     Table,
     TableBody,
@@ -17,6 +26,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import InteractiveZoomImage from "@/features/public/products/components/InteractiveZoomImage"
 
 type AttributeValue = {
     id: string
@@ -39,6 +49,7 @@ type ProductIndustrialUsage = {
     productionGroupValue?: AttributeValue | null
     usageAreaValue?: AttributeValue | null
     usageFunction?: string | null
+    imageUrl?: string | null
     displayOrder?: number
 }
 
@@ -52,7 +63,11 @@ type Row = {
     productionGroup: string
     usageArea: string
     usageFunction: string
+    imageUrl: string | null
 }
+
+const USAGE_FUNCTION_PREVIEW_LENGTH = 160
+const USAGE_FUNCTION_SOFT_LIMIT = 110
 
 function getAttributeCode(value?: AttributeValue | null) {
     return value?.attribute?.code ?? ""
@@ -88,6 +103,7 @@ function buildRows(attributeValues: AttributeValue[]): Row[] {
             productionGroup: productionGroup?.name ?? "-",
             usageArea: usageValue.name,
             usageFunction: "-",
+            imageUrl: null,
         }
 
         const rowKey = `${row.sector}|${row.productionGroup}|${row.usageArea}`
@@ -107,7 +123,76 @@ function buildRowsFromIndustrialUsages(industrialUsages: ProductIndustrialUsage[
             productionGroup: usage.productionGroupValue?.name ?? "-",
             usageArea: usage.usageAreaValue?.name ?? "-",
             usageFunction: usage.usageFunction?.trim() || "-",
+            imageUrl: usage.imageUrl ?? null,
         }))
+}
+
+function buildUsageFunctionPreview(value: string) {
+    const normalizedValue = value.replace(/\s+/g, " ").trim()
+
+    if (normalizedValue.length <= USAGE_FUNCTION_PREVIEW_LENGTH) {
+        return {
+            preview: normalizedValue,
+            isTruncated: false,
+        }
+    }
+
+    const softCutIndex = normalizedValue.lastIndexOf(" ", USAGE_FUNCTION_SOFT_LIMIT)
+    const safeCutIndex = softCutIndex > 0 ? softCutIndex : USAGE_FUNCTION_PREVIEW_LENGTH
+
+    return {
+        preview: `${normalizedValue.slice(0, safeCutIndex).trimEnd()}...`,
+        isTruncated: true,
+    }
+}
+
+function UsageFunctionPreview({
+    title,
+    sector,
+    productionGroup,
+    value,
+}: {
+    title: string
+    sector: string
+    productionGroup: string
+    value: string
+}) {
+    const { preview, isTruncated } = useMemo(() => buildUsageFunctionPreview(value), [value])
+
+    if (!isTruncated) {
+        return <p className="leading-6 break-words">{preview}</p>
+    }
+
+    return (
+        <Dialog>
+            <div className="space-y-2">
+                <p className="leading-6 break-words">{preview}</p>
+                <DialogTrigger asChild>
+                    <button
+                        type="button"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-brand transition hover:text-brand/80"
+                    >
+                        Devamını oku
+                    </button>
+                </DialogTrigger>
+            </div>
+
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>{title}</DialogTitle>
+                    <DialogDescription>
+                        {sector} / {productionGroup}
+                    </DialogDescription>
+                </DialogHeader>
+
+                <ScrollArea className="max-h-[60vh] pr-4">
+                    <div className="text-sm leading-7 text-neutral-700 whitespace-pre-wrap break-words">
+                        {value}
+                    </div>
+                </ScrollArea>
+            </DialogContent>
+        </Dialog>
+    )
 }
 
 export default function ProductUsageAreasTable({ product, collapsible = false }: Props) {
@@ -127,19 +212,60 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                         <TableHead className="px-4">Sektör</TableHead>
                         <TableHead className="px-4">Üretim Grubu</TableHead>
                         <TableHead className="px-4">Kullanıldığı Endüstriyel Ürün</TableHead>
+                        <TableHead className="w-[180px] px-4">Örnek Görsel</TableHead>
                         <TableHead className="px-4">Kullanım Fonksiyonu</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {rows.map((row, index) => (
-                        <TableRow key={`${row.sector}-${row.productionGroup}-${row.usageArea}-${index}`} className="hover:bg-neutral-50/50 transition-colors">
-                            <TableCell className="px-4 text-neutral-500">{index + 1}</TableCell>
-                            <TableCell className="px-4 font-medium text-neutral-900">{row.sector}</TableCell>
-                            <TableCell className="px-4 text-neutral-600">{row.productionGroup}</TableCell>
-                            <TableCell className="px-4 text-neutral-600">{row.usageArea}</TableCell>
-                            <TableCell className="max-w-md px-4 text-neutral-600">{row.usageFunction}</TableCell>
-                        </TableRow>
-                    ))}
+                    {rows.map((row, index) => {
+                        const rowKey = `${row.sector}-${row.productionGroup}-${row.usageArea}-${index}`
+
+                        return (
+                            <TableRow key={rowKey} className="hover:bg-neutral-50/50 transition-colors">
+                                <TableCell className="px-4 text-neutral-500">{index + 1}</TableCell>
+                                <TableCell className="px-4 font-medium text-neutral-900">{row.sector}</TableCell>
+                                <TableCell className="px-4 text-neutral-600">{row.productionGroup}</TableCell>
+                                <TableCell className="px-4 text-neutral-700">
+                                    <div className="font-medium">{row.usageArea}</div>
+                                </TableCell>
+                                <TableCell className="px-4">
+                                    {row.imageUrl ? (
+                                        <div className="group block w-full text-left">
+                                            <div className="overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 shadow-sm transition group-hover:border-neutral-300">
+                                                <div className="aspect-[4/3]">
+                                                    <InteractiveZoomImage
+                                                        src={row.imageUrl}
+                                                        alt={`${row.usageArea} görseli`}
+                                                        triggerLabel="Büyüt"
+                                                        dialogTitle={`${row.usageArea} örnek kullanım görseli`}
+                                                        dialogEyebrow={`${row.sector} / ${row.productionGroup}`}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+                                                Büyütmek için aç
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-neutral-50 text-center text-xs text-neutral-400">
+                                            <div className="flex flex-col items-center gap-2 px-3">
+                                                <ImageOff className="h-4 w-4" />
+                                                <span>Görsel eklenmedi</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </TableCell>
+                                <TableCell className="max-w-xl px-4 text-neutral-600">
+                                    <UsageFunctionPreview
+                                        title={row.usageArea}
+                                        sector={row.sector}
+                                        productionGroup={row.productionGroup}
+                                        value={row.usageFunction}
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        )
+                    })}
                 </TableBody>
             </Table>
         </div>

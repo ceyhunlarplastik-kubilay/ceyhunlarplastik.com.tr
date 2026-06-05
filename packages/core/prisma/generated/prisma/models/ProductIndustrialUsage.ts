@@ -41,6 +41,7 @@ export type ProductIndustrialUsageMinAggregateOutputType = {
   productionGroupValueId: string | null
   usageAreaValueId: string | null
   usageFunction: string | null
+  imageKey: string | null
   displayOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -53,6 +54,7 @@ export type ProductIndustrialUsageMaxAggregateOutputType = {
   productionGroupValueId: string | null
   usageAreaValueId: string | null
   usageFunction: string | null
+  imageKey: string | null
   displayOrder: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -65,6 +67,7 @@ export type ProductIndustrialUsageCountAggregateOutputType = {
   productionGroupValueId: number
   usageAreaValueId: number
   usageFunction: number
+  imageKey: number
   displayOrder: number
   createdAt: number
   updatedAt: number
@@ -87,6 +90,7 @@ export type ProductIndustrialUsageMinAggregateInputType = {
   productionGroupValueId?: true
   usageAreaValueId?: true
   usageFunction?: true
+  imageKey?: true
   displayOrder?: true
   createdAt?: true
   updatedAt?: true
@@ -99,6 +103,7 @@ export type ProductIndustrialUsageMaxAggregateInputType = {
   productionGroupValueId?: true
   usageAreaValueId?: true
   usageFunction?: true
+  imageKey?: true
   displayOrder?: true
   createdAt?: true
   updatedAt?: true
@@ -111,6 +116,7 @@ export type ProductIndustrialUsageCountAggregateInputType = {
   productionGroupValueId?: true
   usageAreaValueId?: true
   usageFunction?: true
+  imageKey?: true
   displayOrder?: true
   createdAt?: true
   updatedAt?: true
@@ -210,6 +216,7 @@ export type ProductIndustrialUsageGroupByOutputType = {
   productionGroupValueId: string | null
   usageAreaValueId: string | null
   usageFunction: string | null
+  imageKey: string | null
   displayOrder: number
   createdAt: Date
   updatedAt: Date
@@ -245,6 +252,7 @@ export type ProductIndustrialUsageWhereInput = {
   productionGroupValueId?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   usageAreaValueId?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   usageFunction?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
+  imageKey?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   displayOrder?: Prisma.IntFilter<"ProductIndustrialUsage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProductIndustrialUsage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductIndustrialUsage"> | Date | string
@@ -261,6 +269,7 @@ export type ProductIndustrialUsageOrderByWithRelationInput = {
   productionGroupValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   usageAreaValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   usageFunction?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageKey?: Prisma.SortOrderInput | Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -280,6 +289,7 @@ export type ProductIndustrialUsageWhereUniqueInput = Prisma.AtLeast<{
   productionGroupValueId?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   usageAreaValueId?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   usageFunction?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
+  imageKey?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   displayOrder?: Prisma.IntFilter<"ProductIndustrialUsage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProductIndustrialUsage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductIndustrialUsage"> | Date | string
@@ -296,6 +306,7 @@ export type ProductIndustrialUsageOrderByWithAggregationInput = {
   productionGroupValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   usageAreaValueId?: Prisma.SortOrderInput | Prisma.SortOrder
   usageFunction?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageKey?: Prisma.SortOrderInput | Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -316,6 +327,7 @@ export type ProductIndustrialUsageScalarWhereWithAggregatesInput = {
   productionGroupValueId?: Prisma.StringNullableWithAggregatesFilter<"ProductIndustrialUsage"> | string | null
   usageAreaValueId?: Prisma.StringNullableWithAggregatesFilter<"ProductIndustrialUsage"> | string | null
   usageFunction?: Prisma.StringNullableWithAggregatesFilter<"ProductIndustrialUsage"> | string | null
+  imageKey?: Prisma.StringNullableWithAggregatesFilter<"ProductIndustrialUsage"> | string | null
   displayOrder?: Prisma.IntWithAggregatesFilter<"ProductIndustrialUsage"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductIndustrialUsage"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductIndustrialUsage"> | Date | string
@@ -324,6 +336,7 @@ export type ProductIndustrialUsageScalarWhereWithAggregatesInput = {
 export type ProductIndustrialUsageCreateInput = {
   id?: string
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -340,6 +353,7 @@ export type ProductIndustrialUsageUncheckedCreateInput = {
   productionGroupValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -348,6 +362,7 @@ export type ProductIndustrialUsageUncheckedCreateInput = {
 export type ProductIndustrialUsageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -364,6 +379,7 @@ export type ProductIndustrialUsageUncheckedUpdateInput = {
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +392,7 @@ export type ProductIndustrialUsageCreateManyInput = {
   productionGroupValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -384,6 +401,7 @@ export type ProductIndustrialUsageCreateManyInput = {
 export type ProductIndustrialUsageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -396,6 +414,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyInput = {
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -418,6 +437,7 @@ export type ProductIndustrialUsageCountOrderByAggregateInput = {
   productionGroupValueId?: Prisma.SortOrder
   usageAreaValueId?: Prisma.SortOrder
   usageFunction?: Prisma.SortOrder
+  imageKey?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -434,6 +454,7 @@ export type ProductIndustrialUsageMaxOrderByAggregateInput = {
   productionGroupValueId?: Prisma.SortOrder
   usageAreaValueId?: Prisma.SortOrder
   usageFunction?: Prisma.SortOrder
+  imageKey?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -446,6 +467,7 @@ export type ProductIndustrialUsageMinOrderByAggregateInput = {
   productionGroupValueId?: Prisma.SortOrder
   usageAreaValueId?: Prisma.SortOrder
   usageFunction?: Prisma.SortOrder
+  imageKey?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -626,6 +648,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyWithoutUsageAreaValueNested
 export type ProductIndustrialUsageCreateWithoutProductInput = {
   id?: string
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -640,6 +663,7 @@ export type ProductIndustrialUsageUncheckedCreateWithoutProductInput = {
   productionGroupValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -681,6 +705,7 @@ export type ProductIndustrialUsageScalarWhereInput = {
   productionGroupValueId?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   usageAreaValueId?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   usageFunction?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
+  imageKey?: Prisma.StringNullableFilter<"ProductIndustrialUsage"> | string | null
   displayOrder?: Prisma.IntFilter<"ProductIndustrialUsage"> | number
   createdAt?: Prisma.DateTimeFilter<"ProductIndustrialUsage"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductIndustrialUsage"> | Date | string
@@ -689,6 +714,7 @@ export type ProductIndustrialUsageScalarWhereInput = {
 export type ProductIndustrialUsageCreateWithoutSectorValueInput = {
   id?: string
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -703,6 +729,7 @@ export type ProductIndustrialUsageUncheckedCreateWithoutSectorValueInput = {
   productionGroupValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -721,6 +748,7 @@ export type ProductIndustrialUsageCreateManySectorValueInputEnvelope = {
 export type ProductIndustrialUsageCreateWithoutProductionGroupValueInput = {
   id?: string
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -735,6 +763,7 @@ export type ProductIndustrialUsageUncheckedCreateWithoutProductionGroupValueInpu
   sectorValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -753,6 +782,7 @@ export type ProductIndustrialUsageCreateManyProductionGroupValueInputEnvelope = 
 export type ProductIndustrialUsageCreateWithoutUsageAreaValueInput = {
   id?: string
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -767,6 +797,7 @@ export type ProductIndustrialUsageUncheckedCreateWithoutUsageAreaValueInput = {
   sectorValueId?: string | null
   productionGroupValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -836,6 +867,7 @@ export type ProductIndustrialUsageCreateManyProductInput = {
   productionGroupValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -844,6 +876,7 @@ export type ProductIndustrialUsageCreateManyProductInput = {
 export type ProductIndustrialUsageUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -858,6 +891,7 @@ export type ProductIndustrialUsageUncheckedUpdateWithoutProductInput = {
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -869,6 +903,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyWithoutProductInput = {
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -880,6 +915,7 @@ export type ProductIndustrialUsageCreateManySectorValueInput = {
   productionGroupValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -891,6 +927,7 @@ export type ProductIndustrialUsageCreateManyProductionGroupValueInput = {
   sectorValueId?: string | null
   usageAreaValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -902,6 +939,7 @@ export type ProductIndustrialUsageCreateManyUsageAreaValueInput = {
   sectorValueId?: string | null
   productionGroupValueId?: string | null
   usageFunction?: string | null
+  imageKey?: string | null
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -910,6 +948,7 @@ export type ProductIndustrialUsageCreateManyUsageAreaValueInput = {
 export type ProductIndustrialUsageUpdateWithoutSectorValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -924,6 +963,7 @@ export type ProductIndustrialUsageUncheckedUpdateWithoutSectorValueInput = {
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -935,6 +975,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyWithoutSectorValueInput = {
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -943,6 +984,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyWithoutSectorValueInput = {
 export type ProductIndustrialUsageUpdateWithoutProductionGroupValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -957,6 +999,7 @@ export type ProductIndustrialUsageUncheckedUpdateWithoutProductionGroupValueInpu
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -968,6 +1011,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyWithoutProductionGroupValue
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageAreaValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -976,6 +1020,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyWithoutProductionGroupValue
 export type ProductIndustrialUsageUpdateWithoutUsageAreaValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -990,6 +1035,7 @@ export type ProductIndustrialUsageUncheckedUpdateWithoutUsageAreaValueInput = {
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1001,6 +1047,7 @@ export type ProductIndustrialUsageUncheckedUpdateManyWithoutUsageAreaValueInput 
   sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1015,6 +1062,7 @@ export type ProductIndustrialUsageSelect<ExtArgs extends runtime.Types.Extension
   productionGroupValueId?: boolean
   usageAreaValueId?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1031,6 +1079,7 @@ export type ProductIndustrialUsageSelectCreateManyAndReturn<ExtArgs extends runt
   productionGroupValueId?: boolean
   usageAreaValueId?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1047,6 +1096,7 @@ export type ProductIndustrialUsageSelectUpdateManyAndReturn<ExtArgs extends runt
   productionGroupValueId?: boolean
   usageAreaValueId?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1063,12 +1113,13 @@ export type ProductIndustrialUsageSelectScalar = {
   productionGroupValueId?: boolean
   usageAreaValueId?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductIndustrialUsageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "sectorValueId" | "productionGroupValueId" | "usageAreaValueId" | "usageFunction" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["productIndustrialUsage"]>
+export type ProductIndustrialUsageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "sectorValueId" | "productionGroupValueId" | "usageAreaValueId" | "usageFunction" | "imageKey" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["productIndustrialUsage"]>
 export type ProductIndustrialUsageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   sectorValue?: boolean | Prisma.ProductIndustrialUsage$sectorValueArgs<ExtArgs>
@@ -1103,6 +1154,7 @@ export type $ProductIndustrialUsagePayload<ExtArgs extends runtime.Types.Extensi
     productionGroupValueId: string | null
     usageAreaValueId: string | null
     usageFunction: string | null
+    imageKey: string | null
     displayOrder: number
     createdAt: Date
     updatedAt: Date
@@ -1539,6 +1591,7 @@ export interface ProductIndustrialUsageFieldRefs {
   readonly productionGroupValueId: Prisma.FieldRef<"ProductIndustrialUsage", 'String'>
   readonly usageAreaValueId: Prisma.FieldRef<"ProductIndustrialUsage", 'String'>
   readonly usageFunction: Prisma.FieldRef<"ProductIndustrialUsage", 'String'>
+  readonly imageKey: Prisma.FieldRef<"ProductIndustrialUsage", 'String'>
   readonly displayOrder: Prisma.FieldRef<"ProductIndustrialUsage", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ProductIndustrialUsage", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductIndustrialUsage", 'DateTime'>

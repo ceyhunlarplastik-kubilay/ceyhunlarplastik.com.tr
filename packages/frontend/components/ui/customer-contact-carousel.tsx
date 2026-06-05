@@ -35,12 +35,14 @@ export function CustomerContactCarousel({
 
     function scrollToIndex(index: number) {
         const boundedIndex = Math.max(0, Math.min(index, contacts.length - 1))
+        const scroller = scrollerRef.current
         const target = itemRefs.current[boundedIndex]
-        target?.scrollIntoView({
-            behavior: "smooth",
-            inline: "start",
-            block: "nearest",
-        })
+        if (scroller && target) {
+            scroller.scrollTo({
+                left: target.offsetLeft,
+                behavior: "smooth",
+            })
+        }
         setActiveIndex(boundedIndex)
     }
 
@@ -48,19 +50,25 @@ export function CustomerContactCarousel({
         const scroller = scrollerRef.current
         if (!scroller) return
 
-        const nextIndex = itemRefs.current.findIndex((item) => {
-            if (!item) return false
-            const midpoint = item.offsetLeft + item.offsetWidth / 2
-            return midpoint >= scroller.scrollLeft + 24
+        let nextIndex = boundedActiveIndex
+        let smallestDistance = Number.POSITIVE_INFINITY
+
+        itemRefs.current.forEach((item, index) => {
+            if (!item) return
+            const distance = Math.abs(item.offsetLeft - scroller.scrollLeft)
+            if (distance < smallestDistance) {
+                smallestDistance = distance
+                nextIndex = index
+            }
         })
 
-        if (nextIndex >= 0 && nextIndex !== activeIndex) {
+        if (nextIndex !== activeIndex) {
             setActiveIndex(nextIndex)
         }
     }
 
     return (
-        <div className={cn("space-y-3", className)}>
+        <div className={cn("flex h-full flex-col space-y-3", className)}>
             <div className="flex items-center justify-between gap-3">
                 <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
                     {eyebrow}
@@ -97,7 +105,7 @@ export function CustomerContactCarousel({
             <div
                 ref={scrollerRef}
                 onScroll={handleScroll}
-                className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex flex-1 snap-x snap-mandatory items-stretch gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
                 {contacts.map((contact, index) => (
                     <motion.div
@@ -105,7 +113,7 @@ export function CustomerContactCarousel({
                         ref={(node) => {
                             itemRefs.current[index] = node
                         }}
-                        className="min-w-full snap-start"
+                        className="h-full min-w-full snap-start"
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.22, ease: "easeOut", delay: index * 0.04 }}
@@ -122,6 +130,7 @@ export function CustomerContactCarousel({
                             imageUrl={contact.imageUrl}
                             badge={contact.badge}
                             size={size}
+                            className="h-full"
                         />
                     </motion.div>
                 ))}

@@ -10,11 +10,21 @@ type Props = {
     src: string
     alt: string
     compact?: boolean
+    triggerLabel?: string
+    dialogTitle?: string
+    dialogEyebrow?: string
 }
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
-export default function InteractiveZoomImage({ src, alt, compact = false }: Props) {
+export default function InteractiveZoomImage({
+    src,
+    alt,
+    compact = false,
+    triggerLabel = "Büyüt",
+    dialogTitle = "Görsel İnceleme",
+    dialogEyebrow,
+}: Props) {
     const [open, setOpen] = useState(false)
     const [hoverOrigin, setHoverOrigin] = useState({ x: 50, y: 50 })
     const [isHovering, setIsHovering] = useState(false)
@@ -52,7 +62,7 @@ export default function InteractiveZoomImage({ src, alt, compact = false }: Prop
                     setHoverOrigin({ x: clamp(x, 0, 100), y: clamp(y, 0, 100) })
                 }}
                 className="group relative h-full w-full overflow-hidden"
-                aria-label="Teknik çizimi büyüt"
+                aria-label={triggerLabel}
             >
                 <Image
                     src={src}
@@ -69,7 +79,7 @@ export default function InteractiveZoomImage({ src, alt, compact = false }: Prop
                 <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/5" />
                 <div className="pointer-events-none absolute right-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
                     <Maximize2 className="h-3 w-3" />
-                    Büyüt
+                    {triggerLabel}
                 </div>
             </button>
 
@@ -84,11 +94,18 @@ export default function InteractiveZoomImage({ src, alt, compact = false }: Prop
                     showCloseButton={false}
                     className="h-[90vh] w-[95vw] max-w-[1400px] overflow-hidden p-0"
                 >
-                    <DialogTitle className="sr-only">Teknik Çizim Büyütme</DialogTitle>
+                    <DialogTitle className="sr-only">{dialogTitle}</DialogTitle>
 
                     <div className="flex h-full flex-col bg-neutral-100">
                         <div className="flex items-center justify-between border-b border-neutral-800/20 bg-neutral-900 px-4 py-3 text-white">
-                            <p className="text-sm font-medium">Teknik Çizim İnceleme</p>
+                            <div>
+                                {dialogEyebrow ? (
+                                    <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/60">
+                                        {dialogEyebrow}
+                                    </div>
+                                ) : null}
+                                <p className="text-sm font-medium">{dialogTitle}</p>
+                            </div>
                             <div className="flex items-center gap-2">
                                 <Button
                                     type="button"

@@ -1,7 +1,9 @@
 "use client"
 
-import { useMemo } from "react"
-import { Factory, Plus, Trash2 } from "lucide-react"
+import { useMemo, useRef, useState } from "react"
+import axios from "axios"
+import { Factory, ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
+import { usePresignProductAsset } from "@/features/admin/products/hooks/usePresignProductAsset"
 import type { ProductIndustrialUsageFormValues } from "@/features/admin/products/schema/productFormSchema"
 
 const NONE_VALUE = "__none__"
@@ -29,6 +32,7 @@ type AttributeValueOption = {
 }
 
 type Props = {
+    productSlug: string
     value: ProductIndustrialUsageFormValues[]
     onChange: (value: ProductIndustrialUsageFormValues[]) => void
 }
@@ -40,6 +44,8 @@ function normalizeRows(rows: ProductIndustrialUsageFormValues[]) {
         productionGroupValueId: row.productionGroupValueId || null,
         usageAreaValueId: row.usageAreaValueId || null,
         usageFunction: row.usageFunction ?? "",
+        imageKey: row.imageKey?.trim() || null,
+        imageUrl: row.imageUrl ?? null,
         displayOrder: index,
     }))
 }
@@ -50,8 +56,12 @@ function keepSelectedOption(options: AttributeValueOption[], allOptions: Attribu
     return selected ? [selected, ...options] : options
 }
 
-export function ProductIndustrialUsageEditor({ value, onChange }: Props) {
+export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: Props) {
     const { data: attributes, isLoading } = useAttributesForFilter()
+    const presignMutation = usePresignProductAsset()
+    const [uploadingRowIndex, setUploadingRowIndex] = useState<number | null>(null)
+    const valueRef = useRef(value)
+    valueRef.current = value
 
     const sectorValues = useMemo(
         () => attributes?.find((attribute) => attribute.code === INDUSTRIAL_ATTRIBUTE_CODES.sector)?.values ?? [],
@@ -71,24 +81,70 @@ export function ProductIndustrialUsageEditor({ value, onChange }: Props) {
     }
 
     function updateRow(index: number, patch: Partial<ProductIndustrialUsageFormValues>) {
-        emit(value.map((row, rowIndex) => (rowIndex === index ? { ...row, ...patch } : row)))
+        emit(valueRef.current.map((row, rowIndex) => (rowIndex === index ? { ...row, ...patch } : row)))
     }
 
     function addRow() {
         emit([
-            ...value,
+            ...valueRef.current,
             {
                 sectorValueId: null,
                 productionGroupValueId: null,
                 usageAreaValueId: null,
                 usageFunction: "",
-                displayOrder: value.length,
+                imageKey: null,
+                imageUrl: null,
+                displayOrder: valueRef.current.length,
             },
         ])
     }
 
     function removeRow(index: number) {
-        emit(value.filter((_, rowIndex) => rowIndex !== index))
+        emit(valueRef.current.filter((_, rowIndex) => rowIndex !== index))
+    }
+
+    async function handleSelectImage(index: number, file?: File | null) {
+        if (!file) return
+
+        if (!file.type.startsWith("image/")) {
+            toast.error("Sadece görsel dosyaları yükleyebilirsiniz")
+            return
+        }
+
+        setUploadingRowIndex(index)
+
+        try {
+            const presigned = await presignMutation.mutateAsync({
+                productSlug,
+                fileName: file.name,
+                contentType: file.type,
+                purpose: "INDUSTRIAL_USAGE_IMAGE",
+            })
+
+            await axios.put(presigned.uploadUrl, file, {
+                headers: {
+                    "Content-Type": file.type,
+                },
+            })
+
+            updateRow(index, {
+                imageKey: presigned.key,
+                imageUrl: presigned.url,
+            })
+
+            toast.success("Kullanım görseli yüklendi")
+        } catch {
+            toast.error("Kullanım görseli yüklenemedi")
+        } finally {
+            setUploadingRowIndex(null)
+        }
+    }
+
+    function clearImage(index: number) {
+        updateRow(index, {
+            imageKey: null,
+            imageUrl: null,
+        })
     }
 
     return (
@@ -220,13 +276,73 @@ export function ProductIndustrialUsageEditor({ value, onChange }: Props) {
                                     </Select>
                                 </div>
 
-                                <Textarea
-                                    value={row.usageFunction ?? ""}
-                                    onChange={(event) => updateRow(index, { usageFunction: event.target.value })}
-                                    rows={3}
-                                    className="mt-3 rounded-xl"
-                                    placeholder="Bu ürün bu kullanım alanında nasıl fayda sağlar? Örn. Çekyat gövdesine cıvata bağlantısı ile sabitlenerek sağlam taşıyıcı ayak görevi görür."
-                                />
+                                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_260px]">
+                                    <Textarea
+                                        value={row.usageFunction ?? ""}
+                                        onChange={(event) => updateRow(index, { usageFunction: event.target.value })}
+                                        rows={5}
+                                        className="rounded-xl"
+                                        placeholder="Bu ürün bu kullanım alanında nasıl fayda sağlar? Örn. Çekyat gövdesine cıvata bağlantısı ile sabitlenerek sağlam taşıyıcı ayak görevi görür."
+                                    />
+
+                                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3">
+                                        <div className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                                            Örnek Görsel
+                                        </div>
+
+                                        {row.imageUrl ? (
+                                            <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                                                <div className="aspect-[4/3] bg-neutral-100">
+                                                    <img
+                                                        src={row.imageUrl}
+                                                        alt={`${row.usageAreaValueId ?? "industrial-usage"} gorseli`}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-white text-center text-xs leading-5 text-neutral-500">
+                                                Bu kullanım satırı için henüz görsel eklenmedi.
+                                            </div>
+                                        )}
+
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            <label className="cursor-pointer">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    disabled={uploadingRowIndex !== null}
+                                                    onChange={(event) => {
+                                                        void handleSelectImage(index, event.target.files?.[0])
+                                                        event.currentTarget.value = ""
+                                                    }}
+                                                />
+                                                <span className="inline-flex h-9 items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100">
+                                                    {uploadingRowIndex === index ? (
+                                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                    ) : (
+                                                        <ImagePlus className="h-3.5 w-3.5" />
+                                                    )}
+                                                    {row.imageKey ? "Görseli Değiştir" : "Görsel Yükle"}
+                                                </span>
+                                            </label>
+
+                                            {row.imageKey ? (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-9 rounded-full px-3 text-xs"
+                                                    onClick={() => clearImage(index)}
+                                                >
+                                                    <X className="mr-1.5 h-3.5 w-3.5" />
+                                                    Görseli Kaldır
+                                                </Button>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )
                     })}

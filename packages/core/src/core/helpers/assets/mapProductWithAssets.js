@@ -29,6 +29,7 @@ export function mapProductWithAssets(product: any) {
     }
 } */
 import { buildAssetUrl } from "./buildAssetUrl";
+import { INDUSTRIAL_ATTRIBUTE_CODE_SET } from "@/core/helpers/products/productIndustrialUsages";
 import { AssetRole } from "@/prisma/generated/prisma/client";
 function mapAsset(asset) {
     return {
@@ -68,6 +69,24 @@ function enrichHierarchyAttributeValues(attributeValues) {
     }
     return result;
 }
+function mapIndustrialUsage(usage) {
+    return {
+        id: usage.id,
+        productId: usage.productId,
+        sectorValueId: usage.sectorValueId ?? null,
+        sectorValue: usage.sectorValue ?? null,
+        productionGroupValueId: usage.productionGroupValueId ?? null,
+        productionGroupValue: usage.productionGroupValue ?? null,
+        usageAreaValueId: usage.usageAreaValueId ?? null,
+        usageAreaValue: usage.usageAreaValue ?? null,
+        usageFunction: usage.usageFunction ?? null,
+        imageKey: usage.imageKey ?? null,
+        imageUrl: usage.imageKey ? buildAssetUrl(usage.imageKey) : null,
+        displayOrder: usage.displayOrder ?? 0,
+        createdAt: usage.createdAt,
+        updatedAt: usage.updatedAt,
+    };
+}
 export function mapProductWithAssets(product) {
     const assets = product.assets?.map(mapAsset) ?? [];
     const primary = assets.find((a) => a.role === AssetRole.PRIMARY);
@@ -91,6 +110,7 @@ export function mapProductWithAssets(product) {
         // galleryImages: gallery,
         // documents,
         // technicalDrawings,
-        attributeValues: enrichHierarchyAttributeValues(product.attributeValues ?? []),
+        attributeValues: enrichHierarchyAttributeValues(product.attributeValues ?? []).filter((value) => !INDUSTRIAL_ATTRIBUTE_CODE_SET.has(value.attribute?.code ?? "")),
+        industrialUsages: (product.industrialUsages ?? []).map(mapIndustrialUsage),
     };
 }

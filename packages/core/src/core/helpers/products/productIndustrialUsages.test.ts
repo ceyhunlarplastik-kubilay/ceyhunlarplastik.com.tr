@@ -81,6 +81,7 @@ describe("productIndustrialUsages", () => {
                     productionGroupValueId: "groupA",
                     usageAreaValueId: "areaA",
                     usageFunction: "  Tasiyici ayak cozumudur.  ",
+                    imageKey: "  products/sample/industrial-usages/example.jpg  ",
                     displayOrder: 5,
                 },
             ]),
@@ -90,6 +91,7 @@ describe("productIndustrialUsages", () => {
                 productionGroupValueId: "groupA",
                 usageAreaValueId: "areaA",
                 usageFunction: "Tasiyici ayak cozumudur.",
+                imageKey: "products/sample/industrial-usages/example.jpg",
                 displayOrder: 5,
             },
         ])
@@ -104,6 +106,20 @@ describe("productIndustrialUsages", () => {
             normalizeProductIndustrialUsages(repository, [
                 {
                     sectorValueId: "modelA",
+                },
+            ]),
+        ).rejects.toMatchObject({
+            statusCode: 400,
+        })
+    })
+
+    it("rejects rows that only contain an image without taxonomy values", async () => {
+        const repository = makeRepository({})
+
+        await expect(
+            normalizeProductIndustrialUsages(repository, [
+                {
+                    imageKey: "products/sample/industrial-usages/example.jpg",
                 },
             ]),
         ).rejects.toMatchObject({

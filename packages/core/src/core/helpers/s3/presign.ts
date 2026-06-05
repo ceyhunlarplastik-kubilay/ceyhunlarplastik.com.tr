@@ -142,6 +142,35 @@ export async function generateProductAssetUpload({
     }
 }
 
+export async function generateProductIndustrialUsageImageUpload({
+    productSlug,
+    fileName,
+    contentType,
+}: {
+    productSlug: string
+    fileName: string
+    contentType: string
+}) {
+    const safeName = sanitizeFileName(fileName)
+    const ext = safeName.includes(".") ? safeName.split(".").pop() : undefined
+    const uuid = randomUUID()
+    const key = `products/${productSlug}/industrial-usages/${uuid}${ext ? `.${ext}` : ""}`
+
+    const cmd = new PutObjectCommand({
+        Bucket: process.env.BUCKET_NAME!,
+        Key: key,
+        ContentType: contentType,
+    })
+
+    const uploadUrl = await getSignedUrl(s3, cmd, { expiresIn: 60 })
+
+    return {
+        uploadUrl,
+        key,
+        url: buildPublicUrl(key),
+    }
+}
+
 export async function generateProductAttributeValueAssetUpload({
     attributeCode,
     valueSlug,

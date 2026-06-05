@@ -19,6 +19,10 @@ type Params = {
     industrialUsages?: ProductIndustrialUsageFormValues[]
 }
 
+function serializeIndustrialUsages(industrialUsages?: ProductIndustrialUsageFormValues[]) {
+    return industrialUsages?.map(({ imageUrl, ...row }) => row)
+}
+
 export async function createProduct({
     code,
     name,
@@ -43,7 +47,7 @@ export async function createProduct({
             assetKey,
             mimeType,
             attributeValueIds,
-            industrialUsages
+            industrialUsages: serializeIndustrialUsages(industrialUsages),
         }
     )
     return res.data.payload.product

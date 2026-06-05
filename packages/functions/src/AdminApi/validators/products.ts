@@ -65,8 +65,14 @@ const productIndustrialUsageInputSchema = z.object({
     productionGroupValueId: z.uuid().nullable().optional(),
     usageAreaValueId: z.uuid().nullable().optional(),
     usageFunction: z.string().max(2000).nullable().optional(),
+    imageKey: z.string().max(2048).nullable().optional(),
     displayOrder: z.number().int().min(0).nullable().optional(),
 })
+
+const productAssetUploadPurposeEnum = z.enum([
+    "PRODUCT_ASSET",
+    "INDUSTRIAL_USAGE_IMAGE",
+])
 
 export const createProductValidator = validatorWrapper(
     z.object({
@@ -182,13 +188,32 @@ export const createProductAssetUploadValidator = validatorWrapper(
                 "MODEL_3D",
                 "ASSEMBLY_VIDEO",
                 "CERTIFICATE",
-            ]),
+            ]).optional(),
             fileName: z.string(),
             contentType: z.string(),
+            purpose: productAssetUploadPurposeEnum.optional(),
+        }).superRefine((body, ctx) => {
+            const purpose = body.purpose ?? "PRODUCT_ASSET"
+
+            if (purpose === "PRODUCT_ASSET" && !body.assetRole) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["assetRole"],
+                    message: "assetRole is required for product asset uploads",
+                })
+            }
+
+            if (purpose === "INDUSTRIAL_USAGE_IMAGE" && !body.contentType.startsWith("image/")) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["contentType"],
+                    message: "Industrial usage uploads only accept image files",
+                })
+            }
         }),
     }),
     {
         requiredRootFields: ["body"],
-        requiredBodyFields: ["productSlug", "assetRole", "fileName", "contentType"],
+        requiredBodyFields: ["productSlug", "fileName", "contentType"],
     }
 )

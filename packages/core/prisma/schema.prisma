@@ -239,6 +239,7 @@ model ProductIndustrialUsage {
   usageAreaValue   ProductAttributeValue? @relation("ProductIndustrialUsageArea", fields: [usageAreaValueId], references: [id], onDelete: SetNull)
 
   usageFunction String? @db.Text
+  imageKey      String?
   displayOrder  Int     @default(0)
 
   createdAt DateTime @default(now())

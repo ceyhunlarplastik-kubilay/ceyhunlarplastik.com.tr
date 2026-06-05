@@ -223,6 +223,7 @@ export const ProductIndustrialUsageScalarFieldEnum = {
   productionGroupValueId: 'productionGroupValueId',
   usageAreaValueId: 'usageAreaValueId',
   usageFunction: 'usageFunction',
+  imageKey: 'imageKey',
   displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

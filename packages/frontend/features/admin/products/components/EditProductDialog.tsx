@@ -1,5 +1,7 @@
 "use client"
 
+import { useMemo } from "react"
+import slugify from "slugify"
 import { useForm, Controller, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -79,13 +81,20 @@ export function EditProductDialog({
                 productionGroupValueId: usage.productionGroupValueId ?? null,
                 usageAreaValueId: usage.usageAreaValueId ?? null,
                 usageFunction: usage.usageFunction ?? "",
+                imageKey: usage.imageKey ?? null,
+                imageUrl: usage.imageUrl ?? null,
                 displayOrder: usage.displayOrder ?? index,
             })) ?? [],
         },
     })
 
     const selectedCategoryId = useWatch({ control: form.control, name: "categoryId" })
+    const watchedName = useWatch({ control: form.control, name: "name" })
     const selectedCategory = categories.find((category) => category.id === selectedCategoryId)
+    const productSlug = useMemo(
+        () => slugify(watchedName || product.name, { lower: true, strict: true, locale: "tr" }),
+        [watchedName, product.name],
+    )
 
     async function onSubmit(data: ProductFormValues) {
         try {
@@ -206,6 +215,7 @@ export function EditProductDialog({
                                 control={form.control}
                                 render={({ field }) => (
                                     <ProductIndustrialUsageEditor
+                                        productSlug={productSlug}
                                         value={field.value ?? []}
                                         onChange={field.onChange}
                                     />

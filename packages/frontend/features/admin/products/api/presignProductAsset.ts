@@ -2,11 +2,14 @@ import { adminApiClient } from "@/lib/http/client"
 import type { AssetRole } from "@/features/public/assets/types"
 import type { PresignProductAssetResponse } from "./types"
 
+export type ProductAssetUploadPurpose = "PRODUCT_ASSET" | "INDUSTRIAL_USAGE_IMAGE"
+
 type Params = {
     productSlug: string
-    assetRole: AssetRole
+    assetRole?: AssetRole
     fileName: string
     contentType: string
+    purpose?: ProductAssetUploadPurpose
 }
 
 export async function presignProductAsset({
@@ -14,6 +17,7 @@ export async function presignProductAsset({
     assetRole,
     fileName,
     contentType,
+    purpose,
 }: Params): Promise<PresignProductAssetResponse["payload"]> {
     const res = await adminApiClient.post<PresignProductAssetResponse>(
         "/products/assets/presign",
@@ -22,6 +26,7 @@ export async function presignProductAsset({
             assetRole,
             fileName,
             contentType,
+            purpose,
         }
     )
 

@@ -88,6 +88,8 @@ function mapIndustrialUsage(usage: any) {
         usageAreaValueId: usage.usageAreaValueId ?? null,
         usageAreaValue: usage.usageAreaValue ?? null,
         usageFunction: usage.usageFunction ?? null,
+        imageKey: usage.imageKey ?? null,
+        imageUrl: usage.imageKey ? buildAssetUrl(usage.imageKey) : null,
         displayOrder: usage.displayOrder ?? 0,
         createdAt: usage.createdAt,
         updatedAt: usage.updatedAt,

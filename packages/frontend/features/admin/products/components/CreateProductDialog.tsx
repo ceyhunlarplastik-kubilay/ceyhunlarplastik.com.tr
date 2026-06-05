@@ -377,6 +377,7 @@ export function CreateProductDialog({
                                 control={form.control}
                                 render={({ field }) => (
                                     <ProductIndustrialUsageEditor
+                                        productSlug={slugPreview}
                                         value={field.value ?? []}
                                         onChange={field.onChange}
                                     />

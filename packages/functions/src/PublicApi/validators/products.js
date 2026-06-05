@@ -48,6 +48,22 @@ export const assetSchema = z.object({
     createdAt: z.string(),
     updatedAt: z.string(),
 }).loose();
+export const industrialUsageSchema = z.object({
+    id: z.uuid(),
+    productId: z.uuid(),
+    sectorValueId: z.uuid().nullable().optional(),
+    sectorValue: attributeValueSchema.nullable().optional(),
+    productionGroupValueId: z.uuid().nullable().optional(),
+    productionGroupValue: attributeValueSchema.nullable().optional(),
+    usageAreaValueId: z.uuid().nullable().optional(),
+    usageAreaValue: attributeValueSchema.nullable().optional(),
+    usageFunction: z.string().nullable().optional(),
+    imageKey: z.string().nullable().optional(),
+    imageUrl: z.string().nullable().optional(),
+    displayOrder: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose();
 // --- Shared Schemas ---
 export const productSchema = z.object({
     id: z.uuid(),
@@ -60,7 +76,8 @@ export const productSchema = z.object({
     updatedAt: z.string(),
     category: categorySchema,
     assets: z.array(assetSchema),
-    attributeValues: z.array(attributeValueSchema)
+    attributeValues: z.array(attributeValueSchema),
+    industrialUsages: z.array(industrialUsageSchema).optional(),
 }).loose();
 export const idValidator = validatorWrapper(z.object({
     pathParameters: z.object({

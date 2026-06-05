@@ -5,6 +5,8 @@ export const productIndustrialUsageFormSchema = z.object({
     productionGroupValueId: z.uuid().nullable().optional(),
     usageAreaValueId: z.uuid().nullable().optional(),
     usageFunction: z.string().max(2000).nullable().optional(),
+    imageKey: z.string().max(2048).nullable().optional(),
+    imageUrl: z.string().nullable().optional(),
     displayOrder: z.number().int().min(0).nullable().optional(),
 })
 

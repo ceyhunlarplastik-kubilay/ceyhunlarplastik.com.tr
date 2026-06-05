@@ -63,6 +63,8 @@ export const industrialUsageSchema = z.object({
     usageAreaValueId: z.uuid().nullable().optional(),
     usageAreaValue: attributeValueSchema.nullable().optional(),
     usageFunction: z.string().nullable().optional(),
+    imageKey: z.string().nullable().optional(),
+    imageUrl: z.string().nullable().optional(),
     displayOrder: z.number(),
     createdAt: z.string(),
     updatedAt: z.string(),

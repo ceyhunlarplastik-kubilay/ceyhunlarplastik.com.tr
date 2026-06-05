@@ -16,6 +16,7 @@ export type ProductIndustrialUsageInput = {
     productionGroupValueId?: string | null
     usageAreaValueId?: string | null
     usageFunction?: string | null
+    imageKey?: string | null
     displayOrder?: number | null
 }
 
@@ -24,12 +25,14 @@ export type NormalizedProductIndustrialUsage = {
     productionGroupValueId: string | null
     usageAreaValueId: string | null
     usageFunction: string | null
+    imageKey: string | null
     displayOrder: number
 }
 
 export function buildProductIndustrialUsageCreateInputs(rows: NormalizedProductIndustrialUsage[]) {
     return rows.map((row) => ({
         usageFunction: row.usageFunction,
+        imageKey: row.imageKey,
         displayOrder: row.displayOrder,
         ...(row.sectorValueId && {
             sectorValue: {
@@ -107,6 +110,7 @@ export async function normalizeProductIndustrialUsages(
 
     for (const [index, row] of industrialUsages.entries()) {
         const usageFunction = row.usageFunction?.trim() || null
+        const imageKey = row.imageKey?.trim() || null
         const sectorValueId = await validateAttributeValueCode(
             repository,
             row.sectorValueId,
@@ -126,7 +130,7 @@ export async function normalizeProductIndustrialUsages(
             "usageAreaValueId",
         )
 
-        if (!sectorValueId && !productionGroupValueId && !usageAreaValueId && !usageFunction) {
+        if (!sectorValueId && !productionGroupValueId && !usageAreaValueId && !usageFunction && !imageKey) {
             continue
         }
 
@@ -139,6 +143,7 @@ export async function normalizeProductIndustrialUsages(
             productionGroupValueId,
             usageAreaValueId,
             usageFunction,
+            imageKey,
             displayOrder: Number.isInteger(row.displayOrder) && Number(row.displayOrder) >= 0
                 ? Number(row.displayOrder)
                 : index,

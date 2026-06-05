@@ -236,7 +236,7 @@ Product industrial usage is separate from normal category-scoped product filteri
 - `ProductAttribute` / `ProductAttributeValue` still own the shared taxonomy dictionary for `sector`, `production_group`, and `usage_area`
 - those three taxonomy families are no longer assigned to products through `Product.attributeValues`
 - product-specific industrial usage rows live in `ProductIndustrialUsage`
-- `ProductIndustrialUsage` references dictionary values by field role and stores product-specific `usageFunction` text on the row
+- `ProductIndustrialUsage` references dictionary values by field role and stores product-specific `usageFunction` text plus an optional example image key on the row
 - `Category.allowedAttributeValueIds` remains only for real category-scoped product filters such as `model_type`, `connection_type`, `profile_type`, `material_type`, `usage_type`, and `hat_type`
 - public and customer product filters should present category-scoped product filters separately from industrial usage filters
 - `/musteri/tanimli-urunler` profile matching uses customer assignments against `ProductIndustrialUsage`; `usageFunction` is display and SEO content only, not a matching criterion

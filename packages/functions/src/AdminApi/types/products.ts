@@ -61,9 +61,10 @@ export type IListProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
 
 export interface ICreateProductAssetUploadBody {
     productSlug: string
-    assetRole: string
+    assetRole?: string
     fileName: string
     contentType: string
+    purpose?: "PRODUCT_ASSET" | "INDUSTRIAL_USAGE_IMAGE"
 }
 
 export type ICreateProductAssetUploadEvent =

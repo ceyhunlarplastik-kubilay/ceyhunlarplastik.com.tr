@@ -105,16 +105,18 @@ export function CustomerPortalOverviewPageClient() {
                         contacts={customerContacts}
                         eyebrow="Müşteri İletişim Kişileri"
                         icon={UserRound}
+                        className="h-full"
                     />
-                    <div>
+                    <div className="h-full">
                         {ceyhunlarContacts.length > 0 ? (
                             <CustomerContactCarousel
                                 contacts={ceyhunlarContacts}
                                 eyebrow="Ceyhunlar Departman İletişimleri"
                                 icon={Building2}
+                                className="h-full"
                             />
                         ) : (
-                            <div className="rounded-3xl border bg-white p-6 shadow-sm">
+                            <div className="h-full rounded-3xl border bg-white p-6 shadow-sm">
                                 <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">
                                     Ceyhunlar Departman İletişimleri
                                 </div>
