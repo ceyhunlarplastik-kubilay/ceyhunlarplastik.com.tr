@@ -409,6 +409,7 @@ export const ModelName = {
   CustomerAddress: 'CustomerAddress',
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
+  CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
   BusinessRequest: 'BusinessRequest',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -432,7 +433,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "productIndustrialUsage" | "customer" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "customerVisit" | "productVariantSupplier" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "productIndustrialUsage" | "customer" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2286,6 +2287,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CustomerVariantSpecialPrice: {
+      payload: Prisma.$CustomerVariantSpecialPricePayload<ExtArgs>
+      fields: Prisma.CustomerVariantSpecialPriceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerVariantSpecialPriceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerVariantSpecialPriceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerVariantSpecialPriceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerVariantSpecialPriceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerVariantSpecialPriceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerVariantSpecialPriceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerVariantSpecialPriceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerVariantSpecialPriceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerVariantSpecialPriceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>
+        }
+        update: {
+          args: Prisma.CustomerVariantSpecialPriceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerVariantSpecialPriceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerVariantSpecialPriceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerVariantSpecialPriceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerVariantSpecialPriceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerVariantSpecialPricePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerVariantSpecialPriceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerVariantSpecialPrice>
+        }
+        groupBy: {
+          args: Prisma.CustomerVariantSpecialPriceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerVariantSpecialPriceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerVariantSpecialPriceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerVariantSpecialPriceCountAggregateOutputType> | number
+        }
+      }
+    }
     BusinessRequest: {
       payload: Prisma.$BusinessRequestPayload<ExtArgs>
       fields: Prisma.BusinessRequestFieldRefs
@@ -3367,6 +3442,35 @@ export const ProductVariantSupplierScalarFieldEnum = {
 export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
 
 
+export const CustomerVariantSpecialPriceScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  productVariantId: 'productVariantId',
+  price: 'price',
+  currency: 'currency',
+  minOrderQuantity: 'minOrderQuantity',
+  maxOrderQuantity: 'maxOrderQuantity',
+  paymentTermDays: 'paymentTermDays',
+  paymentTermLabel: 'paymentTermLabel',
+  paymentSchedule: 'paymentSchedule',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  taxIncluded: 'taxIncluded',
+  deliveryTerm: 'deliveryTerm',
+  contractReference: 'contractReference',
+  note: 'note',
+  internalNote: 'internalNote',
+  isActive: 'isActive',
+  createdByUserId: 'createdByUserId',
+  approvedByUserId: 'approvedByUserId',
+  approvedAt: 'approvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerVariantSpecialPriceScalarFieldEnum = (typeof CustomerVariantSpecialPriceScalarFieldEnum)[keyof typeof CustomerVariantSpecialPriceScalarFieldEnum]
+
+
 export const BusinessRequestScalarFieldEnum = {
   id: 'id',
   domain: 'domain',
@@ -4066,6 +4170,7 @@ export type GlobalOmitConfig = {
   customerAddress?: Prisma.CustomerAddressOmit
   customerVisit?: Prisma.CustomerVisitOmit
   productVariantSupplier?: Prisma.ProductVariantSupplierOmit
+  customerVariantSpecialPrice?: Prisma.CustomerVariantSpecialPriceOmit
   businessRequest?: Prisma.BusinessRequestOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit

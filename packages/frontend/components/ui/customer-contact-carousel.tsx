@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { motion } from "motion/react"
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -30,16 +30,56 @@ export function CustomerContactCarousel({
 }: CustomerContactCarouselProps) {
     const scrollerRef = useRef<HTMLDivElement | null>(null)
     const itemRefs = useRef<Array<HTMLDivElement | null>>([])
+    const scrollFrameRef = useRef<number | null>(null)
     const [activeIndex, setActiveIndex] = useState(0)
     const boundedActiveIndex = Math.min(activeIndex, Math.max(contacts.length - 1, 0))
+
+    useEffect(() => {
+        itemRefs.current = itemRefs.current.slice(0, contacts.length)
+    }, [contacts.length])
+
+    useEffect(() => {
+        return () => {
+            if (scrollFrameRef.current !== null) {
+                window.cancelAnimationFrame(scrollFrameRef.current)
+            }
+        }
+    }, [])
+
+    function resolveClosestIndex() {
+        const scroller = scrollerRef.current
+        if (!scroller || contacts.length === 0) return 0
+
+        const scrollerRect = scroller.getBoundingClientRect()
+        const scrollerCenter = scrollerRect.left + scrollerRect.width / 2
+        let nextIndex = 0
+        let smallestDistance = Number.POSITIVE_INFINITY
+
+        itemRefs.current.forEach((item, index) => {
+            if (!item) return
+
+            const itemRect = item.getBoundingClientRect()
+            const itemCenter = itemRect.left + itemRect.width / 2
+            const distance = Math.abs(itemCenter - scrollerCenter)
+
+            if (distance < smallestDistance) {
+                smallestDistance = distance
+                nextIndex = index
+            }
+        })
+
+        return Math.max(0, Math.min(nextIndex, contacts.length - 1))
+    }
 
     function scrollToIndex(index: number) {
         const boundedIndex = Math.max(0, Math.min(index, contacts.length - 1))
         const scroller = scrollerRef.current
         const target = itemRefs.current[boundedIndex]
         if (scroller && target) {
+            const scrollerRect = scroller.getBoundingClientRect()
+            const targetRect = target.getBoundingClientRect()
             scroller.scrollTo({
-                left: target.offsetLeft,
+                left: scroller.scrollLeft + targetRect.left - scrollerRect.left,
                 behavior: "smooth",
             })
         }
@@ -47,41 +87,37 @@ export function CustomerContactCarousel({
     }
 
     function handleScroll() {
-        const scroller = scrollerRef.current
-        if (!scroller) return
-
-        let nextIndex = boundedActiveIndex
-        let smallestDistance = Number.POSITIVE_INFINITY
-
-        itemRefs.current.forEach((item, index) => {
-            if (!item) return
-            const distance = Math.abs(item.offsetLeft - scroller.scrollLeft)
-            if (distance < smallestDistance) {
-                smallestDistance = distance
-                nextIndex = index
-            }
-        })
-
-        if (nextIndex !== activeIndex) {
-            setActiveIndex(nextIndex)
+        if (scrollFrameRef.current !== null) {
+            window.cancelAnimationFrame(scrollFrameRef.current)
         }
+
+        scrollFrameRef.current = window.requestAnimationFrame(() => {
+            scrollFrameRef.current = null
+            const nextIndex = resolveClosestIndex()
+            setActiveIndex((current) => current === nextIndex ? current : nextIndex)
+        })
     }
 
     return (
-        <div className={cn("flex h-full flex-col space-y-3", className)}>
+        <div
+            className={cn("flex h-full flex-col space-y-3", className)}
+            role="region"
+            aria-label={eyebrow}
+        >
             <div className="flex items-center justify-between gap-3">
                 <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
                     {eyebrow}
                 </div>
                 {contacts.length > 1 ? (
                     <div className="flex items-center gap-2">
-                        <div className="text-xs text-neutral-500">
+                        <div className="text-xs text-neutral-500" aria-live="polite">
                             {boundedActiveIndex + 1} / {contacts.length}
                         </div>
                         <Button
                             type="button"
                             variant="outline"
                             size="icon"
+                            aria-label="Önceki kişiyi göster"
                             className="size-8 rounded-full"
                             onClick={() => scrollToIndex(boundedActiveIndex - 1)}
                             disabled={boundedActiveIndex <= 0}
@@ -92,6 +128,7 @@ export function CustomerContactCarousel({
                             type="button"
                             variant="outline"
                             size="icon"
+                            aria-label="Sonraki kişiyi göster"
                             className="size-8 rounded-full"
                             onClick={() => scrollToIndex(boundedActiveIndex + 1)}
                             disabled={boundedActiveIndex >= contacts.length - 1}

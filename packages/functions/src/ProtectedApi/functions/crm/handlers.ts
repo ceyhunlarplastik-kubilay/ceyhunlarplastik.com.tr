@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
+import { Prisma } from "@/prisma/generated/prisma/client"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { getCustomerFeaturedAndMatchedProducts } from "@/core/helpers/crm/getCustomerFeaturedAndMatchedProducts"
@@ -12,17 +13,28 @@ import {
 } from "@/core/helpers/crm/access"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
 import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
+import { mapCustomerVariantSpecialPriceForApi } from "@/core/helpers/pricing/customerVariantSpecialPriceDto"
 import {
+    formatCustomerVariantPaymentScheduleLabel,
+    normalizeCustomerVariantPaymentSchedule,
+} from "@/core/helpers/pricing/customerPaymentSchedule"
+import {
+    ICreateManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerAddressEvent,
     ICreateManagedCustomerVisitEvent,
     IDeleteManagedCustomerVisitEvent,
+    ICustomerSpecialPriceBody,
+    IListManagedCustomerSpecialPricesEvent,
     IListManagedCustomersEvent,
     IListManagedSuppliersEvent,
+    IManagedCustomerSpecialPriceEvent,
     IManagedCustomerEvent,
     IManagedSupplierEvent,
+    IPortalCustomerSpecialPricesEvent,
     IProtectedCrmDependencies,
     IReplaceManagedCustomerAssignedProductsEvent,
     IReplaceManagedCustomerFeaturedProductsEvent,
+    IUpdateManagedCustomerSpecialPriceEvent,
     IUpdateManagedCustomerEvent,
     IUpdateManagedCustomerVisitEvent,
 } from "@/functions/ProtectedApi/types/crm"
@@ -35,6 +47,112 @@ function mapFeaturedProducts(data: Array<any>) {
         ...item,
         product: mapProductWithAssets(item.product),
     }))
+}
+
+function parseBooleanQuery(value: unknown) {
+    if (value === "true" || value === true) return true
+    if (value === "false" || value === false) return false
+    return undefined
+}
+
+function textOrNull(value: string | null | undefined) {
+    if (value === undefined) return undefined
+    const normalized = value?.trim()
+    return normalized || null
+}
+
+function dateOrNull(value: string | null | undefined) {
+    if (value === undefined) return undefined
+    if (!value?.trim()) return null
+
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return null
+    return date
+}
+
+function resolvePaymentTermLabel(days: number | null | undefined, label: string | null | undefined) {
+    const normalizedLabel = textOrNull(label)
+    if (normalizedLabel !== undefined) return normalizedLabel
+    if (days === undefined) return undefined
+    if (days === null) return null
+    return days === 0 ? "Peşin" : `${days} Gün`
+}
+
+function normalizePaymentScheduleForPersistence(value: ICustomerSpecialPriceBody["paymentSchedule"]) {
+    return normalizeCustomerVariantPaymentSchedule(value) ?? null
+}
+
+function buildSpecialPriceCreateData(
+    customerId: string,
+    createdByUserId: string,
+    body: ICreateManagedCustomerSpecialPriceEvent["body"],
+) {
+    const paymentSchedule = normalizePaymentScheduleForPersistence(body.paymentSchedule)
+
+    return {
+        customer: { connect: { id: customerId } },
+        productVariant: { connect: { id: body.productVariantId } },
+        price: body.price,
+        currency: body.currency?.trim() || "TRY",
+        minOrderQuantity: body.minOrderQuantity ?? null,
+        maxOrderQuantity: body.maxOrderQuantity ?? null,
+        paymentTermDays: paymentSchedule?.length ? null : body.paymentTermDays ?? null,
+        paymentTermLabel: paymentSchedule?.length
+            ? formatCustomerVariantPaymentScheduleLabel(paymentSchedule, "Çok adımlı ödeme")
+            : resolvePaymentTermLabel(body.paymentTermDays, body.paymentTermLabel) ?? null,
+        paymentSchedule: paymentSchedule ?? Prisma.JsonNull,
+        validFrom: dateOrNull(body.validFrom) ?? null,
+        validUntil: dateOrNull(body.validUntil) ?? null,
+        taxIncluded: body.taxIncluded ?? false,
+        deliveryTerm: textOrNull(body.deliveryTerm) ?? null,
+        contractReference: textOrNull(body.contractReference) ?? null,
+        note: textOrNull(body.note) ?? null,
+        internalNote: textOrNull(body.internalNote) ?? null,
+        isActive: body.isActive ?? true,
+        createdByUser: { connect: { id: createdByUserId } },
+    }
+}
+
+function buildSpecialPriceUpdateData(body: ICustomerSpecialPriceBody) {
+    const data: Record<string, unknown> = {}
+
+    if (body.productVariantId !== undefined) {
+        data.productVariant = { connect: { id: body.productVariantId } }
+    }
+    if (body.price !== undefined) data.price = body.price
+    if (body.currency !== undefined) data.currency = body.currency.trim() || "TRY"
+    if (body.minOrderQuantity !== undefined) data.minOrderQuantity = body.minOrderQuantity
+    if (body.maxOrderQuantity !== undefined) data.maxOrderQuantity = body.maxOrderQuantity
+    if (body.paymentSchedule !== undefined) {
+        const paymentSchedule = normalizePaymentScheduleForPersistence(body.paymentSchedule)
+        data.paymentSchedule = paymentSchedule ?? Prisma.JsonNull
+        if (paymentSchedule?.length) {
+            data.paymentTermDays = null
+            data.paymentTermLabel = formatCustomerVariantPaymentScheduleLabel(paymentSchedule, "Çok adımlı ödeme")
+        } else {
+            if (body.paymentTermDays !== undefined) data.paymentTermDays = body.paymentTermDays
+            if (body.paymentTermDays !== undefined || body.paymentTermLabel !== undefined) {
+                data.paymentTermLabel = resolvePaymentTermLabel(body.paymentTermDays, body.paymentTermLabel)
+            }
+        }
+    }
+    if (body.paymentSchedule === undefined && body.paymentTermDays !== undefined) data.paymentTermDays = body.paymentTermDays
+    if (
+        body.paymentSchedule === undefined
+        && (body.paymentTermDays !== undefined || body.paymentTermLabel !== undefined)
+    ) {
+        data.paymentTermLabel = resolvePaymentTermLabel(body.paymentTermDays, body.paymentTermLabel)
+    }
+    if (body.validFrom !== undefined) data.validFrom = dateOrNull(body.validFrom)
+    if (body.validUntil !== undefined) data.validUntil = dateOrNull(body.validUntil)
+    if (body.taxIncluded !== undefined) data.taxIncluded = body.taxIncluded
+    if (body.deliveryTerm !== undefined) data.deliveryTerm = textOrNull(body.deliveryTerm)
+    if (body.contractReference !== undefined) data.contractReference = textOrNull(body.contractReference)
+    if (body.note !== undefined) data.note = textOrNull(body.note)
+    if (body.internalNote !== undefined) data.internalNote = textOrNull(body.internalNote)
+    if (body.isActive !== undefined) data.isActive = body.isActive
+
+    return data
 }
 
 export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
@@ -251,6 +369,200 @@ export const replaceManagedCustomerAssignedProductsHandler = ({
     }
 }
 
+export const listManagedCustomerSpecialPricesHandler = ({
+    customerRepository,
+    customerVariantSpecialPriceRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IListManagedCustomerSpecialPricesEvent) => {
+        if (!customerVariantSpecialPriceRepository) {
+            throw new createError.InternalServerError("Customer special price repository not configured")
+        }
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(event.user, customer)
+
+        const { page, limit, search, sort, order } = normalizeListQuery(event.queryStringParameters ?? {}, {
+            allowedSortFields: ["createdAt", "updatedAt", "validUntil", "price"],
+            defaultSort: "createdAt",
+        })
+
+        const result = await customerVariantSpecialPriceRepository.listSpecialPrices({
+            page,
+            limit,
+            search,
+            sort,
+            order,
+            customerId: customer.id,
+            isActive: parseBooleanQuery(event.queryStringParameters?.isActive),
+        })
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                data: result.data.map((specialPrice) =>
+                    mapCustomerVariantSpecialPriceForApi(specialPrice, { includeInternalNote: true }),
+                ),
+                meta: result.meta,
+            },
+        })
+    }
+}
+
+export const getManagedCustomerSpecialPriceHandler = ({
+    customerRepository,
+    customerVariantSpecialPriceRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IManagedCustomerSpecialPriceEvent) => {
+        if (!customerVariantSpecialPriceRepository) {
+            throw new createError.InternalServerError("Customer special price repository not configured")
+        }
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(event.user, customer)
+
+        const specialPrice = await customerVariantSpecialPriceRepository.getSpecialPrice(event.pathParameters.specialPriceId)
+        if (!specialPrice || specialPrice.customerId !== customer.id) {
+            throw new createError.NotFound("Customer special price not found")
+        }
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                specialPrice: mapCustomerVariantSpecialPriceForApi(specialPrice, { includeInternalNote: true }),
+            },
+        })
+    }
+}
+
+export const createManagedCustomerSpecialPriceHandler = ({
+    customerRepository,
+    productVariantRepository,
+    customerVariantSpecialPriceRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: ICreateManagedCustomerSpecialPriceEvent) => {
+        if (!productVariantRepository || !customerVariantSpecialPriceRepository) {
+            throw new createError.InternalServerError("Customer special price dependencies not configured")
+        }
+
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(requester, customer)
+
+        const variant = await productVariantRepository.getProductVariant(event.body.productVariantId)
+        if (!variant) throw new createError.NotFound("Product variant not found")
+
+        const duplicate = await customerVariantSpecialPriceRepository.getByCustomerAndVariant(
+            customer.id,
+            event.body.productVariantId,
+        )
+        if (duplicate) {
+            throw new createError.Conflict("This customer already has a special price for this product variant")
+        }
+
+        const created = await customerVariantSpecialPriceRepository.createSpecialPrice(
+            buildSpecialPriceCreateData(customer.id, requester.id, event.body),
+        )
+
+        return apiResponseDTO({
+            statusCode: 201,
+            payload: {
+                specialPrice: mapCustomerVariantSpecialPriceForApi(created, { includeInternalNote: true }),
+            },
+        })
+    }
+}
+
+export const updateManagedCustomerSpecialPriceHandler = ({
+    customerRepository,
+    productVariantRepository,
+    customerVariantSpecialPriceRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IUpdateManagedCustomerSpecialPriceEvent) => {
+        if (!productVariantRepository || !customerVariantSpecialPriceRepository) {
+            throw new createError.InternalServerError("Customer special price dependencies not configured")
+        }
+
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(requester, customer)
+
+        const existing = await customerVariantSpecialPriceRepository.getSpecialPrice(event.pathParameters.specialPriceId)
+        if (!existing || existing.customerId !== customer.id) {
+            throw new createError.NotFound("Customer special price not found")
+        }
+
+        if (event.body.productVariantId && event.body.productVariantId !== existing.productVariantId) {
+            const variant = await productVariantRepository.getProductVariant(event.body.productVariantId)
+            if (!variant) throw new createError.NotFound("Product variant not found")
+
+            const duplicate = await customerVariantSpecialPriceRepository.getByCustomerAndVariant(
+                customer.id,
+                event.body.productVariantId,
+            )
+            if (duplicate && duplicate.id !== existing.id) {
+                throw new createError.Conflict("This customer already has a special price for this product variant")
+            }
+        }
+
+        const updated = await customerVariantSpecialPriceRepository.updateSpecialPrice(
+            existing.id,
+            buildSpecialPriceUpdateData(event.body),
+        )
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                specialPrice: mapCustomerVariantSpecialPriceForApi(updated, { includeInternalNote: true }),
+            },
+        })
+    }
+}
+
+export const deactivateManagedCustomerSpecialPriceHandler = ({
+    customerRepository,
+    customerVariantSpecialPriceRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IManagedCustomerSpecialPriceEvent) => {
+        if (!customerVariantSpecialPriceRepository) {
+            throw new createError.InternalServerError("Customer special price repository not configured")
+        }
+
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(requester, customer)
+
+        const existing = await customerVariantSpecialPriceRepository.getSpecialPrice(event.pathParameters.specialPriceId)
+        if (!existing || existing.customerId !== customer.id) {
+            throw new createError.NotFound("Customer special price not found")
+        }
+
+        const updated = await customerVariantSpecialPriceRepository.deactivateSpecialPrice(existing.id)
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                specialPrice: mapCustomerVariantSpecialPriceForApi(updated, { includeInternalNote: true }),
+            },
+        })
+    }
+}
+
 export const listManagedCustomerVisitsHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
     return async (event: IManagedCustomerEvent) => {
         const customer = await customerRepository.getCustomer(event.pathParameters.id)
@@ -407,6 +719,47 @@ export const getPortalCustomerHandler = ({ customerRepository }: IProtectedCrmDe
         return apiResponseDTO({
             statusCode: 200,
             payload: { customer: mapCustomerForApi(customer) },
+        })
+    }
+}
+
+export const listPortalCustomerSpecialPricesHandler = ({
+    customerVariantSpecialPriceRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IPortalCustomerSpecialPricesEvent) => {
+        if (!customerVariantSpecialPriceRepository) {
+            throw new createError.InternalServerError("Customer special price repository not configured")
+        }
+
+        const customerId = event.user?.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(event.user, customerId)
+
+        const { page, limit, search, sort, order } = normalizeListQuery(event.queryStringParameters ?? {}, {
+            allowedSortFields: ["createdAt", "updatedAt", "validUntil", "price"],
+            defaultSort: "createdAt",
+        })
+
+        const result = await customerVariantSpecialPriceRepository.listSpecialPrices({
+            page,
+            limit,
+            search,
+            sort,
+            order,
+            customerId,
+            isActive: true,
+            currentOnly: true,
+        })
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                data: result.data.map((specialPrice) =>
+                    mapCustomerVariantSpecialPriceForApi(specialPrice, { includeInternalNote: false }),
+                ),
+                meta: result.meta,
+            },
         })
     }
 }

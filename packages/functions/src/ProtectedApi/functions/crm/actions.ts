@@ -4,37 +4,50 @@ import { companyContactRepository } from "@/core/helpers/prisma/companyContacts/
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
+import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
+import { customerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
 import {
+    createManagedCustomerSpecialPriceHandler,
     createManagedCustomerVisitHandler,
     convertManagedCustomerHandler,
+    deactivateManagedCustomerSpecialPriceHandler,
     deleteManagedCustomerVisitHandler,
+    getManagedCustomerSpecialPriceHandler,
     getManagedCustomerHandler,
     getManagedSupplierHandler,
     getPortalCustomerAssignedProductsHandler,
     createPortalCustomerAddressHandler,
     getPortalCustomerFeaturedProductsHandler,
     getPortalCustomerHandler,
+    listManagedCustomerSpecialPricesHandler,
     listManagedCompanyContactsHandler,
     listManagedCustomerAssignedProductsHandler,
     listManagedCustomerFeaturedProductsHandler,
     listManagedCustomersHandler,
     listManagedCustomerVisitsHandler,
     listManagedSuppliersHandler,
+    listPortalCustomerSpecialPricesHandler,
     replaceManagedCustomerAssignedProductsHandler,
     replaceManagedCustomerFeaturedProductsHandler,
+    updateManagedCustomerSpecialPriceHandler,
     updateManagedCustomerHandler,
     updateManagedCustomerVisitHandler,
 } from "@/functions/ProtectedApi/functions/crm/handlers"
 import type {
+    ICreateManagedCustomerSpecialPriceEvent,
     ICreateManagedCustomerVisitEvent,
     ICreatePortalCustomerAddressEvent,
     IDeleteManagedCustomerVisitEvent,
+    IListManagedCustomerSpecialPricesEvent,
     IListManagedCustomersEvent,
     IListManagedSuppliersEvent,
+    IManagedCustomerSpecialPriceEvent,
     IManagedCustomerEvent,
     IManagedSupplierEvent,
+    IPortalCustomerSpecialPricesEvent,
     IReplaceManagedCustomerAssignedProductsEvent,
     IReplaceManagedCustomerFeaturedProductsEvent,
+    IUpdateManagedCustomerSpecialPriceEvent,
     IUpdateManagedCustomerEvent,
     IUpdateManagedCustomerVisitEvent,
 } from "@/functions/ProtectedApi/types/crm"
@@ -56,6 +69,15 @@ import {
 import { listCompanyContactsResponseValidator } from "@/functions/AdminApi/validators/companyContacts"
 import { createPortalCustomerAddressValidator } from "@/functions/ProtectedApi/validators/crm"
 import {
+    createCustomerSpecialPriceValidator,
+    customerSpecialPriceIdValidator,
+    customerSpecialPriceListResponseValidator,
+    customerSpecialPriceListValidator,
+    customerSpecialPriceResponseValidator,
+    portalSpecialPriceListValidator,
+    updateCustomerSpecialPriceValidator,
+} from "@/functions/ProtectedApi/validators/customerVariantSpecialPrices"
+import {
     getSupplierValidator,
     listSuppliersResponseValidator,
     supplierResponseValidator,
@@ -66,7 +88,9 @@ const deps = {
     supplierRepository: supplierRepository(),
     productAttributeValueRepository: productAttributeValueRepository(),
     productRepository: productRepository(),
+    productVariantRepository: productVariantRepository(),
     companyContactRepository: companyContactRepository(),
+    customerVariantSpecialPriceRepository: customerVariantSpecialPriceRepository(),
 }
 
 export const listManagedCustomers = lambdaHandler(
@@ -150,6 +174,56 @@ export const replaceManagedCustomerAssignedProducts = lambdaHandler(
     },
 )
 
+export const listManagedCustomerSpecialPrices = lambdaHandler(
+    async (event) =>
+        listManagedCustomerSpecialPricesHandler(deps)(event as IListManagedCustomerSpecialPricesEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: customerSpecialPriceListValidator,
+        responseValidator: customerSpecialPriceListResponseValidator,
+    },
+)
+
+export const getManagedCustomerSpecialPrice = lambdaHandler(
+    async (event) =>
+        getManagedCustomerSpecialPriceHandler(deps)(event as IManagedCustomerSpecialPriceEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: customerSpecialPriceIdValidator,
+        responseValidator: customerSpecialPriceResponseValidator,
+    },
+)
+
+export const createManagedCustomerSpecialPrice = lambdaHandler(
+    async (event) =>
+        createManagedCustomerSpecialPriceHandler(deps)(event as ICreateManagedCustomerSpecialPriceEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: createCustomerSpecialPriceValidator,
+        responseValidator: customerSpecialPriceResponseValidator,
+    },
+)
+
+export const updateManagedCustomerSpecialPrice = lambdaHandler(
+    async (event) =>
+        updateManagedCustomerSpecialPriceHandler(deps)(event as IUpdateManagedCustomerSpecialPriceEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: updateCustomerSpecialPriceValidator,
+        responseValidator: customerSpecialPriceResponseValidator,
+    },
+)
+
+export const deactivateManagedCustomerSpecialPrice = lambdaHandler(
+    async (event) =>
+        deactivateManagedCustomerSpecialPriceHandler(deps)(event as IManagedCustomerSpecialPriceEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: customerSpecialPriceIdValidator,
+        responseValidator: customerSpecialPriceResponseValidator,
+    },
+)
+
 export const listManagedCustomerVisits = lambdaHandler(
     async (event) => listManagedCustomerVisitsHandler(deps)(event as IManagedCustomerEvent),
     {
@@ -208,6 +282,16 @@ export const getPortalCustomer = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
         responseValidator: customerResponseValidator,
+    },
+)
+
+export const listPortalCustomerSpecialPrices = lambdaHandler(
+    async (event) =>
+        listPortalCustomerSpecialPricesHandler(deps)(event as IPortalCustomerSpecialPricesEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        requestValidator: portalSpecialPriceListValidator,
+        responseValidator: customerSpecialPriceListResponseValidator,
     },
 )
 

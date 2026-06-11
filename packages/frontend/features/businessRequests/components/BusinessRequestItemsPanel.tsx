@@ -1,0 +1,90 @@
+import { Badge } from "@/components/ui/badge"
+import type { BusinessRequest } from "@/features/businessRequests/api/types"
+import {
+    getBusinessRequestItemReference,
+    getBusinessRequestItemTitle,
+} from "@/features/businessRequests/lib/businessRequestDisplay"
+import {
+    formatMoneyValue,
+    formatPercentValue,
+} from "@/features/businessRequests/lib/businessRequestFormatting"
+
+type Props = {
+    request: BusinessRequest
+}
+
+export function BusinessRequestItemsPanel({ request }: Props) {
+    if ((request.items?.length ?? 0) === 0) return null
+
+    return (
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+            <div className="text-sm font-medium text-neutral-900">Talep Kalemleri</div>
+            <div className="mt-3 grid gap-3">
+                {request.items?.map((item) => {
+                    const currency = typeof item.data?.currency === "string" ? item.data.currency : "TRY"
+                    const counterCurrency = typeof item.data?.counterCurrency === "string"
+                        ? item.data.counterCurrency
+                        : currency
+
+                    return (
+                        <div key={item.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                                <div>
+                                    <div className="font-medium text-neutral-900">
+                                        {getBusinessRequestItemTitle(item)}
+                                    </div>
+                                    <div className="text-xs text-neutral-500">
+                                        {getBusinessRequestItemReference(item)}
+                                    </div>
+                                </div>
+                                <Badge variant="outline">Adet: {item.quantity}</Badge>
+                            </div>
+                            <div className="mt-3 grid gap-2 md:grid-cols-2">
+                                <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
+                                    <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">Liste Fiyatı</span>
+                                    <div className="mt-1 font-medium text-neutral-900">
+                                        {formatMoneyValue(item.data?.listUnitPrice, currency)}
+                                    </div>
+                                </div>
+                                <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
+                                    <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">Talep Edilen Fiyat</span>
+                                    <div className="mt-1 font-medium text-neutral-900">
+                                        {formatMoneyValue(item.data?.targetUnitPrice, currency)}
+                                    </div>
+                                </div>
+                                {typeof item.data?.customerUnitPrice === "number" ? (
+                                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900 md:col-span-2">
+                                        <span className="text-[11px] uppercase tracking-[0.16em] text-emerald-600">Müşteri Net Fiyatı</span>
+                                        <div className="mt-1 font-medium">
+                                            {formatMoneyValue(item.data?.customerUnitPrice, currency)}
+                                        </div>
+                                        {item.data?.priceSource === "CUSTOMER_SPECIAL_PRICE" ? (
+                                            <div className="mt-1 text-[11px] text-emerald-700">
+                                                Özel fiyat snapshot&apos;ı uygulandı
+                                            </div>
+                                        ) : typeof item.data?.appliedDiscountPercent === "number" && item.data.appliedDiscountPercent > 0 ? (
+                                            <div className="mt-1 text-[11px] text-emerald-700">
+                                                %{formatPercentValue(item.data.appliedDiscountPercent)} genel iskonto uygulandı
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                ) : null}
+                                {typeof item.data?.counterUnitPrice === "number" ? (
+                                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                                        <span className="text-[11px] uppercase tracking-[0.16em] text-amber-500">Karşı Teklif</span>
+                                        <div className="mt-1 font-medium">
+                                            {formatMoneyValue(item.data?.counterUnitPrice, counterCurrency)}
+                                        </div>
+                                    </div>
+                                ) : null}
+                            </div>
+                            {item.note ? (
+                                <div className="mt-2 text-xs text-neutral-600">{item.note}</div>
+                            ) : null}
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}

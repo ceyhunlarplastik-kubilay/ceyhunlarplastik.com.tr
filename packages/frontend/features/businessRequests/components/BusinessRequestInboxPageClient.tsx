@@ -117,7 +117,9 @@ export function BusinessRequestInboxPageClient({
                 showRequester
                 showDomain={showDomainFilter}
                 decisionScope={scope as BusinessRequestDecisionScope}
-                onDecision={(input) => decideMutation.mutateAsync(input)}
+                onDecision={(input) => {
+                    decideMutation.mutate(input)
+                }}
                 isDecisionPending={decideMutation.isPending}
             />
         </div>

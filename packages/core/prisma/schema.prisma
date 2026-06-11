@@ -51,6 +51,8 @@ model User {
   createdCustomerAssignedProducts CustomerAssignedProduct[]     @relation("CustomerAssignedProductCreatedBy")
   ownedCustomerVisits             CustomerVisit[]               @relation("CustomerVisitOwner")
   createdCustomerVisits           CustomerVisit[]               @relation("CustomerVisitCreatedBy")
+  createdCustomerSpecialPrices     CustomerVariantSpecialPrice[] @relation("CustomerVariantSpecialPriceCreatedBy")
+  approvedCustomerSpecialPrices    CustomerVariantSpecialPrice[] @relation("CustomerVariantSpecialPriceApprovedBy")
   notifications                   UserNotification[]
 
   createdAt DateTime @default(now())
@@ -288,6 +290,7 @@ model Customer {
   visits           CustomerVisit[]
   businessRequests BusinessRequest[]
   orders           Order[]
+  specialVariantPrices CustomerVariantSpecialPrice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -523,6 +526,7 @@ model ProductVariant {
   variantSuppliers ProductVariantSupplier[]
   requestItems     BusinessRequestItem[]
   orderItems       OrderItem[]
+  customerSpecialPrices CustomerVariantSpecialPrice[]
 
   @@unique([productId, supplierCode, versionCode, variantIndex])
   @@index([productId])
@@ -764,6 +768,55 @@ model ProductVariantSupplier {
   @@unique([variantId, supplierId])
   @@index([variantId])
   @@index([supplierId])
+}
+
+model CustomerVariantSpecialPrice {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  price    Decimal @db.Decimal(12, 2)
+  currency String  @default("TRY")
+
+  minOrderQuantity Int?
+  maxOrderQuantity Int?
+
+  paymentTermDays  Int?
+  paymentTermLabel String?
+  paymentSchedule  Json?
+
+  validFrom  DateTime?
+  validUntil DateTime?
+
+  taxIncluded Boolean @default(false)
+
+  deliveryTerm      String?
+  contractReference String?
+  note              String? @db.Text
+  internalNote      String? @db.Text
+
+  isActive Boolean @default(true)
+
+  createdByUserId String
+  createdByUser   User   @relation("CustomerVariantSpecialPriceCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  approvedByUserId String?
+  approvedByUser   User?     @relation("CustomerVariantSpecialPriceApprovedBy", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+  approvedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([customerId, productVariantId])
+  @@index([customerId, isActive])
+  @@index([productVariantId])
+  @@index([validFrom, validUntil])
+  @@index([createdByUserId])
+  @@index([approvedByUserId])
 }
 
 enum BusinessRequestDomain {

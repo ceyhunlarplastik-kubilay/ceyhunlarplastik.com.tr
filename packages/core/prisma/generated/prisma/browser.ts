@@ -143,6 +143,11 @@ export type CustomerVisit = Prisma.CustomerVisitModel
  */
 export type ProductVariantSupplier = Prisma.ProductVariantSupplierModel
 /**
+ * Model CustomerVariantSpecialPrice
+ *
+ */
+export type CustomerVariantSpecialPrice = Prisma.CustomerVariantSpecialPriceModel
+/**
  * Model BusinessRequest
  * 
  */

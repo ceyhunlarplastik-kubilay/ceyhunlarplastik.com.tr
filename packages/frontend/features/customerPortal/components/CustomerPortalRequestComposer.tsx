@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import { Clock3, MapPin, Send, UserRound } from "lucide-react"
 import { parseAsStringLiteral, useQueryStates } from "nuqs"
 import { z } from "zod"
@@ -33,6 +33,7 @@ import { CustomerPricingRequestFields } from "@/features/customerPortal/componen
 import { CustomerProfileChangeFields } from "@/features/customerPortal/components/requestComposer/CustomerProfileChangeFields"
 import { ShippingAddressDraftDialog } from "@/features/customerPortal/components/requestComposer/ShippingAddressDraftDialog"
 import { buildRequestItemPayload, getRequestFlowFlags } from "@/features/customerPortal/components/requestComposer/helpers"
+import { buildPortalDraftCommercialTermGroups } from "@/features/customerPortal/pricing/portalDraftPricing"
 import {
     addressDraftSchema,
     buildAddressSummary,
@@ -116,15 +117,22 @@ export function CustomerPortalRequestComposer({
         name: "addresses",
     })
 
-    const requestType = forcedType ?? form.watch("type")
+    const watchedRequestType = useWatch({ control: form.control, name: "type" })
+    const shippingAddressId = useWatch({ control: form.control, name: "shippingAddressId" })
+    const deliveryDate = useWatch({ control: form.control, name: "deliveryDate" })
+    const requestType = forcedType ?? watchedRequestType
     const currentMeta = requestTypeMeta[requestType]
     const CurrentTypeIcon = currentMeta.icon
     const { isOrderRequest, isPricingRequest, requiresDraftItems } = getRequestFlowFlags(requestType)
-    const shippingAddressId = form.watch("shippingAddressId")
     const totalQuantity = useMemo(
         () => items.reduce((sum, item) => sum + item.quantity, 0),
         [items],
     )
+    const commercialTermGroups = useMemo(
+        () => buildPortalDraftCommercialTermGroups(items),
+        [items],
+    )
+    const hasIncompatibleOrderTerms = isOrderRequest && commercialTermGroups.length > 1
 
     const shippingAddressOptions = useMemo<ShippingAddressOption[]>(
         () => [
@@ -282,6 +290,15 @@ export function CustomerPortalRequestComposer({
             form.setError("shippingAddressId", {
                 type: "manual",
                 message: "Siparis talebi icin teslim / sevkiyat adresi secin.",
+            })
+            return
+        }
+
+        if (hasIncompatibleOrderTerms) {
+            void setComposerState({ draft: "open" })
+            form.setError("type", {
+                type: "manual",
+                message: "Sepette farklı ticari koşullara sahip ürünler var. Lütfen aynı vade, KDV, para birimi ve fiyat koşuluna sahip kalemlerle ayrı sipariş talebi oluşturun.",
             })
             return
         }
@@ -621,13 +638,15 @@ export function CustomerPortalRequestComposer({
                 totalQuantity={totalQuantity}
                 orderSummary={isOrderRequest
                     ? {
-                        requestedDeliveryDate: form.watch("deliveryDate") || null,
+                        requestedDeliveryDate: deliveryDate || null,
                         shippingAddressLabel: selectedShippingAddress?.label ?? null,
                         shippingAddressSummary: selectedShippingAddress ? buildAddressSummary(selectedShippingAddress) : null,
                         paymentTermDays: customer?.defaultPaymentTermDays ?? null,
                         paymentTermNote: customer?.paymentTermNote ?? null,
                     }
                     : undefined}
+                commercialTermGroups={commercialTermGroups}
+                showCommercialTermWarning={hasIncompatibleOrderTerms}
                 updateQuantity={updateQuantity}
                 updateItem={updateItem}
                 removeItem={removeItem}

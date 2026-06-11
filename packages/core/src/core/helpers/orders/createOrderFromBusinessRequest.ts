@@ -1,8 +1,11 @@
 import createError from "http-errors"
 
+import type { prisma } from "@/core/db/prisma"
 import { normalizeCustomerDiscountPercent } from "@/core/helpers/pricing/customerPricing"
 import type { BusinessRequestWithRelations } from "@/core/helpers/prisma/businessRequests/repository"
 import type { Prisma } from "@/prisma/generated/prisma/client"
+
+type PrismaTransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
 
 function asRecord(value: unknown) {
     return value && typeof value === "object" && !Array.isArray(value)
@@ -37,7 +40,7 @@ function createOrderNumber(requestId: string) {
 }
 
 export async function createOrderFromApprovedCustomerRequestTx(
-    tx: Prisma.TransactionClient,
+    tx: PrismaTransactionClient,
     request: BusinessRequestWithRelations,
 ) {
     if (!request.customerId || !request.customer) {

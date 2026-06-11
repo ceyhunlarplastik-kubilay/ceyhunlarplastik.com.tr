@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, type ReactNode } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
@@ -28,6 +28,15 @@ const addressRequestSchema = addressDraftSchema.superRefine((address, ctx) => {
 })
 
 type AddressRequestValues = z.infer<typeof addressDraftSchema>
+
+function RequiredFormLabel({ children }: { children: ReactNode }) {
+    return (
+        <FormLabel>
+            {children}
+            <span className="ml-1 text-red-500" aria-hidden="true">*</span>
+        </FormLabel>
+    )
+}
 
 export function CustomerPortalAddressRequestDialog({
     open,
@@ -75,7 +84,7 @@ export function CustomerPortalAddressRequestDialog({
                                 name="label"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Adres Etiketi</FormLabel>
+                                        <RequiredFormLabel>Adres Etiketi</RequiredFormLabel>
                                         <FormControl>
                                             <Input placeholder="Merkez depo, fatura adresi..." {...field} />
                                         </FormControl>
@@ -128,6 +137,7 @@ export function CustomerPortalAddressRequestDialog({
                             countryId={countryId ?? null}
                             stateId={stateId ?? null}
                             cityId={cityId ?? null}
+                            showRequiredIndicators
                             onChange={(patch) => {
                                 if (patch.countryId !== undefined) form.setValue("countryId", patch.countryId ?? null)
                                 if (patch.stateId !== undefined) form.setValue("stateId", patch.stateId ?? null)
@@ -185,7 +195,7 @@ export function CustomerPortalAddressRequestDialog({
                             name="line1"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Açık Adres</FormLabel>
+                                    <RequiredFormLabel>Açık Adres</RequiredFormLabel>
                                     <FormControl>
                                         <Textarea rows={3} placeholder="Cadde, sokak, bina, kat, daire..." {...field} />
                                     </FormControl>

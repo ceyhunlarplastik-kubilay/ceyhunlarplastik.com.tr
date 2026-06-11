@@ -342,6 +342,7 @@ export type CustomerWhereInput = {
   visits?: Prisma.CustomerVisitListRelationFilter
   businessRequests?: Prisma.BusinessRequestListRelationFilter
   orders?: Prisma.OrderListRelationFilter
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
@@ -377,6 +378,7 @@ export type CustomerOrderByWithRelationInput = {
   visits?: Prisma.CustomerVisitOrderByRelationAggregateInput
   businessRequests?: Prisma.BusinessRequestOrderByRelationAggregateInput
   orders?: Prisma.OrderOrderByRelationAggregateInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -415,6 +417,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   visits?: Prisma.CustomerVisitListRelationFilter
   businessRequests?: Prisma.BusinessRequestListRelationFilter
   orders?: Prisma.OrderListRelationFilter
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceListRelationFilter
 }, "id">
 
 export type CustomerOrderByWithAggregationInput = {
@@ -496,6 +499,7 @@ export type CustomerCreateInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateInput = {
@@ -527,6 +531,7 @@ export type CustomerUncheckedCreateInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUpdateInput = {
@@ -558,6 +563,7 @@ export type CustomerUpdateInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
@@ -589,6 +595,7 @@ export type CustomerUncheckedUpdateInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyInput = {
@@ -1063,6 +1070,20 @@ export type CustomerUpdateOneRequiredWithoutVisitsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutVisitsInput, Prisma.CustomerUpdateWithoutVisitsInput>, Prisma.CustomerUncheckedUpdateWithoutVisitsInput>
 }
 
+export type CustomerCreateNestedOneWithoutSpecialVariantPricesInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutSpecialVariantPricesInput, Prisma.CustomerUncheckedCreateWithoutSpecialVariantPricesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutSpecialVariantPricesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutSpecialVariantPricesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutSpecialVariantPricesInput, Prisma.CustomerUncheckedCreateWithoutSpecialVariantPricesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutSpecialVariantPricesInput
+  upsert?: Prisma.CustomerUpsertWithoutSpecialVariantPricesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutSpecialVariantPricesInput, Prisma.CustomerUpdateWithoutSpecialVariantPricesInput>, Prisma.CustomerUncheckedUpdateWithoutSpecialVariantPricesInput>
+}
+
 export type CustomerCreateNestedOneWithoutBusinessRequestsInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutBusinessRequestsInput, Prisma.CustomerUncheckedCreateWithoutBusinessRequestsInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutBusinessRequestsInput
@@ -1121,6 +1142,7 @@ export type CustomerCreateWithoutPortalUsersInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutPortalUsersInput = {
@@ -1151,6 +1173,7 @@ export type CustomerUncheckedCreateWithoutPortalUsersInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutPortalUsersInput = {
@@ -1186,6 +1209,7 @@ export type CustomerCreateWithoutAssignedSalesUserInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutAssignedSalesUserInput = {
@@ -1216,6 +1240,7 @@ export type CustomerUncheckedCreateWithoutAssignedSalesUserInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutAssignedSalesUserInput = {
@@ -1256,6 +1281,7 @@ export type CustomerCreateWithoutConvertedByUserInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutConvertedByUserInput = {
@@ -1286,6 +1312,7 @@ export type CustomerUncheckedCreateWithoutConvertedByUserInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutConvertedByUserInput = {
@@ -1337,6 +1364,7 @@ export type CustomerUpdateWithoutPortalUsersInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutPortalUsersInput = {
@@ -1367,6 +1395,7 @@ export type CustomerUncheckedUpdateWithoutPortalUsersInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUpsertWithWhereUniqueWithoutAssignedSalesUserInput = {
@@ -1453,6 +1482,7 @@ export type CustomerCreateWithoutSectorValueInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutSectorValueInput = {
@@ -1483,6 +1513,7 @@ export type CustomerUncheckedCreateWithoutSectorValueInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutSectorValueInput = {
@@ -1523,6 +1554,7 @@ export type CustomerCreateWithoutProductionGroupValueInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutProductionGroupValueInput = {
@@ -1553,6 +1585,7 @@ export type CustomerUncheckedCreateWithoutProductionGroupValueInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutProductionGroupValueInput = {
@@ -1593,6 +1626,7 @@ export type CustomerCreateWithoutUsageAreaValuesInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutUsageAreaValuesInput = {
@@ -1623,6 +1657,7 @@ export type CustomerUncheckedCreateWithoutUsageAreaValuesInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutUsageAreaValuesInput = {
@@ -1706,6 +1741,7 @@ export type CustomerCreateWithoutAttributeValueAssignmentsInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutAttributeValueAssignmentsInput = {
@@ -1736,6 +1772,7 @@ export type CustomerUncheckedCreateWithoutAttributeValueAssignmentsInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutAttributeValueAssignmentsInput = {
@@ -1782,6 +1819,7 @@ export type CustomerUpdateWithoutAttributeValueAssignmentsInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutAttributeValueAssignmentsInput = {
@@ -1812,6 +1850,7 @@ export type CustomerUncheckedUpdateWithoutAttributeValueAssignmentsInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutCompanyContactAssignmentsInput = {
@@ -1842,6 +1881,7 @@ export type CustomerCreateWithoutCompanyContactAssignmentsInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutCompanyContactAssignmentsInput = {
@@ -1872,6 +1912,7 @@ export type CustomerUncheckedCreateWithoutCompanyContactAssignmentsInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutCompanyContactAssignmentsInput = {
@@ -1918,6 +1959,7 @@ export type CustomerUpdateWithoutCompanyContactAssignmentsInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutCompanyContactAssignmentsInput = {
@@ -1948,6 +1990,7 @@ export type CustomerUncheckedUpdateWithoutCompanyContactAssignmentsInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutFeaturedProductsInput = {
@@ -1978,6 +2021,7 @@ export type CustomerCreateWithoutFeaturedProductsInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutFeaturedProductsInput = {
@@ -2008,6 +2052,7 @@ export type CustomerUncheckedCreateWithoutFeaturedProductsInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutFeaturedProductsInput = {
@@ -2054,6 +2099,7 @@ export type CustomerUpdateWithoutFeaturedProductsInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutFeaturedProductsInput = {
@@ -2084,6 +2130,7 @@ export type CustomerUncheckedUpdateWithoutFeaturedProductsInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutAssignedProductsInput = {
@@ -2114,6 +2161,7 @@ export type CustomerCreateWithoutAssignedProductsInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutAssignedProductsInput = {
@@ -2144,6 +2192,7 @@ export type CustomerUncheckedCreateWithoutAssignedProductsInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutAssignedProductsInput = {
@@ -2190,6 +2239,7 @@ export type CustomerUpdateWithoutAssignedProductsInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutAssignedProductsInput = {
@@ -2220,6 +2270,7 @@ export type CustomerUncheckedUpdateWithoutAssignedProductsInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutAddressesInput = {
@@ -2250,6 +2301,7 @@ export type CustomerCreateWithoutAddressesInput = {
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutAddressesInput = {
@@ -2280,6 +2332,7 @@ export type CustomerUncheckedCreateWithoutAddressesInput = {
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutAddressesInput = {
@@ -2326,6 +2379,7 @@ export type CustomerUpdateWithoutAddressesInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutAddressesInput = {
@@ -2356,6 +2410,7 @@ export type CustomerUncheckedUpdateWithoutAddressesInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutVisitsInput = {
@@ -2386,6 +2441,7 @@ export type CustomerCreateWithoutVisitsInput = {
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutVisitsInput = {
@@ -2416,6 +2472,7 @@ export type CustomerUncheckedCreateWithoutVisitsInput = {
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutVisitsInput = {
@@ -2462,6 +2519,7 @@ export type CustomerUpdateWithoutVisitsInput = {
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutVisitsInput = {
@@ -2490,6 +2548,147 @@ export type CustomerUncheckedUpdateWithoutVisitsInput = {
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
+  businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutSpecialVariantPricesInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
+  convertedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
+  sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
+  productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
+  businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutSpecialVariantPricesInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
+  businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutSpecialVariantPricesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutSpecialVariantPricesInput, Prisma.CustomerUncheckedCreateWithoutSpecialVariantPricesInput>
+}
+
+export type CustomerUpsertWithoutSpecialVariantPricesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutSpecialVariantPricesInput, Prisma.CustomerUncheckedUpdateWithoutSpecialVariantPricesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutSpecialVariantPricesInput, Prisma.CustomerUncheckedCreateWithoutSpecialVariantPricesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutSpecialVariantPricesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutSpecialVariantPricesInput, Prisma.CustomerUncheckedUpdateWithoutSpecialVariantPricesInput>
+}
+
+export type CustomerUpdateWithoutSpecialVariantPricesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
+  sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
+  productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
+  businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutSpecialVariantPricesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
 }
@@ -2522,6 +2721,7 @@ export type CustomerCreateWithoutBusinessRequestsInput = {
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutBusinessRequestsInput = {
@@ -2552,6 +2752,7 @@ export type CustomerUncheckedCreateWithoutBusinessRequestsInput = {
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutBusinessRequestsInput = {
@@ -2598,6 +2799,7 @@ export type CustomerUpdateWithoutBusinessRequestsInput = {
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutBusinessRequestsInput = {
@@ -2628,6 +2830,7 @@ export type CustomerUncheckedUpdateWithoutBusinessRequestsInput = {
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateWithoutOrdersInput = {
@@ -2658,6 +2861,7 @@ export type CustomerCreateWithoutOrdersInput = {
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutOrdersInput = {
@@ -2688,6 +2892,7 @@ export type CustomerUncheckedCreateWithoutOrdersInput = {
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
   businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutOrdersInput = {
@@ -2734,6 +2939,7 @@ export type CustomerUpdateWithoutOrdersInput = {
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutOrdersInput = {
@@ -2764,6 +2970,7 @@ export type CustomerUncheckedUpdateWithoutOrdersInput = {
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyAssignedSalesUserInput = {
@@ -2834,6 +3041,7 @@ export type CustomerUpdateWithoutAssignedSalesUserInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutAssignedSalesUserInput = {
@@ -2864,6 +3072,7 @@ export type CustomerUncheckedUpdateWithoutAssignedSalesUserInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutAssignedSalesUserInput = {
@@ -2914,6 +3123,7 @@ export type CustomerUpdateWithoutConvertedByUserInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutConvertedByUserInput = {
@@ -2944,6 +3154,7 @@ export type CustomerUncheckedUpdateWithoutConvertedByUserInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutConvertedByUserInput = {
@@ -3034,6 +3245,7 @@ export type CustomerUpdateWithoutSectorValueInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutSectorValueInput = {
@@ -3064,6 +3276,7 @@ export type CustomerUncheckedUpdateWithoutSectorValueInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutSectorValueInput = {
@@ -3114,6 +3327,7 @@ export type CustomerUpdateWithoutProductionGroupValueInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
@@ -3144,6 +3358,7 @@ export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutProductionGroupValueInput = {
@@ -3194,6 +3409,7 @@ export type CustomerUpdateWithoutUsageAreaValuesInput = {
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
@@ -3224,6 +3440,7 @@ export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
   businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput = {
@@ -3263,6 +3480,7 @@ export type CustomerCountOutputType = {
   visits: number
   businessRequests: number
   orders: number
+  specialVariantPrices: number
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3276,6 +3494,7 @@ export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   visits?: boolean | CustomerCountOutputTypeCountVisitsArgs
   businessRequests?: boolean | CustomerCountOutputTypeCountBusinessRequestsArgs
   orders?: boolean | CustomerCountOutputTypeCountOrdersArgs
+  specialVariantPrices?: boolean | CustomerCountOutputTypeCountSpecialVariantPricesArgs
 }
 
 /**
@@ -3358,6 +3577,13 @@ export type CustomerCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types
   where?: Prisma.OrderWhereInput
 }
 
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountSpecialVariantPricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerVariantSpecialPriceWhereInput
+}
+
 
 export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3392,6 +3618,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   visits?: boolean | Prisma.Customer$visitsArgs<ExtArgs>
   businessRequests?: boolean | Prisma.Customer$businessRequestsArgs<ExtArgs>
   orders?: boolean | Prisma.Customer$ordersArgs<ExtArgs>
+  specialVariantPrices?: boolean | Prisma.Customer$specialVariantPricesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -3482,6 +3709,7 @@ export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   visits?: boolean | Prisma.Customer$visitsArgs<ExtArgs>
   businessRequests?: boolean | Prisma.Customer$businessRequestsArgs<ExtArgs>
   orders?: boolean | Prisma.Customer$ordersArgs<ExtArgs>
+  specialVariantPrices?: boolean | Prisma.Customer$specialVariantPricesArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3514,6 +3742,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     visits: Prisma.$CustomerVisitPayload<ExtArgs>[]
     businessRequests: Prisma.$BusinessRequestPayload<ExtArgs>[]
     orders: Prisma.$OrderPayload<ExtArgs>[]
+    specialVariantPrices: Prisma.$CustomerVariantSpecialPricePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3942,6 +4171,7 @@ export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime
   visits<T extends Prisma.Customer$visitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerVisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   businessRequests<T extends Prisma.Customer$businessRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$businessRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orders<T extends Prisma.Customer$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  specialVariantPrices<T extends Prisma.Customer$specialVariantPricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$specialVariantPricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerVariantSpecialPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4703,6 +4933,30 @@ export type Customer$ordersArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * Customer.specialVariantPrices
+ */
+export type Customer$specialVariantPricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerVariantSpecialPrice
+   */
+  select?: Prisma.CustomerVariantSpecialPriceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerVariantSpecialPrice
+   */
+  omit?: Prisma.CustomerVariantSpecialPriceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerVariantSpecialPriceInclude<ExtArgs> | null
+  where?: Prisma.CustomerVariantSpecialPriceWhereInput
+  orderBy?: Prisma.CustomerVariantSpecialPriceOrderByWithRelationInput | Prisma.CustomerVariantSpecialPriceOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerVariantSpecialPriceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerVariantSpecialPriceScalarFieldEnum | Prisma.CustomerVariantSpecialPriceScalarFieldEnum[]
 }
 
 /**

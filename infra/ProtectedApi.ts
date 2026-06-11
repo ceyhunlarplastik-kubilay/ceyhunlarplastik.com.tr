@@ -294,6 +294,31 @@ protectedApi.route('PUT /sales/customers/{id}/assigned-products', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /sales/customers/{id}/special-prices', {
+    handler: `${folderPrefix}/crm/actions.listManagedCustomerSpecialPrices`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/customers/{id}/special-prices/{specialPriceId}', {
+    handler: `${folderPrefix}/crm/actions.getManagedCustomerSpecialPrice`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /sales/customers/{id}/special-prices', {
+    handler: `${folderPrefix}/crm/actions.createManagedCustomerSpecialPrice`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /sales/customers/{id}/special-prices/{specialPriceId}', {
+    handler: `${folderPrefix}/crm/actions.updateManagedCustomerSpecialPrice`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /sales/customers/{id}/special-prices/{specialPriceId}', {
+    handler: `${folderPrefix}/crm/actions.deactivateManagedCustomerSpecialPrice`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/customers/{id}/visits', {
     handler: `${folderPrefix}/crm/actions.listManagedCustomerVisits`,
     ...defaultRouteOptions
@@ -336,6 +361,11 @@ protectedApi.route('GET /purchasing/suppliers/{id}', {
 
 protectedApi.route('GET /portal/customer', {
     handler: `${folderPrefix}/crm/actions.getPortalCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /portal/customer/special-prices', {
+    handler: `${folderPrefix}/crm/actions.listPortalCustomerSpecialPrices`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 

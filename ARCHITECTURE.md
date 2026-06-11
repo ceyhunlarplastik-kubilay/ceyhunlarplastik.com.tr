@@ -67,6 +67,7 @@ Main architecture choices:
 - Client components only where interactivity is required
 - Feature-based module structure under `features/`
 - TanStack Query for async server state
+- TanStack Table may be introduced incrementally for complex operational admin tables, but existing row edit/detail flows should remain isolated in feature components during migration
 - `nuqs` for URL query state
 - `shadcn/ui` primitives for UI consistency
 
@@ -344,6 +345,14 @@ Customer-specific request UX rules:
 - `CUSTOMER_ORDER_REQUEST` may use a checkout-style stacked draft preview above its form because line-item verification is the primary task
 - `CUSTOMER_PRICING_REQUEST` can continue using an item-based comparison layout, but it should remain separate from order request layout decisions
 - profile and document request forms should remain simpler non-cart flows even though they share the same `BusinessRequest` backbone
+
+Customer-specific special price rules:
+- Customer-specific special prices live in `CustomerVariantSpecialPrice`, not in `ProductVariantSupplier`.
+- They may carry minimum/maximum order quantity, payment term, validity period, KDV status, delivery terms, contract reference, customer-visible notes, and internal notes.
+- Simple payment terms continue to use `paymentTermDays` and `paymentTermLabel`; multi-step terms use structured `paymentSchedule` JSON with percentage, due-day, label, and optional note per step.
+- A special price applies only to its `customerId + productVariantId` pair when active, current, and quantity-eligible; when it applies, `Customer.generalDiscountPercent` is not applied.
+- Special prices never update `ProductVariantSupplier.listPrice` or supplier cost/profit calculations.
+- Portal request/order creation snapshots the resolved `priceSource`, unit price, currency, quantity constraints, simple/multi-step payment terms, validity, tax status, and contract reference into item data so historical records remain stable after future price edits.
 
 This split is intentional:
 - EventBridge answers “what happened?”

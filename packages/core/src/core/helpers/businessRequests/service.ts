@@ -4,9 +4,13 @@ import slugify from "slugify"
 import { prisma } from "@/core/db/prisma"
 import { businessRequestInclude, businessRequestRepository, type BusinessRequestApprovalStepWithRelations, type BusinessRequestWithRelations } from "@/core/helpers/prisma/businessRequests/repository"
 import type { CustomerDetail } from "@/core/helpers/prisma/customers/repository"
+import { customerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
 import { createOrderFromApprovedCustomerRequestTx } from "@/core/helpers/orders/createOrderFromBusinessRequest"
+import { buildCustomerVariantPricingSnapshot } from "@/core/helpers/pricing/customerVariantSpecialPriceDto"
 import type { ProductVariantSupplierWithRelations } from "@/core/helpers/prisma/productVariantSuppliers/repository"
+import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import type { SupplierWithRelations } from "@/core/helpers/prisma/suppliers/repository"
+import { resolveCustomerVariantPrice } from "@/core/helpers/pricing/customerPricing"
 import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/productVariantSupplier"
 import {
     buildApprovedVariantPricingUpdate,
@@ -41,6 +45,56 @@ function asRecord(value: unknown) {
     return value && typeof value === "object" && !Array.isArray(value)
         ? value as Record<string, unknown>
         : {}
+}
+
+async function enrichCustomerRequestItemsWithServerPricing(
+    customer: CustomerDetail,
+    items?: Array<{
+        productVariantId?: string | null
+        quantity?: number
+        note?: string | null
+        data?: Record<string, unknown> | null
+    }>,
+) {
+    if (!items?.length) return []
+
+    const productVariantIds = Array.from(
+        new Set(items.map((item) => item.productVariantId).filter((id): id is string => Boolean(id))),
+    )
+    const [variants, specialPrices] = await Promise.all([
+        productVariantRepository().listProductVariantsByIds(productVariantIds),
+        customerVariantSpecialPriceRepository().listActiveByCustomerAndVariantIds(customer.id, productVariantIds),
+    ])
+    const variantById = new Map(variants.map((variant) => [variant.id, variant]))
+    const specialPriceByVariantId = new Map(specialPrices.map((specialPrice) => [specialPrice.productVariantId, specialPrice]))
+
+    return items.map((item) => {
+        const variant = item.productVariantId ? variantById.get(item.productVariantId) : null
+        if (!variant) return item
+
+        const resolved = resolveCustomerVariantPrice({
+            customer,
+            variant,
+            specialPrice: specialPriceByVariantId.get(variant.id) ?? null,
+            quantity: item.quantity,
+        })
+        const pricingSnapshot = buildCustomerVariantPricingSnapshot(resolved)
+        const data = {
+            ...asRecord(item.data),
+            listUnitPrice: resolved.listPrice,
+            customerUnitPrice: resolved.finalPrice,
+            appliedDiscountPercent: resolved.appliedDiscountPercent,
+            currency: resolved.currency,
+            priceSource: resolved.priceSource,
+            specialPriceId: resolved.specialPriceId,
+            pricingSnapshot,
+        }
+
+        return {
+            ...item,
+            data,
+        }
+    })
 }
 
 async function assertNoIndustrialAttributeValuesInTransaction(
@@ -1014,6 +1068,7 @@ export async function createCustomerBusinessRequest(input: {
 }) {
     const requesterRole = getRequesterApprovalRole(input.requester)
     const domain = getBusinessRequestDomain(input.type)
+    const normalizedItems = await enrichCustomerRequestItemsWithServerPricing(input.customer, input.items)
 
     const approvalSteps = buildApprovalSteps({
         domain,
@@ -1107,10 +1162,10 @@ export async function createCustomerBusinessRequest(input: {
                 },
             }
             : {}),
-        ...(input.items?.length
+        ...(normalizedItems.length
             ? {
                 items: {
-                    create: input.items.map((item, index) => ({
+                    create: normalizedItems.map((item, index) => ({
                         quantity: item.quantity && item.quantity > 0 ? item.quantity : 1,
                         note: item.note?.trim() || null,
                         data: item.data ? item.data as Prisma.InputJsonValue : undefined,

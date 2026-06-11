@@ -74,6 +74,105 @@ export type CustomerCompanyContactAssignment = {
 
 export type CustomerStatus = "LEAD" | "CUSTOMER"
 export type CustomerVisitStatus = "PLANNED" | "COMPLETED" | "CANCELED"
+export type CustomerVariantPriceSource = "CUSTOMER_SPECIAL_PRICE" | "CUSTOMER_GENERAL_DISCOUNT" | "LIST_PRICE"
+
+export type CustomerVariantPaymentScheduleStep = {
+    percentage: number
+    paymentTermDays: number
+    label: string
+    note?: string | null
+}
+
+export type CustomerVariantResolvedPricing = {
+    listPrice: number | null
+    finalPrice: number | null
+    currency: string
+    priceSource: CustomerVariantPriceSource
+    appliedDiscountPercent: number
+    specialPriceId: string | null
+    minOrderQuantity: number | null
+    maxOrderQuantity: number | null
+    paymentTermDays: number | null
+    paymentTermLabel: string | null
+    paymentSchedule: CustomerVariantPaymentScheduleStep[] | null
+    validFrom: string | null
+    validUntil: string | null
+    taxIncluded: boolean
+    deliveryTerm: string | null
+    contractReference: string | null
+    note: string | null
+    specialPriceApplied: boolean
+    specialPriceEligible: boolean | null
+    ineligibilityReason: string | null
+}
+
+export type CustomerSpecialPriceProductVariant = {
+    id: string
+    productId: string
+    name: string
+    fullCode: string
+    versionCode: string
+    supplierCode: string
+    variantIndex: number
+    color?: {
+        id: string
+        name: string
+        code?: string
+        hex?: string
+        system?: string
+    } | null
+    materials?: Array<{ id: string; name: string; code?: string | null }>
+    measurements?: Array<{
+        id: string
+        value: number
+        label: string
+        measurementType: {
+            id: string
+            code: string
+            name: string
+            baseUnit?: string | null
+            displayOrder?: number
+        }
+    }>
+    assets?: Array<{
+        id: string
+        url: string
+        type?: string
+        role?: string
+    }>
+    product?: Product | null
+}
+
+export type CustomerVariantSpecialPrice = {
+    id: string
+    customerId: string
+    productVariantId: string
+    price: number | null
+    currency: string
+    minOrderQuantity: number | null
+    maxOrderQuantity: number | null
+    paymentTermDays: number | null
+    paymentTermLabel: string | null
+    paymentSchedule: CustomerVariantPaymentScheduleStep[] | null
+    validFrom: string | null
+    validUntil: string | null
+    taxIncluded: boolean
+    deliveryTerm: string | null
+    contractReference: string | null
+    note: string | null
+    internalNote?: string | null
+    isActive: boolean
+    createdByUserId?: string
+    createdByUser?: UserSummary | null
+    approvedByUserId?: string | null
+    approvedByUser?: UserSummary | null
+    approvedAt?: string | null
+    createdAt: string | null
+    updatedAt: string | null
+    customer?: Pick<AdminCustomer, "id" | "fullName" | "companyName" | "generalDiscountPercent" | "assignedSalesUserId"> | null
+    productVariant?: CustomerSpecialPriceProductVariant | null
+    pricing: CustomerVariantResolvedPricing
+}
 
 export type CustomerFeaturedProduct = {
     id: string
@@ -229,5 +328,25 @@ export type CustomerVisitResponse = {
     statusCode: number
     payload: {
         visit: CustomerVisit
+    }
+}
+
+export type CustomerVariantSpecialPriceListResponse = {
+    statusCode: number
+    payload: {
+        data: CustomerVariantSpecialPrice[]
+        meta?: {
+            page: number
+            limit: number
+            total: number
+            totalPages: number
+        }
+    }
+}
+
+export type CustomerVariantSpecialPriceResponse = {
+    statusCode: number
+    payload: {
+        specialPrice: CustomerVariantSpecialPrice
     }
 }

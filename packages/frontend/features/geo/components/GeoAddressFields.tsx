@@ -22,6 +22,7 @@ type Props = {
     countryId?: number | null
     stateId?: number | null
     cityId?: number | null
+    showRequiredIndicators?: boolean
     onChange: (patch: {
         countryId?: number | null
         stateId?: number | null
@@ -47,6 +48,7 @@ type SearchableGeoSelectProps = {
     searchPlaceholder: string
     title: string
     value?: number | null
+    required?: boolean
 }
 
 function SearchableGeoSelect({
@@ -59,13 +61,17 @@ function SearchableGeoSelect({
     searchPlaceholder,
     title,
     value,
+    required = false,
 }: SearchableGeoSelectProps) {
     const [open, setOpen] = useState(false)
     const selectedOption = options.find((option) => option.id === value) ?? null
 
     return (
         <div className="space-y-2">
-            <Label className="text-sm font-medium text-neutral-800">{title}</Label>
+            <Label className="text-sm font-medium text-neutral-800">
+                {title}
+                {required ? <span className="ml-1 text-red-500" aria-hidden="true">*</span> : null}
+            </Label>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
@@ -130,6 +136,7 @@ export function GeoAddressFields({
     countryId,
     stateId,
     cityId,
+    showRequiredIndicators = false,
     onChange,
 }: Props) {
     const countriesQuery = useGeoCountries()
@@ -150,6 +157,7 @@ export function GeoAddressFields({
                 placeholder={countriesQuery.isLoading ? "Ülkeler yükleniyor..." : "Ülke seç"}
                 searchPlaceholder="Ülke ara..."
                 emptyLabel="Sonuç bulunamadı."
+                required={showRequiredIndicators}
                 onSelect={(selectedCountry) => {
                     if (!selectedCountry) {
                         onChange({
@@ -183,6 +191,7 @@ export function GeoAddressFields({
                 placeholder={!countryId ? "Önce ülke seçin" : statesQuery.isLoading ? "İller yükleniyor..." : "İl seç"}
                 searchPlaceholder="İl ara..."
                 emptyLabel={!countryId ? "Önce ülke seçin." : "Sonuç bulunamadı."}
+                required={showRequiredIndicators}
                 onSelect={(selectedState) => {
                     if (!selectedState) {
                         onChange({
@@ -212,6 +221,7 @@ export function GeoAddressFields({
                 placeholder={!stateId ? "Önce il seçin" : citiesQuery.isLoading ? "İlçeler yükleniyor..." : "İlçe seç"}
                 searchPlaceholder="İlçe ara..."
                 emptyLabel={!stateId ? "Önce il seçin." : "Sonuç bulunamadı."}
+                required={showRequiredIndicators}
                 onSelect={(selectedCity) => {
                     if (!selectedCity) {
                         onChange({

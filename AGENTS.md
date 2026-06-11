@@ -190,6 +190,7 @@ For multi-flow feature surfaces such as request composers or workflow creation s
 - Prefer TanStack Table for complex operational tables with evolving requirements such as sorting, filtering, expansion, visibility control, or column-level behaviors.
 - Keep row rendering components isolated when table complexity grows.
 - Avoid burying table orchestration, filters, and row details inside a single large page component.
+- When introducing TanStack Table to an existing large operational page, migrate incrementally through an isolated feature table component and preserve existing row edit/detail behavior during the pilot.
 
 ## Backend Rules
 
@@ -301,6 +302,16 @@ When extending customer portal contact surfaces:
 - assign Ceyhunlar contacts to customers through `CustomerCompanyContactAssignment`
 - preserve `assignedSalesUser` as the primary sales representative and render company contacts as additional department contact points
 - portal responses should hide inactive company contacts or inactive assignments, while admin/sales management surfaces may show them for maintenance
+
+When extending customer-specific special prices:
+- store customer-specific variant prices separately from `ProductVariantSupplier` supplier/list pricing
+- special prices may include minimum/maximum order quantity, payment term, validity period, tax information, delivery terms, contract reference, and customer/internal notes
+- multi-step payment terms such as `%50 peşin + %50 30 gün` should be stored as structured `paymentSchedule` data on the special price while preserving legacy `paymentTermDays` / `paymentTermLabel` for simple terms and display fallback
+- special prices override `Customer.generalDiscountPercent` only for the selected customer + product variant when active, current, and quantity-eligible
+- special prices must never mutate `ProductVariantSupplier.listPrice`, supplier cost, operational cost, net cost, or profit calculations
+- customer portal responses must only expose the authenticated customer's own active/current special prices and must not expose internal notes
+- order/request creation should snapshot the resolved price source and commercial terms at creation time so later special-price edits do not rewrite historical orders or requests
+- keep special-price UI helpers, formatting, form mapping, and larger cards in feature-local `specialPrices` utilities/components instead of crowding page client files
 
 ## Database Rules
 

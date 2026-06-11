@@ -50,19 +50,21 @@ function ContactRow({
     href?: string
     actions?: ReactNode
 }) {
+    const isExternal = href?.startsWith("https://")
+
     return (
         <div className="flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white/80 px-3.5 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
             <div className="mt-0.5 rounded-full border border-slate-200 bg-slate-50 p-2 text-slate-500">
                 <Icon className="h-3.5 w-3.5" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
                 {value ? (
-                    <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                        {href && !actions ? (
+                    <div className="mt-0.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                        {href ? (
                             <a
                                 href={href}
-                                target={href.startsWith("https://") ? "_blank" : undefined}
-                                rel={href.startsWith("https://") ? "noopener noreferrer" : undefined}
+                                target={isExternal ? "_blank" : undefined}
+                                rel={isExternal ? "noopener noreferrer" : undefined}
                                 className="max-w-full break-all text-[13px] font-medium leading-5 text-slate-900 transition hover:text-brand"
                                 title={value}
                             >
@@ -73,7 +75,7 @@ function ContactRow({
                                 {value}
                             </div>
                         )}
-                        {actions}
+                        {actions ? <div className="flex shrink-0 flex-wrap items-center gap-1.5">{actions}</div> : null}
                     </div>
                 ) : (
                     <div className="mt-1 text-sm text-slate-400">Bilgi eklenmedi</div>
@@ -108,6 +110,12 @@ function buildWhatsappHref(phone?: string | null, name?: string | null) {
     return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`
 }
 
+function buildPhoneHref(phone?: string | null) {
+    if (!phone) return undefined
+    const compactPhone = phone.replace(/[^\d+]/g, "")
+    return compactPhone ? `tel:${compactPhone}` : undefined
+}
+
 export function UserContactCard({
     eyebrow,
     icon: Icon,
@@ -127,6 +135,7 @@ export function UserContactCard({
     const initials = getInitials(name || subtitle)
     const hasIdentity = Boolean(name || email || phone)
     const whatsappHref = buildWhatsappHref(phone, name || subtitle)
+    const phoneHref = buildPhoneHref(phone)
 
     return (
         <motion.article
@@ -190,7 +199,7 @@ export function UserContactCard({
                         ) : null}
                         {hasIdentity ? (
                             description ? (
-                                <p className="mt-2 text-sm leading-6 text-slate-500">
+                                <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-500">
                                     {description}
                                 </p>
                             ) : null
@@ -211,18 +220,28 @@ export function UserContactCard({
                     <ContactRow
                         icon={Phone}
                         value={phone}
+                        href={phoneHref}
                         actions={(
                             <>
+                                {phoneHref ? (
+                                    <a
+                                        href={phoneHref}
+                                        aria-label={`${name || subtitle || "Kişi"} telefonla ara`}
+                                        className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 transition hover:border-amber-200 hover:bg-amber-50 hover:text-amber-800"
+                                    >
+                                        Ara
+                                    </a>
+                                ) : null}
                                 {whatsappHref ? (
                                     <a
                                         href={whatsappHref}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        aria-label={`${name || subtitle || "Kisi"} ile WhatsApp uzerinden iletisime gec`}
-                                        className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-800"
+                                        aria-label={`${name || subtitle || "Kişi"} ile WhatsApp üzerinden iletişime geç`}
+                                        className="inline-flex items-center gap-1.5 rounded-full border border-[#25D366]/35 bg-[#25D366]/10 px-2.5 py-1 text-[11px] font-semibold text-[#128C4A] transition hover:border-[#25D366]/60 hover:bg-[#25D366]/15 hover:text-[#075E54]"
                                     >
                                         <SiWhatsapp className="h-3.5 w-3.5" />
-                                        <span>{phone}</span>
+                                        <span>WhatsApp</span>
                                     </a>
                                 ) : null}
                             </>

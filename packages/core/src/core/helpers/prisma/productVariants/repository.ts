@@ -35,6 +35,7 @@ export interface IPrismaProductVariantRepository {
         }
     }>
     getProductVariant(id: string): Promise<ProductVariantWithRelations | null>
+    listProductVariantsByIds(ids: string[]): Promise<ProductVariantWithRelations[]>
     countProductVariants(productId: string, versionCode: string): Promise<number>
     createProductVariant(data: Prisma.ProductVariantCreateInput): Promise<ProductVariant>
     updateProductVariant(id: string, data: Prisma.ProductVariantUpdateInput): Promise<ProductVariant>
@@ -106,6 +107,18 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             include: defaultInclude
         })
 
+    const listProductVariantsByIds = async (ids: string[]) => {
+        const uniqueIds = Array.from(new Set(ids.filter(Boolean)))
+        if (uniqueIds.length === 0) return []
+
+        return prisma.productVariant.findMany({
+            where: {
+                id: { in: uniqueIds },
+            },
+            include: defaultInclude,
+        })
+    }
+
     const countProductVariants = async (productId: string, versionCode: string) =>
         prisma.productVariant.count({ where: { productId, versionCode } })
 
@@ -166,6 +179,7 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
     return {
         listProductVariants,
         getProductVariant,
+        listProductVariantsByIds,
         countProductVariants,
         createProductVariant,
         updateProductVariant,

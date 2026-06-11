@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { Clock3, MapPin, ShoppingCart, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { buildCurrencySummary, normalizeDraftQuantity, resolveDraftPreviewImageUrl } from "@/features/customerPortal/components/requestComposer/helpers"
+import type { PortalDraftCommercialTermGroup } from "@/features/customerPortal/pricing/portalDraftPricing"
 import type { PortalRequestDraftItem } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
 
@@ -40,6 +41,8 @@ type Props = {
         paymentTermDays?: number | null
         paymentTermNote?: string | null
     }
+    commercialTermGroups?: PortalDraftCommercialTermGroup[]
+    showCommercialTermWarning?: boolean
     updateQuantity: (variantId: string, quantity: number) => void
     updateItem: (variantId: string, patch: Partial<PortalRequestDraftItem>) => void
     removeItem: (variantId: string) => void
@@ -53,6 +56,8 @@ export function CustomerPortalRequestDraftPanel({
     mode,
     totalQuantity,
     orderSummary,
+    commercialTermGroups = [],
+    showCommercialTermWarning = false,
     updateQuantity,
     updateItem,
     removeItem,
@@ -62,16 +67,6 @@ export function CustomerPortalRequestDraftPanel({
     const [quantityInputs, setQuantityInputs] = useState<Record<string, string>>({})
     const [brokenVariantImages, setBrokenVariantImages] = useState<Record<string, boolean>>({})
     const currencySummary = useMemo(() => buildCurrencySummary(items), [items])
-
-    useEffect(() => {
-        setQuantityInputs((current) => {
-            const next: Record<string, string> = {}
-            items.forEach((item) => {
-                next[item.variantId] = current[item.variantId] ?? String(item.quantity)
-            })
-            return next
-        })
-    }, [items])
 
     function handleQuantityCommit(variantId: string) {
         const normalized = normalizeDraftQuantity(Number(quantityInputs[variantId] ?? ""))
@@ -129,6 +124,23 @@ export function CustomerPortalRequestDraftPanel({
                 </div>
             ) : (
                 <div className="space-y-4">
+                    {showCommercialTermWarning && commercialTermGroups.length > 1 ? (
+                        <div className="rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                            <div className="font-semibold">Sepette farklı ticari koşullar var.</div>
+                            <div className="mt-1">
+                                Sipariş talebi oluşturmak için aynı vade, KDV, para birimi ve fiyat koşuluna sahip kalemleri aynı sepette bırakın.
+                                Diğer kalemler için ayrı talep oluşturun.
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {commercialTermGroups.map((group) => (
+                                    <Badge key={group.key} className="border border-amber-200 bg-white text-amber-900 hover:bg-white">
+                                        {group.label} - {group.items.length} kalem
+                                    </Badge>
+                                ))}
+                            </div>
+                        </div>
+                    ) : null}
+
                     <div className="overflow-hidden rounded-[24px] border border-neutral-200 bg-neutral-50">
                         <Table className="min-w-[1120px]">
                             <TableHeader className="bg-white/90">
@@ -227,14 +239,27 @@ export function CustomerPortalRequestDraftPanel({
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 align-middle">
-                                            <div className="flex min-h-[76px] flex-col justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm font-medium text-emerald-900">
+                                            <div className={`flex min-h-[76px] flex-col justify-center rounded-2xl border px-3 py-3 text-sm font-medium ${item.priceSource === "CUSTOMER_SPECIAL_PRICE"
+                                                ? "border-amber-200 bg-amber-50 text-amber-950"
+                                                : item.appliedDiscountPercent && item.appliedDiscountPercent > 0
+                                                    ? "border-sky-200 bg-sky-50 text-sky-950"
+                                                    : "border-neutral-200 bg-white text-neutral-900"}`}>
                                                 <div>{formatMoney(item.customerUnitPrice ?? item.listUnitPrice, item.currency ?? "TRY")}</div>
-                                                {item.appliedDiscountPercent && item.appliedDiscountPercent > 0 ? (
-                                                    <div className="mt-1 text-[11px] font-medium text-emerald-700">
+                                                {item.priceSource === "CUSTOMER_SPECIAL_PRICE" ? (
+                                                    <div className="mt-1 text-[11px] font-medium text-amber-800">
+                                                        Özel fiyat uygulandı
+                                                    </div>
+                                                ) : item.appliedDiscountPercent && item.appliedDiscountPercent > 0 ? (
+                                                    <div className="mt-1 text-[11px] font-medium text-sky-700">
                                                         %{item.appliedDiscountPercent.toLocaleString("tr-TR", {
                                                             minimumFractionDigits: item.appliedDiscountPercent % 1 === 0 ? 0 : 2,
                                                             maximumFractionDigits: 2,
                                                         })} genel iskonto
+                                                    </div>
+                                                ) : null}
+                                                {item.specialPricePreview && item.priceSource !== "CUSTOMER_SPECIAL_PRICE" ? (
+                                                    <div className="mt-1 text-[11px] font-medium text-amber-700">
+                                                        {item.specialPriceIneligibilityMessage ?? "Özel fiyat koşulu sağlanmadı"}
                                                     </div>
                                                 ) : null}
                                             </div>
@@ -244,10 +269,9 @@ export function CustomerPortalRequestDraftPanel({
                                             <div className="flex min-h-[76px] flex-col justify-center rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm font-semibold text-neutral-950">
                                                 {item.customerUnitPrice !== null
                                                     && item.customerUnitPrice !== undefined
-                                                    && item.appliedDiscountPercent
-                                                    && item.appliedDiscountPercent > 0
                                                     && item.listUnitPrice !== null
-                                                    && item.listUnitPrice !== undefined ? (
+                                                    && item.listUnitPrice !== undefined
+                                                    && item.customerUnitPrice !== item.listUnitPrice ? (
                                                     <div className="space-y-1">
                                                         <div className="text-xs text-neutral-400 line-through">
                                                             {formatMoney(item.listUnitPrice * item.quantity, item.currency ?? "TRY")}

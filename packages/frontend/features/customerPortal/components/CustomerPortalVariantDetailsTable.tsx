@@ -2,9 +2,9 @@
 
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { motion } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
 import { toast } from "sonner"
-import { Plus, ShoppingCart, Tags } from "lucide-react"
+import { BadgePercent, Plus, ShoppingCart, Tags } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,13 @@ import type {
 } from "@/features/public/products/components/ProductVariantTable"
 import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { CustomerPortalVariantFilters } from "@/features/customerPortal/components/CustomerPortalVariantFilters"
+import { usePortalSpecialPrices } from "@/features/customerPortal/hooks/usePortalSpecialPrices"
+import {
+    mapSpecialPriceToPortalDraftPreview,
+    resolvePortalDraftPricing,
+    type ResolvedPortalDraftPricing,
+    type PortalDraftSpecialPricePreview,
+} from "@/features/customerPortal/pricing/portalDraftPricing"
 import {
     buildVariantFilterDefaultValues,
     countActiveVariantFilters,
@@ -29,6 +36,7 @@ import {
     type AppliedVariantFilters,
 } from "@/features/customerPortal/schema/customerPortalVariantFilters"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
+import type { CustomerVariantSpecialPrice } from "@/features/admin/customers/api/types"
 import { formatMoney, resolveCustomerDiscountedPrice } from "@/lib/customers/pricing"
 
 interface Props {
@@ -101,6 +109,11 @@ type PreparedVariant = {
     minListPrice: ReturnType<typeof resolveMinListPrice>
 }
 
+type PortalVariantPricing = ResolvedPortalDraftPricing & {
+    specialPrice: CustomerVariantSpecialPrice | undefined
+    specialPricePreview: PortalDraftSpecialPricePreview | null
+}
+
 export function CustomerPortalVariantDetailsTable({
     variants,
     selectedMeasurements,
@@ -113,10 +126,24 @@ export function CustomerPortalVariantDetailsTable({
     productImageUrl,
 }: Props) {
     const lastAppliedBoundsKeyRef = useRef<string | null>(null)
+    const shouldReduceMotion = useReducedMotion()
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
-    const totalDraftItems = usePortalRequestDraftStore((state) => state.items.length)
+    const draftItems = usePortalRequestDraftStore((state) => state.items)
+    const totalDraftItems = draftItems.length
+    const specialPricesQuery = usePortalSpecialPrices()
     const [quantityByVariantId, setQuantityByVariantId] = useState<Record<string, string>>({})
     const [refreshKey, setRefreshKey] = useState(0)
+    const specialPriceByVariantId = useMemo(
+        () =>
+            new Map(
+        (specialPricesQuery.data?.data ?? []).map((specialPrice) => [specialPrice.productVariantId, specialPrice]),
+            ),
+        [specialPricesQuery.data?.data],
+    )
+    const draftItemByVariantId = useMemo(
+        () => new Map(draftItems.map((item) => [item.variantId, item])),
+        [draftItems],
+    )
     const measurementColumns = Array.from(
         variants
             .flatMap((variant) => variant.measurements)
@@ -260,7 +287,7 @@ export function CustomerPortalVariantDetailsTable({
             minPrice: range.minPrice,
             maxPrice: range.maxPrice,
         })
-    }, [priceBoundsKey])
+    }, [priceBounds, priceBoundsKey])
 
     function resolveQuantity(variantId: string) {
         const raw = Number(quantityByVariantId[variantId] ?? "1")
@@ -268,10 +295,44 @@ export function CustomerPortalVariantDetailsTable({
         return Math.min(100000, Math.round(raw))
     }
 
-    function handleAddToDraft(variant: VariantTableData) {
-        const quantity = resolveQuantity(variant.id)
+    function resolveBasePricing(variant: VariantTableData) {
         const minListPrice = resolveMinListPrice(variant)
         const discountedPricing = resolveCustomerDiscountedPrice(minListPrice?.value, customerDiscountPercent)
+
+        return {
+            listUnitPrice: minListPrice?.value ?? null,
+            customerUnitPrice: discountedPricing?.customerUnitPrice ?? minListPrice?.value ?? null,
+            appliedDiscountPercent: discountedPricing?.appliedDiscountPercent ?? 0,
+            currency: minListPrice?.currency ?? "TRY",
+            priceSource: discountedPricing && discountedPricing.appliedDiscountPercent > 0
+                ? "CUSTOMER_GENERAL_DISCOUNT" as const
+                : "LIST_PRICE" as const,
+        }
+    }
+
+    function resolvePortalPricing(variant: VariantTableData, quantity?: number): PortalVariantPricing {
+        const minListPrice = resolveMinListPrice(variant)
+        const specialPrice = specialPriceByVariantId.get(variant.id)
+        const specialPricePreview = mapSpecialPriceToPortalDraftPreview(specialPrice)
+        const resolved = resolvePortalDraftPricing({
+            quantity,
+            listUnitPrice: specialPrice?.pricing.listPrice ?? minListPrice?.value ?? null,
+            currency: minListPrice?.currency ?? specialPrice?.pricing.currency ?? specialPrice?.currency ?? "TRY",
+            generalDiscountPercent: customerDiscountPercent,
+            specialPrice: specialPricePreview,
+        })
+
+        return {
+            ...resolved,
+            specialPrice,
+            specialPricePreview,
+        }
+    }
+
+    function handleAddToDraft(variant: VariantTableData) {
+        const quantity = resolveQuantity(variant.id)
+        const existingQuantity = draftItemByVariantId.get(variant.id)?.quantity ?? 0
+        const pricing = resolvePortalPricing(variant, existingQuantity + quantity)
         addItem({
             productId,
             productSlug,
@@ -283,13 +344,28 @@ export function CustomerPortalVariantDetailsTable({
             variantKey: selectedMeasurements.map((measurement) => `${measurement.measurementType.code}:${measurement.value}`).join("|"),
             variantFullCode: variant.fullCode,
             quantity,
-            listUnitPrice: minListPrice?.value ?? null,
-            customerUnitPrice: discountedPricing?.customerUnitPrice ?? minListPrice?.value ?? null,
-            appliedDiscountPercent: discountedPricing?.appliedDiscountPercent ?? 0,
-            currency: minListPrice?.currency ?? "TRY",
+            listUnitPrice: pricing.listUnitPrice,
+            customerUnitPrice: pricing.customerUnitPrice,
+            appliedDiscountPercent: pricing.appliedDiscountPercent,
+            generalDiscountPercent: customerDiscountPercent ?? null,
+            priceSource: pricing.priceSource,
+            specialPriceId: pricing.specialPriceId,
+            specialPricePreview: pricing.specialPricePreview,
+            specialPriceEligible: pricing.specialPriceEligible,
+            specialPriceIneligibilityReason: pricing.specialPriceIneligibilityReason,
+            specialPriceIneligibilityMessage: pricing.specialPriceIneligibilityMessage,
+            pricingSnapshot: pricing.pricingSnapshot,
+            currency: pricing.currency,
             targetUnitPrice: null,
             customerNote: "",
         })
+        if (pricing.specialPriceIneligibilityMessage) {
+            toast.warning(pricing.specialPriceIneligibilityMessage)
+        }
+        if (pricing.priceSource === "CUSTOMER_SPECIAL_PRICE") {
+            toast.success("Özel fiyat koşulu sağlandı ve sepete uygulandı.")
+            return
+        }
         toast.success("Varyant talep taslağına eklendi.")
     }
 
@@ -404,14 +480,21 @@ export function CustomerPortalVariantDetailsTable({
                                     <TableHead>Versiyon</TableHead>
                                     <TableHead>Renk</TableHead>
                                     <TableHead>Ham Madde</TableHead>
-                                    <TableHead>Liste Satış Fiyatı</TableHead>
+                                    <TableHead>Müşteri Fiyatı</TableHead>
                                     <TableHead>Fiyat Son Güncelleme</TableHead>
                                     <TableHead className="pr-4 text-right">Talep</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredVariants.map(({ variant, minListPrice }, index) => {
-                                    const discountedPricing = resolveCustomerDiscountedPrice(minListPrice?.value, customerDiscountPercent)
+                                    const basePricing = resolveBasePricing(variant)
+                                    const selectedQuantity = resolveQuantity(variant.id)
+                                    const existingDraftQuantity = draftItemByVariantId.get(variant.id)?.quantity ?? 0
+                                    const effectiveQuantity = existingDraftQuantity + selectedQuantity
+                                    const selectedPricing = resolvePortalPricing(variant, effectiveQuantity)
+                                    const specialPricePreview = selectedPricing.specialPricePreview
+                                    const hasSpecialPrice = Boolean(specialPricePreview)
+                                    const specialPriceApplied = selectedPricing.priceSource === "CUSTOMER_SPECIAL_PRICE"
 
                                     return (
                                         <motion.tr
@@ -473,31 +556,95 @@ export function CustomerPortalVariantDetailsTable({
                                                     : "-"}
                                             </TableCell>
                                             <TableCell className="font-medium text-neutral-900">
-                                                {minListPrice ? (
-                                                    <div className="space-y-1.5">
-                                                        {discountedPricing && discountedPricing.appliedDiscountPercent > 0 ? (
-                                                            <>
-                                                                <div className="text-xs text-neutral-400 line-through">
-                                                                    {formatMoney(discountedPricing.listUnitPrice, minListPrice.currency)}
+                                                {minListPrice || basePricing.customerUnitPrice !== null || hasSpecialPrice ? (
+                                                    <div className="space-y-2.5">
+                                                        <div className="rounded-2xl border border-neutral-200 bg-white px-3 py-2">
+                                                            <div className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">
+                                                                Liste fiyatı
+                                                            </div>
+                                                            <div className={`mt-1 text-sm ${basePricing.appliedDiscountPercent > 0 ? "text-neutral-400 line-through" : "text-neutral-900"}`}>
+                                                                {formatMoney(basePricing.listUnitPrice, basePricing.currency)}
+                                                            </div>
+                                                        </div>
+
+                                                        {basePricing.appliedDiscountPercent > 0 ? (
+                                                            <div className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2">
+                                                                <div className="text-[10px] uppercase tracking-[0.16em] text-sky-700">
+                                                                    Sizin fiyatınız
                                                                 </div>
-                                                                <div className="flex flex-wrap items-center gap-2">
-                                                                    <span className="text-base font-semibold text-emerald-700">
-                                                                        {formatMoney(discountedPricing.customerUnitPrice, minListPrice.currency)}
+                                                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                                                    <span className="text-base font-semibold text-sky-950">
+                                                                        {formatMoney(basePricing.customerUnitPrice, basePricing.currency)}
                                                                     </span>
-                                                                    <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
-                                                                        %{discountedPricing.appliedDiscountPercent.toLocaleString("tr-TR", {
-                                                                            minimumFractionDigits: discountedPricing.appliedDiscountPercent % 1 === 0 ? 0 : 2,
+                                                                    <Badge className="border border-sky-200 bg-sky-100 text-sky-800 hover:bg-sky-100">
+                                                                        %{basePricing.appliedDiscountPercent.toLocaleString("tr-TR", {
+                                                                            minimumFractionDigits: basePricing.appliedDiscountPercent % 1 === 0 ? 0 : 2,
                                                                             maximumFractionDigits: 2,
-                                                                        })} müşteri indirimi
+                                                                        })} genel iskonto
                                                                     </Badge>
                                                                 </div>
-                                                            </>
-                                                        ) : (
-                                                            <div>{formatMoney(minListPrice.value, minListPrice.currency)}</div>
-                                                        )}
-                                                        {/* <Badge variant="outline" className="font-normal">
-                                                            Liste satış fiyatı baz alınır
-                                                        </Badge> */}
+                                                            </div>
+                                                        ) : null}
+
+                                                        {specialPricePreview ? (
+                                                            <motion.div
+                                                                animate={!shouldReduceMotion && specialPriceApplied
+                                                                    ? {
+                                                                        boxShadow: [
+                                                                            "0 0 0 0 rgba(245, 158, 11, 0)",
+                                                                            "0 0 0 4px rgba(245, 158, 11, 0.14)",
+                                                                            "0 0 0 0 rgba(245, 158, 11, 0)",
+                                                                        ],
+                                                                    }
+                                                                    : undefined}
+                                                                transition={{ duration: 2.2, repeat: specialPriceApplied ? Infinity : 0, ease: "easeInOut" }}
+                                                                className={`rounded-2xl border px-3 py-2 ${specialPriceApplied
+                                                                    ? "border-amber-300 bg-amber-50"
+                                                                    : "border-amber-200 bg-amber-50/70"}`}
+                                                            >
+                                                                <div className="flex flex-wrap items-center gap-2">
+                                                                    <Badge className="border border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-100">
+                                                                        <BadgePercent className="mr-1.5 h-3.5 w-3.5" />
+                                                                        Özel anlaşmalı fiyat
+                                                                    </Badge>
+                                                                    {specialPriceApplied ? (
+                                                                        <Badge className="border border-amber-300 bg-white text-amber-900 hover:bg-white">
+                                                                            Bu adet için uygulanır
+                                                                        </Badge>
+                                                                    ) : null}
+                                                                </div>
+                                                                <div className="mt-2 text-lg font-semibold text-amber-950">
+                                                                    {formatMoney(specialPricePreview.price, specialPricePreview.currency)}
+                                                                </div>
+                                                                <div className="mt-1 flex flex-wrap gap-1.5">
+                                                                    {specialPricePreview.minOrderQuantity ? (
+                                                                        <Badge variant="outline" className="border-amber-200 bg-white/70 font-normal text-amber-900">
+                                                                            Min. {specialPricePreview.minOrderQuantity} adet
+                                                                        </Badge>
+                                                                    ) : null}
+                                                                    {specialPricePreview.maxOrderQuantity ? (
+                                                                        <Badge variant="outline" className="border-amber-200 bg-white/70 font-normal text-amber-900">
+                                                                            Max. {specialPricePreview.maxOrderQuantity} adet
+                                                                        </Badge>
+                                                                    ) : null}
+                                                                    {specialPricePreview.paymentTermLabel ? (
+                                                                        <Badge variant="outline" className="border-amber-200 bg-white/70 font-normal text-amber-900">
+                                                                            {specialPricePreview.paymentTermLabel}
+                                                                        </Badge>
+                                                                    ) : null}
+                                                                </div>
+                                                                {!specialPriceApplied && selectedPricing.specialPriceIneligibilityMessage ? (
+                                                                    <div className="mt-2 text-xs leading-5 text-amber-800">
+                                                                        {selectedPricing.specialPriceIneligibilityMessage}
+                                                                    </div>
+                                                                ) : null}
+                                                                {existingDraftQuantity > 0 ? (
+                                                                    <div className="mt-2 text-[11px] leading-5 text-amber-700">
+                                                                        Sepetteki mevcut {existingDraftQuantity} adet ile toplam {effectiveQuantity} adet üzerinden değerlendirilir.
+                                                                    </div>
+                                                                ) : null}
+                                                            </motion.div>
+                                                        ) : null}
                                                     </div>
                                                 ) : "-"}
                                             </TableCell>

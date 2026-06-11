@@ -76,6 +76,7 @@ export const ModelName = {
   CustomerAddress: 'CustomerAddress',
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
+  CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
   BusinessRequest: 'BusinessRequest',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -550,6 +551,35 @@ export const ProductVariantSupplierScalarFieldEnum = {
 } as const
 
 export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
+
+
+export const CustomerVariantSpecialPriceScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  productVariantId: 'productVariantId',
+  price: 'price',
+  currency: 'currency',
+  minOrderQuantity: 'minOrderQuantity',
+  maxOrderQuantity: 'maxOrderQuantity',
+  paymentTermDays: 'paymentTermDays',
+  paymentTermLabel: 'paymentTermLabel',
+  paymentSchedule: 'paymentSchedule',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  taxIncluded: 'taxIncluded',
+  deliveryTerm: 'deliveryTerm',
+  contractReference: 'contractReference',
+  note: 'note',
+  internalNote: 'internalNote',
+  isActive: 'isActive',
+  createdByUserId: 'createdByUserId',
+  approvedByUserId: 'approvedByUserId',
+  approvedAt: 'approvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerVariantSpecialPriceScalarFieldEnum = (typeof CustomerVariantSpecialPriceScalarFieldEnum)[keyof typeof CustomerVariantSpecialPriceScalarFieldEnum]
 
 
 export const BusinessRequestScalarFieldEnum = {

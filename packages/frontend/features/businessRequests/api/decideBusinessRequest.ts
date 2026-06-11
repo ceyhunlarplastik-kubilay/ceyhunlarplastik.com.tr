@@ -1,6 +1,6 @@
 import { adminApiClient, protectedApiClient } from "@/lib/http/client"
 import type {
-    BusinessRequestDecisionAction,
+    BusinessRequestDecisionInput,
     BusinessRequestDecisionResponse,
     BusinessRequestDecisionScope,
 } from "@/features/businessRequests/api/types"
@@ -12,18 +12,7 @@ const decisionPathMap: Record<BusinessRequestDecisionScope, string> = {
     admin: "/approval-requests",
 }
 
-export async function decideBusinessRequest(input: {
-    scope: BusinessRequestDecisionScope
-    id: string
-    action?: BusinessRequestDecisionAction
-    approved?: boolean
-    note?: string
-    counterOfferItems?: Array<{
-        requestItemId: string
-        proposedUnitPrice: number
-        currency?: string | null
-    }>
-}) {
+export async function decideBusinessRequest(input: BusinessRequestDecisionInput) {
     const client = input.scope === "admin" ? adminApiClient : protectedApiClient
     const res = await client.post<BusinessRequestDecisionResponse>(
         `${decisionPathMap[input.scope]}/${input.id}/decision`,

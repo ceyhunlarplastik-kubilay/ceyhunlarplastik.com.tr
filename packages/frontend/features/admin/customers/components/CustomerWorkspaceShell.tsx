@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowLeft, Building2, Boxes, CalendarDays, PackageCheck, UserRound } from "lucide-react"
+import { ArrowLeft, BadgePercent, Building2, Boxes, CalendarDays, PackageCheck, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
@@ -18,6 +18,7 @@ const navItems = [
     { label: "Genel Bilgiler", href: "" },
     { label: "İlgili Ürünler", href: "/products" },
     { label: "Tanımlı Ürünler", href: "/defined-products" },
+    { label: "Özel Fiyatlar", href: "/special-prices" },
     { label: "Ziyaretler", href: "/visits" },
 ]
 
@@ -171,6 +172,7 @@ export function CustomerWorkspaceShell({
                                     )}
                                 >
                                     {item.label === "İlgili Ürünler" || item.label === "Tanımlı Ürünler" ? <Boxes className="h-4 w-4" /> : null}
+                                    {item.label === "Özel Fiyatlar" ? <BadgePercent className="h-4 w-4" /> : null}
                                     {item.label === "Ziyaretler" ? <CalendarDays className="h-4 w-4" /> : null}
                                     {item.label === "Genel Bilgiler" ? <Building2 className="h-4 w-4" /> : null}
                                     <span>{item.label}</span>

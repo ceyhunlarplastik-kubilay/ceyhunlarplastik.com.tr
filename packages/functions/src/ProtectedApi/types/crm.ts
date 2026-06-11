@@ -3,6 +3,8 @@ import { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/repos
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
 import { IPrismaCompanyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
+import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
+import { IPrismaCustomerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
 import type { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
@@ -12,7 +14,9 @@ export interface IProtectedCrmDependencies {
     supplierRepository: IPrismaSupplierRepository
     productAttributeValueRepository?: IPrismaProductAttributeValueRepository
     productRepository?: IPrismaProductRepository
+    productVariantRepository?: IPrismaProductVariantRepository
     companyContactRepository?: IPrismaCompanyContactRepository
+    customerVariantSpecialPriceRepository?: IPrismaCustomerVariantSpecialPriceRepository
 }
 
 export type IListManagedCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
@@ -35,6 +39,73 @@ export type IListManagedCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
 export type IManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     { id: string }
+>
+
+export type IListManagedCustomerSpecialPricesEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    { id: string },
+    {
+        page?: string
+        limit?: string
+        search?: string
+        sort?: string
+        order?: "asc" | "desc"
+        isActive?: string
+    }
+>
+
+export type IPortalCustomerSpecialPricesEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    {},
+    {
+        page?: string
+        limit?: string
+        search?: string
+        sort?: string
+        order?: "asc" | "desc"
+    }
+>
+
+export type ICustomerSpecialPriceBody = {
+    productVariantId?: string
+    price?: number
+    currency?: string
+    minOrderQuantity?: number | null
+    maxOrderQuantity?: number | null
+    paymentTermDays?: number | null
+    paymentTermLabel?: string | null
+    paymentSchedule?: Array<{
+        percentage: number
+        paymentTermDays: number
+        label: string
+        note?: string | null
+    }> | null
+    validFrom?: string | null
+    validUntil?: string | null
+    taxIncluded?: boolean
+    deliveryTerm?: string | null
+    contractReference?: string | null
+    note?: string | null
+    internalNote?: string | null
+    isActive?: boolean
+}
+
+export type ICreateManagedCustomerSpecialPriceEvent = IAPIGatewayProxyEventWithUserGeneric<
+    ICustomerSpecialPriceBody & {
+        productVariantId: string
+        price: number
+    },
+    { id: string }
+>
+
+export type IManagedCustomerSpecialPriceEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    { id: string; specialPriceId: string }
+>
+
+export type IUpdateManagedCustomerSpecialPriceEvent = IAPIGatewayProxyEventWithUserGeneric<
+    ICustomerSpecialPriceBody,
+    { id: string; specialPriceId: string }
 >
 
 export type ICreatePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<

@@ -185,3 +185,18 @@ export type ListBusinessRequestsParams = {
 export type BusinessRequestListScope = "portal" | "supplier" | "sales" | "purchasing" | "admin"
 export type BusinessRequestDecisionScope = "portal" | "sales" | "purchasing" | "admin"
 export type BusinessRequestDecisionAction = "APPROVE" | "REJECT" | "COUNTER"
+
+export type BusinessRequestCounterOfferItemInput = {
+    requestItemId: string
+    proposedUnitPrice: number
+    currency?: string | null
+}
+
+export type BusinessRequestDecisionInput = {
+    scope: BusinessRequestDecisionScope
+    id: string
+    action?: BusinessRequestDecisionAction
+    approved?: boolean
+    note?: string
+    counterOfferItems?: BusinessRequestCounterOfferItemInput[]
+}
