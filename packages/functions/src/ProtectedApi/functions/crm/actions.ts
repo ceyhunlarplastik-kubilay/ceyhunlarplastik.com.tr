@@ -1,4 +1,6 @@
 import { lambdaHandler } from "@/core/middy"
+import { Resource } from "sst"
+import { cognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import { companyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
@@ -6,19 +8,26 @@ import { productAttributeValueRepository } from "@/core/helpers/prisma/productAt
 import { productRepository } from "@/core/helpers/prisma/products/repository"
 import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { customerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
+import { userRepository } from "@/core/helpers/prisma/users/repository"
+import { userInvitationRepository } from "@/core/helpers/prisma/userInvitations/repository"
 import {
+    createManagedCustomerAddressHandler,
     createManagedCustomerSpecialPriceHandler,
     createManagedCustomerVisitHandler,
+    createPortalCustomerUserHandler,
     convertManagedCustomerHandler,
     deactivateManagedCustomerSpecialPriceHandler,
+    deleteManagedCustomerAddressHandler,
     deleteManagedCustomerVisitHandler,
     getManagedCustomerSpecialPriceHandler,
     getManagedCustomerHandler,
     getManagedSupplierHandler,
     getPortalCustomerAssignedProductsHandler,
     createPortalCustomerAddressHandler,
+    deletePortalCustomerAddressHandler,
     getPortalCustomerFeaturedProductsHandler,
     getPortalCustomerHandler,
+    listManagedCustomersMapHandler,
     listManagedCustomerSpecialPricesHandler,
     listManagedCompanyContactsHandler,
     listManagedCustomerAssignedProductsHandler,
@@ -29,17 +38,24 @@ import {
     listPortalCustomerSpecialPricesHandler,
     replaceManagedCustomerAssignedProductsHandler,
     replaceManagedCustomerFeaturedProductsHandler,
+    updateManagedCustomerAddressHandler,
     updateManagedCustomerSpecialPriceHandler,
     updateManagedCustomerHandler,
+    updatePortalCustomerAddressHandler,
     updateManagedCustomerVisitHandler,
 } from "@/functions/ProtectedApi/functions/crm/handlers"
 import type {
+    ICreateManagedCustomerAddressEvent,
     ICreateManagedCustomerSpecialPriceEvent,
     ICreateManagedCustomerVisitEvent,
     ICreatePortalCustomerAddressEvent,
+    ICreatePortalCustomerUserEvent,
+    IDeleteManagedCustomerAddressEvent,
     IDeleteManagedCustomerVisitEvent,
+    IDeletePortalCustomerAddressEvent,
     IListManagedCustomerSpecialPricesEvent,
     IListManagedCustomersEvent,
+    IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
     IManagedCustomerEvent,
@@ -47,8 +63,10 @@ import type {
     IPortalCustomerSpecialPricesEvent,
     IReplaceManagedCustomerAssignedProductsEvent,
     IReplaceManagedCustomerFeaturedProductsEvent,
+    IUpdateManagedCustomerAddressEvent,
     IUpdateManagedCustomerSpecialPriceEvent,
     IUpdateManagedCustomerEvent,
+    IUpdatePortalCustomerAddressEvent,
     IUpdateManagedCustomerVisitEvent,
 } from "@/functions/ProtectedApi/types/crm"
 import {
@@ -67,7 +85,17 @@ import {
     updateCustomerVisitValidator,
 } from "@/functions/AdminApi/validators/customers"
 import { listCompanyContactsResponseValidator } from "@/functions/AdminApi/validators/companyContacts"
-import { createPortalCustomerAddressValidator } from "@/functions/ProtectedApi/validators/crm"
+import {
+    createManagedCustomerAddressValidator,
+    createPortalCustomerAddressValidator,
+    createPortalCustomerUserValidator,
+    deleteManagedCustomerAddressValidator,
+    deletePortalCustomerAddressValidator,
+    customerMapPointsResponseValidator,
+    listManagedCustomersMapValidator,
+    updateManagedCustomerAddressValidator,
+    updatePortalCustomerAddressValidator,
+} from "@/functions/ProtectedApi/validators/crm"
 import {
     createCustomerSpecialPriceValidator,
     customerSpecialPriceIdValidator,
@@ -82,6 +110,7 @@ import {
     listSuppliersResponseValidator,
     supplierResponseValidator,
 } from "@/functions/AdminApi/validators/suppliers"
+import { sendCustomerPortalInvitationEmail } from "@/functions/shared/mail/sendCustomerPortalInvitationEmail"
 
 const deps = {
     customerRepository: customerRepository(),
@@ -91,6 +120,12 @@ const deps = {
     productVariantRepository: productVariantRepository(),
     companyContactRepository: companyContactRepository(),
     customerVariantSpecialPriceRepository: customerVariantSpecialPriceRepository(),
+    userRepository: userRepository(),
+    userInvitationRepository: userInvitationRepository(),
+    cognitoRepository: cognitoUserRepository(),
+    userPoolId: Resource.CeyhunlarUserPool.id,
+    frontendBaseUrl: process.env.FRONTEND_BASE_URL ?? "",
+    sendCustomerPortalInvitationEmail,
 }
 
 export const listManagedCustomers = lambdaHandler(
@@ -98,6 +133,15 @@ export const listManagedCustomers = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         responseValidator: listCustomersResponseValidator,
+    },
+)
+
+export const listManagedCustomersMap = lambdaHandler(
+    async (event) => listManagedCustomersMapHandler(deps)(event as IListManagedCustomersMapEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: listManagedCustomersMapValidator,
+        responseValidator: customerMapPointsResponseValidator,
     },
 )
 
@@ -308,6 +352,60 @@ export const createPortalCustomerAddress = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
         requestValidator: createPortalCustomerAddressValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const createPortalCustomerUser = lambdaHandler(
+    async (event) => createPortalCustomerUserHandler(deps)(event as ICreatePortalCustomerUserEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        requestValidator: createPortalCustomerUserValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const updatePortalCustomerAddress = lambdaHandler(
+    async (event) => updatePortalCustomerAddressHandler(deps)(event as IUpdatePortalCustomerAddressEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        requestValidator: updatePortalCustomerAddressValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const deletePortalCustomerAddress = lambdaHandler(
+    async (event) => deletePortalCustomerAddressHandler(deps)(event as IDeletePortalCustomerAddressEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        requestValidator: deletePortalCustomerAddressValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const createManagedCustomerAddress = lambdaHandler(
+    async (event) => createManagedCustomerAddressHandler(deps)(event as ICreateManagedCustomerAddressEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: createManagedCustomerAddressValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const updateManagedCustomerAddress = lambdaHandler(
+    async (event) => updateManagedCustomerAddressHandler(deps)(event as IUpdateManagedCustomerAddressEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: updateManagedCustomerAddressValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const deleteManagedCustomerAddress = lambdaHandler(
+    async (event) => deleteManagedCustomerAddressHandler(deps)(event as IDeleteManagedCustomerAddressEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: deleteManagedCustomerAddressValidator,
         responseValidator: customerResponseValidator,
     },
 )

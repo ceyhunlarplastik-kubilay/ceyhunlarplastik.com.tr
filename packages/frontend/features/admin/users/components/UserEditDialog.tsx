@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Controller, useForm, useWatch } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,24 +18,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
 import { UserAccessStatusBadge } from "@/features/admin/users/components/UserAccessStatusBadge"
-import type { Supplier } from "@/features/admin/suppliers/api/types"
 import type { AdminUser } from "@/features/admin/users/api/types"
 import {
-    ACCESS_STATUS_OPTIONS,
     buildUserEditorSubmission,
-    type CustomerOption,
-    getRoleOptions,
     GROUP_LABELS,
-    ROLE_ASSIGNMENT_CONFIG,
     toUserEditorFormValues,
     type UserEditorFormValues,
     userEditorSchema,
@@ -43,17 +30,11 @@ import {
 import { getUserDisplayName } from "@/lib/users/displayName"
 import { cn } from "@/lib/utils"
 
-const EMPTY_OPTION = "__none__"
-
 type Props = {
     open: boolean
     user: AdminUser | null
-    suppliers: Supplier[]
-    customers: CustomerOption[]
-    isOwnerViewer: boolean
+    mode?: "admin" | "self"
     isSaving: boolean
-    isLoadingSuppliers: boolean
-    isLoadingCustomers: boolean
     onOpenChange: (open: boolean) => void
     onSubmit: (user: AdminUser, values: UserEditorFormValues) => Promise<void>
 }
@@ -92,12 +73,8 @@ function formatUserDate(value?: string | null) {
 export function UserEditDialog({
     open,
     user,
-    suppliers,
-    customers,
-    isOwnerViewer,
+    mode = "admin",
     isSaving,
-    isLoadingSuppliers,
-    isLoadingCustomers,
     onOpenChange,
     onSubmit,
 }: Props) {
@@ -134,12 +111,8 @@ export function UserEditDialog({
         assignedSupplierIds: watchedValues.assignedSupplierIds ?? fallbackValues.assignedSupplierIds,
         assignedCustomerIds: watchedValues.assignedCustomerIds ?? fallbackValues.assignedCustomerIds,
     }
+    const isSelfMode = mode === "self"
     const hasCustomerLink = Boolean(values.customerId)
-    const roleConfig = ROLE_ASSIGNMENT_CONFIG[values.group]
-    const roleOptions = useMemo(
-        () => (user ? getRoleOptions(user, isOwnerViewer) : []),
-        [isOwnerViewer, user],
-    )
     const displayName = user ? (getUserDisplayName(user) || user.email) : ""
 
     if (!user) return null
@@ -151,9 +124,11 @@ export function UserEditDialog({
             <DialogContent className="max-h-[88vh] max-w-5xl overflow-y-auto rounded-[30px] border border-neutral-200 p-0">
                 <div className="border-b border-neutral-200 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.12),transparent_32%),linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,1))] p-6">
                     <DialogHeader>
-                        <DialogTitle>Kullanıcı Profili ve Yetki Düzenleme</DialogTitle>
+                        <DialogTitle>{isSelfMode ? "Profilimi Düzenle" : "Kullanıcı Profili Düzenleme"}</DialogTitle>
                         <DialogDescription>
-                            Kimlik, iletişim, portal bağlantıları ve operasyon atamalarını tek pencereden yönetin.
+                            {isSelfMode
+                                ? "Ad, soyad, görünen isim ve iletişim bilgilerinizi güncelleyin."
+                                : "Kimlik ve iletişim alanlarını yetki ayarlarından ayrı, daha net bir yüzeyde yönetin."}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -164,17 +139,20 @@ export function UserEditDialog({
                         </Avatar>
 
                         <div className="min-w-0 flex-1">
-                            <div className="truncate text-lg font-semibold text-neutral-950">
-                                {displayName}
-                            </div>
+                            <div className="truncate text-lg font-semibold text-neutral-950">{displayName}</div>
                             <div className="mt-1 truncate text-sm text-neutral-500" title={user.email}>
-                                {user.email}
+                                {isSelfMode ? user.email : `${user.email} • @${user.identifier}`}
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 <UserAccessStatusBadge status={values.accessStatus} />
                                 <Badge variant="outline" className="rounded-full">
                                     {GROUP_LABELS[values.group]}
                                 </Badge>
+                                {user.customerId ? (
+                                    <Badge variant="outline" className="rounded-full border-sky-200 bg-sky-50 text-sky-700">
+                                        Portal müşteri bağlı
+                                    </Badge>
+                                ) : null}
                                 {!user.isActive ? (
                                     <Badge variant="outline" className="rounded-full border-rose-200 bg-rose-50 text-rose-700">
                                         Pasif kayıt
@@ -201,7 +179,11 @@ export function UserEditDialog({
                         <section className="space-y-4 rounded-[26px] border border-neutral-200 bg-white p-5 shadow-sm">
                             <div className="space-y-1">
                                 <h3 className="text-sm font-semibold text-neutral-900">Profil Bilgileri</h3>
-                                <p className="text-xs text-neutral-500">Cognito ve uygulama verisinde saklanan temel kullanıcı alanları.</p>
+                                <p className="text-xs text-neutral-500">
+                                    {isSelfMode
+                                        ? "Bu bilgiler portal ve sistem içindeki görünen kullanıcı kartlarında kullanılır."
+                                        : "Cognito ve uygulama verisinde saklanan temel kullanıcı alanları."}
+                                </p>
                             </div>
 
                             <div className="grid gap-4 md:grid-cols-2">
@@ -249,149 +231,59 @@ export function UserEditDialog({
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="email">E-posta</Label>
-                                <Input id="email" type="email" {...form.register("email")} className="rounded-xl" />
-                                <p className="text-xs text-neutral-500">
-                                    Bu alan değişirse Cognito kullanıcı e-postası da aynı anda güncellenir.
-                                </p>
-                                {form.formState.errors.email ? (
-                                    <p className="text-xs text-rose-600">{form.formState.errors.email.message}</p>
-                                ) : null}
-                            </div>
+                            {!isSelfMode ? (
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">E-posta</Label>
+                                    <Input id="email" type="email" {...form.register("email")} className="rounded-xl" />
+                                    <p className="text-xs text-neutral-500">
+                                        Bu alan değişirse Cognito kullanıcı e-postası da aynı anda güncellenir.
+                                    </p>
+                                    {form.formState.errors.email ? (
+                                        <p className="text-xs text-rose-600">{form.formState.errors.email.message}</p>
+                                    ) : null}
+                                </div>
+                            ) : null}
                         </section>
 
                         <section className="space-y-4 rounded-[26px] border border-neutral-200 bg-white p-5 shadow-sm">
                             <div className="space-y-1">
-                                <h3 className="text-sm font-semibold text-neutral-900">Yetki ve Erişim</h3>
-                                <p className="text-xs text-neutral-500">Rol seçimi erişim akışını ve zorunlu portal bağlantılarını belirler.</p>
+                                <h3 className="text-sm font-semibold text-neutral-900">Durum Özeti</h3>
+                                <p className="text-xs text-neutral-500">Yetki, erişim ve portal bağlamı burada özetlenir.</p>
                             </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label>Rol</Label>
-                                    <Controller
-                                        control={form.control}
-                                        name="group"
-                                        render={({ field }) => (
-                                            <Select
-                                                value={field.value}
-                                                onValueChange={(value) => {
-                                                    field.onChange(value)
-                                                    form.setValue("accessStatus", value === "user" ? "PENDING_REVIEW" : "ACTIVE", { shouldDirty: true })
-                                                }}
-                                            >
-                                                <SelectTrigger className="h-11 rounded-xl">
-                                                    <SelectValue placeholder="Rol seç" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {roleOptions.map((option) => (
-                                                        <SelectItem key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    />
+                            <div className="grid gap-3 text-sm text-neutral-700">
+                                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                                    <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Rol</div>
+                                    <div className="mt-1 font-semibold text-neutral-950">{GROUP_LABELS[values.group]}</div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label>Erişim Durumu</Label>
-                                    <Controller
-                                        control={form.control}
-                                        name="accessStatus"
-                                        render={({ field }) => (
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="h-11 rounded-xl">
-                                                    <SelectValue placeholder="Durum seç" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {ACCESS_STATUS_OPTIONS.map((option) => (
-                                                        <SelectItem key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    />
+                                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                                    <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Erişim</div>
+                                    <div className="mt-2">
+                                        <UserAccessStatusBadge status={values.accessStatus} />
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-4 text-xs text-neutral-600">
-                                Rol değişikliği bu kullanıcı için portal bağı veya operasyon ataması zorunlu kılıyorsa aşağıdaki alanlar aktifleşir.
+                                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                                    <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Portal Bağı</div>
+                                    <div className="mt-1 font-semibold text-neutral-950">
+                                        {user.customer?.companyName || user.customer?.fullName || "Portal müşteri bağlı değil"}
+                                    </div>
+                                    <p className="mt-1 text-xs text-neutral-500">
+                                        Yetki, portal bağı ve operasyon atamaları için ayrı `Yetki` dialogunu kullanın.
+                                    </p>
+                                </div>
                             </div>
                         </section>
                     </div>
 
-                    <div className="grid gap-6 xl:grid-cols-2">
+                    {user.customerId ? (
                         <section className="space-y-4 rounded-[26px] border border-neutral-200 bg-white p-5 shadow-sm">
                             <div className="space-y-1">
-                                <h3 className="text-sm font-semibold text-neutral-900">Portal Bağlantıları</h3>
-                                <p className="text-xs text-neutral-500">Supplier ve customer portal kullanıcıları için birebir kayıt bağlantıları.</p>
-                            </div>
-
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label>Portal Tedarikçi</Label>
-                                    <Controller
-                                        control={form.control}
-                                        name="supplierId"
-                                        render={({ field }) => (
-                                            <Select
-                                                disabled={!roleConfig.requiresPortalSupplier || isLoadingSuppliers}
-                                                value={field.value ?? EMPTY_OPTION}
-                                                onValueChange={(value) => field.onChange(value === EMPTY_OPTION ? null : value)}
-                                            >
-                                                <SelectTrigger className="h-11 rounded-xl">
-                                                    <SelectValue placeholder="Atama yok" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={EMPTY_OPTION}>Atama yok</SelectItem>
-                                                    {suppliers.map((supplier) => (
-                                                        <SelectItem key={supplier.id} value={supplier.id}>
-                                                            {supplier.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    />
-                                    {form.formState.errors.supplierId ? (
-                                        <p className="text-xs text-rose-600">{form.formState.errors.supplierId.message}</p>
-                                    ) : null}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Portal Müşteri</Label>
-                                    <Controller
-                                        control={form.control}
-                                        name="customerId"
-                                        render={({ field }) => (
-                                            <Select
-                                                disabled={!roleConfig.requiresPortalCustomer || isLoadingCustomers}
-                                                value={field.value ?? EMPTY_OPTION}
-                                                onValueChange={(value) => field.onChange(value === EMPTY_OPTION ? null : value)}
-                                            >
-                                                <SelectTrigger className="h-11 rounded-xl">
-                                                    <SelectValue placeholder="Atama yok" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={EMPTY_OPTION}>Atama yok</SelectItem>
-                                                    {customers.map((customer) => (
-                                                        <SelectItem key={customer.id} value={customer.id}>
-                                                            {customer.companyName || customer.fullName}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    />
-                                    {form.formState.errors.customerId ? (
-                                        <p className="text-xs text-rose-600">{form.formState.errors.customerId.message}</p>
-                                    ) : null}
-                                </div>
+                                <h3 className="text-sm font-semibold text-neutral-900">Müşteri İletişim Bilgileri</h3>
+                                <p className="text-xs text-neutral-500">
+                                    {isSelfMode
+                                        ? "Portal müşteri hesabınızın iletişim kartında görünen rol ve departman bilgileri."
+                                        : "Portal müşteriye bağlı kullanıcıların iletişim kartında görünen alanlar."}
+                                </p>
                             </div>
 
                             <div className="grid gap-4 md:grid-cols-2">
@@ -426,97 +318,41 @@ export function UserEditDialog({
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                                <div className="flex items-start gap-3">
-                                    <Checkbox
-                                        id="isPrimaryCustomerContact"
-                                        checked={values.isPrimaryCustomerContact}
-                                        disabled={!hasCustomerLink}
-                                        onCheckedChange={(checked) => form.setValue("isPrimaryCustomerContact", Boolean(checked), { shouldDirty: true, shouldValidate: true })}
-                                        className="mt-0.5"
-                                    />
-                                    <div className="space-y-1">
-                                        <Label htmlFor="isPrimaryCustomerContact" className="text-sm font-medium text-neutral-900">
-                                            Ana Yetkili
-                                        </Label>
-                                        <p className="text-xs leading-5 text-neutral-500">
-                                            Aynı müşteri altında yalnızca bir kullanıcı ana yetkili olabilir. Bu seçim overview kartlarında ilk sırada gösterilir.
-                                        </p>
-                                        {!hasCustomerLink ? (
-                                            <p className="text-xs leading-5 text-neutral-400">
-                                                Bu alanlar yalnızca portal müşteriye bağlı kullanıcılar için aktiftir.
+                            {isSelfMode ? (
+                                <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-4 text-xs text-neutral-600">
+                                    {user.isPrimaryCustomerContact
+                                        ? "Bu hesap şu anda ana müşteri yetkilisi olarak işaretli. Bu durum Ceyhunlar ekibi tarafından yönetilir."
+                                        : "Ana yetkili seçimi bu ekrandan değiştirilemez; gerekirse Ceyhunlar ekibi tarafından güncellenir."}
+                                </div>
+                            ) : (
+                                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                                    <div className="flex items-start gap-3">
+                                        <Checkbox
+                                            id="isPrimaryCustomerContact"
+                                            checked={values.isPrimaryCustomerContact}
+                                            disabled={!hasCustomerLink}
+                                            onCheckedChange={(checked) => form.setValue("isPrimaryCustomerContact", Boolean(checked), { shouldDirty: true, shouldValidate: true })}
+                                            className="mt-0.5"
+                                        />
+                                        <div className="space-y-1">
+                                            <Label htmlFor="isPrimaryCustomerContact" className="text-sm font-medium text-neutral-900">
+                                                Ana Yetkili
+                                            </Label>
+                                            <p className="text-xs leading-5 text-neutral-500">
+                                                Aynı müşteri altında yalnızca bir kullanıcı ana yetkili olabilir. Bu seçim müşteri özetlerinde öncelikli görünür.
                                             </p>
-                                        ) : null}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </section>
-
-                        <section className="space-y-4 rounded-[26px] border border-neutral-200 bg-white p-5 shadow-sm">
-                            <div className="space-y-1">
-                                <h3 className="text-sm font-semibold text-neutral-900">Operasyon Atamaları</h3>
-                                <p className="text-xs text-neutral-500">Satın alma kullanıcılarına tedarikçi, satış kullanıcılarına müşteri atayın.</p>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Satın Alma Atamaları</Label>
-                                    <Controller
-                                        control={form.control}
-                                        name="assignedSupplierIds"
-                                        render={({ field }) => (
-                                            <EntityAssignmentSelect
-                                                disabled={!roleConfig.canAssignSuppliers || isLoadingSuppliers}
-                                                value={field.value}
-                                                options={suppliers.map((supplier) => ({
-                                                    id: supplier.id,
-                                                    label: supplier.name,
-                                                    caption: supplier.contactName || supplier.taxNumber || undefined,
-                                                }))}
-                                                placeholder="Tedarikçi seç"
-                                                emptyLabel="Tedarikçi bulunamadı"
-                                                onChange={field.onChange}
-                                            />
-                                        )}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Satış Atamaları</Label>
-                                    <Controller
-                                        control={form.control}
-                                        name="assignedCustomerIds"
-                                        render={({ field }) => (
-                                            <EntityAssignmentSelect
-                                                disabled={!roleConfig.canAssignCustomers || isLoadingCustomers}
-                                                value={field.value}
-                                                options={customers.map((customer) => ({
-                                                    id: customer.id,
-                                                    label: customer.companyName || customer.fullName,
-                                                    caption: customer.fullName,
-                                                }))}
-                                                placeholder="Müşteri seç"
-                                                emptyLabel="Müşteri bulunamadı"
-                                                onChange={field.onChange}
-                                            />
-                                        )}
-                                    />
-                                </div>
-                            </div>
-                        </section>
-                    </div>
+                    ) : null}
 
                     <div className="rounded-[24px] border border-neutral-200 bg-neutral-50/80 p-4">
                         <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">Değişiklik Özeti</div>
                         <div className="mt-3 flex flex-wrap gap-2">
                             <Badge variant="outline" className={cn("rounded-full", plan.profileChanged ? "border-sky-200 bg-sky-50 text-sky-700" : "border-neutral-200 bg-white text-neutral-500")}>
-                                {plan.profileChanged ? "Profil güncellenecek" : "Profil aynı"}
-                            </Badge>
-                            <Badge variant="outline" className={cn("rounded-full", plan.roleChanged ? "border-amber-200 bg-amber-50 text-amber-700" : "border-neutral-200 bg-white text-neutral-500")}>
-                                {plan.roleChanged ? "Rol/erişim güncellenecek" : "Rol aynı"}
-                            </Badge>
-                            <Badge variant="outline" className={cn("rounded-full", plan.assignmentsChanged ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-neutral-200 bg-white text-neutral-500")}>
-                                {plan.assignmentsChanged ? "Atamalar güncellenecek" : "Atamalar aynı"}
+                                {plan.profileChanged ? "Profil güncellenecek" : "Bekleyen değişiklik yok"}
                             </Badge>
                         </div>
                     </div>
@@ -525,9 +361,9 @@ export function UserEditDialog({
                         <Button type="button" variant="ghost" className="rounded-xl" onClick={() => onOpenChange(false)}>
                             Vazgeç
                         </Button>
-                        <Button type="submit" className="min-w-36 rounded-xl" disabled={isSaving || (!plan.profileChanged && !plan.roleChanged && !plan.assignmentsChanged)}>
+                        <Button type="submit" className="min-w-36 rounded-xl" disabled={isSaving || !plan.profileChanged}>
                             {isSaving ? <Spinner className="size-4" /> : null}
-                            {isSaving ? "Kaydediliyor" : "Değişiklikleri Kaydet"}
+                            {isSaving ? "Kaydediliyor" : "Profili Kaydet"}
                         </Button>
                     </DialogFooter>
                 </form>

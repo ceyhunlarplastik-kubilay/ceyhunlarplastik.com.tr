@@ -636,7 +636,7 @@ export async function createCustomerBusinessRequest(input) {
         domain,
         type: input.type,
         status: approvalSteps.length > 0 ? "PENDING_APPROVAL" : "APPROVED",
-        priority: input.priority ?? "NORMAL",
+        priority: requesterRole === "CUSTOMER" ? "NORMAL" : input.priority ?? "NORMAL",
         title: input.title?.trim() || getBusinessRequestDefaultTitle(input.type),
         description: input.description?.trim() || null,
         entityType: input.entityType ?? "CUSTOMER",

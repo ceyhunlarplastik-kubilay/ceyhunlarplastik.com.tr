@@ -1,6 +1,7 @@
 import { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
+import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
 import type { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
@@ -9,6 +10,7 @@ export interface ICustomerDependencies {
     customerRepository: IPrismaCustomerRepository
     productAttributeValueRepository?: IPrismaProductAttributeValueRepository
     productRepository?: IPrismaProductRepository
+    productVariantRepository?: IPrismaProductVariantRepository
 }
 
 export type IListCustomersEvent =
@@ -88,13 +90,17 @@ export type IReplaceFeaturedProductsBody = {
     productIds: string[]
 }
 
+export type IReplaceAssignedProductVariantsBody = {
+    productVariantIds: string[]
+}
+
 export type IReplaceCustomerFeaturedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
     IReplaceFeaturedProductsBody,
     { id: string }
 >
 
 export type IReplaceCustomerAssignedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
-    IReplaceFeaturedProductsBody,
+    IReplaceAssignedProductVariantsBody,
     { id: string }
 >
 

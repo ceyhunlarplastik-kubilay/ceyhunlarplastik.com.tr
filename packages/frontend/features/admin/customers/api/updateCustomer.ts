@@ -40,6 +40,17 @@ export type UpdateCustomerInput = {
         postalCode?: string | null
         taxOffice?: string | null
         taxNumber?: string | null
+        latitude?: number | null
+        longitude?: number | null
+        locationSource?: "MANUAL_PIN" | "GEOCODED" | "IMPORTED" | "CUSTOMER_SUBMITTED" | null
+        locationAccuracy?: "EXACT" | "STREET" | "DISTRICT" | "CITY" | "UNKNOWN" | null
+        geocodingProvider?: string | null
+        geocodingPlaceId?: string | null
+        geocodingLabel?: string | null
+        geocodingRaw?: unknown
+        geocodedAt?: string | null
+        locationVerifiedAt?: string | null
+        locationVerifiedByUserId?: string | null
         isPrimary?: boolean
         isBilling?: boolean
         isShipping?: boolean

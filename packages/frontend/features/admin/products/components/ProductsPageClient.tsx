@@ -8,9 +8,10 @@ import type { Category } from "@/features/public/categories/types"
 
 type Props = {
     categories: Category[]
+    showVariantsLink?: boolean
 }
 
-export function ProductsPageClient({ categories }: Props) {
+export function ProductsPageClient({ categories, showVariantsLink = true }: Props) {
     const {
         filters,
         params,
@@ -49,6 +50,7 @@ export function ProductsPageClient({ categories }: Props) {
             onRefresh={() => void refetch()}
             refreshIntervalSeconds={filters.refreshIntervalSeconds}
             onRefreshIntervalChange={setRefreshIntervalSeconds}
+            showVariantsLink={showVariantsLink}
         />
     )
 }

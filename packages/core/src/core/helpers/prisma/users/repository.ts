@@ -52,6 +52,16 @@ export type UserWithRelations = Prisma.UserGetPayload<{
     include: typeof userInclude
 }>
 
+export type UserDeletionBlockers = {
+    sentCustomerInvitations: number
+    requestedBusinessRequests: number
+    createdCustomerFeaturedProducts: number
+    createdCustomerAssignedProducts: number
+    ownedCustomerVisits: number
+    createdCustomerVisits: number
+    createdCustomerSpecialPrices: number
+}
+
 export interface IPrismaUserRepository {
     listUsers(query: UserListQuery): Promise<{
         data: UserWithRelations[]
@@ -65,7 +75,9 @@ export interface IPrismaUserRepository {
     getUserById(id: string): Promise<UserWithRelations | null>
     getUserByCognitoSub(sub: string): Promise<IUser | null>
     getUserByEmail(email: string): Promise<IUser | null>
+    getDeletionBlockers(id: string): Promise<UserDeletionBlockers>
     createUser(data: Prisma.UserCreateInput): Promise<IUser>
+    deleteUser(id: string): Promise<void>
     listActiveUsersByGroups(groups: string[]): Promise<Array<{
         id: string
         email: string
@@ -154,8 +166,44 @@ export const userRepository = (): IPrismaUserRepository => {
     const getUserByEmail = async (email: string) =>
         prisma.user.findUnique({ where: { email } })
 
+    const getDeletionBlockers = async (id: string): Promise<UserDeletionBlockers> => {
+        const [
+            sentCustomerInvitations,
+            requestedBusinessRequests,
+            createdCustomerFeaturedProducts,
+            createdCustomerAssignedProducts,
+            ownedCustomerVisits,
+            createdCustomerVisits,
+            createdCustomerSpecialPrices,
+        ] = await Promise.all([
+            prisma.userInvitation.count({ where: { invitedByUserId: id } }),
+            prisma.businessRequest.count({ where: { requestedByUserId: id } }),
+            prisma.customerFeaturedProduct.count({ where: { createdByUserId: id } }),
+            prisma.customerAssignedProduct.count({ where: { createdByUserId: id } }),
+            prisma.customerVisit.count({ where: { ownerUserId: id } }),
+            prisma.customerVisit.count({ where: { createdByUserId: id } }),
+            prisma.customerVariantSpecialPrice.count({ where: { createdByUserId: id } }),
+        ])
+
+        return {
+            sentCustomerInvitations,
+            requestedBusinessRequests,
+            createdCustomerFeaturedProducts,
+            createdCustomerAssignedProducts,
+            ownedCustomerVisits,
+            createdCustomerVisits,
+            createdCustomerSpecialPrices,
+        }
+    }
+
     const createUser = async (data: Prisma.UserCreateInput) =>
         prisma.user.create({ data })
+
+    const deleteUser = async (id: string) => {
+        await prisma.user.delete({
+            where: { id },
+        })
+    }
 
     const listActiveUsersByGroups = async (groups: string[]) =>
         prisma.user.findMany({
@@ -360,7 +408,9 @@ export const userRepository = (): IPrismaUserRepository => {
         getUserById,
         getUserByCognitoSub,
         getUserByEmail,
+        getDeletionBlockers,
         createUser,
+        deleteUser,
         listActiveUsersByGroups,
         updateGroups,
         updateAssignments,

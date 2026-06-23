@@ -1,4 +1,4 @@
-import type { Prisma } from "@/prisma/generated/prisma/client"
+import { Prisma } from "@/prisma/generated/prisma/client"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
 
@@ -34,6 +34,17 @@ type Input = {
         postalCode?: string | null
         taxOffice?: string | null
         taxNumber?: string | null
+        latitude?: number | null
+        longitude?: number | null
+        locationSource?: "MANUAL_PIN" | "GEOCODED" | "IMPORTED" | "CUSTOMER_SUBMITTED" | null
+        locationAccuracy?: "EXACT" | "STREET" | "DISTRICT" | "CITY" | "UNKNOWN" | null
+        geocodingProvider?: string | null
+        geocodingPlaceId?: string | null
+        geocodingLabel?: string | null
+        geocodingRaw?: Prisma.InputJsonValue | null
+        geocodedAt?: Date | string | null
+        locationVerifiedAt?: Date | string | null
+        locationVerifiedByUserId?: string | null
         isPrimary?: boolean
         isBilling?: boolean
         isShipping?: boolean
@@ -128,6 +139,23 @@ export async function buildCustomerUpdateData(
                         postalCode: address.postalCode ?? null,
                         taxOffice: address.taxOffice ?? null,
                         taxNumber: address.taxNumber ?? null,
+                        latitude: address.latitude ?? null,
+                        longitude: address.longitude ?? null,
+                        locationSource: address.locationSource ?? null,
+                        locationAccuracy: address.locationAccuracy ?? null,
+                        geocodingProvider: address.geocodingProvider ?? null,
+                        geocodingPlaceId: address.geocodingPlaceId ?? null,
+                        geocodingLabel: address.geocodingLabel ?? null,
+                        geocodingRaw: address.geocodingRaw ?? Prisma.JsonNull,
+                        geocodedAt: address.geocodedAt ? new Date(address.geocodedAt) : null,
+                        locationVerifiedAt: address.locationVerifiedAt ? new Date(address.locationVerifiedAt) : null,
+                        ...(address.locationVerifiedByUserId
+                            ? {
+                                locationVerifiedByUser: {
+                                    connect: { id: address.locationVerifiedByUserId },
+                                },
+                            }
+                            : {}),
                         isPrimary: Boolean(address.isPrimary),
                         isBilling: Boolean(address.isBilling),
                         isShipping: address.isShipping ?? true,

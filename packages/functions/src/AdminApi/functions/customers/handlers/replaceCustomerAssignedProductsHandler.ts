@@ -1,15 +1,15 @@
 import createError from "http-errors"
-import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import { mapCustomerAssignedProductForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICustomerDependencies, IReplaceCustomerAssignedProductsEvent } from "@/functions/AdminApi/types/customers"
 
 export const replaceCustomerAssignedProductsHandler = ({
     customerRepository,
-    productRepository,
+    productVariantRepository,
 }: ICustomerDependencies) => {
     return async (event: IReplaceCustomerAssignedProductsEvent) => {
-        if (!productRepository) {
-            throw new createError.InternalServerError("Product repository not configured")
+        if (!productVariantRepository) {
+            throw new createError.InternalServerError("Product variant repository not configured")
         }
 
         const requester = event.user
@@ -22,26 +22,23 @@ export const replaceCustomerAssignedProductsHandler = ({
             throw new createError.NotFound("Customer not found")
         }
 
-        const productIds = Array.from(new Set((event.body?.productIds ?? []).filter(Boolean)))
+        const productVariantIds = Array.from(new Set((event.body?.productVariantIds ?? []).filter(Boolean)))
 
         await Promise.all(
-            productIds.map(async (productId) => {
-                const product = await productRepository.getProduct(productId)
-                if (!product) {
-                    throw new createError.NotFound("Product not found")
+            productVariantIds.map(async (productVariantId) => {
+                const productVariant = await productVariantRepository.getProductVariant(productVariantId)
+                if (!productVariant) {
+                    throw new createError.NotFound("Product variant not found")
                 }
             }),
         )
 
-        const data = await customerRepository.replaceAssignedProducts(customer.id, productIds, requester.id)
+        const data = await customerRepository.replaceAssignedProducts(customer.id, productVariantIds, requester.id)
 
         return apiResponseDTO({
             statusCode: 200,
             payload: {
-                data: data.map((item) => ({
-                    ...item,
-                    product: mapProductWithAssets(item.product),
-                })),
+                data: data.map(mapCustomerAssignedProductForApi),
             },
         })
     }

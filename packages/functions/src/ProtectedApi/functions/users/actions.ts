@@ -1,4 +1,6 @@
 import { lambdaHandler } from "@/core/middy"
+import { Resource } from "sst"
+import { cognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { userRepository } from "@/core/helpers/prisma/users/repository"
 import { userNotificationRepository } from "@/core/helpers/prisma/userNotifications/repository"
 import {
@@ -10,6 +12,7 @@ import {
     markMyNotificationReadHandler,
     mePermissionsHandler,
     createMyProfileImageUploadHandler,
+    updateMyProfileHandler,
     updateMyProfileImageHandler,
 } from "@/functions/ProtectedApi/functions/users/handlers"
 import {
@@ -21,11 +24,13 @@ import {
     IListMyNotificationsEvent,
     IMarkMyNotificationReadEvent,
     IMePermissionsEvent,
+    IUpdateMyProfileEvent,
     ICreateMyProfileImageUploadEvent,
     IUpdateMyProfileImageEvent,
 } from "@/functions/ProtectedApi/types/users"
 import {
     createMyProfileImageUploadValidator,
+    updateMyProfileValidator,
     updateMyProfileImageValidator,
 } from "@/functions/ProtectedApi/validators/users"
 
@@ -75,6 +80,19 @@ export const getMe = lambdaHandler(
         auth: {},
     }
 );
+
+export const updateMyProfile = lambdaHandler(
+    async (event) =>
+        updateMyProfileHandler({
+            userRepository: userRepository(),
+            cognitoRepository: cognitoUserRepository(),
+            userPoolId: Resource.CeyhunlarUserPool.id,
+        })(event as IUpdateMyProfileEvent),
+    {
+        auth: {},
+        requestValidator: updateMyProfileValidator,
+    },
+)
 
 export const getMyAccess = lambdaHandler(
     async (event) =>

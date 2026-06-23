@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
-    "@ceyhunlarweb/core": "*",
     "@aws-sdk/client-eventbridge": "^3.983.0",
     "@aws-sdk/client-iot-data-plane": "^3.983.0",
     "@aws-sdk/client-sesv2": "^3.983.0",
+    "@ceyhunlarweb/core": "*",
+    "nodemailer": "^7.0.13",
     "sst": "*"
   },
   "devDependencies": {

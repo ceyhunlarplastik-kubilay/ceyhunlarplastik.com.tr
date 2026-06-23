@@ -10,7 +10,6 @@ import {
     PackageCheck,
     PackageSearch,
     Sparkles,
-    UserRound,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
@@ -22,8 +21,9 @@ import {
 } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 import { CustomerPortalAddressCarousel } from "@/features/customerPortal/components/CustomerPortalAddressCarousel"
 import { CustomerPortalProfileSummaryCard } from "@/features/customerPortal/components/CustomerPortalProfileSummaryCard"
+import { CustomerPortalUsersCarousel } from "@/features/customerPortal/components/CustomerPortalUsersCarousel"
 import { CustomerPortalUsageAreaCarousel } from "@/features/customerPortal/components/CustomerPortalUsageAreaCarousel"
-import { buildCompanyContactCards, buildCustomerContactCards } from "@/lib/customers/contactCards"
+import { buildCompanyContactCards } from "@/lib/customers/contactCards"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
 export function CustomerPortalOverviewPageClient() {
@@ -32,13 +32,6 @@ export function CustomerPortalOverviewPageClient() {
     const assignedSalesDisplayName = customer?.assignedSalesUser
         ? getUserDisplayName(customer.assignedSalesUser)
         : ""
-    const customerContacts = customer ? buildCustomerContactCards(customer).map((contact) => ({
-        ...contact,
-        /* description: contact.isPrimary
-            ? "Portal girişleri, talep akışı ve ürün iletişimi için kullanılan ana müşteri hesabı."
-            : "Portal ve operasyon iletişiminde kullanılacak ek müşteri irtibat kişisi.", */
-        badge: <Badge variant={contact.isPrimary ? "default" : "secondary"}>{contact.isPrimary ? "Ana Yetkili" : "Portal"}</Badge>,
-    })) : []
     const companyContacts = customer ? buildCompanyContactCards(customer).map((contact) => ({
         ...contact,
         /* description: "Ceyhunlar Plastik temsilcisi", */
@@ -94,16 +87,15 @@ export function CustomerPortalOverviewPageClient() {
             label: "Özel Fiyatlı Ürünler",
             description: "Belirli koşullar altında sadece size özel fiyatlarımızı inceleyin.",
             icon: DollarSign,
-            /* metric: `${customer.assignedProducts?.length ?? 0} ürün`, */
             metric: "Özel Fiyatlar",
             className: "from-violet-50 via-purple-50 to-white text-violet-700",
         },
         {
             href: "/musteri/musteriye-tanimli-urunler",
-            label: "Tanımlı Ürünler",
-            description: "Firmanıza özel tanımlanmış ürün portföyü.",
+            label: "Tanımlı Varyantlar",
+            description: "Firmanıza özel tanımlanmış ürün varyant portföyü.",
             icon: Boxes,
-            metric: `${customer.assignedProducts?.length ?? 0} ürün`,
+            metric: `${customer.assignedProducts?.length ?? 0} varyant`,
             className: "from-slate-50 via-zinc-50 to-white text-slate-700",
         },
         {
@@ -135,7 +127,7 @@ export function CustomerPortalOverviewPageClient() {
                         {customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}
                     </Badge>
                 )}
-                description="İlgili ürünlerinizi, tanımlı ürün portföyünüzü ve Ceyhunlar Plastik iletişim noktalarınızı tek ekrandan görüntüleyebilirsiniz."
+                description="İlgili ürünlerinizi, tanımlı varyant portföyünüzü ve Ceyhunlar Plastik iletişim noktalarınızı tek ekrandan görüntüleyebilirsiniz."
                 aside={(
                     <div className="grid gap-3 sm:grid-cols-2">
                         <CustomerPortalPageHeaderStat
@@ -143,7 +135,7 @@ export function CustomerPortalOverviewPageClient() {
                             value={customer.featuredProducts?.length ?? 0}
                         />
                         <CustomerPortalPageHeaderStat
-                            label="Tanımlı Ürün"
+                            label="Tanımlı Varyant"
                             value={customer.assignedProducts?.length ?? 0}
                         />
                         <CustomerPortalPageHeaderStat
@@ -164,12 +156,7 @@ export function CustomerPortalOverviewPageClient() {
 
             <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.3fr)_minmax(360px,0.9fr)]">
                 <div className="grid gap-5 xl:grid-cols-2">
-                    <CustomerContactCarousel
-                        contacts={customerContacts}
-                        eyebrow="Müşteri İletişim Kişileri"
-                        icon={UserRound}
-                        className="h-full"
-                    />
+                    <CustomerPortalUsersCarousel customer={customer} />
                     <div className="h-full">
                         {ceyhunlarContacts.length > 0 ? (
                             <CustomerContactCarousel

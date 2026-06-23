@@ -2,7 +2,8 @@ import createError from "http-errors"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
-import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
+import { createCustomerPortalUserInvitation } from "@/core/helpers/customerPortalInvitations/service"
+import { mapCustomerAssignedProductForApi, mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { getCustomerFeaturedAndMatchedProducts } from "@/core/helpers/crm/getCustomerFeaturedAndMatchedProducts"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
@@ -19,13 +20,19 @@ import {
     normalizeCustomerVariantPaymentSchedule,
 } from "@/core/helpers/pricing/customerPaymentSchedule"
 import {
+    ICreateManagedCustomerAddressEvent,
     ICreateManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerAddressEvent,
+    ICreatePortalCustomerUserEvent,
     ICreateManagedCustomerVisitEvent,
+    IDeleteManagedCustomerAddressEvent,
     IDeleteManagedCustomerVisitEvent,
+    IDeletePortalCustomerAddressEvent,
+    ICustomerAddressBody,
     ICustomerSpecialPriceBody,
     IListManagedCustomerSpecialPricesEvent,
     IListManagedCustomersEvent,
+    IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
     IManagedCustomerEvent,
@@ -34,8 +41,10 @@ import {
     IProtectedCrmDependencies,
     IReplaceManagedCustomerAssignedProductsEvent,
     IReplaceManagedCustomerFeaturedProductsEvent,
+    IUpdateManagedCustomerAddressEvent,
     IUpdateManagedCustomerSpecialPriceEvent,
     IUpdateManagedCustomerEvent,
+    IUpdatePortalCustomerAddressEvent,
     IUpdateManagedCustomerVisitEvent,
 } from "@/functions/ProtectedApi/types/crm"
 
@@ -47,6 +56,10 @@ function mapFeaturedProducts(data: Array<any>) {
         ...item,
         product: mapProductWithAssets(item.product),
     }))
+}
+
+function mapAssignedProducts(data: Array<any>) {
+    return data.map(mapCustomerAssignedProductForApi)
 }
 
 function parseBooleanQuery(value: unknown) {
@@ -76,6 +89,76 @@ function resolvePaymentTermLabel(days: number | null | undefined, label: string 
     if (days === undefined) return undefined
     if (days === null) return null
     return days === 0 ? "Peşin" : `${days} Gün`
+}
+
+function numberOrNull(value: number | null | undefined) {
+    return typeof value === "number" && Number.isFinite(value) ? value : null
+}
+
+function parseCoordinateQuery(value: string | undefined, label: string) {
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed)) {
+        throw new createError.BadRequest(`${label} must be a valid number`)
+    }
+    return parsed
+}
+
+function resolveLocationSource(body: ICustomerAddressBody, fallback: "MANUAL_PIN" | "GEOCODED" | "CUSTOMER_SUBMITTED") {
+    if (body.locationSource) return body.locationSource
+    if (fallback === "CUSTOMER_SUBMITTED") return "CUSTOMER_SUBMITTED"
+    return body.geocodingProvider || body.geocodingLabel ? "GEOCODED" : fallback
+}
+
+function normalizeCustomerAddressInput(
+    body: ICustomerAddressBody,
+    options: {
+        defaultLocationSource: "MANUAL_PIN" | "GEOCODED" | "CUSTOMER_SUBMITTED"
+        verifiedByUserId?: string | null
+        allowVerification?: boolean
+    },
+) {
+    const latitude = numberOrNull(body.latitude)
+    const longitude = numberOrNull(body.longitude)
+    const hasCoordinates = latitude !== null && longitude !== null
+    const locationVerifiedAt = options.allowVerification
+        ? dateOrNull(body.locationVerifiedAt) ?? (hasCoordinates ? new Date() : null)
+        : null
+    const locationVerifiedByUserId = options.allowVerification
+        ? textOrNull(body.locationVerifiedByUserId) ?? options.verifiedByUserId ?? null
+        : null
+
+    return {
+        label: body.label.trim(),
+        contactName: textOrNull(body.contactName) ?? null,
+        phone: textOrNull(body.phone) ?? null,
+        email: textOrNull(body.email) ?? null,
+        countryId: body.countryId ?? null,
+        stateId: body.stateId ?? null,
+        cityId: body.cityId ?? null,
+        country: body.country?.trim() || "Turkiye",
+        city: body.city.trim(),
+        district: textOrNull(body.district) ?? null,
+        line1: body.line1.trim(),
+        line2: textOrNull(body.line2) ?? null,
+        postalCode: textOrNull(body.postalCode) ?? null,
+        taxOffice: textOrNull(body.taxOffice) ?? null,
+        taxNumber: textOrNull(body.taxNumber) ?? null,
+        latitude,
+        longitude,
+        locationSource: resolveLocationSource(body, options.defaultLocationSource),
+        locationAccuracy: body.locationAccuracy ?? null,
+        geocodingProvider: textOrNull(body.geocodingProvider) ?? null,
+        geocodingPlaceId: textOrNull(body.geocodingPlaceId) ?? null,
+        geocodingLabel: textOrNull(body.geocodingLabel) ?? null,
+        geocodingRaw: body.geocodingRaw ?? null,
+        geocodedAt: dateOrNull(body.geocodedAt) ?? null,
+        locationVerifiedAt,
+        locationVerifiedByUserId,
+        isPrimary: body.isPrimary ?? false,
+        isBilling: body.isBilling ?? false,
+        isShipping: body.isShipping ?? true,
+        note: textOrNull(body.note) ?? null,
+    }
 }
 
 function normalizePaymentScheduleForPersistence(value: ICustomerSpecialPriceBody["paymentSchedule"]) {
@@ -175,9 +258,11 @@ export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCr
             productionGroupValueId: event.queryStringParameters?.productionGroupValueId,
             usageAreaValueId: event.queryStringParameters?.usageAreaValueId,
             status: event.queryStringParameters?.status,
-            assignedSalesUserId: requester.isOwner || requester.isAdmin
-                ? event.queryStringParameters?.assignedSalesUserId
-                : requester.id,
+            assignedSalesUserId: requester.isSales
+                ? requester.id
+                : requester.isOwner || requester.isAdmin || requester.isSalesDirector
+                    ? event.queryStringParameters?.assignedSalesUserId
+                    : undefined,
         })
 
         return apiResponseDTO({
@@ -186,6 +271,42 @@ export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCr
                 data: result.data.map((customer) => mapCustomerForApi(customer)),
                 meta: result.meta,
             },
+        })
+    }
+}
+
+export const listManagedCustomersMapHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IListManagedCustomersMapEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+        if (requester.isCustomer) throw new createError.Forbidden("Customer map access denied")
+        if (!requester.isSales && !requester.isSalesDirector && !requester.isAdmin && !requester.isOwner) {
+            throw new createError.Forbidden("Customer map access denied")
+        }
+
+        const north = parseCoordinateQuery(event.queryStringParameters?.north, "north")
+        const south = parseCoordinateQuery(event.queryStringParameters?.south, "south")
+        const east = parseCoordinateQuery(event.queryStringParameters?.east, "east")
+        const west = parseCoordinateQuery(event.queryStringParameters?.west, "west")
+        const assignedSalesUserId = requester.isSales
+            ? requester.id
+            : requester.isSalesDirector || requester.isAdmin || requester.isOwner
+                ? event.queryStringParameters?.assignedSalesUserId
+                : undefined
+
+        const data = await customerRepository.listCustomersForMap({
+            north,
+            south,
+            east,
+            west,
+            search: event.queryStringParameters?.search?.trim() || undefined,
+            status: event.queryStringParameters?.status,
+            assignedSalesUserId,
+        })
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { data },
         })
     }
 }
@@ -336,18 +457,18 @@ export const listManagedCustomerAssignedProductsHandler = ({ customerRepository 
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data: mapFeaturedProducts(data) },
+            payload: { data: mapAssignedProducts(data) },
         })
     }
 }
 
 export const replaceManagedCustomerAssignedProductsHandler = ({
     customerRepository,
-    productRepository,
+    productVariantRepository,
 }: IProtectedCrmDependencies) => {
     return async (event: IReplaceManagedCustomerAssignedProductsEvent) => {
-        if (!productRepository) {
-            throw new createError.InternalServerError("Product repository not configured")
+        if (!productVariantRepository) {
+            throw new createError.InternalServerError("Product variant repository not configured")
         }
         const requester = event.user
         if (!requester) throw new createError.Unauthorized("Authentication required")
@@ -357,14 +478,19 @@ export const replaceManagedCustomerAssignedProductsHandler = ({
 
         assertCustomerManagementAccess(requester, customer)
 
-        const productIds = Array.from(new Set((event.body?.productIds ?? []).filter(Boolean)))
-        await Promise.all(productIds.map((productId) => productRepository.getProduct(productId)))
+        const productVariantIds = Array.from(new Set((event.body?.productVariantIds ?? []).filter(Boolean)))
+        await Promise.all(productVariantIds.map(async (productVariantId) => {
+            const productVariant = await productVariantRepository.getProductVariant(productVariantId)
+            if (!productVariant) {
+                throw new createError.NotFound("Product variant not found")
+            }
+        }))
 
-        const data = await customerRepository.replaceAssignedProducts(customer.id, productIds, requester.id)
+        const data = await customerRepository.replaceAssignedProducts(customer.id, productVariantIds, requester.id)
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data: mapFeaturedProducts(data) },
+            payload: { data: mapAssignedProducts(data) },
         })
     }
 }
@@ -723,6 +849,63 @@ export const getPortalCustomerHandler = ({ customerRepository }: IProtectedCrmDe
     }
 }
 
+export const createPortalCustomerUserHandler = ({
+    customerRepository,
+    userRepository,
+    userInvitationRepository,
+    cognitoRepository,
+    userPoolId,
+    frontendBaseUrl,
+    sendCustomerPortalInvitationEmail,
+}: IProtectedCrmDependencies) => {
+    return async (event: ICreatePortalCustomerUserEvent) => {
+        const requester = event.user
+        const customerId = requester?.customerId
+
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(requester, customerId)
+
+        if (!userRepository || !userInvitationRepository || !cognitoRepository || !userPoolId || !sendCustomerPortalInvitationEmail) {
+            throw new createError.InternalServerError("Customer portal invitation dependencies are not configured")
+        }
+
+        if (!frontendBaseUrl?.trim()) {
+            throw new createError.InternalServerError("FRONTEND_BASE_URL is not configured")
+        }
+
+        const customer = await customerRepository.getCustomer(customerId)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        await createCustomerPortalUserInvitation({
+            customerId: customer.id,
+            customerName: customer.companyName || customer.fullName,
+            requester,
+            email: event.body.email,
+            firstName: event.body.firstName,
+            lastName: event.body.lastName,
+            customerContactTitle: event.body.customerContactTitle,
+            customerContactDepartment: event.body.customerContactDepartment,
+            isPrimaryCustomerContact: event.body.isPrimaryCustomerContact,
+            frontendBaseUrl,
+            userPoolId,
+            userRepository,
+            userInvitationRepository,
+            cognitoRepository,
+            sendInvitationEmail: sendCustomerPortalInvitationEmail,
+        })
+
+        const updatedCustomer = await customerRepository.getCustomer(customer.id)
+        if (!updatedCustomer) throw new createError.NotFound("Customer not found")
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updatedCustomer) },
+        })
+    }
+}
+
 export const listPortalCustomerSpecialPricesHandler = ({
     customerVariantSpecialPriceRepository,
 }: IProtectedCrmDependencies) => {
@@ -774,27 +957,142 @@ export const createPortalCustomerAddressHandler = ({ customerRepository }: IProt
         const customer = await customerRepository.getCustomer(customerId)
         if (!customer) throw new createError.NotFound("Customer not found")
 
-        const updated = await customerRepository.createAddress(customer.id, {
-            label: event.body.label.trim(),
-            contactName: event.body.contactName?.trim() || null,
-            phone: event.body.phone?.trim() || null,
-            email: event.body.email?.trim() || null,
-            countryId: event.body.countryId ?? null,
-            stateId: event.body.stateId ?? null,
-            cityId: event.body.cityId ?? null,
-            country: event.body.country?.trim() || "Turkiye",
-            city: event.body.city.trim(),
-            district: event.body.district?.trim() || null,
-            line1: event.body.line1.trim(),
-            line2: event.body.line2?.trim() || null,
-            postalCode: event.body.postalCode?.trim() || null,
-            taxOffice: event.body.taxOffice?.trim() || null,
-            taxNumber: event.body.taxNumber?.trim() || null,
-            isPrimary: event.body.isPrimary,
-            isBilling: event.body.isBilling,
-            isShipping: event.body.isShipping,
-            note: event.body.note?.trim() || null,
+        const updated = await customerRepository.createAddress(
+            customer.id,
+            normalizeCustomerAddressInput(event.body, {
+                defaultLocationSource: "CUSTOMER_SUBMITTED",
+                allowVerification: false,
+            }),
+        )
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updated) },
         })
+    }
+}
+
+export const updatePortalCustomerAddressHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IUpdatePortalCustomerAddressEvent) => {
+        const customerId = event.user?.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(event.user, customerId)
+
+        const customer = await customerRepository.getCustomer(customerId)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        const address = await customerRepository.getAddress(customer.id, event.pathParameters.addressId)
+        if (!address) throw new createError.NotFound("Customer address not found")
+
+        const updated = await customerRepository.updateAddress(
+            customer.id,
+            address.id,
+            normalizeCustomerAddressInput(event.body, {
+                defaultLocationSource: "CUSTOMER_SUBMITTED",
+                allowVerification: false,
+            }),
+        )
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updated) },
+        })
+    }
+}
+
+export const deletePortalCustomerAddressHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IDeletePortalCustomerAddressEvent) => {
+        const customerId = event.user?.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(event.user, customerId)
+
+        const customer = await customerRepository.getCustomer(customerId)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        const address = await customerRepository.getAddress(customer.id, event.pathParameters.addressId)
+        if (!address) throw new createError.NotFound("Customer address not found")
+
+        const updated = await customerRepository.deleteAddress(customer.id, address.id)
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updated) },
+        })
+    }
+}
+
+export const createManagedCustomerAddressHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: ICreateManagedCustomerAddressEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(requester, customer)
+
+        const updated = await customerRepository.createAddress(
+            customer.id,
+            normalizeCustomerAddressInput(event.body, {
+                defaultLocationSource: "MANUAL_PIN",
+                verifiedByUserId: requester.id,
+                allowVerification: true,
+            }),
+        )
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updated) },
+        })
+    }
+}
+
+export const deleteManagedCustomerAddressHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IDeleteManagedCustomerAddressEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(requester, customer)
+
+        const address = await customerRepository.getAddress(customer.id, event.pathParameters.addressId)
+        if (!address) throw new createError.NotFound("Customer address not found")
+
+        const updated = await customerRepository.deleteAddress(customer.id, address.id)
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updated) },
+        })
+    }
+}
+
+export const updateManagedCustomerAddressHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IUpdateManagedCustomerAddressEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(requester, customer)
+
+        const address = await customerRepository.getAddress(customer.id, event.pathParameters.addressId)
+        if (!address) throw new createError.NotFound("Customer address not found")
+
+        const updated = await customerRepository.updateAddress(
+            customer.id,
+            address.id,
+            normalizeCustomerAddressInput(event.body, {
+                defaultLocationSource: "MANUAL_PIN",
+                verifiedByUserId: requester.id,
+                allowVerification: true,
+            }),
+        )
 
         return apiResponseDTO({
             statusCode: 200,
@@ -830,7 +1128,7 @@ export const getPortalCustomerAssignedProductsHandler = ({ customerRepository }:
 
         return apiResponseDTO({
             statusCode: 200,
-            payload: { data: mapFeaturedProducts(data) },
+            payload: { data: mapAssignedProducts(data) },
         })
     }
 }

@@ -6,6 +6,7 @@ import {
     BusinessRequestExpandedPanel,
 } from "@/features/businessRequests/components/BusinessRequestExpandedPanel"
 import { BusinessRequestApprovalRoleBadge } from "@/features/businessRequests/components/BusinessRequestApprovalFlowPanel"
+import { BusinessRequestOrderSummary } from "@/features/businessRequests/components/BusinessRequestOrderSummary"
 import { BusinessRequestStatusBadge } from "@/features/businessRequests/components/BusinessRequestStatusBadge"
 import {
     BUSINESS_REQUEST_DOMAIN_LABELS,
@@ -64,6 +65,8 @@ export function BusinessRequestTableRow({
     onCounterValueChange,
 }: Props) {
     const currentStep = getCurrentPendingStep(request)
+    const itemCount = request.items?.length ?? 0
+    const isOrderRequest = request.type === "CUSTOMER_ORDER_REQUEST"
     const canDecide = decisionScope && onDecision
         ? canCurrentUserDecideRequest(request, userContext)
         : false
@@ -73,7 +76,7 @@ export function BusinessRequestTableRow({
 
     return (
         <Fragment>
-            <TableRow className={isExpanded ? "bg-neutral-50/70" : undefined}>
+            <TableRow className={isExpanded ? "bg-neutral-50/70 align-top" : "align-top"}>
                 <TableCell>
                     <button
                         type="button"
@@ -97,10 +100,12 @@ export function BusinessRequestTableRow({
                 {showDomain ? (
                     <TableCell>{BUSINESS_REQUEST_DOMAIN_LABELS[request.domain]}</TableCell>
                 ) : null}
-                <TableCell>
+                <TableCell className="min-w-[320px]">
                     <div className="text-sm text-neutral-900">{getSubjectLabel(request)}</div>
-                    {(request.items?.length ?? 0) > 0 ? (
-                        <div className="text-xs text-neutral-500">{request.items?.length} kalem eklendi</div>
+                    {isOrderRequest ? (
+                        <BusinessRequestOrderSummary request={request} />
+                    ) : itemCount > 0 ? (
+                        <div className="text-xs text-neutral-500">{itemCount} kalem eklendi</div>
                     ) : null}
                 </TableCell>
                 {showRequester ? (

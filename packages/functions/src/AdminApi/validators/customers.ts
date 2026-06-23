@@ -14,6 +14,7 @@ const userSummarySchema = z.object({
     customerContactTitle: z.string().nullable().optional(),
     customerContactDepartment: z.string().nullable().optional(),
     isPrimaryCustomerContact: z.boolean().optional(),
+    portalOnboardingState: z.enum(["INVITED", "ACTIVE"]).optional(),
 }).loose()
 
 const customerValueSchema = z.object({
@@ -78,6 +79,32 @@ const customerCompanyContactAssignmentSchema = z.object({
     companyContact: companyContactSchema,
 }).loose()
 
+const customerProductSummarySchema = z.object({
+    id: z.uuid(),
+    code: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().nullable().optional(),
+    categoryId: z.uuid(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    category: z.object({
+        id: z.uuid(),
+        code: z.number(),
+        name: z.string(),
+        slug: z.string(),
+    }).loose().optional(),
+    assets: z.array(z.object({
+        id: z.uuid(),
+        key: z.string(),
+        mimeType: z.string(),
+        type: z.string(),
+        role: z.string(),
+        url: z.string().optional(),
+    }).loose()).optional(),
+    attributeValues: z.array(customerValueSchema).optional(),
+}).loose()
+
 const featuredProductSchema = z.object({
     id: z.uuid(),
     customerId: z.uuid(),
@@ -91,29 +118,59 @@ const featuredProductSchema = z.object({
     updatedAt: z.string().optional(),
     createdByUserId: z.uuid().optional(),
     createdByUser: userSummarySchema.optional(),
-    product: z.object({
+    product: customerProductSummarySchema,
+}).loose()
+
+const assignedProductVariantSchema = z.object({
+    id: z.uuid(),
+    customerId: z.uuid(),
+    productVariantId: z.uuid(),
+    displayOrder: z.number(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    createdByUserId: z.uuid().optional(),
+    createdByUser: userSummarySchema.optional(),
+    productVariant: z.object({
         id: z.uuid(),
-        code: z.string(),
+        productId: z.uuid(),
         name: z.string(),
-        slug: z.string(),
-        description: z.string().nullable().optional(),
-        categoryId: z.uuid(),
-        createdAt: z.string(),
-        updatedAt: z.string(),
-        category: z.object({
+        fullCode: z.string(),
+        versionCode: z.string(),
+        supplierCode: z.string(),
+        variantIndex: z.number(),
+        color: z.object({
             id: z.uuid(),
-            code: z.number(),
             name: z.string(),
-            slug: z.string(),
-        }).loose().optional(),
+            code: z.string().optional(),
+            hex: z.string().optional(),
+            system: z.string().optional(),
+        }).loose().nullable().optional(),
+        materials: z.array(z.object({
+            id: z.uuid(),
+            name: z.string(),
+            code: z.string().nullable().optional(),
+        }).loose()).optional(),
+        measurements: z.array(z.object({
+            id: z.uuid(),
+            value: z.number(),
+            label: z.string(),
+            measurementType: z.object({
+                id: z.uuid(),
+                code: z.string(),
+                name: z.string(),
+                baseUnit: z.string().nullable().optional(),
+                displayOrder: z.number().optional(),
+            }).loose(),
+        }).loose()).optional(),
         assets: z.array(z.object({
             id: z.uuid(),
-            key: z.string(),
-            mimeType: z.string(),
-            type: z.string(),
-            role: z.string(),
+            key: z.string().optional(),
+            mimeType: z.string().optional(),
+            type: z.string().optional(),
+            role: z.string().optional(),
+            url: z.string().optional(),
         }).loose()).optional(),
-        attributeValues: z.array(customerValueSchema).optional(),
+        product: customerProductSummarySchema.nullable().optional(),
     }).loose(),
 }).loose()
 
@@ -151,6 +208,17 @@ const customerAddressSchema = z.object({
     postalCode: z.string().nullable().optional(),
     taxOffice: z.string().nullable().optional(),
     taxNumber: z.string().nullable().optional(),
+    latitude: z.number().nullable().optional(),
+    longitude: z.number().nullable().optional(),
+    locationSource: z.enum(["MANUAL_PIN", "GEOCODED", "IMPORTED", "CUSTOMER_SUBMITTED"]).nullable().optional(),
+    locationAccuracy: z.enum(["EXACT", "STREET", "DISTRICT", "CITY", "UNKNOWN"]).nullable().optional(),
+    geocodingProvider: z.string().nullable().optional(),
+    geocodingPlaceId: z.string().nullable().optional(),
+    geocodingLabel: z.string().nullable().optional(),
+    geocodingRaw: z.unknown().nullable().optional(),
+    geocodedAt: z.string().nullable().optional(),
+    locationVerifiedAt: z.string().nullable().optional(),
+    locationVerifiedByUserId: z.uuid().nullable().optional(),
     isPrimary: z.boolean(),
     isBilling: z.boolean(),
     isShipping: z.boolean(),
@@ -171,6 +239,7 @@ const customerAddressSchema = z.object({
         id: z.number(),
         name: z.string(),
     }).loose().nullable().optional(),
+    locationVerifiedByUser: userSummarySchema.nullable().optional(),
 }).loose()
 
 const customerSchema = z.object({
@@ -201,7 +270,7 @@ const customerSchema = z.object({
     convertedByUser: userSummarySchema.nullable().optional(),
     portalUsers: z.array(userSummarySchema).optional(),
     featuredProducts: z.array(featuredProductSchema).optional(),
-    assignedProducts: z.array(featuredProductSchema).optional(),
+    assignedProducts: z.array(assignedProductVariantSchema).optional(),
     addresses: z.array(customerAddressSchema).optional(),
     visits: z.array(customerVisitSchema).optional(),
 }).loose()
@@ -272,6 +341,17 @@ export const updateCustomerValidator = validatorWrapper(
                 postalCode: z.string().trim().max(20).nullable().optional(),
                 taxOffice: z.string().trim().max(120).nullable().optional(),
                 taxNumber: z.string().trim().max(32).nullable().optional(),
+                latitude: z.number().min(-90).max(90).nullable().optional(),
+                longitude: z.number().min(-180).max(180).nullable().optional(),
+                locationSource: z.enum(["MANUAL_PIN", "GEOCODED", "IMPORTED", "CUSTOMER_SUBMITTED"]).nullable().optional(),
+                locationAccuracy: z.enum(["EXACT", "STREET", "DISTRICT", "CITY", "UNKNOWN"]).nullable().optional(),
+                geocodingProvider: z.string().trim().max(80).nullable().optional(),
+                geocodingPlaceId: z.string().trim().max(255).nullable().optional(),
+                geocodingLabel: z.string().trim().max(500).nullable().optional(),
+                geocodingRaw: z.unknown().nullable().optional(),
+                geocodedAt: z.iso.datetime().nullable().optional(),
+                locationVerifiedAt: z.iso.datetime().nullable().optional(),
+                locationVerifiedByUserId: z.uuid().nullable().optional(),
                 isPrimary: z.boolean().optional(),
                 isBilling: z.boolean().optional(),
                 isShipping: z.boolean().optional(),
@@ -305,12 +385,12 @@ export const replaceCustomerAssignedProductsValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            productIds: z.array(z.uuid()).max(50),
+            productVariantIds: z.array(z.uuid()).max(100),
         }),
     }),
     {
         requiredRootFields: ["pathParameters", "body"],
-        requiredBodyFields: ["productIds"],
+        requiredBodyFields: ["productVariantIds"],
     },
 )
 
@@ -401,7 +481,7 @@ export const customerAssignedProductsResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                data: z.array(featuredProductSchema),
+                data: z.array(assignedProductVariantSchema),
             }),
         }),
     }).loose(),

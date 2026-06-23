@@ -54,6 +54,9 @@ model User {
   createdCustomerSpecialPrices     CustomerVariantSpecialPrice[] @relation("CustomerVariantSpecialPriceCreatedBy")
   approvedCustomerSpecialPrices    CustomerVariantSpecialPrice[] @relation("CustomerVariantSpecialPriceApprovedBy")
   notifications                   UserNotification[]
+  verifiedCustomerAddresses       CustomerAddress[]              @relation("CustomerAddressVerifiedByUser")
+  customerInvitations             UserInvitation[]              @relation("CustomerPortalInvitationUser")
+  sentCustomerInvitations         UserInvitation[]              @relation("CustomerPortalInvitationInvitedByUser")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -165,7 +168,6 @@ model Product {
   attributeValues     ProductAttributeValue[]
   industrialUsages    ProductIndustrialUsage[]
   featuredByCustomers CustomerFeaturedProduct[]
-  assignedToCustomers CustomerAssignedProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -284,6 +286,7 @@ model Customer {
   attributeValueAssignments CustomerAttributeValueAssignment[]
   companyContactAssignments CustomerCompanyContactAssignment[]
   portalUsers      User[]                    @relation("CustomerPortalUsers")
+  userInvitations  UserInvitation[]
   featuredProducts CustomerFeaturedProduct[]
   assignedProducts CustomerAssignedProduct[]
   addresses        CustomerAddress[]
@@ -300,6 +303,35 @@ model Customer {
   @@index([assignedSalesUserId, status, createdAt])
   @@index([sectorValueId])
   @@index([productionGroupValueId])
+}
+
+model UserInvitation {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation("CustomerPortalInvitationUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  invitedByUserId String
+  invitedByUser   User   @relation("CustomerPortalInvitationInvitedByUser", fields: [invitedByUserId], references: [id], onDelete: Restrict)
+
+  email                            String
+  tokenHash                        String   @unique
+  expiresAt                        DateTime
+  acceptedAt                       DateTime?
+  requestedFirstName               String?
+  requestedLastName                String?
+  requestedCustomerContactTitle    String?
+  requestedCustomerContactDepartment String?
+  requestedIsPrimaryCustomerContact Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId, expiresAt])
+  @@index([userId])
 }
 
 model CustomerAttributeValueAssignment {
@@ -524,6 +556,7 @@ model ProductVariant {
   createdAt        DateTime                 @default(now())
   updatedAt        DateTime                 @updatedAt
   variantSuppliers ProductVariantSupplier[]
+  assignedToCustomers CustomerAssignedProduct[]
   requestItems     BusinessRequestItem[]
   orderItems       OrderItem[]
   customerSpecialPrices CustomerVariantSpecialPrice[]
@@ -647,8 +680,8 @@ model CustomerAssignedProduct {
   customerId String
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
 
   displayOrder Int @default(0)
 
@@ -658,9 +691,9 @@ model CustomerAssignedProduct {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([customerId, productId])
+  @@unique([customerId, productVariantId])
   @@index([customerId, displayOrder])
-  @@index([productId])
+  @@index([productVariantId])
   @@index([createdByUserId])
 }
 
@@ -686,6 +719,17 @@ model CustomerAddress {
   postalCode   String?
   taxOffice    String?
   taxNumber    String?
+  latitude     Decimal? @db.Decimal(10, 8)
+  longitude    Decimal? @db.Decimal(11, 8)
+  locationSource CustomerAddressLocationSource?
+  locationAccuracy CustomerAddressLocationAccuracy?
+  geocodingProvider String?
+  geocodingPlaceId String?
+  geocodingLabel String?
+  geocodingRaw Json?
+  geocodedAt DateTime?
+  locationVerifiedAt DateTime?
+  locationVerifiedByUserId String?
   isPrimary    Boolean @default(false)
   isBilling    Boolean @default(false)
   isShipping   Boolean @default(true)
@@ -695,6 +739,7 @@ model CustomerAddress {
   countryRef GeoCountry? @relation(fields: [countryId], references: [id], onDelete: SetNull)
   stateRef   GeoState?   @relation(fields: [stateId], references: [id], onDelete: SetNull)
   cityRef    GeoCity?    @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  locationVerifiedByUser User? @relation("CustomerAddressVerifiedByUser", fields: [locationVerifiedByUserId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -704,6 +749,44 @@ model CustomerAddress {
   @@index([countryId])
   @@index([stateId])
   @@index([cityId])
+  @@index([latitude, longitude])
+  @@index([locationVerifiedByUserId])
+}
+
+enum CustomerAddressLocationSource {
+  MANUAL_PIN
+  GEOCODED
+  IMPORTED
+  CUSTOMER_SUBMITTED
+}
+
+enum CustomerAddressLocationAccuracy {
+  EXACT
+  STREET
+  DISTRICT
+  CITY
+  UNKNOWN
+}
+
+model GeocodingCache {
+  id String @id @default(uuid())
+
+  provider  String
+  queryType GeocodingCacheQueryType
+  cacheKey  String
+  responseJson Json
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, queryType, cacheKey])
+  @@index([expiresAt])
+}
+
+enum GeocodingCacheQueryType {
+  SEARCH
+  REVERSE
 }
 
 model CustomerVisit {

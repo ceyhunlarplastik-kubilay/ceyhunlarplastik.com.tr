@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { mapAdminUserForApi } from "@/functions/AdminApi/functions/users/handlers/mapAdminUserForApi"
 import type { IGetMyAccessDependencies, IGetMyAccessEvent } from "@/functions/ProtectedApi/types/users"
 
 export const getMyAccessHandler =
@@ -19,7 +20,7 @@ export const getMyAccessHandler =
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    user,
+                    user: mapAdminUserForApi(user),
                     canAccessPanels: user.accessStatus === "ACTIVE",
                 },
             })

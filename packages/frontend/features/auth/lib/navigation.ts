@@ -7,6 +7,7 @@ export function resolveAuthHome(
     if (groups.includes("purchasing")) return "/satinalma"
     if (groups.includes("sales_director")) return "/satis"
     if (groups.includes("sales")) return "/satis"
+    if (groups.includes("content_editor")) return "/veri-girisi"
     if (groups.includes("supplier")) return "/tedarikci"
     if (groups.includes("customer")) return "/musteri"
     return "/hesabim"
@@ -41,6 +42,10 @@ export function canAccessPath(groups: string[] = [], pathname: string) {
 
     if (pathname.startsWith("/satis")) {
         return groups.includes("sales") || groups.includes("sales_director") || groups.includes("admin") || groups.includes("owner")
+    }
+
+    if (pathname.startsWith("/veri-girisi")) {
+        return groups.includes("content_editor") || groups.includes("admin") || groups.includes("owner")
     }
 
     if (pathname.startsWith("/musteri")) {

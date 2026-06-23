@@ -8,6 +8,15 @@ import {
     formatMoneyValue,
     formatPercentValue,
 } from "@/features/businessRequests/lib/businessRequestFormatting"
+import {
+    buildBusinessRequestOrderCurrencySummary,
+    getBusinessRequestOrderItemCurrency,
+} from "@/features/businessRequests/lib/businessRequestOrderSummary"
+import {
+    formatCommercialPaymentTerm,
+    formatCommercialPriceSource,
+    formatCommercialTaxStatus,
+} from "@/lib/customers/pricing"
 
 type Props = {
     request: BusinessRequest
@@ -16,12 +25,27 @@ type Props = {
 export function BusinessRequestItemsPanel({ request }: Props) {
     if ((request.items?.length ?? 0) === 0) return null
 
+    const currencySummary = buildBusinessRequestOrderCurrencySummary(request.items ?? [])
+
     return (
         <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-            <div className="text-sm font-medium text-neutral-900">Talep Kalemleri</div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-sm font-medium text-neutral-900">Talep Kalemleri</div>
+                {currencySummary.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                        {currencySummary.map((summary) => (
+                            <Badge key={summary.currency} variant="outline" className="bg-neutral-50">
+                                {summary.currency}: {summary.hasCustomerTotal
+                                    ? formatMoneyValue(summary.customerTotal, summary.currency)
+                                    : "Tutar yok"}
+                            </Badge>
+                        ))}
+                    </div>
+                ) : null}
+            </div>
             <div className="mt-3 grid gap-3">
                 {request.items?.map((item) => {
-                    const currency = typeof item.data?.currency === "string" ? item.data.currency : "TRY"
+                    const currency = getBusinessRequestOrderItemCurrency(item)
                     const counterCurrency = typeof item.data?.counterCurrency === "string"
                         ? item.data.counterCurrency
                         : currency
@@ -39,7 +63,7 @@ export function BusinessRequestItemsPanel({ request }: Props) {
                                 </div>
                                 <Badge variant="outline">Adet: {item.quantity}</Badge>
                             </div>
-                            <div className="mt-3 grid gap-2 md:grid-cols-2">
+                            <div className="mt-3 grid gap-2 md:grid-cols-3">
                                 <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
                                     <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">Liste Fiyatı</span>
                                     <div className="mt-1 font-medium text-neutral-900">
@@ -52,8 +76,17 @@ export function BusinessRequestItemsPanel({ request }: Props) {
                                         {formatMoneyValue(item.data?.targetUnitPrice, currency)}
                                     </div>
                                 </div>
+                                <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
+                                    <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">Ticari Koşul</span>
+                                    <div className="mt-1 font-medium text-neutral-900">
+                                        {formatCommercialPaymentTerm(item.data)}
+                                    </div>
+                                    <div className="mt-1 text-xs text-neutral-500">
+                                        {currency} • {formatCommercialTaxStatus(item.data)} • {formatCommercialPriceSource(item.data)}
+                                    </div>
+                                </div>
                                 {typeof item.data?.customerUnitPrice === "number" ? (
-                                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900 md:col-span-2">
+                                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900 md:col-span-3">
                                         <span className="text-[11px] uppercase tracking-[0.16em] text-emerald-600">Müşteri Net Fiyatı</span>
                                         <div className="mt-1 font-medium">
                                             {formatMoneyValue(item.data?.customerUnitPrice, currency)}

@@ -2,6 +2,7 @@ import { lambdaHandler } from "@/core/middy"
 import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
+import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import {
     convertCustomerHandler,
     createCustomerVisitHandler,
@@ -48,6 +49,7 @@ const deps = {
     customerRepository: customerRepository(),
     productAttributeValueRepository: productAttributeValueRepository(),
     productRepository: productRepository(),
+    productVariantRepository: productVariantRepository(),
 }
 
 export const listCustomers = lambdaHandler(

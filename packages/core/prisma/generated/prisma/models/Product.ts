@@ -212,7 +212,6 @@ export type ProductWhereInput = {
   attributeValues?: Prisma.ProductAttributeValueListRelationFilter
   industrialUsages?: Prisma.ProductIndustrialUsageListRelationFilter
   featuredByCustomers?: Prisma.CustomerFeaturedProductListRelationFilter
-  assignedToCustomers?: Prisma.CustomerAssignedProductListRelationFilter
 }
 
 export type ProductOrderByWithRelationInput = {
@@ -230,7 +229,6 @@ export type ProductOrderByWithRelationInput = {
   attributeValues?: Prisma.ProductAttributeValueOrderByRelationAggregateInput
   industrialUsages?: Prisma.ProductIndustrialUsageOrderByRelationAggregateInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductOrderByRelationAggregateInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductOrderByRelationAggregateInput
 }
 
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -251,7 +249,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   attributeValues?: Prisma.ProductAttributeValueListRelationFilter
   industrialUsages?: Prisma.ProductIndustrialUsageListRelationFilter
   featuredByCustomers?: Prisma.CustomerFeaturedProductListRelationFilter
-  assignedToCustomers?: Prisma.CustomerAssignedProductListRelationFilter
 }, "id" | "slug" | "code">
 
 export type ProductOrderByWithAggregationInput = {
@@ -296,7 +293,6 @@ export type ProductCreateInput = {
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
@@ -313,7 +309,6 @@ export type ProductUncheckedCreateInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductUpdateInput = {
@@ -330,7 +325,6 @@ export type ProductUpdateInput = {
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
@@ -347,7 +341,6 @@ export type ProductUncheckedUpdateInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
@@ -557,20 +550,6 @@ export type ProductUpdateOneRequiredWithoutFeaturedByCustomersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutFeaturedByCustomersInput, Prisma.ProductUpdateWithoutFeaturedByCustomersInput>, Prisma.ProductUncheckedUpdateWithoutFeaturedByCustomersInput>
 }
 
-export type ProductCreateNestedOneWithoutAssignedToCustomersInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutAssignedToCustomersInput, Prisma.ProductUncheckedCreateWithoutAssignedToCustomersInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutAssignedToCustomersInput
-  connect?: Prisma.ProductWhereUniqueInput
-}
-
-export type ProductUpdateOneRequiredWithoutAssignedToCustomersNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutAssignedToCustomersInput, Prisma.ProductUncheckedCreateWithoutAssignedToCustomersInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutAssignedToCustomersInput
-  upsert?: Prisma.ProductUpsertWithoutAssignedToCustomersInput
-  connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutAssignedToCustomersInput, Prisma.ProductUpdateWithoutAssignedToCustomersInput>, Prisma.ProductUncheckedUpdateWithoutAssignedToCustomersInput>
-}
-
 export type ProductCreateNestedOneWithoutAssetsInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutAssetsInput, Prisma.ProductUncheckedCreateWithoutAssetsInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutAssetsInput
@@ -600,7 +579,6 @@ export type ProductCreateWithoutCategoryInput = {
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -616,7 +594,6 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -672,7 +649,6 @@ export type ProductCreateWithoutAttributeValuesInput = {
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutAttributeValuesInput = {
@@ -688,7 +664,6 @@ export type ProductUncheckedCreateWithoutAttributeValuesInput = {
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutAttributeValuesInput = {
@@ -725,7 +700,6 @@ export type ProductCreateWithoutIndustrialUsagesInput = {
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutIndustrialUsagesInput = {
@@ -741,7 +715,6 @@ export type ProductUncheckedCreateWithoutIndustrialUsagesInput = {
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutIndustrialUsagesInput = {
@@ -773,7 +746,6 @@ export type ProductUpdateWithoutIndustrialUsagesInput = {
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutIndustrialUsagesInput = {
@@ -789,7 +761,6 @@ export type ProductUncheckedUpdateWithoutIndustrialUsagesInput = {
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutVariantsInput = {
@@ -805,7 +776,6 @@ export type ProductCreateWithoutVariantsInput = {
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutVariantsInput = {
@@ -821,7 +791,6 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutVariantsInput = {
@@ -853,7 +822,6 @@ export type ProductUpdateWithoutVariantsInput = {
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutVariantsInput = {
@@ -869,7 +837,6 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutFeaturedByCustomersInput = {
@@ -885,7 +852,6 @@ export type ProductCreateWithoutFeaturedByCustomersInput = {
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutFeaturedByCustomersInput = {
@@ -901,7 +867,6 @@ export type ProductUncheckedCreateWithoutFeaturedByCustomersInput = {
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutFeaturedByCustomersInput = {
@@ -933,7 +898,6 @@ export type ProductUpdateWithoutFeaturedByCustomersInput = {
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutFeaturedByCustomersInput = {
@@ -949,87 +913,6 @@ export type ProductUncheckedUpdateWithoutFeaturedByCustomersInput = {
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductCreateWithoutAssignedToCustomersInput = {
-  id?: string
-  code: string
-  name: string
-  slug: string
-  description?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
-  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
-  assets?: Prisma.AssetCreateNestedManyWithoutProductInput
-  attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
-  industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
-  featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutAssignedToCustomersInput = {
-  id?: string
-  code: string
-  name: string
-  slug: string
-  description?: string | null
-  categoryId: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
-  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
-  attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
-  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
-  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutAssignedToCustomersInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutAssignedToCustomersInput, Prisma.ProductUncheckedCreateWithoutAssignedToCustomersInput>
-}
-
-export type ProductUpsertWithoutAssignedToCustomersInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutAssignedToCustomersInput, Prisma.ProductUncheckedUpdateWithoutAssignedToCustomersInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutAssignedToCustomersInput, Prisma.ProductUncheckedCreateWithoutAssignedToCustomersInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutAssignedToCustomersInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutAssignedToCustomersInput, Prisma.ProductUncheckedUpdateWithoutAssignedToCustomersInput>
-}
-
-export type ProductUpdateWithoutAssignedToCustomersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
-  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
-  assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
-  attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
-  industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
-  featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutAssignedToCustomersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
-  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
-  attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
-  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
-  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutAssetsInput = {
@@ -1045,7 +928,6 @@ export type ProductCreateWithoutAssetsInput = {
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutAssetsInput = {
@@ -1061,7 +943,6 @@ export type ProductUncheckedCreateWithoutAssetsInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutAssetsInput = {
@@ -1093,7 +974,6 @@ export type ProductUpdateWithoutAssetsInput = {
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutAssetsInput = {
@@ -1109,7 +989,6 @@ export type ProductUncheckedUpdateWithoutAssetsInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyCategoryInput = {
@@ -1135,7 +1014,6 @@ export type ProductUpdateWithoutCategoryInput = {
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -1151,7 +1029,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -1177,7 +1054,6 @@ export type ProductUpdateWithoutAttributeValuesInput = {
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutAttributeValuesInput = {
@@ -1193,7 +1069,6 @@ export type ProductUncheckedUpdateWithoutAttributeValuesInput = {
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
   featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
-  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutAttributeValuesInput = {
@@ -1218,7 +1093,6 @@ export type ProductCountOutputType = {
   attributeValues: number
   industrialUsages: number
   featuredByCustomers: number
-  assignedToCustomers: number
 }
 
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1227,7 +1101,6 @@ export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   attributeValues?: boolean | ProductCountOutputTypeCountAttributeValuesArgs
   industrialUsages?: boolean | ProductCountOutputTypeCountIndustrialUsagesArgs
   featuredByCustomers?: boolean | ProductCountOutputTypeCountFeaturedByCustomersArgs
-  assignedToCustomers?: boolean | ProductCountOutputTypeCountAssignedToCustomersArgs
 }
 
 /**
@@ -1275,13 +1148,6 @@ export type ProductCountOutputTypeCountFeaturedByCustomersArgs<ExtArgs extends r
   where?: Prisma.CustomerFeaturedProductWhereInput
 }
 
-/**
- * ProductCountOutputType without action
- */
-export type ProductCountOutputTypeCountAssignedToCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CustomerAssignedProductWhereInput
-}
-
 
 export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1298,7 +1164,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   attributeValues?: boolean | Prisma.Product$attributeValuesArgs<ExtArgs>
   industrialUsages?: boolean | Prisma.Product$industrialUsagesArgs<ExtArgs>
   featuredByCustomers?: boolean | Prisma.Product$featuredByCustomersArgs<ExtArgs>
-  assignedToCustomers?: boolean | Prisma.Product$assignedToCustomersArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -1345,7 +1210,6 @@ export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   attributeValues?: boolean | Prisma.Product$attributeValuesArgs<ExtArgs>
   industrialUsages?: boolean | Prisma.Product$industrialUsagesArgs<ExtArgs>
   featuredByCustomers?: boolean | Prisma.Product$featuredByCustomersArgs<ExtArgs>
-  assignedToCustomers?: boolean | Prisma.Product$assignedToCustomersArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1364,7 +1228,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     attributeValues: Prisma.$ProductAttributeValuePayload<ExtArgs>[]
     industrialUsages: Prisma.$ProductIndustrialUsagePayload<ExtArgs>[]
     featuredByCustomers: Prisma.$CustomerFeaturedProductPayload<ExtArgs>[]
-    assignedToCustomers: Prisma.$CustomerAssignedProductPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1775,7 +1638,6 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   attributeValues<T extends Prisma.Product$attributeValuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$attributeValuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   industrialUsages<T extends Prisma.Product$industrialUsagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$industrialUsagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductIndustrialUsagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   featuredByCustomers<T extends Prisma.Product$featuredByCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$featuredByCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerFeaturedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  assignedToCustomers<T extends Prisma.Product$assignedToCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$assignedToCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAssignedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2331,30 +2193,6 @@ export type Product$featuredByCustomersArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.CustomerFeaturedProductScalarFieldEnum | Prisma.CustomerFeaturedProductScalarFieldEnum[]
-}
-
-/**
- * Product.assignedToCustomers
- */
-export type Product$assignedToCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CustomerAssignedProduct
-   */
-  select?: Prisma.CustomerAssignedProductSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the CustomerAssignedProduct
-   */
-  omit?: Prisma.CustomerAssignedProductOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CustomerAssignedProductInclude<ExtArgs> | null
-  where?: Prisma.CustomerAssignedProductWhereInput
-  orderBy?: Prisma.CustomerAssignedProductOrderByWithRelationInput | Prisma.CustomerAssignedProductOrderByWithRelationInput[]
-  cursor?: Prisma.CustomerAssignedProductWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CustomerAssignedProductScalarFieldEnum | Prisma.CustomerAssignedProductScalarFieldEnum[]
 }
 
 /**

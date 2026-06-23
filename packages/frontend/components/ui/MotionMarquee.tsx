@@ -62,7 +62,13 @@ export function MotionMarquee({
             <div className="marquee-container flex w-full overflow-hidden">
                 <div className="marquee-track flex w-max min-w-full">
                     <div className={`flex ${gap} flex-shrink-0 px-4`}>{children}</div>
-                    <div className={`flex ${gap} flex-shrink-0 px-4`}>{children}</div>
+                    <div
+                        className={`flex ${gap} flex-shrink-0 px-4`}
+                        aria-hidden="true"
+                        inert
+                    >
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>

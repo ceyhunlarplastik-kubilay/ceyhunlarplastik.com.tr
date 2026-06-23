@@ -1,7 +1,8 @@
 import config from "../../../.././../../../config";
 import { CognitoIdentityProviderClient, AdminGetUserCommand, AdminAddUserToGroupCommand, AdminRemoveUserFromGroupCommand, } from "@aws-sdk/client-cognito-identity-provider";
 const cognitoClient = new CognitoIdentityProviderClient({
-    region: config.AWS_REGION || "eu-west-1",
+    // region: config.AWS_REGION || "eu-west-1",
+    region: config.AWS_REGION,
 });
 export const cognitoUserRepository = () => {
     const getUser = async (userPoolId, username) => {

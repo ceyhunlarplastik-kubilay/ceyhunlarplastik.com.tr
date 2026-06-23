@@ -17,7 +17,7 @@ import { getUserDisplayName } from "@/lib/users/displayName"
 const navItems = [
     { label: "Genel Bilgiler", href: "" },
     { label: "İlgili Ürünler", href: "/products" },
-    { label: "Tanımlı Ürünler", href: "/defined-products" },
+    { label: "Tanımlı Varyantlar", href: "/defined-products" },
     { label: "Özel Fiyatlar", href: "/special-prices" },
     { label: "Ziyaretler", href: "/visits" },
 ]
@@ -49,10 +49,14 @@ export function CustomerWorkspaceShell({
         : ""
     const customerContacts = customer ? buildCustomerContactCards(customer).map((contact) => ({
         ...contact,
-        description: contact.isPrimary
-            ? "Müşteri tarafındaki ana portal ve talep iletişimi."
-            : "Bu müşteri için ek iletişim kişisi.",
-        badge: <Badge variant={contact.isPrimary ? "default" : "secondary"}>{contact.isPrimary ? "Ana Yetkili" : "İletişim"}</Badge>,
+        description: contact.portalOnboardingState === "INVITED"
+            ? "Davet gönderildi. Kullanıcı şifresini oluşturduktan sonra portala erişebilir."
+            : contact.isPrimary
+                ? "Müşteri tarafındaki ana portal ve talep iletişimi."
+                : "Bu müşteri için ek iletişim kişisi.",
+        badge: contact.portalOnboardingState === "INVITED"
+            ? <Badge variant="secondary">Davet Gönderildi</Badge>
+            : <Badge variant={contact.isPrimary ? "default" : "secondary"}>{contact.isPrimary ? "Ana Yetkili" : "İletişim"}</Badge>,
     })) : []
     const companyContacts = customer ? buildCompanyContactCards(customer).map((contact) => ({
         ...contact,
@@ -88,12 +92,18 @@ export function CustomerWorkspaceShell({
                             </div>
 
                             <div className="grid gap-3 xl:grid-cols-2">
-                                <CustomerContactCarousel
-                                    contacts={customerContacts}
-                                    eyebrow="Müşteri İletişimi"
-                                    icon={UserRound}
-                                    size="compact"
-                                />
+                                {customerContacts.length > 0 ? (
+                                    <CustomerContactCarousel
+                                        contacts={customerContacts}
+                                        eyebrow="Müşteri İletişimi"
+                                        icon={UserRound}
+                                        size="compact"
+                                    />
+                                ) : (
+                                    <div className="rounded-[28px] border border-dashed border-slate-200 bg-white/90 p-5 text-sm leading-6 text-slate-500 shadow-sm">
+                                        Bu müşteri için henüz kayıtlı portal kullanıcısı bulunmuyor.
+                                    </div>
+                                )}
                                 <UserContactCard
                                     eyebrow="Ceyhunlar Yetkilisi"
                                     icon={PackageCheck}
@@ -136,7 +146,7 @@ export function CustomerWorkspaceShell({
                             </div>
                         </div>
                         <div className="rounded-2xl bg-neutral-50 px-4 py-3">
-                            <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Tanımlı Ürün</div>
+                            <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Tanımlı Varyant</div>
                             <div className="mt-2 text-sm font-medium text-neutral-900">
                                 {customer.assignedProducts?.length ?? 0}
                             </div>
@@ -171,7 +181,7 @@ export function CustomerWorkspaceShell({
                                             : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
                                     )}
                                 >
-                                    {item.label === "İlgili Ürünler" || item.label === "Tanımlı Ürünler" ? <Boxes className="h-4 w-4" /> : null}
+                                    {item.label === "İlgili Ürünler" || item.label === "Tanımlı Varyantlar" ? <Boxes className="h-4 w-4" /> : null}
                                     {item.label === "Özel Fiyatlar" ? <BadgePercent className="h-4 w-4" /> : null}
                                     {item.label === "Ziyaretler" ? <CalendarDays className="h-4 w-4" /> : null}
                                     {item.label === "Genel Bilgiler" ? <Building2 className="h-4 w-4" /> : null}

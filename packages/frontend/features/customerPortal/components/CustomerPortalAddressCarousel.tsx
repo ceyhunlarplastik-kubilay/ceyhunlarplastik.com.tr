@@ -2,12 +2,15 @@
 
 import { useEffect, useRef, useState } from "react"
 import { motion } from "motion/react"
-import { ChevronLeft, ChevronRight, MapPin, Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight, MapPin, Pencil, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { AdminCustomer, CustomerAddress } from "@/features/admin/customers/api/types"
 import { CustomerPortalAddressRequestDialog } from "@/features/customerPortal/components/CustomerPortalAddressRequestDialog"
 import { useCreatePortalCustomerAddress } from "@/features/customerPortal/hooks/useCreatePortalCustomerAddress"
+import { useDeletePortalCustomerAddress } from "@/features/customerLocations/hooks/useDeletePortalCustomerAddress"
+import { useUpdatePortalCustomerAddress } from "@/features/customerLocations/hooks/useUpdatePortalCustomerAddress"
+import { toAddressDraftValues } from "@/features/customerLocations/lib/toAddressDraftValues"
 import type { addressDraftSchema } from "@/features/customerPortal/components/requestComposer/schema"
 import type { z } from "zod"
 import { cn } from "@/lib/utils"
@@ -38,7 +41,15 @@ function getAddressNotes(address: CustomerAddress) {
     ].filter(Boolean) as Array<{ label: string; value: string }>
 }
 
-function AddressCard({ address, index }: { address: CustomerAddress; index: number }) {
+function AddressCard({
+    address,
+    index,
+    onEdit,
+}: {
+    address: CustomerAddress
+    index: number
+    onEdit: (address: CustomerAddress) => void
+}) {
     const addressLines = getAddressLines(address)
     const notes = getAddressNotes(address)
 
@@ -103,6 +114,13 @@ function AddressCard({ address, index }: { address: CustomerAddress; index: numb
                     <p className="mt-1 line-clamp-2 text-sm leading-6 text-neutral-700">{address.note}</p>
                 </div>
             ) : null}
+
+            <div className="mt-auto pt-4">
+                <Button type="button" variant="outline" size="sm" onClick={() => onEdit(address)}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Düzenle
+                </Button>
+            </div>
         </motion.article>
     )
 }
@@ -130,8 +148,11 @@ function AddAddressCard({ onClick }: { onClick: () => void }) {
 
 export function CustomerPortalAddressCarousel({ customer }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false)
+    const [editingAddress, setEditingAddress] = useState<CustomerAddress | null>(null)
     const [activeIndex, setActiveIndex] = useState(0)
     const createMutation = useCreatePortalCustomerAddress()
+    const updateMutation = useUpdatePortalCustomerAddress(editingAddress?.id ?? "")
+    const deleteMutation = useDeletePortalCustomerAddress(editingAddress?.id ?? "")
     const addresses = customer.addresses ?? []
     const scrollerRef = useRef<HTMLDivElement | null>(null)
     const itemRefs = useRef<Array<HTMLDivElement | null>>([])
@@ -186,9 +207,30 @@ export function CustomerPortalAddressCarousel({ customer }: Props) {
         itemRefs.current = itemRefs.current.slice(0, totalItems)
     }, [totalItems])
 
+    useEffect(() => {
+        setActiveIndex((current) => Math.min(current, addresses.length))
+    }, [addresses.length])
+
     async function handleAddressSubmit(address: z.infer<typeof addressDraftSchema>) {
-        await createMutation.mutateAsync(address)
+        if (editingAddress) {
+            await updateMutation.mutateAsync(address)
+        } else {
+            await createMutation.mutateAsync(address)
+        }
         setDialogOpen(false)
+        setEditingAddress(null)
+    }
+
+    async function handleDelete() {
+        if (!editingAddress) return
+
+        const deletedIndex = addresses.findIndex((address) => address.id === editingAddress.id)
+        const updatedCustomer = await deleteMutation.mutateAsync()
+        const nextAddresses = updatedCustomer.addresses ?? []
+
+        setActiveIndex(Math.min(deletedIndex === -1 ? activeIndex : deletedIndex, nextAddresses.length))
+        setDialogOpen(false)
+        setEditingAddress(null)
     }
 
     return (
@@ -249,7 +291,14 @@ export function CustomerPortalAddressCarousel({ customer }: Props) {
                         }}
                         className="flex max-w-full flex-none basis-full snap-start"
                     >
-                        <AddressCard address={address} index={index} />
+                        <AddressCard
+                            address={address}
+                            index={index}
+                            onEdit={(nextAddress) => {
+                                setEditingAddress(nextAddress)
+                                setDialogOpen(true)
+                            }}
+                        />
                     </div>
                 )) : null}
 
@@ -259,7 +308,12 @@ export function CustomerPortalAddressCarousel({ customer }: Props) {
                     }}
                     className="flex max-w-full flex-none basis-full snap-start"
                 >
-                    <AddAddressCard onClick={() => setDialogOpen(true)} />
+                    <AddAddressCard
+                        onClick={() => {
+                            setEditingAddress(null)
+                            setDialogOpen(true)
+                        }}
+                    />
                 </div>
             </div>
 
@@ -287,9 +341,17 @@ export function CustomerPortalAddressCarousel({ customer }: Props) {
 
             <CustomerPortalAddressRequestDialog
                 open={dialogOpen}
-                onOpenChange={setDialogOpen}
+                onOpenChange={(open) => {
+                    setDialogOpen(open)
+                    if (!open) {
+                        setEditingAddress(null)
+                    }
+                }}
                 onSubmit={handleAddressSubmit}
-                isSubmitting={createMutation.isPending}
+                onDelete={editingAddress ? handleDelete : undefined}
+                initialValues={toAddressDraftValues(editingAddress)}
+                isSubmitting={createMutation.isPending || updateMutation.isPending}
+                isDeleting={deleteMutation.isPending}
             />
         </section>
     )

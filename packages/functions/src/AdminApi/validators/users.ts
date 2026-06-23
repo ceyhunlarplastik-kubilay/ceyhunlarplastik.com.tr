@@ -166,7 +166,7 @@ export const updateUserRoleValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            group: z.enum(["owner", "admin", "user", "supplier", "purchasing", "sales", "sales_director", "customer"]),
+            group: z.enum(["owner", "admin", "user", "supplier", "purchasing", "sales", "sales_director", "customer", "content_editor"]),
             accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]).optional(),
             supplierId: z.uuid().nullable().optional(),
             customerId: z.uuid().nullable().optional(),
@@ -270,3 +270,15 @@ export const updateUserSupplierResponseValidator = z.toJSONSchema(
 
 export const updateUserRoleResponseValidator = updateUserSupplierResponseValidator
 export const updateUserProfileResponseValidator = updateUserSupplierResponseValidator
+
+export const deleteUserResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                deletedUserId: z.uuid(),
+            }),
+        }),
+    }).loose(),
+)

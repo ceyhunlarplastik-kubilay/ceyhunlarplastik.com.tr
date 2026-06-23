@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import { BadgePercent, CalendarClock, CreditCard, Mail, MapPin, UserRound } from "lucide-react"
+import { BadgePercent, CalendarClock, CreditCard, Mail, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -13,6 +13,7 @@ import { useUpdateCustomer } from "@/features/admin/customers/hooks/useUpdateCus
 import { useCompanyContacts } from "@/features/admin/companyContacts/hooks/useCompanyContacts"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
+import { ManagedCustomerAddressesSection } from "@/features/customerLocations/components/ManagedCustomerAddressesSection"
 import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
 import { formatDiscountBadge, formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
 import { getUserDisplayName } from "@/lib/users/displayName"
@@ -254,43 +255,7 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                 </div>
             </div>
 
-            <div className="rounded-3xl border bg-white p-6 shadow-sm">
-                <div className="mb-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
-                    <MapPin className="h-4 w-4" />
-                    Adresler
-                </div>
-                {(customer.addresses?.length ?? 0) > 0 ? (
-                    <div className="grid gap-3 xl:grid-cols-2">
-                        {customer.addresses?.map((address) => (
-                            <div key={address.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <div className="font-medium text-neutral-900">{address.label}</div>
-                                    {address.isPrimary ? <Badge variant="secondary">Birincil</Badge> : null}
-                                    {address.isBilling ? <Badge variant="outline">Fatura</Badge> : null}
-                                    {address.isShipping ? <Badge variant="outline">Sevkiyat</Badge> : null}
-                                </div>
-                                <div className="mt-2 text-sm text-neutral-700">
-                                    {[address.line1, address.line2, address.district, address.city, address.stateRef?.name, address.country]
-                                        .filter(Boolean)
-                                        .join(", ")}
-                                </div>
-                                <div className="mt-3 space-y-1 text-xs text-neutral-500">
-                                    {address.contactName ? <div>İrtibat: {address.contactName}</div> : null}
-                                    {address.phone ? <div>Telefon: {address.phone}</div> : null}
-                                    {address.email ? <div>E-posta: {address.email}</div> : null}
-                                    {address.postalCode ? <div>Posta Kodu: {address.postalCode}</div> : null}
-                                    {address.taxOffice ? <div>Vergi Dairesi: {address.taxOffice}</div> : null}
-                                    {address.taxNumber ? <div>Vergi Numarası: {address.taxNumber}</div> : null}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-4 py-8 text-sm text-neutral-500">
-                        Tanımlı adres bulunmuyor.
-                    </div>
-                )}
-            </div>
+            <ManagedCustomerAddressesSection customer={customer} />
 
             <EditCustomerProfileDialog
                 open={dialogOpen}

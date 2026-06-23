@@ -8,7 +8,8 @@ export function useReplaceCustomerFeaturedProducts(customerId: string) {
 
     return useMutation({
         mutationFn: (productIds: string[]) => replaceCustomerFeaturedProducts(customerId, productIds),
-        onSuccess() {
+        onSuccess(data) {
+            qc.setQueryData(["admin-customer-featured-products", customerId], data)
             qc.invalidateQueries({ queryKey: ["admin-customer-featured-products", customerId] })
             qc.invalidateQueries({ queryKey: ["admin-customer", customerId] })
         },

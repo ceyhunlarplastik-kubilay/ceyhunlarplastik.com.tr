@@ -67,6 +67,28 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     }
 }
 
+const frontendBaseUrl =
+    $app.stage === "prod"
+        ? `https://${config.DOMAIN}`
+        : $app.stage === "dev"
+            ? `https://dev.${config.DOMAIN}`
+            : $app.stage === "test-1"
+                ? "https://d32mxh4ylm3z1k.cloudfront.net"
+                : "http://localhost:3000"
+
+const portalCustomerInviteRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+    ...defaultRouteOptions,
+    environment: {
+        ...defaultRouteOptions.environment,
+        MAIL_TRANSPORT_MODE: process.env.MAIL_TRANSPORT_MODE ?? "gmail",
+        GMAIL_SMTP_USER: process.env.GMAIL_SMTP_USER ?? "",
+        GMAIL_SMTP_APP_PASSWORD: process.env.GMAIL_SMTP_APP_PASSWORD ?? "",
+        INVITE_FROM_EMAIL: process.env.INVITE_FROM_EMAIL ?? "",
+        INVITE_FROM_NAME: process.env.INVITE_FROM_NAME ?? "",
+        FRONTEND_BASE_URL: frontendBaseUrl,
+    },
+}
+
 const businessWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultRouteOptions,
     link: [rds, userPool, publicBucket],
@@ -112,6 +134,11 @@ protectedApi.route('GET /users/{id}', {
 
 protectedApi.route('GET /me', {
     handler: `${folderPrefix}/users/actions.getMe`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /me/profile', {
+    handler: `${folderPrefix}/users/actions.updateMyProfile`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
@@ -244,6 +271,11 @@ protectedApi.route('GET /sales/customers', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /sales/customers/map', {
+    handler: `${folderPrefix}/crm/actions.listManagedCustomersMap`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/customers/{id}', {
     handler: `${folderPrefix}/crm/actions.getManagedCustomer`,
     ...defaultRouteOptions
@@ -256,6 +288,21 @@ protectedApi.route('GET /sales/company-contacts', {
 
 protectedApi.route('PUT /sales/customers/{id}', {
     handler: `${folderPrefix}/crm/actions.updateManagedCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /sales/customers/{id}/addresses', {
+    handler: `${folderPrefix}/crm/actions.createManagedCustomerAddress`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /sales/customers/{id}/addresses/{addressId}', {
+    handler: `${folderPrefix}/crm/actions.updateManagedCustomerAddress`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /sales/customers/{id}/addresses/{addressId}', {
+    handler: `${folderPrefix}/crm/actions.deleteManagedCustomerAddress`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
@@ -371,6 +418,21 @@ protectedApi.route('GET /portal/customer/special-prices', {
 
 protectedApi.route('POST /portal/customer/addresses', {
     handler: `${folderPrefix}/crm/actions.createPortalCustomerAddress`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /portal/customer/users', {
+    handler: `${folderPrefix}/crm/actions.createPortalCustomerUser`,
+    ...portalCustomerInviteRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /portal/customer/addresses/{addressId}', {
+    handler: `${folderPrefix}/crm/actions.updatePortalCustomerAddress`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /portal/customer/addresses/{addressId}', {
+    handler: `${folderPrefix}/crm/actions.deletePortalCustomerAddress`,
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 

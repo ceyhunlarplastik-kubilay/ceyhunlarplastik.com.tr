@@ -69,6 +69,7 @@ export interface IAPIGatewayEventRequestContextJWTAuthorizerWithClaims
 export interface IAuthenticatedUser {
   id: string
   dbUserId?: string
+  cognitoSub: string
   identifier: string
   firstName?: string | null
   lastName?: string | null
@@ -86,6 +87,7 @@ export interface IAuthenticatedUser {
   isSales: boolean
   isSalesDirector: boolean
   isCustomer: boolean
+  isContentEditor: boolean
 }
 
 // Lambda event tipi (hem authenticated hem anonymous destekler)

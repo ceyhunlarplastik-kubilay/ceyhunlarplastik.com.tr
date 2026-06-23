@@ -54,6 +54,8 @@ type Props = {
     productSearchPlaceholder?: string
     showProductFiltersOnlyWhenCategorySelected?: boolean
     hideIndustrialFiltersWhenCategorySelected?: boolean
+    customerUsageAreaSlugs?: string[]
+    customerUsageAreaFilterPending?: boolean
 }
 
 const INDUSTRIAL_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"] as const
@@ -123,6 +125,8 @@ export default function ProductFilterSidebar({
     productSearchPlaceholder = "Ürün kodu veya adı ara",
     showProductFiltersOnlyWhenCategorySelected = false,
     hideIndustrialFiltersWhenCategorySelected = false,
+    customerUsageAreaSlugs = [],
+    customerUsageAreaFilterPending = false,
 }: Props) {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -337,6 +341,33 @@ export default function ProductFilterSidebar({
         pushStateToUrl(category, next)
     }
 
+    function handleApplyCustomerUsageAreaFilter() {
+        if (scopedCategorySlug) return
+
+        const usageAreaAttribute = filterableAttributeMap.get("usage_area")
+        const availableUsageAreaSlugs = new Set(
+            (usageAreaAttribute?.values ?? []).map((value) => value.slug),
+        )
+        const matchedUsageAreaSlugs = Array.from(
+            new Set(customerUsageAreaSlugs.filter((slug) => availableUsageAreaSlugs.has(slug))),
+        )
+
+        if (matchedUsageAreaSlugs.length === 0) return
+
+        const current = useFilterStore.getState().attributes
+        const next: Record<string, string[]> = {}
+
+        Object.entries(current).forEach(([code, values]) => {
+            if (INDUSTRIAL_ATTRIBUTE_CODE_SET.has(code)) return
+            if (values.length > 0) next[code] = values
+        })
+
+        next["usage_area"] = matchedUsageAreaSlugs
+
+        setAttributes(next)
+        pushStateToUrl(category, next)
+    }
+
     function clearAll() {
         if (fixedCategorySlug) {
             setSearch("")
@@ -355,28 +386,24 @@ export default function ProductFilterSidebar({
         return hasCategoryFilter || Boolean(search.trim()) || Object.keys(storeAttributes).length > 0
     }, [category, fixedCategorySlug, search, storeAttributes])
 
-    const attributeMap = useMemo(() => {
-        return new Map(filterableAttributes.map((attr) => [attr.code, attr]))
-    }, [filterableAttributes])
-
     const selectedSectorSlugs = useMemo(() => storeAttributes["sector"] ?? [], [storeAttributes])
     const selectedProductionGroupSlugs = useMemo(() => storeAttributes["production_group"] ?? [], [storeAttributes])
 
     const selectedSectorIds = useMemo(() => {
-        const sectorValues = attributeMap.get("sector")?.values ?? []
+        const sectorValues = filterableAttributeMap.get("sector")?.values ?? []
         const slugToId = new Map(sectorValues.map((value) => [value.slug, value.id]))
         return selectedSectorSlugs
             .map((slug) => slugToId.get(slug))
             .filter((id): id is string => Boolean(id))
-    }, [attributeMap, selectedSectorSlugs])
+    }, [filterableAttributeMap, selectedSectorSlugs])
 
     const selectedProductionGroupIds = useMemo(() => {
-        const groupValues = attributeMap.get("production_group")?.values ?? []
+        const groupValues = filterableAttributeMap.get("production_group")?.values ?? []
         const slugToId = new Map(groupValues.map((value) => [value.slug, value.id]))
         return selectedProductionGroupSlugs
             .map((slug) => slugToId.get(slug))
             .filter((id): id is string => Boolean(id))
-    }, [attributeMap, selectedProductionGroupSlugs])
+    }, [filterableAttributeMap, selectedProductionGroupSlugs])
 
     const selectedCategoryThumb = useMemo(() => {
         if (!selectedCategory?.assets?.length) return null
@@ -394,6 +421,11 @@ export default function ProductFilterSidebar({
         const anyImage = selectedCategory.assets.find((asset) => asset.type === "IMAGE")
         return anyImage?.url ?? null
     }, [selectedCategory])
+    const hasCustomerUsageAreaQuickFilter = useMemo(() => {
+        if (scopedCategorySlug) return false
+        if (customerUsageAreaSlugs.length === 0) return false
+        return (filterableAttributeMap.get("usage_area")?.values?.length ?? 0) > 0
+    }, [customerUsageAreaSlugs, filterableAttributeMap, scopedCategorySlug])
 
     function getVisibleAttributeValues(attr: Attribute) {
         const baseValues = attr.values ?? []
@@ -408,7 +440,7 @@ export default function ProductFilterSidebar({
             }
 
             if (selectedSectorIds.length > 0) {
-                const productionGroupValues = attributeMap.get("production_group")?.values ?? []
+                const productionGroupValues = filterableAttributeMap.get("production_group")?.values ?? []
                 const productionGroupIdsUnderSelectedSectors = new Set(
                     productionGroupValues
                         .filter((value) => value.parentValueId && selectedSectorIds.includes(value.parentValueId))
@@ -589,6 +621,19 @@ export default function ProductFilterSidebar({
                                     Sektör, üretim grubu ve kullanım alanı ürünün industrial usage satırlarından filtrelenir.
                                 </p>
                             </div>
+                            {hasCustomerUsageAreaQuickFilter ? (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleApplyCustomerUsageAreaFilter}
+                                    disabled={isPending || customerUsageAreaFilterPending}
+                                    className="w-full justify-center rounded-xl border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
+                                >
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    Benimle İlgili Ürünleri Filtrele
+                                </Button>
+                            ) : null}
                             {industrialUsageAttributes.map((attr) => renderAttributeFilter(attr))}
                         </section>
                     ) : null}

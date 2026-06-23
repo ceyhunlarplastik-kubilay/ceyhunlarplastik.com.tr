@@ -1,5 +1,6 @@
 import config from "../config";
 import { vpc, rds } from "./db";
+import { appRouter } from "./router";
 
 const isPermanentStage = ['prod', 'dev'].includes($app.stage);
 
@@ -93,32 +94,42 @@ const customerGroup = new aws.cognito.UserGroup('CeyhunlarCustomers', {
     description: 'Customer portal users',
     precedence: 8,
 });
+const contentEditorGroup = new aws.cognito.UserGroup('CeyhunlarContentEditors', {
+    userPoolId: userPool.id,
+    name: 'content_editor',
+    description: 'Content and data entry users',
+    precedence: 9,
+});
 void purchasingGroup;
 void salesGroup;
 void salesDirectorGroup;
 void customerGroup;
+void contentEditorGroup;
 
 if (isPermanentStage) {
     const hostedZoneId = config.HOSTED_ZONE_ID
 
     const subdomain = $app.stage === 'prod' ? 'auth' : `auth-${$app.stage}` // exp: auth-dev
 
-    const amazonIssued = aws.acm.getCertificate(
-        {
-            domain: `${config.DOMAIN}`,
-            statuses: ['ISSUED'],
-            mostRecent: true,
-        },
-        {
-            provider: new aws.Provider('us-east-1', { region: 'us-east-1' }),
-        },
-    )
+    const domainCertificateArn =
+        config.DOMAIN_CERTIFICATE_ARN || aws.acm.getCertificate(
+            {
+                domain: `${config.DOMAIN}`,
+                statuses: ['ISSUED'],
+                mostRecent: true,
+            },
+            {
+                provider: new aws.Provider('CeyhunlarCognitoUsEast1', { region: 'us-east-1' }),
+            },
+        ).then(c => c.arn)
 
     userPool.id.apply(id => {
         const userPoolDomain = new aws.cognito.UserPoolDomain('CeyhunlarUserPoolDomain', {
             domain: `${subdomain}.${config.DOMAIN}`,
-            certificateArn: amazonIssued.then(c => c.arn),
+            certificateArn: domainCertificateArn,
             userPoolId: id,
+        }, {
+            dependsOn: appRouter ? [appRouter] : [],
         })
 
         new aws.route53.Record('auth-cognito-A', {

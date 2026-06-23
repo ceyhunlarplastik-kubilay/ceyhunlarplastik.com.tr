@@ -19,6 +19,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "Ceyhunlar-AppRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "Ceyhunlar-Frontend": {
       "type": "sst.aws.Nextjs"
       "url": string

@@ -22,7 +22,8 @@ const schema = z.object({
     description: z.string().max(2000).optional(),
 })
 
-type Values = z.infer<typeof schema>
+type FormInput = z.input<typeof schema>
+type FormValues = z.output<typeof schema>
 
 type Props = {
     open: boolean
@@ -31,7 +32,7 @@ type Props = {
 
 export function CreateSupplierCategoryRequestDialog({ open, onOpenChange }: Props) {
     const mutation = useCreateSupplierBusinessRequest("Kategori talebi onaya gönderildi")
-    const form = useForm<Values>({
+    const form = useForm<FormInput, unknown, FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
             code: undefined,

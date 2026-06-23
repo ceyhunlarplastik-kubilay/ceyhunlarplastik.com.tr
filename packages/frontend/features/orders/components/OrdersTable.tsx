@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table"
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge"
 import type { Order } from "@/features/orders/api/types"
-import { formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
+import { formatCommercialPaymentTerm, formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
 type Props = {
@@ -32,6 +32,54 @@ function formatDate(value?: string | null) {
         month: "2-digit",
         day: "2-digit",
     }).format(date)
+}
+
+function getStringValue(value: unknown) {
+    return typeof value === "string" && value.trim() ? value.trim() : null
+}
+
+function getNumberValue(value: unknown) {
+    return typeof value === "number" && Number.isFinite(value) ? value : null
+}
+
+function getItemPaymentTermLabel(item: NonNullable<Order["items"]>[number], fallbackDays?: number | null) {
+    return formatCommercialPaymentTerm(item.data, fallbackDays, "Vade tanımlı değil")
+}
+
+function getOrderPaymentTermLabels(order: Order) {
+    const labels = new Set<string>()
+
+    for (const item of order.items ?? []) {
+        labels.add(getItemPaymentTermLabel(item, order.paymentTermDays))
+    }
+
+    if (labels.size === 0) labels.add(formatPaymentTermLabel(order.paymentTermDays) ?? "Vade tanımlı değil")
+
+    return Array.from(labels)
+}
+
+function buildOrderCurrencySummary(order: Order) {
+    const summary = new Map<string, { currency: string; listTotal: number; customerTotal: number }>()
+
+    for (const item of order.items ?? []) {
+        const currency = item.currency || getStringValue(item.data?.currency) || order.currency || "TRY"
+        const current = summary.get(currency) ?? {
+            currency,
+            listTotal: 0,
+            customerTotal: 0,
+        }
+        const quantity = Number.isFinite(item.quantity) ? item.quantity : 1
+        const listLineTotal = getNumberValue(item.listLineTotal)
+            ?? ((getNumberValue(item.listUnitPrice) ?? 0) * quantity)
+        const customerLineTotal = getNumberValue(item.customerLineTotal)
+            ?? ((getNumberValue(item.customerUnitPrice) ?? getNumberValue(item.listUnitPrice) ?? 0) * quantity)
+
+        current.listTotal += listLineTotal
+        current.customerTotal += customerLineTotal
+        summary.set(currency, current)
+    }
+
+    return Array.from(summary.values())
 }
 
 export function OrdersTable({
@@ -81,6 +129,10 @@ export function OrdersTable({
                         const requesterLabel = order.requestedByUser
                             ? getUserDisplayName(order.requestedByUser) || order.requestedByUser.email
                             : "-"
+                        const currencySummary = buildOrderCurrencySummary(order)
+                        const paymentTermLabels = getOrderPaymentTermLabels(order)
+                        const hasMixedCurrency = currencySummary.length > 1 || order.currency === "MIXED"
+                        const hasMixedPaymentTerms = paymentTermLabels.length > 1
 
                         return (
                             <TableRow key={order.id} className="align-top">
@@ -127,7 +179,20 @@ export function OrdersTable({
                                 </TableCell>
                                 <TableCell className="min-w-[180px]">
                                     <div className="space-y-1 text-sm text-neutral-700">
-                                        <div>{formatPaymentTermLabel(order.paymentTermDays)}</div>
+                                        <div>
+                                            {hasMixedPaymentTerms
+                                                ? "Kalem bazında değişiyor"
+                                                : paymentTermLabels[0]}
+                                        </div>
+                                        {hasMixedPaymentTerms ? (
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {paymentTermLabels.map((label) => (
+                                                    <span key={label} className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-600">
+                                                        {label}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        ) : null}
                                         <div className="text-xs text-neutral-500">
                                             Talep termin: {formatDate(order.requestedDeliveryDate)}
                                         </div>
@@ -135,17 +200,39 @@ export function OrdersTable({
                                 </TableCell>
                                 <TableCell className="min-w-[180px]">
                                     <div className="space-y-1">
-                                        {order.discountPercent && order.discountPercent > 0 && order.listSubtotal ? (
-                                            <div className="text-xs text-neutral-400 line-through">
-                                                {formatMoney(order.listSubtotal, order.currency)}
+                                        {hasMixedCurrency ? (
+                                            <div className="space-y-2">
+                                                {currencySummary.map((summary) => (
+                                                    <div key={summary.currency} className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+                                                        <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+                                                            {summary.currency}
+                                                        </div>
+                                                        <div className="mt-1 font-semibold text-neutral-950">
+                                                            {formatMoney(summary.customerTotal, summary.currency)}
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ) : null}
-                                        <div className="font-semibold text-neutral-950">
-                                            {formatMoney(order.customerSubtotal ?? order.listSubtotal, order.currency)}
-                                        </div>
-                                        {order.discountPercent && order.discountPercent > 0 ? (
-                                            <div className="text-xs font-medium text-emerald-700">
-                                                %{order.discountPercent.toLocaleString("tr-TR")} genel iskonto
+                                        ) : (
+                                            <>
+                                                {order.discountPercent && order.discountPercent > 0 && order.listSubtotal ? (
+                                                    <div className="text-xs text-neutral-400 line-through">
+                                                        {formatMoney(order.listSubtotal, order.currency)}
+                                                    </div>
+                                                ) : null}
+                                                <div className="font-semibold text-neutral-950">
+                                                    {formatMoney(order.customerSubtotal ?? order.listSubtotal, order.currency)}
+                                                </div>
+                                                {order.discountPercent && order.discountPercent > 0 ? (
+                                                    <div className="text-xs font-medium text-emerald-700">
+                                                        %{order.discountPercent.toLocaleString("tr-TR")} genel iskonto
+                                                    </div>
+                                                ) : null}
+                                            </>
+                                        )}
+                                        {hasMixedCurrency ? (
+                                            <div className="text-xs text-amber-700">
+                                                Toplamlar para birimine göre ayrıldı.
                                             </div>
                                         ) : null}
                                     </div>

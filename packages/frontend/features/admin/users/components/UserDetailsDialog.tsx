@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { Eye, PencilLine, UserPen } from "lucide-react"
+import { Eye, Trash2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,9 +33,10 @@ type Props = {
     draft: UserAccessDraft | undefined
     suppliers: Supplier[]
     customers: CustomerOption[]
+    canRequestDelete: boolean
+    deleteDisabledReason?: string | null
+    onRequestDelete: (user: AdminUser) => void
     onOpenChange: (open: boolean) => void
-    onOpenAccessEditor: (user: AdminUser) => void
-    onOpenProfileEditor: (user: AdminUser) => void
 }
 
 function DetailSection({
@@ -59,9 +60,10 @@ export function UserDetailsDialog({
     draft,
     suppliers,
     customers,
+    canRequestDelete,
+    deleteDisabledReason,
+    onRequestDelete,
     onOpenChange,
-    onOpenAccessEditor,
-    onOpenProfileEditor,
 }: Props) {
     if (!user) return null
 
@@ -108,16 +110,6 @@ export function UserDetailsDialog({
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-2">
-                                <Button type="button" variant="outline" onClick={() => onOpenProfileEditor(user)}>
-                                    <UserPen className="h-4 w-4" />
-                                    Profili Düzenle
-                                </Button>
-                                <Button type="button" onClick={() => onOpenAccessEditor(user)}>
-                                    <PencilLine className="h-4 w-4" />
-                                    Yetkiyi Düzenle
-                                </Button>
-                            </div>
                         </div>
                     </DialogHeader>
                 </div>
@@ -169,6 +161,30 @@ export function UserDetailsDialog({
                             </div>
                         </div>
                     </DetailSection>
+                </div>
+
+                <div className="border-t border-neutral-200 bg-neutral-50/70 p-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="space-y-1">
+                            <p className="text-sm text-neutral-500">
+                                Kullaniciyi silmeden once iliskili tarihsel kayitlarin olmadigini kontrol edin.
+                            </p>
+                            {deleteDisabledReason ? (
+                                <p className="text-sm text-rose-600">{deleteDisabledReason}</p>
+                            ) : null}
+                        </div>
+                        <div className="flex justify-end">
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                disabled={!canRequestDelete}
+                                onClick={() => onRequestDelete(user)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                Kullaniciyi Sil
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>

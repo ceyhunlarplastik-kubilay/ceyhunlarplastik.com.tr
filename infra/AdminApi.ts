@@ -148,6 +148,11 @@ adminApi.route("GET /users/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("DELETE /users/{id}", {
+    handler: `${folderPrefix}/users/actions.deleteUser`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("PUT /users/{id}/supplier", {
     handler: `${folderPrefix}/users/actions.updateUserSupplier`,
     ...defaultRouteOptions,

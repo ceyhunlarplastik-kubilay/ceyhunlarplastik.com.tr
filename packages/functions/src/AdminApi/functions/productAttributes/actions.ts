@@ -25,6 +25,8 @@ import type {
     IUpdateProductAttributeEvent,
 } from "@/functions/AdminApi/types/productAttributes"
 
+const productAttributeReaderGroups = ["admin", "content_editor"]
+
 export const createProductAttribute = lambdaHandler(
     async (event) => {
         const deps: IProductAttributeDependencies = {
@@ -68,7 +70,7 @@ export const listAttributesWithValues = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeReaderGroups },
         responseValidator: listAttributesWithValuesResponseValidator,
     }
 )

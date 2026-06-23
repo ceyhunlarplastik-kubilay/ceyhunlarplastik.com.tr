@@ -148,7 +148,7 @@ Notable implementation detail:
 - Cognito app client
 - hosted UI domain configuration retained for compatibility and rollback
 - Cognito groups:
-  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`
+  `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`
 - a `postConfirmation` trigger Lambda linked to RDS
 
 Frontend authentication is handled by NextAuth with a custom Cognito credentials flow.
@@ -238,6 +238,37 @@ Product industrial usage is separate from normal category-scoped product filteri
 - those three taxonomy families are no longer assigned to products through `Product.attributeValues`
 - product-specific industrial usage rows live in `ProductIndustrialUsage`
 - `ProductIndustrialUsage` references dictionary values by field role and stores product-specific `usageFunction` text plus an optional example image key on the row
+
+### Customer location and map surfaces
+Customer location management is now split into a shared feature with role-specific routes:
+- `/satis/harita`
+  Sales workspace map for `sales` and `sales_director`.
+- `/admin/musteriler/harita`
+  Admin workspace map for `admin` and `owner`.
+
+Route separation is a UX and layout concern only. Access control is enforced in backend handlers:
+- `sales`
+  May only query map points for customers assigned to `currentUser.id`.
+- `sales_director`, `admin`, `owner`
+  May query all customers and optionally filter by `assignedSalesUserId`.
+- `customer`
+  Cannot access the customer map listing endpoint.
+
+Map architecture boundaries:
+- OpenFreeMap provides the hosted basemap style URL.
+- `react-map-gl/maplibre` renders markers, clusters, popup interactions, navigation controls, and user geolocation inside Next.js client components.
+- the shared frontend feature lives under `packages/frontend/features/customerLocations`
+- geocoding is proxied through Next.js route handlers at `/geocoding/search` and `/geocoding/reverse`, not through VPC-backed Lambdas
+- backend customer map data remains in `ProtectedApi` as `GET /sales/customers/map`
+- customer address coordinates and geocoding metadata are stored on `CustomerAddress`
+- `GeocodingCache` stores server-side provider responses with TTL so the frontend never calls Nominatim directly
+
+Current V1 location rules:
+- one map pin is exposed per customer
+- canonical address selection priority is:
+  `isPrimary && isShipping` -> `isPrimary` -> first coordinate-bearing address by `displayOrder`
+- portal users may geocode and pin their own addresses, but they do not receive a customer-list map screen
+- route navigation for turn-by-turn directions is delegated to external Google Maps URLs instead of first-party routing
 - `Category.allowedAttributeValueIds` remains only for real category-scoped product filters such as `model_type`, `connection_type`, `profile_type`, `material_type`, `usage_type`, and `hat_type`
 - public and customer product filters should present category-scoped product filters separately from industrial usage filters
 - `/musteri/tanimli-urunler` profile matching uses customer assignments against `ProductIndustrialUsage`; `usageFunction` is display and SEO content only, not a matching criterion
@@ -307,6 +338,8 @@ Current hierarchy expectations:
   Supplier-facing operator scoped to assigned suppliers.
 - `customer`, `supplier`
   External portal users that submit requests but do not self-approve them.
+- `content_editor`
+  Internal data-entry role. Uses the `/veri-girisi` workspace and can manage category and product content without receiving broad admin panel access.
 
 ### Workflow orchestration
 Supplier, customer, sales, and purchasing approvals should use the generic `BusinessRequest` workflow backbone.
@@ -343,6 +376,8 @@ Supplier-specific usage rules:
 
 Customer-specific request UX rules:
 - `CUSTOMER_ORDER_REQUEST` may use a checkout-style stacked draft preview above its form because line-item verification is the primary task
+- `CUSTOMER_ORDER_REQUEST` carts may contain line items with different payment terms, KDV status, currencies, and price sources; the portal should inform the customer and show line-level conditions instead of blocking request creation
+- when an approved customer order request contains multiple currencies, the resulting `Order` keeps item-level currencies and uses `currency = "MIXED"` with null aggregate money totals; currency-specific subtotals belong in the request/order snapshot rather than being summed into a misleading single total
 - `CUSTOMER_PRICING_REQUEST` can continue using an item-based comparison layout, but it should remain separate from order request layout decisions
 - profile and document request forms should remain simpler non-cart flows even though they share the same `BusinessRequest` backbone
 
@@ -353,6 +388,7 @@ Customer-specific special price rules:
 - A special price applies only to its `customerId + productVariantId` pair when active, current, and quantity-eligible; when it applies, `Customer.generalDiscountPercent` is not applied.
 - Special prices never update `ProductVariantSupplier.listPrice` or supplier cost/profit calculations.
 - Portal request/order creation snapshots the resolved `priceSource`, unit price, currency, quantity constraints, simple/multi-step payment terms, validity, tax status, and contract reference into item data so historical records remain stable after future price edits.
+- Customer-originated requests always enter the workflow with `NORMAL` priority; customer portal UI must not expose priority controls, and the backend must ignore customer-supplied priority payloads.
 
 This split is intentional:
 - EventBridge answers “what happened?”
@@ -410,6 +446,8 @@ Important route segments currently include:
   Purchasing-facing routes
 - `app/satis`
   Sales-facing routes
+- `app/veri-girisi`
+  Internal content/data-entry workspace for `content_editor`
 - `app/tedarikci`
   Supplier-facing workspace
 - `app/supplier`
@@ -516,6 +554,7 @@ New HTTP Lambdas should use `lambdaHandler` unless there is a strong reason not 
 - group normalization and parsing
 - automatic user creation on first authenticated request
 - access-state-aware normalization using the application database as source of truth
+- conservative claim backfill for existing users: profile identity fields should only be backfilled when the DB record is still missing them, so in-app profile updates are not overwritten by stale JWT claims
 - `isActive` guard
 - derived role flags on `event.user`
 - permission checking with role hierarchy for core roles
@@ -528,7 +567,7 @@ Current access lifecycle model:
 - Cognito confirmation creates a DB `User` with `groups = ["user"]`
 - new users start with `accessStatus = PENDING_REVIEW`
 - `user` is a no-panel default group
-- admin can assign business roles: `user`, `supplier`, `purchasing`, `sales`, `customer`
+- admin can assign business roles: `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`
 - owner can additionally assign `admin` and `owner`
 - pending or otherwise inactive users can sign in, but they are routed to `/hesabim`
 
@@ -562,6 +601,7 @@ Derived booleans currently include:
 - `isPurchasing`
 - `isSales`
 - `isCustomer`
+- `isContentEditor`
 
 Keep these flags consistent across frontend assumptions, middleware output, and API permission checks.
 
@@ -670,11 +710,14 @@ The internal role workspaces are no longer topbar-only pages.
 Current expectation:
 - `/satis` uses a left navigation shell with at least assigned customers and products
 - `/satinalma` uses a left navigation shell with at least assigned suppliers and products
+- `/veri-girisi` uses a left navigation shell for internal content/data-entry tasks; v1 includes category management
+- `/veri-girisi/products` reuses the admin product CRUD surface for content entry, without exposing broad `/admin` workspace navigation
 - product browsing may reuse the shared supplier/purchasing/sales variant price feature as long as visibility rules remain role-safe
 
 Visibility rules currently expected:
 - `sales` can browse products and customer-safe pricing outputs, but not supplier/cost-oriented purchasing data
 - `purchasing` can browse products and supplier-side cost data, but not sales-facing profit or list-price emphasis
+- `content_editor` can manage category and product content through the data-entry workspace, but should not gain broad `/admin` access
 
 ### Supplier request flow
 Current supplier request lifecycle:

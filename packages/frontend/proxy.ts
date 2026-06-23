@@ -38,6 +38,7 @@ export const config = {
         "/tedarikci/:path*",
         "/satinalma/:path*",
         "/satis/:path*",
+        "/veri-girisi/:path*",
         "/musteri/:path*",
     ]
 }

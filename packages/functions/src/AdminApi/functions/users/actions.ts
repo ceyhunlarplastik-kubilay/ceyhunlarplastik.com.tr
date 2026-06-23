@@ -8,14 +8,22 @@ import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import {
     listUsersHandler,
     getUserHandler,
+    deleteUserHandler,
     updateUserProfileHandler,
     updateUserSupplierHandler,
     updateUserRoleHandler,
 } from "./handlers"
 
 import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
-import { IGetUserEvent, IUpdateUserProfileEvent, IUpdateUserRoleEvent, IUpdateUserSupplierEvent } from "@/functions/AdminApi/types/users"
 import {
+    IDeleteUserEvent,
+    IGetUserEvent,
+    IUpdateUserProfileEvent,
+    IUpdateUserRoleEvent,
+    IUpdateUserSupplierEvent,
+} from "@/functions/AdminApi/types/users"
+import {
+    deleteUserResponseValidator,
     listUsersResponseValidator,
     getUserResponseValidator,
     idValidator,
@@ -64,6 +72,20 @@ export const getUser = lambdaHandler(
         requestValidator: idValidator,
         responseValidator: getUserResponseValidator,
     }
+)
+
+export const deleteUser = lambdaHandler(
+    async (event) =>
+        deleteUserHandler({
+            cognitoRepository: cognitoUserRepository(),
+            userRepository: userRepository(),
+            userPoolId: Resource.CeyhunlarUserPool.id,
+        })(event as IDeleteUserEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: idValidator,
+        responseValidator: deleteUserResponseValidator,
+    },
 )
 
 export const updateUserSupplier = lambdaHandler(

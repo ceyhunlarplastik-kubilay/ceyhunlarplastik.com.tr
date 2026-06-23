@@ -336,6 +336,7 @@ export type CustomerWhereInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentListRelationFilter
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentListRelationFilter
   portalUsers?: Prisma.UserListRelationFilter
+  userInvitations?: Prisma.UserInvitationListRelationFilter
   featuredProducts?: Prisma.CustomerFeaturedProductListRelationFilter
   assignedProducts?: Prisma.CustomerAssignedProductListRelationFilter
   addresses?: Prisma.CustomerAddressListRelationFilter
@@ -372,6 +373,7 @@ export type CustomerOrderByWithRelationInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentOrderByRelationAggregateInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentOrderByRelationAggregateInput
   portalUsers?: Prisma.UserOrderByRelationAggregateInput
+  userInvitations?: Prisma.UserInvitationOrderByRelationAggregateInput
   featuredProducts?: Prisma.CustomerFeaturedProductOrderByRelationAggregateInput
   assignedProducts?: Prisma.CustomerAssignedProductOrderByRelationAggregateInput
   addresses?: Prisma.CustomerAddressOrderByRelationAggregateInput
@@ -411,6 +413,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentListRelationFilter
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentListRelationFilter
   portalUsers?: Prisma.UserListRelationFilter
+  userInvitations?: Prisma.UserInvitationListRelationFilter
   featuredProducts?: Prisma.CustomerFeaturedProductListRelationFilter
   assignedProducts?: Prisma.CustomerAssignedProductListRelationFilter
   addresses?: Prisma.CustomerAddressListRelationFilter
@@ -493,6 +496,7 @@ export type CustomerCreateInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -525,6 +529,7 @@ export type CustomerUncheckedCreateInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -557,6 +562,7 @@ export type CustomerUpdateInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -589,6 +595,7 @@ export type CustomerUncheckedUpdateInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -986,6 +993,20 @@ export type NullableDecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
+export type CustomerCreateNestedOneWithoutUserInvitationsInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutUserInvitationsInput, Prisma.CustomerUncheckedCreateWithoutUserInvitationsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutUserInvitationsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutUserInvitationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutUserInvitationsInput, Prisma.CustomerUncheckedCreateWithoutUserInvitationsInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutUserInvitationsInput
+  upsert?: Prisma.CustomerUpsertWithoutUserInvitationsInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutUserInvitationsInput, Prisma.CustomerUpdateWithoutUserInvitationsInput>, Prisma.CustomerUncheckedUpdateWithoutUserInvitationsInput>
+}
+
 export type CustomerCreateNestedOneWithoutAttributeValueAssignmentsInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutAttributeValueAssignmentsInput, Prisma.CustomerUncheckedCreateWithoutAttributeValueAssignmentsInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutAttributeValueAssignmentsInput
@@ -1136,6 +1157,7 @@ export type CustomerCreateWithoutPortalUsersInput = {
   usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1167,6 +1189,7 @@ export type CustomerUncheckedCreateWithoutPortalUsersInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1203,6 +1226,7 @@ export type CustomerCreateWithoutAssignedSalesUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1234,6 +1258,7 @@ export type CustomerUncheckedCreateWithoutAssignedSalesUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1275,6 +1300,7 @@ export type CustomerCreateWithoutConvertedByUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1306,6 +1332,7 @@ export type CustomerUncheckedCreateWithoutConvertedByUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1358,6 +1385,7 @@ export type CustomerUpdateWithoutPortalUsersInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -1389,6 +1417,7 @@ export type CustomerUncheckedUpdateWithoutPortalUsersInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1476,6 +1505,7 @@ export type CustomerCreateWithoutSectorValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1507,6 +1537,7 @@ export type CustomerUncheckedCreateWithoutSectorValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1548,6 +1579,7 @@ export type CustomerCreateWithoutProductionGroupValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1579,6 +1611,7 @@ export type CustomerUncheckedCreateWithoutProductionGroupValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1620,6 +1653,7 @@ export type CustomerCreateWithoutUsageAreaValuesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1651,6 +1685,7 @@ export type CustomerUncheckedCreateWithoutUsageAreaValuesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1713,6 +1748,150 @@ export type CustomerUpdateManyWithWhereWithoutUsageAreaValuesInput = {
   data: Prisma.XOR<Prisma.CustomerUpdateManyMutationInput, Prisma.CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput>
 }
 
+export type CustomerCreateWithoutUserInvitationsInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
+  convertedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesUser?: Prisma.UserCreateNestedOneWithoutAssignedSalesCustomersInput
+  convertedByUser?: Prisma.UserCreateNestedOneWithoutConvertedCustomersInput
+  sectorValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerSectorsInput
+  productionGroupValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutCustomerProductionGroupsInput
+  usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
+  portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
+  assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
+  businessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutCustomerInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutUserInvitationsInput = {
+  id?: string
+  companyName?: string | null
+  fullName: string
+  phone: string
+  email: string
+  note?: string | null
+  status?: $Enums.CustomerStatus
+  generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: number | null
+  creditLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: string | null
+  assignedSalesUserId?: string | null
+  convertedAt?: Date | string | null
+  convertedByUserId?: string | null
+  sectorValueId?: string | null
+  productionGroupValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
+  portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
+  assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
+  addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
+  visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
+  businessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutCustomerInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCustomerInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutUserInvitationsInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutUserInvitationsInput, Prisma.CustomerUncheckedCreateWithoutUserInvitationsInput>
+}
+
+export type CustomerUpsertWithoutUserInvitationsInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutUserInvitationsInput, Prisma.CustomerUncheckedUpdateWithoutUserInvitationsInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutUserInvitationsInput, Prisma.CustomerUncheckedCreateWithoutUserInvitationsInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutUserInvitationsInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutUserInvitationsInput, Prisma.CustomerUncheckedUpdateWithoutUserInvitationsInput>
+}
+
+export type CustomerUpdateWithoutUserInvitationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesUser?: Prisma.UserUpdateOneWithoutAssignedSalesCustomersNestedInput
+  convertedByUser?: Prisma.UserUpdateOneWithoutConvertedCustomersNestedInput
+  sectorValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerSectorsNestedInput
+  productionGroupValue?: Prisma.ProductAttributeValueUpdateOneWithoutCustomerProductionGroupsNestedInput
+  usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
+  portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
+  assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
+  businessRequests?: Prisma.BusinessRequestUpdateManyWithoutCustomerNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutUserInvitationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  defaultPaymentTermDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creditLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentTermNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assignedSalesUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  convertedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  convertedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sectorValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productionGroupValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
+  attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
+  companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
+  portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
+  addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
+  visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
+  businessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutCustomerNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCustomerNestedInput
+  specialVariantPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
 export type CustomerCreateWithoutAttributeValueAssignmentsInput = {
   id?: string
   companyName?: string | null
@@ -1735,6 +1914,7 @@ export type CustomerCreateWithoutAttributeValueAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1766,6 +1946,7 @@ export type CustomerUncheckedCreateWithoutAttributeValueAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1813,6 +1994,7 @@ export type CustomerUpdateWithoutAttributeValueAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -1844,6 +2026,7 @@ export type CustomerUncheckedUpdateWithoutAttributeValueAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1875,6 +2058,7 @@ export type CustomerCreateWithoutCompanyContactAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutCustomerUsageAreasInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -1906,6 +2090,7 @@ export type CustomerUncheckedCreateWithoutCompanyContactAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutCustomerUsageAreasInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -1953,6 +2138,7 @@ export type CustomerUpdateWithoutCompanyContactAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUpdateManyWithoutCustomerUsageAreasNestedInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -1984,6 +2170,7 @@ export type CustomerUncheckedUpdateWithoutCompanyContactAssignmentsInput = {
   usageAreaValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutCustomerUsageAreasNestedInput
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -2016,6 +2203,7 @@ export type CustomerCreateWithoutFeaturedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
@@ -2047,6 +2235,7 @@ export type CustomerUncheckedCreateWithoutFeaturedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
@@ -2094,6 +2283,7 @@ export type CustomerUpdateWithoutFeaturedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
@@ -2125,6 +2315,7 @@ export type CustomerUncheckedUpdateWithoutFeaturedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
@@ -2156,6 +2347,7 @@ export type CustomerCreateWithoutAssignedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
@@ -2187,6 +2379,7 @@ export type CustomerUncheckedCreateWithoutAssignedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
@@ -2234,6 +2427,7 @@ export type CustomerUpdateWithoutAssignedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
@@ -2265,6 +2459,7 @@ export type CustomerUncheckedUpdateWithoutAssignedProductsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
@@ -2296,6 +2491,7 @@ export type CustomerCreateWithoutAddressesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitCreateNestedManyWithoutCustomerInput
@@ -2327,6 +2523,7 @@ export type CustomerUncheckedCreateWithoutAddressesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   visits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCustomerInput
@@ -2374,6 +2571,7 @@ export type CustomerUpdateWithoutAddressesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUpdateManyWithoutCustomerNestedInput
@@ -2405,6 +2603,7 @@ export type CustomerUncheckedUpdateWithoutAddressesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   visits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput
@@ -2436,6 +2635,7 @@ export type CustomerCreateWithoutVisitsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -2467,6 +2667,7 @@ export type CustomerUncheckedCreateWithoutVisitsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -2514,6 +2715,7 @@ export type CustomerUpdateWithoutVisitsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -2545,6 +2747,7 @@ export type CustomerUncheckedUpdateWithoutVisitsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -2576,6 +2779,7 @@ export type CustomerCreateWithoutSpecialVariantPricesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -2607,6 +2811,7 @@ export type CustomerUncheckedCreateWithoutSpecialVariantPricesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -2654,6 +2859,7 @@ export type CustomerUpdateWithoutSpecialVariantPricesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -2685,6 +2891,7 @@ export type CustomerUncheckedUpdateWithoutSpecialVariantPricesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -2716,6 +2923,7 @@ export type CustomerCreateWithoutBusinessRequestsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -2747,6 +2955,7 @@ export type CustomerUncheckedCreateWithoutBusinessRequestsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -2794,6 +3003,7 @@ export type CustomerUpdateWithoutBusinessRequestsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -2825,6 +3035,7 @@ export type CustomerUncheckedUpdateWithoutBusinessRequestsInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -2856,6 +3067,7 @@ export type CustomerCreateWithoutOrdersInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressCreateNestedManyWithoutCustomerInput
@@ -2887,6 +3099,7 @@ export type CustomerUncheckedCreateWithoutOrdersInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedCreateNestedManyWithoutCustomerInput
   portalUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCustomerInput
+  userInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutCustomerInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCustomerInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCustomerInput
   addresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -2934,6 +3147,7 @@ export type CustomerUpdateWithoutOrdersInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -2965,6 +3179,7 @@ export type CustomerUncheckedUpdateWithoutOrdersInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -3035,6 +3250,7 @@ export type CustomerUpdateWithoutAssignedSalesUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -3066,6 +3282,7 @@ export type CustomerUncheckedUpdateWithoutAssignedSalesUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -3117,6 +3334,7 @@ export type CustomerUpdateWithoutConvertedByUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -3148,6 +3366,7 @@ export type CustomerUncheckedUpdateWithoutConvertedByUserInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -3239,6 +3458,7 @@ export type CustomerUpdateWithoutSectorValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -3270,6 +3490,7 @@ export type CustomerUncheckedUpdateWithoutSectorValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -3321,6 +3542,7 @@ export type CustomerUpdateWithoutProductionGroupValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -3352,6 +3574,7 @@ export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -3403,6 +3626,7 @@ export type CustomerUpdateWithoutUsageAreaValuesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUpdateManyWithoutCustomerNestedInput
@@ -3434,6 +3658,7 @@ export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
   attributeValueAssignments?: Prisma.CustomerAttributeValueAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   companyContactAssignments?: Prisma.CustomerCompanyContactAssignmentUncheckedUpdateManyWithoutCustomerNestedInput
   portalUsers?: Prisma.UserUncheckedUpdateManyWithoutCustomerNestedInput
+  userInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutCustomerNestedInput
   featuredProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCustomerNestedInput
   assignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   addresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -3474,6 +3699,7 @@ export type CustomerCountOutputType = {
   attributeValueAssignments: number
   companyContactAssignments: number
   portalUsers: number
+  userInvitations: number
   featuredProducts: number
   assignedProducts: number
   addresses: number
@@ -3488,6 +3714,7 @@ export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   attributeValueAssignments?: boolean | CustomerCountOutputTypeCountAttributeValueAssignmentsArgs
   companyContactAssignments?: boolean | CustomerCountOutputTypeCountCompanyContactAssignmentsArgs
   portalUsers?: boolean | CustomerCountOutputTypeCountPortalUsersArgs
+  userInvitations?: boolean | CustomerCountOutputTypeCountUserInvitationsArgs
   featuredProducts?: boolean | CustomerCountOutputTypeCountFeaturedProductsArgs
   assignedProducts?: boolean | CustomerCountOutputTypeCountAssignedProductsArgs
   addresses?: boolean | CustomerCountOutputTypeCountAddressesArgs
@@ -3533,6 +3760,13 @@ export type CustomerCountOutputTypeCountCompanyContactAssignmentsArgs<ExtArgs ex
  */
 export type CustomerCountOutputTypeCountPortalUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountUserInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserInvitationWhereInput
 }
 
 /**
@@ -3612,6 +3846,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   attributeValueAssignments?: boolean | Prisma.Customer$attributeValueAssignmentsArgs<ExtArgs>
   companyContactAssignments?: boolean | Prisma.Customer$companyContactAssignmentsArgs<ExtArgs>
   portalUsers?: boolean | Prisma.Customer$portalUsersArgs<ExtArgs>
+  userInvitations?: boolean | Prisma.Customer$userInvitationsArgs<ExtArgs>
   featuredProducts?: boolean | Prisma.Customer$featuredProductsArgs<ExtArgs>
   assignedProducts?: boolean | Prisma.Customer$assignedProductsArgs<ExtArgs>
   addresses?: boolean | Prisma.Customer$addressesArgs<ExtArgs>
@@ -3703,6 +3938,7 @@ export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   attributeValueAssignments?: boolean | Prisma.Customer$attributeValueAssignmentsArgs<ExtArgs>
   companyContactAssignments?: boolean | Prisma.Customer$companyContactAssignmentsArgs<ExtArgs>
   portalUsers?: boolean | Prisma.Customer$portalUsersArgs<ExtArgs>
+  userInvitations?: boolean | Prisma.Customer$userInvitationsArgs<ExtArgs>
   featuredProducts?: boolean | Prisma.Customer$featuredProductsArgs<ExtArgs>
   assignedProducts?: boolean | Prisma.Customer$assignedProductsArgs<ExtArgs>
   addresses?: boolean | Prisma.Customer$addressesArgs<ExtArgs>
@@ -3736,6 +3972,7 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     attributeValueAssignments: Prisma.$CustomerAttributeValueAssignmentPayload<ExtArgs>[]
     companyContactAssignments: Prisma.$CustomerCompanyContactAssignmentPayload<ExtArgs>[]
     portalUsers: Prisma.$UserPayload<ExtArgs>[]
+    userInvitations: Prisma.$UserInvitationPayload<ExtArgs>[]
     featuredProducts: Prisma.$CustomerFeaturedProductPayload<ExtArgs>[]
     assignedProducts: Prisma.$CustomerAssignedProductPayload<ExtArgs>[]
     addresses: Prisma.$CustomerAddressPayload<ExtArgs>[]
@@ -4165,6 +4402,7 @@ export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime
   attributeValueAssignments<T extends Prisma.Customer$attributeValueAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$attributeValueAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAttributeValueAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   companyContactAssignments<T extends Prisma.Customer$companyContactAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$companyContactAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerCompanyContactAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   portalUsers<T extends Prisma.Customer$portalUsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$portalUsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userInvitations<T extends Prisma.Customer$userInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$userInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   featuredProducts<T extends Prisma.Customer$featuredProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$featuredProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerFeaturedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedProducts<T extends Prisma.Customer$assignedProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$assignedProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAssignedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   addresses<T extends Prisma.Customer$addressesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$addressesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAddressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4789,6 +5027,30 @@ export type Customer$portalUsersArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
+}
+
+/**
+ * Customer.userInvitations
+ */
+export type Customer$userInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserInvitation
+   */
+  select?: Prisma.UserInvitationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserInvitation
+   */
+  omit?: Prisma.UserInvitationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInvitationInclude<ExtArgs> | null
+  where?: Prisma.UserInvitationWhereInput
+  orderBy?: Prisma.UserInvitationOrderByWithRelationInput | Prisma.UserInvitationOrderByWithRelationInput[]
+  cursor?: Prisma.UserInvitationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserInvitationScalarFieldEnum | Prisma.UserInvitationScalarFieldEnum[]
 }
 
 /**

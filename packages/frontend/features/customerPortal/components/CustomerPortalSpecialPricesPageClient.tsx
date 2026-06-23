@@ -32,9 +32,10 @@ export function CustomerPortalSpecialPricesPageClient() {
                 <div className="flex flex-col items-center justify-center gap-4 rounded-[28px] border border-neutral-200 bg-white px-6 py-16 text-center shadow-sm">
                     <PackageSearch className="h-9 w-9 text-neutral-400" />
                     <div className="space-y-1">
-                        <h2 className="text-lg font-semibold text-neutral-950">Aktif özel fiyatlı ürün bulunmuyor</h2>
+                        <h2 className="text-lg font-semibold text-neutral-950">Aktif ve geçerli özel fiyatlı ürün bulunmuyor</h2>
                         <p className="max-w-xl text-sm leading-6 text-neutral-500">
-                            Firmanız için aktif ve geçerli özel fiyat tanımlandığında burada görünecek.
+                            Firmanız için aktif ve tarih aralığında geçerli bir özel fiyat tanımlandığında burada görünecek.
+                            Süresi dolmuş veya henüz başlamamış kayıtlar bu listede gösterilmez.
                         </p>
                     </div>
                 </div>

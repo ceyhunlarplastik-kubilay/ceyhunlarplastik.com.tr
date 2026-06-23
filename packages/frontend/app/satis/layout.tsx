@@ -16,6 +16,12 @@ const navItems = [
         match: "prefix" as const,
     },
     {
+        href: "/satis/harita",
+        label: "Harita",
+        icon: "map" as const,
+        match: "prefix" as const,
+    },
+    {
         href: "/satis/onaylar",
         label: "Onay Talepleri",
         icon: "shield" as const,

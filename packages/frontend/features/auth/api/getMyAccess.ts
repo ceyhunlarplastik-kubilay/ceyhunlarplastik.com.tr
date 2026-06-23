@@ -1,24 +1,10 @@
 import { protectedApiClient } from "@/lib/http/client"
+import type { AdminUser } from "@/features/admin/users/api/types"
 
 export type MyAccessResponse = {
     statusCode: number
     payload: {
-        user: {
-            id: string
-            email: string
-            identifier: string
-            firstName?: string | null
-            lastName?: string | null
-            groups: string[]
-            accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
-            accessStatusChangedAt?: string | null
-            accessStatusReason?: string | null
-            customerId?: string | null
-            supplierId?: string | null
-            isActive: boolean
-            createdAt: string
-            updatedAt: string
-        }
+        user: AdminUser
         canAccessPanels: boolean
     }
 }

@@ -18,6 +18,7 @@ import {
     ClipboardList,
     ShieldCheck,
     ClipboardCheck,
+    MapPinned,
     Menu,
     ChevronLeft,
     ChevronDown,
@@ -69,6 +70,11 @@ const navItems = [
         href: "/admin/company-contacts",
         label: "Departman İletişimleri",
         icon: Building2,
+    },
+    {
+        href: "/admin/musteriler/harita",
+        label: "Müşteri Haritası",
+        icon: MapPinned,
     },
     {
         href: "/admin/web-requests",

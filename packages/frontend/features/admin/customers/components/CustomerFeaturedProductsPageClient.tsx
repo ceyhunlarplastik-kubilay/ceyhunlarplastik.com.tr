@@ -1,28 +1,22 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { useCustomerAssignedProducts } from "@/features/admin/customers/hooks/useCustomerAssignedProducts"
 import { useCustomerFeaturedProducts } from "@/features/admin/customers/hooks/useCustomerFeaturedProducts"
-import { useReplaceCustomerAssignedProducts } from "@/features/admin/customers/hooks/useReplaceCustomerAssignedProducts"
 import { useReplaceCustomerFeaturedProducts } from "@/features/admin/customers/hooks/useReplaceCustomerFeaturedProducts"
 import { useProducts as useAdminProducts } from "@/features/admin/products/hooks/useProducts"
 import { useProducts as usePublicProducts } from "@/features/public/products/hooks/useProducts"
 import { protectedApiClient } from "@/lib/http/client"
-import type {
-    CustomerAssignedProductsResponse,
-    CustomerFeaturedProductsResponse,
-} from "@/features/admin/customers/api/types"
+import type { CustomerFeaturedProductsResponse } from "@/features/admin/customers/api/types"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 type Props = {
     customerId: string
     scope?: "admin" | "sales"
-    mode?: "featured" | "assigned"
 }
 
 async function getManagedCustomerFeaturedProducts(customerId: string) {
@@ -40,21 +34,6 @@ async function replaceManagedCustomerFeaturedProducts(customerId: string, produc
     return res.data.payload.data
 }
 
-async function getManagedCustomerAssignedProducts(customerId: string) {
-    const res = await protectedApiClient.get<CustomerAssignedProductsResponse>(
-        `/sales/customers/${customerId}/assigned-products`,
-    )
-    return res.data.payload.data
-}
-
-async function replaceManagedCustomerAssignedProducts(customerId: string, productIds: string[]) {
-    const res = await protectedApiClient.put<CustomerAssignedProductsResponse>(
-        `/sales/customers/${customerId}/assigned-products`,
-        { productIds },
-    )
-    return res.data.payload.data
-}
-
 function useManagedCustomerFeaturedProducts(customerId: string, enabled: boolean) {
     return useQuery({
         queryKey: ["sales-customer-featured-products", customerId],
@@ -65,36 +44,14 @@ function useManagedCustomerFeaturedProducts(customerId: string, enabled: boolean
     })
 }
 
-function useReplaceManagedCustomerFeaturedProducts(customerId: string, enabled: boolean) {
+function useReplaceManagedCustomerFeaturedProducts(customerId: string) {
     const qc = useQueryClient()
 
     return useMutation({
         mutationFn: (productIds: string[]) => replaceManagedCustomerFeaturedProducts(customerId, productIds),
-        onSuccess() {
+        onSuccess(data) {
+            qc.setQueryData(["sales-customer-featured-products", customerId], data)
             qc.invalidateQueries({ queryKey: ["sales-customer-featured-products", customerId] })
-            qc.invalidateQueries({ queryKey: ["sales-managed-customer", customerId] })
-            qc.invalidateQueries({ queryKey: ["sales-managed-customers"] })
-        },
-    })
-}
-
-function useManagedCustomerAssignedProducts(customerId: string, enabled: boolean) {
-    return useQuery({
-        queryKey: ["sales-customer-assigned-products", customerId],
-        queryFn: () => getManagedCustomerAssignedProducts(customerId),
-        enabled: Boolean(customerId) && enabled,
-        refetchOnMount: "always",
-        refetchOnWindowFocus: true,
-    })
-}
-
-function useReplaceManagedCustomerAssignedProducts(customerId: string, enabled: boolean) {
-    const qc = useQueryClient()
-
-    return useMutation({
-        mutationFn: (productIds: string[]) => replaceManagedCustomerAssignedProducts(customerId, productIds),
-        onSuccess() {
-            qc.invalidateQueries({ queryKey: ["sales-customer-assigned-products", customerId] })
             qc.invalidateQueries({ queryKey: ["sales-managed-customer", customerId] })
             qc.invalidateQueries({ queryKey: ["sales-managed-customers"] })
         },
@@ -104,17 +61,21 @@ function useReplaceManagedCustomerAssignedProducts(customerId: string, enabled: 
 export function CustomerFeaturedProductsPageClient({
     customerId,
     scope = "admin",
-    mode = "featured",
 }: Props) {
+    return <CustomerFeaturedProductsManager customerId={customerId} scope={scope} />
+}
+
+function CustomerFeaturedProductsManager({
+    customerId,
+    scope,
+}: Pick<Props, "customerId" | "scope">) {
     const [search, setSearch] = useState("")
+    const [draftSelectedIds, setDraftSelectedIds] = useState<string[]>([])
+    const [hasDraftSelection, setHasDraftSelection] = useState(false)
     const adminFeaturedQuery = useCustomerFeaturedProducts(customerId, scope === "admin")
-    const adminAssignedQuery = useCustomerAssignedProducts(customerId, scope === "admin")
     const salesFeaturedQuery = useManagedCustomerFeaturedProducts(customerId, scope === "sales")
-    const salesAssignedQuery = useManagedCustomerAssignedProducts(customerId, scope === "sales")
     const adminReplaceMutation = useReplaceCustomerFeaturedProducts(customerId)
-    const adminAssignedReplaceMutation = useReplaceCustomerAssignedProducts(customerId)
-    const salesReplaceMutation = useReplaceManagedCustomerFeaturedProducts(customerId, scope === "sales")
-    const salesAssignedReplaceMutation = useReplaceManagedCustomerAssignedProducts(customerId, scope === "sales")
+    const salesReplaceMutation = useReplaceManagedCustomerFeaturedProducts(customerId)
     const adminProductsQuery = useAdminProducts({
         enabled: scope === "admin",
         params: {
@@ -130,52 +91,24 @@ export function CustomerFeaturedProductsPageClient({
     })
     const productsQuery = scope === "sales" ? salesProductsQuery : adminProductsQuery
 
-    const selectionQuery = scope === "sales"
-        ? mode === "assigned" ? salesAssignedQuery : salesFeaturedQuery
-        : mode === "assigned" ? adminAssignedQuery : adminFeaturedQuery
-    const replaceMutation = scope === "sales"
-        ? mode === "assigned" ? salesAssignedReplaceMutation : salesReplaceMutation
-        : mode === "assigned" ? adminAssignedReplaceMutation : adminReplaceMutation
+    const selectionQuery = scope === "sales" ? salesFeaturedQuery : adminFeaturedQuery
+    const replaceMutation = scope === "sales" ? salesReplaceMutation : adminReplaceMutation
 
-    const content = mode === "assigned"
-        ? {
-            badge: "Tanımlı Ürün Havuzu",
-            title: "Tanımlı Ürünler",
-            description: scope === "sales"
-                ? "Müşteriye düzenli veya yüksek hacimli satılan ürünleri seçin."
-                : "Müşterinin tanımlı ürün portföyünü oluşturacak ürünleri seçin.",
-            successMessage: "Tanımlı ürünler güncellendi",
-            errorMessage: "Tanımlı ürünler güncellenemedi",
-            emptySelected: "Henüz tanımlı ürün seçilmedi.",
-        }
-        : {
-            badge: "Müşteriye Özel Ürünler",
-            title: "İlgili Ürünler",
-            description: scope === "sales"
-                ? "Sorumlu olduğunuz müşteri için ilgili ürünleri seçin."
-                : "Müşteriyle ilişkili veya öne çıkarılacak ürünleri seçin.",
-            successMessage: "İlgili ürünler güncellendi",
-            errorMessage: "İlgili ürünler güncellenemedi",
-            emptySelected: "Henüz ilgili ürün seçilmedi.",
-        }
+    const content = {
+        badge: "Müşteriye Özel Ürünler",
+        title: "İlgili Ürünler",
+        description: scope === "sales"
+            ? "Sorumlu olduğunuz müşteri için ilgili ürünleri seçin."
+            : "Müşteriyle ilişkili veya öne çıkarılacak ürünleri seçin.",
+        successMessage: "İlgili ürünler güncellendi",
+        errorMessage: "İlgili ürünler güncellenemedi",
+        emptySelected: "Henüz ilgili ürün seçilmedi.",
+    }
 
-    const featured = selectionQuery.data ?? []
-    const products = productsQuery.data?.data ?? []
-    const [selectedIds, setSelectedIds] = useState<string[]>([])
-
-    useEffect(() => {
-        const nextIds = featured.map((item) => item.productId)
-        setSelectedIds((prev) => {
-            if (
-                prev.length === nextIds.length &&
-                prev.every((id, index) => id === nextIds[index])
-            ) {
-                return prev
-            }
-
-            return nextIds
-        })
-    }, [featured])
+    const featured = useMemo(() => selectionQuery.data ?? [], [selectionQuery.data])
+    const products = useMemo(() => productsQuery.data?.data ?? [], [productsQuery.data?.data])
+    const featuredProductIds = useMemo(() => featured.map((item) => item.productId), [featured])
+    const selectedIds = hasDraftSelection ? draftSelectedIds : featuredProductIds
 
     const selectedProducts = useMemo(() => {
         const fromFeatured = featured.filter((item) => selectedIds.includes(item.productId))
@@ -197,12 +130,18 @@ export function CustomerFeaturedProductsPageClient({
     }, [customerId, featured, products, selectedIds])
 
     function toggleProduct(productId: string) {
-        setSelectedIds((prev) => prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId])
+        setHasDraftSelection(true)
+        setDraftSelectedIds((current) => {
+            const base = hasDraftSelection ? current : featuredProductIds
+            return base.includes(productId) ? base.filter((id) => id !== productId) : [...base, productId]
+        })
     }
 
     async function handleSave() {
         try {
             await replaceMutation.mutateAsync(selectedIds)
+            setHasDraftSelection(false)
+            setDraftSelectedIds([])
             toast.success(content.successMessage)
         } catch {
             toast.error(content.errorMessage)

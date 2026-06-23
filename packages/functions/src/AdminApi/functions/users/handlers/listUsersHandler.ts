@@ -2,7 +2,7 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response";
 import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types";
 import { IUsersDependencies } from "../../../types/users";
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
-import type { UserAccessStatus } from "@ceyhunlarweb/core/core/helpers/prisma/users/repository"
+import type { UserAccessStatus } from "@/core/helpers/prisma/users/repository"
 import { mapAdminUserForApi } from "@/functions/AdminApi/functions/users/handlers/mapAdminUserForApi"
 
 const ALLOWED_SORT_FIELDS = ["email", "identifier", "createdAt"] as const

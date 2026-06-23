@@ -16,6 +16,7 @@ import { ProductCategoryFilterRail } from "@/features/admin/products/components/
 import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 import { CustomerPortalProductGridSkeleton } from "@/features/customerPortal/components/CustomerPortalProductGridSkeleton"
 import { CustomerPortalProductsLoadingOverlay } from "@/features/customerPortal/components/CustomerPortalProductsLoadingOverlay"
+import { usePortalCustomer } from "@/features/customerPortal/hooks/usePortalCustomer"
 
 type Props = {
     categories: Category[]
@@ -30,6 +31,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
     const searchParams = useSearchParams()
     const [, startTransition] = useTransition()
     const [navigatingProductId, setNavigatingProductId] = useState<string | null>(null)
+    const portalCustomerQuery = usePortalCustomer()
     const { category, search, attributes: selectedAttributes, page, limit, setFromUrl } = useFilterStore()
 
     useEffect(() => {
@@ -44,6 +46,17 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
     const knownAttributeCodes = useMemo(
         () => new Set(attributes.map((attribute) => attribute.code)),
         [attributes],
+    )
+    const portalUsageAreaSlugs = useMemo(
+        () =>
+            Array.from(
+                new Set(
+                    (portalCustomerQuery.data?.usageAreaValues ?? [])
+                        .map((value) => value.slug)
+                        .filter((value): value is string => Boolean(value)),
+                ),
+            ),
+        [portalCustomerQuery.data?.usageAreaValues],
     )
 
     const params = useMemo(() => {
@@ -148,6 +161,8 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                         attributeSelectorVariant="popover"
                         showProductFiltersOnlyWhenCategorySelected
                         hideIndustrialFiltersWhenCategorySelected
+                        customerUsageAreaSlugs={portalUsageAreaSlugs}
+                        customerUsageAreaFilterPending={portalCustomerQuery.isLoading}
                     />
                 </div>
 
@@ -269,7 +284,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                         <p className="mt-2 text-sm leading-6 text-neutral-500">
                             Ürün kartına tıkladığınızda model detayına, oradan da varyant detay ekranına geçebilirsiniz.
                             Dilerseniz doğrudan <Link href="/musteri/tanimli-urunler" className="font-medium text-brand hover:underline">İlgili Ürünler</Link>,{" "}
-                            <Link href="/musteri/musteriye-tanimli-urunler" className="font-medium text-brand hover:underline">Tanımlı Ürünler</Link> veya{" "}
+                            <Link href="/musteri/musteriye-tanimli-urunler" className="font-medium text-brand hover:underline">Tanımlı Varyantlar</Link> veya{" "}
                             <Link href="/musteri/talepler" className="font-medium text-brand hover:underline">Taleplerim</Link> sekmesine geçebilirsiniz.
                         </p>
                     </div>

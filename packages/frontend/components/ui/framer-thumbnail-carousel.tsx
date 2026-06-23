@@ -21,6 +21,9 @@ type FramerThumbnailCarouselProps = {
     emptyDescription?: string
     className?: string
     imagePresentation?: "cover" | "square"
+    index?: number
+    defaultIndex?: number
+    onIndexChange?: (index: number) => void
 }
 
 const FULL_WIDTH_PX = 118
@@ -80,13 +83,29 @@ export function FramerThumbnailCarousel({
     emptyDescription = "Bu alan için kayıt eklendiğinde burada kaydırmalı bir önizleme görünür.",
     className,
     imagePresentation = "cover",
+    index: controlledIndex,
+    defaultIndex = 0,
+    onIndexChange,
 }: FramerThumbnailCarouselProps) {
-    const [index, setIndex] = useState(0)
+    const [uncontrolledIndex, setUncontrolledIndex] = useState(defaultIndex)
     const [isDragging, setIsDragging] = useState(false)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const containerWidth = useObservedWidth(containerRef)
     const x = useMotionValue(0)
-    const activeIndex = Math.min(index, Math.max(items.length - 1, 0))
+    const maxIndex = Math.max(items.length - 1, 0)
+    const isControlled = typeof controlledIndex === "number"
+    const resolvedIndex = isControlled ? controlledIndex : uncontrolledIndex
+    const activeIndex = Math.min(Math.max(resolvedIndex, 0), maxIndex)
+
+    const setActiveIndex = (nextIndex: number) => {
+        const clampedIndex = Math.min(Math.max(nextIndex, 0), maxIndex)
+
+        if (!isControlled) {
+            setUncontrolledIndex(clampedIndex)
+        }
+
+        onIndexChange?.(clampedIndex)
+    }
 
     useEffect(() => {
         if (!isDragging && containerWidth > 0) {
@@ -129,7 +148,7 @@ export function FramerThumbnailCarousel({
                             nextIndex = offset > 0 ? activeIndex - 1 : activeIndex + 1
                         }
 
-                        setIndex(Math.max(0, Math.min(items.length - 1, nextIndex)))
+                        setActiveIndex(nextIndex)
                     }}
                     style={{ x }}
                 >
@@ -204,16 +223,16 @@ export function FramerThumbnailCarousel({
                 <CarouselButton
                     side="left"
                     disabled={activeIndex === 0}
-                    onClick={() => setIndex((current) => Math.max(0, current - 1))}
+                    onClick={() => setActiveIndex(activeIndex - 1)}
                 />
                 <CarouselButton
                     side="right"
                     disabled={activeIndex === items.length - 1}
-                    onClick={() => setIndex((current) => Math.min(items.length - 1, current + 1))}
+                    onClick={() => setActiveIndex(activeIndex + 1)}
                 />
             </div>
 
-            <Thumbnails items={items} index={activeIndex} setIndex={setIndex} />
+            <Thumbnails items={items} index={activeIndex} setIndex={setActiveIndex} />
         </div>
     )
 }

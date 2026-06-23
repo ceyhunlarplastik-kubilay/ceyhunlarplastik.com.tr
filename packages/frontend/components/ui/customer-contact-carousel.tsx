@@ -19,6 +19,8 @@ type CustomerContactCarouselProps = {
     icon: LucideIcon
     size?: "default" | "compact"
     className?: string
+    trailingItem?: ReactNode
+    trailingItemKey?: string
 }
 
 export function CustomerContactCarousel({
@@ -27,16 +29,19 @@ export function CustomerContactCarousel({
     icon,
     size = "default",
     className,
+    trailingItem,
+    trailingItemKey = "trailing-item",
 }: CustomerContactCarouselProps) {
     const scrollerRef = useRef<HTMLDivElement | null>(null)
     const itemRefs = useRef<Array<HTMLDivElement | null>>([])
     const scrollFrameRef = useRef<number | null>(null)
     const [activeIndex, setActiveIndex] = useState(0)
-    const boundedActiveIndex = Math.min(activeIndex, Math.max(contacts.length - 1, 0))
+    const totalItems = contacts.length + (trailingItem ? 1 : 0)
+    const boundedActiveIndex = Math.min(activeIndex, Math.max(totalItems - 1, 0))
 
     useEffect(() => {
-        itemRefs.current = itemRefs.current.slice(0, contacts.length)
-    }, [contacts.length])
+        itemRefs.current = itemRefs.current.slice(0, totalItems)
+    }, [totalItems])
 
     useEffect(() => {
         return () => {
@@ -48,7 +53,7 @@ export function CustomerContactCarousel({
 
     function resolveClosestIndex() {
         const scroller = scrollerRef.current
-        if (!scroller || contacts.length === 0) return 0
+        if (!scroller || totalItems === 0) return 0
 
         const scrollerRect = scroller.getBoundingClientRect()
         const scrollerCenter = scrollerRect.left + scrollerRect.width / 2
@@ -68,11 +73,11 @@ export function CustomerContactCarousel({
             }
         })
 
-        return Math.max(0, Math.min(nextIndex, contacts.length - 1))
+        return Math.max(0, Math.min(nextIndex, totalItems - 1))
     }
 
     function scrollToIndex(index: number) {
-        const boundedIndex = Math.max(0, Math.min(index, contacts.length - 1))
+        const boundedIndex = Math.max(0, Math.min(index, totalItems - 1))
         const scroller = scrollerRef.current
         const target = itemRefs.current[boundedIndex]
         if (scroller && target) {
@@ -108,10 +113,10 @@ export function CustomerContactCarousel({
                 <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-400">
                     {eyebrow}
                 </div>
-                {contacts.length > 1 ? (
+                {totalItems > 1 ? (
                     <div className="flex items-center gap-2">
                         <div className="text-xs text-neutral-500" aria-live="polite">
-                            {boundedActiveIndex + 1} / {contacts.length}
+                            {boundedActiveIndex + 1} / {totalItems}
                         </div>
                         <Button
                             type="button"
@@ -131,7 +136,7 @@ export function CustomerContactCarousel({
                             aria-label="Sonraki kişiyi göster"
                             className="size-8 rounded-full"
                             onClick={() => scrollToIndex(boundedActiveIndex + 1)}
-                            disabled={boundedActiveIndex >= contacts.length - 1}
+                            disabled={boundedActiveIndex >= totalItems - 1}
                         >
                             <ChevronRight className="size-4" />
                         </Button>
@@ -171,6 +176,21 @@ export function CustomerContactCarousel({
                         />
                     </motion.div>
                 ))}
+
+                {trailingItem ? (
+                    <motion.div
+                        key={trailingItemKey}
+                        ref={(node) => {
+                            itemRefs.current[contacts.length] = node
+                        }}
+                        className="h-full min-w-full snap-start"
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.22, ease: "easeOut", delay: contacts.length * 0.04 }}
+                    >
+                        {trailingItem}
+                    </motion.div>
+                ) : null}
             </div>
         </div>
     )

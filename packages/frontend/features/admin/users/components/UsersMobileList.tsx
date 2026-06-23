@@ -16,7 +16,10 @@ type Props = {
     selectedUserIds: string[]
     onToggleSelected: (userId: string) => void
     onOpenDetails: (user: AdminUser) => void
+    onOpenProfileEditor: (user: AdminUser) => void
     onOpenAccessEditor: (user: AdminUser) => void
+    onOpenDeleteDialog: (user: AdminUser) => void
+    getDeleteBlockReason: (user: AdminUser) => string | null
     onSave: (userId: string) => void
 }
 
@@ -30,7 +33,10 @@ export function UsersMobileList({
     selectedUserIds,
     onToggleSelected,
     onOpenDetails,
+    onOpenProfileEditor,
     onOpenAccessEditor,
+    onOpenDeleteDialog,
+    getDeleteBlockReason,
     onSave,
 }: Props) {
     return (
@@ -55,7 +61,11 @@ export function UsersMobileList({
                         isSelected={selectedUserIds.includes(user.id)}
                         onToggleSelected={() => onToggleSelected(user.id)}
                         onOpenDetails={() => onOpenDetails(user)}
+                        onOpenProfileEditor={() => onOpenProfileEditor(user)}
                         onOpenAccessEditor={() => onOpenAccessEditor(user)}
+                        onOpenDeleteDialog={() => onOpenDeleteDialog(user)}
+                        canDelete={!getDeleteBlockReason(user)}
+                        deleteDisabledReason={getDeleteBlockReason(user)}
                         onSave={() => onSave(user.id)}
                     />
                 ))

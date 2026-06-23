@@ -274,7 +274,7 @@ Respect these existing conventions before introducing alternatives:
 - `apiResponseDTO` for API response envelopes
 - repository pattern for Prisma access
 - shared mapping helpers such as `mapProductWithAssets`
-- auth-derived role flags and user capability checks such as `isOwner`, `isAdmin`, `isSupplier`, `isPurchasing`, `isSales`
+- auth-derived role flags and user capability checks such as `isOwner`, `isAdmin`, `isSupplier`, `isPurchasing`, `isSales`, `isContentEditor`
 
 When adding new backend functionality, first ask whether it belongs in:
 - a repository
@@ -380,6 +380,7 @@ For user access lifecycle and notifications:
 ### Access lifecycle
 - Treat the application database as the normalized source of truth for user access state after Cognito authentication succeeds.
 - The default `user` group is a no-panel role and should not grant admin/protected workspace access.
+- `content_editor` is an internal data-entry role with its own `/veri-girisi` workspace for category and product content; do not grant it broad `/admin` panel access unless explicitly requested.
 - Access lifecycle should use explicit statuses such as `PENDING_REVIEW`, `ACTIVE`, `SUSPENDED`, and `REJECTED` when the feature is involved.
 - Pending or inactive users should be routed to a dedicated account-status surface such as `/hesabim`, not dropped into privileged panels.
 - If signup/confirm flows change, keep the post-confirmation DB user creation and pending-review experience aligned with frontend auth messaging.

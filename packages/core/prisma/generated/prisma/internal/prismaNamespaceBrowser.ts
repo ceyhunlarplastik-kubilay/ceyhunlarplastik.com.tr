@@ -60,6 +60,7 @@ export const ModelName = {
   ProductAttributeValue: 'ProductAttributeValue',
   ProductIndustrialUsage: 'ProductIndustrialUsage',
   Customer: 'Customer',
+  UserInvitation: 'UserInvitation',
   CustomerAttributeValueAssignment: 'CustomerAttributeValueAssignment',
   CompanyContact: 'CompanyContact',
   CustomerCompanyContactAssignment: 'CustomerCompanyContactAssignment',
@@ -74,6 +75,7 @@ export const ModelName = {
   CustomerFeaturedProduct: 'CustomerFeaturedProduct',
   CustomerAssignedProduct: 'CustomerAssignedProduct',
   CustomerAddress: 'CustomerAddress',
+  GeocodingCache: 'GeocodingCache',
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
   CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
@@ -255,6 +257,27 @@ export const CustomerScalarFieldEnum = {
 } as const
 
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
+
+
+export const UserInvitationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  customerId: 'customerId',
+  invitedByUserId: 'invitedByUserId',
+  email: 'email',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  requestedFirstName: 'requestedFirstName',
+  requestedLastName: 'requestedLastName',
+  requestedCustomerContactTitle: 'requestedCustomerContactTitle',
+  requestedCustomerContactDepartment: 'requestedCustomerContactDepartment',
+  requestedIsPrimaryCustomerContact: 'requestedIsPrimaryCustomerContact',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserInvitationScalarFieldEnum = (typeof UserInvitationScalarFieldEnum)[keyof typeof UserInvitationScalarFieldEnum]
 
 
 export const CustomerAttributeValueAssignmentScalarFieldEnum = {
@@ -471,7 +494,7 @@ export type CustomerFeaturedProductScalarFieldEnum = (typeof CustomerFeaturedPro
 export const CustomerAssignedProductScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
-  productId: 'productId',
+  productVariantId: 'productVariantId',
   displayOrder: 'displayOrder',
   createdByUserId: 'createdByUserId',
   createdAt: 'createdAt',
@@ -499,6 +522,17 @@ export const CustomerAddressScalarFieldEnum = {
   postalCode: 'postalCode',
   taxOffice: 'taxOffice',
   taxNumber: 'taxNumber',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  locationSource: 'locationSource',
+  locationAccuracy: 'locationAccuracy',
+  geocodingProvider: 'geocodingProvider',
+  geocodingPlaceId: 'geocodingPlaceId',
+  geocodingLabel: 'geocodingLabel',
+  geocodingRaw: 'geocodingRaw',
+  geocodedAt: 'geocodedAt',
+  locationVerifiedAt: 'locationVerifiedAt',
+  locationVerifiedByUserId: 'locationVerifiedByUserId',
   isPrimary: 'isPrimary',
   isBilling: 'isBilling',
   isShipping: 'isShipping',
@@ -509,6 +543,20 @@ export const CustomerAddressScalarFieldEnum = {
 } as const
 
 export type CustomerAddressScalarFieldEnum = (typeof CustomerAddressScalarFieldEnum)[keyof typeof CustomerAddressScalarFieldEnum]
+
+
+export const GeocodingCacheScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  queryType: 'queryType',
+  cacheKey: 'cacheKey',
+  responseJson: 'responseJson',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GeocodingCacheScalarFieldEnum = (typeof GeocodingCacheScalarFieldEnum)[keyof typeof GeocodingCacheScalarFieldEnum]
 
 
 export const CustomerVisitScalarFieldEnum = {

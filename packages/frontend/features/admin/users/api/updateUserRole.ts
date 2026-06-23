@@ -3,7 +3,7 @@ import type { UserResponse } from "@/features/admin/users/api/types"
 
 type Params = {
     id: string
-    group: "owner" | "admin" | "user" | "supplier" | "purchasing" | "sales" | "sales_director" | "customer"
+    group: "owner" | "admin" | "user" | "supplier" | "purchasing" | "sales" | "sales_director" | "customer" | "content_editor"
     accessStatus?: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
     supplierId?: string | null
     customerId?: string | null

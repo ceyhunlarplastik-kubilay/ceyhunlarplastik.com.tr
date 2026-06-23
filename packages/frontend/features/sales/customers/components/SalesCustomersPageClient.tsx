@@ -53,14 +53,14 @@ export function SalesCustomersPageClient() {
                             <div>{customer.email}</div>
                             <div>{customer.phone}</div>
                             <div>Sektör: {customer.sectorValue?.name ?? "-"}</div>
-                            <div>Tanımlı Ürün: {customer.featuredProducts?.length ?? 0}</div>
+                            <div>Tanımlı Varyant: {customer.assignedProducts?.length ?? 0}</div>
                             <div>Ziyaret: {customer.visits?.length ?? 0}</div>
                         </div>
 
                         <div className="mt-5 flex flex-wrap gap-2">
                             <Button asChild size="sm" variant="brand">
-                                <Link href={`/satis/musteriler/${customer.id}/products`}>
-                                    Tanımlı Ürünler
+                                <Link href={`/satis/musteriler/${customer.id}/defined-products`}>
+                                    Tanımlı Varyantlar
                                 </Link>
                             </Button>
                         </div>

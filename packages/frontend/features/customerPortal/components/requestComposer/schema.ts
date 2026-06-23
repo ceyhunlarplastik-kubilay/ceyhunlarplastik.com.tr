@@ -37,6 +37,15 @@ export const addressDraftSchema = z.object({
     postalCode: z.string().trim().max(30).optional(),
     taxOffice: z.string().trim().max(120).optional(),
     taxNumber: z.string().trim().max(32).optional(),
+    latitude: z.number().min(-90).max(90).nullable().optional(),
+    longitude: z.number().min(-180).max(180).nullable().optional(),
+    locationSource: z.enum(["MANUAL_PIN", "GEOCODED", "IMPORTED", "CUSTOMER_SUBMITTED"]).nullable().optional(),
+    locationAccuracy: z.enum(["EXACT", "STREET", "DISTRICT", "CITY", "UNKNOWN"]).nullable().optional(),
+    geocodingProvider: z.string().trim().max(80).optional(),
+    geocodingPlaceId: z.string().trim().max(255).optional(),
+    geocodingLabel: z.string().trim().max(500).optional(),
+    geocodingRaw: z.unknown().optional(),
+    geocodedAt: z.string().trim().max(80).optional(),
     isPrimary: z.boolean(),
     isBilling: z.boolean(),
     isShipping: z.boolean(),
@@ -60,6 +69,9 @@ export function hasMeaningfulAddressInput(address: z.infer<typeof addressDraftSc
         || address.postalCode?.trim()
         || address.taxOffice?.trim()
         || address.taxNumber?.trim()
+        || address.latitude !== null
+        || address.longitude !== null
+        || address.geocodingLabel?.trim()
         || address.note?.trim(),
     )
 }
@@ -167,6 +179,15 @@ export function emptyAddress() {
         postalCode: "",
         taxOffice: "",
         taxNumber: "",
+        latitude: null,
+        longitude: null,
+        locationSource: null,
+        locationAccuracy: null,
+        geocodingProvider: "",
+        geocodingPlaceId: "",
+        geocodingLabel: "",
+        geocodingRaw: undefined,
+        geocodedAt: "",
         isPrimary: false,
         isBilling: false,
         isShipping: true,
@@ -174,7 +195,7 @@ export function emptyAddress() {
     }
 }
 
-export type AddressDraftFormValues = ReturnType<typeof emptyAddress>
+export type AddressDraftFormValues = z.input<typeof addressDraftSchema>
 
 export type ShippingAddressOption = z.infer<typeof addressDraftSchema> & {
     id: string

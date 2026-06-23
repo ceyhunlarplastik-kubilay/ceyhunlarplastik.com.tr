@@ -30,6 +30,8 @@ export type CustomerAddressAvgAggregateOutputType = {
   countryId: number | null
   stateId: number | null
   cityId: number | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   displayOrder: number | null
 }
 
@@ -37,6 +39,8 @@ export type CustomerAddressSumAggregateOutputType = {
   countryId: number | null
   stateId: number | null
   cityId: number | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   displayOrder: number | null
 }
 
@@ -58,6 +62,16 @@ export type CustomerAddressMinAggregateOutputType = {
   postalCode: string | null
   taxOffice: string | null
   taxNumber: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
+  locationSource: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider: string | null
+  geocodingPlaceId: string | null
+  geocodingLabel: string | null
+  geocodedAt: Date | null
+  locationVerifiedAt: Date | null
+  locationVerifiedByUserId: string | null
   isPrimary: boolean | null
   isBilling: boolean | null
   isShipping: boolean | null
@@ -85,6 +99,16 @@ export type CustomerAddressMaxAggregateOutputType = {
   postalCode: string | null
   taxOffice: string | null
   taxNumber: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
+  locationSource: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider: string | null
+  geocodingPlaceId: string | null
+  geocodingLabel: string | null
+  geocodedAt: Date | null
+  locationVerifiedAt: Date | null
+  locationVerifiedByUserId: string | null
   isPrimary: boolean | null
   isBilling: boolean | null
   isShipping: boolean | null
@@ -112,6 +136,17 @@ export type CustomerAddressCountAggregateOutputType = {
   postalCode: number
   taxOffice: number
   taxNumber: number
+  latitude: number
+  longitude: number
+  locationSource: number
+  locationAccuracy: number
+  geocodingProvider: number
+  geocodingPlaceId: number
+  geocodingLabel: number
+  geocodingRaw: number
+  geocodedAt: number
+  locationVerifiedAt: number
+  locationVerifiedByUserId: number
   isPrimary: number
   isBilling: number
   isShipping: number
@@ -127,6 +162,8 @@ export type CustomerAddressAvgAggregateInputType = {
   countryId?: true
   stateId?: true
   cityId?: true
+  latitude?: true
+  longitude?: true
   displayOrder?: true
 }
 
@@ -134,6 +171,8 @@ export type CustomerAddressSumAggregateInputType = {
   countryId?: true
   stateId?: true
   cityId?: true
+  latitude?: true
+  longitude?: true
   displayOrder?: true
 }
 
@@ -155,6 +194,16 @@ export type CustomerAddressMinAggregateInputType = {
   postalCode?: true
   taxOffice?: true
   taxNumber?: true
+  latitude?: true
+  longitude?: true
+  locationSource?: true
+  locationAccuracy?: true
+  geocodingProvider?: true
+  geocodingPlaceId?: true
+  geocodingLabel?: true
+  geocodedAt?: true
+  locationVerifiedAt?: true
+  locationVerifiedByUserId?: true
   isPrimary?: true
   isBilling?: true
   isShipping?: true
@@ -182,6 +231,16 @@ export type CustomerAddressMaxAggregateInputType = {
   postalCode?: true
   taxOffice?: true
   taxNumber?: true
+  latitude?: true
+  longitude?: true
+  locationSource?: true
+  locationAccuracy?: true
+  geocodingProvider?: true
+  geocodingPlaceId?: true
+  geocodingLabel?: true
+  geocodedAt?: true
+  locationVerifiedAt?: true
+  locationVerifiedByUserId?: true
   isPrimary?: true
   isBilling?: true
   isShipping?: true
@@ -209,6 +268,17 @@ export type CustomerAddressCountAggregateInputType = {
   postalCode?: true
   taxOffice?: true
   taxNumber?: true
+  latitude?: true
+  longitude?: true
+  locationSource?: true
+  locationAccuracy?: true
+  geocodingProvider?: true
+  geocodingPlaceId?: true
+  geocodingLabel?: true
+  geocodingRaw?: true
+  geocodedAt?: true
+  locationVerifiedAt?: true
+  locationVerifiedByUserId?: true
   isPrimary?: true
   isBilling?: true
   isShipping?: true
@@ -323,6 +393,17 @@ export type CustomerAddressGroupByOutputType = {
   postalCode: string | null
   taxOffice: string | null
   taxNumber: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
+  locationSource: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider: string | null
+  geocodingPlaceId: string | null
+  geocodingLabel: string | null
+  geocodingRaw: runtime.JsonValue | null
+  geocodedAt: Date | null
+  locationVerifiedAt: Date | null
+  locationVerifiedByUserId: string | null
   isPrimary: boolean
   isBilling: boolean
   isShipping: boolean
@@ -373,6 +454,17 @@ export type CustomerAddressWhereInput = {
   postalCode?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   taxOffice?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   taxNumber?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  latitude?: Prisma.DecimalNullableFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.EnumCustomerAddressLocationSourceNullableFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.EnumCustomerAddressLocationAccuracyNullableFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingPlaceId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingLabel?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingRaw?: Prisma.JsonNullableFilter<"CustomerAddress">
+  geocodedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedByUserId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   isPrimary?: Prisma.BoolFilter<"CustomerAddress"> | boolean
   isBilling?: Prisma.BoolFilter<"CustomerAddress"> | boolean
   isShipping?: Prisma.BoolFilter<"CustomerAddress"> | boolean
@@ -385,6 +477,7 @@ export type CustomerAddressWhereInput = {
   countryRef?: Prisma.XOR<Prisma.GeoCountryNullableScalarRelationFilter, Prisma.GeoCountryWhereInput> | null
   stateRef?: Prisma.XOR<Prisma.GeoStateNullableScalarRelationFilter, Prisma.GeoStateWhereInput> | null
   cityRef?: Prisma.XOR<Prisma.GeoCityNullableScalarRelationFilter, Prisma.GeoCityWhereInput> | null
+  locationVerifiedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type CustomerAddressOrderByWithRelationInput = {
@@ -405,6 +498,17 @@ export type CustomerAddressOrderByWithRelationInput = {
   postalCode?: Prisma.SortOrderInput | Prisma.SortOrder
   taxOffice?: Prisma.SortOrderInput | Prisma.SortOrder
   taxNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationAccuracy?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingPlaceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingRaw?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationVerifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   isBilling?: Prisma.SortOrder
   isShipping?: Prisma.SortOrder
@@ -417,6 +521,7 @@ export type CustomerAddressOrderByWithRelationInput = {
   countryRef?: Prisma.GeoCountryOrderByWithRelationInput
   stateRef?: Prisma.GeoStateOrderByWithRelationInput
   cityRef?: Prisma.GeoCityOrderByWithRelationInput
+  locationVerifiedByUser?: Prisma.UserOrderByWithRelationInput
 }
 
 export type CustomerAddressWhereUniqueInput = Prisma.AtLeast<{
@@ -440,6 +545,17 @@ export type CustomerAddressWhereUniqueInput = Prisma.AtLeast<{
   postalCode?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   taxOffice?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   taxNumber?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  latitude?: Prisma.DecimalNullableFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.EnumCustomerAddressLocationSourceNullableFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.EnumCustomerAddressLocationAccuracyNullableFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingPlaceId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingLabel?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingRaw?: Prisma.JsonNullableFilter<"CustomerAddress">
+  geocodedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedByUserId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   isPrimary?: Prisma.BoolFilter<"CustomerAddress"> | boolean
   isBilling?: Prisma.BoolFilter<"CustomerAddress"> | boolean
   isShipping?: Prisma.BoolFilter<"CustomerAddress"> | boolean
@@ -452,6 +568,7 @@ export type CustomerAddressWhereUniqueInput = Prisma.AtLeast<{
   countryRef?: Prisma.XOR<Prisma.GeoCountryNullableScalarRelationFilter, Prisma.GeoCountryWhereInput> | null
   stateRef?: Prisma.XOR<Prisma.GeoStateNullableScalarRelationFilter, Prisma.GeoStateWhereInput> | null
   cityRef?: Prisma.XOR<Prisma.GeoCityNullableScalarRelationFilter, Prisma.GeoCityWhereInput> | null
+  locationVerifiedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id">
 
 export type CustomerAddressOrderByWithAggregationInput = {
@@ -472,6 +589,17 @@ export type CustomerAddressOrderByWithAggregationInput = {
   postalCode?: Prisma.SortOrderInput | Prisma.SortOrder
   taxOffice?: Prisma.SortOrderInput | Prisma.SortOrder
   taxNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationAccuracy?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingPlaceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingRaw?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  locationVerifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   isBilling?: Prisma.SortOrder
   isShipping?: Prisma.SortOrder
@@ -507,6 +635,17 @@ export type CustomerAddressScalarWhereWithAggregatesInput = {
   postalCode?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
   taxOffice?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
   taxNumber?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
+  latitude?: Prisma.DecimalNullableWithAggregatesFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableWithAggregatesFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.EnumCustomerAddressLocationSourceNullableWithAggregatesFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.EnumCustomerAddressLocationAccuracyNullableWithAggregatesFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
+  geocodingPlaceId?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
+  geocodingLabel?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
+  geocodingRaw?: Prisma.JsonNullableWithAggregatesFilter<"CustomerAddress">
+  geocodedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedByUserId?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
   isPrimary?: Prisma.BoolWithAggregatesFilter<"CustomerAddress"> | boolean
   isBilling?: Prisma.BoolWithAggregatesFilter<"CustomerAddress"> | boolean
   isShipping?: Prisma.BoolWithAggregatesFilter<"CustomerAddress"> | boolean
@@ -530,6 +669,16 @@ export type CustomerAddressCreateInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -542,6 +691,7 @@ export type CustomerAddressCreateInput = {
   countryRef?: Prisma.GeoCountryCreateNestedOneWithoutCustomerAddressesInput
   stateRef?: Prisma.GeoStateCreateNestedOneWithoutCustomerAddressesInput
   cityRef?: Prisma.GeoCityCreateNestedOneWithoutCustomerAddressesInput
+  locationVerifiedByUser?: Prisma.UserCreateNestedOneWithoutVerifiedCustomerAddressesInput
 }
 
 export type CustomerAddressUncheckedCreateInput = {
@@ -562,6 +712,17 @@ export type CustomerAddressUncheckedCreateInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -586,6 +747,16 @@ export type CustomerAddressUpdateInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -598,6 +769,7 @@ export type CustomerAddressUpdateInput = {
   countryRef?: Prisma.GeoCountryUpdateOneWithoutCustomerAddressesNestedInput
   stateRef?: Prisma.GeoStateUpdateOneWithoutCustomerAddressesNestedInput
   cityRef?: Prisma.GeoCityUpdateOneWithoutCustomerAddressesNestedInput
+  locationVerifiedByUser?: Prisma.UserUpdateOneWithoutVerifiedCustomerAddressesNestedInput
 }
 
 export type CustomerAddressUncheckedUpdateInput = {
@@ -618,6 +790,17 @@ export type CustomerAddressUncheckedUpdateInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -646,6 +829,17 @@ export type CustomerAddressCreateManyInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -669,6 +863,16 @@ export type CustomerAddressUpdateManyMutationInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -696,6 +900,17 @@ export type CustomerAddressUncheckedUpdateManyInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -733,6 +948,17 @@ export type CustomerAddressCountOrderByAggregateInput = {
   postalCode?: Prisma.SortOrder
   taxOffice?: Prisma.SortOrder
   taxNumber?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  locationSource?: Prisma.SortOrder
+  locationAccuracy?: Prisma.SortOrder
+  geocodingProvider?: Prisma.SortOrder
+  geocodingPlaceId?: Prisma.SortOrder
+  geocodingLabel?: Prisma.SortOrder
+  geocodingRaw?: Prisma.SortOrder
+  geocodedAt?: Prisma.SortOrder
+  locationVerifiedAt?: Prisma.SortOrder
+  locationVerifiedByUserId?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   isBilling?: Prisma.SortOrder
   isShipping?: Prisma.SortOrder
@@ -746,6 +972,8 @@ export type CustomerAddressAvgOrderByAggregateInput = {
   countryId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
   cityId?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
 }
 
@@ -767,6 +995,16 @@ export type CustomerAddressMaxOrderByAggregateInput = {
   postalCode?: Prisma.SortOrder
   taxOffice?: Prisma.SortOrder
   taxNumber?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  locationSource?: Prisma.SortOrder
+  locationAccuracy?: Prisma.SortOrder
+  geocodingProvider?: Prisma.SortOrder
+  geocodingPlaceId?: Prisma.SortOrder
+  geocodingLabel?: Prisma.SortOrder
+  geocodedAt?: Prisma.SortOrder
+  locationVerifiedAt?: Prisma.SortOrder
+  locationVerifiedByUserId?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   isBilling?: Prisma.SortOrder
   isShipping?: Prisma.SortOrder
@@ -794,6 +1032,16 @@ export type CustomerAddressMinOrderByAggregateInput = {
   postalCode?: Prisma.SortOrder
   taxOffice?: Prisma.SortOrder
   taxNumber?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
+  locationSource?: Prisma.SortOrder
+  locationAccuracy?: Prisma.SortOrder
+  geocodingProvider?: Prisma.SortOrder
+  geocodingPlaceId?: Prisma.SortOrder
+  geocodingLabel?: Prisma.SortOrder
+  geocodedAt?: Prisma.SortOrder
+  locationVerifiedAt?: Prisma.SortOrder
+  locationVerifiedByUserId?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
   isBilling?: Prisma.SortOrder
   isShipping?: Prisma.SortOrder
@@ -807,12 +1055,56 @@ export type CustomerAddressSumOrderByAggregateInput = {
   countryId?: Prisma.SortOrder
   stateId?: Prisma.SortOrder
   cityId?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
 }
 
 export type CustomerAddressNullableScalarRelationFilter = {
   is?: Prisma.CustomerAddressWhereInput | null
   isNot?: Prisma.CustomerAddressWhereInput | null
+}
+
+export type CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput = {
+  create?: Prisma.XOR<Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput> | Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput[] | Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput[]
+  connectOrCreate?: Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput[]
+  createMany?: Prisma.CustomerAddressCreateManyLocationVerifiedByUserInputEnvelope
+  connect?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+}
+
+export type CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput = {
+  create?: Prisma.XOR<Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput> | Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput[] | Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput[]
+  connectOrCreate?: Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput[]
+  createMany?: Prisma.CustomerAddressCreateManyLocationVerifiedByUserInputEnvelope
+  connect?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+}
+
+export type CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput> | Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput[] | Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput[]
+  connectOrCreate?: Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput[]
+  upsert?: Prisma.CustomerAddressUpsertWithWhereUniqueWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressUpsertWithWhereUniqueWithoutLocationVerifiedByUserInput[]
+  createMany?: Prisma.CustomerAddressCreateManyLocationVerifiedByUserInputEnvelope
+  set?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  disconnect?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  delete?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  connect?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  update?: Prisma.CustomerAddressUpdateWithWhereUniqueWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressUpdateWithWhereUniqueWithoutLocationVerifiedByUserInput[]
+  updateMany?: Prisma.CustomerAddressUpdateManyWithWhereWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressUpdateManyWithWhereWithoutLocationVerifiedByUserInput[]
+  deleteMany?: Prisma.CustomerAddressScalarWhereInput | Prisma.CustomerAddressScalarWhereInput[]
+}
+
+export type CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput> | Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput[] | Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput[]
+  connectOrCreate?: Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput[]
+  upsert?: Prisma.CustomerAddressUpsertWithWhereUniqueWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressUpsertWithWhereUniqueWithoutLocationVerifiedByUserInput[]
+  createMany?: Prisma.CustomerAddressCreateManyLocationVerifiedByUserInputEnvelope
+  set?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  disconnect?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  delete?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  connect?: Prisma.CustomerAddressWhereUniqueInput | Prisma.CustomerAddressWhereUniqueInput[]
+  update?: Prisma.CustomerAddressUpdateWithWhereUniqueWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressUpdateWithWhereUniqueWithoutLocationVerifiedByUserInput[]
+  updateMany?: Prisma.CustomerAddressUpdateManyWithWhereWithoutLocationVerifiedByUserInput | Prisma.CustomerAddressUpdateManyWithWhereWithoutLocationVerifiedByUserInput[]
+  deleteMany?: Prisma.CustomerAddressScalarWhereInput | Prisma.CustomerAddressScalarWhereInput[]
 }
 
 export type CustomerAddressCreateNestedManyWithoutCustomerInput = {
@@ -983,6 +1275,14 @@ export type CustomerAddressUncheckedUpdateManyWithoutCityRefNestedInput = {
   deleteMany?: Prisma.CustomerAddressScalarWhereInput | Prisma.CustomerAddressScalarWhereInput[]
 }
 
+export type NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput = {
+  set?: $Enums.CustomerAddressLocationSource | null
+}
+
+export type NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput = {
+  set?: $Enums.CustomerAddressLocationAccuracy | null
+}
+
 export type CustomerAddressCreateNestedOneWithoutShippingOrdersInput = {
   create?: Prisma.XOR<Prisma.CustomerAddressCreateWithoutShippingOrdersInput, Prisma.CustomerAddressUncheckedCreateWithoutShippingOrdersInput>
   connectOrCreate?: Prisma.CustomerAddressCreateOrConnectWithoutShippingOrdersInput
@@ -999,6 +1299,149 @@ export type CustomerAddressUpdateOneWithoutShippingOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerAddressUpdateToOneWithWhereWithoutShippingOrdersInput, Prisma.CustomerAddressUpdateWithoutShippingOrdersInput>, Prisma.CustomerAddressUncheckedUpdateWithoutShippingOrdersInput>
 }
 
+export type CustomerAddressCreateWithoutLocationVerifiedByUserInput = {
+  id?: string
+  label: string
+  contactName?: string | null
+  phone?: string | null
+  email?: string | null
+  country?: string
+  city: string
+  district?: string | null
+  line1: string
+  line2?: string | null
+  postalCode?: string | null
+  taxOffice?: string | null
+  taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  isPrimary?: boolean
+  isBilling?: boolean
+  isShipping?: boolean
+  note?: string | null
+  displayOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutAddressesInput
+  shippingOrders?: Prisma.OrderCreateNestedManyWithoutShippingAddressInput
+  countryRef?: Prisma.GeoCountryCreateNestedOneWithoutCustomerAddressesInput
+  stateRef?: Prisma.GeoStateCreateNestedOneWithoutCustomerAddressesInput
+  cityRef?: Prisma.GeoCityCreateNestedOneWithoutCustomerAddressesInput
+}
+
+export type CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput = {
+  id?: string
+  customerId: string
+  label: string
+  contactName?: string | null
+  phone?: string | null
+  email?: string | null
+  countryId?: number | null
+  stateId?: number | null
+  cityId?: number | null
+  country?: string
+  city: string
+  district?: string | null
+  line1: string
+  line2?: string | null
+  postalCode?: string | null
+  taxOffice?: string | null
+  taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  isPrimary?: boolean
+  isBilling?: boolean
+  isShipping?: boolean
+  note?: string | null
+  displayOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shippingOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutShippingAddressInput
+}
+
+export type CustomerAddressCreateOrConnectWithoutLocationVerifiedByUserInput = {
+  where: Prisma.CustomerAddressWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput>
+}
+
+export type CustomerAddressCreateManyLocationVerifiedByUserInputEnvelope = {
+  data: Prisma.CustomerAddressCreateManyLocationVerifiedByUserInput | Prisma.CustomerAddressCreateManyLocationVerifiedByUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerAddressUpsertWithWhereUniqueWithoutLocationVerifiedByUserInput = {
+  where: Prisma.CustomerAddressWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerAddressUpdateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedUpdateWithoutLocationVerifiedByUserInput>
+  create: Prisma.XOR<Prisma.CustomerAddressCreateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput>
+}
+
+export type CustomerAddressUpdateWithWhereUniqueWithoutLocationVerifiedByUserInput = {
+  where: Prisma.CustomerAddressWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerAddressUpdateWithoutLocationVerifiedByUserInput, Prisma.CustomerAddressUncheckedUpdateWithoutLocationVerifiedByUserInput>
+}
+
+export type CustomerAddressUpdateManyWithWhereWithoutLocationVerifiedByUserInput = {
+  where: Prisma.CustomerAddressScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerAddressUpdateManyMutationInput, Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserInput>
+}
+
+export type CustomerAddressScalarWhereInput = {
+  AND?: Prisma.CustomerAddressScalarWhereInput | Prisma.CustomerAddressScalarWhereInput[]
+  OR?: Prisma.CustomerAddressScalarWhereInput[]
+  NOT?: Prisma.CustomerAddressScalarWhereInput | Prisma.CustomerAddressScalarWhereInput[]
+  id?: Prisma.StringFilter<"CustomerAddress"> | string
+  customerId?: Prisma.StringFilter<"CustomerAddress"> | string
+  label?: Prisma.StringFilter<"CustomerAddress"> | string
+  contactName?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  phone?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  email?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  countryId?: Prisma.IntNullableFilter<"CustomerAddress"> | number | null
+  stateId?: Prisma.IntNullableFilter<"CustomerAddress"> | number | null
+  cityId?: Prisma.IntNullableFilter<"CustomerAddress"> | number | null
+  country?: Prisma.StringFilter<"CustomerAddress"> | string
+  city?: Prisma.StringFilter<"CustomerAddress"> | string
+  district?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  line1?: Prisma.StringFilter<"CustomerAddress"> | string
+  line2?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  postalCode?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  taxOffice?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  taxNumber?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  latitude?: Prisma.DecimalNullableFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"CustomerAddress"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.EnumCustomerAddressLocationSourceNullableFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.EnumCustomerAddressLocationAccuracyNullableFilter<"CustomerAddress"> | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingPlaceId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingLabel?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  geocodingRaw?: Prisma.JsonNullableFilter<"CustomerAddress">
+  geocodedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  locationVerifiedByUserId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  isPrimary?: Prisma.BoolFilter<"CustomerAddress"> | boolean
+  isBilling?: Prisma.BoolFilter<"CustomerAddress"> | boolean
+  isShipping?: Prisma.BoolFilter<"CustomerAddress"> | boolean
+  note?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
+  displayOrder?: Prisma.IntFilter<"CustomerAddress"> | number
+  createdAt?: Prisma.DateTimeFilter<"CustomerAddress"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CustomerAddress"> | Date | string
+}
+
 export type CustomerAddressCreateWithoutCustomerInput = {
   id?: string
   label: string
@@ -1013,6 +1456,16 @@ export type CustomerAddressCreateWithoutCustomerInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1024,6 +1477,7 @@ export type CustomerAddressCreateWithoutCustomerInput = {
   countryRef?: Prisma.GeoCountryCreateNestedOneWithoutCustomerAddressesInput
   stateRef?: Prisma.GeoStateCreateNestedOneWithoutCustomerAddressesInput
   cityRef?: Prisma.GeoCityCreateNestedOneWithoutCustomerAddressesInput
+  locationVerifiedByUser?: Prisma.UserCreateNestedOneWithoutVerifiedCustomerAddressesInput
 }
 
 export type CustomerAddressUncheckedCreateWithoutCustomerInput = {
@@ -1043,6 +1497,17 @@ export type CustomerAddressUncheckedCreateWithoutCustomerInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1079,36 +1544,6 @@ export type CustomerAddressUpdateManyWithWhereWithoutCustomerInput = {
   data: Prisma.XOR<Prisma.CustomerAddressUpdateManyMutationInput, Prisma.CustomerAddressUncheckedUpdateManyWithoutCustomerInput>
 }
 
-export type CustomerAddressScalarWhereInput = {
-  AND?: Prisma.CustomerAddressScalarWhereInput | Prisma.CustomerAddressScalarWhereInput[]
-  OR?: Prisma.CustomerAddressScalarWhereInput[]
-  NOT?: Prisma.CustomerAddressScalarWhereInput | Prisma.CustomerAddressScalarWhereInput[]
-  id?: Prisma.StringFilter<"CustomerAddress"> | string
-  customerId?: Prisma.StringFilter<"CustomerAddress"> | string
-  label?: Prisma.StringFilter<"CustomerAddress"> | string
-  contactName?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  phone?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  email?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  countryId?: Prisma.IntNullableFilter<"CustomerAddress"> | number | null
-  stateId?: Prisma.IntNullableFilter<"CustomerAddress"> | number | null
-  cityId?: Prisma.IntNullableFilter<"CustomerAddress"> | number | null
-  country?: Prisma.StringFilter<"CustomerAddress"> | string
-  city?: Prisma.StringFilter<"CustomerAddress"> | string
-  district?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  line1?: Prisma.StringFilter<"CustomerAddress"> | string
-  line2?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  postalCode?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  taxOffice?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  taxNumber?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  isPrimary?: Prisma.BoolFilter<"CustomerAddress"> | boolean
-  isBilling?: Prisma.BoolFilter<"CustomerAddress"> | boolean
-  isShipping?: Prisma.BoolFilter<"CustomerAddress"> | boolean
-  note?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
-  displayOrder?: Prisma.IntFilter<"CustomerAddress"> | number
-  createdAt?: Prisma.DateTimeFilter<"CustomerAddress"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"CustomerAddress"> | Date | string
-}
-
 export type CustomerAddressCreateWithoutCountryRefInput = {
   id?: string
   label: string
@@ -1123,6 +1558,16 @@ export type CustomerAddressCreateWithoutCountryRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1134,6 +1579,7 @@ export type CustomerAddressCreateWithoutCountryRefInput = {
   shippingOrders?: Prisma.OrderCreateNestedManyWithoutShippingAddressInput
   stateRef?: Prisma.GeoStateCreateNestedOneWithoutCustomerAddressesInput
   cityRef?: Prisma.GeoCityCreateNestedOneWithoutCustomerAddressesInput
+  locationVerifiedByUser?: Prisma.UserCreateNestedOneWithoutVerifiedCustomerAddressesInput
 }
 
 export type CustomerAddressUncheckedCreateWithoutCountryRefInput = {
@@ -1153,6 +1599,17 @@ export type CustomerAddressUncheckedCreateWithoutCountryRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1203,6 +1660,16 @@ export type CustomerAddressCreateWithoutStateRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1214,6 +1681,7 @@ export type CustomerAddressCreateWithoutStateRefInput = {
   shippingOrders?: Prisma.OrderCreateNestedManyWithoutShippingAddressInput
   countryRef?: Prisma.GeoCountryCreateNestedOneWithoutCustomerAddressesInput
   cityRef?: Prisma.GeoCityCreateNestedOneWithoutCustomerAddressesInput
+  locationVerifiedByUser?: Prisma.UserCreateNestedOneWithoutVerifiedCustomerAddressesInput
 }
 
 export type CustomerAddressUncheckedCreateWithoutStateRefInput = {
@@ -1233,6 +1701,17 @@ export type CustomerAddressUncheckedCreateWithoutStateRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1283,6 +1762,16 @@ export type CustomerAddressCreateWithoutCityRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1294,6 +1783,7 @@ export type CustomerAddressCreateWithoutCityRefInput = {
   shippingOrders?: Prisma.OrderCreateNestedManyWithoutShippingAddressInput
   countryRef?: Prisma.GeoCountryCreateNestedOneWithoutCustomerAddressesInput
   stateRef?: Prisma.GeoStateCreateNestedOneWithoutCustomerAddressesInput
+  locationVerifiedByUser?: Prisma.UserCreateNestedOneWithoutVerifiedCustomerAddressesInput
 }
 
 export type CustomerAddressUncheckedCreateWithoutCityRefInput = {
@@ -1313,6 +1803,17 @@ export type CustomerAddressUncheckedCreateWithoutCityRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1363,6 +1864,16 @@ export type CustomerAddressCreateWithoutShippingOrdersInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1374,6 +1885,7 @@ export type CustomerAddressCreateWithoutShippingOrdersInput = {
   countryRef?: Prisma.GeoCountryCreateNestedOneWithoutCustomerAddressesInput
   stateRef?: Prisma.GeoStateCreateNestedOneWithoutCustomerAddressesInput
   cityRef?: Prisma.GeoCityCreateNestedOneWithoutCustomerAddressesInput
+  locationVerifiedByUser?: Prisma.UserCreateNestedOneWithoutVerifiedCustomerAddressesInput
 }
 
 export type CustomerAddressUncheckedCreateWithoutShippingOrdersInput = {
@@ -1394,6 +1906,17 @@ export type CustomerAddressUncheckedCreateWithoutShippingOrdersInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1433,6 +1956,16 @@ export type CustomerAddressUpdateWithoutShippingOrdersInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1444,6 +1977,7 @@ export type CustomerAddressUpdateWithoutShippingOrdersInput = {
   countryRef?: Prisma.GeoCountryUpdateOneWithoutCustomerAddressesNestedInput
   stateRef?: Prisma.GeoStateUpdateOneWithoutCustomerAddressesNestedInput
   cityRef?: Prisma.GeoCityUpdateOneWithoutCustomerAddressesNestedInput
+  locationVerifiedByUser?: Prisma.UserUpdateOneWithoutVerifiedCustomerAddressesNestedInput
 }
 
 export type CustomerAddressUncheckedUpdateWithoutShippingOrdersInput = {
@@ -1464,6 +1998,167 @@ export type CustomerAddressUncheckedUpdateWithoutShippingOrdersInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerAddressCreateManyLocationVerifiedByUserInput = {
+  id?: string
+  customerId: string
+  label: string
+  contactName?: string | null
+  phone?: string | null
+  email?: string | null
+  countryId?: number | null
+  stateId?: number | null
+  cityId?: number | null
+  country?: string
+  city: string
+  district?: string | null
+  line1: string
+  line2?: string | null
+  postalCode?: string | null
+  taxOffice?: string | null
+  taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  isPrimary?: boolean
+  isBilling?: boolean
+  isShipping?: boolean
+  note?: string | null
+  displayOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerAddressUpdateWithoutLocationVerifiedByUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line1?: Prisma.StringFieldUpdateOperationsInput | string
+  line2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutAddressesNestedInput
+  shippingOrders?: Prisma.OrderUpdateManyWithoutShippingAddressNestedInput
+  countryRef?: Prisma.GeoCountryUpdateOneWithoutCustomerAddressesNestedInput
+  stateRef?: Prisma.GeoStateUpdateOneWithoutCustomerAddressesNestedInput
+  cityRef?: Prisma.GeoCityUpdateOneWithoutCustomerAddressesNestedInput
+}
+
+export type CustomerAddressUncheckedUpdateWithoutLocationVerifiedByUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line1?: Prisma.StringFieldUpdateOperationsInput | string
+  line2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shippingOrders?: Prisma.OrderUncheckedUpdateManyWithoutShippingAddressNestedInput
+}
+
+export type CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cityId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  country?: Prisma.StringFieldUpdateOperationsInput | string
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  line1?: Prisma.StringFieldUpdateOperationsInput | string
+  line2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1490,6 +2185,17 @@ export type CustomerAddressCreateManyCustomerInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1513,6 +2219,16 @@ export type CustomerAddressUpdateWithoutCustomerInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1524,6 +2240,7 @@ export type CustomerAddressUpdateWithoutCustomerInput = {
   countryRef?: Prisma.GeoCountryUpdateOneWithoutCustomerAddressesNestedInput
   stateRef?: Prisma.GeoStateUpdateOneWithoutCustomerAddressesNestedInput
   cityRef?: Prisma.GeoCityUpdateOneWithoutCustomerAddressesNestedInput
+  locationVerifiedByUser?: Prisma.UserUpdateOneWithoutVerifiedCustomerAddressesNestedInput
 }
 
 export type CustomerAddressUncheckedUpdateWithoutCustomerInput = {
@@ -1543,6 +2260,17 @@ export type CustomerAddressUncheckedUpdateWithoutCustomerInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1570,6 +2298,17 @@ export type CustomerAddressUncheckedUpdateManyWithoutCustomerInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1596,6 +2335,17 @@ export type CustomerAddressCreateManyCountryRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1619,6 +2369,16 @@ export type CustomerAddressUpdateWithoutCountryRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1630,6 +2390,7 @@ export type CustomerAddressUpdateWithoutCountryRefInput = {
   shippingOrders?: Prisma.OrderUpdateManyWithoutShippingAddressNestedInput
   stateRef?: Prisma.GeoStateUpdateOneWithoutCustomerAddressesNestedInput
   cityRef?: Prisma.GeoCityUpdateOneWithoutCustomerAddressesNestedInput
+  locationVerifiedByUser?: Prisma.UserUpdateOneWithoutVerifiedCustomerAddressesNestedInput
 }
 
 export type CustomerAddressUncheckedUpdateWithoutCountryRefInput = {
@@ -1649,6 +2410,17 @@ export type CustomerAddressUncheckedUpdateWithoutCountryRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1676,6 +2448,17 @@ export type CustomerAddressUncheckedUpdateManyWithoutCountryRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1702,6 +2485,17 @@ export type CustomerAddressCreateManyStateRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1725,6 +2519,16 @@ export type CustomerAddressUpdateWithoutStateRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1736,6 +2540,7 @@ export type CustomerAddressUpdateWithoutStateRefInput = {
   shippingOrders?: Prisma.OrderUpdateManyWithoutShippingAddressNestedInput
   countryRef?: Prisma.GeoCountryUpdateOneWithoutCustomerAddressesNestedInput
   cityRef?: Prisma.GeoCityUpdateOneWithoutCustomerAddressesNestedInput
+  locationVerifiedByUser?: Prisma.UserUpdateOneWithoutVerifiedCustomerAddressesNestedInput
 }
 
 export type CustomerAddressUncheckedUpdateWithoutStateRefInput = {
@@ -1755,6 +2560,17 @@ export type CustomerAddressUncheckedUpdateWithoutStateRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1782,6 +2598,17 @@ export type CustomerAddressUncheckedUpdateManyWithoutStateRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1808,6 +2635,17 @@ export type CustomerAddressCreateManyCityRefInput = {
   postalCode?: string | null
   taxOffice?: string | null
   taxNumber?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: string | null
+  geocodingPlaceId?: string | null
+  geocodingLabel?: string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Date | string | null
+  locationVerifiedAt?: Date | string | null
+  locationVerifiedByUserId?: string | null
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1831,6 +2669,16 @@ export type CustomerAddressUpdateWithoutCityRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1842,6 +2690,7 @@ export type CustomerAddressUpdateWithoutCityRefInput = {
   shippingOrders?: Prisma.OrderUpdateManyWithoutShippingAddressNestedInput
   countryRef?: Prisma.GeoCountryUpdateOneWithoutCustomerAddressesNestedInput
   stateRef?: Prisma.GeoStateUpdateOneWithoutCustomerAddressesNestedInput
+  locationVerifiedByUser?: Prisma.UserUpdateOneWithoutVerifiedCustomerAddressesNestedInput
 }
 
 export type CustomerAddressUncheckedUpdateWithoutCityRefInput = {
@@ -1861,6 +2710,17 @@ export type CustomerAddressUncheckedUpdateWithoutCityRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1888,6 +2748,17 @@ export type CustomerAddressUncheckedUpdateManyWithoutCityRefInput = {
   postalCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxOffice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  locationSource?: Prisma.NullableEnumCustomerAddressLocationSourceFieldUpdateOperationsInput | $Enums.CustomerAddressLocationSource | null
+  locationAccuracy?: Prisma.NullableEnumCustomerAddressLocationAccuracyFieldUpdateOperationsInput | $Enums.CustomerAddressLocationAccuracy | null
+  geocodingProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingPlaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isShipping?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1946,6 +2817,17 @@ export type CustomerAddressSelect<ExtArgs extends runtime.Types.Extensions.Inter
   postalCode?: boolean
   taxOffice?: boolean
   taxNumber?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationSource?: boolean
+  locationAccuracy?: boolean
+  geocodingProvider?: boolean
+  geocodingPlaceId?: boolean
+  geocodingLabel?: boolean
+  geocodingRaw?: boolean
+  geocodedAt?: boolean
+  locationVerifiedAt?: boolean
+  locationVerifiedByUserId?: boolean
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1958,6 +2840,7 @@ export type CustomerAddressSelect<ExtArgs extends runtime.Types.Extensions.Inter
   countryRef?: boolean | Prisma.CustomerAddress$countryRefArgs<ExtArgs>
   stateRef?: boolean | Prisma.CustomerAddress$stateRefArgs<ExtArgs>
   cityRef?: boolean | Prisma.CustomerAddress$cityRefArgs<ExtArgs>
+  locationVerifiedByUser?: boolean | Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerAddressCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerAddress"]>
 
@@ -1979,6 +2862,17 @@ export type CustomerAddressSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   postalCode?: boolean
   taxOffice?: boolean
   taxNumber?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationSource?: boolean
+  locationAccuracy?: boolean
+  geocodingProvider?: boolean
+  geocodingPlaceId?: boolean
+  geocodingLabel?: boolean
+  geocodingRaw?: boolean
+  geocodedAt?: boolean
+  locationVerifiedAt?: boolean
+  locationVerifiedByUserId?: boolean
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -1990,6 +2884,7 @@ export type CustomerAddressSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   countryRef?: boolean | Prisma.CustomerAddress$countryRefArgs<ExtArgs>
   stateRef?: boolean | Prisma.CustomerAddress$stateRefArgs<ExtArgs>
   cityRef?: boolean | Prisma.CustomerAddress$cityRefArgs<ExtArgs>
+  locationVerifiedByUser?: boolean | Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs>
 }, ExtArgs["result"]["customerAddress"]>
 
 export type CustomerAddressSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2010,6 +2905,17 @@ export type CustomerAddressSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   postalCode?: boolean
   taxOffice?: boolean
   taxNumber?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationSource?: boolean
+  locationAccuracy?: boolean
+  geocodingProvider?: boolean
+  geocodingPlaceId?: boolean
+  geocodingLabel?: boolean
+  geocodingRaw?: boolean
+  geocodedAt?: boolean
+  locationVerifiedAt?: boolean
+  locationVerifiedByUserId?: boolean
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -2021,6 +2927,7 @@ export type CustomerAddressSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   countryRef?: boolean | Prisma.CustomerAddress$countryRefArgs<ExtArgs>
   stateRef?: boolean | Prisma.CustomerAddress$stateRefArgs<ExtArgs>
   cityRef?: boolean | Prisma.CustomerAddress$cityRefArgs<ExtArgs>
+  locationVerifiedByUser?: boolean | Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs>
 }, ExtArgs["result"]["customerAddress"]>
 
 export type CustomerAddressSelectScalar = {
@@ -2041,6 +2948,17 @@ export type CustomerAddressSelectScalar = {
   postalCode?: boolean
   taxOffice?: boolean
   taxNumber?: boolean
+  latitude?: boolean
+  longitude?: boolean
+  locationSource?: boolean
+  locationAccuracy?: boolean
+  geocodingProvider?: boolean
+  geocodingPlaceId?: boolean
+  geocodingLabel?: boolean
+  geocodingRaw?: boolean
+  geocodedAt?: boolean
+  locationVerifiedAt?: boolean
+  locationVerifiedByUserId?: boolean
   isPrimary?: boolean
   isBilling?: boolean
   isShipping?: boolean
@@ -2050,13 +2968,14 @@ export type CustomerAddressSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "label" | "contactName" | "phone" | "email" | "countryId" | "stateId" | "cityId" | "country" | "city" | "district" | "line1" | "line2" | "postalCode" | "taxOffice" | "taxNumber" | "isPrimary" | "isBilling" | "isShipping" | "note" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAddress"]>
+export type CustomerAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "label" | "contactName" | "phone" | "email" | "countryId" | "stateId" | "cityId" | "country" | "city" | "district" | "line1" | "line2" | "postalCode" | "taxOffice" | "taxNumber" | "latitude" | "longitude" | "locationSource" | "locationAccuracy" | "geocodingProvider" | "geocodingPlaceId" | "geocodingLabel" | "geocodingRaw" | "geocodedAt" | "locationVerifiedAt" | "locationVerifiedByUserId" | "isPrimary" | "isBilling" | "isShipping" | "note" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAddress"]>
 export type CustomerAddressInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   shippingOrders?: boolean | Prisma.CustomerAddress$shippingOrdersArgs<ExtArgs>
   countryRef?: boolean | Prisma.CustomerAddress$countryRefArgs<ExtArgs>
   stateRef?: boolean | Prisma.CustomerAddress$stateRefArgs<ExtArgs>
   cityRef?: boolean | Prisma.CustomerAddress$cityRefArgs<ExtArgs>
+  locationVerifiedByUser?: boolean | Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerAddressCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerAddressIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2064,12 +2983,14 @@ export type CustomerAddressIncludeCreateManyAndReturn<ExtArgs extends runtime.Ty
   countryRef?: boolean | Prisma.CustomerAddress$countryRefArgs<ExtArgs>
   stateRef?: boolean | Prisma.CustomerAddress$stateRefArgs<ExtArgs>
   cityRef?: boolean | Prisma.CustomerAddress$cityRefArgs<ExtArgs>
+  locationVerifiedByUser?: boolean | Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs>
 }
 export type CustomerAddressIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   countryRef?: boolean | Prisma.CustomerAddress$countryRefArgs<ExtArgs>
   stateRef?: boolean | Prisma.CustomerAddress$stateRefArgs<ExtArgs>
   cityRef?: boolean | Prisma.CustomerAddress$cityRefArgs<ExtArgs>
+  locationVerifiedByUser?: boolean | Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs>
 }
 
 export type $CustomerAddressPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2080,6 +3001,7 @@ export type $CustomerAddressPayload<ExtArgs extends runtime.Types.Extensions.Int
     countryRef: Prisma.$GeoCountryPayload<ExtArgs> | null
     stateRef: Prisma.$GeoStatePayload<ExtArgs> | null
     cityRef: Prisma.$GeoCityPayload<ExtArgs> | null
+    locationVerifiedByUser: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2099,6 +3021,17 @@ export type $CustomerAddressPayload<ExtArgs extends runtime.Types.Extensions.Int
     postalCode: string | null
     taxOffice: string | null
     taxNumber: string | null
+    latitude: runtime.Decimal | null
+    longitude: runtime.Decimal | null
+    locationSource: $Enums.CustomerAddressLocationSource | null
+    locationAccuracy: $Enums.CustomerAddressLocationAccuracy | null
+    geocodingProvider: string | null
+    geocodingPlaceId: string | null
+    geocodingLabel: string | null
+    geocodingRaw: runtime.JsonValue | null
+    geocodedAt: Date | null
+    locationVerifiedAt: Date | null
+    locationVerifiedByUserId: string | null
     isPrimary: boolean
     isBilling: boolean
     isShipping: boolean
@@ -2505,6 +3438,7 @@ export interface Prisma__CustomerAddressClient<T, Null = never, ExtArgs extends 
   countryRef<T extends Prisma.CustomerAddress$countryRefArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerAddress$countryRefArgs<ExtArgs>>): Prisma.Prisma__GeoCountryClient<runtime.Types.Result.GetResult<Prisma.$GeoCountryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   stateRef<T extends Prisma.CustomerAddress$stateRefArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerAddress$stateRefArgs<ExtArgs>>): Prisma.Prisma__GeoStateClient<runtime.Types.Result.GetResult<Prisma.$GeoStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   cityRef<T extends Prisma.CustomerAddress$cityRefArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerAddress$cityRefArgs<ExtArgs>>): Prisma.Prisma__GeoCityClient<runtime.Types.Result.GetResult<Prisma.$GeoCityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  locationVerifiedByUser<T extends Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerAddress$locationVerifiedByUserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2551,6 +3485,17 @@ export interface CustomerAddressFieldRefs {
   readonly postalCode: Prisma.FieldRef<"CustomerAddress", 'String'>
   readonly taxOffice: Prisma.FieldRef<"CustomerAddress", 'String'>
   readonly taxNumber: Prisma.FieldRef<"CustomerAddress", 'String'>
+  readonly latitude: Prisma.FieldRef<"CustomerAddress", 'Decimal'>
+  readonly longitude: Prisma.FieldRef<"CustomerAddress", 'Decimal'>
+  readonly locationSource: Prisma.FieldRef<"CustomerAddress", 'CustomerAddressLocationSource'>
+  readonly locationAccuracy: Prisma.FieldRef<"CustomerAddress", 'CustomerAddressLocationAccuracy'>
+  readonly geocodingProvider: Prisma.FieldRef<"CustomerAddress", 'String'>
+  readonly geocodingPlaceId: Prisma.FieldRef<"CustomerAddress", 'String'>
+  readonly geocodingLabel: Prisma.FieldRef<"CustomerAddress", 'String'>
+  readonly geocodingRaw: Prisma.FieldRef<"CustomerAddress", 'Json'>
+  readonly geocodedAt: Prisma.FieldRef<"CustomerAddress", 'DateTime'>
+  readonly locationVerifiedAt: Prisma.FieldRef<"CustomerAddress", 'DateTime'>
+  readonly locationVerifiedByUserId: Prisma.FieldRef<"CustomerAddress", 'String'>
   readonly isPrimary: Prisma.FieldRef<"CustomerAddress", 'Boolean'>
   readonly isBilling: Prisma.FieldRef<"CustomerAddress", 'Boolean'>
   readonly isShipping: Prisma.FieldRef<"CustomerAddress", 'Boolean'>
@@ -3037,6 +3982,25 @@ export type CustomerAddress$cityRefArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.GeoCityInclude<ExtArgs> | null
   where?: Prisma.GeoCityWhereInput
+}
+
+/**
+ * CustomerAddress.locationVerifiedByUser
+ */
+export type CustomerAddress$locationVerifiedByUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

@@ -1,5 +1,6 @@
 import config from "../config";
 import { vpc, rds } from "./db";
+import { userPool } from "./cognito";
 import { publicBucket } from "./storage";
 const folderPrefix = 'packages/functions/src/PublicApi/functions';
 
@@ -51,6 +52,11 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
                     ? `https://dev.${config.DOMAIN}`
                     : $interpolate`https://${publicBucket.name}.s3.amazonaws.com`
     }
+}
+
+const customerInvitationRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+    ...defaultOptions,
+    link: [rds, publicBucket, userPool],
 }
 
 /*----------------------- USERS -----------------------*/
@@ -192,6 +198,16 @@ publicApi.route("GET /product-attributes/with-values", {
 publicApi.route("POST /customers", {
     handler: `${folderPrefix}/customers/actions.createCustomer`,
     ...defaultOptions,
+});
+
+publicApi.route("GET /customer-invitations/{token}", {
+    handler: `${folderPrefix}/customerInvitations/actions.getCustomerInvitation`,
+    ...customerInvitationRouteOptions,
+});
+
+publicApi.route("POST /customer-invitations/accept", {
+    handler: `${folderPrefix}/customerInvitations/actions.acceptCustomerInvitation`,
+    ...customerInvitationRouteOptions,
 });
 
 publicApi.route("POST /web-requests", {

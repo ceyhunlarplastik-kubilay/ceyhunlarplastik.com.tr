@@ -46,7 +46,8 @@ const schema = z.object({
     })).default([]),
 })
 
-type Values = z.infer<typeof schema>
+type FormInput = z.input<typeof schema>
+type FormValues = z.output<typeof schema>
 
 type Props = {
     open: boolean
@@ -71,7 +72,7 @@ export function CreateSupplierVariantRequestDialog({
 }: Props) {
     const mutation = useCreateSupplierBusinessRequest("Varyant talebi onaya gönderildi")
     const refsQuery = useSupplierVariantRequestReferences(open)
-    const form = useForm<Values>({
+    const form = useForm<FormInput, unknown, FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
             name: "",
@@ -194,7 +195,7 @@ export function CreateSupplierVariantRequestDialog({
                         <div className="space-y-1.5">
                             <Label>Malzemeler</Label>
                             <EntityAssignmentSelect
-                                value={materialIds}
+                                value={materialIds ?? []}
                                 options={(refsQuery.data?.materials ?? []).map((material) => ({
                                     id: material.id,
                                     label: material.name,

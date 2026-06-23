@@ -10,6 +10,7 @@ const GROUP_LABELS: Record<UserGroup, string> = {
     sales: "Satış",
     sales_director: "Satış Direktörü",
     customer: "Müşteri Portalı",
+    content_editor: "Veri Girişi",
 }
 
 const ACCESS_STATUS_LABELS: Record<UserAccessStatus, string> = {

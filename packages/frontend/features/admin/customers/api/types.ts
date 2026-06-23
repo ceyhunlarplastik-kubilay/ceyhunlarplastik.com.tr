@@ -12,6 +12,7 @@ export type UserSummary = {
     customerContactTitle?: string | null
     customerContactDepartment?: string | null
     isPrimaryCustomerContact?: boolean
+    portalOnboardingState?: "INVITED" | "ACTIVE"
 }
 
 export type CustomerAttributeValue = {
@@ -190,7 +191,17 @@ export type CustomerFeaturedProduct = {
     product: Product
 }
 
-export type CustomerAssignedProduct = CustomerFeaturedProduct
+export type CustomerAssignedProduct = {
+    id: string
+    customerId: string
+    productVariantId: string
+    displayOrder: number
+    createdByUserId?: string
+    createdAt?: string
+    updatedAt?: string
+    createdByUser?: UserSummary
+    productVariant: CustomerSpecialPriceProductVariant
+}
 
 export type CustomerAddress = {
     id: string
@@ -210,6 +221,17 @@ export type CustomerAddress = {
     postalCode?: string | null
     taxOffice?: string | null
     taxNumber?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    locationSource?: "MANUAL_PIN" | "GEOCODED" | "IMPORTED" | "CUSTOMER_SUBMITTED" | null
+    locationAccuracy?: "EXACT" | "STREET" | "DISTRICT" | "CITY" | "UNKNOWN" | null
+    geocodingProvider?: string | null
+    geocodingPlaceId?: string | null
+    geocodingLabel?: string | null
+    geocodingRaw?: unknown
+    geocodedAt?: string | null
+    locationVerifiedAt?: string | null
+    locationVerifiedByUserId?: string | null
     isPrimary: boolean
     isBilling: boolean
     isShipping: boolean
@@ -230,6 +252,7 @@ export type CustomerAddress = {
         id: number
         name: string
     } | null
+    locationVerifiedByUser?: UserSummary | null
 }
 
 export type CustomerVisit = {

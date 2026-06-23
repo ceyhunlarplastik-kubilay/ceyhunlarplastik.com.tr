@@ -90,6 +90,7 @@ export function buildCustomerVariantPricingSnapshot(resolved: ResolvedCustomerVa
         paymentTermLabel: resolved.paymentTermLabel,
         paymentSchedule: resolved.paymentSchedule,
         taxIncluded: resolved.taxIncluded,
+        deliveryTerm: resolved.deliveryTerm,
         validFrom: dateToIso(resolved.validFrom),
         validUntil: dateToIso(resolved.validUntil),
         contractReference: resolved.contractReference,

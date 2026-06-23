@@ -504,6 +504,57 @@ export type FloatWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
 }
 
+export type EnumCustomerAddressLocationSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationSource | Prisma.EnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel> | $Enums.CustomerAddressLocationSource | null
+}
+
+export type EnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationAccuracy | Prisma.EnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel> | $Enums.CustomerAddressLocationAccuracy | null
+}
+
+export type EnumCustomerAddressLocationSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationSource | Prisma.EnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAddressLocationSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel>
+}
+
+export type EnumCustomerAddressLocationAccuracyNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationAccuracy | Prisma.EnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAddressLocationAccuracy | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel>
+}
+
+export type EnumGeocodingCacheQueryTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.GeocodingCacheQueryType | Prisma.EnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGeocodingCacheQueryTypeFilter<$PrismaModel> | $Enums.GeocodingCacheQueryType
+}
+
+export type EnumGeocodingCacheQueryTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GeocodingCacheQueryType | Prisma.EnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGeocodingCacheQueryTypeWithAggregatesFilter<$PrismaModel> | $Enums.GeocodingCacheQueryType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGeocodingCacheQueryTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGeocodingCacheQueryTypeFilter<$PrismaModel>
+}
+
 export type EnumCustomerVisitStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.CustomerVisitStatus | Prisma.EnumCustomerVisitStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CustomerVisitStatus[] | Prisma.ListEnumCustomerVisitStatusFieldRefInput<$PrismaModel>
@@ -1154,6 +1205,57 @@ export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedFloatFilter<$PrismaModel>
   _min?: Prisma.NestedFloatFilter<$PrismaModel>
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationSource | Prisma.EnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel> | $Enums.CustomerAddressLocationSource | null
+}
+
+export type NestedEnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationAccuracy | Prisma.EnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel> | $Enums.CustomerAddressLocationAccuracy | null
+}
+
+export type NestedEnumCustomerAddressLocationSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationSource | Prisma.EnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAddressLocationSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerAddressLocationAccuracyNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAddressLocationAccuracy | Prisma.EnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerAddressLocationAccuracy[] | Prisma.ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAddressLocationAccuracy | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAddressLocationAccuracyNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumGeocodingCacheQueryTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.GeocodingCacheQueryType | Prisma.EnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGeocodingCacheQueryTypeFilter<$PrismaModel> | $Enums.GeocodingCacheQueryType
+}
+
+export type NestedEnumGeocodingCacheQueryTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GeocodingCacheQueryType | Prisma.EnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GeocodingCacheQueryType[] | Prisma.ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGeocodingCacheQueryTypeWithAggregatesFilter<$PrismaModel> | $Enums.GeocodingCacheQueryType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGeocodingCacheQueryTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGeocodingCacheQueryTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumCustomerVisitStatusFilter<$PrismaModel = never> = {

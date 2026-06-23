@@ -2,14 +2,20 @@ interface ENV {
     AWS_REGION: string | undefined;
     HOSTED_ZONE_ID: string | undefined;
     DOMAIN: string | undefined;
+    DOMAIN_CERTIFICATE_ARN: string | undefined;
     RDS_PASSWORD: string | undefined;
+    GMAIL_SMTP_USER: string | undefined;
+    GMAIL_SMTP_APP_PASSWORD: string | undefined;
 }
 
 interface Config {
     AWS_REGION: string;
     HOSTED_ZONE_ID: string;
     DOMAIN: string;
+    DOMAIN_CERTIFICATE_ARN: string;
     RDS_PASSWORD: string;
+    GMAIL_SMTP_USER: string;
+    GMAIL_SMTP_APP_PASSWORD: string;
 }
 
 const getConfig = (): ENV => {
@@ -17,7 +23,10 @@ const getConfig = (): ENV => {
         AWS_REGION: process.env.AWS_REGION,
         HOSTED_ZONE_ID: process.env.HOSTED_ZONE_ID,
         DOMAIN: process.env.DOMAIN,
+        DOMAIN_CERTIFICATE_ARN: process.env.DOMAIN_CERTIFICATE_ARN,
         RDS_PASSWORD: process.env.RDS_PASSWORD,
+        GMAIL_SMTP_USER: process.env.GMAIL_SMTP_USER,
+        GMAIL_SMTP_APP_PASSWORD: process.env.GMAIL_SMTP_APP_PASSWORD,
     };
 };
 
@@ -30,6 +39,10 @@ const getSanitizedConfig = (config: ENV): Config => {
         AWS_REGION: config.AWS_REGION,
         HOSTED_ZONE_ID: config.HOSTED_ZONE_ID ?? "",
         DOMAIN: config.DOMAIN ?? "",
+        DOMAIN_CERTIFICATE_ARN: config.DOMAIN_CERTIFICATE_ARN ?? "",
+        RDS_PASSWORD: config.RDS_PASSWORD ?? "",
+        GMAIL_SMTP_USER: config.GMAIL_SMTP_USER ?? "",
+        GMAIL_SMTP_APP_PASSWORD: config.GMAIL_SMTP_APP_PASSWORD ?? "",
     } as Config;
 };
 

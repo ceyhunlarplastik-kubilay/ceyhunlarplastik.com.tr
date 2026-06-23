@@ -23,7 +23,7 @@ const ROLE_HIERARCHY = {
 } as const;
 
 type Role = keyof typeof ROLE_HIERARCHY;
-const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "sales_director", "supplier", "customer", "user"] as const;
+const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "sales_director", "supplier", "customer", "content_editor", "user"] as const;
 
 const normalizeGroups = (groups: string[]): string[] => {
   const cleaned = groups
@@ -121,18 +121,19 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
         },
       });
     } else if (
-      user.email !== email
-      || user.firstName !== firstName
-      || user.lastName !== lastName
+      !user.email?.trim()
+      || (user.firstName == null && firstName !== null)
+      || (user.lastName == null && lastName !== null)
+      || !user.identifier?.trim()
     ) {
       user = await prisma.user.update({
         where: { id: user.id },
         data: {
-          email,
-          ...(firstName !== user.firstName ? { firstName } : {}),
-          ...(lastName !== user.lastName ? { lastName } : {}),
-          ...(buildUserDisplayName({ firstName, lastName, email }) !== user.identifier
-            ? { identifier: buildUserDisplayName({ firstName, lastName, email }) || user.identifier }
+          ...(!user.email?.trim() ? { email } : {}),
+          ...(user.firstName == null && firstName !== null ? { firstName } : {}),
+          ...(user.lastName == null && lastName !== null ? { lastName } : {}),
+          ...(!user.identifier?.trim()
+            ? { identifier: buildUserDisplayName({ firstName, lastName, email }) || email.split("@")[0] }
             : {}),
         },
       });
@@ -149,6 +150,7 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
     event.user = {
       id: user.id,
       dbUserId: user.id,
+      cognitoSub: user.cognitoSub,
       identifier: user.identifier,
       firstName: user.firstName,
       lastName: user.lastName,
@@ -164,6 +166,7 @@ const authMiddleware = (opts?: IAuthMiddlewareOptions) => {
       isSales: user.groups.includes("sales"),
       isSalesDirector: user.groups.includes("sales_director"),
       isCustomer: user.groups.includes("customer"),
+      isContentEditor: user.groups.includes("content_editor"),
     };
 
     // 🔐 Role check

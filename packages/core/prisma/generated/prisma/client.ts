@@ -87,6 +87,11 @@ export type ProductIndustrialUsage = Prisma.ProductIndustrialUsageModel
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model UserInvitation
+ * 
+ */
+export type UserInvitation = Prisma.UserInvitationModel
+/**
  * Model CustomerAttributeValueAssignment
  * 
  */
@@ -157,6 +162,11 @@ export type CustomerAssignedProduct = Prisma.CustomerAssignedProductModel
  */
 export type CustomerAddress = Prisma.CustomerAddressModel
 /**
+ * Model GeocodingCache
+ * 
+ */
+export type GeocodingCache = Prisma.GeocodingCacheModel
+/**
  * Model CustomerVisit
  * 
  */
@@ -168,7 +178,7 @@ export type CustomerVisit = Prisma.CustomerVisitModel
 export type ProductVariantSupplier = Prisma.ProductVariantSupplierModel
 /**
  * Model CustomerVariantSpecialPrice
- *
+ * 
  */
 export type CustomerVariantSpecialPrice = Prisma.CustomerVariantSpecialPriceModel
 /**

@@ -92,6 +92,35 @@ export const MeasurementCode = {
 export type MeasurementCode = (typeof MeasurementCode)[keyof typeof MeasurementCode]
 
 
+export const CustomerAddressLocationSource = {
+  MANUAL_PIN: 'MANUAL_PIN',
+  GEOCODED: 'GEOCODED',
+  IMPORTED: 'IMPORTED',
+  CUSTOMER_SUBMITTED: 'CUSTOMER_SUBMITTED'
+} as const
+
+export type CustomerAddressLocationSource = (typeof CustomerAddressLocationSource)[keyof typeof CustomerAddressLocationSource]
+
+
+export const CustomerAddressLocationAccuracy = {
+  EXACT: 'EXACT',
+  STREET: 'STREET',
+  DISTRICT: 'DISTRICT',
+  CITY: 'CITY',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type CustomerAddressLocationAccuracy = (typeof CustomerAddressLocationAccuracy)[keyof typeof CustomerAddressLocationAccuracy]
+
+
+export const GeocodingCacheQueryType = {
+  SEARCH: 'SEARCH',
+  REVERSE: 'REVERSE'
+} as const
+
+export type GeocodingCacheQueryType = (typeof GeocodingCacheQueryType)[keyof typeof GeocodingCacheQueryType]
+
+
 export const CustomerVisitStatus = {
   PLANNED: 'PLANNED',
   COMPLETED: 'COMPLETED',

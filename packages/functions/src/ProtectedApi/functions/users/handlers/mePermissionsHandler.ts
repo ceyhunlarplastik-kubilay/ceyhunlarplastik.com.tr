@@ -27,6 +27,7 @@ export const mePermissionsHandler =
                     isPurchasing: user.isPurchasing,
                     isSales: user.isSales,
                     isSalesDirector: user.isSalesDirector,
+                    isContentEditor: user.isContentEditor,
                     isUser: user.groups.includes("user"),
                 },
 
@@ -37,6 +38,7 @@ export const mePermissionsHandler =
                     accessSupplierPanel: user.isSupplier,
                     accessPurchasingPanel: user.isPurchasing || user.isAdmin || user.isOwner,
                     accessSalesPanel: user.isSales || user.isSalesDirector || user.isAdmin || user.isOwner,
+                    accessContentEntryPanel: user.isContentEditor || user.isAdmin || user.isOwner,
                     accessProtectedApi: true,
                 },
             };

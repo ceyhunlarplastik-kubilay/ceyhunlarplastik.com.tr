@@ -10,6 +10,7 @@ export type CustomerContactCardModel = {
     phone?: string | null
     imageUrl?: string | null
     isPrimary: boolean
+    portalOnboardingState?: "INVITED" | "ACTIVE"
 }
 
 function sortCustomerContacts(left: UserSummary, right: UserSummary) {
@@ -21,37 +22,26 @@ function sortCustomerContacts(left: UserSummary, right: UserSummary) {
 }
 
 function mapPortalUserToContact(customer: AdminCustomer, user: UserSummary): CustomerContactCardModel {
-    const name = getUserDisplayName(user) || customer.fullName
+    const isInvited = user.portalOnboardingState === "INVITED"
+    const name = getUserDisplayName(user) || user.email || customer.fullName
 
     return {
         id: user.id,
         name,
         roleLabel: user.customerContactTitle || (user.isPrimaryCustomerContact ? "Müşteri Yetkilisi" : "Müşteri İletişimi"),
-        subtitle: user.customerContactDepartment || customer.companyName || "Portal hesabı",
+        subtitle: user.customerContactDepartment || (isInvited ? "Portal daveti bekleniyor" : customer.companyName || "Portal hesabı"),
         email: user.email || customer.email,
         phone: user.phone || customer.phone,
         imageUrl: user.imageUrl ?? null,
         isPrimary: Boolean(user.isPrimaryCustomerContact),
+        portalOnboardingState: user.portalOnboardingState,
     }
 }
 
 export function buildCustomerContactCards(customer: AdminCustomer): CustomerContactCardModel[] {
     const portalUsers = [...(customer.portalUsers ?? [])].sort(sortCustomerContacts)
 
-    if (portalUsers.length > 0) {
-        return portalUsers.map((user) => mapPortalUserToContact(customer, user))
-    }
-
-    return [{
-        id: `fallback-${customer.id}`,
-        name: customer.fullName,
-        roleLabel: "Müşteri Yetkilisi",
-        subtitle: customer.companyName || "Portal hesabı",
-        email: customer.email,
-        phone: customer.phone,
-        imageUrl: null,
-        isPrimary: true,
-    }]
+    return portalUsers.map((user) => mapPortalUserToContact(customer, user))
 }
 
 export function getPrimaryCustomerContact(customer: AdminCustomer) {

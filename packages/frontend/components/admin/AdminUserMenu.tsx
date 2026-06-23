@@ -3,10 +3,11 @@
 import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import axios from "axios"
-import { Camera, Loader2, Mail, ShieldCheck, Trash2 } from "lucide-react"
+import { Camera, Loader2, Mail, ShieldCheck, Trash2, UserPen } from "lucide-react"
 import { toast } from "sonner"
 import { ProfileDropdown } from "@/components/ui/profile-dropdown"
 import { performClientSignOut } from "@/features/auth/lib/client-signout"
+import { MyProfileDialog } from "@/features/userProfile/components/MyProfileDialog"
 import { presignMyProfileImage } from "@/features/userProfile/api/presignMyProfileImage"
 import { updateMyProfileImage } from "@/features/userProfile/api/updateMyProfileImage"
 
@@ -36,6 +37,7 @@ function getRoleBadge(groups: string[]) {
     if (groups.includes("purchasing")) return { label: "Satın Alma" }
     if (groups.includes("sales_director")) return { label: "Satış Direktörü" }
     if (groups.includes("sales")) return { label: "Satış" }
+    if (groups.includes("content_editor")) return { label: "Veri Girişi" }
     if (groups.includes("supplier")) return { label: "Tedarikçi" }
     if (groups.includes("customer")) return { label: "Müşteri" }
     return { label: "User" }
@@ -50,6 +52,7 @@ export function AdminUserMenu({ name, email, image, groups = [] }: AdminUserMenu
     const inputRef = useRef<HTMLInputElement | null>(null)
     const [isUploading, setIsUploading] = useState(false)
     const [currentImage, setCurrentImage] = useState(image ?? null)
+    const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
     const role = getRoleBadge(groups)
     const displayName = name ?? email ?? "Kullanıcı"
 
@@ -135,6 +138,11 @@ export function AdminUserMenu({ name, email, image, groups = [] }: AdminUserMenu
                         icon: <ShieldCheck className="w-4 h-4" />,
                     },
                     {
+                        label: "Profili Düzenle",
+                        icon: <UserPen className="w-4 h-4" />,
+                        onSelect: () => setIsProfileDialogOpen(true),
+                    },
+                    {
                         label: isUploading ? "Yukleniyor" : "Profil Gorseli",
                         value: currentImage ? "Degistir" : "Yukle",
                         icon: isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />,
@@ -157,6 +165,8 @@ export function AdminUserMenu({ name, email, image, groups = [] }: AdminUserMenu
                 signOutLabel="Çıkış Yap"
                 onSignOut={handleSignOut}
             />
+
+            <MyProfileDialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen} />
         </>
     )
 }

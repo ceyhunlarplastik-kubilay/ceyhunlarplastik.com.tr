@@ -5,8 +5,12 @@ import { IPrismaProductRepository } from "@/core/helpers/prisma/products/reposit
 import { IPrismaCompanyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
 import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { IPrismaCustomerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
+import { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
+import { IPrismaUserRepository } from "@/core/helpers/prisma/users/repository"
+import { IUserInvitationRepository } from "@/core/helpers/prisma/userInvitations/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
+import type { Prisma } from "@/prisma/generated/prisma/client"
 import type { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 
 export interface IProtectedCrmDependencies {
@@ -17,6 +21,19 @@ export interface IProtectedCrmDependencies {
     productVariantRepository?: IPrismaProductVariantRepository
     companyContactRepository?: IPrismaCompanyContactRepository
     customerVariantSpecialPriceRepository?: IPrismaCustomerVariantSpecialPriceRepository
+    userRepository?: IPrismaUserRepository
+    userInvitationRepository?: IUserInvitationRepository
+    cognitoRepository?: ICognitoUserRepository
+    userPoolId?: string
+    frontendBaseUrl?: string
+    sendCustomerPortalInvitationEmail?: (input: {
+        to: string
+        firstName?: string | null
+        customerName: string
+        invitedByName: string
+        invitationUrl: string
+        expiresAt: Date
+    }) => Promise<void>
 }
 
 export type IListManagedCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
@@ -108,28 +125,89 @@ export type IUpdateManagedCustomerSpecialPriceEvent = IAPIGatewayProxyEventWithU
     { id: string; specialPriceId: string }
 >
 
-export type ICreatePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
+export type ICustomerAddressBody = {
+    label: string
+    contactName?: string | null
+    phone?: string | null
+    email?: string | null
+    countryId?: number | null
+    stateId?: number | null
+    cityId?: number | null
+    country?: string | null
+    stateName?: string | null
+    city: string
+    district?: string | null
+    line1: string
+    line2?: string | null
+    postalCode?: string | null
+    taxOffice?: string | null
+    taxNumber?: string | null
+    latitude?: number | null
+    longitude?: number | null
+    locationSource?: "MANUAL_PIN" | "GEOCODED" | "IMPORTED" | "CUSTOMER_SUBMITTED" | null
+    locationAccuracy?: "EXACT" | "STREET" | "DISTRICT" | "CITY" | "UNKNOWN" | null
+    geocodingProvider?: string | null
+    geocodingPlaceId?: string | null
+    geocodingLabel?: string | null
+    geocodingRaw?: Prisma.InputJsonValue | null
+    geocodedAt?: string | null
+    locationVerifiedAt?: string | null
+    locationVerifiedByUserId?: string | null
+    isPrimary?: boolean
+    isBilling?: boolean
+    isShipping?: boolean
+    note?: string | null
+}
+
+export type ICreatePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<ICustomerAddressBody>
+
+export type ICreatePortalCustomerUserBody = {
+    firstName: string
+    lastName: string
+    email: string
+    customerContactTitle?: string | null
+    customerContactDepartment?: string | null
+    isPrimaryCustomerContact?: boolean
+}
+
+export type ICreatePortalCustomerUserEvent = IAPIGatewayProxyEventWithUserGeneric<ICreatePortalCustomerUserBody>
+
+export type IUpdatePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
+    ICustomerAddressBody,
+    { addressId: string }
+>
+
+export type IDeletePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    { addressId: string }
+>
+
+export type ICreateManagedCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
+    ICustomerAddressBody,
+    { id: string }
+>
+
+export type IUpdateManagedCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
+    ICustomerAddressBody,
+    { id: string; addressId: string }
+>
+
+export type IDeleteManagedCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    { id: string; addressId: string }
+>
+
+export type IListManagedCustomersMapEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    {},
     {
-        label: string
-        contactName?: string | null
-        phone?: string | null
-        email?: string | null
-        countryId: number
-        stateId: number
-        cityId: number
-        country?: string | null
-        stateName?: string | null
-        city: string
-        district?: string | null
-        line1: string
-        line2?: string | null
-        postalCode?: string | null
-        taxOffice?: string | null
-        taxNumber?: string | null
-        isPrimary?: boolean
-        isBilling?: boolean
-        isShipping?: boolean
-        note?: string | null
+        north: string
+        south: string
+        east: string
+        west: string
+        search?: string
+        status?: CustomerStatus
+        assignedSalesUserId?: string
     }
 >
 
@@ -167,6 +245,17 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
             postalCode?: string | null
             taxOffice?: string | null
             taxNumber?: string | null
+            latitude?: number | null
+            longitude?: number | null
+            locationSource?: "MANUAL_PIN" | "GEOCODED" | "IMPORTED" | "CUSTOMER_SUBMITTED" | null
+            locationAccuracy?: "EXACT" | "STREET" | "DISTRICT" | "CITY" | "UNKNOWN" | null
+            geocodingProvider?: string | null
+            geocodingPlaceId?: string | null
+            geocodingLabel?: string | null
+            geocodingRaw?: Prisma.InputJsonValue | null
+            geocodedAt?: string | null
+            locationVerifiedAt?: string | null
+            locationVerifiedByUserId?: string | null
             isPrimary?: boolean
             isBilling?: boolean
             isShipping?: boolean
@@ -182,7 +271,7 @@ export type IReplaceManagedCustomerFeaturedProductsEvent = IAPIGatewayProxyEvent
 >
 
 export type IReplaceManagedCustomerAssignedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
-    { productIds: string[] },
+    { productVariantIds: string[] },
     { id: string }
 >
 

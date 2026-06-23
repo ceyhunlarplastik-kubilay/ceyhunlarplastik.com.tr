@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Montserrat } from "next/font/google";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { Providers } from "./providers";
 import "./globals.css";
 

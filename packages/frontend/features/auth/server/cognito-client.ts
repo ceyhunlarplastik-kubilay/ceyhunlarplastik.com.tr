@@ -5,7 +5,8 @@ let cognitoClient: CognitoIdentityProviderClient | null = null
 export function getCognitoClient() {
     if (!cognitoClient) {
         cognitoClient = new CognitoIdentityProviderClient({
-            region: process.env.REGION ?? process.env.AWS_REGION ?? "eu-west-1",
+            // region: process.env.REGION ?? process.env.AWS_REGION ?? "eu-west-1",
+            region: process.env.REGION ?? process.env.AWS_REGION,
         })
     }
 

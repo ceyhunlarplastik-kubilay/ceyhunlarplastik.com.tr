@@ -6,9 +6,15 @@ export function validatorWrapper<T extends ZodType>(
         requiredRootFields?: string[]
         requiredBodyFields?: string[]
         requiredPathParametersFields?: string[]
+        requiredQueryStringParametersFields?: string[]
     }
 ) {
-    const { requiredRootFields = ["body"], requiredBodyFields, requiredPathParametersFields } = options ?? {}
+    const {
+        requiredRootFields = ["body"],
+        requiredBodyFields,
+        requiredPathParametersFields,
+        requiredQueryStringParametersFields,
+    } = options ?? {}
 
     return z.toJSONSchema(schema, {
         override: (ctx) => {
@@ -31,6 +37,14 @@ export function validatorWrapper<T extends ZodType>(
                 ctx.path[0] === "pathParameters"
             ) {
                 ctx.jsonSchema.required = requiredPathParametersFields
+            }
+
+            if (
+                requiredQueryStringParametersFields &&
+                ctx.path.length === 1 &&
+                ctx.path[0] === "queryStringParameters"
+            ) {
+                ctx.jsonSchema.required = requiredQueryStringParametersFields
             }
         },
     })

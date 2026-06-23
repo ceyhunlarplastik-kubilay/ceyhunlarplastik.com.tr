@@ -21,6 +21,7 @@ export function useUsersPageState() {
     const [detailsUser, setDetailsUser] = useState<AdminUser | null>(null)
     const [accessEditorUser, setAccessEditorUser] = useState<AdminUser | null>(null)
     const [profileEditorUser, setProfileEditorUser] = useState<AdminUser | null>(null)
+    const [deleteUserCandidate, setDeleteUserCandidate] = useState<AdminUser | null>(null)
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
     const [comparisonOpen, setComparisonOpen] = useState(false)
     const [persistedQuickFilters] = useState<UsersQuickFiltersPersisted>(() => readPersistedQuickFilters())
@@ -85,6 +86,8 @@ export function useUsersPageState() {
         setAccessEditorUser,
         profileEditorUser,
         setProfileEditorUser,
+        deleteUserCandidate,
+        setDeleteUserCandidate,
         selectedUserIds,
         setSelectedUserIds,
         comparisonOpen,

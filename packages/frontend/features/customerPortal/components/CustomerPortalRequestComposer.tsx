@@ -9,19 +9,9 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
-import {
-    BUSINESS_REQUEST_PRIORITY_LABELS,
-    CUSTOMER_PORTAL_REQUEST_TYPES,
-} from "@/features/businessRequests/config"
+import { CUSTOMER_PORTAL_REQUEST_TYPES } from "@/features/businessRequests/config"
 import { useCreatePortalBusinessRequest } from "@/features/businessRequests/hooks/useCreatePortalBusinessRequest"
 import { CustomerPortalRequestDraftPanel } from "@/features/customerPortal/components/CustomerPortalRequestDraftPanel"
 import { CustomerDocumentRequestFields } from "@/features/customerPortal/components/requestComposer/CustomerDocumentRequestFields"
@@ -132,7 +122,7 @@ export function CustomerPortalRequestComposer({
         () => buildPortalDraftCommercialTermGroups(items),
         [items],
     )
-    const hasIncompatibleOrderTerms = isOrderRequest && commercialTermGroups.length > 1
+    const hasMixedOrderTerms = isOrderRequest && commercialTermGroups.length > 1
 
     const shippingAddressOptions = useMemo<ShippingAddressOption[]>(
         () => [
@@ -294,15 +284,6 @@ export function CustomerPortalRequestComposer({
             return
         }
 
-        if (hasIncompatibleOrderTerms) {
-            void setComposerState({ draft: "open" })
-            form.setError("type", {
-                type: "manual",
-                message: "Sepette farklı ticari koşullara sahip ürünler var. Lütfen aynı vade, KDV, para birimi ve fiyat koşuluna sahip kalemlerle ayrı sipariş talebi oluşturun.",
-            })
-            return
-        }
-
         const commonContext = {
             channel: "CUSTOMER_PORTAL",
             companyName: customer.companyName ?? null,
@@ -403,6 +384,15 @@ export function CustomerPortalRequestComposer({
                                 postalCode: selectedShippingAddress.postalCode || null,
                                 taxOffice: selectedShippingAddress.taxOffice || null,
                                 taxNumber: selectedShippingAddress.taxNumber || null,
+                                latitude: selectedShippingAddress.latitude ?? null,
+                                longitude: selectedShippingAddress.longitude ?? null,
+                                locationSource: selectedShippingAddress.locationSource ?? null,
+                                locationAccuracy: selectedShippingAddress.locationAccuracy ?? null,
+                                geocodingProvider: selectedShippingAddress.geocodingProvider || null,
+                                geocodingPlaceId: selectedShippingAddress.geocodingPlaceId || null,
+                                geocodingLabel: selectedShippingAddress.geocodingLabel || null,
+                                geocodingRaw: selectedShippingAddress.geocodingRaw ?? null,
+                                geocodedAt: selectedShippingAddress.geocodedAt || null,
                                 isPrimary: selectedShippingAddress.isPrimary,
                                 isBilling: selectedShippingAddress.isBilling,
                                 isShipping: selectedShippingAddress.isShipping,
@@ -414,6 +404,14 @@ export function CustomerPortalRequestComposer({
                         referenceCode: values.referenceCode?.trim() || null,
                         draftItemCount: items.length,
                         draftQuantity: totalQuantity,
+                        commercialTermGroupCount: commercialTermGroups.length,
+                        hasMixedCommercialTerms: commercialTermGroups.length > 1,
+                        commercialTermGroups: commercialTermGroups.map((group) => ({
+                            key: group.key,
+                            label: group.label,
+                            itemCount: group.items.length,
+                            variantIds: group.items.map((item) => item.variantId),
+                        })),
                     },
                     items: buildRequestItemPayload(items),
                 })
@@ -504,7 +502,7 @@ export function CustomerPortalRequestComposer({
 
             <Form {...form}>
                 <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-                    <div className="grid gap-4 md:grid-cols-[minmax(0,1.3fr)_minmax(220px,0.7fr)]">
+                    <div>
                         <FormField
                             control={form.control}
                             name="title"
@@ -524,31 +522,6 @@ export function CustomerPortalRequestComposer({
                                         />
                                     </FormControl>
                                     <FormDescription>Bos birakirsaniz sistem uygun varsayilan basligi kullanir.</FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="priority"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Oncelik</FormLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <FormControl>
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Oncelik" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {Object.entries(BUSINESS_REQUEST_PRIORITY_LABELS).map(([value, label]) => (
-                                                <SelectItem key={value} value={value}>
-                                                    {label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -646,7 +619,7 @@ export function CustomerPortalRequestComposer({
                     }
                     : undefined}
                 commercialTermGroups={commercialTermGroups}
-                showCommercialTermWarning={hasIncompatibleOrderTerms}
+                showCommercialTermWarning={hasMixedOrderTerms}
                 updateQuantity={updateQuantity}
                 updateItem={updateItem}
                 removeItem={removeItem}

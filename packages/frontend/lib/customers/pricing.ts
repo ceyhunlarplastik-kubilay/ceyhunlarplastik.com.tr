@@ -59,3 +59,59 @@ export function formatPaymentTermLabel(days?: number | null) {
     if (days === null || days === undefined || !Number.isFinite(days)) return null
     return `Net ${days}`
 }
+
+function asRecord(value: unknown) {
+    return value && typeof value === "object" && !Array.isArray(value)
+        ? value as Record<string, unknown>
+        : {}
+}
+
+function getStringValue(value: unknown) {
+    return typeof value === "string" && value.trim() ? value.trim() : null
+}
+
+function getNumberValue(value: unknown) {
+    return typeof value === "number" && Number.isFinite(value) ? value : null
+}
+
+export function getCommercialPricingSnapshot(data?: Record<string, unknown> | null) {
+    const record = asRecord(data)
+    const nestedSnapshot = asRecord(record.pricingSnapshot)
+
+    return Object.keys(nestedSnapshot).length > 0 ? nestedSnapshot : record
+}
+
+export function formatCommercialPriceSource(
+    data?: Record<string, unknown> | null,
+    explicitPriceSource?: string | null,
+) {
+    const snapshot = getCommercialPricingSnapshot(data)
+    const priceSource = explicitPriceSource?.trim()
+        || getStringValue(data?.priceSource)
+        || getStringValue(snapshot.priceSource)
+
+    if (priceSource === "CUSTOMER_SPECIAL_PRICE") return "Özel fiyat"
+    if (priceSource === "CUSTOMER_GENERAL_DISCOUNT") return "Genel iskonto"
+    return "Liste fiyatı"
+}
+
+export function formatCommercialPaymentTerm(
+    data?: Record<string, unknown> | null,
+    fallbackDays?: number | null,
+    emptyLabel = "Varsayılan vade",
+) {
+    const snapshot = getCommercialPricingSnapshot(data)
+    const paymentSchedule = Array.isArray(snapshot.paymentSchedule) ? snapshot.paymentSchedule : []
+    const paymentTermLabel = getStringValue(snapshot.paymentTermLabel)
+    const paymentTermDays = getNumberValue(snapshot.paymentTermDays)
+
+    if (paymentSchedule.length > 0) return "Çok aşamalı vade"
+    if (paymentTermLabel) return paymentTermLabel
+    if (paymentTermDays !== null) return formatPaymentTermLabel(paymentTermDays) ?? `${paymentTermDays} gün`
+    return formatPaymentTermLabel(fallbackDays) ?? emptyLabel
+}
+
+export function formatCommercialTaxStatus(data?: Record<string, unknown> | null) {
+    const snapshot = getCommercialPricingSnapshot(data)
+    return snapshot.taxIncluded === true ? "KDV dahil" : "KDV hariç"
+}

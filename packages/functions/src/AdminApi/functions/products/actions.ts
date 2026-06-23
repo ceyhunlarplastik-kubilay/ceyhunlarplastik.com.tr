@@ -34,13 +34,15 @@ import type {
     ICreateProductAssetUploadEvent,
 } from "@/functions/AdminApi/types/products"
 
+const productManagerGroups = ["admin", "content_editor"]
+
 export const listProducts = lambdaHandler(
     async (event) =>
         listProductsHandler({
             productRepository: productRepository(),
         })(event as IListProductsEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productManagerGroups },
         responseValidator: listProductsResponseValidator,
     }
 )
@@ -54,7 +56,7 @@ export const createProduct = lambdaHandler(
             productAttributeValueRepository: productAttributeValueRepository(),
         })(event as ICreateProductEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productManagerGroups },
         requestValidator: createProductValidator,
         responseValidator: productResponseValidator,
     }
@@ -66,7 +68,7 @@ export const getProduct = lambdaHandler(
             productRepository: productRepository(),
         })(event as IGetProductEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productManagerGroups },
         requestValidator: idValidator,
         responseValidator: productResponseValidator,
     }
@@ -78,7 +80,7 @@ export const getProductBySlug = lambdaHandler(
             productRepository: productRepository(),
         })(event as IGetProductBySlugEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productManagerGroups },
         requestValidator: slugValidator,
         responseValidator: productResponseValidator,
     }
@@ -93,7 +95,7 @@ export const updateProduct = lambdaHandler(
             productAttributeValueRepository: productAttributeValueRepository(),
         })(event as IUpdateProductEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productManagerGroups },
         requestValidator: updateProductValidator,
         responseValidator: productResponseValidator,
     }
@@ -105,7 +107,7 @@ export const deleteProduct = lambdaHandler(
             productRepository: productRepository(),
         })(event as IDeleteProductEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productManagerGroups },
         requestValidator: idValidator,
         responseValidator: productResponseValidator,
     }
@@ -118,7 +120,7 @@ export const createProductAssetUpload = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productManagerGroups },
         requestValidator: createProductAssetUploadValidator,
     }
 )

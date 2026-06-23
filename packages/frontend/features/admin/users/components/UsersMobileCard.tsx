@@ -1,6 +1,6 @@
 "use client"
 
-import { CheckCircle2, Eye, PencilLine, Save } from "lucide-react"
+import { CheckCircle2, Eye, PencilLine, Save, Trash2, UserPen } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -35,7 +35,11 @@ type Props = {
     isSelected: boolean
     onToggleSelected: () => void
     onOpenDetails: () => void
+    onOpenProfileEditor: () => void
     onOpenAccessEditor: () => void
+    onOpenDeleteDialog: () => void
+    canDelete: boolean
+    deleteDisabledReason?: string | null
     onSave: () => void
 }
 
@@ -48,7 +52,11 @@ export function UsersMobileCard({
     isSelected,
     onToggleSelected,
     onOpenDetails,
+    onOpenProfileEditor,
     onOpenAccessEditor,
+    onOpenDeleteDialog,
+    canDelete,
+    deleteDisabledReason,
     onSave,
 }: Props) {
     const displayName = getUserDisplayName(user) || user.email
@@ -125,9 +133,25 @@ export function UsersMobileCard({
                     <Eye className="h-4 w-4" />
                     Detay
                 </Button>
+                <Button type="button" variant="outline" size="sm" onClick={onOpenProfileEditor}>
+                    <UserPen className="h-4 w-4" />
+                    Profil
+                </Button>
                 <Button type="button" variant="outline" size="sm" onClick={onOpenAccessEditor}>
                     <PencilLine className="h-4 w-4" />
-                    Düzenle
+                    Yetki
+                </Button>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800"
+                    disabled={!canDelete}
+                    title={deleteDisabledReason ?? undefined}
+                    onClick={onOpenDeleteDialog}
+                >
+                    <Trash2 className="h-4 w-4" />
+                    Sil
                 </Button>
                 {isDirty ? (
                     <Button type="button" size="sm" disabled={isSaving || Boolean(validationError)} onClick={onSave}>

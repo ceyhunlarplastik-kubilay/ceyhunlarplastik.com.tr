@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { PencilLine, Save, UserPen } from "lucide-react"
+import { PencilLine, Save } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -65,7 +65,6 @@ type Props = {
     onDraftChange: (patch: UserAccessDraft) => void
     onClearDraft: () => void
     onSave: () => void
-    onOpenProfileEditor: (user: AdminUser) => void
 }
 
 function Section({
@@ -102,7 +101,6 @@ export function UserAccessEditorDialog({
     onDraftChange,
     onClearDraft,
     onSave,
-    onOpenProfileEditor,
 }: Props) {
     if (!user) return null
 
@@ -165,11 +163,6 @@ export function UserAccessEditorDialog({
                                     </div>
                                 </div>
                             </div>
-
-                            <Button type="button" variant="outline" onClick={() => onOpenProfileEditor(user)}>
-                                <UserPen className="h-4 w-4" />
-                                Profili Düzenle
-                            </Button>
                         </div>
                     </DialogHeader>
                 </div>

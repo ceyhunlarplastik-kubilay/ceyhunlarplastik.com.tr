@@ -62,6 +62,7 @@ type Props = {
     onRefresh: () => void
     refreshIntervalSeconds: number
     onRefreshIntervalChange: (seconds: number) => void
+    showVariantsLink?: boolean
 }
 
 const MotionRow = motion(TableRow)
@@ -120,6 +121,7 @@ export function ProductsTable({
     onRefresh,
     refreshIntervalSeconds,
     onRefreshIntervalChange,
+    showVariantsLink = true,
 }: Props) {
     const [createOpen, setCreateOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -297,15 +299,17 @@ export function ProductsTable({
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                <Button
-                                                    asChild
-                                                    size="sm"
-                                                    variant="secondary"
-                                                >
-                                                    <Link href={`/admin/products/${product.id}/variants`}>
-                                                        Varyantlar
-                                                    </Link>
-                                                </Button>
+                                                {showVariantsLink ? (
+                                                    <Button
+                                                        asChild
+                                                        size="sm"
+                                                        variant="secondary"
+                                                    >
+                                                        <Link href={`/admin/products/${product.id}/variants`}>
+                                                            Varyantlar
+                                                        </Link>
+                                                    </Button>
+                                                ) : null}
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"

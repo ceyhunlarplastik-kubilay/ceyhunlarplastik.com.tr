@@ -60,13 +60,13 @@ export function BusinessRequestTable({
     const colSpan = getBusinessRequestTableColSpan(showDomain, showRequester)
 
     return (
-        <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-2xl border bg-white shadow-sm">
             <Table>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Talep</TableHead>
                         {showDomain ? <TableHead>Domain</TableHead> : null}
-                        <TableHead>İlgili Kayıt</TableHead>
+                        <TableHead>İlgili Kayıt / Özet</TableHead>
                         {showRequester ? <TableHead>Talebi Açan</TableHead> : null}
                         <TableHead>Durum</TableHead>
                         <TableHead>Bekleyen Adım</TableHead>

@@ -1,4 +1,4 @@
-import { userRepository } from "@ceyhunlarweb/core/core/helpers/prisma/users/repository";
+import { userRepository } from "@/core/helpers/prisma/users/repository";
 import { realtime } from "sst/aws/realtime";
 function decodeJwtPayload(token) {
     try {

@@ -262,6 +262,7 @@ export type ProductVariantWhereInput = {
   measurements?: Prisma.ProductMeasurementListRelationFilter
   assets?: Prisma.AssetListRelationFilter
   variantSuppliers?: Prisma.ProductVariantSupplierListRelationFilter
+  assignedToCustomers?: Prisma.CustomerAssignedProductListRelationFilter
   requestItems?: Prisma.BusinessRequestItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceListRelationFilter
@@ -284,6 +285,7 @@ export type ProductVariantOrderByWithRelationInput = {
   measurements?: Prisma.ProductMeasurementOrderByRelationAggregateInput
   assets?: Prisma.AssetOrderByRelationAggregateInput
   variantSuppliers?: Prisma.ProductVariantSupplierOrderByRelationAggregateInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductOrderByRelationAggregateInput
   requestItems?: Prisma.BusinessRequestItemOrderByRelationAggregateInput
   orderItems?: Prisma.OrderItemOrderByRelationAggregateInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceOrderByRelationAggregateInput
@@ -310,6 +312,7 @@ export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   measurements?: Prisma.ProductMeasurementListRelationFilter
   assets?: Prisma.AssetListRelationFilter
   variantSuppliers?: Prisma.ProductVariantSupplierListRelationFilter
+  assignedToCustomers?: Prisma.CustomerAssignedProductListRelationFilter
   requestItems?: Prisma.BusinessRequestItemListRelationFilter
   orderItems?: Prisma.OrderItemListRelationFilter
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceListRelationFilter
@@ -364,6 +367,7 @@ export type ProductVariantCreateInput = {
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
@@ -384,6 +388,7 @@ export type ProductVariantUncheckedCreateInput = {
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
@@ -404,6 +409,7 @@ export type ProductVariantUpdateInput = {
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
@@ -424,6 +430,7 @@ export type ProductVariantUncheckedUpdateInput = {
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
@@ -638,6 +645,20 @@ export type ProductVariantUpdateOneRequiredWithoutMeasurementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductVariantUpdateToOneWithWhereWithoutMeasurementsInput, Prisma.ProductVariantUpdateWithoutMeasurementsInput>, Prisma.ProductVariantUncheckedUpdateWithoutMeasurementsInput>
 }
 
+export type ProductVariantCreateNestedOneWithoutAssignedToCustomersInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutAssignedToCustomersInput, Prisma.ProductVariantUncheckedCreateWithoutAssignedToCustomersInput>
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutAssignedToCustomersInput
+  connect?: Prisma.ProductVariantWhereUniqueInput
+}
+
+export type ProductVariantUpdateOneRequiredWithoutAssignedToCustomersNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutAssignedToCustomersInput, Prisma.ProductVariantUncheckedCreateWithoutAssignedToCustomersInput>
+  connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutAssignedToCustomersInput
+  upsert?: Prisma.ProductVariantUpsertWithoutAssignedToCustomersInput
+  connect?: Prisma.ProductVariantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductVariantUpdateToOneWithWhereWithoutAssignedToCustomersInput, Prisma.ProductVariantUpdateWithoutAssignedToCustomersInput>, Prisma.ProductVariantUncheckedUpdateWithoutAssignedToCustomersInput>
+}
+
 export type ProductVariantCreateNestedOneWithoutVariantSuppliersInput = {
   create?: Prisma.XOR<Prisma.ProductVariantCreateWithoutVariantSuppliersInput, Prisma.ProductVariantUncheckedCreateWithoutVariantSuppliersInput>
   connectOrCreate?: Prisma.ProductVariantCreateOrConnectWithoutVariantSuppliersInput
@@ -766,6 +787,7 @@ export type ProductVariantCreateWithoutColorInput = {
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
@@ -785,6 +807,7 @@ export type ProductVariantUncheckedCreateWithoutColorInput = {
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
@@ -846,6 +869,7 @@ export type ProductVariantCreateWithoutProductInput = {
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
@@ -865,6 +889,7 @@ export type ProductVariantUncheckedCreateWithoutProductInput = {
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
@@ -910,6 +935,7 @@ export type ProductVariantCreateWithoutMeasurementsInput = {
   materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
@@ -929,6 +955,7 @@ export type ProductVariantUncheckedCreateWithoutMeasurementsInput = {
   materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
@@ -964,6 +991,7 @@ export type ProductVariantUpdateWithoutMeasurementsInput = {
   materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
@@ -981,6 +1009,103 @@ export type ProductVariantUncheckedUpdateWithoutMeasurementsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
+  requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
+  customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
+}
+
+export type ProductVariantCreateWithoutAssignedToCustomersInput = {
+  id?: string
+  name: string
+  versionCode: string
+  supplierCode: string
+  variantIndex: number
+  fullCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product: Prisma.ProductCreateNestedOneWithoutVariantsInput
+  color?: Prisma.ColorCreateNestedOneWithoutVariantsInput
+  materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
+  measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
+  assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
+  customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
+}
+
+export type ProductVariantUncheckedCreateWithoutAssignedToCustomersInput = {
+  id?: string
+  name: string
+  productId: string
+  versionCode: string
+  supplierCode: string
+  variantIndex: number
+  fullCode: string
+  colorId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
+  measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
+  customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
+}
+
+export type ProductVariantCreateOrConnectWithoutAssignedToCustomersInput = {
+  where: Prisma.ProductVariantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutAssignedToCustomersInput, Prisma.ProductVariantUncheckedCreateWithoutAssignedToCustomersInput>
+}
+
+export type ProductVariantUpsertWithoutAssignedToCustomersInput = {
+  update: Prisma.XOR<Prisma.ProductVariantUpdateWithoutAssignedToCustomersInput, Prisma.ProductVariantUncheckedUpdateWithoutAssignedToCustomersInput>
+  create: Prisma.XOR<Prisma.ProductVariantCreateWithoutAssignedToCustomersInput, Prisma.ProductVariantUncheckedCreateWithoutAssignedToCustomersInput>
+  where?: Prisma.ProductVariantWhereInput
+}
+
+export type ProductVariantUpdateToOneWithWhereWithoutAssignedToCustomersInput = {
+  where?: Prisma.ProductVariantWhereInput
+  data: Prisma.XOR<Prisma.ProductVariantUpdateWithoutAssignedToCustomersInput, Prisma.ProductVariantUncheckedUpdateWithoutAssignedToCustomersInput>
+}
+
+export type ProductVariantUpdateWithoutAssignedToCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  fullCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
+  color?: Prisma.ColorUpdateOneWithoutVariantsNestedInput
+  materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
+  measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+  variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
+  customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
+}
+
+export type ProductVariantUncheckedUpdateWithoutAssignedToCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  versionCode?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.StringFieldUpdateOperationsInput | string
+  variantIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  fullCode?: Prisma.StringFieldUpdateOperationsInput | string
+  colorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
+  measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
@@ -1002,6 +1127,7 @@ export type ProductVariantCreateWithoutVariantSuppliersInput = {
   materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
@@ -1021,6 +1147,7 @@ export type ProductVariantUncheckedCreateWithoutVariantSuppliersInput = {
   materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
@@ -1056,6 +1183,7 @@ export type ProductVariantUpdateWithoutVariantSuppliersInput = {
   materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
@@ -1075,6 +1203,7 @@ export type ProductVariantUncheckedUpdateWithoutVariantSuppliersInput = {
   materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
@@ -1095,6 +1224,7 @@ export type ProductVariantCreateWithoutCustomerSpecialPricesInput = {
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
 }
@@ -1114,6 +1244,7 @@ export type ProductVariantUncheckedCreateWithoutCustomerSpecialPricesInput = {
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
 }
@@ -1149,6 +1280,7 @@ export type ProductVariantUpdateWithoutCustomerSpecialPricesInput = {
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
 }
@@ -1168,6 +1300,7 @@ export type ProductVariantUncheckedUpdateWithoutCustomerSpecialPricesInput = {
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
 }
@@ -1187,6 +1320,7 @@ export type ProductVariantCreateWithoutOrderItemsInput = {
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
 }
@@ -1206,6 +1340,7 @@ export type ProductVariantUncheckedCreateWithoutOrderItemsInput = {
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
 }
@@ -1241,6 +1376,7 @@ export type ProductVariantUpdateWithoutOrderItemsInput = {
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
 }
@@ -1260,6 +1396,7 @@ export type ProductVariantUncheckedUpdateWithoutOrderItemsInput = {
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
 }
@@ -1279,6 +1416,7 @@ export type ProductVariantCreateWithoutRequestItemsInput = {
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
 }
@@ -1298,6 +1436,7 @@ export type ProductVariantUncheckedCreateWithoutRequestItemsInput = {
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
 }
@@ -1333,6 +1472,7 @@ export type ProductVariantUpdateWithoutRequestItemsInput = {
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
 }
@@ -1352,6 +1492,7 @@ export type ProductVariantUncheckedUpdateWithoutRequestItemsInput = {
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
 }
@@ -1370,6 +1511,7 @@ export type ProductVariantCreateWithoutMaterialsInput = {
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
@@ -1389,6 +1531,7 @@ export type ProductVariantUncheckedCreateWithoutMaterialsInput = {
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
@@ -1429,6 +1572,7 @@ export type ProductVariantCreateWithoutAssetsInput = {
   materials?: Prisma.MaterialCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutProductVariantInput
@@ -1448,6 +1592,7 @@ export type ProductVariantUncheckedCreateWithoutAssetsInput = {
   materials?: Prisma.MaterialUncheckedCreateNestedManyWithoutVariantsInput
   measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedCreateNestedManyWithoutVariantInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemUncheckedCreateNestedManyWithoutProductVariantInput
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutProductVariantInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutProductVariantInput
@@ -1483,6 +1628,7 @@ export type ProductVariantUpdateWithoutAssetsInput = {
   materials?: Prisma.MaterialUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
@@ -1502,6 +1648,7 @@ export type ProductVariantUncheckedUpdateWithoutAssetsInput = {
   materials?: Prisma.MaterialUncheckedUpdateManyWithoutVariantsNestedInput
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
@@ -1533,6 +1680,7 @@ export type ProductVariantUpdateWithoutColorInput = {
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
@@ -1552,6 +1700,7 @@ export type ProductVariantUncheckedUpdateWithoutColorInput = {
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
@@ -1595,6 +1744,7 @@ export type ProductVariantUpdateWithoutProductInput = {
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
@@ -1614,6 +1764,7 @@ export type ProductVariantUncheckedUpdateWithoutProductInput = {
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
@@ -1645,6 +1796,7 @@ export type ProductVariantUpdateWithoutMaterialsInput = {
   measurements?: Prisma.ProductMeasurementUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutProductVariantNestedInput
@@ -1664,6 +1816,7 @@ export type ProductVariantUncheckedUpdateWithoutMaterialsInput = {
   measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutVariantNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUncheckedUpdateManyWithoutVariantNestedInput
+  assignedToCustomers?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUncheckedUpdateManyWithoutProductVariantNestedInput
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutProductVariantNestedInput
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutProductVariantNestedInput
@@ -1692,6 +1845,7 @@ export type ProductVariantCountOutputType = {
   measurements: number
   assets: number
   variantSuppliers: number
+  assignedToCustomers: number
   requestItems: number
   orderItems: number
   customerSpecialPrices: number
@@ -1702,6 +1856,7 @@ export type ProductVariantCountOutputTypeSelect<ExtArgs extends runtime.Types.Ex
   measurements?: boolean | ProductVariantCountOutputTypeCountMeasurementsArgs
   assets?: boolean | ProductVariantCountOutputTypeCountAssetsArgs
   variantSuppliers?: boolean | ProductVariantCountOutputTypeCountVariantSuppliersArgs
+  assignedToCustomers?: boolean | ProductVariantCountOutputTypeCountAssignedToCustomersArgs
   requestItems?: boolean | ProductVariantCountOutputTypeCountRequestItemsArgs
   orderItems?: boolean | ProductVariantCountOutputTypeCountOrderItemsArgs
   customerSpecialPrices?: boolean | ProductVariantCountOutputTypeCountCustomerSpecialPricesArgs
@@ -1748,6 +1903,13 @@ export type ProductVariantCountOutputTypeCountVariantSuppliersArgs<ExtArgs exten
 /**
  * ProductVariantCountOutputType without action
  */
+export type ProductVariantCountOutputTypeCountAssignedToCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerAssignedProductWhereInput
+}
+
+/**
+ * ProductVariantCountOutputType without action
+ */
 export type ProductVariantCountOutputTypeCountRequestItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.BusinessRequestItemWhereInput
 }
@@ -1784,6 +1946,7 @@ export type ProductVariantSelect<ExtArgs extends runtime.Types.Extensions.Intern
   measurements?: boolean | Prisma.ProductVariant$measurementsArgs<ExtArgs>
   assets?: boolean | Prisma.ProductVariant$assetsArgs<ExtArgs>
   variantSuppliers?: boolean | Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>
+  assignedToCustomers?: boolean | Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs>
   requestItems?: boolean | Prisma.ProductVariant$requestItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.ProductVariant$orderItemsArgs<ExtArgs>
   customerSpecialPrices?: boolean | Prisma.ProductVariant$customerSpecialPricesArgs<ExtArgs>
@@ -1841,6 +2004,7 @@ export type ProductVariantInclude<ExtArgs extends runtime.Types.Extensions.Inter
   measurements?: boolean | Prisma.ProductVariant$measurementsArgs<ExtArgs>
   assets?: boolean | Prisma.ProductVariant$assetsArgs<ExtArgs>
   variantSuppliers?: boolean | Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>
+  assignedToCustomers?: boolean | Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs>
   requestItems?: boolean | Prisma.ProductVariant$requestItemsArgs<ExtArgs>
   orderItems?: boolean | Prisma.ProductVariant$orderItemsArgs<ExtArgs>
   customerSpecialPrices?: boolean | Prisma.ProductVariant$customerSpecialPricesArgs<ExtArgs>
@@ -1864,6 +2028,7 @@ export type $ProductVariantPayload<ExtArgs extends runtime.Types.Extensions.Inte
     measurements: Prisma.$ProductMeasurementPayload<ExtArgs>[]
     assets: Prisma.$AssetPayload<ExtArgs>[]
     variantSuppliers: Prisma.$ProductVariantSupplierPayload<ExtArgs>[]
+    assignedToCustomers: Prisma.$CustomerAssignedProductPayload<ExtArgs>[]
     requestItems: Prisma.$BusinessRequestItemPayload<ExtArgs>[]
     orderItems: Prisma.$OrderItemPayload<ExtArgs>[]
     customerSpecialPrices: Prisma.$CustomerVariantSpecialPricePayload<ExtArgs>[]
@@ -2279,6 +2444,7 @@ export interface Prisma__ProductVariantClient<T, Null = never, ExtArgs extends r
   measurements<T extends Prisma.ProductVariant$measurementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$measurementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductMeasurementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assets<T extends Prisma.ProductVariant$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   variantSuppliers<T extends Prisma.ProductVariant$variantSuppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantSupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedToCustomers<T extends Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAssignedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   requestItems<T extends Prisma.ProductVariant$requestItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$requestItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderItems<T extends Prisma.ProductVariant$orderItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   customerSpecialPrices<T extends Prisma.ProductVariant$customerSpecialPricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$customerSpecialPricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerVariantSpecialPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2834,6 +3000,30 @@ export type ProductVariant$variantSuppliersArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.ProductVariantSupplierScalarFieldEnum | Prisma.ProductVariantSupplierScalarFieldEnum[]
+}
+
+/**
+ * ProductVariant.assignedToCustomers
+ */
+export type ProductVariant$assignedToCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerAssignedProduct
+   */
+  select?: Prisma.CustomerAssignedProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerAssignedProduct
+   */
+  omit?: Prisma.CustomerAssignedProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerAssignedProductInclude<ExtArgs> | null
+  where?: Prisma.CustomerAssignedProductWhereInput
+  orderBy?: Prisma.CustomerAssignedProductOrderByWithRelationInput | Prisma.CustomerAssignedProductOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerAssignedProductWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerAssignedProductScalarFieldEnum | Prisma.CustomerAssignedProductScalarFieldEnum[]
 }
 
 /**

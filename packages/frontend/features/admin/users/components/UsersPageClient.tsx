@@ -11,6 +11,7 @@ import { useCustomers } from "@/features/admin/customers/hooks/useCustomers"
 import type { Supplier } from "@/features/admin/suppliers/api/types"
 import { useSuppliers } from "@/features/admin/suppliers/hooks/useSuppliers"
 import type { AdminUser } from "@/features/admin/users/api/types"
+import { UserDeleteDialog } from "@/features/admin/users/components/UserDeleteDialog"
 import { UserAccessEditorDialog } from "@/features/admin/users/components/UserAccessEditorDialog"
 import { UserComparisonDialog } from "@/features/admin/users/components/UserComparisonDialog"
 import { UserDetailsDialog } from "@/features/admin/users/components/UserDetailsDialog"
@@ -21,6 +22,7 @@ import { UsersStatsSummary } from "@/features/admin/users/components/UsersStatsS
 import { UsersTable } from "@/features/admin/users/components/UsersTable"
 import { UsersToolbar } from "@/features/admin/users/components/UsersToolbar"
 import { useUserAccessUpdate } from "@/features/admin/users/hooks/useUserAccessUpdate"
+import { useDeleteUser } from "@/features/admin/users/hooks/useDeleteUser"
 import { useUserListFilters } from "@/features/admin/users/hooks/useUserListFilters"
 import { useUsersPageState } from "@/features/admin/users/hooks/useUsersPageState"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
@@ -88,6 +90,7 @@ export function UsersPageClient() {
     const { data: session } = useSession()
     const state = useUsersPageState()
     const updateAccess = useUserAccessUpdate()
+    const deleteUserMutation = useDeleteUser()
 
     const {
         filters,
@@ -113,6 +116,7 @@ export function UsersPageClient() {
     const suppliers = supplierQuery.data?.data ?? EMPTY_SUPPLIERS
     const customers = customerQuery.data?.data ?? EMPTY_CUSTOMERS
     const isOwnerViewer = (session?.user?.groups ?? []).includes("owner")
+    const currentDbUserId = session?.user?.dbUserId ?? null
 
     const dirtyCount = useMemo(
         () => users.filter((user) => isUserDraftDirty(user, state.draftsByUserId[user.id])).length,
@@ -191,7 +195,7 @@ export function UsersPageClient() {
 
     async function handleProfileSave(user: AdminUser, values: UserEditorFormValues) {
         const payload = buildUserEditorSubmission(user, values)
-        if (!payload.profileChanged && !payload.roleChanged && !payload.assignmentsChanged) {
+        if (!payload.profileChanged) {
             toast.message("Güncellenecek bir alan bulunmuyor.")
             state.setProfileEditorUser(null)
             return
@@ -199,19 +203,9 @@ export function UsersPageClient() {
 
         try {
             state.setSavingUserId(user.id)
-            const result = await updateAccess.saveEditor(user, values)
-            state.clearDraft(user.id)
+            await updateAccess.saveEditor(user, values)
             state.setProfileEditorUser(null)
-
-            if (result.profileChanged && (result.roleChanged || result.assignmentsChanged)) {
-                toast.success("Kullanıcı profili, rolü ve atamaları güncellendi.")
-            } else if (result.profileChanged) {
-                toast.success("Kullanıcı profili güncellendi.")
-            } else if (result.roleChanged) {
-                toast.success("Rol ve erişim güncellendi.")
-            } else {
-                toast.success("Kullanıcı atamaları güncellendi.")
-            }
+            toast.success("Kullanıcı profili güncellendi.")
         } catch {
             toast.error("Kullanıcı bilgileri güncellenemedi.")
         } finally {
@@ -234,8 +228,44 @@ export function UsersPageClient() {
         }
     }
 
+    async function handleDeleteUser(user: AdminUser) {
+        try {
+            state.setSavingUserId(user.id)
+            await deleteUserMutation.mutateAsync(user.id)
+            state.clearDraft(user.id)
+            state.setSelectedUserIds((prev) => prev.filter((id) => id !== user.id))
+            state.setComparisonOpen(false)
+            state.setDetailsUser(null)
+            state.setAccessEditorUser(null)
+            state.setProfileEditorUser(null)
+            state.setDeleteUserCandidate(null)
+            toast.success("Kullanici silindi.")
+        } catch {
+            // HTTP interceptor already shows the backend message.
+        } finally {
+            state.setSavingUserId(null)
+        }
+    }
+
+    function getDeleteBlockReason(user: AdminUser) {
+        if (user.id === currentDbUserId) {
+            return "Kendi hesabinizi silemezsiniz."
+        }
+
+        if (user.groups.includes("owner")) {
+            return "Owner kullanicilari silinemez."
+        }
+
+        if (!isOwnerViewer && user.groups.includes("admin")) {
+            return "Admin kullanicilari yalnizca owner silebilir."
+        }
+
+        return null
+    }
+
     function openAccessEditor(user: AdminUser) {
         state.setDetailsUser(null)
+        state.setProfileEditorUser(null)
         state.setAccessEditorUser(user)
     }
 
@@ -243,6 +273,19 @@ export function UsersPageClient() {
         state.setDetailsUser(null)
         state.setAccessEditorUser(null)
         state.setProfileEditorUser(user)
+    }
+
+    function openDeleteDialog(user: AdminUser) {
+        const deleteBlockReason = getDeleteBlockReason(user)
+        if (deleteBlockReason) {
+            toast.message(deleteBlockReason)
+            return
+        }
+
+        state.setDetailsUser(null)
+        state.setAccessEditorUser(null)
+        state.setProfileEditorUser(null)
+        state.setDeleteUserCandidate(user)
     }
 
     return (
@@ -301,7 +344,10 @@ export function UsersPageClient() {
                 selectedUserIds={activeSelectedUserIds}
                 onToggleSelected={state.toggleSelected}
                 onOpenDetails={state.setDetailsUser}
+                onOpenProfileEditor={openProfileEditor}
                 onOpenAccessEditor={openAccessEditor}
+                onOpenDeleteDialog={openDeleteDialog}
+                getDeleteBlockReason={getDeleteBlockReason}
                 onSave={(userId) => void handleSave(userId)}
             />
 
@@ -315,7 +361,10 @@ export function UsersPageClient() {
                 selectedUserIds={activeSelectedUserIds}
                 onToggleSelected={state.toggleSelected}
                 onOpenDetails={state.setDetailsUser}
+                onOpenProfileEditor={openProfileEditor}
                 onOpenAccessEditor={openAccessEditor}
+                onOpenDeleteDialog={openDeleteDialog}
+                getDeleteBlockReason={getDeleteBlockReason}
                 onSave={(userId) => void handleSave(userId)}
             />
 
@@ -325,11 +374,12 @@ export function UsersPageClient() {
                 draft={state.detailsUser ? state.draftsByUserId[state.detailsUser.id] : undefined}
                 suppliers={suppliers}
                 customers={customers}
+                canRequestDelete={state.detailsUser ? !getDeleteBlockReason(state.detailsUser) : false}
+                deleteDisabledReason={state.detailsUser ? getDeleteBlockReason(state.detailsUser) : null}
+                onRequestDelete={openDeleteDialog}
                 onOpenChange={(open) => {
                     if (!open) state.setDetailsUser(null)
                 }}
-                onOpenAccessEditor={openAccessEditor}
-                onOpenProfileEditor={openProfileEditor}
             />
 
             <UserAccessEditorDialog
@@ -357,18 +407,12 @@ export function UsersPageClient() {
                     if (!state.accessEditorUser) return
                     void handleSave(state.accessEditorUser.id)
                 }}
-                onOpenProfileEditor={openProfileEditor}
             />
 
             <UserEditDialog
                 open={Boolean(state.profileEditorUser)}
                 user={state.profileEditorUser}
-                suppliers={suppliers}
-                customers={customers}
-                isOwnerViewer={isOwnerViewer}
                 isSaving={state.savingUserId === state.profileEditorUser?.id}
-                isLoadingSuppliers={supplierQuery.isLoading}
-                isLoadingCustomers={customerQuery.isLoading}
                 onOpenChange={(open) => {
                     if (!open) state.setProfileEditorUser(null)
                 }}
@@ -382,6 +426,18 @@ export function UsersPageClient() {
                 draftsByUserId={state.draftsByUserId}
                 suppliers={suppliers}
                 customers={customers}
+            />
+
+            <UserDeleteDialog
+                open={Boolean(state.deleteUserCandidate)}
+                user={state.deleteUserCandidate}
+                isDeleting={deleteUserMutation.isPending && state.savingUserId === state.deleteUserCandidate?.id}
+                onOpenChange={(open) => {
+                    if (!open) state.setDeleteUserCandidate(null)
+                }}
+                onConfirm={(user) => {
+                    void handleDeleteUser(user)
+                }}
             />
 
             <AdminListPagination

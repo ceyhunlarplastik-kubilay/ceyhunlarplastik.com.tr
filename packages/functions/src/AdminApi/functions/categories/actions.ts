@@ -36,6 +36,8 @@ import type {
     ICreateCategoryAssetUploadEvent,
 } from "@/functions/AdminApi/types/categories"
 
+const categoryManagerGroups = ["admin", "content_editor"]
+
 export const createCategory = lambdaHandler(
     async (event) => {
         const deps: ICreateCategoryDependencies = {
@@ -49,7 +51,7 @@ export const createCategory = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: categoryManagerGroups },
         requestValidator: createCategoryValidator,
     }
 )
@@ -65,7 +67,7 @@ export const listCategories = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: categoryManagerGroups },
         responseValidator: listCategoryResponseValidator,
     }
 )
@@ -81,7 +83,7 @@ export const getCategory = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: categoryManagerGroups },
         requestValidator: getCategoryValidator,
         responseValidator: categoryResponseValidator,
     }
@@ -98,7 +100,7 @@ export const getCategoryBySlug = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: categoryManagerGroups },
         requestValidator: slugValidator,
         responseValidator: categoryResponseValidator,
     }
@@ -116,7 +118,7 @@ export const deleteCategory = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: categoryManagerGroups },
         requestValidator: deleteCategoryValidator,
     }
 )
@@ -133,7 +135,7 @@ export const updateCategory = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: categoryManagerGroups },
         requestValidator: updateCategoryValidator,
     }
 )
@@ -145,7 +147,7 @@ export const createCategoryAssetUpload = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: categoryManagerGroups },
         requestValidator: createCategoryAssetUploadValidator,
     }
 )

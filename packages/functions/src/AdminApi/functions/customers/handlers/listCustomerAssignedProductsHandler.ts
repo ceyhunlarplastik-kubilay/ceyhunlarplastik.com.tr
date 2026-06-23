@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import { mapCustomerAssignedProductForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICustomerDependencies, IGetCustomerEvent } from "@/functions/AdminApi/types/customers"
 
@@ -16,10 +16,7 @@ export const listCustomerAssignedProductsHandler = ({ customerRepository }: ICus
         return apiResponseDTO({
             statusCode: 200,
             payload: {
-                data: data.map((item) => ({
-                    ...item,
-                    product: mapProductWithAssets(item.product),
-                })),
+                data: data.map(mapCustomerAssignedProductForApi),
             },
         })
     }

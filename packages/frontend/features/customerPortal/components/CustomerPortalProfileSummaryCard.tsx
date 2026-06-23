@@ -199,7 +199,7 @@ export function CustomerPortalProfileSummaryCard({
                         {customer.featuredProducts?.length ?? 0} ilgili ürün
                     </Badge>
                     <Badge variant="outline" className="bg-white">
-                        {customer.assignedProducts?.length ?? 0} tanımlı ürün
+                        {customer.assignedProducts?.length ?? 0} tanımlı varyant
                     </Badge>
                     {hasCommercialNote ? (
                         <Badge className="border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-50">

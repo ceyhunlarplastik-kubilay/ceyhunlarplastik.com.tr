@@ -176,7 +176,7 @@ export function ProductAttributeSelect({
     singleSelectNonHierarchy = true,
     excludeAttributeCodes = DEFAULT_EXCLUDED_ATTRIBUTE_CODES,
 }: Props) {
-    const { data, isLoading } = useAttributesForFilter()
+    const { data, isError, isLoading } = useAttributesForFilter()
     const hasRestriction = allowedAttributeValueIds !== undefined
     const excludedCodes = useMemo(() => new Set(excludeAttributeCodes), [excludeAttributeCodes])
 
@@ -354,6 +354,7 @@ export function ProductAttributeSelect({
     }
 
     if (isLoading) return <p className="text-sm text-neutral-500">Attribute alanları yükleniyor...</p>
+    if (isError) return <p className="text-sm text-destructive">Attribute değerleri yüklenemedi.</p>
     if (!scopedAttributes.length) return <p className="text-sm text-neutral-500">Attribute bulunamadı.</p>
 
     return (

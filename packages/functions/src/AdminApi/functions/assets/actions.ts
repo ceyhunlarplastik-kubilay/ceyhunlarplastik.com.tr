@@ -27,6 +27,8 @@ import {
     updateAssetValidator,
 } from "@/functions/AdminApi/validators/assets"
 
+const contentAssetManagerGroups = ["admin", "content_editor"]
+
 export const listAssets = lambdaHandler(
     async (event) =>
         listAssetsHandler({
@@ -84,7 +86,7 @@ export const deleteAsset = lambdaHandler(
             assetRepository: assetRepository(),
         })(event as IDeleteAssetEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: contentAssetManagerGroups },
         requestValidator: idValidator,
     }
 )

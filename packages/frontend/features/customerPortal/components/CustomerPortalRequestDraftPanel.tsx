@@ -19,7 +19,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { buildCurrencySummary, normalizeDraftQuantity, resolveDraftPreviewImageUrl } from "@/features/customerPortal/components/requestComposer/helpers"
 import type { PortalDraftCommercialTermGroup } from "@/features/customerPortal/pricing/portalDraftPricing"
 import type { PortalRequestDraftItem } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
-import { formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
+import {
+    formatCommercialPaymentTerm,
+    formatCommercialPriceSource,
+    formatCommercialTaxStatus,
+    formatMoney,
+    formatPaymentTermLabel,
+} from "@/lib/customers/pricing"
 
 import { MessageSquareText } from "lucide-react"
 import {
@@ -126,10 +132,10 @@ export function CustomerPortalRequestDraftPanel({
                 <div className="space-y-4">
                     {showCommercialTermWarning && commercialTermGroups.length > 1 ? (
                         <div className="rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                            <div className="font-semibold">Sepette farklı ticari koşullar var.</div>
+                            <div className="font-semibold">Sepetinizde farklı ödeme koşulları olan ürünler bulunuyor.</div>
                             <div className="mt-1">
-                                Sipariş talebi oluşturmak için aynı vade, KDV, para birimi ve fiyat koşuluna sahip kalemleri aynı sepette bırakın.
-                                Diğer kalemler için ayrı talep oluşturun.
+                                Talebi gönderebilirsiniz; kalemler vade, KDV, para birimi ve fiyat koşuluna göre ayrı değerlendirilecektir.
+                                Operasyonel olarak ayrı takip etmek isterseniz aynı koşula sahip kalemleri aynı sepette bırakıp diğer kalemler için ayrı talep oluşturabilirsiniz.
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                                 {commercialTermGroups.map((group) => (
@@ -142,13 +148,14 @@ export function CustomerPortalRequestDraftPanel({
                     ) : null}
 
                     <div className="overflow-hidden rounded-[24px] border border-neutral-200 bg-neutral-50">
-                        <Table className="min-w-[1120px]">
+                        <Table className="min-w-[1320px]">
                             <TableHeader className="bg-white/90">
                                 <TableRow className="hover:bg-transparent">
                                     <TableHead className="w-[340px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Ürün</TableHead>
                                     <TableHead className="w-[110px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Miktar</TableHead>
                                     <TableHead className="w-[170px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Liste Fiyatı</TableHead>
                                     <TableHead className="w-[190px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Müşteri Fiyatı</TableHead>
+                                    <TableHead className="w-[190px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Koşullar</TableHead>
                                     <TableHead className="w-[180px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Ara Toplam</TableHead>
                                     <TableHead className="w-[180px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">{isPricing ? "Pazarlık Notu" : "Not"}</TableHead>
                                     <TableHead className="w-[88px] px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">İşlem</TableHead>
@@ -266,6 +273,16 @@ export function CustomerPortalRequestDraftPanel({
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 align-middle">
+                                            <div className="flex min-h-[76px] flex-col justify-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-xs text-neutral-600">
+                                                <div className="font-semibold text-neutral-900">
+                                                    {formatCommercialPaymentTerm(item.pricingSnapshot)}
+                                                </div>
+                                                <div>{item.currency ?? "TRY"} • {formatCommercialTaxStatus(item.pricingSnapshot)}</div>
+                                                <div>{formatCommercialPriceSource(item.pricingSnapshot, item.priceSource)}</div>
+                                            </div>
+                                        </TableCell>
+
+                                        <TableCell className="px-4 py-4 align-middle">
                                             <div className="flex min-h-[76px] flex-col justify-center rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm font-semibold text-neutral-950">
                                                 {item.customerUnitPrice !== null
                                                     && item.customerUnitPrice !== undefined
@@ -365,7 +382,11 @@ export function CustomerPortalRequestDraftPanel({
                                             Vade ve Termin
                                         </div>
                                         <div className="mt-3 space-y-1 text-sm text-neutral-600">
-                                            <div>{formatPaymentTermLabel(orderSummary?.paymentTermDays) || "Vade bilgisi tanimli degil"}</div>
+                                            <div>
+                                                {commercialTermGroups.length > 1
+                                                    ? "Kalem bazında farklı vade / KDV koşulları"
+                                                    : formatPaymentTermLabel(orderSummary?.paymentTermDays) || "Vade bilgisi tanimli degil"}
+                                            </div>
                                             {orderSummary?.paymentTermNote ? (
                                                 <div className="leading-6">{orderSummary.paymentTermNote}</div>
                                             ) : null}

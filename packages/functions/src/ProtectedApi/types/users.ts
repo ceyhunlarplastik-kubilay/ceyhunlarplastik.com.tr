@@ -1,12 +1,29 @@
-import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
+import { IAPIGatewayProxyEventWithUser, IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
+import { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { IPrismaUserRepository } from "@/core/helpers/prisma/users/repository"
 import { IUserNotificationRepository } from "@/core/helpers/prisma/userNotifications/repository"
+import type { IAPIGatewayPaginationQuery } from "@/core/helpers/utils/api/types"
+import type { UserAccessStatus } from "@/core/helpers/prisma/users/repository"
 
-export type IListUsersEvent = IAPIGatewayProxyEventWithUser;
+export type IListUsersEvent = IAPIGatewayProxyEventWithUserGeneric<
+  {},
+  {},
+  IAPIGatewayPaginationQuery & {
+    accessStatus?: UserAccessStatus
+  }
+>;
 
 export type IGetUserEvent = IAPIGatewayProxyEventWithUser;
 
 export type IGetMeEvent = IAPIGatewayProxyEventWithUser;
+export type IUpdateMyProfileEvent = IAPIGatewayProxyEventWithUser<{
+  identifier?: string
+  firstName?: string
+  lastName?: string
+  phone?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+}>;
 export type ICreateMyProfileImageUploadEvent = IAPIGatewayProxyEventWithUser<{
   fileName: string
   contentType: string
@@ -38,6 +55,12 @@ export interface IGetMeDependencies {
 
 export interface IMyProfileImageDependencies {
   userRepository: IPrismaUserRepository;
+}
+
+export interface IMyProfileDependencies {
+  userRepository: IPrismaUserRepository;
+  cognitoRepository: ICognitoUserRepository;
+  userPoolId: string;
 }
 
 export interface IGetMyAccessDependencies {

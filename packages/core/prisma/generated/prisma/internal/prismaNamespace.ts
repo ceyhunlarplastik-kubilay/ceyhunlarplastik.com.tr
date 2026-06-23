@@ -393,6 +393,7 @@ export const ModelName = {
   ProductAttributeValue: 'ProductAttributeValue',
   ProductIndustrialUsage: 'ProductIndustrialUsage',
   Customer: 'Customer',
+  UserInvitation: 'UserInvitation',
   CustomerAttributeValueAssignment: 'CustomerAttributeValueAssignment',
   CompanyContact: 'CompanyContact',
   CustomerCompanyContactAssignment: 'CustomerCompanyContactAssignment',
@@ -407,6 +408,7 @@ export const ModelName = {
   CustomerFeaturedProduct: 'CustomerFeaturedProduct',
   CustomerAssignedProduct: 'CustomerAssignedProduct',
   CustomerAddress: 'CustomerAddress',
+  GeocodingCache: 'GeocodingCache',
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
   CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
@@ -433,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "productIndustrialUsage" | "customer" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "productIndustrialUsage" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1100,6 +1102,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserInvitation: {
+      payload: Prisma.$UserInvitationPayload<ExtArgs>
+      fields: Prisma.UserInvitationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserInvitationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserInvitationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>
+        }
+        findFirst: {
+          args: Prisma.UserInvitationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserInvitationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>
+        }
+        findMany: {
+          args: Prisma.UserInvitationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>[]
+        }
+        create: {
+          args: Prisma.UserInvitationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>
+        }
+        createMany: {
+          args: Prisma.UserInvitationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserInvitationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>[]
+        }
+        delete: {
+          args: Prisma.UserInvitationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>
+        }
+        update: {
+          args: Prisma.UserInvitationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserInvitationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserInvitationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserInvitationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserInvitationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserInvitationPayload>
+        }
+        aggregate: {
+          args: Prisma.UserInvitationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserInvitation>
+        }
+        groupBy: {
+          args: Prisma.UserInvitationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserInvitationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserInvitationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserInvitationCountAggregateOutputType> | number
         }
       }
     }
@@ -2139,6 +2215,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    GeocodingCache: {
+      payload: Prisma.$GeocodingCachePayload<ExtArgs>
+      fields: Prisma.GeocodingCacheFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GeocodingCacheFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GeocodingCacheFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>
+        }
+        findFirst: {
+          args: Prisma.GeocodingCacheFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GeocodingCacheFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>
+        }
+        findMany: {
+          args: Prisma.GeocodingCacheFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>[]
+        }
+        create: {
+          args: Prisma.GeocodingCacheCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>
+        }
+        createMany: {
+          args: Prisma.GeocodingCacheCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GeocodingCacheCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>[]
+        }
+        delete: {
+          args: Prisma.GeocodingCacheDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>
+        }
+        update: {
+          args: Prisma.GeocodingCacheUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>
+        }
+        deleteMany: {
+          args: Prisma.GeocodingCacheDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GeocodingCacheUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GeocodingCacheUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>[]
+        }
+        upsert: {
+          args: Prisma.GeocodingCacheUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GeocodingCachePayload>
+        }
+        aggregate: {
+          args: Prisma.GeocodingCacheAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGeocodingCache>
+        }
+        groupBy: {
+          args: Prisma.GeocodingCacheGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeocodingCacheGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GeocodingCacheCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GeocodingCacheCountAggregateOutputType> | number
+        }
+      }
+    }
     CustomerVisit: {
       payload: Prisma.$CustomerVisitPayload<ExtArgs>
       fields: Prisma.CustomerVisitFieldRefs
@@ -3146,6 +3296,27 @@ export const CustomerScalarFieldEnum = {
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
+export const UserInvitationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  customerId: 'customerId',
+  invitedByUserId: 'invitedByUserId',
+  email: 'email',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  acceptedAt: 'acceptedAt',
+  requestedFirstName: 'requestedFirstName',
+  requestedLastName: 'requestedLastName',
+  requestedCustomerContactTitle: 'requestedCustomerContactTitle',
+  requestedCustomerContactDepartment: 'requestedCustomerContactDepartment',
+  requestedIsPrimaryCustomerContact: 'requestedIsPrimaryCustomerContact',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserInvitationScalarFieldEnum = (typeof UserInvitationScalarFieldEnum)[keyof typeof UserInvitationScalarFieldEnum]
+
+
 export const CustomerAttributeValueAssignmentScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
@@ -3360,7 +3531,7 @@ export type CustomerFeaturedProductScalarFieldEnum = (typeof CustomerFeaturedPro
 export const CustomerAssignedProductScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
-  productId: 'productId',
+  productVariantId: 'productVariantId',
   displayOrder: 'displayOrder',
   createdByUserId: 'createdByUserId',
   createdAt: 'createdAt',
@@ -3388,6 +3559,17 @@ export const CustomerAddressScalarFieldEnum = {
   postalCode: 'postalCode',
   taxOffice: 'taxOffice',
   taxNumber: 'taxNumber',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  locationSource: 'locationSource',
+  locationAccuracy: 'locationAccuracy',
+  geocodingProvider: 'geocodingProvider',
+  geocodingPlaceId: 'geocodingPlaceId',
+  geocodingLabel: 'geocodingLabel',
+  geocodingRaw: 'geocodingRaw',
+  geocodedAt: 'geocodedAt',
+  locationVerifiedAt: 'locationVerifiedAt',
+  locationVerifiedByUserId: 'locationVerifiedByUserId',
   isPrimary: 'isPrimary',
   isBilling: 'isBilling',
   isShipping: 'isShipping',
@@ -3398,6 +3580,20 @@ export const CustomerAddressScalarFieldEnum = {
 } as const
 
 export type CustomerAddressScalarFieldEnum = (typeof CustomerAddressScalarFieldEnum)[keyof typeof CustomerAddressScalarFieldEnum]
+
+
+export const GeocodingCacheScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  queryType: 'queryType',
+  cacheKey: 'cacheKey',
+  responseJson: 'responseJson',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GeocodingCacheScalarFieldEnum = (typeof GeocodingCacheScalarFieldEnum)[keyof typeof GeocodingCacheScalarFieldEnum]
 
 
 export const CustomerVisitScalarFieldEnum = {
@@ -3883,6 +4079,48 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
+ * Reference to a field of type 'CustomerAddressLocationSource'
+ */
+export type EnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerAddressLocationSource'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerAddressLocationSource[]'
+ */
+export type ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerAddressLocationSource[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerAddressLocationAccuracy'
+ */
+export type EnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerAddressLocationAccuracy'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerAddressLocationAccuracy[]'
+ */
+export type ListEnumCustomerAddressLocationAccuracyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerAddressLocationAccuracy[]'>
+    
+
+
+/**
+ * Reference to a field of type 'GeocodingCacheQueryType'
+ */
+export type EnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeocodingCacheQueryType'>
+    
+
+
+/**
+ * Reference to a field of type 'GeocodingCacheQueryType[]'
+ */
+export type ListEnumGeocodingCacheQueryTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GeocodingCacheQueryType[]'>
+    
+
+
+/**
  * Reference to a field of type 'CustomerVisitStatus'
  */
 export type EnumCustomerVisitStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerVisitStatus'>
@@ -4154,6 +4392,7 @@ export type GlobalOmitConfig = {
   productAttributeValue?: Prisma.ProductAttributeValueOmit
   productIndustrialUsage?: Prisma.ProductIndustrialUsageOmit
   customer?: Prisma.CustomerOmit
+  userInvitation?: Prisma.UserInvitationOmit
   customerAttributeValueAssignment?: Prisma.CustomerAttributeValueAssignmentOmit
   companyContact?: Prisma.CompanyContactOmit
   customerCompanyContactAssignment?: Prisma.CustomerCompanyContactAssignmentOmit
@@ -4168,6 +4407,7 @@ export type GlobalOmitConfig = {
   customerFeaturedProduct?: Prisma.CustomerFeaturedProductOmit
   customerAssignedProduct?: Prisma.CustomerAssignedProductOmit
   customerAddress?: Prisma.CustomerAddressOmit
+  geocodingCache?: Prisma.GeocodingCacheOmit
   customerVisit?: Prisma.CustomerVisitOmit
   productVariantSupplier?: Prisma.ProductVariantSupplierOmit
   customerVariantSpecialPrice?: Prisma.CustomerVariantSpecialPriceOmit

@@ -9,6 +9,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { EditCustomerProfileDialog } from "@/features/admin/customers/components/EditCustomerProfileDialog"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
+import { ManagedCustomerAddressesSection } from "@/features/customerLocations/components/ManagedCustomerAddressesSection"
 import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
 import { useManagedCustomer } from "@/features/sales/customers/hooks/useManagedCustomer"
 import { useManagedCompanyContacts } from "@/features/sales/customers/hooks/useManagedCompanyContacts"
@@ -217,6 +218,8 @@ export function SalesCustomerOverviewPageClient({ customerId }: Props) {
                     </div>
                 </div>
             </div>
+
+            <ManagedCustomerAddressesSection customer={customer} />
 
             <EditCustomerProfileDialog
                 open={dialogOpen}

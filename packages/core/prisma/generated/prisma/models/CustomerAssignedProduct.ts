@@ -37,7 +37,7 @@ export type CustomerAssignedProductSumAggregateOutputType = {
 export type CustomerAssignedProductMinAggregateOutputType = {
   id: string | null
   customerId: string | null
-  productId: string | null
+  productVariantId: string | null
   displayOrder: number | null
   createdByUserId: string | null
   createdAt: Date | null
@@ -47,7 +47,7 @@ export type CustomerAssignedProductMinAggregateOutputType = {
 export type CustomerAssignedProductMaxAggregateOutputType = {
   id: string | null
   customerId: string | null
-  productId: string | null
+  productVariantId: string | null
   displayOrder: number | null
   createdByUserId: string | null
   createdAt: Date | null
@@ -57,7 +57,7 @@ export type CustomerAssignedProductMaxAggregateOutputType = {
 export type CustomerAssignedProductCountAggregateOutputType = {
   id: number
   customerId: number
-  productId: number
+  productVariantId: number
   displayOrder: number
   createdByUserId: number
   createdAt: number
@@ -77,7 +77,7 @@ export type CustomerAssignedProductSumAggregateInputType = {
 export type CustomerAssignedProductMinAggregateInputType = {
   id?: true
   customerId?: true
-  productId?: true
+  productVariantId?: true
   displayOrder?: true
   createdByUserId?: true
   createdAt?: true
@@ -87,7 +87,7 @@ export type CustomerAssignedProductMinAggregateInputType = {
 export type CustomerAssignedProductMaxAggregateInputType = {
   id?: true
   customerId?: true
-  productId?: true
+  productVariantId?: true
   displayOrder?: true
   createdByUserId?: true
   createdAt?: true
@@ -97,7 +97,7 @@ export type CustomerAssignedProductMaxAggregateInputType = {
 export type CustomerAssignedProductCountAggregateInputType = {
   id?: true
   customerId?: true
-  productId?: true
+  productVariantId?: true
   displayOrder?: true
   createdByUserId?: true
   createdAt?: true
@@ -194,7 +194,7 @@ export type CustomerAssignedProductGroupByArgs<ExtArgs extends runtime.Types.Ext
 export type CustomerAssignedProductGroupByOutputType = {
   id: string
   customerId: string
-  productId: string
+  productVariantId: string
   displayOrder: number
   createdByUserId: string
   createdAt: Date
@@ -227,50 +227,50 @@ export type CustomerAssignedProductWhereInput = {
   NOT?: Prisma.CustomerAssignedProductWhereInput | Prisma.CustomerAssignedProductWhereInput[]
   id?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   customerId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
-  productId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
+  productVariantId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntFilter<"CustomerAssignedProduct"> | number
   createdByUserId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
-  product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
+  productVariant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type CustomerAssignedProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  productId?: Prisma.SortOrder
+  productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
-  product?: Prisma.ProductOrderByWithRelationInput
+  productVariant?: Prisma.ProductVariantOrderByWithRelationInput
   createdByUser?: Prisma.UserOrderByWithRelationInput
 }
 
 export type CustomerAssignedProductWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  customerId_productId?: Prisma.CustomerAssignedProductCustomerIdProductIdCompoundUniqueInput
+  customerId_productVariantId?: Prisma.CustomerAssignedProductCustomerIdProductVariantIdCompoundUniqueInput
   AND?: Prisma.CustomerAssignedProductWhereInput | Prisma.CustomerAssignedProductWhereInput[]
   OR?: Prisma.CustomerAssignedProductWhereInput[]
   NOT?: Prisma.CustomerAssignedProductWhereInput | Prisma.CustomerAssignedProductWhereInput[]
   customerId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
-  productId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
+  productVariantId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntFilter<"CustomerAssignedProduct"> | number
   createdByUserId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
-  product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
+  productVariant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "customerId_productId">
+}, "id" | "customerId_productVariantId">
 
 export type CustomerAssignedProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  productId?: Prisma.SortOrder
+  productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -288,7 +288,7 @@ export type CustomerAssignedProductScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CustomerAssignedProductScalarWhereWithAggregatesInput | Prisma.CustomerAssignedProductScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
   customerId?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
-  productId?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
+  productVariantId?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntWithAggregatesFilter<"CustomerAssignedProduct"> | number
   createdByUserId?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerAssignedProduct"> | Date | string
@@ -301,14 +301,14 @@ export type CustomerAssignedProductCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAssignedProductsInput
-  product: Prisma.ProductCreateNestedOneWithoutAssignedToCustomersInput
+  productVariant: Prisma.ProductVariantCreateNestedOneWithoutAssignedToCustomersInput
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerAssignedProductsInput
 }
 
 export type CustomerAssignedProductUncheckedCreateInput = {
   id?: string
   customerId: string
-  productId: string
+  productVariantId: string
   displayOrder?: number
   createdByUserId: string
   createdAt?: Date | string
@@ -321,14 +321,14 @@ export type CustomerAssignedProductUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAssignedProductsNestedInput
-  product?: Prisma.ProductUpdateOneRequiredWithoutAssignedToCustomersNestedInput
+  productVariant?: Prisma.ProductVariantUpdateOneRequiredWithoutAssignedToCustomersNestedInput
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerAssignedProductsNestedInput
 }
 
 export type CustomerAssignedProductUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -338,7 +338,7 @@ export type CustomerAssignedProductUncheckedUpdateInput = {
 export type CustomerAssignedProductCreateManyInput = {
   id?: string
   customerId: string
-  productId: string
+  productVariantId: string
   displayOrder?: number
   createdByUserId: string
   createdAt?: Date | string
@@ -355,7 +355,7 @@ export type CustomerAssignedProductUpdateManyMutationInput = {
 export type CustomerAssignedProductUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,15 +372,15 @@ export type CustomerAssignedProductOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CustomerAssignedProductCustomerIdProductIdCompoundUniqueInput = {
+export type CustomerAssignedProductCustomerIdProductVariantIdCompoundUniqueInput = {
   customerId: string
-  productId: string
+  productVariantId: string
 }
 
 export type CustomerAssignedProductCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  productId?: Prisma.SortOrder
+  productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -394,7 +394,7 @@ export type CustomerAssignedProductAvgOrderByAggregateInput = {
 export type CustomerAssignedProductMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  productId?: Prisma.SortOrder
+  productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -404,7 +404,7 @@ export type CustomerAssignedProductMaxOrderByAggregateInput = {
 export type CustomerAssignedProductMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  productId?: Prisma.SortOrder
+  productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -457,48 +457,6 @@ export type CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNested
   deleteMany?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
 }
 
-export type CustomerAssignedProductCreateNestedManyWithoutProductInput = {
-  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput> | Prisma.CustomerAssignedProductCreateWithoutProductInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput[]
-  createMany?: Prisma.CustomerAssignedProductCreateManyProductInputEnvelope
-  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-}
-
-export type CustomerAssignedProductUncheckedCreateNestedManyWithoutProductInput = {
-  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput> | Prisma.CustomerAssignedProductCreateWithoutProductInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput[]
-  createMany?: Prisma.CustomerAssignedProductCreateManyProductInputEnvelope
-  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-}
-
-export type CustomerAssignedProductUpdateManyWithoutProductNestedInput = {
-  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput> | Prisma.CustomerAssignedProductCreateWithoutProductInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput[]
-  upsert?: Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductInput | Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductInput[]
-  createMany?: Prisma.CustomerAssignedProductCreateManyProductInputEnvelope
-  set?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  disconnect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  delete?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  update?: Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductInput | Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductInput[]
-  updateMany?: Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductInput | Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductInput[]
-  deleteMany?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
-}
-
-export type CustomerAssignedProductUncheckedUpdateManyWithoutProductNestedInput = {
-  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput> | Prisma.CustomerAssignedProductCreateWithoutProductInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductInput[]
-  upsert?: Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductInput | Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductInput[]
-  createMany?: Prisma.CustomerAssignedProductCreateManyProductInputEnvelope
-  set?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  disconnect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  delete?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
-  update?: Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductInput | Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductInput[]
-  updateMany?: Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductInput | Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductInput[]
-  deleteMany?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
-}
-
 export type CustomerAssignedProductCreateNestedManyWithoutCustomerInput = {
   create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutCustomerInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutCustomerInput> | Prisma.CustomerAssignedProductCreateWithoutCustomerInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutCustomerInput[]
   connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutCustomerInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutCustomerInput[]
@@ -541,19 +499,61 @@ export type CustomerAssignedProductUncheckedUpdateManyWithoutCustomerNestedInput
   deleteMany?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
 }
 
+export type CustomerAssignedProductCreateNestedManyWithoutProductVariantInput = {
+  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput> | Prisma.CustomerAssignedProductCreateWithoutProductVariantInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput[]
+  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput[]
+  createMany?: Prisma.CustomerAssignedProductCreateManyProductVariantInputEnvelope
+  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+}
+
+export type CustomerAssignedProductUncheckedCreateNestedManyWithoutProductVariantInput = {
+  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput> | Prisma.CustomerAssignedProductCreateWithoutProductVariantInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput[]
+  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput[]
+  createMany?: Prisma.CustomerAssignedProductCreateManyProductVariantInputEnvelope
+  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+}
+
+export type CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput> | Prisma.CustomerAssignedProductCreateWithoutProductVariantInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput[]
+  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput[]
+  upsert?: Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductVariantInput | Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductVariantInput[]
+  createMany?: Prisma.CustomerAssignedProductCreateManyProductVariantInputEnvelope
+  set?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  disconnect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  delete?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  update?: Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductVariantInput | Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductVariantInput[]
+  updateMany?: Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductVariantInput | Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductVariantInput[]
+  deleteMany?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
+}
+
+export type CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput> | Prisma.CustomerAssignedProductCreateWithoutProductVariantInput[] | Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput[]
+  connectOrCreate?: Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput | Prisma.CustomerAssignedProductCreateOrConnectWithoutProductVariantInput[]
+  upsert?: Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductVariantInput | Prisma.CustomerAssignedProductUpsertWithWhereUniqueWithoutProductVariantInput[]
+  createMany?: Prisma.CustomerAssignedProductCreateManyProductVariantInputEnvelope
+  set?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  disconnect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  delete?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  connect?: Prisma.CustomerAssignedProductWhereUniqueInput | Prisma.CustomerAssignedProductWhereUniqueInput[]
+  update?: Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductVariantInput | Prisma.CustomerAssignedProductUpdateWithWhereUniqueWithoutProductVariantInput[]
+  updateMany?: Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductVariantInput | Prisma.CustomerAssignedProductUpdateManyWithWhereWithoutProductVariantInput[]
+  deleteMany?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
+}
+
 export type CustomerAssignedProductCreateWithoutCreatedByUserInput = {
   id?: string
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAssignedProductsInput
-  product: Prisma.ProductCreateNestedOneWithoutAssignedToCustomersInput
+  productVariant: Prisma.ProductVariantCreateNestedOneWithoutAssignedToCustomersInput
 }
 
 export type CustomerAssignedProductUncheckedCreateWithoutCreatedByUserInput = {
   id?: string
   customerId: string
-  productId: string
+  productVariantId: string
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -591,55 +591,11 @@ export type CustomerAssignedProductScalarWhereInput = {
   NOT?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
   id?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   customerId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
-  productId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
+  productVariantId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntFilter<"CustomerAssignedProduct"> | number
   createdByUserId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
-}
-
-export type CustomerAssignedProductCreateWithoutProductInput = {
-  id?: string
-  displayOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  customer: Prisma.CustomerCreateNestedOneWithoutAssignedProductsInput
-  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerAssignedProductsInput
-}
-
-export type CustomerAssignedProductUncheckedCreateWithoutProductInput = {
-  id?: string
-  customerId: string
-  displayOrder?: number
-  createdByUserId: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type CustomerAssignedProductCreateOrConnectWithoutProductInput = {
-  where: Prisma.CustomerAssignedProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput>
-}
-
-export type CustomerAssignedProductCreateManyProductInputEnvelope = {
-  data: Prisma.CustomerAssignedProductCreateManyProductInput | Prisma.CustomerAssignedProductCreateManyProductInput[]
-  skipDuplicates?: boolean
-}
-
-export type CustomerAssignedProductUpsertWithWhereUniqueWithoutProductInput = {
-  where: Prisma.CustomerAssignedProductWhereUniqueInput
-  update: Prisma.XOR<Prisma.CustomerAssignedProductUpdateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedUpdateWithoutProductInput>
-  create: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductInput>
-}
-
-export type CustomerAssignedProductUpdateWithWhereUniqueWithoutProductInput = {
-  where: Prisma.CustomerAssignedProductWhereUniqueInput
-  data: Prisma.XOR<Prisma.CustomerAssignedProductUpdateWithoutProductInput, Prisma.CustomerAssignedProductUncheckedUpdateWithoutProductInput>
-}
-
-export type CustomerAssignedProductUpdateManyWithWhereWithoutProductInput = {
-  where: Prisma.CustomerAssignedProductScalarWhereInput
-  data: Prisma.XOR<Prisma.CustomerAssignedProductUpdateManyMutationInput, Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductInput>
 }
 
 export type CustomerAssignedProductCreateWithoutCustomerInput = {
@@ -647,13 +603,13 @@ export type CustomerAssignedProductCreateWithoutCustomerInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  product: Prisma.ProductCreateNestedOneWithoutAssignedToCustomersInput
+  productVariant: Prisma.ProductVariantCreateNestedOneWithoutAssignedToCustomersInput
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerAssignedProductsInput
 }
 
 export type CustomerAssignedProductUncheckedCreateWithoutCustomerInput = {
   id?: string
-  productId: string
+  productVariantId: string
   displayOrder?: number
   createdByUserId: string
   createdAt?: Date | string
@@ -686,10 +642,54 @@ export type CustomerAssignedProductUpdateManyWithWhereWithoutCustomerInput = {
   data: Prisma.XOR<Prisma.CustomerAssignedProductUpdateManyMutationInput, Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCustomerInput>
 }
 
+export type CustomerAssignedProductCreateWithoutProductVariantInput = {
+  id?: string
+  displayOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutAssignedProductsInput
+  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerAssignedProductsInput
+}
+
+export type CustomerAssignedProductUncheckedCreateWithoutProductVariantInput = {
+  id?: string
+  customerId: string
+  displayOrder?: number
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerAssignedProductCreateOrConnectWithoutProductVariantInput = {
+  where: Prisma.CustomerAssignedProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput>
+}
+
+export type CustomerAssignedProductCreateManyProductVariantInputEnvelope = {
+  data: Prisma.CustomerAssignedProductCreateManyProductVariantInput | Prisma.CustomerAssignedProductCreateManyProductVariantInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerAssignedProductUpsertWithWhereUniqueWithoutProductVariantInput = {
+  where: Prisma.CustomerAssignedProductWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerAssignedProductUpdateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedUpdateWithoutProductVariantInput>
+  create: Prisma.XOR<Prisma.CustomerAssignedProductCreateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedCreateWithoutProductVariantInput>
+}
+
+export type CustomerAssignedProductUpdateWithWhereUniqueWithoutProductVariantInput = {
+  where: Prisma.CustomerAssignedProductWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerAssignedProductUpdateWithoutProductVariantInput, Prisma.CustomerAssignedProductUncheckedUpdateWithoutProductVariantInput>
+}
+
+export type CustomerAssignedProductUpdateManyWithWhereWithoutProductVariantInput = {
+  where: Prisma.CustomerAssignedProductScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerAssignedProductUpdateManyMutationInput, Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantInput>
+}
+
 export type CustomerAssignedProductCreateManyCreatedByUserInput = {
   id?: string
   customerId: string
-  productId: string
+  productVariantId: string
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -701,13 +701,13 @@ export type CustomerAssignedProductUpdateWithoutCreatedByUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAssignedProductsNestedInput
-  product?: Prisma.ProductUpdateOneRequiredWithoutAssignedToCustomersNestedInput
+  productVariant?: Prisma.ProductVariantUpdateOneRequiredWithoutAssignedToCustomersNestedInput
 }
 
 export type CustomerAssignedProductUncheckedUpdateWithoutCreatedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -716,51 +716,15 @@ export type CustomerAssignedProductUncheckedUpdateWithoutCreatedByUserInput = {
 export type CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CustomerAssignedProductCreateManyProductInput = {
-  id?: string
-  customerId: string
-  displayOrder?: number
-  createdByUserId: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type CustomerAssignedProductUpdateWithoutProductInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  customer?: Prisma.CustomerUpdateOneRequiredWithoutAssignedProductsNestedInput
-  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerAssignedProductsNestedInput
-}
-
-export type CustomerAssignedProductUncheckedUpdateWithoutProductInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CustomerAssignedProductUncheckedUpdateManyWithoutProductInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerAssignedProductCreateManyCustomerInput = {
   id?: string
-  productId: string
+  productVariantId: string
   displayOrder?: number
   createdByUserId: string
   createdAt?: Date | string
@@ -772,13 +736,13 @@ export type CustomerAssignedProductUpdateWithoutCustomerInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneRequiredWithoutAssignedToCustomersNestedInput
+  productVariant?: Prisma.ProductVariantUpdateOneRequiredWithoutAssignedToCustomersNestedInput
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerAssignedProductsNestedInput
 }
 
 export type CustomerAssignedProductUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -787,7 +751,43 @@ export type CustomerAssignedProductUncheckedUpdateWithoutCustomerInput = {
 
 export type CustomerAssignedProductUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerAssignedProductCreateManyProductVariantInput = {
+  id?: string
+  customerId: string
+  displayOrder?: number
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerAssignedProductUpdateWithoutProductVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutAssignedProductsNestedInput
+  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerAssignedProductsNestedInput
+}
+
+export type CustomerAssignedProductUncheckedUpdateWithoutProductVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -799,66 +799,66 @@ export type CustomerAssignedProductUncheckedUpdateManyWithoutCustomerInput = {
 export type CustomerAssignedProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customerId?: boolean
-  productId?: boolean
+  productVariantId?: boolean
   displayOrder?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  productVariant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerAssignedProduct"]>
 
 export type CustomerAssignedProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customerId?: boolean
-  productId?: boolean
+  productVariantId?: boolean
   displayOrder?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  productVariant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerAssignedProduct"]>
 
 export type CustomerAssignedProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   customerId?: boolean
-  productId?: boolean
+  productVariantId?: boolean
   displayOrder?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  productVariant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerAssignedProduct"]>
 
 export type CustomerAssignedProductSelectScalar = {
   id?: boolean
   customerId?: boolean
-  productId?: boolean
+  productVariantId?: boolean
   displayOrder?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerAssignedProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "productId" | "displayOrder" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAssignedProduct"]>
+export type CustomerAssignedProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "productVariantId" | "displayOrder" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAssignedProduct"]>
 export type CustomerAssignedProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  productVariant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type CustomerAssignedProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  productVariant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type CustomerAssignedProductIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
+  productVariant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
@@ -866,13 +866,13 @@ export type $CustomerAssignedProductPayload<ExtArgs extends runtime.Types.Extens
   name: "CustomerAssignedProduct"
   objects: {
     customer: Prisma.$CustomerPayload<ExtArgs>
-    product: Prisma.$ProductPayload<ExtArgs>
+    productVariant: Prisma.$ProductVariantPayload<ExtArgs>
     createdByUser: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     customerId: string
-    productId: string
+    productVariantId: string
     displayOrder: number
     createdByUserId: string
     createdAt: Date
@@ -1272,7 +1272,7 @@ readonly fields: CustomerAssignedProductFieldRefs;
 export interface Prisma__CustomerAssignedProductClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   customer<T extends Prisma.CustomerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  productVariant<T extends Prisma.ProductVariantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariantDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductVariantClient<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   createdByUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1305,7 +1305,7 @@ export interface Prisma__CustomerAssignedProductClient<T, Null = never, ExtArgs 
 export interface CustomerAssignedProductFieldRefs {
   readonly id: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
   readonly customerId: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
-  readonly productId: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
+  readonly productVariantId: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
   readonly displayOrder: Prisma.FieldRef<"CustomerAssignedProduct", 'Int'>
   readonly createdByUserId: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
   readonly createdAt: Prisma.FieldRef<"CustomerAssignedProduct", 'DateTime'>

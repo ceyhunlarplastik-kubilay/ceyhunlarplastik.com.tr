@@ -7,8 +7,9 @@ export function useReplaceCustomerAssignedProducts(customerId: string) {
     const qc = useQueryClient()
 
     return useMutation({
-        mutationFn: (productIds: string[]) => replaceCustomerAssignedProducts(customerId, productIds),
-        onSuccess() {
+        mutationFn: (productVariantIds: string[]) => replaceCustomerAssignedProducts(customerId, productVariantIds),
+        onSuccess(data) {
+            qc.setQueryData(["admin-customer-assigned-products", customerId], data)
             qc.invalidateQueries({ queryKey: ["admin-customer-assigned-products", customerId] })
             qc.invalidateQueries({ queryKey: ["admin-customer", customerId] })
         },

@@ -20,6 +20,7 @@ export const appRouter =
                 aliases: [`*.${domain}`],
                 dns: sst.aws.dns({
                     zone: hostedZone!,
+                    override: true,
                 }),
             },
         })
@@ -34,6 +35,4 @@ if (appRouter) {
     appRouter.routeBucket("/product-variant-assets", publicBucket);
     appRouter.routeBucket("/product-variant-materials", publicBucket);
     appRouter.routeBucket("/product-variant-colors", publicBucket);
-    appRouter.routeBucket("/product-variant-suppliers", publicBucket);
-    appRouter.routeBucket("/product-variant-suppliers", publicBucket);
 }

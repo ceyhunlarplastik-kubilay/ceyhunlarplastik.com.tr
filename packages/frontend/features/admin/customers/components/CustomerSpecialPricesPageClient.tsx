@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useDeferredValue, useMemo, useState } from "react"
+import { useDeferredValue, useMemo, useState, type UIEvent } from "react"
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { BadgePercent, CalendarClock, Check, ChevronsUpDown, FileText, PackageSearch, Pencil, Plus, Power, ReceiptText } from "lucide-react"
@@ -41,9 +41,6 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useCategories } from "@/features/admin/categories/hooks/useCategories"
-import { useProducts } from "@/features/admin/products/hooks/useProducts"
-import { useProductVariants } from "@/features/admin/productVariants/hooks/useProductVariants"
 import {
     useCreateCustomerVariantSpecialPrice,
     useCustomerVariantSpecialPrices,
@@ -65,17 +62,183 @@ import {
     customerSpecialPriceFormSchema,
     type CustomerSpecialPriceFormValues,
 } from "@/features/admin/customers/specialPrices/utils/customerSpecialPriceForm"
+import type { Category } from "@/features/public/categories/types"
+import { useCategories } from "@/features/public/categories/hooks/useCategories"
+import { useProducts } from "@/features/public/products/hooks/useProducts"
+import { useProductVariantTable } from "@/features/public/products/hooks/useProductVariantTable"
+import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable"
 import type { Product } from "@/features/public/products/types"
+import {
+    formatMeasurementValue,
+    toMeasurementLabel,
+} from "@/features/public/products/utils/measurement"
 import { PRICE_CURRENCY_OPTIONS } from "@/lib/pricing/currencies"
 import { formatMoney } from "@/lib/customers/pricing"
+import { cn } from "@/lib/utils"
 
 type Props = {
     customerId: string
 }
 
+type ImageAssetLike = {
+    role?: string | null
+    type?: string | null
+    url?: string | null
+}
+
+type DecimalLike = number | string | { s?: number; e?: number; d?: number[] } | null | undefined
+
+const naturalCodeCollator = new Intl.Collator("tr-TR", {
+    numeric: true,
+    sensitivity: "base",
+})
+
+function getImageAssetUrl(assets?: ImageAssetLike[] | null, fallback: string | null = null) {
+    const primary = assets?.find((asset) => asset.role === "PRIMARY" && asset.type === "IMAGE")
+    if (primary?.url) return primary.url
+
+    const animated = assets?.find((asset) => asset.role === "ANIMATION" && asset.type === "IMAGE")
+    if (animated?.url) return animated.url
+
+    const anyImage = assets?.find((asset) => asset.type === "IMAGE" && asset.url)
+    return anyImage?.url ?? fallback
+}
+
+function getCategoryImageUrl(category: Category) {
+    return getImageAssetUrl(category.assets, null)
+}
+
+function getProductImageUrl(product: Product) {
+    return getImageAssetUrl(product.assets, "/placeholder.webp") ?? "/placeholder.webp"
+}
+
+function compareCategories(left: Category, right: Category) {
+    return left.code - right.code
+        || naturalCodeCollator.compare(left.name, right.name)
+}
+
+function compareProducts(left: Product, right: Product) {
+    return naturalCodeCollator.compare(left.code, right.code)
+        || naturalCodeCollator.compare(left.name, right.name)
+}
+
+function compareVariants(left: VariantTableData, right: VariantTableData) {
+    return naturalCodeCollator.compare(left.fullCode, right.fullCode)
+        || naturalCodeCollator.compare(left.name, right.name)
+}
+
+function decimalLikeToText(value: DecimalLike) {
+    if (value === null || value === undefined) return ""
+    if (typeof value === "number") return value.toFixed(2)
+    if (typeof value === "string") return value
+
+    const sign = value.s === -1 ? "-" : ""
+    const digits = Array.isArray(value.d) ? value.d.join("") : ""
+    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
+    if (!digits) return ""
+
+    if (exponent >= digits.length - 1) {
+        return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
+    }
+    if (exponent < 0) {
+        return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
+    }
+    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
+}
+
+function decimalLikeToNumber(value: DecimalLike) {
+    const text = decimalLikeToText(value)
+    if (!text || text === "-") return null
+
+    const parsed = Number(text)
+    return Number.isFinite(parsed) ? parsed : null
+}
+
+function getActiveVariantListPrice(variant?: VariantTableData | null, preferredCurrency?: string | null) {
+    if (!variant) return null
+
+    const activeListPrices = (variant.variantSuppliers ?? [])
+        .map((supplier) => {
+            if (supplier.isActive === false) return null
+
+            const value = decimalLikeToNumber(supplier.listPrice)
+            if (value === null) return null
+
+            return {
+                currency: supplier.currency ?? "TRY",
+                value,
+            }
+        })
+        .filter((item): item is NonNullable<typeof item> => Boolean(item))
+        .sort((left, right) => {
+            if (preferredCurrency && left.currency !== right.currency) {
+                if (left.currency === preferredCurrency) return -1
+                if (right.currency === preferredCurrency) return 1
+            }
+            return naturalCodeCollator.compare(left.currency, right.currency)
+                || left.value - right.value
+        })
+
+    return activeListPrices[0] ?? null
+}
+
+function getVariantMeasurementChips(variant: VariantTableData) {
+    return [...(variant.measurements ?? [])]
+        .sort((left, right) => left.measurementType.displayOrder - right.measurementType.displayOrder)
+        .map((measurement) => ({
+            key: measurement.id,
+            label: `${measurement.measurementType.code}: ${formatMeasurementValue(measurement)}`,
+        }))
+}
+
+function getVariantSummary(variant: VariantTableData) {
+    const measurements = variant.measurements?.length
+        ? toMeasurementLabel(variant.measurements)
+        : null
+    const materials = variant.materials?.length
+        ? variant.materials.map((material) => material.name).join(", ")
+        : null
+
+    return [measurements, variant.color?.name, materials].filter(Boolean).join(" · ") || "Ölçü bilgisi yok"
+}
+
+function stopScrollPropagation(event: UIEvent) {
+    event.stopPropagation()
+}
+
+function getSpecialPriceStateBadge(specialPrice: CustomerVariantSpecialPrice) {
+    if (specialPrice.pricing.ineligibilityReason === "SPECIAL_PRICE_EXPIRED") {
+        return (
+            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-800">
+                Süresi doldu
+            </Badge>
+        )
+    }
+
+    if (specialPrice.pricing.ineligibilityReason === "SPECIAL_PRICE_NOT_YET_VALID") {
+        return (
+            <Badge variant="outline" className="border-sky-200 bg-sky-50 text-sky-800">
+                Henüz geçerli değil
+            </Badge>
+        )
+    }
+
+    if (specialPrice.pricing.ineligibilityReason === "SPECIAL_PRICE_INACTIVE") {
+        return (
+            <Badge variant="outline" className="border-neutral-200 bg-neutral-100 text-neutral-700">
+                Pasif fiyat
+            </Badge>
+        )
+    }
+
+    return null
+}
+
 export function CustomerSpecialPricesPageClient({ customerId }: Props) {
     const [open, setOpen] = useState(false)
     const [editing, setEditing] = useState<CustomerVariantSpecialPrice | null>(null)
+    const [categoryComboboxOpen, setCategoryComboboxOpen] = useState(false)
+    const [categorySearch, setCategorySearch] = useState("")
     const [productComboboxOpen, setProductComboboxOpen] = useState(false)
     const [productSearch, setProductSearch] = useState("")
     const [selectedProductCategoryId, setSelectedProductCategoryId] = useState("")
@@ -104,13 +267,34 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
         ...(selectedProductCategoryId ? { categoryId: selectedProductCategoryId } : {}),
     }), [deferredProductSearch, selectedProductCategoryId])
     const categoriesQuery = useCategories()
-    const productsQuery = useProducts({ params: productQueryParams })
-    const variantsQuery = useProductVariants(formValues.productId)
+    const productsQuery = useProducts(productQueryParams)
+    const variantsQuery = useProductVariantTable(formValues.productId)
     const createMutation = useCreateCustomerVariantSpecialPrice(customerId)
     const updateMutation = useUpdateCustomerVariantSpecialPrice(customerId)
     const deactivateMutation = useDeactivateCustomerVariantSpecialPrice(customerId)
     const specialPrices = specialPricesQuery.data?.data ?? []
-    const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data])
+    const categories = useMemo(
+        () => [...(categoriesQuery.data ?? [])].sort(compareCategories),
+        [categoriesQuery.data],
+    )
+    const deferredCategorySearch = useDeferredValue(categorySearch)
+    const filteredCategories = useMemo(() => {
+        const normalizedSearch = deferredCategorySearch.trim().toLocaleLowerCase("tr-TR")
+        if (!normalizedSearch) return categories
+
+        return categories.filter((category) =>
+            `${category.code} ${category.name} ${category.slug}`
+                .toLocaleLowerCase("tr-TR")
+                .includes(normalizedSearch),
+        )
+    }, [categories, deferredCategorySearch])
+    const selectedCategoryOption = useMemo(
+        () => categories.find((category) => category.id === selectedProductCategoryId) ?? null,
+        [categories, selectedProductCategoryId],
+    )
+    const selectedCategoryImageUrl = selectedCategoryOption
+        ? getCategoryImageUrl(selectedCategoryOption)
+        : null
     const products = useMemo(() => productsQuery.data?.data ?? [], [productsQuery.data?.data])
     const productOptions = useMemo(() => {
         const currentProduct = editing?.productVariant?.product
@@ -120,17 +304,31 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
         if (selectedProductDraft) productById.set(selectedProductDraft.id, selectedProductDraft)
         for (const product of products) productById.set(product.id, product)
 
-        return Array.from(productById.values())
+        return Array.from(productById.values()).sort(compareProducts)
     }, [editing, products, selectedProductDraft])
     const selectedProductOption = useMemo(
         () => productOptions.find((product) => product.id === formValues.productId) ?? null,
         [formValues.productId, productOptions],
+    )
+    const variantOptions = useMemo(
+        () => [...(variantsQuery.data ?? [])].sort(compareVariants),
+        [variantsQuery.data],
+    )
+    const selectedVariantOption = useMemo(
+        () => variantOptions.find((variant) => variant.id === formValues.productVariantId) ?? null,
+        [formValues.productVariantId, variantOptions],
+    )
+    const selectedVariantListPrice = useMemo(
+        () => getActiveVariantListPrice(selectedVariantOption, formValues.currency),
+        [formValues.currency, selectedVariantOption],
     )
 
     function handleDialogOpenChange(nextOpen: boolean) {
         setOpen(nextOpen)
         if (!nextOpen) {
             setEditing(null)
+            setCategoryComboboxOpen(false)
+            setCategorySearch("")
             setProductComboboxOpen(false)
             setProductSearch("")
             setSelectedProductCategoryId("")
@@ -141,6 +339,8 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
 
     function openCreate() {
         setEditing(null)
+        setCategoryComboboxOpen(false)
+        setCategorySearch("")
         setProductComboboxOpen(false)
         setProductSearch("")
         setSelectedProductCategoryId("")
@@ -152,6 +352,8 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
     function openEdit(specialPrice: CustomerVariantSpecialPrice) {
         const product = specialPrice.productVariant?.product ?? null
         setEditing(specialPrice)
+        setCategoryComboboxOpen(false)
+        setCategorySearch("")
         setProductComboboxOpen(false)
         setProductSearch("")
         setSelectedProductCategoryId(product?.categoryId ?? "")
@@ -162,6 +364,8 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
 
     function handleProductCategoryChange(value: string) {
         setSelectedProductCategoryId(value === "__all" ? "" : value)
+        setCategoryComboboxOpen(false)
+        setCategorySearch("")
         setProductSearch("")
         setSelectedProductDraft(null)
         form.setValue("productId", "", { shouldDirty: true, shouldValidate: true })
@@ -280,19 +484,118 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
                             <div className="grid gap-4 py-2 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label>Kategori Filtresi</Label>
-                                    <Select value={selectedProductCategoryId || "__all"} onValueChange={handleProductCategoryChange}>
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Kategori seçin" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="__all">Tüm kategoriler</SelectItem>
-                                            {categories.map((category) => (
-                                                <SelectItem key={category.id} value={category.id}>
-                                                    {category.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Popover open={categoryComboboxOpen} onOpenChange={setCategoryComboboxOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={categoryComboboxOpen}
+                                                className="h-auto min-h-12 w-full justify-between gap-3 px-3 py-2 font-normal"
+                                            >
+                                                <span className="flex min-w-0 items-center gap-3">
+                                                    <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+                                                        {selectedCategoryOption ? (
+                                                            selectedCategoryImageUrl ? (
+                                                                <Image
+                                                                    src={selectedCategoryImageUrl}
+                                                                    alt={selectedCategoryOption.name}
+                                                                    fill
+                                                                    sizes="40px"
+                                                                    className="object-cover"
+                                                                />
+                                                            ) : (
+                                                                <PackageSearch className="h-4 w-4 text-neutral-400" />
+                                                            )
+                                                        ) : (
+                                                            <PackageSearch className="h-4 w-4 text-neutral-400" />
+                                                        )}
+                                                    </span>
+                                                    <span className="min-w-0 text-left">
+                                                        <span className="block truncate text-sm text-neutral-900">
+                                                            {selectedCategoryOption ? selectedCategoryOption.name : "Tüm kategoriler"}
+                                                        </span>
+                                                        <span className="block truncate text-xs text-neutral-500">
+                                                            {selectedCategoryOption ? `Kategori no ${selectedCategoryOption.code}` : "Kategori filtresi kapalı"}
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                                <ChevronsUpDown className="h-4 w-4 shrink-0 text-neutral-400" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            className="w-[--radix-popover-trigger-width] p-0"
+                                            align="start"
+                                            onWheelCapture={stopScrollPropagation}
+                                            onTouchMoveCapture={stopScrollPropagation}
+                                        >
+                                            <Command shouldFilter={false}>
+                                                <CommandInput
+                                                    placeholder="Kategori no, adı veya slug ara..."
+                                                    value={categorySearch}
+                                                    onValueChange={setCategorySearch}
+                                                />
+                                                <CommandList
+                                                    className="max-h-[min(360px,var(--radix-popover-content-available-height))] overscroll-contain"
+                                                    onWheelCapture={stopScrollPropagation}
+                                                    onTouchMoveCapture={stopScrollPropagation}
+                                                >
+                                                    <CommandEmpty>
+                                                        {categoriesQuery.isFetching ? "Kategoriler yükleniyor..." : "Kategori bulunamadı."}
+                                                    </CommandEmpty>
+                                                    <CommandGroup>
+                                                        <CommandItem
+                                                            value="Tüm kategoriler"
+                                                            onSelect={() => handleProductCategoryChange("__all")}
+                                                            className="gap-3"
+                                                        >
+                                                            <Check className={cn("h-4 w-4", !selectedProductCategoryId ? "opacity-100" : "opacity-0")} />
+                                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50">
+                                                                <PackageSearch className="h-4 w-4 text-neutral-400" />
+                                                            </span>
+                                                            <span className="min-w-0">
+                                                                <span className="block text-sm font-medium">Tüm kategoriler</span>
+                                                                <span className="block text-xs text-neutral-500">Kategori filtresi kapalı</span>
+                                                            </span>
+                                                        </CommandItem>
+                                                        {filteredCategories.map((category) => {
+                                                            const categoryImageUrl = getCategoryImageUrl(category)
+
+                                                            return (
+                                                                <CommandItem
+                                                                    key={category.id}
+                                                                    value={`${category.code} ${category.name} ${category.slug}`}
+                                                                    onSelect={() => handleProductCategoryChange(category.id)}
+                                                                    className="gap-3"
+                                                                >
+                                                                    <Check className={cn("h-4 w-4", selectedProductCategoryId === category.id ? "opacity-100" : "opacity-0")} />
+                                                                    <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+                                                                        {categoryImageUrl ? (
+                                                                            <Image
+                                                                                src={categoryImageUrl}
+                                                                                alt={category.name}
+                                                                                fill
+                                                                                sizes="44px"
+                                                                                className="object-cover"
+                                                                            />
+                                                                        ) : (
+                                                                            <PackageSearch className="h-4 w-4 text-neutral-400" />
+                                                                        )}
+                                                                    </span>
+                                                                    <span className="min-w-0">
+                                                                        <span className="block truncate text-sm font-medium">{category.name}</span>
+                                                                        <span className="block truncate text-xs text-neutral-500">
+                                                                            Kategori no {category.code}
+                                                                        </span>
+                                                                    </span>
+                                                                </CommandItem>
+                                                            )
+                                                        })}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
                                     <p className="text-xs leading-5 text-neutral-500">
                                         Kategori seçimi ürün arama sonuçlarını daraltır.
                                     </p>
@@ -311,26 +614,53 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
                                                         variant="outline"
                                                         role="combobox"
                                                         aria-expanded={productComboboxOpen}
-                                                        className="h-10 w-full justify-between font-normal"
+                                                        className="h-auto min-h-12 w-full justify-between gap-3 px-3 py-2 font-normal"
                                                     >
                                                         {selectedProductOption ? (
-                                                            <span className="truncate text-left">
-                                                                {selectedProductOption.code} - {selectedProductOption.name}
+                                                            <span className="flex min-w-0 items-center gap-3">
+                                                                <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+                                                                    <Image
+                                                                        src={getProductImageUrl(selectedProductOption)}
+                                                                        alt={selectedProductOption.name}
+                                                                        fill
+                                                                        sizes="40px"
+                                                                        className="object-contain p-1.5"
+                                                                    />
+                                                                </span>
+                                                                <span className="min-w-0 text-left">
+                                                                    <span className="block truncate text-sm text-neutral-900">
+                                                                        {selectedProductOption.code} - {selectedProductOption.name}
+                                                                    </span>
+                                                                    <span className="block truncate text-xs text-neutral-500">
+                                                                        {selectedProductOption.category?.name
+                                                                            ?? categories.find((item) => item.id === selectedProductOption.categoryId)?.name
+                                                                            ?? "Kategori yok"}
+                                                                    </span>
+                                                                </span>
                                                             </span>
                                                         ) : (
                                                             <span className="text-neutral-400">Ürün seçin</span>
                                                         )}
-                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-neutral-400" />
+                                                        <ChevronsUpDown className="h-4 w-4 shrink-0 text-neutral-400" />
                                                     </Button>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                                                <PopoverContent
+                                                    className="w-[--radix-popover-trigger-width] p-0"
+                                                    align="start"
+                                                    onWheelCapture={stopScrollPropagation}
+                                                    onTouchMoveCapture={stopScrollPropagation}
+                                                >
                                                     <Command shouldFilter={false}>
                                                         <CommandInput
                                                             placeholder="Ürün kodu veya adı ara..."
                                                             value={productSearch}
                                                             onValueChange={setProductSearch}
                                                         />
-                                                        <CommandList>
+                                                        <CommandList
+                                                            className="max-h-[min(380px,var(--radix-popover-content-available-height))] overscroll-contain"
+                                                            onWheelCapture={stopScrollPropagation}
+                                                            onTouchMoveCapture={stopScrollPropagation}
+                                                        >
                                                             <CommandEmpty>
                                                                 {productsQuery.isFetching ? "Ürünler yükleniyor..." : "Ürün bulunamadı."}
                                                             </CommandEmpty>
@@ -342,15 +672,25 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
                                                                             key={product.id}
                                                                             value={`${product.code} ${product.name}`}
                                                                             onSelect={() => selectProduct(product, field.onChange)}
+                                                                            className="gap-3"
                                                                         >
                                                                             <Check
-                                                                                className={`h-4 w-4 ${field.value === product.id ? "opacity-100" : "opacity-0"}`}
+                                                                                className={cn("h-4 w-4", field.value === product.id ? "opacity-100" : "opacity-0")}
                                                                             />
-                                                                            <div className="min-w-0">
-                                                                                <div className="truncate text-sm font-medium">
+                                                                            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+                                                                                <Image
+                                                                                    src={getProductImageUrl(product)}
+                                                                                    alt={product.name}
+                                                                                    fill
+                                                                                    sizes="48px"
+                                                                                    className="object-contain p-1.5"
+                                                                                />
+                                                                            </div>
+                                                                            <div className="min-w-0 flex-1">
+                                                                                <div className="truncate text-sm font-semibold">
                                                                                     {product.code} - {product.name}
                                                                                 </div>
-                                                                                <div className="truncate text-xs text-neutral-500">
+                                                                                <div className="mt-0.5 truncate text-xs text-neutral-500">
                                                                                     {category?.name ?? "Kategori yok"}
                                                                                 </div>
                                                                             </div>
@@ -369,29 +709,130 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
                                     </p>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label>Varyant</Label>
+                                <div className="space-y-2 md:col-span-2">
+                                    <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <Label>Varyant</Label>
+                                        {formValues.productId ? (
+                                            <Badge variant="outline">
+                                                {variantsQuery.isLoading ? "Yükleniyor" : `${variantOptions.length} varyant`}
+                                            </Badge>
+                                        ) : null}
+                                    </div>
                                     <Controller
                                         control={form.control}
                                         name="productVariantId"
                                         render={({ field }) => (
-                                            <Select
-                                                value={field.value || "__none"}
-                                                disabled={!formValues.productId || variantsQuery.isLoading}
-                                                onValueChange={(value) => field.onChange(value === "__none" ? "" : value)}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Varyant seçin" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="__none">Varyant seçin</SelectItem>
-                                                    {(variantsQuery.data ?? []).map((variant) => (
-                                                        <SelectItem key={variant.id} value={variant.id}>
-                                                            {variant.fullCode}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
+                                                {!formValues.productId ? (
+                                                    <div className="rounded-xl border border-dashed border-neutral-300 bg-white px-3 py-8 text-center text-sm text-neutral-500">
+                                                        Varyantları görmek için önce ürün modeli seçin.
+                                                    </div>
+                                                ) : variantsQuery.isLoading ? (
+                                                    <div className="rounded-xl border border-neutral-200 bg-white px-3 py-8 text-center text-sm text-neutral-500">
+                                                        Varyantlar yükleniyor...
+                                                    </div>
+                                                ) : variantOptions.length === 0 ? (
+                                                    <div className="rounded-xl border border-dashed border-neutral-300 bg-white px-3 py-8 text-center text-sm text-neutral-500">
+                                                        Seçili ürün için varyant bulunamadı.
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid max-h-[360px] gap-3 overflow-y-auto pr-1 md:grid-cols-2">
+                                                        {variantOptions.map((variant) => {
+                                                            const selected = field.value === variant.id
+                                                            const measurementChips = getVariantMeasurementChips(variant)
+                                                            const variantSummary = getVariantSummary(variant)
+
+                                                            return (
+                                                                <button
+                                                                    key={variant.id}
+                                                                    type="button"
+                                                                    role="radio"
+                                                                    aria-checked={selected}
+                                                                    onClick={() => field.onChange(variant.id)}
+                                                                    className={cn(
+                                                                        "rounded-2xl border bg-white p-3 text-left transition",
+                                                                        selected
+                                                                            ? "border-brand bg-brand/5 shadow-sm ring-2 ring-brand/10"
+                                                                            : "border-neutral-200 hover:border-neutral-300 hover:bg-white/80",
+                                                                    )}
+                                                                >
+                                                                    <div className="flex items-start justify-between gap-3">
+                                                                        <div className="min-w-0">
+                                                                            <div className="font-mono text-xs text-neutral-500">{variant.fullCode}</div>
+                                                                            <div className="mt-1 line-clamp-2 text-sm font-semibold text-neutral-900">
+                                                                                {variant.name}
+                                                                            </div>
+                                                                        </div>
+                                                                        {selected ? (
+                                                                            <Badge className="gap-1 bg-brand text-white hover:bg-brand">
+                                                                                <Check className="h-3 w-3" />
+                                                                                Seçili
+                                                                            </Badge>
+                                                                        ) : null}
+                                                                    </div>
+
+                                                                    <div className="mt-3 flex flex-wrap gap-1.5">
+                                                                        {measurementChips.length > 0 ? (
+                                                                            measurementChips.slice(0, 5).map((chip) => (
+                                                                                <span
+                                                                                    key={chip.key}
+                                                                                    className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-600"
+                                                                                >
+                                                                                    {chip.label}
+                                                                                </span>
+                                                                            ))
+                                                                        ) : (
+                                                                            <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-500">
+                                                                                Ölçü yok
+                                                                            </span>
+                                                                        )}
+                                                                        {measurementChips.length > 5 ? (
+                                                                            <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[11px] text-neutral-500">
+                                                                                +{measurementChips.length - 5} ölçü
+                                                                            </span>
+                                                                        ) : null}
+                                                                    </div>
+
+                                                                    <div className="mt-3 text-xs leading-5 text-neutral-600">
+                                                                        {variantSummary}
+                                                                    </div>
+
+                                                                    {(variant.color?.hex || variant.color?.name || variant.materials?.length) ? (
+                                                                        <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-neutral-500">
+                                                                            {variant.color ? (
+                                                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5">
+                                                                                    {variant.color.hex ? (
+                                                                                        <span
+                                                                                            className="h-3 w-3 rounded-full border border-neutral-200"
+                                                                                            style={{ backgroundColor: variant.color.hex }}
+                                                                                        />
+                                                                                    ) : null}
+                                                                                    {variant.color.name}
+                                                                                </span>
+                                                                            ) : null}
+                                                                            {variant.materials?.slice(0, 2).map((material) => (
+                                                                                <span key={material.id} className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5">
+                                                                                    {material.name}
+                                                                                </span>
+                                                                            ))}
+                                                                            {(variant.materials?.length ?? 0) > 2 ? (
+                                                                                <span className="rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5">
+                                                                                    +{(variant.materials?.length ?? 0) - 2} malzeme
+                                                                                </span>
+                                                                            ) : null}
+                                                                        </div>
+                                                                    ) : null}
+                                                                </button>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                )}
+                                                {selectedVariantOption ? (
+                                                    <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+                                                        Seçili varyant: <span className="font-mono">{selectedVariantOption.fullCode}</span>
+                                                    </div>
+                                                ) : null}
+                                            </div>
                                         )}
                                     />
                                     {formErrors.productVariantId?.message ? (
@@ -401,6 +842,24 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
 
                                 <div className="space-y-2">
                                     <Label>Özel Fiyat</Label>
+                                    {selectedVariantOption ? (
+                                        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+                                            <div className="text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-400">
+                                                Normal Liste Fiyatı
+                                            </div>
+                                            {selectedVariantListPrice ? (
+                                                <div className="mt-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
+                                                    <div className="font-semibold text-neutral-950">
+                                                        {formatMoney(selectedVariantListPrice.value, selectedVariantListPrice.currency)}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="mt-2 rounded-xl border border-dashed border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-500">
+                                                    Bu varyant için aktif liste fiyatı bulunamadı.
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : null}
                                     <Input
                                         value={formValues.price}
                                         inputMode="decimal"
@@ -680,6 +1139,7 @@ export function CustomerSpecialPricesPageClient({ customerId }: Props) {
                                         <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">Özel Fiyat</Badge>
                                         <Badge variant={specialPrice.isActive ? "secondary" : "outline"}>{specialPrice.isActive ? "Aktif" : "Pasif"}</Badge>
                                         <Badge variant="outline">{specialPrice.taxIncluded ? "KDV dahil" : "KDV hariç"}</Badge>
+                                        {getSpecialPriceStateBadge(specialPrice)}
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-semibold text-neutral-950">{specialPrice.productVariant?.product?.name ?? "Ürün"}</h3>

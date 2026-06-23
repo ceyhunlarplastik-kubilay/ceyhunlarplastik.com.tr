@@ -6,10 +6,11 @@ import { publicApi } from "./PublicApi";
 import { adminApi } from "./AdminApi";
 import { protectedApi } from "./ProtectedApi";
 import { userAccessRealtime } from "./userAccessLifecycle";
-import { rds } from "./db";
+import { rds, vpc } from "./db";
 
 export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
+  vpc,
   link: [rds],
 
   // ✅ Router BURADA
