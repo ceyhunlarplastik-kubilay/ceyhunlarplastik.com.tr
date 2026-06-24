@@ -56,7 +56,7 @@ export function CustomerPortalUsageAreaProductRail({
                 </div>
 
                 <Button asChild variant="outline" size="sm" className="h-8 rounded-full px-3 text-xs">
-                    <Link href={allProductsHref}>
+                    <Link href={allProductsHref} target="_blank" rel="noopener noreferrer">
                         Tümünü Aç
                         <ArrowRight className="size-3.5" />
                     </Link>

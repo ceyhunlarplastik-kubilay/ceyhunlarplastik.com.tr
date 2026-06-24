@@ -205,6 +205,38 @@ export async function generateProductAttributeValueAssetUpload({
     }
 }
 
+export async function generateMaterialAssetUpload({
+    materialId,
+    assetRole,
+    fileName,
+    contentType,
+}: {
+    materialId: string
+    assetRole: string
+    fileName: string
+    contentType: string
+}) {
+    const safeName = sanitizeFileName(fileName)
+    const ext = safeName.includes(".") ? safeName.split(".").pop() : undefined
+    const uuid = randomUUID()
+    const folder = getFolderByRole(assetRole)
+    const key = `materials/${materialId}/${folder}/${uuid}${ext ? `.${ext}` : ""}`
+
+    const cmd = new PutObjectCommand({
+        Bucket: process.env.BUCKET_NAME!,
+        Key: key,
+        ContentType: contentType,
+    })
+
+    const uploadUrl = await getSignedUrl(s3, cmd, { expiresIn: 60 })
+
+    return {
+        uploadUrl,
+        key,
+        url: buildPublicUrl(key),
+    }
+}
+
 export async function generateUserProfileImageUpload({
     userId,
     fileName,

@@ -134,6 +134,17 @@ publicApi.route("GET /measurement-types", {
     ...defaultOptions,
 });
 
+/*----------------------- MATERIALS -----------------------*/
+publicApi.route("GET /materials", {
+    handler: `${folderPrefix}/materials/actions.listMaterials`,
+    ...defaultOptions,
+});
+
+publicApi.route("GET /materials/{id}", {
+    handler: `${folderPrefix}/materials/actions.getMaterial`,
+    ...defaultOptions,
+});
+
 /*----------------------- PRODUCT VARIANT SUPPLIERS -----------------------*/
 publicApi.route("GET /product-variant-suppliers", {
     handler: `${folderPrefix}/productVariantSuppliers/actions.listProductVariantSuppliers`,

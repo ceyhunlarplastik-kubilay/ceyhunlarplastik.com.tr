@@ -1,7 +1,9 @@
 import { lambdaHandler } from "@/core/middy"
 import { materialRepository } from "@/core/helpers/prisma/materials/repository"
+import { assetRepository } from "@/core/helpers/prisma/assets/repository"
 
 import {
+    createMaterialAssetUploadHandler,
     createMaterialHandler,
     deleteMaterialHandler,
     getMaterialHandler,
@@ -11,6 +13,7 @@ import {
 
 import {
     ICreateMaterialEvent,
+    ICreateMaterialAssetUploadEvent,
     IDeleteMaterialEvent,
     IGetMaterialEvent,
     IListMaterialsEvent,
@@ -18,6 +21,7 @@ import {
 } from "@/functions/AdminApi/types/materials"
 
 import {
+    createMaterialAssetUploadValidator,
     createMaterialValidator,
     idValidator,
     updateMaterialValidator,
@@ -27,7 +31,7 @@ export const listMaterials = lambdaHandler(
     async (event) =>
         listMaterialsHandler({
             materialRepository: materialRepository(),
-        } as any)(event as IListMaterialsEvent),
+        })(event as IListMaterialsEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
     }
@@ -37,7 +41,7 @@ export const getMaterial = lambdaHandler(
     async (event) =>
         getMaterialHandler({
             materialRepository: materialRepository(),
-        } as any)(event as IGetMaterialEvent),
+        })(event as IGetMaterialEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
@@ -59,6 +63,7 @@ export const updateMaterial = lambdaHandler(
     async (event) =>
         updateMaterialHandler({
             materialRepository: materialRepository(),
+            assetRepository: assetRepository(),
         })(event as IUpdateMaterialEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
@@ -70,9 +75,20 @@ export const deleteMaterial = lambdaHandler(
     async (event) =>
         deleteMaterialHandler({
             materialRepository: materialRepository(),
-        } as any)(event as IDeleteMaterialEvent),
+        })(event as IDeleteMaterialEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+    }
+)
+
+export const createMaterialAssetUpload = lambdaHandler(
+    async (event) =>
+        createMaterialAssetUploadHandler({
+            materialRepository: materialRepository(),
+        })(event as ICreateMaterialAssetUploadEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin"] },
+        requestValidator: createMaterialAssetUploadValidator,
     }
 )

@@ -3,9 +3,10 @@
 import Link from "next/link"
 import { useState, type MouseEvent } from "react"
 import { AnimatePresence, motion } from "motion/react"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2, Package } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 
 type CustomerPortalProductDetailHeaderProps = {
     categoryName?: string | null
@@ -32,7 +33,7 @@ export function CustomerPortalProductDetailHeader({
 
     return (
         <div
-            className="relative rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm"
+            className="relative"
             aria-busy={isNavigatingBack}
             aria-live="polite"
         >
@@ -43,7 +44,7 @@ export function CustomerPortalProductDetailHeader({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.16, ease: "easeOut" }}
-                        className="pointer-events-none absolute inset-0 z-10 rounded-[28px] bg-white/72 backdrop-blur-[1.5px]"
+                        className="pointer-events-none absolute inset-0 z-10 rounded-[26px] bg-white/72 backdrop-blur-[1.5px]"
                         aria-hidden="true"
                     >
                         <div className="flex h-full items-center justify-center p-5">
@@ -60,36 +61,37 @@ export function CustomerPortalProductDetailHeader({
                 {isNavigatingBack ? "Ürün listesi açılıyor." : "Ürün detay başlığı hazır."}
             </span>
 
-            <Button asChild variant="ghost" className="px-0 text-neutral-500 hover:bg-transparent hover:text-neutral-900">
-                <Link
-                    href="/musteri/tum-urunler"
-                    onClick={(event) => {
-                        if (isModifiedClick(event)) {
-                            return
-                        }
-                        setIsNavigatingBack(true)
-                    }}
-                    className={isNavigatingBack ? "pointer-events-none" : undefined}
-                    aria-busy={isNavigatingBack}
-                >
-                    {isNavigatingBack ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                    )}
-                    {isNavigatingBack ? "Ürünler açılıyor..." : "Tüm Ürünlere Dön"}
-                </Link>
-            </Button>
-
-            <div className="mt-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">
-                    {categoryName ?? "Kategori"}
-                </div>
-                <h1 className="mt-2 text-2xl font-bold tracking-tight text-neutral-950">{productName}</h1>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-neutral-500">
-                    {description}
-                </p>
-            </div>
+            <CustomerPortalPageHeader
+                eyebrow="Ürün Detayı"
+                icon={Package}
+                title={productName}
+                description={description}
+                meta={[
+                    { value: categoryName ?? "Kategori", label: "kategori" },
+                ]}
+                aside={(
+                    <Button asChild variant="outline" className="w-full justify-start gap-2 bg-white/80 xl:w-auto">
+                        <Link
+                            href="/musteri/tum-urunler"
+                            onClick={(event) => {
+                                if (isModifiedClick(event)) {
+                                    return
+                                }
+                                setIsNavigatingBack(true)
+                            }}
+                            className={isNavigatingBack ? "pointer-events-none" : undefined}
+                            aria-busy={isNavigatingBack}
+                        >
+                            {isNavigatingBack ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <ArrowLeft className="h-4 w-4" />
+                            )}
+                            {isNavigatingBack ? "Ürünler açılıyor..." : "Tüm Ürünlere Dön"}
+                        </Link>
+                    </Button>
+                )}
+            />
         </div>
     )
 }

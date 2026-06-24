@@ -1,4 +1,5 @@
 export * from "./createMaterialHandler"
+export * from "./createMaterialAssetUploadHandler"
 export * from "./deleteMaterialHandler"
 export * from "./getMaterialHandler"
 export * from "./listMaterialsHandler"

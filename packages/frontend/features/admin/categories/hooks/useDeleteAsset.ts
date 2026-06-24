@@ -51,6 +51,12 @@ export function useDeleteAsset() {
             queryClient.invalidateQueries({
                 queryKey: ["admin-products"]
             })
+            queryClient.invalidateQueries({
+                queryKey: ["admin-materials"]
+            })
+            queryClient.invalidateQueries({
+                queryKey: ["admin-product-variant-references"]
+            })
         },
         onError() {
             toast.error("Asset silinemedi")

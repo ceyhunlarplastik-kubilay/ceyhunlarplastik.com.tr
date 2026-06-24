@@ -14,9 +14,10 @@ type Props = {
         assets?: Asset[]
     }
     compact?: boolean
+    mediaOnly?: boolean
 }
 
-export default function ProductTechnicalDrawingSection({ product, compact = false }: Props) {
+export default function ProductTechnicalDrawingSection({ product, compact = false, mediaOnly = false }: Props) {
     return (
         <ProductAssetFeatureSection
             productName={product.name}
@@ -34,6 +35,7 @@ export default function ProductTechnicalDrawingSection({ product, compact = fals
             showDescription={!compact}
             descriptionClassName={compact ? "mt-2 text-xs leading-5 text-neutral-600" : undefined}
             imageMinHeightPx={compact ? 280 : 360}
+            mediaOnly={mediaOnly}
         />
     )
 }

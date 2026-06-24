@@ -10,7 +10,11 @@ export type ProductVariantWithRelations = Prisma.ProductVariantGetPayload<{
     include: {
         product: true
         color: true
-        materials: true
+        materials: {
+            include: {
+                assets: true
+            }
+        }
         variantSuppliers: {
             include: {
                 supplier: true
@@ -46,7 +50,11 @@ export interface IPrismaProductVariantRepository {
 const defaultInclude = {
     product: true,
     color: true,
-    materials: true,
+    materials: {
+        include: {
+            assets: true,
+        },
+    },
     variantSuppliers: {
         include: { supplier: true }
     },
@@ -151,7 +159,19 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             ],
             include: {
                 color: true,
-                materials: true,
+                materials: {
+                    include: {
+                        assets: {
+                            where: {
+                                type: "PDF",
+                                role: "CERTIFICATE",
+                            },
+                            orderBy: {
+                                createdAt: "desc",
+                            },
+                        },
+                    },
+                },
                 variantSuppliers: {
                     include: {
                         supplier: true,

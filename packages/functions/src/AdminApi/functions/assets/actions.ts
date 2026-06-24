@@ -4,6 +4,7 @@ import { productRepository } from "@/core/helpers/prisma/products/repository"
 import { categoryRepository } from "@/core/helpers/prisma/categories/repository"
 import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+import { materialRepository } from "@/core/helpers/prisma/materials/repository"
 
 import {
     createAssetHandler,
@@ -58,6 +59,7 @@ export const createAsset = lambdaHandler(
             categoryRepository: categoryRepository(),
             productVariantRepository: productVariantRepository(),
             productAttributeValueRepository: productAttributeValueRepository(),
+            materialRepository: materialRepository(),
         })(event as ICreateAssetEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
@@ -73,6 +75,7 @@ export const updateAsset = lambdaHandler(
             categoryRepository: categoryRepository(),
             productVariantRepository: productVariantRepository(),
             productAttributeValueRepository: productAttributeValueRepository(),
+            materialRepository: materialRepository(),
         })(event as IUpdateAssetEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },

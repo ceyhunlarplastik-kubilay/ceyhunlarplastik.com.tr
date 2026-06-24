@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { motion, useReducedMotion } from "motion/react"
 import { toast } from "sonner"
-import { BadgePercent, Plus, ShoppingCart, Tags } from "lucide-react"
+import { BadgePercent, ExternalLink, FileText, Plus, Tags } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -50,6 +50,10 @@ interface Props {
     customerDiscountPercent?: number | null
     productImageUrl?: string | null
 }
+
+const VARIANT_TABLE_HEAD_CLASS =
+    "h-9 px-2 text-center align-middle text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500"
+const VARIANT_TABLE_CELL_CLASS = "px-2 py-2 text-center align-middle text-[13px]"
 
 function decimalLikeToText(
     value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined,
@@ -129,14 +133,13 @@ export function CustomerPortalVariantDetailsTable({
     const shouldReduceMotion = useReducedMotion()
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
     const draftItems = usePortalRequestDraftStore((state) => state.items)
-    const totalDraftItems = draftItems.length
     const specialPricesQuery = usePortalSpecialPrices()
     const [quantityByVariantId, setQuantityByVariantId] = useState<Record<string, string>>({})
     const [refreshKey, setRefreshKey] = useState(0)
     const specialPriceByVariantId = useMemo(
         () =>
             new Map(
-        (specialPricesQuery.data?.data ?? []).map((specialPrice) => [specialPrice.productVariantId, specialPrice]),
+                (specialPricesQuery.data?.data ?? []).map((specialPrice) => [specialPrice.productVariantId, specialPrice]),
             ),
         [specialPricesQuery.data?.data],
     )
@@ -199,14 +202,6 @@ export function CustomerPortalVariantDetailsTable({
             maxPrice: range.maxPrice,
         }
     })
-    const totalQuantity = useMemo(
-        () =>
-            Object.values(quantityByVariantId)
-                .map((value) => Number(value))
-                .filter((value) => Number.isFinite(value) && value > 0)
-                .reduce((sum, value) => sum + value, 0),
-        [quantityByVariantId],
-    )
     const colorOptions = useMemo(() => {
         const counts = new Map<string, { id: string; label: string; count: number; hex?: string | null }>()
 
@@ -376,7 +371,7 @@ export function CustomerPortalVariantDetailsTable({
 
     return (
         <div className="space-y-6">
-            <motion.div
+            {/* <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
@@ -403,7 +398,7 @@ export function CustomerPortalVariantDetailsTable({
                         </Button>
                     </div>
                 </div>
-            </motion.div>
+            </motion.div> */}
 
             <motion.div
                 initial={{ opacity: 0, y: 8 }}
@@ -468,21 +463,21 @@ export function CustomerPortalVariantDetailsTable({
                         transition={{ duration: 0.22, ease: "easeOut" }}
                         className="overflow-x-auto"
                     >
-                        <Table className="min-w-[1120px]">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Ürün Kodu</TableHead>
+                        <Table className="min-w-[1060px] text-[13px]">
+                            <TableHeader className="bg-neutral-50/90">
+                                <TableRow className="hover:bg-transparent">
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[108px]`}>Ürün Kodu</TableHead>
                                     {measurementColumns.map((column) => (
-                                        <TableHead key={column.id}>
+                                        <TableHead key={column.id} className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[76px]`}>
                                             {column.name} ({column.code})
                                         </TableHead>
                                     ))}
-                                    <TableHead>Versiyon</TableHead>
-                                    <TableHead>Renk</TableHead>
-                                    <TableHead>Ham Madde</TableHead>
-                                    <TableHead>Müşteri Fiyatı</TableHead>
-                                    <TableHead>Fiyat Son Güncelleme</TableHead>
-                                    <TableHead className="pr-4 text-right">Talep</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[72px]`}>Versiyon</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[104px]`}>Renk</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[210px]`}>Ham Madde</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[220px]`}>Müşteri Fiyatı</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[116px]`}>Fiyat Son Güncelleme</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[128px] pr-3`}>Talep</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -502,9 +497,11 @@ export function CustomerPortalVariantDetailsTable({
                                             initial={{ opacity: 0, y: 6 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.22, delay: index * 0.04 }}
-                                            className="border-b last:border-0"
+                                            className="border-b border-neutral-100 align-middle transition-colors last:border-0 hover:bg-neutral-50/70"
                                         >
-                                            <TableCell className="font-mono">{variant.fullCode}</TableCell>
+                                            <TableCell className={`${VARIANT_TABLE_CELL_CLASS} font-mono text-xs font-medium text-neutral-800`}>
+                                                {variant.fullCode}
+                                            </TableCell>
                                             {measurementColumns.map((column) => {
                                                 const measurement = variant.measurements.find(
                                                     (item) => item.measurementType.id === column.id,
@@ -512,7 +509,7 @@ export function CustomerPortalVariantDetailsTable({
 
                                                 if (!measurement) {
                                                     return (
-                                                        <TableCell key={`${variant.id}-${column.id}`} className="text-neutral-400">
+                                                        <TableCell key={`${variant.id}-${column.id}`} className={`${VARIANT_TABLE_CELL_CLASS} text-neutral-400`}>
                                                             -
                                                         </TableCell>
                                                     )
@@ -526,18 +523,18 @@ export function CustomerPortalVariantDetailsTable({
                                                         : ""
 
                                                 return (
-                                                    <TableCell key={`${variant.id}-${column.id}`} className="text-xs text-neutral-700">
+                                                    <TableCell key={`${variant.id}-${column.id}`} className={`${VARIANT_TABLE_CELL_CLASS} text-xs font-medium text-neutral-700`}>
                                                         {formatMeasurementValue(measurement)}
                                                         {withUnit}
                                                     </TableCell>
                                                 )
                                             })}
-                                            <TableCell>{variant.versionCode}</TableCell>
-                                            <TableCell>
+                                            <TableCell className={VARIANT_TABLE_CELL_CLASS}>{variant.versionCode}</TableCell>
+                                            <TableCell className={VARIANT_TABLE_CELL_CLASS}>
                                                 {variant.color ? (
-                                                    <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-2.5 py-1 text-xs text-neutral-700">
+                                                    <span className="inline-flex items-center justify-center gap-1.5 rounded-full border border-neutral-200 px-2 py-0.5 text-xs text-neutral-700">
                                                         <span
-                                                            className="h-3 w-3 rounded-full border border-neutral-300"
+                                                            className="h-2.5 w-2.5 rounded-full border border-neutral-300"
                                                             style={{ backgroundColor: variant.color.hex || "#ddd" }}
                                                         />
                                                         {variant.color.name}
@@ -546,37 +543,72 @@ export function CustomerPortalVariantDetailsTable({
                                                     <span className="text-neutral-400">-</span>
                                                 )}
                                             </TableCell>
-                                            <TableCell>
-                                                {variant.materials.length
-                                                    ? variant.materials
-                                                        .map((material) =>
-                                                            material.code ? `${material.name} (${material.code})` : material.name,
-                                                        )
-                                                        .join(", ")
-                                                    : "-"}
+                                            <TableCell className={`${VARIANT_TABLE_CELL_CLASS} whitespace-normal text-left`}>
+                                                {variant.materials.length ? (
+                                                    <div className="flex min-w-[190px] max-w-[230px] flex-col gap-1.5">
+                                                        {variant.materials.map((material) => {
+                                                            const certificateCount = (material.assets ?? []).filter(
+                                                                (asset) => asset.type === "PDF" && asset.role === "CERTIFICATE",
+                                                            ).length
+                                                            const label = material.code ? `${material.name} (${material.code})` : material.name
+
+                                                            if (certificateCount === 0) {
+                                                                return (
+                                                                    <span
+                                                                        key={material.id}
+                                                                        className="inline-flex w-fit max-w-full items-center rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-xs text-neutral-600"
+                                                                    >
+                                                                        <span className="truncate">{label}</span>
+                                                                    </span>
+                                                                )
+                                                            }
+
+                                                            return (
+                                                                <Link
+                                                                    key={material.id}
+                                                                    href={`/ham-madde-sertifikalari/${material.id}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="group rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-left shadow-sm transition hover:border-amber-300 hover:bg-white hover:shadow-md"
+                                                                >
+                                                                    <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-amber-950">
+                                                                        <FileText className="h-3.5 w-3.5 text-amber-700" />
+                                                                        <span className="truncate">{label}</span>
+                                                                    </span>
+                                                                    <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 group-hover:text-amber-900">
+                                                                        Sertifikayı incele
+                                                                        <ExternalLink className="h-3 w-3" />
+                                                                    </span>
+                                                                </Link>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                ) : (
+                                                    "-"
+                                                )}
                                             </TableCell>
-                                            <TableCell className="font-medium text-neutral-900">
+                                            <TableCell className={`${VARIANT_TABLE_CELL_CLASS} whitespace-normal font-medium text-neutral-900`}>
                                                 {minListPrice || basePricing.customerUnitPrice !== null || hasSpecialPrice ? (
-                                                    <div className="space-y-2.5">
-                                                        <div className="rounded-2xl border border-neutral-200 bg-white px-3 py-2">
-                                                            <div className="text-[10px] uppercase tracking-[0.16em] text-neutral-400">
+                                                    <div className="mx-auto max-w-[220px] space-y-1.5 text-left">
+                                                        <div className="rounded-xl border border-neutral-200 bg-white px-2.5 py-1.5">
+                                                            <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
                                                                 Liste fiyatı
                                                             </div>
-                                                            <div className={`mt-1 text-sm ${basePricing.appliedDiscountPercent > 0 ? "text-neutral-400 line-through" : "text-neutral-900"}`}>
+                                                            <div className={`mt-0.5 text-sm ${basePricing.appliedDiscountPercent > 0 ? "text-neutral-400 line-through" : "text-neutral-900"}`}>
                                                                 {formatMoney(basePricing.listUnitPrice, basePricing.currency)}
                                                             </div>
                                                         </div>
 
                                                         {basePricing.appliedDiscountPercent > 0 ? (
-                                                            <div className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2">
-                                                                <div className="text-[10px] uppercase tracking-[0.16em] text-sky-700">
+                                                            <div className="rounded-xl border border-sky-200 bg-sky-50 px-2.5 py-1.5">
+                                                                <div className="text-[10px] uppercase tracking-[0.12em] text-sky-700">
                                                                     Sizin fiyatınız
                                                                 </div>
-                                                                <div className="mt-1 flex flex-wrap items-center gap-2">
-                                                                    <span className="text-base font-semibold text-sky-950">
+                                                                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                                                                    <span className="text-sm font-semibold text-sky-950">
                                                                         {formatMoney(basePricing.customerUnitPrice, basePricing.currency)}
                                                                     </span>
-                                                                    <Badge className="border border-sky-200 bg-sky-100 text-sky-800 hover:bg-sky-100">
+                                                                    <Badge className="h-5 border border-sky-200 bg-sky-100 px-1.5 text-[10px] text-sky-800 hover:bg-sky-100">
                                                                         %{basePricing.appliedDiscountPercent.toLocaleString("tr-TR", {
                                                                             minimumFractionDigits: basePricing.appliedDiscountPercent % 1 === 0 ? 0 : 2,
                                                                             maximumFractionDigits: 2,
@@ -598,37 +630,37 @@ export function CustomerPortalVariantDetailsTable({
                                                                     }
                                                                     : undefined}
                                                                 transition={{ duration: 2.2, repeat: specialPriceApplied ? Infinity : 0, ease: "easeInOut" }}
-                                                                className={`rounded-2xl border px-3 py-2 ${specialPriceApplied
+                                                                className={`rounded-xl border px-2.5 py-1.5 ${specialPriceApplied
                                                                     ? "border-amber-300 bg-amber-50"
                                                                     : "border-amber-200 bg-amber-50/70"}`}
                                                             >
-                                                                <div className="flex flex-wrap items-center gap-2">
-                                                                    <Badge className="border border-amber-300 bg-amber-100 text-amber-900 hover:bg-amber-100">
-                                                                        <BadgePercent className="mr-1.5 h-3.5 w-3.5" />
+                                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                                    <Badge className="h-5 border border-amber-300 bg-amber-100 px-1.5 text-[10px] text-amber-900 hover:bg-amber-100">
+                                                                        <BadgePercent className="mr-1 h-3 w-3" />
                                                                         Özel anlaşmalı fiyat
                                                                     </Badge>
                                                                     {specialPriceApplied ? (
-                                                                        <Badge className="border border-amber-300 bg-white text-amber-900 hover:bg-white">
+                                                                        <Badge className="h-5 border border-amber-300 bg-white px-1.5 text-[10px] text-amber-900 hover:bg-white">
                                                                             Bu adet için uygulanır
                                                                         </Badge>
                                                                     ) : null}
                                                                 </div>
-                                                                <div className="mt-2 text-lg font-semibold text-amber-950">
+                                                                <div className="mt-1 text-base font-semibold text-amber-950">
                                                                     {formatMoney(specialPricePreview.price, specialPricePreview.currency)}
                                                                 </div>
                                                                 <div className="mt-1 flex flex-wrap gap-1.5">
                                                                     {specialPricePreview.minOrderQuantity ? (
-                                                                        <Badge variant="outline" className="border-amber-200 bg-white/70 font-normal text-amber-900">
+                                                                        <Badge variant="outline" className="h-5 border-amber-200 bg-white/70 px-1.5 text-[10px] font-normal text-amber-900">
                                                                             Min. {specialPricePreview.minOrderQuantity} adet
                                                                         </Badge>
                                                                     ) : null}
                                                                     {specialPricePreview.maxOrderQuantity ? (
-                                                                        <Badge variant="outline" className="border-amber-200 bg-white/70 font-normal text-amber-900">
+                                                                        <Badge variant="outline" className="h-5 border-amber-200 bg-white/70 px-1.5 text-[10px] font-normal text-amber-900">
                                                                             Max. {specialPricePreview.maxOrderQuantity} adet
                                                                         </Badge>
                                                                     ) : null}
                                                                     {specialPricePreview.paymentTermLabel ? (
-                                                                        <Badge variant="outline" className="border-amber-200 bg-white/70 font-normal text-amber-900">
+                                                                        <Badge variant="outline" className="h-5 border-amber-200 bg-white/70 px-1.5 text-[10px] font-normal text-amber-900">
                                                                             {specialPricePreview.paymentTermLabel}
                                                                         </Badge>
                                                                     ) : null}
@@ -648,13 +680,13 @@ export function CustomerPortalVariantDetailsTable({
                                                     </div>
                                                 ) : "-"}
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className={`${VARIANT_TABLE_CELL_CLASS} text-neutral-700`}>
                                                 {minListPrice?.pricingUpdatedAt ? (
-                                                    <div className="space-y-1">
-                                                        <div className="text-sm font-medium text-neutral-900">
+                                                    <div className="space-y-0.5">
+                                                        <div className="text-xs font-medium text-neutral-900">
                                                             {formatPriceDate(minListPrice.pricingUpdatedAt)}
                                                         </div>
-                                                        <div className="text-xs text-neutral-500">
+                                                        <div className="text-[11px] text-neutral-500">
                                                             Son fiyat revizyonu
                                                         </div>
                                                     </div>
@@ -662,8 +694,8 @@ export function CustomerPortalVariantDetailsTable({
                                                     <span className="text-neutral-400">-</span>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="pr-4">
-                                                <div className="flex items-center justify-end gap-2">
+                                            <TableCell className={`${VARIANT_TABLE_CELL_CLASS} pr-3`}>
+                                                <div className="flex items-center justify-center gap-1.5">
                                                     <Input
                                                         type="number"
                                                         min={1}
@@ -674,11 +706,12 @@ export function CustomerPortalVariantDetailsTable({
                                                                 [variant.id]: event.target.value,
                                                             }))
                                                         }
-                                                        className="h-8 w-20"
+                                                        className="h-8 w-16 text-center"
                                                     />
                                                     <Button
                                                         type="button"
                                                         size="sm"
+                                                        className="h-8 px-2.5"
                                                         onClick={() => handleAddToDraft(variant)}
                                                     >
                                                         <Plus className="mr-1.5 h-3.5 w-3.5" />

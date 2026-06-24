@@ -14,6 +14,7 @@ import {
     Folder,
     Settings,
     Truck,
+    FlaskConical,
     Users,
     ClipboardList,
     ShieldCheck,
@@ -40,6 +41,11 @@ const navItems = [
         href: "/admin/products",
         label: "Ürünler",
         icon: Boxes,
+    },
+    {
+        href: "/admin/materials",
+        label: "Ham Maddeler",
+        icon: FlaskConical,
     },
     {
         href: "/admin/productAttributes",

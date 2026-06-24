@@ -2,7 +2,7 @@ import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IAssetDependencies, IUpdateAssetEvent } from "@/functions/AdminApi/types/assets"
 
-export const updateAssetHandler = ({ assetRepository, categoryRepository, productRepository, productVariantRepository, productAttributeValueRepository }: IAssetDependencies) => {
+export const updateAssetHandler = ({ assetRepository, categoryRepository, productRepository, productVariantRepository, productAttributeValueRepository, materialRepository }: IAssetDependencies) => {
     return async (event: IUpdateAssetEvent) => {
         const { id } = event.pathParameters;
         const body = event.body;
@@ -27,8 +27,12 @@ export const updateAssetHandler = ({ assetRepository, categoryRepository, produc
                 const value = await productAttributeValueRepository.getValueById(body.productAttributeValueId);
                 if (!value) throw new createError.NotFound("ProductAttributeValue not found");
             }
+            if (body.materialId) {
+                const material = await materialRepository.getMaterial(body.materialId);
+                if (!material) throw new createError.NotFound("Material not found");
+            }
 
-            const { url, key, categoryId, productId, variantId, productAttributeValueId, ...rest } = body
+            const { url, key, categoryId, productId, variantId, productAttributeValueId, materialId, ...rest } = body
             const updated = await assetRepository.updateAsset(id, {
                 ...rest,
                 ...(url || key ? { key: key ?? url } : {}),
@@ -36,6 +40,7 @@ export const updateAssetHandler = ({ assetRepository, categoryRepository, produc
                 ...(productId && { product: { connect: { id: productId } } }),
                 ...(variantId && { variant: { connect: { id: variantId } } }),
                 ...(productAttributeValueId && { productAttributeValueId }),
+                ...(materialId && { material: { connect: { id: materialId } } }),
             } as any);
 
             return apiResponseDTO({

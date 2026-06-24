@@ -1,9 +1,10 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { mapMaterialWithAssets } from "@/core/helpers/assets/mapMaterialWithAssets"
 import { IMaterialDependencies, ICreateMaterialEvent } from "@/functions/AdminApi/types/materials"
 
-export const createMaterialHandler = ({ materialRepository }: IMaterialDependencies) => {
+export const createMaterialHandler = ({ materialRepository }: Pick<IMaterialDependencies, "materialRepository">) => {
     return async (event: ICreateMaterialEvent) => {
         const { name, code } = event.body;
 
@@ -15,7 +16,7 @@ export const createMaterialHandler = ({ materialRepository }: IMaterialDependenc
 
             return apiResponseDTO({
                 statusCode: 201,
-                payload: { material },
+                payload: { material: mapMaterialWithAssets(material) },
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err;

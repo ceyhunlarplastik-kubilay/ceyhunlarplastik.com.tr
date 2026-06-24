@@ -14,13 +14,14 @@ export const createAssetValidator = validatorWrapper(
             productId: z.uuid().optional(),
             variantId: z.uuid().optional(),
             productAttributeValueId: z.uuid().optional(),
+            materialId: z.uuid().optional(),
         })
             .refine((data) => Boolean(data.key || data.url), {
                 message: "key or url is required",
                 path: ["body"],
             })
             .refine((data) => {
-                const defined = [data.categoryId, data.productId, data.variantId, data.productAttributeValueId].filter(Boolean).length;
+                const defined = [data.categoryId, data.productId, data.variantId, data.productAttributeValueId, data.materialId].filter(Boolean).length;
                 return defined === 1;
             }, {
                 message: "Asset must belong to exactly one owner reference",
@@ -52,6 +53,7 @@ export const updateAssetValidator = validatorWrapper(
             productId: z.uuid().optional(),
             variantId: z.uuid().optional(),
             productAttributeValueId: z.uuid().optional(),
+            materialId: z.uuid().optional(),
         }),
     }),
     {

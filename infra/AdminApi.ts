@@ -632,6 +632,11 @@ adminApi.route("POST /materials", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("POST /materials/{id}/assets/presign", {
+    handler: `${folderPrefix}/materials/actions.createMaterialAssetUpload`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /materials/{id}", {
     handler: `${folderPrefix}/materials/actions.getMaterial`,
     ...defaultRouteOptions,

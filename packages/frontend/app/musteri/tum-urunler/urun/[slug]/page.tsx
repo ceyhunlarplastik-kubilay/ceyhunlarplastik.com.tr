@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation"
 import Product3DModelSection from "@/features/public/products/components/Product3DModelSection"
-import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
 import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
 import ProductHero from "@/features/public/products/components/ProductHero"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
@@ -40,7 +39,11 @@ export default async function CustomerPortalProductDetailPage({
             />
 
             <div className="rounded-[28px] border border-neutral-200 bg-white p-6 shadow-sm">
-                <ProductHero product={product} />
+                <ProductHero
+                    product={product}
+                    showAssemblyVideoInline
+                    assemblyVideoAutoPlay
+                />
             </div>
 
             <div id="product-variants">
@@ -62,9 +65,6 @@ export default async function CustomerPortalProductDetailPage({
 
             <div id="product-3d-model">
                 <Product3DModelSection product={product} />
-            </div>
-            <div id="product-assembly-video">
-                <ProductAssemblyVideoSection product={product} />
             </div>
             <div id="product-certificate">
                 <ProductCertificateSection product={product} />

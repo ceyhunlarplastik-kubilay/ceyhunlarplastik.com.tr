@@ -1,15 +1,14 @@
-import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth/auth"
+import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
+import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
 import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
-import { Badge } from "@/components/ui/badge"
 import { prisma } from "../../../../../../../core/src/core/db/prisma"
 import { normalizeCustomerDiscountPercent } from "../../../../../../../core/src/core/helpers/pricing/customerPricing"
 
@@ -38,6 +37,25 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
         filtered[0]?.measurements
             ?.slice()
             .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder) ?? []
+    const selectedMeasurementItems = selectedMeasurements.map((measurement) => {
+        const shouldShowBaseUnit =
+            Boolean(measurement.measurementType.baseUnit) &&
+            measurement.measurementType.code !== "D" &&
+            measurement.measurementType.code !== "M"
+        const value = `${formatMeasurementValue(measurement)}${shouldShowBaseUnit ? ` ${measurement.measurementType.baseUnit}` : ""
+            }`
+
+        return {
+            id: measurement.id,
+            label: `${measurement.measurementType.name} (${measurement.measurementType.code})`,
+            value,
+        }
+    })
+    const selectedMeasurementSummary = selectedMeasurementItems.length > 0
+        ? selectedMeasurementItems
+            .map((measurement) => `${measurement.label}: ${measurement.value}`)
+            .join(" / ")
+        : "Ölçü seçimi yok"
 
     const primaryAsset = product.assets?.find(
         (asset) => asset?.role === "PRIMARY" && (asset?.type === "IMAGE" || asset?.type === undefined),
@@ -56,18 +74,19 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
 
     return (
         <div className="space-y-6">
-            <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm">
-                <Button asChild variant="ghost" className="px-0 text-neutral-500 hover:bg-transparent hover:text-neutral-900">
-                    <Link href={`/musteri/tum-urunler/urun/${product.slug}`}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Ürün Modeline Dön
-                    </Link>
-                </Button>
-            </div>
+            <CustomerPortalVariantPageHeader
+                productSlug={product.slug}
+                productName={product.name}
+                productCode={product.code}
+                categoryName={product.category?.name ?? "Kategori"}
+                selectedMeasurementSummary={selectedMeasurementSummary}
+                variantCount={filtered.length}
+                description={product.description}
+            />
 
-            <div className="grid gap-6 rounded-[28px] border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 lg:grid-cols-2 lg:gap-8">
-                <div className="space-y-4">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm">
+            <div className="rounded-[28px] border border-neutral-200 bg-white p-4 shadow-sm sm:p-6">
+                <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
+                    <div className="relative aspect-square overflow-hidden rounded-xl border border-neutral-200 bg-white">
                         {(primaryAsset?.url ?? fallbackAsset?.url) ? (
                             <Image
                                 src={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
@@ -83,48 +102,65 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                         )}
                     </div>
 
-                    <div className="rounded-[24px] border border-neutral-200 bg-neutral-50 px-4 py-4 sm:px-5">
-                        <div className="space-y-3">
-                            <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">
-                                {product.category?.name ?? "Kategori"}
+                    <div className="space-y-6">
+                        <div>
+                            <h1 className="text-3xl font-semibold tracking-tight">
+                                {product.name}
+                            </h1>
+                            <p className="mt-2 text-neutral-500">
+                                Katalog Kodu: {product.code}
+                            </p>
+                        </div>
+
+                        <ProductAssemblyVideoSection
+                            product={product}
+                            videoOnly
+                            autoPlayVideo
+                            imageMinHeightPx={220}
+                        />
+
+                        <ProductAttributeBadges
+                            attributeValues={product.attributeValues ?? []}
+                        />
+
+                        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.85fr)] lg:items-stretch">
+                            <div className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 p-3 shadow-sm sm:p-4">
+                                <ProductTechnicalDrawingSection product={product} compact mediaOnly />
                             </div>
-                            <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">{product.name}</h1>
-                            <p className="text-sm font-medium text-neutral-500">Ürün Kodu: {product.code}</p>
-                            {product.description ? (
-                                <p className="text-sm leading-7 text-neutral-700">{product.description}</p>
-                            ) : (
-                                <p className="text-sm leading-7 text-neutral-400">
-                                    Bu ürün modeli için henüz açıklama eklenmemiştir.
+
+                            <div className="flex flex-col justify-center rounded-xl border border-brand/15 bg-brand/5 p-4 shadow-sm">
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">
+                                    Seçili Ölçü
+                                </div>
+                                {selectedMeasurementItems.length > 0 ? (
+                                    <dl className="mt-3 space-y-3">
+                                        {selectedMeasurementItems.map((measurement) => (
+                                            <div key={measurement.id} className="space-y-1">
+                                                <dt className="text-xs font-medium text-brand/80">
+                                                    {measurement.label}
+                                                </dt>
+                                                <dd className="text-sm font-semibold leading-6 text-neutral-900">
+                                                    {measurement.value}
+                                                </dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+                                ) : (
+                                    <p className="mt-2 text-sm font-medium leading-6 text-neutral-900">
+                                        Ölçü seçimi yok
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        {product.description ? (
+                            <div className="relative rounded-xl border border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-5 shadow-sm">
+                                <div className="absolute left-0 top-0 h-full w-1 rounded-l-xl bg-brand" />
+                                <p className="pl-3 text-sm leading-relaxed text-neutral-700 sm:text-base">
+                                    {product.description}
                                 </p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-col justify-start space-y-4">
-                    <div className="min-w-0 overflow-hidden rounded-[24px] border border-neutral-200 bg-neutral-50 p-3 sm:p-4">
-                        <ProductTechnicalDrawingSection product={product} compact />
-                    </div>
-
-                    <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm">
-                        <div className="mb-3 text-sm font-medium text-neutral-700">Seçilen Ölçü</div>
-                        <div className="flex flex-col items-start gap-2">
-                            {selectedMeasurements.length === 0 ? (
-                                <p className="text-sm text-neutral-400">Geçerli bir ölçü seçimi bulunamadı.</p>
-                            ) : (
-                                selectedMeasurements.map((measurement) => (
-                                    <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-left">
-                                        {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
-                                        {formatMeasurementValue(measurement)}
-                                        {measurement.measurementType.baseUnit &&
-                                        measurement.measurementType.code !== "D" &&
-                                        measurement.measurementType.code !== "M"
-                                            ? ` ${measurement.measurementType.baseUnit}`
-                                            : ""}
-                                    </Badge>
-                                ))
-                            )}
-                        </div>
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             </div>

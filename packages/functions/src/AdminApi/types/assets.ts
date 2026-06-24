@@ -4,6 +4,7 @@ import { IPrismaProductRepository } from "@/core/helpers/prisma/products/reposit
 import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repository"
 import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+import { IPrismaMaterialRepository } from "@/core/helpers/prisma/materials/repository"
 import { AssetRole, AssetType } from "@/prisma/generated/prisma/client"
 
 export interface IAssetDependencies {
@@ -12,6 +13,7 @@ export interface IAssetDependencies {
     categoryRepository: IPrismaCategoryRepository
     productVariantRepository: IPrismaProductVariantRepository
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
+    materialRepository: IPrismaMaterialRepository
 }
 
 export interface ICreateAssetBody {
@@ -24,6 +26,7 @@ export interface ICreateAssetBody {
     productId?: string
     variantId?: string
     productAttributeValueId?: string
+    materialId?: string
 }
 
 export type ICreateAssetEvent =

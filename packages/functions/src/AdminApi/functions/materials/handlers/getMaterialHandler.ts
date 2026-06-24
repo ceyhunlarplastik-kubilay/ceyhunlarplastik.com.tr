@@ -1,8 +1,9 @@
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { mapMaterialWithAssets } from "@/core/helpers/assets/mapMaterialWithAssets"
 import { IMaterialDependencies, IGetMaterialEvent } from "@/functions/AdminApi/types/materials"
 
-export const getMaterialHandler = ({ materialRepository }: IMaterialDependencies) => {
+export const getMaterialHandler = ({ materialRepository }: Pick<IMaterialDependencies, "materialRepository">) => {
     return async (event: IGetMaterialEvent) => {
         const { id } = event.pathParameters;
 
@@ -12,9 +13,10 @@ export const getMaterialHandler = ({ materialRepository }: IMaterialDependencies
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: { material },
+                payload: { material: mapMaterialWithAssets(material) },
             });
         } catch (error) {
+            if (error instanceof HttpError) throw error;
             console.error(error);
             throw new createError.InternalServerError("Failed to get material");
         }

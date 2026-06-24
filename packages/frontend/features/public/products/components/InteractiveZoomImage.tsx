@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react"
 import Image from "next/image"
-import { ZoomIn, ZoomOut, RotateCcw, Maximize2 } from "lucide-react"
+import { ZoomIn, ZoomOut, RotateCcw, Maximize2, X } from "lucide-react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
@@ -135,6 +135,16 @@ export default function InteractiveZoomImage({
                                 >
                                     <RotateCcw className="h-4 w-4" />
                                 </Button>
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="h-8 bg-white/10 text-white hover:bg-white/20"
+                                    onClick={() => setOpen(false)}
+                                    aria-label="Görseli kapat"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
                             </div>
                         </div>
 
@@ -163,6 +173,7 @@ export default function InteractiveZoomImage({
                             style={{ cursor: zoom > 1 ? (dragging ? "grabbing" : "grab") : "zoom-in" }}
                         >
                             <div className="absolute inset-0 flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element -- native img keeps drag/zoom transforms predictable here */}
                                 <img
                                     src={src}
                                     alt={alt}

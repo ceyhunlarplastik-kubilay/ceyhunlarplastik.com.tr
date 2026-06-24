@@ -1,20 +1,44 @@
 "use client"
 
 import Image from "next/image"
+import type { ComponentProps } from "react"
 import { motion } from "motion/react"
 import { Dialog, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
 import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
+import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
 import ProductQuickNav from "@/features/public/products/components/ProductQuickNav"
 
-type Props = {
-    product: any
+type ProductHeroAsset = {
+    id: string
+    role?: string
+    type?: string
+    mimeType?: string
+    url?: string
 }
 
-export default function ProductHero({ product }: Props) {
+type ProductHeroProduct = {
+    name: string
+    code: string
+    description?: string | null
+    assets?: ProductHeroAsset[]
+    attributeValues?: ComponentProps<typeof ProductAttributeBadges>["attributeValues"]
+}
 
-    const primary = product.assets?.find((a: any) => a.role === "PRIMARY")
+type Props = {
+    product: ProductHeroProduct
+    showAssemblyVideoInline?: boolean
+    assemblyVideoAutoPlay?: boolean
+}
+
+export default function ProductHero({
+    product,
+    showAssemblyVideoInline = false,
+    assemblyVideoAutoPlay = false,
+}: Props) {
+
+    const primary = product.assets?.find((asset) => asset.role === "PRIMARY" && asset.url)
 
     return (
         <div className="grid lg:grid-cols-2 gap-16 items-start">
@@ -36,7 +60,7 @@ export default function ProductHero({ product }: Props) {
             "
                     >
 
-                        {primary ? (
+                        {primary?.url ? (
                             <Image
                                 src={primary.url}
                                 alt={product.name}
@@ -59,7 +83,7 @@ export default function ProductHero({ product }: Props) {
                         <DialogTitle>Ürün görseli</DialogTitle>
                     </VisuallyHidden>
 
-                    {primary && (
+                    {primary?.url ? (
                         <Image
                             src={primary.url}
                             alt={product.name}
@@ -67,7 +91,7 @@ export default function ProductHero({ product }: Props) {
                             height={900}
                             className="object-contain w-full"
                         />
-                    )}
+                    ) : null}
 
                 </DialogContent>
 
@@ -86,6 +110,25 @@ export default function ProductHero({ product }: Props) {
                         Katalog Kodu: {product.code}
                     </p>
                 </div>
+
+                {/* <ProductAttributeBadges
+                    attributeValues={product.attributeValues ?? []}
+                /> */}
+
+                {showAssemblyVideoInline ? (
+                    <div id="product-assembly-video" className="scroll-mt-28">
+                        <ProductAssemblyVideoSection
+                            product={product}
+                            videoOnly
+                            autoPlayVideo={assemblyVideoAutoPlay}
+                            imageMinHeightPx={220}
+                        />
+                    </div>
+                ) : null}
+
+                <ProductAttributeBadges
+                    attributeValues={product.attributeValues ?? []}
+                />
 
                 <ProductQuickNav />
 
@@ -112,11 +155,6 @@ export default function ProductHero({ product }: Props) {
                         </p>
                     </motion.div>
                 )}
-
-                {/* 🔥 ATTRIBUTE BADGES */}
-                <ProductAttributeBadges
-                    attributeValues={product.attributeValues}
-                />
 
                 {/*                 <p className="text-neutral-500 text-sm">
                     Teknik detaylar ve ölçü seçeneklerini aşağıdan inceleyebilirsiniz.

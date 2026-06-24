@@ -14,6 +14,8 @@ type Props = {
     type?: "button" | "submit" | "reset"
     disabled?: boolean
     ariaLabel?: string
+    target?: React.ComponentProps<typeof Link>["target"]
+    rel?: string
 }
 
 export function ButtonShine({
@@ -26,6 +28,8 @@ export function ButtonShine({
     type = "button",
     disabled = false,
     ariaLabel,
+    target,
+    rel,
 }: Props) {
     if (href) {
         return (
@@ -53,7 +57,7 @@ export function ButtonShine({
                     hover:before:bg-[position:-100%_0]
                 `}
             >
-                <Link href={href}>{children}</Link>
+                <Link href={href} target={target} rel={rel}>{children}</Link>
             </Button>
         )
     }

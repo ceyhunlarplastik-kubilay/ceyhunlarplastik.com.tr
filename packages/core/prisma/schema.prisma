@@ -1180,6 +1180,7 @@ model Material {
   code String? // PP, PE, PVC gibi
 
   variants ProductVariant[]
+  assets   Asset[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1228,6 +1229,9 @@ model Asset {
   productAttributeValueId String?
   productAttributeValue   ProductAttributeValue? @relation(fields: [productAttributeValueId], references: [id], onDelete: Cascade)
 
+  materialId String?
+  material   Material? @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1235,4 +1239,5 @@ model Asset {
   @@index([productId])
   @@index([variantId])
   @@index([productAttributeValueId])
+  @@index([materialId])
 }

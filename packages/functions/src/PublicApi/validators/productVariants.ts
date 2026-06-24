@@ -46,6 +46,16 @@ const materialSchema = z.object({
     id: z.string(),
     name: z.string(),
     code: z.string().nullable(),
+    assets: z.array(z.object({
+        id: z.string(),
+        key: z.string(),
+        mimeType: z.string(),
+        type: z.string(),
+        role: z.string(),
+        url: z.string().optional(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+    }).loose()).optional(),
     createdAt: z.string(),
     updatedAt: z.string(),
 })

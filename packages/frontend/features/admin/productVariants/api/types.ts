@@ -50,7 +50,7 @@ export type ProductVariant = {
         code: string
         system: string
     } | null
-    materials: { id: string; name: string }[]
+    materials: MaterialReference[]
     measurements: VariantMeasurement[]
     variantSuppliers: VariantSupplier[]
 }
@@ -66,7 +66,18 @@ export type ColorReference = {
 export type MaterialReference = {
     id: string
     name: string
+    code?: string | null
     description?: string
+    assets?: Array<{
+        id: string
+        key: string
+        mimeType: string
+        type: string
+        role: string
+        url?: string
+        createdAt?: string
+        updatedAt?: string
+    }>
 }
 
 export type SupplierReference = {

@@ -59,6 +59,16 @@ export type VariantMaterial = {
     id: string
     name: string
     code?: string | null
+    assets?: Array<{
+        id: string
+        key: string
+        mimeType: string
+        type: string
+        role: string
+        url?: string
+        createdAt?: string
+        updatedAt?: string
+    }>
 }
 
 export type VariantSupplier = {
@@ -549,10 +559,12 @@ export default function ProductVariantTable({
 
                                                             setPendingVariantKey(option.key)
                                                         }}
+                                                        /* target="_blank"
+                                                        rel="noopener noreferrer" */
                                                         ariaLabel={`${option.label} varyantlarini goster`}
                                                         className={cn(
-                                                            "h-7 min-w-[132px] px-2.5 text-[11px] font-medium shadow-sm transition-transform active:scale-95",
-                                                            isActive ? "bg-brand text-white shadow-brand/10" : "bg-neutral-900 text-white",
+                                                            "h-7 min-w-[132px] rounded-full border border-[var(--color-brand)]/80 bg-[var(--color-brand)] px-2.5 text-[11px] font-medium text-[var(--color-brand-foreground)] shadow-sm shadow-brand/10 transition-all duration-200 hover:border-[var(--color-brand)] hover:bg-white hover:text-[var(--color-brand)] active:scale-95",
+                                                            isActive && "ring-2 ring-[var(--color-brand)]/20 ring-offset-1",
                                                             isPending && "cursor-wait"
                                                         )}
                                                     >

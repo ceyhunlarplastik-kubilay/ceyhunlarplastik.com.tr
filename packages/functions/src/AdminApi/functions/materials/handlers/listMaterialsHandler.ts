@@ -1,9 +1,10 @@
 import createError from "http-errors"
 import { safeNumber } from "@/core/helpers/utils/number"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { mapMaterialWithAssets } from "@/core/helpers/assets/mapMaterialWithAssets"
 import { IMaterialDependencies, IListMaterialsEvent } from "@/functions/AdminApi/types/materials"
 
-export const listMaterialsHandler = ({ materialRepository }: IMaterialDependencies) => {
+export const listMaterialsHandler = ({ materialRepository }: Pick<IMaterialDependencies, "materialRepository">) => {
     return async (event: IListMaterialsEvent) => {
         const { page, limit, search, sort, order } = event.queryStringParameters ?? {};
 
@@ -18,7 +19,10 @@ export const listMaterialsHandler = ({ materialRepository }: IMaterialDependenci
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: result,
+                payload: {
+                    ...result,
+                    data: result.data.map((material) => mapMaterialWithAssets(material)),
+                },
             })
         } catch (error) {
             console.error(error);

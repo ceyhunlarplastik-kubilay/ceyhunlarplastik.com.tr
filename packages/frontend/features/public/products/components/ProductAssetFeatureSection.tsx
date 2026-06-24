@@ -28,6 +28,7 @@ type Props = {
     showDescription?: boolean
     descriptionClassName?: string
     imageMinHeightPx?: number
+    mediaOnly?: boolean
 }
 
 export default function ProductAssetFeatureSection({
@@ -39,7 +40,6 @@ export default function ProductAssetFeatureSection({
     title,
     description,
     openButtonLabel,
-    missingMessage = "Bu içerik henüz eklenmemiştir. Talep oluşturarak detayları isteyebilirsiniz.",
     fallbackImageSrc = "/ceyhunlar-teklif-al.webp",
     requestHref = "/iletisim",
     compact = false,
@@ -48,6 +48,7 @@ export default function ProductAssetFeatureSection({
     showDescription = true,
     descriptionClassName,
     imageMinHeightPx,
+    mediaOnly = false,
 }: Props) {
     const asset = assets?.find((item) => item.role === role)
     const hasAsset = Boolean(asset?.url)
@@ -92,52 +93,54 @@ export default function ProductAssetFeatureSection({
                         )}
                     </div>
 
-                    <div className={`flex flex-col justify-between ${compact ? "p-4" : "p-6 lg:p-8"}`}>
-                        <div>
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-700">
-                                {badgeIcon}
-                                {badgeLabel}
+                    {!mediaOnly ? (
+                        <div className={`flex flex-col justify-between ${compact ? "p-4" : "p-6 lg:p-8"}`}>
+                            <div>
+                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-700">
+                                    {badgeIcon}
+                                    {badgeLabel}
+                                </div>
+
+                                {showTitle ? (
+                                    <h3 className={`${compact ? "text-lg" : "text-2xl"} font-semibold tracking-tight text-neutral-900`}>
+                                        {title}
+                                    </h3>
+                                ) : null}
+
+                                {showDescription ? (
+                                    <p className={descriptionClassName ?? `mt-3 text-sm text-neutral-600 ${compact ? "leading-5" : "leading-6"}`}>
+                                        {description}
+                                    </p>
+                                ) : null}
+
+                                {/* {!hasAsset && (
+                                    <p className="mt-3 text-sm text-amber-700">
+                                        {missingMessage}
+                                    </p>
+                                )} */}
                             </div>
 
-                            {showTitle ? (
-                                <h3 className={`${compact ? "text-lg" : "text-2xl"} font-semibold tracking-tight text-neutral-900`}>
-                                    {title}
-                                </h3>
-                            ) : null}
+                            <div className={`${compact ? "mt-4" : "mt-6"} flex flex-wrap gap-3`}>
+                                {hasAsset && (
+                                    <Link
+                                        href={previewSrc}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className={`inline-flex items-center justify-center rounded-xl bg-[var(--color-brand)] ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-white transition-opacity hover:opacity-90`}
+                                    >
+                                        {openButtonLabel}
+                                    </Link>
+                                )}
 
-                            {showDescription ? (
-                                <p className={descriptionClassName ?? `mt-3 text-sm text-neutral-600 ${compact ? "leading-5" : "leading-6"}`}>
-                                    {description}
-                                </p>
-                            ) : null}
-
-                            {/* {!hasAsset && (
-                                <p className="mt-3 text-sm text-amber-700">
-                                    {missingMessage}
-                                </p>
-                            )} */}
-                        </div>
-
-                        <div className={`${compact ? "mt-4" : "mt-6"} flex flex-wrap gap-3`}>
-                            {hasAsset && (
                                 <Link
-                                    href={previewSrc}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className={`inline-flex items-center justify-center rounded-xl bg-[var(--color-brand)] ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-white transition-opacity hover:opacity-90`}
+                                    href={requestHref}
+                                    className={`inline-flex items-center justify-center rounded-xl border border-neutral-300 ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-neutral-800 transition-colors hover:bg-neutral-100`}
                                 >
-                                    {openButtonLabel}
+                                    Detaylı Bilgi Talep Et
                                 </Link>
-                            )}
-
-                            <Link
-                                href={requestHref}
-                                className={`inline-flex items-center justify-center rounded-xl border border-neutral-300 ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-neutral-800 transition-colors hover:bg-neutral-100`}
-                            >
-                                Detaylı Bilgi Talep Et
-                            </Link>
+                            </div>
                         </div>
-                    </div>
+                    ) : null}
                 </div>
             </div>
         </section>

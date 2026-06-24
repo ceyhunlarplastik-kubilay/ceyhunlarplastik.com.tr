@@ -6,9 +6,17 @@ import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Material } from "@/prisma/generated/prisma/client"
 
+export type MaterialWithAssets = Prisma.MaterialGetPayload<{
+    include: {
+        assets: true
+    }
+}>
+
+type MaterialListQuery = IPaginationQuery & { certificateOnly?: boolean }
+
 export interface IPrismaMaterialRepository {
-    listMaterials(query: IPaginationQuery): Promise<{
-        data: Material[]
+    listMaterials(query: MaterialListQuery): Promise<{
+        data: MaterialWithAssets[]
         meta: {
             page: number
             limit: number
@@ -16,15 +24,23 @@ export interface IPrismaMaterialRepository {
             totalPages: number
         }
     }>
-    getMaterial(id: string): Promise<Material | null>
-    createMaterial(data: Prisma.MaterialCreateInput): Promise<Material>
-    updateMaterial(id: string, data: Prisma.MaterialUpdateInput): Promise<Material>
-    deleteMaterial(id: string): Promise<Material>
+    getMaterial(id: string): Promise<MaterialWithAssets | null>
+    createMaterial(data: Prisma.MaterialCreateInput): Promise<MaterialWithAssets>
+    updateMaterial(id: string, data: Prisma.MaterialUpdateInput): Promise<MaterialWithAssets>
+    deleteMaterial(id: string): Promise<MaterialWithAssets>
 }
+
+const materialInclude = {
+    assets: {
+        orderBy: [
+            { createdAt: "desc" },
+        ],
+    },
+} satisfies Prisma.MaterialInclude
 
 export const materialRepository = (): IPrismaMaterialRepository => {
 
-    const listMaterials = async (query: IPaginationQuery) => {
+    const listMaterials = async (query: MaterialListQuery) => {
 
         const filterWhere = buildFilterQuery<Material>(query, [
             "name",
@@ -43,9 +59,19 @@ export const materialRepository = (): IPrismaMaterialRepository => {
             defaultSort: "createdAt",
         })
 
-        const finalWhere = {
+        const finalWhere: Prisma.MaterialWhereInput = {
             ...where,
             ...filterWhere,
+            ...(query.certificateOnly
+                ? {
+                    assets: {
+                        some: {
+                            type: "PDF",
+                            role: "CERTIFICATE",
+                        },
+                    },
+                }
+                : {}),
         }
 
         const [data, total] = await Promise.all([
@@ -54,6 +80,7 @@ export const materialRepository = (): IPrismaMaterialRepository => {
                 orderBy,
                 skip,
                 take,
+                include: materialInclude,
             }),
             prisma.material.count({ where: finalWhere }),
         ])
@@ -69,20 +96,26 @@ export const materialRepository = (): IPrismaMaterialRepository => {
     const getMaterial = async (id: string) =>
         prisma.material.findUnique({
             where: { id },
+            include: materialInclude,
         })
 
     const createMaterial = async (data: Prisma.MaterialCreateInput) =>
-        prisma.material.create({ data })
+        prisma.material.create({
+            data,
+            include: materialInclude,
+        })
 
     const updateMaterial = async (id: string, data: Prisma.MaterialUpdateInput) =>
         prisma.material.update({
             where: { id },
             data,
+            include: materialInclude,
         })
 
     const deleteMaterial = async (id: string) =>
         prisma.material.delete({
             where: { id },
+            include: materialInclude,
         })
 
     return {

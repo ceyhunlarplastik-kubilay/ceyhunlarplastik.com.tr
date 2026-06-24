@@ -11,6 +11,7 @@ import {
     Phone,
     UserRound,
     UsersRound,
+    Layers,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
@@ -84,7 +85,7 @@ function buildCustomerProfileSummaryItems(
         {
             label: "Kullanım Alanı",
             value: `${customer.usageAreaValues?.length ?? 0} alan`,
-            icon: MapPin,
+            icon: Layers,
         },
         {
             label: "Portal Kullanıcısı",

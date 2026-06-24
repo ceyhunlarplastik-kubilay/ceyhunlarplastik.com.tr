@@ -1,9 +1,10 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { Prisma } from "@/prisma/generated/prisma/client"
+import { mapMaterialWithAssets } from "@/core/helpers/assets/mapMaterialWithAssets"
 import { IMaterialDependencies, IDeleteMaterialEvent } from "@/functions/AdminApi/types/materials"
 
-export const deleteMaterialHandler = ({ materialRepository }: IMaterialDependencies) => {
+export const deleteMaterialHandler = ({ materialRepository }: Pick<IMaterialDependencies, "materialRepository">) => {
     return async (event: IDeleteMaterialEvent) => {
         const { id } = event.pathParameters;
 
@@ -12,7 +13,7 @@ export const deleteMaterialHandler = ({ materialRepository }: IMaterialDependenc
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: { material: deleted },
+                payload: { material: mapMaterialWithAssets(deleted) },
             })
         } catch (err: any) {
             if (err instanceof Prisma.PrismaClientKnownRequestError) {

@@ -1,10 +1,13 @@
 "use client"
 
+import axios from "axios"
+import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronDown, Loader2, Plus, X } from "lucide-react"
+import { Check, ChevronDown, Loader2, Plus, Upload, X } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -39,6 +42,7 @@ import { useCreateColorReference } from "@/features/admin/productVariants/hooks/
 import { useCreateMaterialReference } from "@/features/admin/productVariants/hooks/useCreateMaterialReference"
 import { useCreateSupplierReference } from "@/features/admin/productVariants/hooks/useCreateSupplierReference"
 import { useCreateMeasurementTypeReference } from "@/features/admin/productVariants/hooks/useCreateMeasurementTypeReference"
+import { usePresignMaterialAsset, useUpdateMaterial } from "@/features/admin/materials/hooks/useMaterialMutations"
 
 import type {
     ProductVariant,
@@ -656,11 +660,14 @@ export function CreateVariantDialog({
 
     const createColorMutation = useCreateColorReference()
     const createMaterialMutation = useCreateMaterialReference()
+    const updateMaterialMutation = useUpdateMaterial()
+    const presignMaterialAssetMutation = usePresignMaterialAsset()
     const createSupplierMutation = useCreateSupplierReference()
     const createMeasurementTypeMutation = useCreateMeasurementTypeReference()
 
     const [colorCreateOpen, setColorCreateOpen] = useState(false)
     const [materialCreateOpen, setMaterialCreateOpen] = useState(false)
+    const [materialCertificateFile, setMaterialCertificateFile] = useState<File | null>(null)
     const [supplierCreateOpen, setSupplierCreateOpen] = useState(false)
 
     const [localReferences, setLocalReferences] = useState<VariantReferences>({
@@ -926,10 +933,39 @@ export function CreateVariantDialog({
     })
 
     const onCreateMaterial = materialCreateForm.handleSubmit(async (values) => {
-        const created = await createMaterialMutation.mutateAsync({
+        let created = await createMaterialMutation.mutateAsync({
             name: values.name,
             code: values.code || undefined,
         })
+
+        if (materialCertificateFile) {
+            const contentType = materialCertificateFile.type || "application/pdf"
+
+            if (contentType !== "application/pdf") {
+                toast.error("Sadece PDF sertifika yüklenebilir")
+                return
+            }
+
+            const presigned = await presignMaterialAssetMutation.mutateAsync({
+                materialId: created.id,
+                fileName: materialCertificateFile.name,
+                contentType,
+            })
+
+            await axios.put(presigned.uploadUrl, materialCertificateFile, {
+                headers: {
+                    "Content-Type": contentType,
+                },
+            })
+
+            created = await updateMaterialMutation.mutateAsync({
+                id: created.id,
+                assetKey: presigned.key,
+                assetType: "PDF",
+                assetRole: "CERTIFICATE",
+                mimeType: contentType,
+            })
+        }
 
         setLocalReferences((prev) => ({
             ...prev,
@@ -945,6 +981,7 @@ export function CreateVariantDialog({
             name: "",
             code: "",
         })
+        setMaterialCertificateFile(null)
         setMaterialCreateOpen(false)
     })
 
@@ -2011,7 +2048,13 @@ export function CreateVariantDialog({
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={materialCreateOpen} onOpenChange={setMaterialCreateOpen}>
+            <Dialog
+                open={materialCreateOpen}
+                onOpenChange={(nextOpen) => {
+                    setMaterialCreateOpen(nextOpen)
+                    if (!nextOpen) setMaterialCertificateFile(null)
+                }}
+            >
                 <DialogContent className="max-w-md">
                     <DialogHeader>
                         <DialogTitle>Yeni Malzeme Oluştur</DialogTitle>
@@ -2031,12 +2074,53 @@ export function CreateVariantDialog({
                             <Input placeholder="örn. PP" {...materialCreateForm.register("code")} />
                         </div>
 
+                        <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-4">
+                            <Label htmlFor="variant-material-certificate" className="flex items-center gap-2 text-xs text-neutral-600">
+                                <Upload className="h-4 w-4" />
+                                PDF Sertifika (Opsiyonel)
+                            </Label>
+                            <Input
+                                id="variant-material-certificate"
+                                type="file"
+                                accept="application/pdf,.pdf"
+                                className="mt-3 bg-white"
+                                onChange={(event) => {
+                                    const file = event.target.files?.[0] ?? null
+                                    if (file && (file.type || "application/pdf") !== "application/pdf") {
+                                        toast.error("Sadece PDF sertifika yüklenebilir")
+                                        event.currentTarget.value = ""
+                                        setMaterialCertificateFile(null)
+                                        return
+                                    }
+                                    setMaterialCertificateFile(file)
+                                }}
+                            />
+                            <p className="mt-2 text-xs text-neutral-500">
+                                Mevcut ham maddelerin sertifikalarını{" "}
+                                <Link href="/admin/materials" className="font-medium text-brand hover:underline">
+                                    Ham Maddeler
+                                </Link>{" "}
+                                sayfasından yönetin.
+                            </p>
+                        </div>
+
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setMaterialCreateOpen(false)}>
                                 İptal
                             </Button>
-                            <Button type="submit" disabled={createMaterialMutation.isPending}>
-                                {createMaterialMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            <Button
+                                type="submit"
+                                disabled={
+                                    createMaterialMutation.isPending ||
+                                    updateMaterialMutation.isPending ||
+                                    presignMaterialAssetMutation.isPending
+                                }
+                            >
+                                {(createMaterialMutation.isPending ||
+                                    updateMaterialMutation.isPending ||
+                                    presignMaterialAssetMutation.isPending) && (
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                )}
                                 Oluştur
                             </Button>
                         </DialogFooter>

@@ -109,6 +109,8 @@ export function CustomerPortalUsageAreaCarousel({ customer }: Props) {
                 <div className="flex flex-wrap gap-2">
                     <ButtonShine
                         href="/musteri/tanimli-urunler"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         size="sm"
                         className="rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] shadow-[0_18px_35px_-18px_color-mix(in_oklch,var(--color-brand),black_35%)]"
                         ariaLabel="Profiliniz ile eslesen urunlere git"

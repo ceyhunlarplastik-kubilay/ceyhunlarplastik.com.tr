@@ -34,6 +34,7 @@ export type AssetMinAggregateOutputType = {
   productId: string | null
   variantId: string | null
   productAttributeValueId: string | null
+  materialId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +49,7 @@ export type AssetMaxAggregateOutputType = {
   productId: string | null
   variantId: string | null
   productAttributeValueId: string | null
+  materialId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +64,7 @@ export type AssetCountAggregateOutputType = {
   productId: number
   variantId: number
   productAttributeValueId: number
+  materialId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,6 +81,7 @@ export type AssetMinAggregateInputType = {
   productId?: true
   variantId?: true
   productAttributeValueId?: true
+  materialId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,6 +96,7 @@ export type AssetMaxAggregateInputType = {
   productId?: true
   variantId?: true
   productAttributeValueId?: true
+  materialId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -106,6 +111,7 @@ export type AssetCountAggregateInputType = {
   productId?: true
   variantId?: true
   productAttributeValueId?: true
+  materialId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -193,6 +199,7 @@ export type AssetGroupByOutputType = {
   productId: string | null
   variantId: string | null
   productAttributeValueId: string | null
+  materialId: string | null
   createdAt: Date
   updatedAt: Date
   _count: AssetCountAggregateOutputType | null
@@ -228,12 +235,14 @@ export type AssetWhereInput = {
   productId?: Prisma.StringNullableFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableFilter<"Asset"> | string | null
   productAttributeValueId?: Prisma.StringNullableFilter<"Asset"> | string | null
+  materialId?: Prisma.StringNullableFilter<"Asset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   productAttributeValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
+  material?: Prisma.XOR<Prisma.MaterialNullableScalarRelationFilter, Prisma.MaterialWhereInput> | null
 }
 
 export type AssetOrderByWithRelationInput = {
@@ -246,12 +255,14 @@ export type AssetOrderByWithRelationInput = {
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   productAttributeValueId?: Prisma.SortOrderInput | Prisma.SortOrder
+  materialId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.CategoryOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
   variant?: Prisma.ProductVariantOrderByWithRelationInput
   productAttributeValue?: Prisma.ProductAttributeValueOrderByWithRelationInput
+  material?: Prisma.MaterialOrderByWithRelationInput
 }
 
 export type AssetWhereUniqueInput = Prisma.AtLeast<{
@@ -267,12 +278,14 @@ export type AssetWhereUniqueInput = Prisma.AtLeast<{
   productId?: Prisma.StringNullableFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableFilter<"Asset"> | string | null
   productAttributeValueId?: Prisma.StringNullableFilter<"Asset"> | string | null
+  materialId?: Prisma.StringNullableFilter<"Asset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   variant?: Prisma.XOR<Prisma.ProductVariantNullableScalarRelationFilter, Prisma.ProductVariantWhereInput> | null
   productAttributeValue?: Prisma.XOR<Prisma.ProductAttributeValueNullableScalarRelationFilter, Prisma.ProductAttributeValueWhereInput> | null
+  material?: Prisma.XOR<Prisma.MaterialNullableScalarRelationFilter, Prisma.MaterialWhereInput> | null
 }, "id">
 
 export type AssetOrderByWithAggregationInput = {
@@ -285,6 +298,7 @@ export type AssetOrderByWithAggregationInput = {
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
   productAttributeValueId?: Prisma.SortOrderInput | Prisma.SortOrder
+  materialId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AssetCountOrderByAggregateInput
@@ -305,6 +319,7 @@ export type AssetScalarWhereWithAggregatesInput = {
   productId?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
   productAttributeValueId?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
+  materialId?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Asset"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Asset"> | Date | string
 }
@@ -321,6 +336,7 @@ export type AssetCreateInput = {
   product?: Prisma.ProductCreateNestedOneWithoutAssetsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutAssetsInput
   productAttributeValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutAssetsInput
+  material?: Prisma.MaterialCreateNestedOneWithoutAssetsInput
 }
 
 export type AssetUncheckedCreateInput = {
@@ -333,6 +349,7 @@ export type AssetUncheckedCreateInput = {
   productId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -349,6 +366,7 @@ export type AssetUpdateInput = {
   product?: Prisma.ProductUpdateOneWithoutAssetsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutAssetsNestedInput
   productAttributeValue?: Prisma.ProductAttributeValueUpdateOneWithoutAssetsNestedInput
+  material?: Prisma.MaterialUpdateOneWithoutAssetsNestedInput
 }
 
 export type AssetUncheckedUpdateInput = {
@@ -361,6 +379,7 @@ export type AssetUncheckedUpdateInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -375,6 +394,7 @@ export type AssetCreateManyInput = {
   productId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -399,6 +419,7 @@ export type AssetUncheckedUpdateManyInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -423,6 +444,7 @@ export type AssetCountOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   productAttributeValueId?: Prisma.SortOrder
+  materialId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -437,6 +459,7 @@ export type AssetMaxOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   productAttributeValueId?: Prisma.SortOrder
+  materialId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -451,6 +474,7 @@ export type AssetMinOrderByAggregateInput = {
   productId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   productAttributeValueId?: Prisma.SortOrder
+  materialId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -623,6 +647,48 @@ export type AssetUncheckedUpdateManyWithoutVariantNestedInput = {
   deleteMany?: Prisma.AssetScalarWhereInput | Prisma.AssetScalarWhereInput[]
 }
 
+export type AssetCreateNestedManyWithoutMaterialInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutMaterialInput, Prisma.AssetUncheckedCreateWithoutMaterialInput> | Prisma.AssetCreateWithoutMaterialInput[] | Prisma.AssetUncheckedCreateWithoutMaterialInput[]
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutMaterialInput | Prisma.AssetCreateOrConnectWithoutMaterialInput[]
+  createMany?: Prisma.AssetCreateManyMaterialInputEnvelope
+  connect?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+}
+
+export type AssetUncheckedCreateNestedManyWithoutMaterialInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutMaterialInput, Prisma.AssetUncheckedCreateWithoutMaterialInput> | Prisma.AssetCreateWithoutMaterialInput[] | Prisma.AssetUncheckedCreateWithoutMaterialInput[]
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutMaterialInput | Prisma.AssetCreateOrConnectWithoutMaterialInput[]
+  createMany?: Prisma.AssetCreateManyMaterialInputEnvelope
+  connect?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+}
+
+export type AssetUpdateManyWithoutMaterialNestedInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutMaterialInput, Prisma.AssetUncheckedCreateWithoutMaterialInput> | Prisma.AssetCreateWithoutMaterialInput[] | Prisma.AssetUncheckedCreateWithoutMaterialInput[]
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutMaterialInput | Prisma.AssetCreateOrConnectWithoutMaterialInput[]
+  upsert?: Prisma.AssetUpsertWithWhereUniqueWithoutMaterialInput | Prisma.AssetUpsertWithWhereUniqueWithoutMaterialInput[]
+  createMany?: Prisma.AssetCreateManyMaterialInputEnvelope
+  set?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  disconnect?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  delete?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  connect?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  update?: Prisma.AssetUpdateWithWhereUniqueWithoutMaterialInput | Prisma.AssetUpdateWithWhereUniqueWithoutMaterialInput[]
+  updateMany?: Prisma.AssetUpdateManyWithWhereWithoutMaterialInput | Prisma.AssetUpdateManyWithWhereWithoutMaterialInput[]
+  deleteMany?: Prisma.AssetScalarWhereInput | Prisma.AssetScalarWhereInput[]
+}
+
+export type AssetUncheckedUpdateManyWithoutMaterialNestedInput = {
+  create?: Prisma.XOR<Prisma.AssetCreateWithoutMaterialInput, Prisma.AssetUncheckedCreateWithoutMaterialInput> | Prisma.AssetCreateWithoutMaterialInput[] | Prisma.AssetUncheckedCreateWithoutMaterialInput[]
+  connectOrCreate?: Prisma.AssetCreateOrConnectWithoutMaterialInput | Prisma.AssetCreateOrConnectWithoutMaterialInput[]
+  upsert?: Prisma.AssetUpsertWithWhereUniqueWithoutMaterialInput | Prisma.AssetUpsertWithWhereUniqueWithoutMaterialInput[]
+  createMany?: Prisma.AssetCreateManyMaterialInputEnvelope
+  set?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  disconnect?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  delete?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  connect?: Prisma.AssetWhereUniqueInput | Prisma.AssetWhereUniqueInput[]
+  update?: Prisma.AssetUpdateWithWhereUniqueWithoutMaterialInput | Prisma.AssetUpdateWithWhereUniqueWithoutMaterialInput[]
+  updateMany?: Prisma.AssetUpdateManyWithWhereWithoutMaterialInput | Prisma.AssetUpdateManyWithWhereWithoutMaterialInput[]
+  deleteMany?: Prisma.AssetScalarWhereInput | Prisma.AssetScalarWhereInput[]
+}
+
 export type EnumAssetTypeFieldUpdateOperationsInput = {
   set?: $Enums.AssetType
 }
@@ -642,6 +708,7 @@ export type AssetCreateWithoutCategoryInput = {
   product?: Prisma.ProductCreateNestedOneWithoutAssetsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutAssetsInput
   productAttributeValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutAssetsInput
+  material?: Prisma.MaterialCreateNestedOneWithoutAssetsInput
 }
 
 export type AssetUncheckedCreateWithoutCategoryInput = {
@@ -653,6 +720,7 @@ export type AssetUncheckedCreateWithoutCategoryInput = {
   productId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -696,6 +764,7 @@ export type AssetScalarWhereInput = {
   productId?: Prisma.StringNullableFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableFilter<"Asset"> | string | null
   productAttributeValueId?: Prisma.StringNullableFilter<"Asset"> | string | null
+  materialId?: Prisma.StringNullableFilter<"Asset"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Asset"> | Date | string
 }
@@ -711,6 +780,7 @@ export type AssetCreateWithoutProductInput = {
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutAssetsInput
   productAttributeValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutAssetsInput
+  material?: Prisma.MaterialCreateNestedOneWithoutAssetsInput
 }
 
 export type AssetUncheckedCreateWithoutProductInput = {
@@ -722,6 +792,7 @@ export type AssetUncheckedCreateWithoutProductInput = {
   categoryId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -763,6 +834,7 @@ export type AssetCreateWithoutProductAttributeValueInput = {
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
   product?: Prisma.ProductCreateNestedOneWithoutAssetsInput
   variant?: Prisma.ProductVariantCreateNestedOneWithoutAssetsInput
+  material?: Prisma.MaterialCreateNestedOneWithoutAssetsInput
 }
 
 export type AssetUncheckedCreateWithoutProductAttributeValueInput = {
@@ -774,6 +846,7 @@ export type AssetUncheckedCreateWithoutProductAttributeValueInput = {
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -815,6 +888,7 @@ export type AssetCreateWithoutVariantInput = {
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
   product?: Prisma.ProductCreateNestedOneWithoutAssetsInput
   productAttributeValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutAssetsInput
+  material?: Prisma.MaterialCreateNestedOneWithoutAssetsInput
 }
 
 export type AssetUncheckedCreateWithoutVariantInput = {
@@ -826,6 +900,7 @@ export type AssetUncheckedCreateWithoutVariantInput = {
   categoryId?: string | null
   productId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -856,6 +931,60 @@ export type AssetUpdateManyWithWhereWithoutVariantInput = {
   data: Prisma.XOR<Prisma.AssetUpdateManyMutationInput, Prisma.AssetUncheckedUpdateManyWithoutVariantInput>
 }
 
+export type AssetCreateWithoutMaterialInput = {
+  id?: string
+  key: string
+  mimeType: string
+  type: $Enums.AssetType
+  role: $Enums.AssetRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
+  product?: Prisma.ProductCreateNestedOneWithoutAssetsInput
+  variant?: Prisma.ProductVariantCreateNestedOneWithoutAssetsInput
+  productAttributeValue?: Prisma.ProductAttributeValueCreateNestedOneWithoutAssetsInput
+}
+
+export type AssetUncheckedCreateWithoutMaterialInput = {
+  id?: string
+  key: string
+  mimeType: string
+  type: $Enums.AssetType
+  role: $Enums.AssetRole
+  categoryId?: string | null
+  productId?: string | null
+  variantId?: string | null
+  productAttributeValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AssetCreateOrConnectWithoutMaterialInput = {
+  where: Prisma.AssetWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssetCreateWithoutMaterialInput, Prisma.AssetUncheckedCreateWithoutMaterialInput>
+}
+
+export type AssetCreateManyMaterialInputEnvelope = {
+  data: Prisma.AssetCreateManyMaterialInput | Prisma.AssetCreateManyMaterialInput[]
+  skipDuplicates?: boolean
+}
+
+export type AssetUpsertWithWhereUniqueWithoutMaterialInput = {
+  where: Prisma.AssetWhereUniqueInput
+  update: Prisma.XOR<Prisma.AssetUpdateWithoutMaterialInput, Prisma.AssetUncheckedUpdateWithoutMaterialInput>
+  create: Prisma.XOR<Prisma.AssetCreateWithoutMaterialInput, Prisma.AssetUncheckedCreateWithoutMaterialInput>
+}
+
+export type AssetUpdateWithWhereUniqueWithoutMaterialInput = {
+  where: Prisma.AssetWhereUniqueInput
+  data: Prisma.XOR<Prisma.AssetUpdateWithoutMaterialInput, Prisma.AssetUncheckedUpdateWithoutMaterialInput>
+}
+
+export type AssetUpdateManyWithWhereWithoutMaterialInput = {
+  where: Prisma.AssetScalarWhereInput
+  data: Prisma.XOR<Prisma.AssetUpdateManyMutationInput, Prisma.AssetUncheckedUpdateManyWithoutMaterialInput>
+}
+
 export type AssetCreateManyCategoryInput = {
   id?: string
   key: string
@@ -865,6 +994,7 @@ export type AssetCreateManyCategoryInput = {
   productId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -880,6 +1010,7 @@ export type AssetUpdateWithoutCategoryInput = {
   product?: Prisma.ProductUpdateOneWithoutAssetsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutAssetsNestedInput
   productAttributeValue?: Prisma.ProductAttributeValueUpdateOneWithoutAssetsNestedInput
+  material?: Prisma.MaterialUpdateOneWithoutAssetsNestedInput
 }
 
 export type AssetUncheckedUpdateWithoutCategoryInput = {
@@ -891,6 +1022,7 @@ export type AssetUncheckedUpdateWithoutCategoryInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -904,6 +1036,7 @@ export type AssetUncheckedUpdateManyWithoutCategoryInput = {
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -917,6 +1050,7 @@ export type AssetCreateManyProductInput = {
   categoryId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -932,6 +1066,7 @@ export type AssetUpdateWithoutProductInput = {
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutAssetsNestedInput
   productAttributeValue?: Prisma.ProductAttributeValueUpdateOneWithoutAssetsNestedInput
+  material?: Prisma.MaterialUpdateOneWithoutAssetsNestedInput
 }
 
 export type AssetUncheckedUpdateWithoutProductInput = {
@@ -943,6 +1078,7 @@ export type AssetUncheckedUpdateWithoutProductInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -956,6 +1092,7 @@ export type AssetUncheckedUpdateManyWithoutProductInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -969,6 +1106,7 @@ export type AssetCreateManyProductAttributeValueInput = {
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -984,6 +1122,7 @@ export type AssetUpdateWithoutProductAttributeValueInput = {
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
   product?: Prisma.ProductUpdateOneWithoutAssetsNestedInput
   variant?: Prisma.ProductVariantUpdateOneWithoutAssetsNestedInput
+  material?: Prisma.MaterialUpdateOneWithoutAssetsNestedInput
 }
 
 export type AssetUncheckedUpdateWithoutProductAttributeValueInput = {
@@ -995,6 +1134,7 @@ export type AssetUncheckedUpdateWithoutProductAttributeValueInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1008,6 +1148,7 @@ export type AssetUncheckedUpdateManyWithoutProductAttributeValueInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1021,6 +1162,7 @@ export type AssetCreateManyVariantInput = {
   categoryId?: string | null
   productId?: string | null
   productAttributeValueId?: string | null
+  materialId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1036,6 +1178,7 @@ export type AssetUpdateWithoutVariantInput = {
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
   product?: Prisma.ProductUpdateOneWithoutAssetsNestedInput
   productAttributeValue?: Prisma.ProductAttributeValueUpdateOneWithoutAssetsNestedInput
+  material?: Prisma.MaterialUpdateOneWithoutAssetsNestedInput
 }
 
 export type AssetUncheckedUpdateWithoutVariantInput = {
@@ -1047,6 +1190,7 @@ export type AssetUncheckedUpdateWithoutVariantInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1059,6 +1203,63 @@ export type AssetUncheckedUpdateManyWithoutVariantInput = {
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AssetCreateManyMaterialInput = {
+  id?: string
+  key: string
+  mimeType: string
+  type: $Enums.AssetType
+  role: $Enums.AssetRole
+  categoryId?: string | null
+  productId?: string | null
+  variantId?: string | null
+  productAttributeValueId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AssetUpdateWithoutMaterialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
+  role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
+  product?: Prisma.ProductUpdateOneWithoutAssetsNestedInput
+  variant?: Prisma.ProductVariantUpdateOneWithoutAssetsNestedInput
+  productAttributeValue?: Prisma.ProductAttributeValueUpdateOneWithoutAssetsNestedInput
+}
+
+export type AssetUncheckedUpdateWithoutMaterialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
+  role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AssetUncheckedUpdateManyWithoutMaterialInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
+  role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1076,12 +1277,14 @@ export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   productId?: boolean
   variantId?: boolean
   productAttributeValueId?: boolean
+  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.Asset$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Asset$productArgs<ExtArgs>
   variant?: boolean | Prisma.Asset$variantArgs<ExtArgs>
   productAttributeValue?: boolean | Prisma.Asset$productAttributeValueArgs<ExtArgs>
+  material?: boolean | Prisma.Asset$materialArgs<ExtArgs>
 }, ExtArgs["result"]["asset"]>
 
 export type AssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1094,12 +1297,14 @@ export type AssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   productId?: boolean
   variantId?: boolean
   productAttributeValueId?: boolean
+  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.Asset$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Asset$productArgs<ExtArgs>
   variant?: boolean | Prisma.Asset$variantArgs<ExtArgs>
   productAttributeValue?: boolean | Prisma.Asset$productAttributeValueArgs<ExtArgs>
+  material?: boolean | Prisma.Asset$materialArgs<ExtArgs>
 }, ExtArgs["result"]["asset"]>
 
 export type AssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1112,12 +1317,14 @@ export type AssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   productId?: boolean
   variantId?: boolean
   productAttributeValueId?: boolean
+  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.Asset$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Asset$productArgs<ExtArgs>
   variant?: boolean | Prisma.Asset$variantArgs<ExtArgs>
   productAttributeValue?: boolean | Prisma.Asset$productAttributeValueArgs<ExtArgs>
+  material?: boolean | Prisma.Asset$materialArgs<ExtArgs>
 }, ExtArgs["result"]["asset"]>
 
 export type AssetSelectScalar = {
@@ -1130,28 +1337,32 @@ export type AssetSelectScalar = {
   productId?: boolean
   variantId?: boolean
   productAttributeValueId?: boolean
+  materialId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "mimeType" | "type" | "role" | "categoryId" | "productId" | "variantId" | "productAttributeValueId" | "createdAt" | "updatedAt", ExtArgs["result"]["asset"]>
+export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "mimeType" | "type" | "role" | "categoryId" | "productId" | "variantId" | "productAttributeValueId" | "materialId" | "createdAt" | "updatedAt", ExtArgs["result"]["asset"]>
 export type AssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.Asset$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Asset$productArgs<ExtArgs>
   variant?: boolean | Prisma.Asset$variantArgs<ExtArgs>
   productAttributeValue?: boolean | Prisma.Asset$productAttributeValueArgs<ExtArgs>
+  material?: boolean | Prisma.Asset$materialArgs<ExtArgs>
 }
 export type AssetIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.Asset$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Asset$productArgs<ExtArgs>
   variant?: boolean | Prisma.Asset$variantArgs<ExtArgs>
   productAttributeValue?: boolean | Prisma.Asset$productAttributeValueArgs<ExtArgs>
+  material?: boolean | Prisma.Asset$materialArgs<ExtArgs>
 }
 export type AssetIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.Asset$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Asset$productArgs<ExtArgs>
   variant?: boolean | Prisma.Asset$variantArgs<ExtArgs>
   productAttributeValue?: boolean | Prisma.Asset$productAttributeValueArgs<ExtArgs>
+  material?: boolean | Prisma.Asset$materialArgs<ExtArgs>
 }
 
 export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1161,6 +1372,7 @@ export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     product: Prisma.$ProductPayload<ExtArgs> | null
     variant: Prisma.$ProductVariantPayload<ExtArgs> | null
     productAttributeValue: Prisma.$ProductAttributeValuePayload<ExtArgs> | null
+    material: Prisma.$MaterialPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1172,6 +1384,7 @@ export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     productId: string | null
     variantId: string | null
     productAttributeValueId: string | null
+    materialId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["asset"]>
@@ -1572,6 +1785,7 @@ export interface Prisma__AssetClient<T, Null = never, ExtArgs extends runtime.Ty
   product<T extends Prisma.Asset$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   variant<T extends Prisma.Asset$variantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$variantArgs<ExtArgs>>): Prisma.Prisma__ProductVariantClient<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   productAttributeValue<T extends Prisma.Asset$productAttributeValueArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$productAttributeValueArgs<ExtArgs>>): Prisma.Prisma__ProductAttributeValueClient<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  material<T extends Prisma.Asset$materialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Asset$materialArgs<ExtArgs>>): Prisma.Prisma__MaterialClient<runtime.Types.Result.GetResult<Prisma.$MaterialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1610,6 +1824,7 @@ export interface AssetFieldRefs {
   readonly productId: Prisma.FieldRef<"Asset", 'String'>
   readonly variantId: Prisma.FieldRef<"Asset", 'String'>
   readonly productAttributeValueId: Prisma.FieldRef<"Asset", 'String'>
+  readonly materialId: Prisma.FieldRef<"Asset", 'String'>
   readonly createdAt: Prisma.FieldRef<"Asset", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Asset", 'DateTime'>
 }
@@ -2086,6 +2301,25 @@ export type Asset$productAttributeValueArgs<ExtArgs extends runtime.Types.Extens
    */
   include?: Prisma.ProductAttributeValueInclude<ExtArgs> | null
   where?: Prisma.ProductAttributeValueWhereInput
+}
+
+/**
+ * Asset.material
+ */
+export type Asset$materialArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Material
+   */
+  select?: Prisma.MaterialSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Material
+   */
+  omit?: Prisma.MaterialOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MaterialInclude<ExtArgs> | null
+  where?: Prisma.MaterialWhereInput
 }
 
 /**

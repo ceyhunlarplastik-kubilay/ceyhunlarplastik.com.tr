@@ -2,9 +2,9 @@ import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IAssetDependencies, ICreateAssetEvent } from "@/functions/AdminApi/types/assets"
 
-export const createAssetHandler = ({ assetRepository, categoryRepository, productRepository, productVariantRepository, productAttributeValueRepository }: IAssetDependencies) => {
+export const createAssetHandler = ({ assetRepository, categoryRepository, productRepository, productVariantRepository, productAttributeValueRepository, materialRepository }: IAssetDependencies) => {
     return async (event: ICreateAssetEvent) => {
-        const { key, url, mimeType, type, role, categoryId, productId, variantId, productAttributeValueId } = event.body;
+        const { key, url, mimeType, type, role, categoryId, productId, variantId, productAttributeValueId, materialId } = event.body;
 
         try {
             if (categoryId) {
@@ -19,6 +19,9 @@ export const createAssetHandler = ({ assetRepository, categoryRepository, produc
             } else if (productAttributeValueId) {
                 const value = await productAttributeValueRepository.getValueById(productAttributeValueId)
                 if (!value) throw new createError.NotFound("ProductAttributeValue not found");
+            } else if (materialId) {
+                const material = await materialRepository.getMaterial(materialId)
+                if (!material) throw new createError.NotFound("Material not found");
             }
 
             const resolvedKey = key ?? url
@@ -33,6 +36,7 @@ export const createAssetHandler = ({ assetRepository, categoryRepository, produc
                 ...(productId && { product: { connect: { id: productId } } }),
                 ...(variantId && { variant: { connect: { id: variantId } } }),
                 ...(productAttributeValueId && { productAttributeValueId }),
+                ...(materialId && { material: { connect: { id: materialId } } }),
             } as any)
 
             return apiResponseDTO({

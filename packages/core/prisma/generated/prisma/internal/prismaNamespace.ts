@@ -3814,6 +3814,7 @@ export const AssetScalarFieldEnum = {
   productId: 'productId',
   variantId: 'variantId',
   productAttributeValueId: 'productAttributeValueId',
+  materialId: 'materialId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
