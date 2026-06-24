@@ -3,6 +3,10 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { IProductDependencies, IListProductsEvent } from "@/functions/PublicApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import {
+    DATABASE_CONNECTION_CAPACITY_MESSAGE,
+    isDatabaseConnectionCapacityError,
+} from "@/core/helpers/prisma/errors"
 
 const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt"] as const
 
@@ -85,6 +89,10 @@ export const listProductsHandler =
                 })
             } catch (err) {
                 console.error(err);
+                if (isDatabaseConnectionCapacityError(err)) {
+                    throw new createError.ServiceUnavailable(DATABASE_CONNECTION_CAPACITY_MESSAGE)
+                }
+
                 throw new createError.InternalServerError("An error occurred while listing products");
             }
         }

@@ -167,7 +167,7 @@ export const customerProductInclude = {
             },
         },
     },
-} as const
+} satisfies Prisma.CustomerFeaturedProductInclude
 
 export const customerAssignedProductVariantInclude = {
     createdByUser: {
@@ -192,7 +192,7 @@ export const customerAssignedProductVariantInclude = {
             },
         },
     },
-} as const
+} satisfies Prisma.CustomerAssignedProductInclude
 
 const customerDetailInclude = {
     ...customerBaseInclude,
@@ -525,16 +525,14 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                 : {}),
         }
 
-        const [data, total] = await Promise.all([
-            prisma.customer.findMany({
-                where: finalWhere,
-                orderBy,
-                skip,
-                take,
-                include: customerBaseInclude,
-            }),
-            prisma.customer.count({ where: finalWhere }),
-        ])
+        const data = await prisma.customer.findMany({
+            where: finalWhere,
+            orderBy,
+            skip,
+            take,
+            include: customerBaseInclude,
+        })
+        const total = await prisma.customer.count({ where: finalWhere })
 
         return buildPaginationResponse(data, {
             page,

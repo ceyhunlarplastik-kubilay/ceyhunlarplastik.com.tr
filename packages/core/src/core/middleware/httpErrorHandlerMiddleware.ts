@@ -2,6 +2,10 @@ import middy from "@middy/core"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { HttpError, isHttpError } from "http-errors"
 
+import {
+  DATABASE_CONNECTION_CAPACITY_MESSAGE,
+  isDatabaseConnectionCapacityError,
+} from "@/core/helpers/prisma/errors"
 import { errorResponse } from "@/core/helpers/utils/api/response"
 
 
@@ -37,6 +41,15 @@ const httpErrorHandlerMiddleware = () => {
     const err = request.error
     console.error("HttpErrorHandler Caught Error:", JSON.stringify(err, null, 2))
     if (err) console.error("Error Raw:", err);
+
+    if (isDatabaseConnectionCapacityError(err)) {
+      return errorResponse({
+        statusCode: 503,
+        detail: {
+          message: DATABASE_CONNECTION_CAPACITY_MESSAGE,
+        },
+      })
+    }
 
     // Custom validation error
     if (isMiddyValidatorError(err)) {

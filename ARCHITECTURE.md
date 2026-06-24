@@ -140,7 +140,8 @@ Current behavior:
 Notable implementation detail:
 - Lambdas linked to the VPC do not have default public internet access.
 - This matters for any future AWS public endpoint usage from inside VPC-backed functions.
-- RDS Proxy is currently disabled for cost reasons.
+- RDS Proxy is enabled in prod to protect the production database from serverless connection spikes.
+- Prisma uses a small `pg` pool by default in non-development runtimes; raise it only with an explicit capacity review.
 
 ### Authentication
 `infra/cognito.ts` defines:

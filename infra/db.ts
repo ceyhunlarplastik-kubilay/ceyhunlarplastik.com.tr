@@ -11,8 +11,8 @@ export const rds = new sst.aws.Postgres("MyPostgres", {
   multiAz: false, // Todo: true yap, maliyete bakılacak
   storage: "20 GB", // Todo: konuşulacak
   // password: "password", // Todo: s3 secret manager ile saklanacak
-  // TIP: The RDS Proxy allows serverless environments to reliably connect to RDS.
-  proxy: false, // Todo: true yap, maliyeti göz önüne alarak. Aylık yaklaşık 25 $.
+  // RDS Proxy protects the small prod database from serverless connection spikes.
+  proxy: $app.stage === "prod",
   password: config.RDS_PASSWORD,
   dev: {
     username: "postgres",

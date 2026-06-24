@@ -1,6 +1,10 @@
 import createError from "http-errors"
 import { mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
+import {
+    DATABASE_CONNECTION_CAPACITY_MESSAGE,
+    isDatabaseConnectionCapacityError,
+} from "@/core/helpers/prisma/errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICustomerDependencies, IListCustomersEvent } from "@/functions/AdminApi/types/customers"
 
@@ -36,6 +40,10 @@ export const listCustomersHandler = ({ customerRepository }: ICustomerDependenci
             })
         } catch (error) {
             console.error(error)
+            if (isDatabaseConnectionCapacityError(error)) {
+                throw new createError.ServiceUnavailable(DATABASE_CONNECTION_CAPACITY_MESSAGE)
+            }
+
             throw new createError.InternalServerError("Failed to list customers")
         }
     }

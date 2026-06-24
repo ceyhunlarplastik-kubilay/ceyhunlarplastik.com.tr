@@ -2,6 +2,15 @@ import { Resource } from "sst";
 import { PrismaClient } from "../../../prisma/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
+const parsePositiveInteger = (value: string | undefined, fallback: number) => {
+    if (!value) return fallback
+
+    const parsed = Number.parseInt(value, 10)
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
+}
+
+const isDevelopment = process.env.NODE_ENV === "development"
+
 const connectionString =
     `postgresql://${Resource.MyPostgres.username}` +
     `:${Resource.MyPostgres.password}` +
@@ -9,14 +18,29 @@ const connectionString =
     `:${Resource.MyPostgres.port}` +
     `/${Resource.MyPostgres.database}`;
 
-const adapter = new PrismaPg({ connectionString });
+const adapter = new PrismaPg({
+    connectionString,
+    max: parsePositiveInteger(process.env.DATABASE_POOL_MAX, isDevelopment ? 10 : 1),
+    connectionTimeoutMillis: parsePositiveInteger(
+        process.env.DATABASE_CONNECTION_TIMEOUT_MS,
+        5_000,
+    ),
+    idleTimeoutMillis: parsePositiveInteger(
+        process.env.DATABASE_IDLE_TIMEOUT_MS,
+        10_000,
+    ),
+});
 
 declare global {
     var __prisma: PrismaClient | undefined;
 }
 
+const globalForPrisma = globalThis as typeof globalThis & {
+    __prisma?: PrismaClient
+}
+
 const basePrisma =
-    global.__prisma ??
+    globalForPrisma.__prisma ??
     new PrismaClient({
         adapter,
         log:
@@ -25,9 +49,7 @@ const basePrisma =
                 : ["error"],
     });
 
-if (process.env.NODE_ENV !== "production") {
-    global.__prisma = basePrisma;
-}
+globalForPrisma.__prisma = basePrisma;
 
 /* --------------------------------------------------
    SOFT DELETE EXTENSION (Prisma 7)

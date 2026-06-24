@@ -467,19 +467,14 @@ export const productRepository = (): IPrismaProductRepository => {
                 )
             }
         } else {
-            const [pagedData, counted] = await Promise.all([
-                prisma.product.findMany({
-                    where: finalWhere,
-                    orderBy,
-                    skip,
-                    take,
-                    include: baseInclude,
-                }),
-                prisma.product.count({ where: finalWhere }),
-            ])
-
-            data = pagedData
-            total = counted
+            data = await prisma.product.findMany({
+                where: finalWhere,
+                orderBy,
+                skip,
+                take,
+                include: baseInclude,
+            })
+            total = await prisma.product.count({ where: finalWhere })
         }
 
         return buildPaginationResponse(data, {

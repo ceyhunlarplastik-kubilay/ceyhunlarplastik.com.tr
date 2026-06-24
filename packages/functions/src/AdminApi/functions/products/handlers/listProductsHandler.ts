@@ -2,6 +2,10 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import {
+    DATABASE_CONNECTION_CAPACITY_MESSAGE,
+    isDatabaseConnectionCapacityError,
+} from "@/core/helpers/prisma/errors"
 
 import {
     IListProductsDependencies,
@@ -40,6 +44,10 @@ export const listProductsHandler =
                     },
                 })
             } catch (err) {
+                if (isDatabaseConnectionCapacityError(err)) {
+                    throw new createError.ServiceUnavailable(DATABASE_CONNECTION_CAPACITY_MESSAGE)
+                }
+
                 throw new createError.InternalServerError("An error occurred while listing products");
             }
         }

@@ -43,6 +43,10 @@ export function handleApiError(error: unknown) {
         notifyError("Sunucu hatası")
     }
 
+    else if (status === 503) {
+        notifyError(message)
+    }
+
     else {
         notifyError(message)
     }
