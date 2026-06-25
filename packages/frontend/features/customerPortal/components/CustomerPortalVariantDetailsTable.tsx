@@ -24,6 +24,10 @@ import { formatMeasurementValue } from "@/features/public/products/utils/measure
 import { CustomerPortalVariantFilters } from "@/features/customerPortal/components/CustomerPortalVariantFilters"
 import { usePortalSpecialPrices } from "@/features/customerPortal/hooks/usePortalSpecialPrices"
 import {
+    CustomerPortalSpecialPriceRequestDialog,
+    type CustomerSpecialPriceRequestInitialSelection,
+} from "@/features/customerPortal/specialPrices/components/CustomerPortalSpecialPriceRequestDialog"
+import {
     mapSpecialPriceToPortalDraftPreview,
     resolvePortalDraftPricing,
     type ResolvedPortalDraftPricing,
@@ -46,6 +50,7 @@ interface Props {
     productId: string
     productSlug: string
     productCode: string
+    productCategoryId?: string | null
     categoryName?: string
     customerDiscountPercent?: number | null
     productImageUrl?: string | null
@@ -125,6 +130,7 @@ export function CustomerPortalVariantDetailsTable({
     productId,
     productSlug,
     productCode,
+    productCategoryId,
     categoryName,
     customerDiscountPercent,
     productImageUrl,
@@ -136,6 +142,9 @@ export function CustomerPortalVariantDetailsTable({
     const specialPricesQuery = usePortalSpecialPrices()
     const [quantityByVariantId, setQuantityByVariantId] = useState<Record<string, string>>({})
     const [refreshKey, setRefreshKey] = useState(0)
+    const [specialPriceRequestOpen, setSpecialPriceRequestOpen] = useState(false)
+    const [specialPriceRequestSelection, setSpecialPriceRequestSelection] =
+        useState<CustomerSpecialPriceRequestInitialSelection | null>(null)
     const specialPriceByVariantId = useMemo(
         () =>
             new Map(
@@ -364,6 +373,19 @@ export function CustomerPortalVariantDetailsTable({
         toast.success("Varyant talep taslağına eklendi.")
     }
 
+    function handleOpenSpecialPriceRequest(variant: VariantTableData) {
+        setSpecialPriceRequestSelection({
+            categoryId: productCategoryId ?? null,
+            productId,
+            productName,
+            productCode,
+            productVariantId: variant.id,
+            variantFullCode: variant.fullCode,
+            variantName: variant.name,
+        })
+        setSpecialPriceRequestOpen(true)
+    }
+
     function handleApplyFilters(filters: AppliedVariantFilters) {
         setAppliedFilters(filters)
         setRefreshKey((current) => current + 1)
@@ -477,7 +499,7 @@ export function CustomerPortalVariantDetailsTable({
                                     <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[210px]`}>Ham Madde</TableHead>
                                     <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[220px]`}>Müşteri Fiyatı</TableHead>
                                     <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[116px]`}>Fiyat Son Güncelleme</TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[128px] pr-3`}>Talep</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[172px] pr-3`}>Talep</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -695,27 +717,39 @@ export function CustomerPortalVariantDetailsTable({
                                                 )}
                                             </TableCell>
                                             <TableCell className={`${VARIANT_TABLE_CELL_CLASS} pr-3`}>
-                                                <div className="flex items-center justify-center gap-1.5">
-                                                    <Input
-                                                        type="number"
-                                                        min={1}
-                                                        value={quantityByVariantId[variant.id] ?? "1"}
-                                                        onChange={(event) =>
-                                                            setQuantityByVariantId((current) => ({
-                                                                ...current,
-                                                                [variant.id]: event.target.value,
-                                                            }))
-                                                        }
-                                                        className="h-8 w-16 text-center"
-                                                    />
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <div className="flex items-center justify-center gap-1.5">
+                                                        <Input
+                                                            type="number"
+                                                            min={1}
+                                                            value={quantityByVariantId[variant.id] ?? "1"}
+                                                            onChange={(event) =>
+                                                                setQuantityByVariantId((current) => ({
+                                                                    ...current,
+                                                                    [variant.id]: event.target.value,
+                                                                }))
+                                                            }
+                                                            className="h-8 w-16 text-center"
+                                                        />
+                                                        <Button
+                                                            type="button"
+                                                            size="sm"
+                                                            className="h-8 px-2.5"
+                                                            onClick={() => handleAddToDraft(variant)}
+                                                        >
+                                                            <Plus className="mr-1.5 h-3.5 w-3.5" />
+                                                            Sepete Ekle
+                                                        </Button>
+                                                    </div>
                                                     <Button
                                                         type="button"
+                                                        variant="outline"
                                                         size="sm"
-                                                        className="h-8 px-2.5"
-                                                        onClick={() => handleAddToDraft(variant)}
+                                                        className="h-8 w-full max-w-[156px] border-amber-200 bg-amber-50 px-2.5 text-amber-900 hover:border-amber-300 hover:bg-amber-100 hover:text-amber-950"
+                                                        onClick={() => handleOpenSpecialPriceRequest(variant)}
                                                     >
-                                                        <Plus className="mr-1.5 h-3.5 w-3.5" />
-                                                        Ekle
+                                                        <BadgePercent className="mr-1.5 h-3.5 w-3.5" />
+                                                        Özel Fiyat Talep Et
                                                     </Button>
                                                 </div>
                                             </TableCell>
@@ -727,6 +761,16 @@ export function CustomerPortalVariantDetailsTable({
                     </motion.div>
                 )}
             </motion.div>
+            {specialPriceRequestOpen ? (
+                <CustomerPortalSpecialPriceRequestDialog
+                    open={specialPriceRequestOpen}
+                    onOpenChange={(nextOpen) => {
+                        setSpecialPriceRequestOpen(nextOpen)
+                        if (!nextOpen) setSpecialPriceRequestSelection(null)
+                    }}
+                    initialSelection={specialPriceRequestSelection}
+                />
+            ) : null}
         </div>
     )
 }

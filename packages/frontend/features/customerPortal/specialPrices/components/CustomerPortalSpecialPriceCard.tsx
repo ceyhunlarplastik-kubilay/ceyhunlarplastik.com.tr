@@ -27,6 +27,14 @@ type Props = {
     index: number
 }
 
+function formatQuantity(value?: number | null) {
+    if (value === null || value === undefined) return "-"
+
+    return new Intl.NumberFormat("tr-TR", {
+        maximumFractionDigits: 0,
+    }).format(value)
+}
+
 export function CustomerPortalSpecialPriceCard({ item, index }: Props) {
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
     const product = item.productVariant?.product
@@ -70,7 +78,7 @@ export function CustomerPortalSpecialPriceCard({ item, index }: Props) {
             targetUnitPrice: null,
             customerNote: "",
         })
-        toast.success(`Özel fiyatlı ürün sepete ${quantity} adet olarak eklendi.`)
+        toast.success(`Özel fiyatlı ürün sepete ${formatQuantity(quantity)} adet olarak eklendi.`)
     }
 
     return (
@@ -97,7 +105,7 @@ export function CustomerPortalSpecialPriceCard({ item, index }: Props) {
                         Özel Fiyat
                     </Badge>
                     <Badge variant="outline">{item.taxIncluded ? "KDV dahil" : "KDV hariç"}</Badge>
-                    {item.minOrderQuantity ? <Badge variant="secondary">Minimum {item.minOrderQuantity} adet</Badge> : null}
+                    {item.minOrderQuantity ? <Badge variant="secondary">Minimum {formatQuantity(item.minOrderQuantity)} adet</Badge> : null}
                 </div>
 
                 <div className="space-y-1">
@@ -134,7 +142,7 @@ export function CustomerPortalSpecialPriceCard({ item, index }: Props) {
                 <div className="grid gap-3 md:grid-cols-3">
                     <div className="flex items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-700">
                         <ReceiptText className="h-4 w-4 text-neutral-400" />
-                        Min: {item.minOrderQuantity ?? "-"} / Max: {item.maxOrderQuantity ?? "-"}
+                        Min: {formatQuantity(item.minOrderQuantity)} / Max: {formatQuantity(item.maxOrderQuantity)}
                     </div>
                     <div className="flex items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-700">
                         <CalendarClock className="h-4 w-4 text-neutral-400" />

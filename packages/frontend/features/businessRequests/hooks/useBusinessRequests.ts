@@ -18,6 +18,7 @@ type Options = {
     scope: BusinessRequestListScope
     params?: ListBusinessRequestsParams
     autoRefreshIntervalMs?: number | false
+    enabled?: boolean
 }
 
 const businessRequestParamsSchema = z.object({
@@ -31,7 +32,7 @@ const businessRequestParamsSchema = z.object({
     domain: z.enum(BUSINESS_REQUEST_DOMAIN_VALUES).optional(),
 })
 
-export function useBusinessRequests({ scope, params = {}, autoRefreshIntervalMs = false }: Options) {
+export function useBusinessRequests({ scope, params = {}, autoRefreshIntervalMs = false, enabled = true }: Options) {
     const normalizedParams = useMemo(
         () => businessRequestParamsSchema.parse(params),
         [params],
@@ -44,5 +45,6 @@ export function useBusinessRequests({ scope, params = {}, autoRefreshIntervalMs 
         refetchOnWindowFocus: true,
         refetchInterval: autoRefreshIntervalMs,
         refetchIntervalInBackground: false,
+        enabled,
     })
 }

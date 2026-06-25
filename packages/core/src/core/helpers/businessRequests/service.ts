@@ -11,6 +11,10 @@ import type { ProductVariantSupplierWithRelations } from "@/core/helpers/prisma/
 import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import type { SupplierWithRelations } from "@/core/helpers/prisma/suppliers/repository"
 import { resolveCustomerVariantPrice } from "@/core/helpers/pricing/customerPricing"
+import {
+    formatCustomerVariantPaymentScheduleLabel,
+    normalizeCustomerVariantPaymentSchedule,
+} from "@/core/helpers/pricing/customerPaymentSchedule"
 import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/productVariantSupplier"
 import {
     buildApprovedVariantPricingUpdate,
@@ -19,12 +23,12 @@ import {
     snapshotSupplierVariantPricing,
 } from "@/core/helpers/businessRequests/supplierPayloads"
 import type { IAuthenticatedUser } from "@/core/helpers/utils/api/types"
+import { Prisma } from "@/prisma/generated/prisma/client"
 import type {
     ApprovalRole,
     BusinessRequestEntityType,
     BusinessRequestPriority,
     BusinessRequestType,
-    Prisma,
 } from "@/prisma/generated/prisma/client"
 import { buildApprovalSteps, getBusinessRequestDefaultTitle, getBusinessRequestDomain, getRequesterApprovalRole } from "@/core/helpers/businessRequests/policy"
 import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
@@ -126,6 +130,199 @@ function isFiniteNumber(value: unknown): value is number {
     return typeof value === "number" && Number.isFinite(value)
 }
 
+function textOrNull(value: unknown) {
+    return typeof value === "string" && value.trim() ? value.trim() : null
+}
+
+function dateOrNull(value: unknown) {
+    if (typeof value !== "string" || !value.trim()) return null
+
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? null : date
+}
+
+function positiveIntOrNull(value: unknown) {
+    if (!isFiniteNumber(value)) return null
+    const rounded = Math.round(value)
+    return rounded > 0 ? rounded : null
+}
+
+function nonNegativeIntOrNull(value: unknown) {
+    if (!isFiniteNumber(value)) return null
+    const rounded = Math.round(value)
+    return rounded >= 0 ? rounded : null
+}
+
+function resolveCustomerSpecialPricePaymentTermLabel(
+    days: number | null,
+    label: unknown,
+) {
+    const normalizedLabel = textOrNull(label)
+    if (normalizedLabel) return normalizedLabel
+    if (days === null) return null
+    return days === 0 ? "Peşin" : `${days} Gün`
+}
+
+function buildApprovedCustomerSpecialPriceData(
+    payload: Record<string, unknown>,
+) {
+    const paymentSchedule = normalizeCustomerVariantPaymentSchedule(payload.paymentSchedule)
+    const paymentTermDays = paymentSchedule?.length
+        ? null
+        : nonNegativeIntOrNull(payload.paymentTermDays)
+    const minOrderQuantity = positiveIntOrNull(payload.minOrderQuantity)
+    const maxOrderQuantity = positiveIntOrNull(payload.maxOrderQuantity)
+
+    if (minOrderQuantity && maxOrderQuantity && maxOrderQuantity < minOrderQuantity) {
+        throw new createError.BadRequest("Maximum order quantity cannot be lower than minimum order quantity")
+    }
+
+    return {
+        price: Number(payload.price),
+        currency: textOrNull(payload.currency)?.toUpperCase() || "TRY",
+        minOrderQuantity,
+        maxOrderQuantity,
+        paymentTermDays,
+        paymentTermLabel: paymentSchedule?.length
+            ? formatCustomerVariantPaymentScheduleLabel(paymentSchedule, "Çok adımlı ödeme")
+            : resolveCustomerSpecialPricePaymentTermLabel(paymentTermDays, payload.paymentTermLabel),
+        paymentSchedule: paymentSchedule ?? Prisma.JsonNull,
+        validFrom: dateOrNull(payload.validFrom),
+        validUntil: dateOrNull(payload.validUntil),
+        taxIncluded: Boolean(payload.taxIncluded),
+        deliveryTerm: textOrNull(payload.deliveryTerm),
+        contractReference: textOrNull(payload.contractReference),
+        note: textOrNull(payload.note),
+        internalNote: null,
+        isActive: true,
+    }
+}
+
+function getAcceptedSpecialPriceCounterOffer(request: BusinessRequestWithRelations) {
+    const requestedData = asRecord(request.requestedData)
+    const latestCounterOffer = asRecord(requestedData.latestCounterOffer)
+    if (latestCounterOffer.acceptedByCustomer !== true) return null
+
+    for (const item of request.items) {
+        const itemData = asRecord(item.data)
+        if (!isFiniteNumber(itemData.counterUnitPrice) || itemData.counterUnitPrice <= 0) continue
+
+        return {
+            price: itemData.counterUnitPrice,
+            currency: textOrNull(itemData.counterCurrency) ?? textOrNull(itemData.currency),
+        }
+    }
+
+    return null
+}
+
+async function applyApprovedCustomerSpecialPriceRequestTx(
+    tx: PrismaTransactionClient,
+    request: BusinessRequestWithRelations,
+    input: {
+        approvedByUserId?: string | null
+    } = {},
+) {
+    if (!request.customerId) {
+        throw new createError.BadRequest("Customer target is missing for special price request")
+    }
+
+    const requestedData = asRecord(request.requestedData)
+    const acceptedCounterOffer = getAcceptedSpecialPriceCounterOffer(request)
+    const specialPricePayload: Record<string, unknown> = {
+        ...asRecord(requestedData.specialPrice),
+        ...(acceptedCounterOffer
+            ? {
+                price: acceptedCounterOffer.price,
+                ...(acceptedCounterOffer.currency ? { currency: acceptedCounterOffer.currency } : {}),
+            }
+            : {}),
+    }
+    const productVariantId = typeof specialPricePayload.productVariantId === "string"
+        ? specialPricePayload.productVariantId
+        : null
+    const price = isFiniteNumber(specialPricePayload.price) && specialPricePayload.price > 0
+        ? specialPricePayload.price
+        : null
+
+    if (!productVariantId || price === null) {
+        throw new createError.BadRequest("Special price request payload is incomplete")
+    }
+
+    const variant = await tx.productVariant.findUnique({
+        where: { id: productVariantId },
+        select: { id: true },
+    })
+    if (!variant) {
+        throw new createError.NotFound("Product variant not found for special price request")
+    }
+
+    const existing = await tx.customerVariantSpecialPrice.findUnique({
+        where: {
+            customerId_productVariantId: {
+                customerId: request.customerId,
+                productVariantId,
+            },
+        },
+        select: { id: true },
+    })
+    const approvedAt = new Date()
+    const normalizedData = buildApprovedCustomerSpecialPriceData({
+        ...specialPricePayload,
+        productVariantId,
+        price,
+    })
+
+    const saved = existing
+        ? await tx.customerVariantSpecialPrice.update({
+            where: { id: existing.id },
+            data: {
+                ...normalizedData,
+                approvedAt,
+                ...(input.approvedByUserId
+                    ? {
+                        approvedByUser: {
+                            connect: { id: input.approvedByUserId },
+                        },
+                    }
+                    : {}),
+            },
+            select: { id: true },
+        })
+        : await tx.customerVariantSpecialPrice.create({
+            data: {
+                customer: { connect: { id: request.customerId } },
+                productVariant: { connect: { id: productVariantId } },
+                createdByUser: { connect: { id: request.requestedByUserId } },
+                approvedAt,
+                ...(input.approvedByUserId
+                    ? {
+                        approvedByUser: {
+                            connect: { id: input.approvedByUserId },
+                        },
+                    }
+                    : {}),
+                ...normalizedData,
+            },
+            select: { id: true },
+        })
+
+    await tx.businessRequest.update({
+        where: { id: request.id },
+        data: {
+            completedSnapshot: {
+                customerSpecialPriceId: saved.id,
+                customerId: request.customerId,
+                productVariantId,
+                approvedAt: approvedAt.toISOString(),
+                approvedByUserId: input.approvedByUserId ?? null,
+                action: existing ? "UPDATED_CUSTOMER_SPECIAL_PRICE" : "CREATED_CUSTOMER_SPECIAL_PRICE",
+                appliedCounterOffer: Boolean(acceptedCounterOffer),
+            } as Prisma.InputJsonValue,
+        },
+    })
+}
+
 function isSalesCounterOfferRequest(request: Pick<BusinessRequestWithRelations, "domain" | "type">) {
     return request.domain === "SALES"
         && (request.type === "CUSTOMER_ORDER_REQUEST" || request.type === "CUSTOMER_PRICING_REQUEST")
@@ -206,12 +403,20 @@ function normalizeVariantMeasurements(
 async function applyApprovedBusinessRequestTx(
     tx: PrismaTransactionClient,
     request: BusinessRequestWithRelations,
+    input: {
+        approvedByUserId?: string | null
+    } = {},
 ) {
     const requestedData = asRecord(request.requestedData)
 
     if (request.requesterRole === "CUSTOMER" && request.domain === "SALES") {
         if (request.type === "CUSTOMER_ORDER_REQUEST") {
             await createOrderFromApprovedCustomerRequestTx(tx, request)
+            return
+        }
+
+        if (request.type === "CUSTOMER_PRICING_REQUEST" && asRecord(requestedData).requestKind === "CUSTOMER_SPECIAL_PRICE_REQUEST") {
+            await applyApprovedCustomerSpecialPriceRequestTx(tx, request, input)
             return
         }
 
@@ -601,7 +806,9 @@ async function approveSingleStep(request: BusinessRequestWithRelations, user: IA
 
     await prisma.$transaction(async (tx) => {
         if (completed) {
-            await applyApprovedBusinessRequestTx(tx, request)
+            await applyApprovedBusinessRequestTx(tx, request, {
+                approvedByUserId: user.id,
+            })
         }
 
         await tx.businessRequestApprovalStep.update({
@@ -658,7 +865,9 @@ async function approveWithAdminBypass(request: BusinessRequestWithRelations, use
     const bypassMessage = `Bypassed by ${user.identifier}`
 
     await prisma.$transaction(async (tx) => {
-        await applyApprovedBusinessRequestTx(tx, request)
+        await applyApprovedBusinessRequestTx(tx, request, {
+            approvedByUserId: user.id,
+        })
 
         for (const step of pendingSteps.slice(0, -1)) {
             await tx.businessRequestApprovalStep.update({
@@ -743,7 +952,9 @@ async function approveWithSalesDirectorBypass(request: BusinessRequestWithRelati
         )
 
         if (remainingPending.length === 0) {
-            await applyApprovedBusinessRequestTx(tx, request)
+            await applyApprovedBusinessRequestTx(tx, request, {
+                approvedByUserId: user.id,
+            })
         }
 
         await tx.businessRequest.update({

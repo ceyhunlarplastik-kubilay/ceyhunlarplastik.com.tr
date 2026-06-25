@@ -25,7 +25,7 @@ const items = [
     /* { href: "/musteri/profil", label: "Profil / Firma Bilgileri", icon: Building2 }, */
     { href: "/musteri/tanimli-urunler", label: "İlgili Ürün Modelleri", icon: BookMarked },
     { href: "/musteri/musteriye-tanimli-urunler", label: "Tanımlı Varyantlar", icon: Boxes },
-    { href: "/musteri/ozel-fiyatli-urunler", label: "Özel Fiyatlı Ürünler", icon: BadgePercent },
+    { href: "/musteri/ozel-fiyatli-urunler", label: "Özel Fiyatlı Ürünler ve Taleplerim", icon: BadgePercent },
     { href: "/musteri/tum-urunler", label: "Tüm Ürünler", icon: PackageSearch },
     { href: "/musteri/siparisler", label: "Siparişlerim", icon: PackageCheck },
     { href: "/musteri/talepler", label: "Taleplerim", icon: ClipboardList },

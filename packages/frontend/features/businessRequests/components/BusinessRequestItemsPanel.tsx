@@ -22,10 +22,41 @@ type Props = {
     request: BusinessRequest
 }
 
+function isCustomerSpecialPriceRequest(request: BusinessRequest) {
+    return request.type === "CUSTOMER_PRICING_REQUEST"
+        && request.requestedData?.requestKind === "CUSTOMER_SPECIAL_PRICE_REQUEST"
+}
+
+function getNumberValue(value: unknown) {
+    return typeof value === "number" && Number.isFinite(value) ? value : null
+}
+
+function getRequestedPriceValue(item: NonNullable<BusinessRequest["items"]>[number], specialPriceRequest: boolean) {
+    if (specialPriceRequest) {
+        return getNumberValue(item.data?.requestedUnitPrice)
+            ?? getNumberValue(item.data?.targetUnitPrice)
+    }
+
+    return getNumberValue(item.data?.targetUnitPrice)
+}
+
+function formatSpecialPriceItemPaymentTerm(item: NonNullable<BusinessRequest["items"]>[number]) {
+    if (typeof item.data?.paymentTermLabel === "string" && item.data.paymentTermLabel.trim()) {
+        return item.data.paymentTermLabel
+    }
+
+    if (typeof item.data?.paymentTermDays === "number") {
+        return item.data.paymentTermDays === 0 ? "Peşin" : `${item.data.paymentTermDays} Gün`
+    }
+
+    return "Vade belirtilmedi"
+}
+
 export function BusinessRequestItemsPanel({ request }: Props) {
     if ((request.items?.length ?? 0) === 0) return null
 
-    const currencySummary = buildBusinessRequestOrderCurrencySummary(request.items ?? [])
+    const specialPriceRequest = isCustomerSpecialPriceRequest(request)
+    const currencySummary = specialPriceRequest ? [] : buildBusinessRequestOrderCurrencySummary(request.items ?? [])
 
     return (
         <div className="rounded-2xl border border-neutral-200 bg-white p-4">
@@ -49,6 +80,7 @@ export function BusinessRequestItemsPanel({ request }: Props) {
                     const counterCurrency = typeof item.data?.counterCurrency === "string"
                         ? item.data.counterCurrency
                         : currency
+                    const requestedPriceValue = getRequestedPriceValue(item, specialPriceRequest)
 
                     return (
                         <div key={item.id} className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
@@ -71,18 +103,26 @@ export function BusinessRequestItemsPanel({ request }: Props) {
                                     </div>
                                 </div>
                                 <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
-                                    <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">Talep Edilen Fiyat</span>
+                                    <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+                                        {specialPriceRequest ? "Talep Edilen Özel Fiyat" : "Talep Edilen Fiyat"}
+                                    </span>
                                     <div className="mt-1 font-medium text-neutral-900">
-                                        {formatMoneyValue(item.data?.targetUnitPrice, currency)}
+                                        {formatMoneyValue(requestedPriceValue, currency)}
                                     </div>
                                 </div>
                                 <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
-                                    <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">Ticari Koşul</span>
+                                    <span className="text-[11px] uppercase tracking-[0.16em] text-neutral-400">
+                                        {specialPriceRequest ? "Talep Koşulu" : "Ticari Koşul"}
+                                    </span>
                                     <div className="mt-1 font-medium text-neutral-900">
-                                        {formatCommercialPaymentTerm(item.data)}
+                                        {specialPriceRequest
+                                            ? formatSpecialPriceItemPaymentTerm(item)
+                                            : formatCommercialPaymentTerm(item.data)}
                                     </div>
                                     <div className="mt-1 text-xs text-neutral-500">
-                                        {currency} • {formatCommercialTaxStatus(item.data)} • {formatCommercialPriceSource(item.data)}
+                                        {currency} • {formatCommercialTaxStatus(item.data)} • {specialPriceRequest
+                                            ? "Özel fiyat talebi"
+                                            : formatCommercialPriceSource(item.data)}
                                     </div>
                                 </div>
                                 {typeof item.data?.customerUnitPrice === "number" ? (

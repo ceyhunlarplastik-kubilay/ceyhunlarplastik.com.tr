@@ -1,6 +1,7 @@
 import type { BusinessRequest } from "@/features/businessRequests/api/types"
 import {
     formatDateValue,
+    formatMoneyValue,
     getDocumentTypeLabel,
     renderDataValue,
 } from "@/features/businessRequests/lib/businessRequestFormatting"
@@ -8,6 +9,50 @@ import {
 export type BusinessRequestDataEntry = {
     label: string
     value: string
+}
+
+function asRecord(value: unknown) {
+    return value && typeof value === "object" && !Array.isArray(value)
+        ? value as Record<string, unknown>
+        : {}
+}
+
+function formatSpecialPricePaymentTerm(specialPrice: Record<string, unknown>) {
+    if (typeof specialPrice.paymentTermLabel === "string" && specialPrice.paymentTermLabel.trim()) {
+        return specialPrice.paymentTermLabel
+    }
+
+    if (Array.isArray(specialPrice.paymentSchedule) && specialPrice.paymentSchedule.length > 0) {
+        return specialPrice.paymentSchedule
+            .map((step) => {
+                const record = asRecord(step)
+                const percentage = typeof record.percentage === "number"
+                    ? `%${record.percentage.toLocaleString("tr-TR", { maximumFractionDigits: 2 })}`
+                    : null
+                const label = typeof record.label === "string" && record.label.trim()
+                    ? record.label.trim()
+                    : null
+
+                return [percentage, label].filter(Boolean).join(" ")
+            })
+            .filter(Boolean)
+            .join(" + ") || "-"
+    }
+
+    if (typeof specialPrice.paymentTermDays === "number") {
+        return specialPrice.paymentTermDays === 0 ? "Peşin" : `${specialPrice.paymentTermDays} Gün`
+    }
+
+    return "Vade belirtilmedi"
+}
+
+function formatSpecialPriceValidity(specialPrice: Record<string, unknown>) {
+    const from = formatDateValue(specialPrice.validFrom)
+    const until = formatDateValue(specialPrice.validUntil)
+    if (from === "-" && until === "-") return "Süresiz"
+    if (from !== "-" && until !== "-") return `${from} - ${until}`
+    if (from !== "-") return `${from} sonrası`
+    return `${until} tarihine kadar`
 }
 
 export function getRequestDataHighlights(request: BusinessRequest): BusinessRequestDataEntry[] {
@@ -48,6 +93,29 @@ export function getRequestDataHighlights(request: BusinessRequest): BusinessRequ
                 { label: "İhtiyaç Tarihi", value: formatDateValue(data.neededAt) },
             ]
         case "CUSTOMER_PRICING_REQUEST":
+            if (data.requestKind === "CUSTOMER_SPECIAL_PRICE_REQUEST") {
+                const specialPrice = asRecord(data.specialPrice)
+                const productSnapshot = asRecord(data.productSnapshot)
+                const variantSnapshot = asRecord(data.variantSnapshot)
+                const currency = typeof specialPrice.currency === "string" ? specialPrice.currency : "TRY"
+                const productLabel = [
+                    typeof productSnapshot.code === "string" ? productSnapshot.code : null,
+                    typeof productSnapshot.name === "string" ? productSnapshot.name : null,
+                ].filter(Boolean).join(" - ")
+                const variantLabel = [
+                    typeof variantSnapshot.fullCode === "string" ? variantSnapshot.fullCode : null,
+                    typeof variantSnapshot.measurementSummary === "string" ? variantSnapshot.measurementSummary : null,
+                ].filter(Boolean).join(" · ")
+
+                return [
+                    { label: "Ürün Modeli", value: productLabel || "-" },
+                    { label: "Varyant", value: variantLabel || "-" },
+                    { label: "Talep Edilen Fiyat", value: formatMoneyValue(specialPrice.price, currency) },
+                    { label: "Vade", value: formatSpecialPricePaymentTerm(specialPrice) },
+                    { label: "Geçerlilik", value: formatSpecialPriceValidity(specialPrice) },
+                ]
+            }
+
             return [
                 { label: "Teklif Tarihi", value: formatDateValue(data.quoteNeededAt) },
                 { label: "Talep Nedeni", value: renderDataValue(data.pricingReason) },
@@ -73,6 +141,13 @@ export function getRequestDataNotes(request: BusinessRequest): BusinessRequestDa
 
     if (typeof data.negotiationNote === "string" && data.negotiationNote.trim()) {
         notes.push({ label: "Pazarlık Notu", value: data.negotiationNote })
+    }
+
+    if (request.type === "CUSTOMER_PRICING_REQUEST" && data.requestKind === "CUSTOMER_SPECIAL_PRICE_REQUEST") {
+        const specialPrice = asRecord(data.specialPrice)
+        if (typeof specialPrice.note === "string" && specialPrice.note.trim()) {
+            notes.push({ label: "Talep Notu", value: specialPrice.note })
+        }
     }
 
     const latestCounterOffer = typeof data.latestCounterOffer === "object" && data.latestCounterOffer

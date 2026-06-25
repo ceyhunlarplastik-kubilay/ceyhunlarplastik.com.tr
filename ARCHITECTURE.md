@@ -389,6 +389,10 @@ Customer-specific special price rules:
 - A special price applies only to its `customerId + productVariantId` pair when active, current, and quantity-eligible; when it applies, `Customer.generalDiscountPercent` is not applied.
 - Special prices never update `ProductVariantSupplier.listPrice` or supplier cost/profit calculations.
 - Portal request/order creation snapshots the resolved `priceSource`, unit price, currency, quantity constraints, simple/multi-step payment terms, validity, tax status, and contract reference into item data so historical records remain stable after future price edits.
+- Customer portal users must request new customer-specific special prices through `BusinessRequest` records, not by directly creating `CustomerVariantSpecialPrice`.
+- Customer-originated special price requests use `CUSTOMER_PRICING_REQUEST` with `requestedData.requestKind = "CUSTOMER_SPECIAL_PRICE_REQUEST"` and complete into an upserted `CustomerVariantSpecialPrice` only after the sales approval chain finishes.
+- If a customer accepts a sales counter offer during that workflow, final approval must store the accepted counter price instead of the customer's original requested price.
+- Customer-originated special price request payloads must not create or preserve internal notes on the resulting special price record.
 - Customer-originated requests always enter the workflow with `NORMAL` priority; customer portal UI must not expose priority controls, and the backend must ignore customer-supplied priority payloads.
 
 This split is intentional:

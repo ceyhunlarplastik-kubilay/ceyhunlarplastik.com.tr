@@ -172,6 +172,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                 productId={product.id}
                 productSlug={product.slug}
                 productCode={product.code}
+                productCategoryId={product.categoryId}
                 categoryName={product.category?.name}
                 customerDiscountPercent={normalizeCustomerDiscountPercent(portalCustomer?.generalDiscountPercent)}
                 productImageUrl={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
