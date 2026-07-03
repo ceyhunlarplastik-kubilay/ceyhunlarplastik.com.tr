@@ -23,7 +23,7 @@ export default async function CustomerPortalProductDetailPage({
 
     const [variants, productsByCategory] = await Promise.all([
         getProductVariantTable(product.id),
-        getProductsByCategory(product.categoryId, "id"),
+        getProductsByCategory(product.categoryId, "id", { limit: 24 }),
     ])
 
     const similarProducts = productsByCategory

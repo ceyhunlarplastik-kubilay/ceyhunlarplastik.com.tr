@@ -22,9 +22,19 @@ export type ProductAttributeValueWithAttribute = Prisma.ProductAttributeValueGet
     }
 }>
 
+export type ProductAttributeValueDeleteBlockers = {
+    childValues: number
+    products: number
+    categories: number
+    customers: number
+    customerAttributeAssignments: number
+    productIndustrialUsages: number
+}
+
 export interface IPrismaProductAttributeValueRepository {
     listValues(attributeId: string): Promise<ProductAttributeValueWithParent[]>
     getValueById(id: string): Promise<ProductAttributeValueWithAttribute | null>
+    getDeleteBlockers(id: string): Promise<ProductAttributeValueDeleteBlockers>
     createValue(data: Prisma.ProductAttributeValueCreateInput): Promise<ProductAttributeValue>
     updateValue(id: string, data: Prisma.ProductAttributeValueUpdateInput): Promise<ProductAttributeValue>
     deleteValue(id: string): Promise<ProductAttributeValue>
@@ -66,6 +76,69 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
             },
         })
 
+    const getDeleteBlockers = async (id: string): Promise<ProductAttributeValueDeleteBlockers> => {
+        const [
+            childValues,
+            products,
+            categories,
+            customers,
+            customerAttributeAssignments,
+            productIndustrialUsages,
+        ] = await Promise.all([
+            prisma.productAttributeValue.count({
+                where: { parentValueId: id },
+            }),
+            prisma.product.count({
+                where: {
+                    attributeValues: {
+                        some: { id },
+                    },
+                },
+            }),
+            prisma.category.count({
+                where: {
+                    allowedAttributeValueIds: {
+                        has: id,
+                    },
+                },
+            }),
+            prisma.customer.count({
+                where: {
+                    OR: [
+                        { sectorValueId: id },
+                        { productionGroupValueId: id },
+                        {
+                            usageAreaValues: {
+                                some: { id },
+                            },
+                        },
+                    ],
+                },
+            }),
+            prisma.customerAttributeValueAssignment.count({
+                where: { attributeValueId: id },
+            }),
+            prisma.productIndustrialUsage.count({
+                where: {
+                    OR: [
+                        { sectorValueId: id },
+                        { productionGroupValueId: id },
+                        { usageAreaValueId: id },
+                    ],
+                },
+            }),
+        ])
+
+        return {
+            childValues,
+            products,
+            categories,
+            customers,
+            customerAttributeAssignments,
+            productIndustrialUsages,
+        }
+    }
+
     const createValue = (data: Prisma.ProductAttributeValueCreateInput) =>
         prisma.productAttributeValue.create({
             data
@@ -85,6 +158,7 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
     return {
         listValues,
         getValueById,
+        getDeleteBlockers,
         createValue,
         updateValue,
         deleteValue

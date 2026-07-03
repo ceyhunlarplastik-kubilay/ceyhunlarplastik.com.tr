@@ -1,6 +1,6 @@
 import { ForgotPasswordCommand } from "@aws-sdk/client-cognito-identity-provider"
 import { getCognitoClient } from "@/features/auth/server/cognito-client"
-import { toCognitoAuthError } from "@/features/auth/server/errors"
+import { getAuthErrorLogDetails, toCognitoAuthError } from "@/features/auth/server/errors"
 import { computeSecretHash } from "@/features/auth/server/secret-hash"
 
 export async function forgotPasswordWithCognito(email: string) {
@@ -15,6 +15,7 @@ export async function forgotPasswordWithCognito(email: string) {
 
         return { email }
     } catch (error) {
+        console.error("Cognito forgot-password failed", getAuthErrorLogDetails(error))
         throw toCognitoAuthError(error)
     }
 }

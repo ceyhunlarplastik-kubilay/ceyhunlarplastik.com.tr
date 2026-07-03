@@ -1,5 +1,6 @@
 import createError, { HttpError } from "http-errors"
 import slugify from "slugify"
+import { deleteS3Objects } from "@/core/helpers/s3/deleteObjects"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductAttributeValueDependencies, IUpdateProductAttributeValueEvent } from "@/functions/AdminApi/types/productAttributeValues"
 
@@ -69,7 +70,18 @@ export const updateProductAttributeValueHandler = ({
             const { assetType, assetRole, assetKey, mimeType } = body
             if (assetType && assetKey && mimeType) {
                 if ((assetRole ?? "PRIMARY") === "PRIMARY") {
-                    await assetRepository.unsetProductAttributeValuePrimaryAssets(id)
+                    const existingPrimaryAssets = current.assets.filter((asset) => asset.role === "PRIMARY")
+
+                    if (existingPrimaryAssets.length > 0) {
+                        try {
+                            await deleteS3Objects(existingPrimaryAssets.map((asset) => asset.key))
+                        } catch (error) {
+                            console.error("Product attribute value primary asset cleanup failed:", error)
+                            throw new createError.InternalServerError("Görsel silinemedi, işlem tamamlanmadı")
+                        }
+
+                        await assetRepository.deleteAssetsByIds(existingPrimaryAssets.map((asset) => asset.id))
+                    }
                 }
 
                 await assetRepository.createAsset({

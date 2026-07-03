@@ -25,7 +25,7 @@ import type {
     IUpdateProductAttributeEvent,
 } from "@/functions/AdminApi/types/productAttributes"
 
-const productAttributeReaderGroups = ["admin", "content_editor"]
+const productAttributeManagerGroups = ["admin", "content_editor"]
 
 export const createProductAttribute = lambdaHandler(
     async (event) => {
@@ -38,7 +38,7 @@ export const createProductAttribute = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeManagerGroups },
         requestValidator: createProductAttributeValidator,
     }
 )
@@ -54,7 +54,7 @@ export const listProductAttributes = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeManagerGroups },
         responseValidator: listProductAttributesResponseValidator,
     }
 )
@@ -70,7 +70,7 @@ export const listAttributesWithValues = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: productAttributeReaderGroups },
+        auth: { requiredPermissionGroups: productAttributeManagerGroups },
         responseValidator: listAttributesWithValuesResponseValidator,
     }
 )
@@ -86,7 +86,7 @@ export const getProductAttribute = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeManagerGroups },
         responseValidator: productAttributeResponseValidator,
     }
 )
@@ -102,7 +102,7 @@ export const deleteProductAttribute = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeManagerGroups },
         requestValidator: deleteProductAttributeValidator,
     }
 )
@@ -117,7 +117,7 @@ export const updateProductAttribute = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeManagerGroups },
         requestValidator: updateProductAttributeValidator,
     }
 )

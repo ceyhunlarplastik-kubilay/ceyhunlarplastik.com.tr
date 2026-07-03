@@ -1,4 +1,4 @@
-import createError from "http-errors"
+import createError, { HttpError } from "http-errors"
 import { deleteS3Object } from "@/core/helpers/s3/deleteObject"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { Prisma } from "@/prisma/generated/prisma/client"
@@ -11,7 +11,7 @@ export const deleteAssetHandler = ({ assetRepository }: Pick<IAssetDependencies,
         try {
             const asset = await assetRepository.getAsset(id);
 
-            if (!asset) throw new createError.NotFound("Asset not found");
+            if (!asset) throw new createError.NotFound("Görsel bulunamadı");
 
             await deleteS3Object(asset.key);
 
@@ -22,11 +22,12 @@ export const deleteAssetHandler = ({ assetRepository }: Pick<IAssetDependencies,
                 payload: { asset: deleted },
             })
         } catch (err: any) {
+            if (err instanceof HttpError) throw err
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
-                if (err.code === "P2025") throw new createError.NotFound("Asset not found");
+                if (err.code === "P2025") throw new createError.NotFound("Görsel bulunamadı");
             }
             console.error(err);
-            throw new createError.InternalServerError("Failed to delete asset");
+            throw new createError.InternalServerError("Görsel silinemedi, işlem tamamlanmadı");
         }
     }
 }

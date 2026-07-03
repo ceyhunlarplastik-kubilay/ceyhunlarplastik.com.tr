@@ -1,6 +1,8 @@
 import { publicServerClient } from "@/lib/http/serverClient";
 import type { Product } from "@/features/public/products/types";
 import type { ApiEnvelope } from "@/lib/http/types";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 export type ProductsListPayload = {
     data: Product[];
@@ -14,15 +16,16 @@ export type ProductsListPayload = {
 
 export type ListProductsResponse = ApiEnvelope<ProductsListPayload>;
 
-export async function getProductsByCategory(
+async function fetchProductsByCategory(
     category: string,
-    by: "id" | "slug" = "id"
+    by: "id" | "slug" = "id",
+    limit = 500,
 ): Promise<Product[]> {
     try {
         const res = await publicServerClient().get<ListProductsResponse>("/products", {
             params: by === "id"
-                ? { categoryId: category, limit: 500 }
-                : { category, limit: 500 },
+                ? { categoryId: category, limit }
+                : { category, limit },
         });
 
         return res.data.payload.data ?? [];
@@ -37,6 +40,22 @@ export async function getProductsByCategory(
             message: error?.message,
         });
 
-        return [];
+        throw error;
     }
 }
+
+const getCachedProductsByCategory = unstable_cache(fetchProductsByCategory, ["public-products-by-category"], {
+    revalidate: 60,
+});
+
+export const getProductsByCategory = cache(async (
+    category: string,
+    by: "id" | "slug" = "id",
+    options: { limit?: number } = {},
+): Promise<Product[]> => {
+    try {
+        return await getCachedProductsByCategory(category, by, options.limit ?? 500);
+    } catch {
+        return [];
+    }
+});

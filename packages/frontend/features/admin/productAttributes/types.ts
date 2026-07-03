@@ -4,6 +4,10 @@ export type ProductAttributeValue = {
     slug: string
     displayOrder?: number
     parentValueId?: string | null
+    parentValue?: {
+        id: string
+        name: string
+    } | null
     assets?: {
         id: string
         key: string

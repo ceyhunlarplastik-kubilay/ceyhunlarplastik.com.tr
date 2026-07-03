@@ -54,6 +54,24 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     }
 }
 
+/* function parsePositiveIntegerEnv(name: string) {
+    const value = process.env[name];
+    if (!value) return undefined;
+
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+const publicProductReservedConcurrency = parsePositiveIntegerEnv("PUBLIC_PRODUCT_ROUTE_RESERVED_CONCURRENCY");
+
+const publicProductRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+    ...defaultOptions,
+    memory: "1536 MB",
+    ...(publicProductReservedConcurrency
+        ? { concurrency: { reserved: publicProductReservedConcurrency } }
+        : {}),
+}; */
+
 const customerInvitationRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultOptions,
     link: [rds, publicBucket, userPool],
@@ -178,25 +196,45 @@ publicApi.route("GET /product-measurements/{id}", {
     ...defaultOptions,
 });
 /*----------------------- PRODUCTS -----------------------*/
-publicApi.route("GET /products", {
+export const listProductsRoute = publicApi.route("GET /products", {
     handler: `${folderPrefix}/products/actions.listProducts`,
     ...defaultOptions,
 });
+
+/* export const listProductsRoute = publicApi.route("GET /products", {
+    handler: `${folderPrefix}/products/actions.listProducts`,
+    ...publicProductRouteOptions,
+}); */
 
 publicApi.route("GET /products/{id}", {
     handler: `${folderPrefix}/products/actions.getProduct`,
     ...defaultOptions,
 });
 
-publicApi.route("GET /products/slug/{slug}", {
+/* publicApi.route("GET /products/{id}", {
+    handler: `${folderPrefix}/products/actions.getProduct`,
+    ...publicProductRouteOptions,
+}); */
+
+export const getProductBySlugRoute = publicApi.route("GET /products/slug/{slug}", {
     handler: `${folderPrefix}/products/actions.getProductBySlug`,
     ...defaultOptions,
 })
 
-publicApi.route("GET /products/{id}/variant-table", {
+/* export const getProductBySlugRoute = publicApi.route("GET /products/slug/{slug}", {
+    handler: `${folderPrefix}/products/actions.getProductBySlug`,
+    ...publicProductRouteOptions,
+}) */
+
+export const getProductVariantTableRoute = publicApi.route("GET /products/{id}/variant-table", {
     handler: `${folderPrefix}/products/actions.getProductVariantTable`,
     ...defaultOptions,
 })
+
+/* export const getProductVariantTableRoute = publicApi.route("GET /products/{id}/variant-table", {
+    handler: `${folderPrefix}/products/actions.getProductVariantTable`,
+    ...publicProductRouteOptions,
+}) */
 /*----------------------- MATERIALS -----------------------*/
 /*----------------------- ASSETS -----------------------*/
 

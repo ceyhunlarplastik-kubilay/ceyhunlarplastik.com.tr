@@ -4,15 +4,44 @@ import { motion } from "motion/react"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 
+type ProductAttributeValue = {
+    id: string
+    name: string
+    slug: string
+    attribute?: {
+        code?: string | null
+        name?: string | null
+    } | null
+}
+
+type AttributeGroup = {
+    attributeName: string
+    values: ProductAttributeValue[]
+}
+
 type Props = {
-    attributeValues: any[]
+    attributeValues: ProductAttributeValue[]
+}
+
+function formatAttributeName(value: unknown) {
+    const text = typeof value === "string" ? value.trim() : ""
+
+    if (!text) return "Özellik"
+
+    return text
+        .toLocaleLowerCase("tr-TR")
+        .split(/\s+/)
+        .map((word) => word.charAt(0).toLocaleUpperCase("tr-TR") + word.slice(1))
+        .join(" ")
 }
 
 export default function ProductAttributeBadges({ attributeValues }: Props) {
+    const router = useRouter()
+    const [usageAreasExpanded, setUsageAreasExpanded] = useState(false)
 
     if (!attributeValues || attributeValues.length === 0) return null
 
-    const grouped = attributeValues.reduce((acc: any, val: any) => {
+    const grouped = attributeValues.reduce<Record<string, AttributeGroup>>((acc, val) => {
         const code = val.attribute?.code ?? val.attribute?.name ?? "other"
         if (!acc[code]) {
             acc[code] = {
@@ -24,21 +53,18 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
         return acc
     }, {})
 
-    const router = useRouter();
-    const [usageAreasExpanded, setUsageAreasExpanded] = useState(false)
-
     const specialCodes = ["sector", "production_group", "usage_area"]
     const allEntries = Object.entries(grouped).sort(([aCode, aData], [bCode, bData]) => {
         const aSpecial = specialCodes.includes(aCode)
         const bSpecial = specialCodes.includes(bCode)
         if (aSpecial !== bSpecial) return aSpecial ? 1 : -1
-        return ((aData as any).attributeName ?? "").localeCompare((bData as any).attributeName ?? "", "tr")
+        return aData.attributeName.localeCompare(bData.attributeName, "tr")
     })
 
     const normalEntries = allEntries.filter(([code]) => !specialCodes.includes(code))
     const specialEntries = specialCodes
         .map((code) => [code, grouped[code]] as const)
-        .filter(([, group]) => Boolean(group))
+        .filter((entry): entry is readonly [string, AttributeGroup] => Boolean(entry[1]))
 
     const visibleNormalEntries = normalEntries
 
@@ -57,14 +83,14 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                     >
 
                         {/* ATTRIBUTE TITLE */}
-                        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 whitespace-nowrap">
-                            {(group as any).attributeName}
+                        <p className="whitespace-nowrap text-xs font-semibold tracking-[0.01em] text-neutral-500">
+                            {formatAttributeName(group.attributeName)}:
                         </p>
 
                         {/* VALUES */}
                         <div className="flex flex-wrap items-center gap-1">
 
-                            {((group as any).values as any[]).map((val) => (
+                            {group.values.map((val) => (
 
                                 <motion.div
                                     key={val.id}
@@ -89,7 +115,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                             const params = new URLSearchParams()
 
                                             // 🔥 attribute code + value slug
-                                            params.set(val.attribute.code, val.slug)
+                                            params.set(attributeCode, val.slug)
 
                                             router.push(`/urunler/filtre?${params.toString()}`)
                                         }}
@@ -135,11 +161,11 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                             transition={{ delay: index * 0.04 }}
                             className="space-y-1.5"
                         >
-                            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-500">
-                                {(group as any).attributeName}
+                            <p className="text-[11px] font-semibold tracking-[0.01em] text-neutral-500">
+                                {formatAttributeName(group.attributeName)}:
                             </p>
                             <div className="flex flex-wrap gap-1.5">
-                                {(((group as any).values as any[]) ?? [])
+                                {group.values
                                     .slice(
                                         0,
                                         attributeCode === "usage_area" && !usageAreasExpanded
@@ -151,7 +177,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                         key={val.id}
                                         onClick={() => {
                                             const params = new URLSearchParams()
-                                            params.set(val.attribute.code, val.slug)
+                                            params.set(attributeCode, val.slug)
                                             router.push(`/urunler/filtre?${params.toString()}`)
                                         }}
                                         className="
@@ -166,14 +192,14 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                 ))}
                             </div>
                             {attributeCode === "usage_area" &&
-                                ((group as any).values as any[]).length > 5 && (
+                                group.values.length > 5 && (
                                     <button
                                         onClick={() => setUsageAreasExpanded((prev) => !prev)}
                                         className="text-xs text-[var(--color-brand)] hover:underline"
                                     >
                                         {usageAreasExpanded
                                             ? "Daha az göster"
-                                            : `+${((group as any).values as any[]).length - 5} daha fazla`}
+                                            : `+${group.values.length - 5} daha fazla`}
                                     </button>
                                 )}
                         </motion.div>

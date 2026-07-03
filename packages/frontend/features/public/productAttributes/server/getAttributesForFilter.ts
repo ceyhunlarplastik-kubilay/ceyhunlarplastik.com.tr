@@ -1,6 +1,8 @@
 import { publicServerClient } from "@/lib/http/serverClient";
 import type { ListAttributesResponse } from "@/features/public/productAttributes/types";
 import type { ProductAttribute } from "@/features/public/productAttributes/types"
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 const ALPHABETICAL_ATTRIBUTE_CODES = new Set([
     "sector",
@@ -17,7 +19,7 @@ function sortValuesByName(values: NonNullable<ProductAttribute["values"]>) {
     return [...values].sort((a, b) => trCollator.compare(a.name, b.name))
 }
 
-export async function getAttributesForFilter(): Promise<ProductAttribute[]> {
+async function fetchAttributesForFilter(): Promise<ProductAttribute[]> {
     try {
         const res = await publicServerClient().get<ListAttributesResponse>("/product-attributes/with-values");
 
@@ -39,6 +41,18 @@ export async function getAttributesForFilter(): Promise<ProductAttribute[]> {
             code: error?.code,
             message: error?.message,
         });
-        return [];
+        throw error;
     }
 }
+
+const getCachedAttributesForFilter = unstable_cache(fetchAttributesForFilter, ["public-attributes-for-filter"], {
+    revalidate: 60,
+});
+
+export const getAttributesForFilter = cache(async (): Promise<ProductAttribute[]> => {
+    try {
+        return await getCachedAttributesForFilter();
+    } catch {
+        return [];
+    }
+});

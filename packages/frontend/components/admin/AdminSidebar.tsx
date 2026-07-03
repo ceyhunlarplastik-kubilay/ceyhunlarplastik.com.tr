@@ -43,6 +43,11 @@ const navItems = [
         icon: Boxes,
     },
     {
+        href: "/admin/industrial-usage-assignments",
+        label: "Kullanım Alanı Ürün Atamaları",
+        icon: ClipboardList,
+    },
+    {
         href: "/admin/materials",
         label: "Ham Maddeler",
         icon: FlaskConical,

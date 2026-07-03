@@ -1,6 +1,8 @@
 import { publicServerClient } from "@/lib/http/serverClient"
 import type { ApiEnvelope } from "@/lib/http/types"
 import type { PublicMaterial } from "@/features/public/materials/types"
+import { cache } from "react"
+import { unstable_cache } from "next/cache"
 
 type ListMaterialsResponse = ApiEnvelope<{
     data: PublicMaterial[]
@@ -12,10 +14,10 @@ type ListMaterialsResponse = ApiEnvelope<{
     }
 }>
 
-export async function getMaterials(): Promise<PublicMaterial[]> {
+async function fetchMaterials(limit = 500): Promise<PublicMaterial[]> {
     try {
         const res = await publicServerClient().get<ListMaterialsResponse>("/materials", {
-            params: { limit: 500 },
+            params: { limit },
         })
 
         return res.data.payload.data ?? []
@@ -26,6 +28,18 @@ export async function getMaterials(): Promise<PublicMaterial[]> {
             code: details.code,
             message: details.message,
         })
-        return []
+        throw error
     }
 }
+
+const getCachedMaterials = unstable_cache(fetchMaterials, ["public-materials"], {
+    revalidate: 60,
+})
+
+export const getMaterials = cache(async (options: { limit?: number } = {}): Promise<PublicMaterial[]> => {
+    try {
+        return await getCachedMaterials(options.limit ?? 500)
+    } catch {
+        return []
+    }
+})

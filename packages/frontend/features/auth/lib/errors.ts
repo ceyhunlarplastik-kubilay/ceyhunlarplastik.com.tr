@@ -67,6 +67,10 @@ export const AUTH_ERROR_MESSAGES: Record<string, { title: string; description: s
         title: "Gönderilen bilgi geçersiz",
         description: "Form alanlarını kontrol edip tekrar deneyin.",
     },
+    AUTH_SERVICE_UNAVAILABLE: {
+        title: "Kimlik servisine ulaşılamıyor",
+        description: "Giriş altyapısına geçici olarak ulaşılamıyor. Lütfen birkaç dakika sonra tekrar deneyin.",
+    },
     RefreshTokenError: {
         title: "Oturum yenilenemedi",
         description: "Oturum süreniz dolmuş olabilir. Lütfen yeniden giriş yapın.",

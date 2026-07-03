@@ -1,10 +1,15 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const productAttributeCodeSchema = z.string().min(2).max(100).regex(
+    /^[a-z][a-z0-9_]*$/,
+    "Code must be lower snake_case"
+)
+
 export const createProductAttributeValidator = validatorWrapper(
     z.object({
         body: z.object({
-            code: z.string().min(2).max(100),
+            code: productAttributeCodeSchema,
             name: z.string().min(2).max(100),
             displayOrder: z.number().optional(),
             isCustomerAssignable: z.boolean().optional(),
@@ -44,7 +49,7 @@ export const updateProductAttributeValidator = validatorWrapper(
             id: z.uuid(),
         }),
         body: z.object({
-            code: z.string().min(2).max(100).optional(),
+            code: productAttributeCodeSchema.optional(),
             name: z.string().min(2).max(100).optional(),
             displayOrder: z.number().optional(),
             isCustomerAssignable: z.boolean().optional(),

@@ -340,7 +340,7 @@ Current hierarchy expectations:
 - `customer`, `supplier`
   External portal users that submit requests but do not self-approve them.
 - `content_editor`
-  Internal data-entry role. Uses the `/veri-girisi` workspace and can manage category and product content without receiving broad admin panel access.
+  Internal data-entry role. Uses the `/veri-girisi` workspace and can manage category, product, and product attribute taxonomy content without receiving broad admin panel access.
 
 ### Workflow orchestration
 Supplier, customer, sales, and purchasing approvals should use the generic `BusinessRequest` workflow backbone.
@@ -717,12 +717,13 @@ Current expectation:
 - `/satinalma` uses a left navigation shell with at least assigned suppliers and products
 - `/veri-girisi` uses a left navigation shell for internal content/data-entry tasks; v1 includes category management
 - `/veri-girisi/products` reuses the admin product CRUD surface for content entry, without exposing broad `/admin` workspace navigation
+- `/veri-girisi/productAttributes` reuses the admin product attribute CRUD surface for sectors, production groups, usage areas, and other product attribute values without exposing broad `/admin` workspace navigation
 - product browsing may reuse the shared supplier/purchasing/sales variant price feature as long as visibility rules remain role-safe
 
 Visibility rules currently expected:
 - `sales` can browse products and customer-safe pricing outputs, but not supplier/cost-oriented purchasing data
 - `purchasing` can browse products and supplier-side cost data, but not sales-facing profit or list-price emphasis
-- `content_editor` can manage category and product content through the data-entry workspace, but should not gain broad `/admin` access
+- `content_editor` can manage category, product, and product attribute taxonomy content through the data-entry workspace, but should not gain broad `/admin` access
 
 ### Supplier request flow
 Current supplier request lifecycle:

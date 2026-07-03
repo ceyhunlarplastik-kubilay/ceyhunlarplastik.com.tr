@@ -13,6 +13,14 @@ export const updateProductAttributeHandler = ({ productAttributeRepository }: IP
             const existing = await productAttributeRepository.getProductAttribute(id);
             if (!existing) throw new createError.NotFound("Product attribute not found");
 
+            if (
+                isSystemCustomerAssignableAttributeCode(existing.code) &&
+                body.code &&
+                body.code !== existing.code
+            ) {
+                throw new createError.Conflict("Sistem müşteri profil alanının kodu değiştirilemez")
+            }
+
             const nextCode = body.code ?? existing.code
             const updated = await productAttributeRepository.updateProductAttribute(id, {
                 ...body,

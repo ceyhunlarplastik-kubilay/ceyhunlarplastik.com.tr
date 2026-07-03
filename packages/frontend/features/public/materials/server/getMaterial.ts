@@ -1,12 +1,14 @@
 import { publicServerClient } from "@/lib/http/serverClient"
 import type { ApiEnvelope } from "@/lib/http/types"
 import type { PublicMaterial } from "@/features/public/materials/types"
+import { cache } from "react"
+import { unstable_cache } from "next/cache"
 
 type GetMaterialResponse = ApiEnvelope<{
     material: PublicMaterial
 }>
 
-export async function getMaterial(materialId: string): Promise<PublicMaterial | null> {
+async function fetchMaterial(materialId: string): Promise<PublicMaterial | null> {
     try {
         const res = await publicServerClient().get<GetMaterialResponse>(`/materials/${materialId}`)
         return res.data.payload.material ?? null
@@ -19,6 +21,19 @@ export async function getMaterial(materialId: string): Promise<PublicMaterial | 
                 message: details.message,
             })
         }
-        return null
+        if (details.response?.status === 404) return null
+        throw error
     }
 }
+
+const getCachedMaterial = unstable_cache(fetchMaterial, ["public-material"], {
+    revalidate: 60,
+})
+
+export const getMaterial = cache(async (materialId: string): Promise<PublicMaterial | null> => {
+    try {
+        return await getCachedMaterial(materialId)
+    } catch {
+        return null
+    }
+})

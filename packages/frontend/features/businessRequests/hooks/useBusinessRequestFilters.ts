@@ -5,6 +5,7 @@ import {
     parseAsInteger,
     parseAsString,
     parseAsStringLiteral,
+    type UrlKeys,
     useQueryStates,
 } from "nuqs"
 import {
@@ -20,22 +21,33 @@ const statusParser = parseAsStringLiteral(BUSINESS_REQUEST_STATUS_VALUES)
 const typeParser = parseAsStringLiteral(BUSINESS_REQUEST_TYPE_VALUES)
 const domainParser = parseAsStringLiteral(BUSINESS_REQUEST_DOMAIN_VALUES)
 
+const businessRequestFilterParsers = {
+    search: parseAsString.withDefault(""),
+    status: statusParser,
+    type: typeParser,
+    domain: domainParser,
+    page: parseAsInteger.withDefault(1),
+    limit: parseAsInteger.withDefault(DEFAULT_BUSINESS_REQUEST_PAGE_SIZE),
+    refresh: parseAsInteger.withDefault(DEFAULT_BUSINESS_REQUEST_REFRESH_INTERVAL_SECONDS),
+}
+
 type Options = {
     defaultStatus?: (typeof BUSINESS_REQUEST_STATUS_VALUES)[number] | ""
     defaultDomain?: (typeof BUSINESS_REQUEST_DOMAIN_VALUES)[number] | ""
     defaultType?: (typeof BUSINESS_REQUEST_TYPE_VALUES)[number] | ""
+    urlKeys?: UrlKeys<typeof businessRequestFilterParsers>
 }
 
 export function useBusinessRequestFilters(options: Options = {}) {
-    const [state, setState] = useQueryStates({
-        search: parseAsString.withDefault(""),
-        status: options.defaultStatus ? statusParser.withDefault(options.defaultStatus) : statusParser,
-        type: options.defaultType ? typeParser.withDefault(options.defaultType) : typeParser,
-        domain: options.defaultDomain ? domainParser.withDefault(options.defaultDomain) : domainParser,
-        page: parseAsInteger.withDefault(1),
-        limit: parseAsInteger.withDefault(DEFAULT_BUSINESS_REQUEST_PAGE_SIZE),
-        refresh: parseAsInteger.withDefault(DEFAULT_BUSINESS_REQUEST_REFRESH_INTERVAL_SECONDS),
-    })
+    const [state, setState] = useQueryStates(
+        {
+            ...businessRequestFilterParsers,
+            status: options.defaultStatus ? statusParser.withDefault(options.defaultStatus) : statusParser,
+            type: options.defaultType ? typeParser.withDefault(options.defaultType) : typeParser,
+            domain: options.defaultDomain ? domainParser.withDefault(options.defaultDomain) : domainParser,
+        },
+        options.urlKeys ? { urlKeys: options.urlKeys } : undefined,
+    )
 
     const refreshIntervalSeconds = normalizeBusinessRequestRefreshInterval(state.refresh)
 

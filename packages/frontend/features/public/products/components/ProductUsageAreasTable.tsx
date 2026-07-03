@@ -200,10 +200,23 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
     const rows = product.industrialUsages?.length
         ? buildRowsFromIndustrialUsages(product.industrialUsages)
         : buildRows((product.attributeValues ?? []) as AttributeValue[])
+    const hasRows = rows.length > 0
 
-    if (!rows.length) return null
+    const emptyState = (
+        <div className="rounded-2xl border border-dashed border-neutral-200 bg-white px-6 py-10 text-center shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+                <Activity className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-base font-semibold text-neutral-950">
+                Endüstriyel kullanım alanı bekleniyor
+            </h3>
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-neutral-500">
+                Bu ürün modeli için endüstriyel kullanım alanı bilgisi hazırlanıyor. Detaylı bilgi için ekibimizle iletişime geçebilirsiniz.
+            </p>
+        </div>
+    )
 
-    const table = (
+    const table = hasRows ? (
         <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
             <Table>
                 <TableHeader className="bg-neutral-50">
@@ -269,7 +282,7 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                 </TableBody>
             </Table>
         </div>
-    )
+    ) : emptyState
 
     return (
         <section id="usage-area-table" className="pt-10">
@@ -284,7 +297,7 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
 
             {collapsible ? (
                 <motion.div
-                    animate={isOpen ? {
+                    animate={isOpen || !hasRows ? {
                         scale: 1,
                         borderColor: "rgba(229, 231, 235, 1)",
                         boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
@@ -348,7 +361,7 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3 mr-2">
-                                        {!isOpen && (
+                                        {!isOpen && hasRows && (
                                             <motion.span
                                                 initial={{ opacity: 0, x: -10 }}
                                                 animate={{ opacity: 1, x: 0 }}

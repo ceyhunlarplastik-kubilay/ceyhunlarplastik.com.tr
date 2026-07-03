@@ -29,7 +29,11 @@ const items = [
 
 const COLS = 3
 
-export default function ProductQuickNav() {
+type Props = {
+    className?: string
+}
+
+export default function ProductQuickNav({ className }: Props) {
     const [active, setActive] = useState<string | null>(null)
 
     function scrollTo(id: string) {
@@ -48,7 +52,7 @@ export default function ProductQuickNav() {
     }
 
     return (
-        <div className="mt-6 flex justify-center">
+        <div className={cn("mt-6 flex justify-center", className)}>
 
             <div className="
                 grid

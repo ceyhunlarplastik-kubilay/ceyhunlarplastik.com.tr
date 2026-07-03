@@ -21,7 +21,7 @@ export function CustomerPortalSpecialPricesPageClient() {
                             <BadgePercent className="h-3.5 w-3.5" />
                             Müşteri özel koşulları
                         </Badge>
-                        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-neutral-950">Özel Fiyatlı Ürünler ve Taleplerim</h1>
+                        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-neutral-950">Özel Fiyatlı Ürünler ve Talepler</h1>
                         <p className="mt-2 max-w-3xl text-sm leading-6 text-neutral-600">
                             Firmanıza özel tanımlanmış fiyat, vade ve minimum sipariş koşullarını buradan görüntüleyebilir; yeni özel fiyat talebi iletebilirsiniz.
                         </p>

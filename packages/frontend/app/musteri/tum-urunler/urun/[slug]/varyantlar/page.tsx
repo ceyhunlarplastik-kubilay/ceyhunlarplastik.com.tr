@@ -9,6 +9,7 @@ import { getProductVariantTable } from "@/features/public/products/server/getPro
 import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
+import { AnimatedSplitProductTitle } from "@/features/public/products/components/AnimatedSplitProductTitle"
 import { prisma } from "../../../../../../../core/src/core/db/prisma"
 import { normalizeCustomerDiscountPercent } from "../../../../../../../core/src/core/helpers/pricing/customerPricing"
 
@@ -85,55 +86,69 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
             />
 
             <div className="rounded-[28px] border border-neutral-200 bg-white p-4 shadow-sm sm:p-6">
-                <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
-                    <div className="relative aspect-square overflow-hidden rounded-xl border border-neutral-200 bg-white">
-                        {(primaryAsset?.url ?? fallbackAsset?.url) ? (
-                            <Image
-                                src={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
-                                alt={product.name}
-                                fill
-                                className="object-contain"
-                                sizes="(min-width: 1024px) 50vw, 100vw"
-                            />
-                        ) : (
-                            <div className="flex h-full items-center justify-center text-sm text-neutral-400">
-                                Görsel bulunamadı
+                <div className="space-y-4">
+                    <div className="grid items-stretch gap-3 lg:grid-cols-2">
+                        <div className="relative flex h-full min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:min-h-[420px]">
+                            {(primaryAsset?.url ?? fallbackAsset?.url) ? (
+                                <Image
+                                    src={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
+                                    alt={product.name}
+                                    fill
+                                    className="object-contain p-4"
+                                    sizes="(min-width: 1024px) 50vw, 100vw"
+                                />
+                            ) : (
+                                <div className="flex h-full items-center justify-center text-sm text-neutral-400">
+                                    Görsel bulunamadı
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex h-full min-h-[320px] flex-col justify-between gap-6 rounded-2xl border border-neutral-200 bg-neutral-50/70 p-4 sm:min-h-[420px] sm:p-6">
+                            <div>
+                                <h1 className="text-3xl font-semibold tracking-tight">
+                                    <AnimatedSplitProductTitle title={product.name} />
+                                </h1>
+                                <div className="mt-2 space-y-1 text-sm text-neutral-500">
+                                    <p>Katalog Kodu: {product.code}</p>
+                                    <p className="leading-6">
+                                        Ölçüler: {selectedMeasurementSummary}
+                                    </p>
+                                </div>
                             </div>
-                        )}
+
+                            <ProductAssemblyVideoSection
+                                product={product}
+                                videoOnly
+                                autoPlayVideo
+                                imageMinHeightPx={220}
+                            />
+
+                            <ProductAttributeBadges
+                                attributeValues={product.attributeValues ?? []}
+                            />
+                        </div>
                     </div>
 
-                    <div className="space-y-6">
-                        <div>
-                            <h1 className="text-3xl font-semibold tracking-tight">
-                                {product.name}
-                            </h1>
-                            <p className="mt-2 text-neutral-500">
-                                Katalog Kodu: {product.code}
+                    <div className="grid items-stretch gap-3 lg:grid-cols-2">
+                        <div className="relative flex h-full min-h-[360px] items-center rounded-2xl border border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-5 shadow-sm">
+                            <div className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-brand" />
+                            <p className="pl-3 text-sm leading-relaxed text-neutral-700 sm:text-base">
+                                {product.description || "Ürün açıklaması henüz eklenmemiştir."}
                             </p>
                         </div>
 
-                        <ProductAssemblyVideoSection
-                            product={product}
-                            videoOnly
-                            autoPlayVideo
-                            imageMinHeightPx={220}
-                        />
-
-                        <ProductAttributeBadges
-                            attributeValues={product.attributeValues ?? []}
-                        />
-
-                        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(220px,0.85fr)] lg:items-stretch">
-                            <div className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 p-3 shadow-sm sm:p-4">
+                        <div className="flex h-full min-h-[360px] min-w-0 flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3 shadow-sm sm:p-4">
+                            <div className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-neutral-200 bg-white">
                                 <ProductTechnicalDrawingSection product={product} compact mediaOnly />
                             </div>
 
-                            <div className="flex flex-col justify-center rounded-xl border border-brand/15 bg-brand/5 p-4 shadow-sm">
+                            {/* <div className="rounded-xl border border-brand/15 bg-brand/5 p-4">
                                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">
                                     Seçili Ölçü
                                 </div>
                                 {selectedMeasurementItems.length > 0 ? (
-                                    <dl className="mt-3 space-y-3">
+                                    <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                                         {selectedMeasurementItems.map((measurement) => (
                                             <div key={measurement.id} className="space-y-1">
                                                 <dt className="text-xs font-medium text-brand/80">
@@ -150,17 +165,8 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                                         Ölçü seçimi yok
                                     </p>
                                 )}
-                            </div>
+                            </div> */}
                         </div>
-
-                        {product.description ? (
-                            <div className="relative rounded-xl border border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-5 shadow-sm">
-                                <div className="absolute left-0 top-0 h-full w-1 rounded-l-xl bg-brand" />
-                                <p className="pl-3 text-sm leading-relaxed text-neutral-700 sm:text-base">
-                                    {product.description}
-                                </p>
-                            </div>
-                        ) : null}
                     </div>
                 </div>
             </div>

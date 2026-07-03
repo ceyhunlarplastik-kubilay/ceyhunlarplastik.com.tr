@@ -9,6 +9,7 @@ export type AuthErrorCode =
     | "WEAK_PASSWORD"
     | "PASSWORD_RESET_REQUIRED"
     | "INVALID_PARAMETER"
+    | "AUTH_SERVICE_UNAVAILABLE"
     | "UNKNOWN_AUTH_ERROR"
 
 export class CognitoAuthError extends Error {
@@ -23,6 +24,26 @@ export class CognitoAuthError extends Error {
     }
 }
 
+export function getAuthErrorLogDetails(error: unknown) {
+    if (error instanceof Error) {
+        const metadata = "$metadata" in error && typeof error.$metadata === "object"
+            ? error.$metadata as { httpStatusCode?: unknown; requestId?: unknown }
+            : undefined
+
+        return {
+            name: error.name,
+            message: error.message,
+            statusCode: typeof metadata?.httpStatusCode === "number" ? metadata.httpStatusCode : undefined,
+            requestId: typeof metadata?.requestId === "string" ? metadata.requestId : undefined,
+        }
+    }
+
+    return {
+        name: typeof error,
+        message: "Non-error thrown",
+    }
+}
+
 export function toCognitoAuthError(error: unknown): CognitoAuthError {
     if (error instanceof CognitoAuthError) {
         return error
@@ -31,6 +52,19 @@ export function toCognitoAuthError(error: unknown): CognitoAuthError {
     const name = typeof error === "object" && error !== null && "name" in error
         ? String(error.name)
         : "UnknownError"
+    const message = error instanceof Error ? error.message : ""
+
+    if (
+        name === "TimeoutError" ||
+        message.includes("request socket did not establish") ||
+        message.includes("PrivateLink access is disabled")
+    ) {
+        return new CognitoAuthError(
+            "AUTH_SERVICE_UNAVAILABLE",
+            "Kimlik doğrulama servisine şu anda ulaşılamıyor.",
+            503,
+        )
+    }
 
     switch (name) {
         case "UserNotConfirmedException":

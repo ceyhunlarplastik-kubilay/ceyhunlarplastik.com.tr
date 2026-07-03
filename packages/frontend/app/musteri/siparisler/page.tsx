@@ -1,11 +1,5 @@
-import { OrdersPageClient } from "@/features/orders/components/OrdersPageClient"
+import { CustomerPortalOrdersPageClient } from "@/features/customerPortal/components/CustomerPortalOrdersPageClient"
 
 export default function CustomerPortalOrdersPage() {
-    return (
-        <OrdersPageClient
-            scope="portal"
-            title="Siparişlerim"
-            description="Onaylanmış siparişlerinizi, vade koşullarını ve toplam tutarları müşteri panelinden takip edin."
-        />
-    )
+    return <CustomerPortalOrdersPageClient />
 }

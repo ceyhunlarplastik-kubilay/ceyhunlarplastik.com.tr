@@ -556,6 +556,17 @@ adminApi.route("POST /products/assets/presign", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions })
 
+/*----------------------- INDUSTRIAL USAGE ASSIGNMENTS -----------------------*/
+adminApi.route("GET /industrial-usage-assignments/{usageAreaValueId}/products", {
+    handler: `${folderPrefix}/industrialUsageAssignments/actions.listIndustrialUsageAssignmentProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("PATCH /industrial-usage-assignments/{usageAreaValueId}/products", {
+    handler: `${folderPrefix}/industrialUsageAssignments/actions.patchIndustrialUsageAssignmentProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
 /*----------------------- PRODUCT ATTRIBUTES -----------------------*/
 adminApi.route("GET /product-attributes", {
     handler: `${folderPrefix}/productAttributes/actions.listProductAttributes`,

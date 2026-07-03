@@ -18,9 +18,11 @@ export interface IPrismaAssetRepository {
     getAsset(id: string): Promise<Asset | null>
     listAssetsByCategoryId(categoryId: string): Promise<Asset[]>
     listAssetsByMaterialId(materialId: string): Promise<Asset[]>
+    listAssetsByProductAttributeValueId(productAttributeValueId: string): Promise<Asset[]>
     createAsset(data: Prisma.AssetCreateInput): Promise<Asset>
     updateAsset(id: string, data: Prisma.AssetUpdateInput): Promise<Asset>
     deleteAsset(id: string): Promise<Asset>
+    deleteAssetsByIds(ids: string[]): Promise<Prisma.BatchPayload>
     deleteCategoryAssetsByType(categoryId: string, type: AssetType): Promise<Prisma.BatchPayload>
     unsetCategoryPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
     unsetProductPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
@@ -91,6 +93,12 @@ export const assetRepository = (): IPrismaAssetRepository => {
             orderBy: { createdAt: "desc" },
         })
 
+    const listAssetsByProductAttributeValueId = async (productAttributeValueId: string) =>
+        prisma.asset.findMany({
+            where: { productAttributeValueId },
+            orderBy: { createdAt: "desc" },
+        })
+
     const createAsset = async (data: Prisma.AssetCreateInput) =>
         prisma.asset.create({ data })
 
@@ -104,6 +112,19 @@ export const assetRepository = (): IPrismaAssetRepository => {
         prisma.asset.delete({
             where: { id },
         })
+
+    const deleteAssetsByIds = async (ids: string[]) => {
+        if (ids.length === 0) {
+            return { count: 0 }
+        }
+
+        return prisma.asset.deleteMany({
+            where: {
+                id: { in: ids },
+            },
+        })
+    }
+
     const deleteCategoryAssetsByType = async (
         categoryId: string,
         type: AssetType
@@ -157,9 +178,11 @@ export const assetRepository = (): IPrismaAssetRepository => {
         getAsset,
         listAssetsByCategoryId,
         listAssetsByMaterialId,
+        listAssetsByProductAttributeValueId,
         createAsset,
         updateAsset,
         deleteAsset,
+        deleteAssetsByIds,
         deleteCategoryAssetsByType,
         unsetCategoryPrimaryAssets,
         unsetProductPrimaryAssets,

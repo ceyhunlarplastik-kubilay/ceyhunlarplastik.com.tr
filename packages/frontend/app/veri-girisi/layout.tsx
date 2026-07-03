@@ -16,6 +16,18 @@ const navItems = [
         icon: "package" as const,
         match: "prefix" as const,
     },
+    {
+        href: "/veri-girisi/industrial-usage-assignments",
+        label: "Kullanım Alanı Ürün Atamaları",
+        icon: "clipboard" as const,
+        match: "prefix" as const,
+    },
+    {
+        href: "/veri-girisi/productAttributes",
+        label: "Özellikler",
+        icon: "settings" as const,
+        match: "prefix" as const,
+    },
 ]
 
 export default async function ContentEntryLayout({

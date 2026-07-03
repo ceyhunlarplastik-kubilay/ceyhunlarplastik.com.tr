@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowLeft, Ruler } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
+import { AnimatedSplitProductTitle } from "@/features/public/products/components/AnimatedSplitProductTitle"
 
 type Props = {
     productSlug: string
@@ -22,19 +23,18 @@ export function CustomerPortalVariantPageHeader({
     categoryName,
     selectedMeasurementSummary,
     variantCount,
-    description,
 }: Props) {
     return (
         <CustomerPortalPageHeader
             eyebrow="Varyant Detayı"
             icon={Ruler}
-            title={productName}
+            title={<AnimatedSplitProductTitle title={productName} fitToContainer={false} />}
             /* description={description || "Seçili ölçü grubuna ait varyantları, teknik çizimi ve müşteri fiyat seçeneklerini inceleyin."} */
             meta={[
-                { value: productCode, label: "ürün kodu" },
-                { value: categoryName, label: "kategori" },
-                { value: selectedMeasurementSummary, label: "seçili ölçü" },
-                { value: `${variantCount}`, label: "varyant" },
+                { value: productCode, label: "Ürün Kodu" },
+                { value: categoryName, label: "Kategori" },
+                { value: selectedMeasurementSummary, label: "Seçili Ölçü" },
+                { value: `${variantCount}`, label: "Varyant" },
             ]}
             aside={(
                 <Button asChild variant="outline" className="w-full justify-start gap-2 bg-white/80 xl:w-auto">

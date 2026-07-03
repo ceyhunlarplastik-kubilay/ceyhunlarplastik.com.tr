@@ -67,7 +67,7 @@ export function CustomerPortalProductDetailHeader({
                 title={productName}
                 description={description}
                 meta={[
-                    { value: categoryName ?? "Kategori", label: "kategori" },
+                    { value: categoryName ?? "Kategori", label: "Kategori" },
                 ]}
                 aside={(
                     <Button asChild variant="outline" className="w-full justify-start gap-2 bg-white/80 xl:w-auto">

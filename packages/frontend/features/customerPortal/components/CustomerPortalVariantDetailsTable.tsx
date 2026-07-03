@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { motion, useReducedMotion } from "motion/react"
+import { SiWhatsapp } from "react-icons/si"
 import { toast } from "sonner"
 import { BadgePercent, ExternalLink, FileText, Plus, Tags } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -59,6 +60,7 @@ interface Props {
 const VARIANT_TABLE_HEAD_CLASS =
     "h-9 px-2 text-center align-middle text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500"
 const VARIANT_TABLE_CELL_CLASS = "px-2 py-2 text-center align-middle text-[13px]"
+const WHATSAPP_PHONE = "905530602946"
 
 function decimalLikeToText(
     value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined,
@@ -111,6 +113,23 @@ function formatPriceDate(value: string | null | undefined) {
 
 function toPriceBound(value: number) {
     return Number(value.toFixed(2))
+}
+
+function formatVariantMeasurementsForMessage(variant: VariantTableData) {
+    return variant.measurements
+        .slice()
+        .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder)
+        .map((measurement) => {
+            const withUnit =
+                measurement.measurementType.baseUnit &&
+                    measurement.measurementType.code !== "D" &&
+                    measurement.measurementType.code !== "M"
+                    ? ` ${measurement.measurementType.baseUnit}`
+                    : ""
+
+            return `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}${withUnit}`
+        })
+        .join(" / ")
 }
 
 type PreparedVariant = {
@@ -386,6 +405,26 @@ export function CustomerPortalVariantDetailsTable({
         setSpecialPriceRequestOpen(true)
     }
 
+    function handleWhatsappPriceRequest(variant: VariantTableData) {
+        const currentUrl = window.location.href
+        const variantMeasurements = formatVariantMeasurementsForMessage(variant)
+        const messageLines = [
+            "Merhaba. Müşteri portalında incelediğim ürün için hızlı fiyat almak istiyorum.",
+            categoryName ? `Kategori: ${categoryName}` : null,
+            `Ürün Modeli: ${productName}`,
+            `Katalog Kodu: ${productCode}`,
+            variant.name ? `Varyant: ${variant.name}` : null,
+            `Varyant Kodu: ${variant.fullCode}`,
+            variant.versionCode ? `Versiyon: ${variant.versionCode}` : null,
+            selectedMeasurements.length > 0 ? `Seçili Ölçü Grubu: ${selectedMeasurements.map((measurement) => `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}`).join(" / ")}` : null,
+            variantMeasurements ? `Varyant Ölçüleri: ${variantMeasurements}` : null,
+            `Sayfa Linki: ${currentUrl}`,
+        ].filter((line): line is string => Boolean(line))
+        const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(messageLines.join("\n"))}`
+
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+    }
+
     function handleApplyFilters(filters: AppliedVariantFilters) {
         setAppliedFilters(filters)
         setRefreshKey((current) => current + 1)
@@ -499,7 +538,7 @@ export function CustomerPortalVariantDetailsTable({
                                     <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[210px]`}>Ham Madde</TableHead>
                                     <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[220px]`}>Müşteri Fiyatı</TableHead>
                                     <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[116px]`}>Fiyat Son Güncelleme</TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[172px] pr-3`}>Talep</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[224px] pr-3`}>Talep</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -717,11 +756,12 @@ export function CustomerPortalVariantDetailsTable({
                                                 )}
                                             </TableCell>
                                             <TableCell className={`${VARIANT_TABLE_CELL_CLASS} pr-3`}>
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <div className="flex items-center justify-center gap-1.5">
+                                                <div className="mx-auto grid w-[216px] max-w-full gap-2">
+                                                    <div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2">
                                                         <Input
                                                             type="number"
                                                             min={1}
+                                                            aria-label="Talep adedi"
                                                             value={quantityByVariantId[variant.id] ?? "1"}
                                                             onChange={(event) =>
                                                                 setQuantityByVariantId((current) => ({
@@ -729,27 +769,37 @@ export function CustomerPortalVariantDetailsTable({
                                                                     [variant.id]: event.target.value,
                                                                 }))
                                                             }
-                                                            className="h-8 w-16 text-center"
+                                                            className="h-9 w-full rounded-xl border-neutral-200 bg-white text-center text-sm font-medium text-neutral-900 shadow-sm"
                                                         />
                                                         <Button
                                                             type="button"
                                                             size="sm"
-                                                            className="h-8 px-2.5"
+                                                            className="h-9 w-full justify-center rounded-xl bg-neutral-950 px-3 text-sm font-semibold text-white shadow-sm hover:bg-neutral-800"
                                                             onClick={() => handleAddToDraft(variant)}
                                                         >
-                                                            <Plus className="mr-1.5 h-3.5 w-3.5" />
-                                                            Sepete Ekle
+                                                            <Plus className="h-4 w-4" />
+                                                            <span className="whitespace-nowrap">Sepete Ekle</span>
                                                         </Button>
                                                     </div>
                                                     <Button
                                                         type="button"
                                                         variant="outline"
                                                         size="sm"
-                                                        className="h-8 w-full max-w-[156px] border-amber-200 bg-amber-50 px-2.5 text-amber-900 hover:border-amber-300 hover:bg-amber-100 hover:text-amber-950"
+                                                        className="h-9 w-full justify-center rounded-xl border-amber-200 bg-amber-50 px-3 text-sm font-semibold text-amber-900 shadow-sm shadow-amber-900/5 hover:border-amber-300 hover:bg-amber-100 hover:text-amber-950"
                                                         onClick={() => handleOpenSpecialPriceRequest(variant)}
                                                     >
-                                                        <BadgePercent className="mr-1.5 h-3.5 w-3.5" />
-                                                        Özel Fiyat Talep Et
+                                                        <BadgePercent className="h-4 w-4" />
+                                                        <span className="whitespace-nowrap">Özel Fiyat Talep Et</span>
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        className="h-9 w-full justify-center rounded-xl bg-emerald-600 px-3 text-sm font-semibold text-white shadow-sm shadow-emerald-900/10 hover:bg-emerald-700"
+                                                        onClick={() => handleWhatsappPriceRequest(variant)}
+                                                        aria-label="WhatsApp üzerinden hızlı fiyat al"
+                                                    >
+                                                        <SiWhatsapp className="h-4 w-4" />
+                                                        <span className="whitespace-nowrap">Hızlı Fiyat Al</span>
                                                     </Button>
                                                 </div>
                                             </TableCell>

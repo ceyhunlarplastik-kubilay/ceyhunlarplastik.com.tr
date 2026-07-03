@@ -4,9 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle
 } from "@/components/ui/dialog"
@@ -51,24 +53,36 @@ export function CreateAttributeDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Yeni Attribute</DialogTitle>
+                    <DialogTitle>Yeni Özellik</DialogTitle>
+                    <DialogDescription>
+                        Ürün filtrelerinde ve müşteri profilinde kullanılacak yeni özellik sözlüğünü oluşturun.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="attribute-name">Özellik adı</Label>
+                            <Input
+                                id="attribute-name"
+                                placeholder="Örn. Sektör"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
 
-                    <Input
-                        placeholder="Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-
-                    <Input
-                        placeholder="Code (örn: usage_area)"
-                        value={code}
-                        onChange={(e) => setCode(e.target.value)}
-                    />
+                        <div className="space-y-2">
+                            <Label htmlFor="attribute-code">Kod</Label>
+                            <Input
+                                id="attribute-code"
+                                placeholder="Örn. usage_area"
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                            />
+                        </div>
+                    </div>
 
                     {isSystemCustomerAttribute ? (
                         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
@@ -76,7 +90,7 @@ export function CreateAttributeDialog({
                                 Sistem müşteri profil alanı
                             </div>
                             <p className="mt-1 text-xs leading-5 text-amber-900/75">
-                                Bu code müşteri profilinde otomatik kullanılabilir. Checkbox ile ayrıca seçilmez.
+                                Bu kod müşteri profilinde otomatik kullanılabilir. Checkbox ile ayrıca seçilmez.
                             </p>
                         </div>
                     ) : (
@@ -91,7 +105,7 @@ export function CreateAttributeDialog({
                                     Müşteri profilinde kullanılabilir
                                 </span>
                                 <span className="block text-xs text-neutral-500">
-                                    Bu attribute müşteri profili seçim alanlarında kullanılabilir. Ürün kategori kısıtlarını değiştirmez.
+                                    Bu özellik müşteri profili seçim alanlarında kullanılabilir. Ürün kategori kısıtlarını değiştirmez.
                                 </span>
                             </span>
                         </label>
@@ -99,7 +113,8 @@ export function CreateAttributeDialog({
 
                     <Button
                         onClick={() => mutation.mutate()}
-                        disabled={mutation.isPending}
+                        disabled={mutation.isPending || !name.trim() || !code.trim()}
+                        className="w-full"
                     >
                         Oluştur
                     </Button>

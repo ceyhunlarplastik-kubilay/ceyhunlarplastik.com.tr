@@ -1,5 +1,7 @@
 import { publicServerClient } from "@/lib/http/serverClient";
 import type { Product } from "@/features/public/products/types";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 type GetProductBySlugApiResponse = {
     statusCode: number;
@@ -8,9 +10,7 @@ type GetProductBySlugApiResponse = {
     };
 };
 
-export async function getProductBySlug(
-    slug: string
-): Promise<Product | null> {
+async function fetchProductBySlug(slug: string): Promise<Product | null> {
     try {
         const res = await publicServerClient().get<GetProductBySlugApiResponse>(`/products/slug/${slug}`);
 
@@ -27,6 +27,20 @@ export async function getProductBySlug(
             message: error?.message,
         });
 
-        return null;
+        throw error;
     }
 }
+
+const getCachedProductBySlug = unstable_cache(fetchProductBySlug, ["public-product-by-slug"], {
+    revalidate: 60,
+});
+
+export const getProductBySlug = cache(async (
+    slug: string
+): Promise<Product | null> => {
+    try {
+        return await getCachedProductBySlug(slug);
+    } catch {
+        return null;
+    }
+});

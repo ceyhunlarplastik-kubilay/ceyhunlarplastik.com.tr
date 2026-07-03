@@ -12,6 +12,7 @@ import {
     MapPinned,
     Menu,
     Package,
+    Settings,
     ShieldCheck,
     Truck,
     Users,
@@ -23,7 +24,7 @@ import { cn } from "@/lib/utils"
 type NavItem = {
     href: string
     label: string
-    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package"
+    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package" | "settings"
     match?: "exact" | "prefix"
 }
 
@@ -36,6 +37,7 @@ const iconMap = {
     clipboard: ClipboardList,
     map: MapPinned,
     package: Package,
+    settings: Settings,
 } as const
 
 type Props = {

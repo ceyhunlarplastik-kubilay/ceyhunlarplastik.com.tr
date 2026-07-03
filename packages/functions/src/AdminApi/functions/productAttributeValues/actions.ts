@@ -18,6 +18,8 @@ import {
     createProductAttributeValueAssetUploadValidator,
 } from "@/functions/AdminApi/validators/productAttributeValues"
 
+const productAttributeValueManagerGroups = ["admin", "content_editor"]
+
 export const createProductAttributeValue = lambdaHandler(
     async (event) => {
         return createProductAttributeValueHandler({
@@ -27,7 +29,7 @@ export const createProductAttributeValue = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
         requestValidator: createProductAttributeValueValidator
     }
 )
@@ -41,7 +43,7 @@ export const listProductAttributeValues = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] }
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups }
     }
 )
 
@@ -56,7 +58,7 @@ export const getProductAttributeValue = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] }
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups }
     }
 )
 
@@ -69,7 +71,7 @@ export const updateProductAttributeValue = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
         requestValidator: updateProductAttributeValueValidator
     }
 )
@@ -83,7 +85,7 @@ export const deleteProductAttributeValue = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
         requestValidator: idValidator
     }
 )
@@ -95,7 +97,7 @@ export const createProductAttributeValueAssetUpload = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
         requestValidator: createProductAttributeValueAssetUploadValidator,
     }
 )

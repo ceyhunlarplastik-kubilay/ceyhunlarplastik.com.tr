@@ -8,10 +8,24 @@ import { protectedApi } from "./ProtectedApi";
 import { userAccessRealtime } from "./userAccessLifecycle";
 import { rds, vpc } from "./db";
 
+/* function parsePositiveIntegerEnv(name: string) {
+  const value = process.env[name];
+  if (!value) return undefined;
+
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+const frontendServerReservedConcurrency = parsePositiveIntegerEnv("FRONTEND_SERVER_RESERVED_CONCURRENCY"); */
+
 export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
   vpc,
   link: [rds],
+  /*   server: {
+      memory: "2048 MB",
+      timeout: "30 seconds",
+    }, */
 
   // ✅ Router BURADA
   router: appRouter
@@ -62,7 +76,14 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
         : $app.stage === "dev"
           ? `https://dev.${config.DOMAIN}`
           : $interpolate`https://${publicBucket.name}.s3.amazonaws.com`
-  }
+  },
+  /*   transform: {
+      server: (args) => {
+        if ($app.stage === "prod" && frontendServerReservedConcurrency) {
+          args.concurrency = { reserved: frontendServerReservedConcurrency };
+        }
+      },
+    } */
 });
 
 // for permanent stages
@@ -73,9 +94,11 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   statementId: "AllowPublicAccessViaFunctionUrl",
 }); */
 
-if ($app.stage === "prod" || $app.stage === "dev" || $app.stage === "test-1") {
+const frontendServer = frontend.nodes.server;
+
+if (($app.stage === "prod" || $app.stage === "dev" || $app.stage === "test-1") && frontendServer) {
   new aws.lambda.Permission("AllowPublicInvokeFunction", {
-    function: frontend.nodes.server!.name,
+    function: frontendServer.name,
     principal: "*",
     action: "lambda:InvokeFunction",
     statementId: "AllowPublicAccessViaFunctionUrl",

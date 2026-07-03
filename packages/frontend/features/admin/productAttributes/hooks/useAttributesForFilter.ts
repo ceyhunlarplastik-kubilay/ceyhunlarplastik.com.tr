@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { listAttributesWithValues } from "../api/listAttributesWithValues"
+import { productAttributeKeys } from "@/features/admin/productAttributes/api/productAttributeKeys"
 
 type Options = {
     autoRefreshIntervalMs?: number | false
@@ -9,7 +10,7 @@ type Options = {
 
 export function useAttributesForFilter({ autoRefreshIntervalMs = false }: Options = {}) {
     return useQuery({
-        queryKey: ["product-attributes-filter"],
+        queryKey: productAttributeKeys.withValues(),
         queryFn: listAttributesWithValues,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,

@@ -35,4 +35,5 @@ if (appRouter) {
     appRouter.routeBucket("/product-variant-assets", publicBucket);
     appRouter.routeBucket("/product-variant-materials", publicBucket);
     appRouter.routeBucket("/product-variant-colors", publicBucket);
+    appRouter.routeBucket("/product-attribute-values", publicBucket);
 }
