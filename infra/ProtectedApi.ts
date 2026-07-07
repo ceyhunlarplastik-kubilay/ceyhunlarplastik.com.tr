@@ -4,6 +4,7 @@ import { userPool, userPoolClient } from "./cognito";
 import { publicBucket } from "./storage";
 import { businessApprovalWorkflow } from "./businessWorkflow";
 import { apiCors } from "./cors";
+import { apiRouteLambdaNamer } from "./lambdaNaming";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
@@ -15,7 +16,10 @@ export const protectedApi = new sst.aws.ApiGatewayV2("CeyhunlarProtectedApi", {
                 throttlingRateLimit: 100,
                 throttlingBurstLimit: 200,
             };
-        }
+        },
+        route: {
+            handler: apiRouteLambdaNamer("protected"),
+        },
     },
     domain:
         $app.stage === "prod"

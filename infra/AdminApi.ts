@@ -5,6 +5,7 @@ import { publicBucket } from "./storage";
 import { businessApprovalWorkflow } from "./businessWorkflow";
 import { userAccessBus } from "./userAccessLifecycle";
 import { apiCors } from "./cors";
+import { apiRouteLambdaNamer } from "./lambdaNaming";
 
 const folderPrefix = "packages/functions/src/AdminApi/functions";
 
@@ -16,7 +17,10 @@ export const adminApi = new sst.aws.ApiGatewayV2("CeyhunlarAdminApi", {
                 throttlingRateLimit: 100,
                 throttlingBurstLimit: 200,
             };
-        }
+        },
+        route: {
+            handler: apiRouteLambdaNamer("admin"),
+        },
     },
     domain:
         $app.stage === "prod"

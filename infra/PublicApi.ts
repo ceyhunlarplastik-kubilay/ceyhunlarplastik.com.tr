@@ -3,6 +3,7 @@ import { vpc, rds } from "./db";
 import { userPool } from "./cognito";
 import { publicBucket } from "./storage";
 import { apiCors } from "./cors";
+import { apiRouteLambdaNamer } from "./lambdaNaming";
 const folderPrefix = 'packages/functions/src/PublicApi/functions';
 
 export const publicApi = new sst.aws.ApiGatewayV2("CeyhunlarPublicApi", {
@@ -13,7 +14,10 @@ export const publicApi = new sst.aws.ApiGatewayV2("CeyhunlarPublicApi", {
                 throttlingRateLimit: 100,
                 throttlingBurstLimit: 200,
             };
-        }
+        },
+        route: {
+            handler: apiRouteLambdaNamer("public"),
+        },
     },
     domain:
         $app.stage === "prod"

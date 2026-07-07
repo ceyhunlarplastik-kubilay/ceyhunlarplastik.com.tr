@@ -64,6 +64,12 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - Neden: Şu an prod'da Lambda concurrency tükenmesi veya frontend throttle olsa kimse haber almaz.
 - Uygulama notları: `ceyhunlarweb-prod-alarms` SNS topic'i + `kubilayuysal.ceyhunlarplastik@gmail.com` e-posta aboneliği eklendi; 8 alarmın tamamında (`account concurrency` 1, frontend server 2, public ürün route'ları 6) `actionsEnabled: true` + `alarmActions` + `okActions` (düzelme bildirimi dahil). Kaynaklar yalnız prod'da yaratılır. **Prod deploy sonrası zorunlu adım:** AWS'den gelen "Subscription Confirmation" mailindeki linke tıklanmalı — tıklanmazsa bildirim gitmez ve istek 3 günde düşer. Opsiyonel uçtan uca test (deploy + onay sonrası): `aws cloudwatch set-alarm-state --alarm-name ceyhunlarweb-prod-frontend-server-lambda-throttles --state-value ALARM --state-reason "test"` → e-posta gelmeli; alarm bir sonraki değerlendirmede kendiliğinden OK'e döner ve OK maili de gelir.
 
+**P0.6 — API route Lambda'larına aranabilir isim standardı** · kapsam: küçük kod, büyük tek-seferlik churn · **✅ Uygulandı (2026-07-07, prod'a deploy bekliyor)** *(kullanıcı talebiyle eklendi)*
+- Ne: [infra/lambdaNaming.ts](infra/lambdaNaming.ts) `apiRouteLambdaNamer(boundary)` — dört API'nin `transform.route.handler`'ına bağlandı; her route Lambda'sı `{app}-{stage}-{boundary}-{klasör}-{handler}-{hash5}` formatında fiziksel isim alır (örn. `ceyhunlarweb-prod-public-products-getProductBySlug-352a8`). Log group'lar da aynı isimden türediği için CloudWatch'ta aranabilir.
+- Neden hash eki: aynı handler birden fazla route'a bağlanabiliyor (ör. `decideBusinessRequest` 3 route'ta) — hash olmadan isimler çakışır ve deploy patlar. Hash, route'un logical adından deterministik türetilir.
+- Kritik bilgi: **Lambda adı create-only'dir** — isim şeması değişirse tüm route Lambda'ları yeniden yaratılır; şemayı sabit tutun. Yeni route'lar otomatik isimlenir, elle `name:` verilirse transform dokunmaz.
+- Doğrulama (kubi): 202/202 route Lambda'sı yeni isimle yaratıldı, eskiler silindi, 0 çakışma, 0 64-karakter ihlali, API HTTP 200, entegrasyonlar yeni fonksiyonlara bağlı.
+
 ### P1 — Sağlamlaştırma
 
 **P1.1 — i18n Faz 1: İngilizce desteği** · kapsam: büyük — detay aşağıda ayrı bölümde.

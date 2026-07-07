@@ -3,11 +3,17 @@ import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 import { userAccessBus } from "./userAccessLifecycle";
 import { apiCors } from "./cors";
+import { apiRouteLambdaNamer } from "./lambdaNaming";
 
 const folderPrefix = "packages/functions/src/OwnerApi/functions";
 
 export const ownerApi = new sst.aws.ApiGatewayV2("CeyhunlarOwnerApi", {
     cors: apiCors,
+    transform: {
+        route: {
+            handler: apiRouteLambdaNamer("owner"),
+        },
+    },
     domain:
         $app.stage === "prod"
             ? {
