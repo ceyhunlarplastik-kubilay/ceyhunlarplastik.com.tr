@@ -3,10 +3,12 @@ import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 import { publicBucket } from "./storage";
 import { businessApprovalWorkflow } from "./businessWorkflow";
+import { apiCors } from "./cors";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
 export const protectedApi = new sst.aws.ApiGatewayV2("CeyhunlarProtectedApi", {
+    cors: apiCors,
     transform: {
         stage: (args) => {
             args.defaultRouteSettings = {

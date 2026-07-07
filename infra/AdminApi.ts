@@ -4,10 +4,12 @@ import { userPool, userPoolClient } from "./cognito";
 import { publicBucket } from "./storage";
 import { businessApprovalWorkflow } from "./businessWorkflow";
 import { userAccessBus } from "./userAccessLifecycle";
+import { apiCors } from "./cors";
 
 const folderPrefix = "packages/functions/src/AdminApi/functions";
 
 export const adminApi = new sst.aws.ApiGatewayV2("CeyhunlarAdminApi", {
+    cors: apiCors,
     transform: {
         stage: (args) => {
             args.defaultRouteSettings = {

@@ -12,7 +12,6 @@ import httpUrlencodeBodyParser from "@middy/http-urlencode-body-parser"
 import httpMultipartBodyParser from "@middy/http-multipart-body-parser"
 
 import httpSecurityHeaders from "@middy/http-security-headers"
-import httpCors from "@middy/http-cors"
 import httpContentEncoding from "@middy/http-content-encoding"
 import httpPartialResponse from "@middy/http-partial-response"
 
@@ -93,17 +92,14 @@ export const lambdaHandler = <TResponse = unknown>(
     }
 
     /* ------------------------
-     * 7️⃣ Security / CORS
+     * 7️⃣ Security headers
+     * CORS burada DEĞİL: dört API'de de CORS, API Gateway seviyesinde uygulanıyor
+     * (infra/cors.ts — stage'e göre origin listesi). AWS HTTP API'de CORS
+     * configure edildiğinde backend'in döndürdüğü CORS header'ları yok sayılır;
+     * bu yüzden koddan CORS header'ı eklemek hem ölü kod hem yanıltıcıdır.
+     * API Gateway CORS'u kapatılırsa header hiç dönmez → fail-closed (güvenli yön).
      * ------------------------ */
-    chain
-        .use(httpSecurityHeaders())
-        .use(
-            httpCors({
-                origin: "*", // prod’da domain’e düşürürüz
-                // origin: ["https://ceyhunlarplastik.com.tr"],
-                credentials: true,
-            }),
-        )
+    chain.use(httpSecurityHeaders())
 
     /* ------------------------
      * 8️⃣ Response SERIALIZATION & VALIDATION

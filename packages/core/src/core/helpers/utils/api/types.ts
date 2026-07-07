@@ -136,7 +136,7 @@ export interface IApiResponse {
   statusCode: number
   headers: {
     'Content-Type': string
-    'Access-Control-Allow-Origin': string
+    // CORS header'ı yok: CORS, API Gateway seviyesinde uygulanır (infra/cors.ts).
   }
   body: unknown
 }

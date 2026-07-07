@@ -2,10 +2,12 @@ import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool, userPoolClient } from "./cognito";
 import { userAccessBus } from "./userAccessLifecycle";
+import { apiCors } from "./cors";
 
 const folderPrefix = "packages/functions/src/OwnerApi/functions";
 
 export const ownerApi = new sst.aws.ApiGatewayV2("CeyhunlarOwnerApi", {
+    cors: apiCors,
     domain:
         $app.stage === "prod"
             ? {

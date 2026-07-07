@@ -23,7 +23,6 @@
     "@middy/event-normalizer": "^7.0.2",
     "@middy/http-content-encoding": "^7.0.2",
     "@middy/http-content-negotiation": "^7.0.2",
-    "@middy/http-cors": "^7.0.2",
     "@middy/http-error-handler": "^7.0.2",
     "@middy/http-event-normalizer": "^7.0.2",
     "@middy/http-header-normalizer": "^7.0.2",

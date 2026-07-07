@@ -2,9 +2,11 @@ import config from "../config";
 import { vpc, rds } from "./db";
 import { userPool } from "./cognito";
 import { publicBucket } from "./storage";
+import { apiCors } from "./cors";
 const folderPrefix = 'packages/functions/src/PublicApi/functions';
 
 export const publicApi = new sst.aws.ApiGatewayV2("CeyhunlarPublicApi", {
+    cors: apiCors,
     transform: {
         stage: (args) => {
             args.defaultRouteSettings = {

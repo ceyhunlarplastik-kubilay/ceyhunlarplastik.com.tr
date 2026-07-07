@@ -5,7 +5,7 @@ export const apiResponse = <TPayload>({ statusCode, payload }: IApiResponseInput
         statusCode: statusCode,
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
+            // CORS header'ı burada YOK: CORS, API Gateway seviyesinde uygulanır (infra/cors.ts).
         },
         /*
         Date Handling (Tarih Yönetimi):
@@ -57,7 +57,7 @@ export const apiResponseDTO = <TPayload>({
         statusCode,
         headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
+            // CORS header'ı burada YOK: CORS, API Gateway seviyesinde uygulanır (infra/cors.ts).
         },
         body: {
             statusCode,
