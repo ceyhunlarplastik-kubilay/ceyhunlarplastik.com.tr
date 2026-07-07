@@ -1,0 +1,59 @@
+# CI kalite kapısı (IMPROVEMENT_PLAN.md P0.1)
+# Yalnızca kalite kontrolü yapar; hiçbir stage'e deploy ETMEZ ve AWS erişimi gerektirmez.
+#
+# Bilinen kapsam sınırları:
+# - Backend typecheck (core/functions/infra) henüz yok: root tsconfig include'u tüm
+#   repoyu ve .sst/platform'u kapsadığı için izole tsc koşamıyor (bkz. P1.7).
+# - lint ve audit şimdilik non-blocking: lint mevcut 1218 hatayla, audit 8 high
+#   açıkla kırmızı; P0.3 ve lint temizliği sonrası bloklayıcı yapılacak.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Typecheck & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Typecheck (frontend)
+        run: npm run typecheck -w frontend
+      - name: Unit tests (core)
+        # vitest core'un devDependency'si; sst shell GEREKMEZ (testler saf helper testleri)
+        run: npm run test:ci -w @ceyhunlarweb/core
+      - name: Unit tests (frontend)
+        # vitest root node_modules'a hoist edilir (core devDep); lockfile bunu deterministik kılar
+        run: npm run test -w frontend
+
+  lint:
+    name: Lint (non-blocking)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint -w frontend
+
+  audit:
+    name: npm audit (non-blocking, P0.3 sonrasi bloklayici yapilacak)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm audit --omit=dev --audit-level=high

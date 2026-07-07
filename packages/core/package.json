@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "test": "sst shell vitest",
+    "test:ci": "vitest run",
     "seed:geo": "tsx prisma/seed-geo.ts"
   },
   "exports": {
