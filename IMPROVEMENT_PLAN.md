@@ -48,10 +48,11 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - Neden: Panel API'leri herhangi bir origin'den çağrılabilir durumda. `*` + `credentials` kombinasyonu ayrıca spec'e aykırı.
 - Uygulama notları: Araştırmada asıl uygulama noktasının kod değil **API Gateway** olduğu görüldü — SST `cors` verilmeyince `allowOrigins: ["*"]` default'u devredeydi ve AWS HTTP API kuralı gereği backend CORS header'ları zaten yok sayılıyordu. Çözüm: [infra/cors.ts](infra/cors.ts) (stage-aware origin tek kaynağı: prod → domain+www, dev → dev.domain, kişisel stage'ler → localhost:3000) + dört `infra/*Api.ts`'e `cors: apiCors`. Ölü/yanıltıcı kod temizlendi: middy `httpCors` kaldırıldı, [response.ts](packages/core/src/core/helpers/utils/api/response.ts) hardcoded `*` header'ları kaldırıldı, `IApiResponse` tipi güncellendi, `@middy/http-cors` bağımlılığı silindi. Kubi stage'de doğrulandı: 4 API'de `AllowOrigins: ["http://localhost:3000"]`; izinli origin preflight'ta ACAO dönüyor, yabancı origin'e CORS header'ı dönmüyor. **Prod'a yansıması bir sonraki `deploy --stage prod` ile olur** — prod origin listesi `https://{DOMAIN}` + `https://www.{DOMAIN}`.
 
-**P0.3 — Dependency açıklarını kapat** · kapsam: orta
+**P0.3 — Dependency açıklarını kapat** · kapsam: orta · **✅ Uygulandı (2026-07-07, prod'a deploy bekliyor)**
 - Ne: `next@16.1.6` → yamalı sürüme yükselt; `nodemailer` yükselt; kırıcı olmayan `npm audit fix`. `next-auth@4`'ün `uuid` açığı için `overrides` ile pin (v5 migration'ı P2'ye — bkz. P2.2).
 - Neden: 8 high severity açık production bağımlılık zincirinde.
-- Etki: **frontend** (Next yükseltmesi — build ve tüm sayfalar regresyon testi ister) + **functions** (nodemailer — 3 e-posta Lambda'sı: [sendUserAccessEmail.ts](packages/functions/src/UserAccessLifecycle/functions/sendUserAccessEmail.ts), [sendBusinessRequestEmail.ts](packages/functions/src/BusinessWorkflow/functions/sendBusinessRequestEmail.ts), [sendCustomerPortalInvitationEmail.ts](packages/functions/src/shared/mail/sendCustomerPortalInvitationEmail.ts)). Not: `hono`/`mcp-sdk`/`aws-sdk` bulguları büyük olasılıkla `sst` CLI zinciri (runtime'a girmiyor olabilir) — deploy artefaktında doğrulanmalı, needs confirmation.
+- Uygulama notları: `next` 16.1.6 → **16.2.10** (+`eslint-config-next`), `nodemailer` 7 → **9.0.3** (advisory fix sürümü; repo'nun kullandığı `createTransport`/`sendMail` yüzeyi değişmedi), `npm audit fix` ile `form-data`/`fast-uri`/`qs` kapandı. Production high sayısı 8 → 4. Doğrulama: frontend typecheck + 28 unit test + `sst shell --stage kubi` içinde tam `next build` başarılı.
+- **Bilinçli kalan açıklar:** (a) 4 high — tamamı `sst@3.19.3` CLI zinciri (`opencontrol`/`hono`/`mcp-sdk`/`aws-sdk`); yalnız `sst dev` geliştirici makinesinde çalışır, Lambda bundle'ına girmez; fix SST 4.0.7+ → bkz. P2.6. (b) `next-auth`+`uuid` moderate — önerilen "fix" v3'e downgrade; uuid açığı `buf` parametreli v3/v5/v6 gerektirir, next-auth yalnız rastgele v4 üretir → sömürü yolu yok; kalıcı çözüm P2.2. `overrides` ile uuid pinleme auth zincirini kırma riski nedeniyle bilinçli yapılmadı. (c) `prisma`/`@prisma/dev` moderate — dev-server bileşeni; fix prisma 7.9+ ayrı yükseltme işi. (d) `vitest@2` critical — yalnız devDependency (Vitest UI server), CI/prod'a girmez; P1.4 test işiyle birlikte vitest 4'e yükseltilebilir. Bu kalıntılar nedeniyle CI audit job'u şimdilik non-blocking kalıyor (bkz. P1.7).
 
 **P0.4 — Supplier soft-delete `findUnique` kaçağını kapat** · kapsam: küçük (ama davranış değişikliği)
 - Ne: [prisma.ts](packages/core/src/core/db/prisma.ts) supplier extension'ına `findUnique` (ve `deleteMany`) override'ı ekle — `color` ile simetrik.
@@ -99,7 +100,7 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - **Tracer + Metrics bilinçli olarak bu maddeye dahil değil**: `@aws-lambda-powertools/tracer` X-Ray active tracing gerektirir → tüm Lambda'larda infra değişikliği demektir (prod korumalı — CLAUDE.md gereği ayrı plan + onay); `metrics` EMF ile CloudWatch ingest maliyeti ekler. İkisi de Logger'dan fayda görüldükten sonra ayrı bir P2 kararı olarak değerlendirilmelidir.
 
 **P1.7 — CI kapsamını genişlet: backend typecheck + lint temizliği + audit'i bloklayıcı yap** · kapsam: orta
-- Ne: (a) Backend typecheck: root [tsconfig.json](tsconfig.json) `include`'u tüm repoyu (`packages/**/*`, `infra/**/*`, `sst.config.ts`) kapsıyor; core/functions bunu miras aldığı için izole `tsc --noEmit` koşulamıyor — `.sst/platform`'un kendi `@types/node` kopyası 12k+ hata kaskadı üretiyor. Paket bazında `include` + `skipLibCheck` stratejisiyle tsconfig'ler ayrıştırılmalı. (b) Frontend lint'teki 1218 hata dilim dilim temizlenip lint job'u bloklayıcı yapılmalı. (c) P0.3 sonrası audit job'u bloklayıcı yapılmalı.
+- Ne: (a) Backend typecheck: root [tsconfig.json](tsconfig.json) `include`'u tüm repoyu (`packages/**/*`, `infra/**/*`, `sst.config.ts`) kapsıyor; core/functions bunu miras aldığı için izole `tsc --noEmit` koşulamıyor — `.sst/platform`'un kendi `@types/node` kopyası 12k+ hata kaskadı üretiyor. Paket bazında `include` + `skipLibCheck` stratejisiyle tsconfig'ler ayrıştırılmalı. (b) Frontend lint'teki 1218 hata dilim dilim temizlenip lint job'u bloklayıcı yapılmalı. (c) Audit job'u bloklayıcı yapılmalı — ancak P0.3 sonrası kalan 4 high tamamen `sst` CLI zincirinde olduğundan bu, P2.6 (SST 4) çözülmeden veya audit sst zincirini dışlayacak şekilde scope edilmeden mümkün değil.
 - Neden: CI şu an yalnız frontend tipi ve 28 unit testi koruyor; backend'de tip regresyonu yakalanmıyor.
 - Etki: root + paket `tsconfig.json`'ları (editör ve `sst dev` deneyimi etkilenebilir — dikkatli, tek tek doğrulanarak) + `.github/workflows/ci.yml` + frontend lint düzeltmeleri.
 
@@ -126,6 +127,16 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 **P2.5 — API throttle'larını sınıra göre ayrıştır** · kapsam: küçük
 - Ne: Public/Protected/Admin üçünde de 100 rps / 200 burst aynı. Admin/Owner daha düşük, Public gerekirse daha yüksek tutulmalı.
 - Etki: yalnız **infra** (üç `*Api.ts`).
+
+**P2.6 — SST 4 yükseltme kararı** · kapsam: büyük, ayrı proje
+- Ne: `sst@3.19.3` → SST 4 (latest 4.17.0). Not: SST 4, v2→v3 gibi bir rewrite değil — registry'de `ion` dist-tag'i 4.5.2'ye işaret ediyor, yani **aynı Ion çizgisinin devamı**; yine de major atlama olduğu için migration notları okunmadan ve kubi'de denenmeden geçilmez. P0.3'te kalan 4 high severity açığın tamamı SST 3'ün CLI zincirinde (`opencontrol`, `hono`, `@modelcontextprotocol/sdk`, `aws-sdk@2`) ve fix `sst@4.0.7+` gerektiriyor.
+- Neden: Güvenlik etkisi sınırlı (bu bileşenler yalnız `sst dev`'de geliştirici makinesinde çalışır, deploy edilen Lambda'lara girmez) ama audit'in bloklayıcı olabilmesi ve SST'nin destek ömrü için orta vadede gerekli.
+- Etki: **infra tamamı** + deploy zinciri; prod korumalı — SST 4 migration rehberiyle, önce kubi stage'de uçtan uca denenerek, CLAUDE.md gereği plan+onayla yapılmalı.
+
+**P2.7 — Node 22 → 24 LTS geçişi** · kapsam: orta, izole adım
+- Ne: `.nvmrc` (22.22.2) + root `engines` (`>=22 <23`) + Lambda runtime'ları `nodejs24.x`'e taşı. ARCHITECTURE'a göre bazı Cognito trigger Lambda'ları hâlâ `nodejs20.x` — bu işte hepsi normalize edilmeli. CI, `node-version-file: .nvmrc` okuduğu için otomatik uyar.
+- Neden: Node 24 LTS Nisan 2028'e kadar destekli ve AWS Lambda'da mevcut; Node 22 bakımı Nisan 2027'de bitiyor. Acil değil ama planlı yapılmalı.
+- Etki: **root config + infra (runtime'lar) + CI + lokal geliştirme**. Kural: başka hiçbir değişiklikle birleştirilmeden, tek başına, kubi'de uçtan uca doğrulanarak (özellikle Prisma native binding'leri ve `next build`).
 
 ## i18n — İngilizce Desteği (P1.1, Detaylı Plan)
 

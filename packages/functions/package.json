@@ -8,7 +8,7 @@
     "@aws-sdk/client-sesv2": "^3.983.0",
     "@ceyhunlarweb/core": "*",
     "aws-jwt-verify": "^5.2.1",
-    "nodemailer": "^7.0.13",
+    "nodemailer": "^9.0.3",
     "sst": "*"
   },
   "devDependencies": {

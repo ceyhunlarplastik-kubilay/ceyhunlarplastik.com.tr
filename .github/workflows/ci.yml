@@ -4,8 +4,9 @@
 # Bilinen kapsam sınırları:
 # - Backend typecheck (core/functions/infra) henüz yok: root tsconfig include'u tüm
 #   repoyu ve .sst/platform'u kapsadığı için izole tsc koşamıyor (bkz. P1.7).
-# - lint ve audit şimdilik non-blocking: lint mevcut 1218 hatayla, audit 8 high
-#   açıkla kırmızı; P0.3 ve lint temizliği sonrası bloklayıcı yapılacak.
+# - lint ve audit şimdilik non-blocking: lint mevcut 1218 hatayla kırmızı (temizlik P1.7);
+#   audit'te P0.3 sonrası kalan 4 high tamamen sst CLI zincirinde (Lambda'ya girmez),
+#   bloklayıcı yapmak SST 4 yükseltmesine (P2.6) bağlı.
 name: CI
 
 on:
@@ -47,7 +48,7 @@ jobs:
       - run: npm run lint -w frontend
 
   audit:
-    name: npm audit (non-blocking, P0.3 sonrasi bloklayici yapilacak)
+    name: npm audit (non-blocking, bloklayici olmasi P2.6 SST 4 yukseltmesine bagli)
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
