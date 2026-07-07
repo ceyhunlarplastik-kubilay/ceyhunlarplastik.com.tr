@@ -74,7 +74,25 @@ export const prisma = basePrisma.$extends({
                 return query(args)
             },
 
+            // OrThrow varyantları ayrı operasyonlardır; override edilmezlerse
+            // soft-delete filtresini atlarlar (colors repository findUniqueOrThrow kullanıyor).
+            async findUniqueOrThrow({ args, query }) {
+                args.where = {
+                    ...args.where,
+                    isActive: true,
+                }
+                return query(args)
+            },
+
             async findFirst({ args, query }) {
+                args.where = {
+                    ...args.where,
+                    isActive: true,
+                };
+                return query(args);
+            },
+
+            async findFirstOrThrow({ args, query }) {
                 args.where = {
                     ...args.where,
                     isActive: true,
@@ -112,7 +130,30 @@ export const prisma = basePrisma.$extends({
                 }
                 return query(args)
             },
+            // findUnique/OrThrow override'ları color ile simetrik olmak zorunda;
+            // eksik kaldıklarında soft-delete edilmiş supplier id ile geri okunabiliyordu.
+            async findUnique({ args, query }) {
+                args.where = {
+                    ...args.where,
+                    isActive: true
+                }
+                return query(args)
+            },
+            async findUniqueOrThrow({ args, query }) {
+                args.where = {
+                    ...args.where,
+                    isActive: true
+                }
+                return query(args)
+            },
             async findFirst({ args, query }) {
+                args.where = {
+                    ...args.where,
+                    isActive: true
+                }
+                return query(args)
+            },
+            async findFirstOrThrow({ args, query }) {
                 args.where = {
                     ...args.where,
                     isActive: true
@@ -128,6 +169,12 @@ export const prisma = basePrisma.$extends({
             },
             async delete({ args }) {
                 return basePrisma.supplier.update({
+                    where: args.where,
+                    data: { isActive: false },
+                })
+            },
+            async deleteMany({ args }) {
+                return basePrisma.supplier.updateMany({
                     where: args.where,
                     data: { isActive: false },
                 })
