@@ -10,8 +10,11 @@ import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/p
 import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
 import { AnimatedSplitProductTitle } from "@/features/public/products/components/AnimatedSplitProductTitle"
-import { prisma } from "../../../../../../../core/src/core/db/prisma"
-import { normalizeCustomerDiscountPercent } from "../../../../../../../core/src/core/helpers/pricing/customerPricing"
+// Not (teknik borç): frontend'in core'a relative-path importu AGENTS.md veri akışı
+// kuralına aykırı; features/auth ve customerLocations'ta da aynı desen var.
+// (panels) taşımasında derinlik değişince kırıldığı için path güncellendi.
+import { prisma } from "../../../../../../../../core/src/core/db/prisma"
+import { normalizeCustomerDiscountPercent } from "../../../../../../../../core/src/core/helpers/pricing/customerPricing"
 
 type PageProps = {
     params: Promise<{ slug: string }>

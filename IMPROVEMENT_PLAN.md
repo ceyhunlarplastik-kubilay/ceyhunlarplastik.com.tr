@@ -72,7 +72,8 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 
 ### P1 — Sağlamlaştırma
 
-**P1.1 — i18n Faz 1: İngilizce desteği** · kapsam: büyük — detay aşağıda ayrı bölümde.
+**P1.1 — i18n Faz 1: İngilizce desteği** · kapsam: büyük — detay aşağıda ayrı bölümde. · **Faz 1a ✅ Uygulandı (2026-07-07)**
+- Faz 1a uygulama notları: `next-intl@4.13.1`; [i18n/routing.ts](packages/frontend/i18n/routing.ts) (`localePrefix: "as-needed"` + **`localeDetection: false`** — otomatik dil yönlendirmesi bilinçli kapalı, TR ziyaretçi/bot davranışı değişmedi). **Tasarım kararı — paneller `[locale]` DIŞINDA:** yalnız `(public)` + `(auth)` `app/[locale]/` altına taşındı; 9 panel dizini `app/(panels)/` route group'una alındı (URL değişmedi, ikinci root layout). Neden: [proxy.ts](packages/frontend/proxy.ts) `withAuth` matcher'ı panelleri koruyor — `[locale]` altına girselerdi `/en/admin` matcher'dan kaçar, auth bypass doğardı. proxy.ts artık intl+withAuth kompozisyonu (`/hesabim` passthrough; matcher ürün slug'ları nokta içerebildiği için genel nokta-dışlama yerine uzantı bazlı). Static rendering `setRequestLocale`+`generateStaticParams` ile korundu: 15 TR + 15 EN sayfa prerender. Kesişen düzeltmeler: `next.config.mjs` silindi (P1.5a ✅ — tek config `.ts` + intl plugin), maplibre CSS root layout'tan harita bileşenlerine taşındı (P2.1 kısmi), **hardcoded `.com.tr` metadataBase → env-driven** (canlı domain `.xyz` — OG/canonical düzeldi). Doğrulama: typecheck + full build + 7/7 route smoke + `html lang` tr/en + auth redirect birebir. Faz 2'de paneller çevrilecekse taşıma + matcher değişikliği AYNI işte yapılmalı (bkz. (panels)/layout.tsx yorumu).
 
 **P1.2 — Validator kapsamını tamamla** · kapsam: orta
 - Ne: responseValidator'sız 9 `actions.ts` dosyasına validator ekle: AdminApi `assets`, `materials`, `productAttributeValues`, `productMeasurements`; OwnerApi `users`; ProtectedApi `colors`, `users`; PublicApi `productAttributeValues`, `productVariantSuppliers`. requestValidator'sız 2 dosya da aynı işte kapatılmalı.
@@ -143,6 +144,11 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - Ne: `.nvmrc` (22.22.2) + root `engines` (`>=22 <23`) + Lambda runtime'ları `nodejs24.x`'e taşı. ARCHITECTURE'a göre bazı Cognito trigger Lambda'ları hâlâ `nodejs20.x` — bu işte hepsi normalize edilmeli. CI, `node-version-file: .nvmrc` okuduğu için otomatik uyar.
 - Neden: Node 24 LTS Nisan 2028'e kadar destekli ve AWS Lambda'da mevcut; Node 22 bakımı Nisan 2027'de bitiyor. Acil değil ama planlı yapılmalı.
 - Etki: **root config + infra (runtime'lar) + CI + lokal geliştirme**. Kural: başka hiçbir değişiklikle birleştirilmeden, tek başına, kubi'de uçtan uca doğrulanarak (özellikle Prisma native binding'leri ve `next build`).
+
+**P2.8 — Frontend'den core'a doğrudan prisma importlarını kaldır** · kapsam: orta
+- Ne: Üç dosya `packages/core`'a relative path ile doğrudan import atıyor (i18n taşımasında yakalandı): [musteri varyant sayfası](packages/frontend/app/(panels)/musteri/tum-urunler/urun/[slug]/varyantlar/page.tsx) (`prisma` + pricing helper), `features/auth/server/user-access.ts` ve `features/customerLocations/server/geocodingService.ts` (`prisma`). Frontend server Lambda'sı VPC'de ve RDS'e linkli olduğu için çalışıyor, ama AGENTS.md veri akışı kuralına aykırı ve kırılgan (dizin taşımalarında path bozuluyor — bir kez oldu).
+- Neden: Veri erişimi API boundary'lerinden geçmeli; en azından relative path yerine workspace paket importu (`@ceyhunlarweb/core`) kullanılmalı.
+- Etki: **frontend** (3 dosya) + davranış değişikliği riski düşük ama SSR performansı/connection kullanımı gözden geçirilmeli.
 
 ## i18n — İngilizce Desteği (P1.1, Detaylı Plan)
 

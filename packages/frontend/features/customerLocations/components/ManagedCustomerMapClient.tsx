@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useMemo, useRef } from "react"
 import { GeolocateControl, Layer, NavigationControl, Popup, Source, Map } from "react-map-gl/maplibre"
 import type { LayerProps, MapRef } from "react-map-gl/maplibre"
+// Eskiden root layout'ta globaldi; artık yalnızca harita içeren sayfalarda yüklenir.
+import "maplibre-gl/dist/maplibre-gl.css"
 import type { FeatureCollection, Point } from "geojson"
 import { Button } from "@/components/ui/button"
 import { buildGoogleMapsDirectionsUrl } from "@/features/customerLocations/lib/buildGoogleMapsDirectionsUrl"

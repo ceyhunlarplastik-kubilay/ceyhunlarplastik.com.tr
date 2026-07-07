@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
     minimumCacheTTL: 60,
+    // Bilinçli bekleyen karar (IMPROVEMENT_PLAN P1.5): OpenNext image
+    // optimization maliyeti netleşene kadar optimizasyon kapalı.
     unoptimized: true,
     remotePatterns: [
       {
@@ -14,4 +18,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

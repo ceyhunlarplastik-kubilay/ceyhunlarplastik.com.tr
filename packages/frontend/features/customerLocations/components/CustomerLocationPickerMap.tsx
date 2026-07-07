@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import { GeolocateControl, Map, Marker, NavigationControl } from "react-map-gl/maplibre"
 import type { MarkerDragEvent } from "react-map-gl/maplibre"
+// Eskiden root layout'ta globaldi; artık yalnızca harita içeren sayfalarda yüklenir.
+import "maplibre-gl/dist/maplibre-gl.css"
 
 type Props = {
     latitude?: number | null
