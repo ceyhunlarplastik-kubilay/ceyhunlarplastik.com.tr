@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth/auth"
 import { redirect } from "next/navigation"
 import { RoleWorkspaceSidebar } from "@/components/admin/RoleWorkspaceSidebar"
 import { AdminTopbar } from "@/components/admin/AdminTopbar"
+import { NotificationBell } from "@/features/notifications/components/NotificationBell"
 
 const navItems = [
     {
@@ -65,6 +66,7 @@ export default async function SalesLayout({
                 email={session.user?.email}
                 image={session.user?.image}
                 groups={groups}
+                mobileActionSlot={<NotificationBell viewport="mobile" requestsHref="/satis/onaylar" />}
             />
 
             <div className="flex-1 flex flex-col min-w-0">
@@ -76,6 +78,7 @@ export default async function SalesLayout({
                         email={session.user?.email}
                         image={session.user?.image}
                         groups={groups}
+                        actionSlot={<NotificationBell viewport="desktop" requestsHref="/satis/onaylar" />}
                     />
                 </div>
 

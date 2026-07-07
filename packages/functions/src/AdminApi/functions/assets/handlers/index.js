@@ -1,5 +1,0 @@
-export * from "./createAssetHandler";
-export * from "./deleteAssetHandler";
-export * from "./getAssetHandler";
-export * from "./listAssetsHandler";
-export * from "./updateAssetHandler";

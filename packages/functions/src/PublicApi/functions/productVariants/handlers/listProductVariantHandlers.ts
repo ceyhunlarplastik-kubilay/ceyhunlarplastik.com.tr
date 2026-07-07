@@ -1,6 +1,6 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { IProductVariantDependencies, IListProductVariantsEvent } from "@/functions/AdminApi/types/productVariants"
+import { IProductVariantDependencies, IListProductVariantsEvent } from "@/functions/PublicApi/types/productVariants"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 
 const ALLOWED_SORT_FIELDS = ["fullCode", "name", "createdAt"] as const

@@ -1,7 +1,0 @@
-export * from "./listProductsHandler";
-export * from "./createProductHandler";
-export * from "./getProductHandler";
-export * from "./getProductBySlugHandler";
-export * from "./updateProductHandler";
-export * from "./deleteProductHandler";
-export * from "./createProductAssetUploadHandler";

@@ -169,6 +169,7 @@ type Props = {
     email?: string | null
     image?: string | null
     groups?: string[]
+    mobileActionSlot?: React.ReactNode
 }
 
 export function AdminSidebar({
@@ -176,6 +177,7 @@ export function AdminSidebar({
     email,
     image,
     groups = [],
+    mobileActionSlot,
 }: Props) {
     const [collapsed, setCollapsed] = useState(false)
     const [mobileOpen, setMobileOpen] = useState(false)
@@ -201,12 +203,15 @@ export function AdminSidebar({
                     </div>
                 </div>
 
-                <AdminUserMenu
-                    name={name}
-                    email={email}
-                    image={image}
-                    groups={groups}
-                />
+                <div className="flex items-center gap-2">
+                    {mobileActionSlot}
+                    <AdminUserMenu
+                        name={name}
+                        email={email}
+                        image={image}
+                        groups={groups}
+                    />
+                </div>
             </div>
 
             {/* MOBILE DRAWER */}

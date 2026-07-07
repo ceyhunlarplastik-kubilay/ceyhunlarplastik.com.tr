@@ -1,4 +1,5 @@
 import config from "../config"
+import { userPool, userPoolClient } from "./cognito"
 import { rds, vpc } from "./db"
 
 const folderPrefix = "packages/functions/src/UserAccessLifecycle/functions"
@@ -17,7 +18,10 @@ export const userAccessRealtime = new sst.aws.Realtime("UserAccessRealtime", {
         vpc,
         link: [rds],
         environment: {
+            COGNITO_CLIENT_ID: userPoolClient.id,
+            COGNITO_USER_POOL_ID: userPool.id,
             USER_ACCESS_REALTIME_TOPIC_PREFIX: `${$app.name}/${$app.stage}/users`,
+            USER_NOTIFICATION_REALTIME_TOPIC_PREFIX: `${$app.name}/${$app.stage}/notifications/users`,
         },
     },
 })

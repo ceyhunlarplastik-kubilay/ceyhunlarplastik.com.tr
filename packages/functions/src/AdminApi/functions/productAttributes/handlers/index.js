@@ -1,6 +1,0 @@
-export * from "./listProductAttributes";
-export * from "./listAttributesWithValues";
-export * from "./getProductAttribute";
-export * from "./createProductAttribute";
-export * from "./updateProductAttribute";
-export * from "./deleteProductAttribute";

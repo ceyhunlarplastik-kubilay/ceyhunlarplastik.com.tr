@@ -9,13 +9,6 @@ export const vpc = new sst.aws.Vpc("MyVpc", {
       instance: "t4g.small", // prod için biraz daha güçlü bir instance
     },
   },
-  /* nat: isProd
-  ? "managed"
-  : {
-    ec2: {
-      instance: "t4g.micro",
-    },
-  }, */
   bastion: true,
 });
 

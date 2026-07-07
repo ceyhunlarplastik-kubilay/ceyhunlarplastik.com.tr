@@ -1,5 +1,0 @@
-export * from "./createMeasurementTypeHandler";
-export * from "./deleteMeasurementTypeHandler";
-export * from "./getMeasurementTypeHandler";
-export * from "./listMeasurementTypesHandler";
-export * from "./updateMeasurementTypeHandler";

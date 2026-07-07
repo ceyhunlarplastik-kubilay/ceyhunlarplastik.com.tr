@@ -48,6 +48,7 @@ type Props = {
     email?: string | null
     image?: string | null
     groups?: string[]
+    mobileActionSlot?: React.ReactNode
 }
 
 function WorkspaceNavItem({
@@ -102,6 +103,7 @@ export function RoleWorkspaceSidebar({
     email,
     image,
     groups = [],
+    mobileActionSlot,
 }: Props) {
     const [collapsed, setCollapsed] = useState(false)
     const [mobileOpen, setMobileOpen] = useState(false)
@@ -126,12 +128,15 @@ export function RoleWorkspaceSidebar({
                     </div>
                 </div>
 
-                <AdminUserMenu
-                    name={name}
-                    email={email}
-                    image={image}
-                    groups={groups}
-                />
+                <div className="flex items-center gap-2">
+                    {mobileActionSlot}
+                    <AdminUserMenu
+                        name={name}
+                        email={email}
+                        image={image}
+                        groups={groups}
+                    />
+                </div>
             </div>
 
             <AnimatePresence>

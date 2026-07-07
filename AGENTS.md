@@ -371,6 +371,7 @@ For approval and async workflows:
 - keep orchestration in Step Functions/EventBridge-aware modules
 - keep domain updates in shared helpers or handlers
 - avoid coupling business truth to transient UI polling behavior
+- for AWS IoT/SST Realtime topics, always prefix with app and stage, authorize subscribe access per user topic, and keep browser clients publish-denied unless a feature explicitly requires client publishing
 
 For user access lifecycle and notifications:
 - prefer `Bus + Realtime + SES` style fan-out for role/access change notifications

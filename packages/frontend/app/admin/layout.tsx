@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { AdminTopbar } from "@/components/admin/AdminTopbar"
+import { NotificationBell } from "@/features/notifications/components/NotificationBell"
 
 export default async function AdminLayout({
     children,
@@ -27,6 +28,7 @@ export default async function AdminLayout({
                 email={session.user?.email}
                 image={session.user?.image}
                 groups={groups}
+                mobileActionSlot={<NotificationBell viewport="mobile" requestsHref="/admin/onaylar" />}
             />
 
             <div className="flex-1 flex flex-col min-w-0">
@@ -38,6 +40,7 @@ export default async function AdminLayout({
                         email={session.user?.email}
                         image={session.user?.image}
                         groups={groups}
+                        actionSlot={<NotificationBell viewport="desktop" requestsHref="/admin/onaylar" />}
                     />
                 </div>
 

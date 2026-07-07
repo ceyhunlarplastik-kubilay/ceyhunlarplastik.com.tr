@@ -1,5 +1,6 @@
 import config from "../config"
 import { rds, vpc } from "./db"
+import { userAccessRealtime } from "./userAccessLifecycle"
 
 const workflowFolderPrefix = "packages/functions/src/BusinessWorkflow/functions"
 type Jsonata = `{% ${string} %}`
@@ -343,6 +344,23 @@ businessWorkflowBus.subscribe("PersistBusinessRequestNotification", {
     runtime: "nodejs22.x",
     vpc,
     link: [rds],
+}, {
+    pattern: businessWorkflowEventPattern,
+})
+
+businessWorkflowBus.subscribe("PublishBusinessRequestRealtime", {
+    handler: `${workflowFolderPrefix}/publishBusinessRequestRealtime.handler`,
+    runtime: "nodejs22.x",
+    link: [userAccessRealtime],
+    environment: {
+        BUSINESS_WORKFLOW_REALTIME_TOPIC_PREFIX: `${$app.name}/${$app.stage}/notifications/users`,
+    },
+    permissions: [
+        {
+            actions: ["iot:Publish"],
+            resources: ["*"],
+        },
+    ],
 }, {
     pattern: businessWorkflowEventPattern,
 })

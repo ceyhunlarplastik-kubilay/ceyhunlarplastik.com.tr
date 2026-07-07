@@ -2,6 +2,7 @@ import { prisma } from "@/core/db/prisma"
 import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
+import type { Prisma } from "@/prisma/generated/prisma/client"
 
 export type UserNotificationType =
     | "ACCESS_STATUS_CHANGED"
@@ -72,7 +73,7 @@ export const userNotificationRepository = (): IUserNotificationRepository => {
             type: input.type,
             title: input.title,
             message: input.message,
-            data: input.data ?? undefined,
+            data: input.data ? input.data as Prisma.InputJsonValue : undefined,
         },
     })
 

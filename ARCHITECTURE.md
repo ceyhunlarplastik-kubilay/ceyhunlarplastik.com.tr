@@ -25,6 +25,7 @@ At runtime, the system is primarily composed of:
 - PostgreSQL on RDS
 - S3 for public assets
 - EventBridge + Step Functions for human approval workflow orchestration
+- SST Realtime / AWS IoT for browser-visible realtime notification delivery
 - domain-level event buses for access lifecycle and business request workflows
 
 ## Monorepo Boundaries
@@ -373,7 +374,8 @@ Supplier-specific usage rules:
 - Supplier review chains can have multiple assigned purchasing users. Any assigned purchasing user may approve the purchasing step.
 - Review UIs should keep the diff-first presentation style by comparing `currentSnapshot` and `requestedData`.
   `business-request.completed`
-- EventBridge subscribers persist activity logs, user notifications, and workflow emails.
+- EventBridge subscribers persist activity logs, user notifications, workflow emails, and realtime notification messages.
+- Browser realtime topics must be namespaced by app and stage because AWS IoT is shared across apps/stages in an account. The user notification topic shape is `${appName}/${stage}/notifications/users/${dbUserId}`.
 
 Customer-specific request UX rules:
 - `CUSTOMER_ORDER_REQUEST` may use a checkout-style stacked draft preview above its form because line-item verification is the primary task
@@ -586,6 +588,11 @@ User-facing notification persistence uses `UserNotification`:
 - `ACCESS_STATUS_CHANGED`
 - `ROLE_CHANGED`
 - `ASSIGNMENT_CHANGED`
+- `REQUEST_CREATED`
+- `APPROVAL_REQUIRED`
+- `REQUEST_DECIDED`
+
+Business request workflow notifications use the same target resolution for persistence and realtime delivery. `business-request.pending-approval` targets the active approval owner/group, and customer order requests also fan out observer notifications to active admin/owner users for immediate admin visibility.
 
 ### User access events
 Role or access changes are modeled as a synchronous update plus asynchronous fan-out:

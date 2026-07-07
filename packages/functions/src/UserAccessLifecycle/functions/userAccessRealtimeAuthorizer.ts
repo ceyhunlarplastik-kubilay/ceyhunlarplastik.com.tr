@@ -1,45 +1,65 @@
 import { userRepository } from "@/core/helpers/prisma/users/repository"
+import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { realtime } from "sst/aws/realtime"
 
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
-    try {
-        const parts = token.split(".")
-        if (parts.length < 2) return null
+let verifier: ReturnType<typeof CognitoJwtVerifier.create> | null = null
 
-        const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/")
-        const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4)
-        const decoded = Buffer.from(padded, "base64").toString("utf-8")
+function emptyAuthResult() {
+    return { subscribe: [], publish: [] }
+}
 
-        return JSON.parse(decoded) as Record<string, unknown>
-    } catch {
-        return null
-    }
+function getVerifier() {
+    if (verifier) return verifier
+
+    const userPoolId = process.env.COGNITO_USER_POOL_ID
+    const clientId = process.env.COGNITO_CLIENT_ID
+    if (!userPoolId || !clientId) return null
+
+    verifier = CognitoJwtVerifier.create({
+        userPoolId,
+        tokenUse: "id",
+        clientId,
+    })
+
+    return verifier
 }
 
 export const handler = realtime.authorizer(async (token) => {
     if (!token) {
-        return { subscribe: [], publish: [] }
+        return emptyAuthResult()
     }
 
-    const payload = decodeJwtPayload(token)
-    const sub = typeof payload?.sub === "string" ? payload.sub : null
-
-    if (!sub) {
-        return { subscribe: [], publish: [] }
+    const tokenVerifier = getVerifier()
+    if (!tokenVerifier) {
+        return emptyAuthResult()
     }
 
-    const user = await userRepository().getUserByCognitoSub(sub)
-    if (!user || !user.isActive) {
-        return { subscribe: [], publish: [] }
-    }
+    try {
+        const payload = await tokenVerifier.verify(token)
+        const sub = typeof payload.sub === "string" ? payload.sub : null
 
-    const topicPrefix = process.env.USER_ACCESS_REALTIME_TOPIC_PREFIX
-    if (!topicPrefix) {
-        return { subscribe: [], publish: [] }
-    }
+        if (!sub) {
+            return emptyAuthResult()
+        }
 
-    return {
-        subscribe: [`${topicPrefix}/${sub}/access`],
-        publish: [],
+        const user = await userRepository().getUserByCognitoSub(sub)
+        if (!user || !user.isActive) {
+            return emptyAuthResult()
+        }
+
+        const accessTopicPrefix = process.env.USER_ACCESS_REALTIME_TOPIC_PREFIX
+        const notificationTopicPrefix = process.env.USER_NOTIFICATION_REALTIME_TOPIC_PREFIX
+        const subscribe = [
+            ...(accessTopicPrefix ? [`${accessTopicPrefix}/${sub}/access`] : []),
+            ...(notificationTopicPrefix ? [`${notificationTopicPrefix}/${user.id}`] : []),
+        ]
+
+        return {
+            subscribe,
+            publish: [],
+        }
+    } catch (error) {
+        console.error("Realtime authorizer rejected token", error)
+        return emptyAuthResult()
     }
 })

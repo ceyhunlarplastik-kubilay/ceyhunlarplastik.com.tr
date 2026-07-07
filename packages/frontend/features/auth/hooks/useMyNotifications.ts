@@ -4,14 +4,25 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getMyNotifications } from "@/features/auth/api/getMyNotifications"
 import { markMyNotificationRead } from "@/features/auth/api/markMyNotificationRead"
 
-export function useMyNotifications() {
+type UseMyNotificationsOptions = {
+    enabled?: boolean
+    refetchInterval?: number | false
+    refetchIntervalInBackground?: boolean
+}
+
+export function useMyNotifications({
+    enabled = true,
+    refetchInterval = 5000,
+    refetchIntervalInBackground = true,
+}: UseMyNotificationsOptions = {}) {
     return useQuery({
         queryKey: ["my-notifications"],
         queryFn: getMyNotifications,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,
-        refetchInterval: 5000,
-        refetchIntervalInBackground: true,
+        refetchInterval,
+        refetchIntervalInBackground,
+        enabled,
     })
 }
 
