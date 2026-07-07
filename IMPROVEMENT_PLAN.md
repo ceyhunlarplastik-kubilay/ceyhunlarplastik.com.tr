@@ -59,10 +59,10 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - Neden: Soft-delete edilmiş supplier, `findUnique` üzerinden admin/portal yüzeylerine sızabilir.
 - Uygulama notları: Envanter tek çağrı noktası buldu ([suppliers/repository.ts:87](packages/core/src/core/helpers/prisma/suppliers/repository.ts)) ve restore/reactivate akışı olmadığı doğrulandı — davranış değişikliği güvenli. Uygulamada **aynı sınıftan yeni bir bug daha bulundu ve kapatıldı**: `OrThrow` varyantları ayrı Prisma operasyonlarıdır ve override edilmemişlerdi; [colors/repository.ts:80](packages/core/src/core/helpers/prisma/colors/repository.ts) `findUniqueOrThrow` kullandığı için **silinmiş renkler de id ile okunabiliyordu**. Eklenen override'lar: supplier'a `findUnique`/`findUniqueOrThrow`/`findFirstOrThrow`/`deleteMany`, color'a `findUniqueOrThrow`/`findFirstOrThrow`. Davranış: silinmiş kayıt artık var olmayan id ile aynı yolu izler (`null` / P2025) — yeni hata modu yok. Kubi lokal DB'de 6 senaryoluk davranış scripti ile doğrulandı (6/6 PASS). Ders: soft-delete extension'ı operasyon-bazlı sayım yapar; yeni bir read operasyonu (`aggregate`, `groupBy` vb.) kullanılacaksa override kapsamı kontrol edilmeli.
 
-**P0.5 — Prod alarmlarını bildirime bağla** · kapsam: küçük
+**P0.5 — Prod alarmlarını bildirime bağla** · kapsam: küçük · **✅ Uygulandı (2026-07-07, prod'a deploy bekliyor)**
 - Ne: SNS topic + e-posta aboneliği; [observability.ts](infra/observability.ts) alarmlarında `actionsEnabled: true` + `alarmActions`.
 - Neden: Şu an prod'da Lambda concurrency tükenmesi veya frontend throttle olsa kimse haber almaz.
-- Etki: yalnız **infra**. `prod` stage korumalı — CLAUDE.md gereği uygulamadan önce plan sunulmalı.
+- Uygulama notları: `ceyhunlarweb-prod-alarms` SNS topic'i + `kubilayuysal.ceyhunlarplastik@gmail.com` e-posta aboneliği eklendi; 8 alarmın tamamında (`account concurrency` 1, frontend server 2, public ürün route'ları 6) `actionsEnabled: true` + `alarmActions` + `okActions` (düzelme bildirimi dahil). Kaynaklar yalnız prod'da yaratılır. **Prod deploy sonrası zorunlu adım:** AWS'den gelen "Subscription Confirmation" mailindeki linke tıklanmalı — tıklanmazsa bildirim gitmez ve istek 3 günde düşer. Opsiyonel uçtan uca test (deploy + onay sonrası): `aws cloudwatch set-alarm-state --alarm-name ceyhunlarweb-prod-frontend-server-lambda-throttles --state-value ALARM --state-reason "test"` → e-posta gelmeli; alarm bir sonraki değerlendirmede kendiliğinden OK'e döner ve OK maili de gelir.
 
 ### P1 — Sağlamlaştırma
 

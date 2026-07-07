@@ -15,7 +15,30 @@ function parsePositiveIntegerEnv(name: string, fallback: number) {
 
 const isProd = $app.stage === "prod";
 
+// Alarm bildirimleri bu adrese gider. SNS email aboneliği deploy sonrası
+// e-postadaki onay linkine tıklanana kadar Pending kalır ve bildirim GÖNDERMEZ.
+const ALARM_EMAIL = "kubilayuysal.ceyhunlarplastik@gmail.com";
+
 if (isProd) {
+    const alarmTopic = new aws.sns.Topic("ProdAlarmTopic", {
+        name: "ceyhunlarweb-prod-alarms",
+        tags: {
+            app: "ceyhunlarweb",
+            stage: "prod",
+            concern: "alarms",
+        },
+    });
+
+    new aws.sns.TopicSubscription("ProdAlarmEmailSubscription", {
+        topic: alarmTopic.arn,
+        protocol: "email",
+        endpoint: ALARM_EMAIL,
+    });
+
+    // Hem alarma geçişte hem düzelmede (OK) bildirim gönderilir; böylece
+    // "sorun geçti mi?" sorusu için konsola bakmak gerekmez.
+    const alarmActionArns = [alarmTopic.arn];
+
     const accountConcurrencyThreshold = parsePositiveIntegerEnv(
         "LAMBDA_ACCOUNT_CONCURRENCY_ALARM_THRESHOLD",
         8,
@@ -34,7 +57,9 @@ if (isProd) {
         threshold: accountConcurrencyThreshold,
         comparisonOperator: "GreaterThanOrEqualToThreshold",
         treatMissingData: "notBreaching",
-        actionsEnabled: false,
+        actionsEnabled: true,
+        alarmActions: alarmActionArns,
+        okActions: alarmActionArns,
         tags: {
             app: "ceyhunlarweb",
             stage: "prod",
@@ -61,7 +86,9 @@ if (isProd) {
             threshold: 0,
             comparisonOperator: "GreaterThanThreshold",
             treatMissingData: "notBreaching",
-            actionsEnabled: false,
+            actionsEnabled: true,
+            alarmActions: alarmActionArns,
+            okActions: alarmActionArns,
             tags: {
                 app: "ceyhunlarweb",
                 stage: "prod",
@@ -85,7 +112,9 @@ if (isProd) {
             threshold: 10000,
             comparisonOperator: "GreaterThanThreshold",
             treatMissingData: "notBreaching",
-            actionsEnabled: false,
+            actionsEnabled: true,
+            alarmActions: alarmActionArns,
+            okActions: alarmActionArns,
             tags: {
                 app: "ceyhunlarweb",
                 stage: "prod",
@@ -129,7 +158,9 @@ if (isProd) {
             threshold: 0,
             comparisonOperator: "GreaterThanThreshold",
             treatMissingData: "notBreaching",
-            actionsEnabled: false,
+            actionsEnabled: true,
+            alarmActions: alarmActionArns,
+            okActions: alarmActionArns,
             tags: {
                 app: "ceyhunlarweb",
                 stage: "prod",
@@ -153,7 +184,9 @@ if (isProd) {
             threshold: 5000,
             comparisonOperator: "GreaterThanThreshold",
             treatMissingData: "notBreaching",
-            actionsEnabled: false,
+            actionsEnabled: true,
+            alarmActions: alarmActionArns,
+            okActions: alarmActionArns,
             tags: {
                 app: "ceyhunlarweb",
                 stage: "prod",
