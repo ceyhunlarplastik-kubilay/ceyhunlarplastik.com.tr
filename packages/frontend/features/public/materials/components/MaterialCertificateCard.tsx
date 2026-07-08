@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { GlowCard } from "@/components/ui/spotlight-card"
@@ -19,6 +20,7 @@ type Props = {
 }
 
 export function MaterialCertificateCard({ title, subtitle, certificate }: Props) {
+    const t = useTranslations("public.materials")
     return (
         <article className="h-full min-w-0">
             <GlowCard customSize className="group w-full min-w-0 overflow-hidden p-4 md:p-5">
@@ -50,7 +52,7 @@ export function MaterialCertificateCard({ title, subtitle, certificate }: Props)
                         <Button variant="outline" className="w-full text-sm font-medium" asChild>
                             <a href={certificate.url} download>
                                 <Download className="mr-2 h-4 w-4" />
-                                İndir
+                                {t("download")}
                             </a>
                         </Button>
                     </div>

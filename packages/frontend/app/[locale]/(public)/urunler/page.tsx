@@ -1,30 +1,54 @@
 import type { Metadata } from "next"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 import { getCategories } from "@/features/public/categories/server/getCategories"
 
 import { PageHero } from "@/components/sections/PageHero"
 import { CategoryCard } from "@/components/navigation/CategoryCard"
 
-export const metadata: Metadata = {
-    title: "Ürün Kategorileri | Ceyhunlar Plastik",
-    description:
-        "Ceyhunlar Plastik ürün kategorilerini inceleyin. Bakalit tutamaklar, plastik ürünler ve daha fazlası.",
-    alternates: {
-        canonical: "https://ceyhunlarplastik.com.tr/urunler",
-    },
+type PageProps = {
+    params: Promise<{ locale: string }>
 }
 
-export default async function ProductsPage() {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { locale } = await params
+    const t = await getTranslations({ locale, namespace: "public.products.meta" })
 
-    const categories = await getCategories()
+    return {
+        title: t("title"),
+        description: t("description"),
+        alternates: {
+            canonical: locale === "tr" ? "/urunler" : "/en/urunler",
+            languages: {
+                tr: "/urunler",
+                en: "/en/urunler",
+                "x-default": "/urunler",
+            },
+        },
+        openGraph: {
+            type: "website",
+            locale: locale === "tr" ? "tr_TR" : "en_US",
+        },
+    }
+}
+
+export default async function ProductsPage({ params }: PageProps) {
+    const { locale } = await params
+    setRequestLocale(locale)
+
+    const [t, tb, categories] = await Promise.all([
+        getTranslations({ locale, namespace: "public.products" }),
+        getTranslations({ locale, namespace: "shared.breadcrumbs" }),
+        getCategories(),
+    ])
 
     return (
         <main>
 
             <PageHero
-                title="Ürün Kategorileri"
+                title={t("heroTitle")}
                 breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Ürün Kategorileri" }
+                    { label: tb("home"), href: "/" },
+                    { label: t("breadcrumbSelf") }
                 ]}
             />
 
@@ -32,7 +56,7 @@ export default async function ProductsPage() {
 
                 {categories.length === 0 && (
                     <div className="text-center text-muted-foreground">
-                        Ürün kategorisi bulunamadı.
+                        {t("empty")}
                     </div>
                 )}
 

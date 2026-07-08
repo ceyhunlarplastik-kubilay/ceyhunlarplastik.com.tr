@@ -296,6 +296,54 @@
                 "imageAlt3": "Enerji üretimi"
             }
         },
+        "products": {
+            "meta": {
+                "title": "Ürün Kategorileri",
+                "description": "Ceyhunlar Plastik ürün kategorilerini inceleyin. Bakalit tutamaklar, plastik ürünler ve daha fazlası."
+            },
+            "heroTitle": "Ürün Kategorileri",
+            "breadcrumbSelf": "Ürün Kategorileri",
+            "empty": "Ürün kategorisi bulunamadı."
+        },
+        "materials": {
+            "meta": {
+                "title": "Ham Madde Sertifikaları",
+                "description": "Ceyhunlar Plastik ham madde sertifikalarını inceleyin ve PDF olarak indirin."
+            },
+            "heroTitle": "Ham Madde Sertifikaları",
+            "breadcrumbSelf": "Ham Madde Sertifikaları",
+            "empty": "Yayında ham madde sertifikası bulunmuyor.",
+            "certificateSuffix": "Sertifika {number}",
+            "download": "İndir"
+        },
+        "cart": {
+            "meta": {
+                "title": "Talep Sepeti",
+                "description": "Seçtiğiniz ürün varyantları için talep sepetiniz."
+            },
+            "heroTitle": "Talep Sepeti",
+            "breadcrumbSelf": "Talep Sepeti",
+            "title": "Talep Sepeti",
+            "subtitle": "Seçtiğiniz varyantlar burada listelenir. İletişim bilgilerinizi doldurup talep gönderebilirsiniz.",
+            "itemsLabel": "Sepetteki Ürünler",
+            "itemCount": "{count} ürün",
+            "emptyText": "Sepetiniz boş.",
+            "emptyLink": "Ürünleri inceleyin",
+            "codeLabel": "Kod:",
+            "variantLabel": "Varyant:",
+            "quantityLabel": "Adet:",
+            "removeAria": "Ürünü sepetten kaldır",
+            "formTitle": "Talep Formu",
+            "formSubtitle": "Formu doldurup talebinizi iletin.",
+            "fields": {
+                "name": "Ad Soyad",
+                "email": "E-posta",
+                "phone": "Telefon (opsiyonel)",
+                "message": "Ek not (opsiyonel)"
+            },
+            "submit": "Talebi Gönder",
+            "submitting": "Gönderiliyor..."
+        },
         "catalog": {
             "meta": {
                 "title": "Kataloglar",

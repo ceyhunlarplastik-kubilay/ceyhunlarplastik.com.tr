@@ -296,6 +296,54 @@
                 "imageAlt3": "Energy production"
             }
         },
+        "products": {
+            "meta": {
+                "title": "Product Categories",
+                "description": "Browse Ceyhunlar Plastik product categories. Bakelite handles, plastic products and more."
+            },
+            "heroTitle": "Product Categories",
+            "breadcrumbSelf": "Product Categories",
+            "empty": "No product categories found."
+        },
+        "materials": {
+            "meta": {
+                "title": "Raw Material Certificates",
+                "description": "Browse Ceyhunlar Plastik raw material certificates and download them as PDF."
+            },
+            "heroTitle": "Raw Material Certificates",
+            "breadcrumbSelf": "Raw Material Certificates",
+            "empty": "No raw material certificates are currently published.",
+            "certificateSuffix": "Certificate {number}",
+            "download": "Download"
+        },
+        "cart": {
+            "meta": {
+                "title": "Inquiry Cart",
+                "description": "Your inquiry cart for the product variants you selected."
+            },
+            "heroTitle": "Inquiry Cart",
+            "breadcrumbSelf": "Inquiry Cart",
+            "title": "Inquiry Cart",
+            "subtitle": "The variants you selected are listed here. Fill in your contact details and submit your inquiry.",
+            "itemsLabel": "Items in Cart",
+            "itemCount": "{count, plural, one {# product} other {# products}}",
+            "emptyText": "Your cart is empty.",
+            "emptyLink": "Browse products",
+            "codeLabel": "Code:",
+            "variantLabel": "Variant:",
+            "quantityLabel": "Quantity:",
+            "removeAria": "Remove item from cart",
+            "formTitle": "Inquiry Form",
+            "formSubtitle": "Fill out the form and send us your inquiry.",
+            "fields": {
+                "name": "Full Name",
+                "email": "Email",
+                "phone": "Phone (optional)",
+                "message": "Additional note (optional)"
+            },
+            "submit": "Send Inquiry",
+            "submitting": "Sending..."
+        },
         "catalog": {
             "meta": {
                 "title": "Catalogs",
