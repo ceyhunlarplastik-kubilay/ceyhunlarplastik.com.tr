@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { Play } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
     Dialog,
@@ -14,6 +15,7 @@ import {
 
 export default function AboutHero() {
     const [open, setOpen] = useState(false);
+    const t = useTranslations("public.about.hero");
 
     return (
         <section className="
@@ -27,7 +29,7 @@ export default function AboutHero() {
             <div className="absolute inset-0 -z-10">
                 <Image
                     src="/hakkimizda.jpg"
-                    alt="Ceyhunlar Plastik Hakkımızda"
+                    alt={t("imageAlt")}
                     fill
                     priority
                     className="object-cover scale-105"
@@ -48,10 +50,14 @@ export default function AboutHero() {
                     transition={{ duration: 0.6 }}
                     className="text-4xl md:text-6xl font-bold leading-tight"
                 >
-                    Özel Üretimde <br />
-                    <span className="text-[var(--color-brand)]">
-                        Güvenilir İş Ortağınız
-                    </span>
+                    {t.rich("title", {
+                        br: () => <br />,
+                        highlight: (chunks) => (
+                            <span className="text-[var(--color-brand)]">
+                                {chunks}
+                            </span>
+                        ),
+                    })}
                 </motion.h1>
 
                 {/* DESCRIPTION */}
@@ -61,9 +67,7 @@ export default function AboutHero() {
                     transition={{ duration: 0.6, delay: 0.15 }}
                     className="mt-6 max-w-2xl text-lg text-white/90"
                 >
-                    2001 yılından bu yana güçlü üretim altyapımız ve yenilikçi yaklaşımımız
-                    ile müşterilerimizin ihtiyaçlarını en yüksek kalite standartlarında
-                    karşılıyoruz.
+                    {t("description")}
                 </motion.p>
 
                 {/* VIDEO CTA */}
@@ -136,7 +140,7 @@ export default function AboutHero() {
                         <DialogContent className="max-w-4xl p-0 overflow-hidden">
                             {/* REQUIRED FOR ACCESSIBILITY */}
                             <DialogTitle className="sr-only">
-                                Tanıtım Videosu
+                                {t("videoDialogTitle")}
                             </DialogTitle>
 
                             <div className="aspect-video w-full">
@@ -144,7 +148,7 @@ export default function AboutHero() {
                                     <iframe
                                         className="w-full h-full"
                                         src="https://www.youtube.com/embed/42mrTRiExjs?autoplay=1"
-                                        title="Ceyhunlar Tanıtım"
+                                        title={t("videoIframeTitle")}
                                         allow="autoplay; encrypted-media"
                                         allowFullScreen
                                     />
@@ -155,7 +159,7 @@ export default function AboutHero() {
 
                     {/* TEXT */}
                     <span className="text-lg font-medium tracking-wide text-white/90">
-                        Tanıtım Videosu
+                        {t("videoCta")}
                     </span>
                 </motion.div>
             </div>

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 // metadataBase env'den gelir — domain geçici olarak ceyhunlarplastik.xyz olduğu
 // için hardcode edilmez (eskiden .com.tr hardcode'du ve OG/canonical yanlış
 // domain'e işaret ediyordu). NEXTAUTH_URL infra tarafından stage'e göre set edilir.
-const siteUrl =
+export const siteUrl =
     process.env.NEXTAUTH_URL ??
     (process.env.DOMAIN && process.env.DOMAIN !== "DOMAIN"
         ? `https://${process.env.DOMAIN}`

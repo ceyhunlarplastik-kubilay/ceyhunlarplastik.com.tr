@@ -1,5 +1,50 @@
 {
     "common": {
         "siteName": "Ceyhunlar Plastik"
+    },
+    "public": {
+        "about": {
+            "meta": {
+                "title": "About Us",
+                "description": "Detailed information about Ceyhunlar Plastik. Manufacturing, quality and trust since 2001.",
+                "ogDescription": "Learn more about Ceyhunlar Plastik.",
+                "ogImageAlt": "Ceyhunlar Plastik"
+            },
+            "hero": {
+                "imageAlt": "About Ceyhunlar Plastik",
+                "title": "In Custom Manufacturing<br></br><highlight>Your Trusted Business Partner</highlight>",
+                "description": "Since 2001, we have been meeting our customers’ needs at the highest quality standards with our strong production infrastructure and innovative approach.",
+                "videoDialogTitle": "Introduction Video",
+                "videoIframeTitle": "Ceyhunlar Introduction",
+                "videoCta": "Introduction Video"
+            },
+            "content": {
+                "title": "About Us",
+                "intro": "As Ceyhunlar Plastik Sanayii, we laid our foundations in İzmir and have grown into a strong manufacturer serving customers worldwide.",
+                "reach": "With more than 850 dealers and over 12,000 customers, we operate in more than 40 countries, primarily Türkiye. Our products are used in furniture, automotive, medical, defense, construction and many other industries.",
+                "capabilities": "Thanks to our advanced production technologies and continuously expanding product range, we deliver fast, high-quality and reliable solutions for our customers’ needs.",
+                "rnd": "With our R&D investments, environmentally conscious production approach and high quality standards, we continue to make a difference in the industry.",
+                "mission": "Our goal is to deliver sustainable and innovative solutions while keeping customer satisfaction at the highest level.",
+                "productionImageAlt": "Ceyhunlar Plastik Production"
+            },
+            "categories": {
+                "title": "Our Product Groups",
+                "searchPlaceholder": "Search categories...",
+                "noResults": "No results found"
+            },
+            "details": {
+                "developmentImageAlt": "Production",
+                "devIntro": "Since the day we started serving our customers, we have closely followed evolving technology and industry trends to keep improving — and we continue to do so.",
+                "devInitiatives": "In line with this, we have also taken initiatives to meet the needs of today’s commerce.",
+                "devRnd3d": "To meet customer needs in the most accurate way, we increased our R&D investments. In this process we also benefited from 3D technology, and in 2018 we launched our R&D and 3D unit.",
+                "devEndToEnd": "As a company that handles 3D printing, planning, molding, mass production, assembly, packaging and shipping entirely in-house, we have succeeded in meeting our customers’ needs.",
+                "devClosing": "At Ceyhunlar Plastik, we bring your ideas to life.",
+                "mottoImageAlt": "Motto",
+                "mottoTitle": "Your <highlight>Leading</highlight> Solution Partner for Plastic Needs!",
+                "mottoQuote": "“With High Standards of Quality and Trust…”",
+                "mottoBody1": "The heart and soul of a company is creativity and innovation. But without determination and passion for the work, success is not possible.",
+                "mottoBody2": "At Ceyhunlar Plastik, we have been crowning our passion for our work with determination since day one."
+            }
+        }
     }
 }

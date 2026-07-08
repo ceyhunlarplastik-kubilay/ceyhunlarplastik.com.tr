@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+// next/link yerine locale-aware Link: EN sayfadan tıklanan kategori /en altında kalır.
+import { Link } from "@/i18n/navigation";
 import type { Category } from "@/features/public/categories/types";
 
 export default function AboutCategoriesClient({
@@ -11,6 +13,7 @@ export default function AboutCategoriesClient({
     categories: Category[];
 }) {
     const [query, setQuery] = useState("");
+    const t = useTranslations("public.about.categories");
 
     const filtered = categories.filter((c) =>
         c.name.toLowerCase().includes(query.toLowerCase())
@@ -33,11 +36,11 @@ export default function AboutCategoriesClient({
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <h2 className="text-3xl font-bold text-neutral-900">
-                        Ürün Gruplarımız
+                        {t("title")}
                     </h2>
 
                     <input
-                        placeholder="Kategori ara..."
+                        placeholder={t("searchPlaceholder")}
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         className="w-full md:w-80 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -94,7 +97,7 @@ export default function AboutCategoriesClient({
                 {/* EMPTY */}
                 {filtered.length === 0 && (
                     <div className="mt-16 text-center text-neutral-500">
-                        Sonuç bulunamadı
+                        {t("noResults")}
                     </div>
                 )}
             </div>

@@ -2,8 +2,12 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 export default function AboutContent() {
+    const t = useTranslations("public.about.content");
+    const tCommon = useTranslations("common");
+
     return (
         <section className="py-20 bg-white">
             <div className="mx-auto max-w-7xl px-6">
@@ -16,11 +20,11 @@ export default function AboutContent() {
                     transition={{ duration: 0.5 }}
                 >
                     <span className="text-sm font-semibold tracking-wider text-[var(--color-brand)] uppercase">
-                        Ceyhunlar Plastik
+                        {tCommon("siteName")}
                     </span>
 
                     <h2 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-900">
-                        Hakkımızda
+                        {t("title")}
                     </h2>
                 </motion.div>
 
@@ -42,8 +46,7 @@ export default function AboutContent() {
                         }}
                         className="text-lg font-medium text-neutral-900"
                     >
-                        Ceyhunlar Plastik Sanayii olarak temellerimizi İzmir’de attık ve
-                        bugün dünya çapında hizmet veren güçlü bir üretici konumuna ulaştık.
+                        {t("intro")}
                     </motion.p>
 
                     <motion.p
@@ -52,10 +55,7 @@ export default function AboutContent() {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        850’den fazla bayimiz ve 12.000’i aşkın müşterimiz ile Türkiye başta
-                        olmak üzere 40’tan fazla ülkede faaliyet gösteriyoruz. Ürünlerimiz;
-                        mobilya, otomotiv, medikal, savunma sanayi, inşaat ve daha birçok
-                        sektörde kullanılmaktadır.
+                        {t("reach")}
                     </motion.p>
 
                     <motion.p
@@ -64,9 +64,7 @@ export default function AboutContent() {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        Gelişmiş üretim teknolojilerimiz ve sürekli genişleyen ürün gamımız
-                        sayesinde müşterilerimizin ihtiyaçlarına hızlı, kaliteli ve güvenilir
-                        çözümler sunuyoruz.
+                        {t("capabilities")}
                     </motion.p>
 
                     <motion.p
@@ -75,8 +73,7 @@ export default function AboutContent() {
                             visible: { opacity: 1, y: 0 },
                         }}
                     >
-                        Ar-Ge yatırımlarımız, çevreye duyarlı üretim anlayışımız ve yüksek
-                        kalite standartlarımız ile sektörde fark yaratmaya devam ediyoruz.
+                        {t("rnd")}
                     </motion.p>
 
                     <motion.p
@@ -86,8 +83,7 @@ export default function AboutContent() {
                         }}
                         className="font-medium text-neutral-900"
                     >
-                        Amacımız; müşteri memnuniyetini en üst seviyede tutarak,
-                        sürdürülebilir ve yenilikçi çözümler üretmektir.
+                        {t("mission")}
                     </motion.p>
                 </motion.div>
 
@@ -101,7 +97,7 @@ export default function AboutContent() {
                 >
                     <Image
                         src="/logos/hakkimizda.jpg"
-                        alt="Ceyhunlar Plastik Üretim"
+                        alt={t("productionImageAlt")}
                         fill
                         className="object-cover"
                     />

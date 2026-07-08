@@ -1,5 +1,50 @@
 {
     "common": {
         "siteName": "Ceyhunlar Plastik"
+    },
+    "public": {
+        "about": {
+            "meta": {
+                "title": "Hakkımızda",
+                "description": "Ceyhunlar Plastik hakkında detaylı bilgi. 2001’den beri üretim, kalite ve güven.",
+                "ogDescription": "Ceyhunlar Plastik hakkında bilgi alın.",
+                "ogImageAlt": "Ceyhunlar Plastik"
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar Plastik Hakkımızda",
+                "title": "Özel Üretimde<br></br><highlight>Güvenilir İş Ortağınız</highlight>",
+                "description": "2001 yılından bu yana güçlü üretim altyapımız ve yenilikçi yaklaşımımız ile müşterilerimizin ihtiyaçlarını en yüksek kalite standartlarında karşılıyoruz.",
+                "videoDialogTitle": "Tanıtım Videosu",
+                "videoIframeTitle": "Ceyhunlar Tanıtım",
+                "videoCta": "Tanıtım Videosu"
+            },
+            "content": {
+                "title": "Hakkımızda",
+                "intro": "Ceyhunlar Plastik Sanayii olarak temellerimizi İzmir’de attık ve bugün dünya çapında hizmet veren güçlü bir üretici konumuna ulaştık.",
+                "reach": "850’den fazla bayimiz ve 12.000’i aşkın müşterimiz ile Türkiye başta olmak üzere 40’tan fazla ülkede faaliyet gösteriyoruz. Ürünlerimiz; mobilya, otomotiv, medikal, savunma sanayi, inşaat ve daha birçok sektörde kullanılmaktadır.",
+                "capabilities": "Gelişmiş üretim teknolojilerimiz ve sürekli genişleyen ürün gamımız sayesinde müşterilerimizin ihtiyaçlarına hızlı, kaliteli ve güvenilir çözümler sunuyoruz.",
+                "rnd": "Ar-Ge yatırımlarımız, çevreye duyarlı üretim anlayışımız ve yüksek kalite standartlarımız ile sektörde fark yaratmaya devam ediyoruz.",
+                "mission": "Amacımız; müşteri memnuniyetini en üst seviyede tutarak, sürdürülebilir ve yenilikçi çözümler üretmektir.",
+                "productionImageAlt": "Ceyhunlar Plastik Üretim"
+            },
+            "categories": {
+                "title": "Ürün Gruplarımız",
+                "searchPlaceholder": "Kategori ara...",
+                "noResults": "Sonuç bulunamadı"
+            },
+            "details": {
+                "developmentImageAlt": "Üretim",
+                "devIntro": "Hizmet vermeye başladığımız günden itibaren gelişen teknolojiyi ve sektörel trendleri yakından takip ederek gelişimimizi sürdürdük, sürdürmeye devam ediyoruz.",
+                "devInitiatives": "Bu doğrultuda günümüz ticaretinin ihtiyaçlarını karşılama amacıyla da girişimlerde bulunduk.",
+                "devRnd3d": "Müşteri ihtiyaçlarını en doğru şekilde karşılayabilmek adına Ar-Ge yatırımlarımızı artırdık. Bu süreçte Ar-Ge çalışmalarımızda 3D teknolojisinden de faydalandık. 2018 yılında Ar-Ge ve 3D birimimizi faaliyete geçirdik.",
+                "devEndToEnd": "Bununla birlikte 3D print, planlama, kalıplama, seri üretim, montaj, paketleme ve sevkiyat süreçlerinin tamamını bünyesinde bulunduran bir firma olarak; müşterilerimizin ihtiyaçlarını karşılamayı başardık.",
+                "devClosing": "Ceyhunlar Plastik olarak sizin düşündüklerinizi hayata geçiriyoruz.",
+                "mottoImageAlt": "Motto",
+                "mottoTitle": "Plastik İhtiyaçlarınızda <highlight>Lider</highlight> Çözüm Ortağınız!",
+                "mottoQuote": "“Yüksek Kalite ve Güven Standartlarıyla…”",
+                "mottoBody1": "Bir şirketin kalbi ve ruhu, yaratıcılık ve yeniliktir. Ancak azim ve işe duyulan sevgi olmadan başarıya ulaşmak mümkün değildir.",
+                "mottoBody2": "Ceyhunlar Plastik olarak yola çıktığımız ilk günden beri işimize olan tutkumuzu azimle taçlandırıyoruz."
+            }
+        }
     }
 }
