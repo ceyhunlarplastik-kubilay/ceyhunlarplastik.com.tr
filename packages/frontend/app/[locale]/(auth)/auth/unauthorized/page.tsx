@@ -1,27 +1,32 @@
 import { auth } from "@/lib/auth/auth"
+import { getTranslations } from "next-intl/server"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { UnauthorizedPageContent } from "@/features/auth/components/UnauthorizedPageContent"
 import { resolveAuthHome } from "@/features/auth/lib/navigation"
 
 export default async function UnauthorizedPage({
+    params,
     searchParams,
 }: {
+    params: Promise<{ locale: string }>
     searchParams: Promise<{ from?: string }>
 }) {
+    const { locale } = await params
     const session = await auth()
-    const params = await searchParams
+    const query = await searchParams
     const groups = session?.user?.groups ?? []
     const accessStatus = session?.user?.accessStatus ?? "ACTIVE"
+    const t = await getTranslations({ locale, namespace: "auth.unauthorized" })
 
     return (
         <AuthShell
-            eyebrow="Erişim Kontrolü"
-            title="Yetki yetersiz"
-            description="Talep ettiğiniz sayfa farklı bir rol veya çalışma alanı gerektiriyor."
-            sideTitle="Doğru panele yönlendirme"
-            sideDescription="Rol bazlı sistem koruması nedeniyle uygun olmayan alanlar kapatılır ve kullanıcı doğru hedefe yönlendirilir."
+            eyebrow={t("eyebrow")}
+            title={t("shellTitle")}
+            description=""
+            sideTitle={t("shellSideTitle")}
+            sideDescription=""
         >
-            <UnauthorizedPageContent homeHref={resolveAuthHome(groups, accessStatus)} from={params.from} />
+            <UnauthorizedPageContent homeHref={resolveAuthHome(groups, accessStatus)} from={query.from} />
         </AuthShell>
     )
 }

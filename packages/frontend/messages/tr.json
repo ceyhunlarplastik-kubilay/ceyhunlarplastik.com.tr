@@ -275,6 +275,42 @@
             "backToSignIn": "Giriş ekranına dön",
             "editEmail": "E-postayı düzenle"
         },
+        "awaiting": {
+            "eyebrow": "Ceyhunlar",
+            "shellTitle": "Yetkilendirme bekleniyor",
+            "shellSideTitle": "Hesabınız oluşturuldu",
+            "infoTitle": "Hesabınız oluşturuldu",
+            "infoDescription": "Yetkilendirme bekleniyor. Bir yönetici hesabınızı inceleyip uygun role ataması yaptıktan sonra erişim sağlayabileceksiniz. Durum: İnceleniyor.",
+            "emailNotice": "Bildirimler <strong>{email}</strong> adresine gönderilecektir.",
+            "backToSignIn": "Giriş ekranına dön",
+            "goHome": "Ana sayfaya git"
+        },
+        "unauthorized": {
+            "eyebrow": "Erişim Kontrolü",
+            "shellTitle": "Yetki yetersiz",
+            "shellSideTitle": "Doğru panele yönlendirme",
+            "infoTitle": "Bu alan için yetkiniz bulunmuyor",
+            "infoDescription": "İlgili sayfayı görüntülemek için gerekli role sahip değilsiniz. Uygun çalışma alanına veya ana sayfaya dönebilirsiniz.",
+            "requestedAreaLabel": "Talep edilen alan:",
+            "unknown": "Bilinmiyor",
+            "goToPanel": "Uygun Panele Git",
+            "goHome": "Ana Sayfaya Dön"
+        },
+        "signOut": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Oturumu kapat",
+            "shellSideTitle": "Güvenli çıkış akışı",
+            "description": "Çıkış yaptığınızda hem uygulama oturumunuz temizlenir hem de varsa Cognito refresh tokenınız iptal edilir. Ardından güvenli giriş ekranına dönersiniz.",
+            "submit": "Oturumu Kapat",
+            "cancel": "Vazgeç"
+        },
+        "errorPage": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Kimlik doğrulama hatası",
+            "shellSideTitle": "Hata olduğunda da kontrollü deneyim",
+            "backToSignIn": "Giriş Sayfasına Dön",
+            "goHome": "Ana Sayfaya Git"
+        },
         "validation": {
             "signIn": {
                 "emailInvalid": "Geçerli bir e-posta adresi girin.",

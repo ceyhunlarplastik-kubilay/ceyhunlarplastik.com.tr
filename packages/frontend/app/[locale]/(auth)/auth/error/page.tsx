@@ -1,22 +1,27 @@
+import { getTranslations } from "next-intl/server"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { AuthErrorPanel } from "@/features/auth/components/AuthErrorPanel"
 
 export default async function AuthErrorPage({
+    params,
     searchParams,
 }: {
+    params: Promise<{ locale: string }>
     searchParams: Promise<{ error?: string }>
 }) {
-    const params = await searchParams
+    const { locale } = await params
+    const query = await searchParams
+    const t = await getTranslations({ locale, namespace: "auth.errorPage" })
 
     return (
         <AuthShell
-            eyebrow="Ceyhunlar Plastik"
-            title="Kimlik doğrulama hatası"
-            description="Oturum açma veya yönlendirme sırasında bir sorun oluştu. Aşağıdan güvenli akışa geri dönebilirsiniz."
-            sideTitle="Hata olduğunda da kontrollü deneyim"
-            sideDescription="Varsayılan hata ekranı yerine, kullanıcıya ne olduğunu anlatan ve doğru aksiyona yönlendiren özel bir deneyim sunulur."
+            eyebrow={t("eyebrow")}
+            title={t("shellTitle")}
+            description=""
+            sideTitle={t("shellSideTitle")}
+            sideDescription=""
         >
-            <AuthErrorPanel error={params.error} />
+            <AuthErrorPanel error={query.error} />
         </AuthShell>
     )
 }

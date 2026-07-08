@@ -10,6 +10,7 @@ type Props = {
 
 export async function AuthErrorPanel({ error }: Props) {
     const te = await getTranslations("auth.errors")
+    const t = await getTranslations("auth.errorPage")
     const key = resolveAuthErrorKey(error) ?? "Default"
     const message = { title: te(`${key}.title`), description: te(`${key}.description`) }
 
@@ -29,10 +30,10 @@ export async function AuthErrorPanel({ error }: Props) {
 
             <div className="flex flex-wrap gap-3">
                 <Button asChild variant="brand" size="lg" className="h-11 rounded-xl px-5">
-                    <Link href="/auth/signin">Giris Sayfasina Don</Link>
+                    <Link href="/auth/signin">{t("backToSignIn")}</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-11 rounded-xl px-5">
-                    <Link href="/">Ana Sayfaya Git</Link>
+                    <Link href="/">{t("goHome")}</Link>
                 </Button>
             </div>
         </div>

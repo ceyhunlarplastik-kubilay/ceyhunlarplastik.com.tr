@@ -275,6 +275,42 @@
             "backToSignIn": "Back to sign-in screen",
             "editEmail": "Edit email"
         },
+        "awaiting": {
+            "eyebrow": "Ceyhunlar",
+            "shellTitle": "Awaiting authorization",
+            "shellSideTitle": "Your account has been created",
+            "infoTitle": "Your account has been created",
+            "infoDescription": "Awaiting authorization. Once an administrator reviews your account and assigns an appropriate role, you will be able to access it. Status: Under review.",
+            "emailNotice": "Notifications will be sent to <strong>{email}</strong>.",
+            "backToSignIn": "Back to sign-in screen",
+            "goHome": "Go to homepage"
+        },
+        "unauthorized": {
+            "eyebrow": "Access Control",
+            "shellTitle": "Insufficient permission",
+            "shellSideTitle": "Redirecting to the right panel",
+            "infoTitle": "You do not have permission for this area",
+            "infoDescription": "You do not have the role required to view this page. You can return to the appropriate workspace or the homepage.",
+            "requestedAreaLabel": "Requested area:",
+            "unknown": "Unknown",
+            "goToPanel": "Go to Appropriate Panel",
+            "goHome": "Back to Homepage"
+        },
+        "signOut": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Sign out",
+            "shellSideTitle": "Secure sign-out flow",
+            "description": "When you sign out, both your application session is cleared and your Cognito refresh token, if any, is revoked. You are then returned to the secure sign-in screen.",
+            "submit": "Sign Out",
+            "cancel": "Cancel"
+        },
+        "errorPage": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Authentication error",
+            "shellSideTitle": "A controlled experience even when errors occur",
+            "backToSignIn": "Back to Sign-in Page",
+            "goHome": "Go to Homepage"
+        },
         "validation": {
             "signIn": {
                 "emailInvalid": "Enter a valid email address.",
