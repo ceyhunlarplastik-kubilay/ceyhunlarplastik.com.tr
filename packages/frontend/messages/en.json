@@ -152,6 +152,90 @@
             "paragraph": "Guided by our sensitivity and responsibility toward our environment, society and future, we use a nature-friendly production model and work for a sustainable world and a better future."
         }
     },
+    "auth": {
+        "shell": {
+            "secureAccess": "Secure access flow"
+        },
+        "errors": {
+            "Configuration": { "title": "Authentication configuration error", "description": "There is a problem with the system configuration. Please contact the technical team." },
+            "AccessDenied": { "title": "Access denied", "description": "You do not have permission to enter this workspace, or your access policy blocked entry." },
+            "Verification": { "title": "Verification link invalid", "description": "The verification link may have expired or already been used." },
+            "OAuthSignin": { "title": "Could not start sign-in flow", "description": "An error occurred while starting the Cognito session. Refresh the page and try again." },
+            "OAuthCallback": { "title": "Could not process sign-in response", "description": "The response from the identity provider could not be completed. Please try again." },
+            "Callback": { "title": "Authentication could not be completed", "description": "An unexpected error occurred during sign-in." },
+            "SessionRequired": { "title": "Session required", "description": "You need to sign in first to view this page." },
+            "INVALID_CREDENTIALS": { "title": "Incorrect sign-in details", "description": "Check your email address and password and try again." },
+            "USER_NOT_CONFIRMED": { "title": "Account not verified", "description": "You need to verify your account to continue. You can go to the verification code screen." },
+            "CODE_MISMATCH": { "title": "Code could not be verified", "description": "The verification code you entered is not valid. Check the code and try again." },
+            "EXPIRED_CODE": { "title": "Code has expired", "description": "The verification code appears to have expired. Request a new code and try again." },
+            "USERNAME_EXISTS": { "title": "This email is already registered", "description": "An account already exists for this address. You can sign in or use the password reset flow." },
+            "TOO_MANY_REQUESTS": { "title": "Too many attempts", "description": "Too many requests were sent in a short time. Please try again in a few minutes." },
+            "UNSUPPORTED_CHALLENGE": { "title": "Additional verification required", "description": "This account requires a security step not supported in the first version. Please contact the technical team." },
+            "WEAK_PASSWORD": { "title": "Password not strong enough", "description": "Choose a stronger password and try again." },
+            "PASSWORD_RESET_REQUIRED": { "title": "Password reset required", "description": "You need to complete the password reset process for this account first." },
+            "INVALID_PARAMETER": { "title": "Submitted information is invalid", "description": "Check the form fields and try again." },
+            "AUTH_SERVICE_UNAVAILABLE": { "title": "Cannot reach identity service", "description": "The sign-in infrastructure is temporarily unavailable. Please try again in a few minutes." },
+            "RefreshTokenError": { "title": "Session could not be renewed", "description": "Your session may have expired. Please sign in again." },
+            "UNKNOWN_AUTH_ERROR": { "title": "Authentication could not be completed", "description": "An unexpected problem occurred. Please try again." },
+            "Default": { "title": "Sign-in could not be completed", "description": "An unexpected problem occurred during authentication. Please try again." }
+        },
+        "signIn": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "title": "Sign in to the management panel",
+            "sideTitle": "Controlled access, single sign-on experience",
+            "badge": "Central Authentication",
+            "badgeDescription": "Sign-in, sign-up and password reset flows are managed within the application.",
+            "targetLabel": "Current target:",
+            "emailLabel": "Email",
+            "emailPlaceholder": "example@ceyhunlar.com",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Enter your password",
+            "submit": "Sign In",
+            "submitting": "Signing In...",
+            "forgotPassword": "Forgot Password",
+            "verifyAccount": "Verify My Account",
+            "createAccount": "Create a new account",
+            "goHome": "Go to homepage",
+            "notices": {
+                "confirmed": { "title": "Your account has been verified", "description": "You can now sign in with your email address and password." },
+                "passwordReset": { "title": "Your password has been updated", "description": "You can sign in with your new password." }
+            }
+        },
+        "signUp": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "title": "Create a new account",
+            "sideTitle": "Controlled registration for internal teams and partners",
+            "firstNameLabel": "First Name",
+            "firstNamePlaceholder": "Your first name",
+            "lastNameLabel": "Last Name",
+            "lastNamePlaceholder": "Your last name",
+            "emailLabel": "Email",
+            "emailPlaceholder": "example@ceyhunlar.com",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "At least 8 characters",
+            "confirmPasswordLabel": "Confirm Password",
+            "confirmPasswordPlaceholder": "Re-enter your password",
+            "submit": "Create Account",
+            "submitting": "Creating Account...",
+            "codeSentToast": "A verification code has been sent to your email address.",
+            "signInLink": "Sign in",
+            "goHome": "Go to homepage"
+        },
+        "validation": {
+            "signIn": {
+                "emailInvalid": "Enter a valid email address.",
+                "passwordRequired": "Enter your password."
+            },
+            "signUp": {
+                "firstNameMin": "First name must be at least 2 characters.",
+                "lastNameMin": "Last name must be at least 2 characters.",
+                "emailInvalid": "Enter a valid email address.",
+                "passwordMin": "Password must be at least 8 characters.",
+                "confirmPasswordRequired": "Re-enter your password.",
+                "passwordsMismatch": "Passwords do not match."
+            }
+        }
+    },
     "home": {
         "hero": {
             "words": ["R&D and Prototyping", "3D Printing and Scanning", "CNC Machining", "Mass Production"],

@@ -1,5 +1,6 @@
 import Image from "next/image"
 import type { ReactNode } from "react"
+import { useTranslations } from "next-intl"
 
 type Props = {
     eyebrow: string
@@ -16,6 +17,7 @@ export function AuthShell({
     sideTitle,
     children,
 }: Props) {
+    const t = useTranslations("auth.shell")
     return (
         <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_left,#f6f0e8,transparent_38%),linear-gradient(180deg,#fcfaf7_0%,#f6f4ef_100%)]">
             <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(15,23,42,0.025)_45%,transparent_100%)]" />
@@ -49,7 +51,7 @@ export function AuthShell({
                             </div>
 
                             <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-white/68">
-                                Güvenli erişim akışı
+                                {t("secureAccess")}
                             </div>
                         </div>
                         {/* Supporting auth context intentionally removed from the visible UI for simplicity:

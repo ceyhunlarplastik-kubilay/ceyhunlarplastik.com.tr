@@ -1,14 +1,17 @@
 import Link from "next/link"
+import { getTranslations } from "next-intl/server"
 import { AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { getAuthErrorMessage } from "@/features/auth/lib/errors"
+import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
 
 type Props = {
     error?: string
 }
 
-export function AuthErrorPanel({ error }: Props) {
-    const message = getAuthErrorMessage(error) ?? getAuthErrorMessage("Default")!
+export async function AuthErrorPanel({ error }: Props) {
+    const te = await getTranslations("auth.errors")
+    const key = resolveAuthErrorKey(error) ?? "Default"
+    const message = { title: te(`${key}.title`), description: te(`${key}.description`) }
 
     return (
         <div className="space-y-6">

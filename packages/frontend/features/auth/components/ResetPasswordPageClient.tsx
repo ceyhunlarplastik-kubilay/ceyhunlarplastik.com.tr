@@ -12,8 +12,9 @@ import { AuthApiClientError } from "@/features/auth/api/types"
 import { AuthField } from "@/features/auth/components/AuthField"
 import { AuthFeedbackMessage } from "@/features/auth/components/AuthFeedbackMessage"
 import { AuthOtpField } from "@/features/auth/components/AuthOtpField"
+import { useTranslations } from "next-intl"
 import { useConfirmForgotPassword } from "@/features/auth/hooks/useConfirmForgotPassword"
-import { getAuthErrorMessage } from "@/features/auth/lib/errors"
+import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
 import { resetPasswordSchema, type ResetPasswordFormValues } from "@/features/auth/schema/resetPassword"
 
 type Props = {
@@ -34,8 +35,10 @@ export function ResetPasswordPageClient({ callbackUrl, initialEmail }: Props) {
         },
     })
 
+    const te = useTranslations("auth.errors")
     const errorCode = mutation.error instanceof AuthApiClientError ? mutation.error.code : undefined
-    const errorMessage = getAuthErrorMessage(errorCode)
+    const errorKey = resolveAuthErrorKey(errorCode)
+    const errorMessage = errorKey ? { title: te(`${errorKey}.title`), description: te(`${errorKey}.description`) } : null
     const password = useWatch({ control: form.control, name: "password" })
     const confirmPassword = useWatch({ control: form.control, name: "confirmPassword" })
 

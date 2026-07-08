@@ -1,7 +1,9 @@
 "use client"
 
-import Link from "next/link"
+import { useMemo } from "react"
+import { Link } from "@/i18n/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
@@ -12,8 +14,8 @@ import { AuthApiClientError } from "@/features/auth/api/types"
 import { AuthField } from "@/features/auth/components/AuthField"
 import { AuthFeedbackMessage } from "@/features/auth/components/AuthFeedbackMessage"
 import { useAuthSignUp } from "@/features/auth/hooks/useAuthSignUp"
-import { getAuthErrorMessage } from "@/features/auth/lib/errors"
-import { signUpSchema, type SignUpFormValues } from "@/features/auth/schema/signUp"
+import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
+import { buildSignUpSchema, type SignUpFormValues } from "@/features/auth/schema/signUp"
 
 type Props = {
     callbackUrl: string
@@ -21,10 +23,13 @@ type Props = {
 }
 
 export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
+    const t = useTranslations("auth.signUp")
+    const te = useTranslations("auth.errors")
+    const tv = useTranslations("auth.validation.signUp")
     const router = useRouter()
     const mutation = useAuthSignUp()
     const form = useForm<SignUpFormValues>({
-        resolver: zodResolver(signUpSchema),
+        resolver: zodResolver(useMemo(() => buildSignUpSchema(tv), [tv])),
         defaultValues: {
             firstName: "",
             lastName: "",
@@ -35,7 +40,8 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
     })
 
     const errorCode = mutation.error instanceof AuthApiClientError ? mutation.error.code : undefined
-    const errorMessage = getAuthErrorMessage(errorCode)
+    const errorKey = resolveAuthErrorKey(errorCode)
+    const errorMessage = errorKey ? { title: te(`${errorKey}.title`), description: te(`${errorKey}.description`) } : null
     const password = useWatch({ control: form.control, name: "password" })
     const confirmPassword = useWatch({ control: form.control, name: "confirmPassword" })
 
@@ -47,7 +53,7 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
             password: values.password,
         })
 
-        toast.success("Doğrulama kodu e-posta adresinize gönderildi.")
+        toast.success(t("codeSentToast"))
         router.push(`/auth/confirm-signup?email=${encodeURIComponent(result.email)}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
     }
 
@@ -60,18 +66,18 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <AuthField control={form.control} name="firstName" label="Ad" placeholder="Adınız" disabled={mutation.isPending} />
-                        <AuthField control={form.control} name="lastName" label="Soyad" placeholder="Soyadınız" disabled={mutation.isPending} />
+                        <AuthField control={form.control} name="firstName" label={t("firstNameLabel")} placeholder={t("firstNamePlaceholder")} disabled={mutation.isPending} />
+                        <AuthField control={form.control} name="lastName" label={t("lastNameLabel")} placeholder={t("lastNamePlaceholder")} disabled={mutation.isPending} />
                     </div>
 
-                    <AuthField control={form.control} name="email" label="E-posta" type="email" placeholder="ornek@ceyhunlar.com" disabled={mutation.isPending} />
+                    <AuthField control={form.control} name="email" label={t("emailLabel")} type="email" placeholder={t("emailPlaceholder")} disabled={mutation.isPending} />
 
                     <div className="grid gap-2">
-                        <label className="text-sm font-medium text-slate-900">Şifre</label>
+                        <label className="text-sm font-medium text-slate-900">{t("passwordLabel")}</label>
                         <PasswordField
                             value={password ?? ""}
                             onChange={(value) => form.setValue("password", value, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
-                            placeholder="En az 8 karakter"
+                            placeholder={t("passwordPlaceholder")}
                             disabled={mutation.isPending}
                             showChecklist
                             showStrength
@@ -82,11 +88,11 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
                     </div>
 
                     <div className="grid gap-2">
-                        <label className="text-sm font-medium text-slate-900">Şifre Tekrarı</label>
+                        <label className="text-sm font-medium text-slate-900">{t("confirmPasswordLabel")}</label>
                         <PasswordField
                             value={confirmPassword ?? ""}
                             onChange={(value) => form.setValue("confirmPassword", value, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
-                            placeholder="Şifreyi tekrar girin"
+                            placeholder={t("confirmPasswordPlaceholder")}
                             disabled={mutation.isPending}
                             showStrength={false}
                             autoComplete="new-password"
@@ -95,7 +101,7 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
                     </div>
 
                     <Button type="submit" variant="brand" size="lg" className="h-11 w-full rounded-xl" disabled={mutation.isPending}>
-                        {mutation.isPending ? "Kayıt Oluşturuluyor..." : "Hesap Oluştur"}
+                        {mutation.isPending ? t("submitting") : t("submit")}
                     </Button>
                 </form>
             </Form>
@@ -103,12 +109,12 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
             <div className="flex flex-wrap items-center gap-3">
                 <Button asChild variant="outline" size="lg" className="h-11 rounded-xl px-5">
                     <Link href={`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
-                        Giriş yapın
+                        {t("signInLink")}
                     </Link>
                 </Button>
                 <Button asChild variant="ghost" size="lg" className="h-11 rounded-xl px-4 text-slate-600 hover:text-slate-950">
                     <Link href="/">
-                        Ana sayfaya git
+                        {t("goHome")}
                     </Link>
                 </Button>
             </div>

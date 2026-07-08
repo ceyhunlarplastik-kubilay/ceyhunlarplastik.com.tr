@@ -10,8 +10,9 @@ import { Form } from "@/components/ui/form"
 import { AuthApiClientError } from "@/features/auth/api/types"
 import { AuthField } from "@/features/auth/components/AuthField"
 import { AuthFeedbackMessage } from "@/features/auth/components/AuthFeedbackMessage"
+import { useTranslations } from "next-intl"
 import { useForgotPassword } from "@/features/auth/hooks/useForgotPassword"
-import { getAuthErrorMessage } from "@/features/auth/lib/errors"
+import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
 import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/features/auth/schema/forgotPassword"
 
 type Props = {
@@ -29,8 +30,10 @@ export function ForgotPasswordPageClient({ callbackUrl, initialEmail }: Props) {
         },
     })
 
+    const te = useTranslations("auth.errors")
     const errorCode = mutation.error instanceof AuthApiClientError ? mutation.error.code : undefined
-    const errorMessage = getAuthErrorMessage(errorCode)
+    const errorKey = resolveAuthErrorKey(errorCode)
+    const errorMessage = errorKey ? { title: te(`${errorKey}.title`), description: te(`${errorKey}.description`) } : null
 
     async function onSubmit(values: ForgotPasswordFormValues) {
         const result = await mutation.mutateAsync({

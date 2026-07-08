@@ -12,8 +12,9 @@ import { AuthField } from "@/features/auth/components/AuthField"
 import { AuthFeedbackMessage } from "@/features/auth/components/AuthFeedbackMessage"
 import { AuthOtpField } from "@/features/auth/components/AuthOtpField"
 import { useConfirmSignUp } from "@/features/auth/hooks/useConfirmSignUp"
+import { useTranslations } from "next-intl"
 import { useResendConfirmation } from "@/features/auth/hooks/useResendConfirmation"
-import { getAuthErrorMessage } from "@/features/auth/lib/errors"
+import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
 import { confirmSignUpSchema, type ConfirmSignUpFormValues } from "@/features/auth/schema/confirmSignUp"
 
 type Props = {
@@ -40,7 +41,9 @@ export function ConfirmSignUpPageClient({ callbackUrl, initialEmail }: Props) {
             ? resendMutation.error
             : null
 
-    const errorMessage = getAuthErrorMessage(activeError?.code)
+    const te = useTranslations("auth.errors")
+    const errorKey = resolveAuthErrorKey(activeError?.code)
+    const errorMessage = errorKey ? { title: te(`${errorKey}.title`), description: te(`${errorKey}.description`) } : null
 
     async function onSubmit(values: ConfirmSignUpFormValues) {
         const result = await confirmMutation.mutateAsync({
