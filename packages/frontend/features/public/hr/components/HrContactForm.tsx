@@ -1,8 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import {
     User,
     Mail,
@@ -14,7 +16,7 @@ import {
     FileUp,
 } from "lucide-react";
 
-import { hrFormSchema, type HrFormValues } from "@/features/public/hr/schema";
+import { buildHrFormSchema, type HrFormValues } from "@/features/public/hr/schema";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -22,8 +24,12 @@ import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
 import { FormFileUpload } from "@/components/ui/FormFileUpload";
 
 export default function HrContactForm() {
+    const t = useTranslations("public.hr.form");
+    const tv = useTranslations("public.hr.validation");
+    const schema = useMemo(() => buildHrFormSchema(tv), [tv]);
+
     const form = useForm<HrFormValues>({
-        resolver: zodResolver(hrFormSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             fullName: "",
             email: "",
@@ -64,11 +70,11 @@ export default function HrContactForm() {
                     className="rounded-3xl bg-white shadow-xl p-8 md:p-10"
                 >
                     <h2 className="text-3xl font-semibold text-neutral-900 text-center">
-                        İnsan Kaynakları Başvuru Formu
+                        {t("title")}
                     </h2>
 
                     <p className="mt-3 text-base text-neutral-600 text-center">
-                        Bilgilerinizi doldurun, CV’nizi ekleyin, sizinle iletişime geçelim.
+                        {t("subtitle")}
                     </p>
 
                     <Form {...form}>
@@ -76,7 +82,7 @@ export default function HrContactForm() {
                             <FormInputWithIcon
                                 control={control}
                                 name="fullName"
-                                placeholder="Ad Soyad"
+                                placeholder={t("fields.fullName")}
                                 icon={User}
                             />
 
@@ -84,7 +90,7 @@ export default function HrContactForm() {
                                 control={control}
                                 name="email"
                                 type="email"
-                                placeholder="E-posta adresiniz"
+                                placeholder={t("fields.email")}
                                 icon={Mail}
                             />
 
@@ -92,28 +98,28 @@ export default function HrContactForm() {
                                 control={control}
                                 name="phone"
                                 mask="+90 (000) 000-0000"
-                                placeholder="+90 (532) 123-4567"
+                                placeholder={t("fields.phone")}
                                 icon={PhoneCall}
                             />
 
                             <FormInputWithIcon
                                 control={control}
                                 name="address"
-                                placeholder="Adres"
+                                placeholder={t("fields.address")}
                                 icon={MapPin}
                             />
 
                             <FormInputWithIcon
                                 control={control}
                                 name="education"
-                                placeholder="Eğitim Durumu"
+                                placeholder={t("fields.education")}
                                 icon={GraduationCap}
                             />
 
                             <FormInputWithIcon
                                 control={control}
                                 name="department"
-                                placeholder="Başvurulan Departman"
+                                placeholder={t("fields.department")}
                                 icon={Building2}
                             />
 
@@ -122,7 +128,7 @@ export default function HrContactForm() {
                                 name="message"
                                 textarea
                                 rows={5}
-                                placeholder="Kendinizden ve başvurunuzdan bahsedin"
+                                placeholder={t("fields.message")}
                                 icon={MessageSquare}
                             />
 
@@ -130,7 +136,7 @@ export default function HrContactForm() {
                                 control={control}
                                 name="cv"
                                 icon={FileUp}
-                                label="CV Yükle (PDF · max 5MB)"
+                                label={t("cvLabel")}
                             />
 
                             <input
@@ -154,10 +160,10 @@ export default function HrContactForm() {
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
                                         <Spinner className="h-5 w-5" />
-                                        Gönderiliyor...
+                                        {t("submitting")}
                                     </span>
                                 ) : (
-                                    "Başvuruyu Gönder"
+                                    t("submit")
                                 )}
                             </Button>
                         </form>

@@ -182,6 +182,64 @@
                 "imageAlt3": "Enerji üretimi"
             }
         },
+        "hr": {
+            "meta": {
+                "title": "İnsan Kaynakları",
+                "description": "Ceyhunlar Plastik ailesine katılın. İnsan Kaynakları başvuru formu üzerinden CV’nizi gönderin.",
+                "ogDescription": "Ceyhunlar Plastik ailesine katılın. CV’nizi gönderin.",
+                "ogImageAlt": "Ceyhunlar Plastik İnsan Kaynakları",
+                "structuredDataName": "İnsan Kaynakları",
+                "structuredDataDescription": "Ceyhunlar Plastik İnsan Kaynakları başvuru sayfası.",
+                "keywords": ["Ceyhunlar Plastik", "İnsan Kaynakları", "İş Başvurusu", "Kariyer", "Plastik Sektörü"]
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar Plastik İnsan Kaynakları",
+                "title": "İnsan Kaynakları",
+                "subtitle": "Yeteneğine değer veren, birlikte üreten bir ekibin parçası ol.",
+                "cta": "Başvurunu Gönder",
+                "cards": {
+                    "team": {
+                        "title": "Güçlü Ekip",
+                        "text": "Deneyimli ve destekleyici ekip kültürü"
+                    },
+                    "safe": {
+                        "title": "Güvenli Çalışma",
+                        "text": "Uzun vadeli ve güvenilir iş ortamı"
+                    },
+                    "career": {
+                        "title": "Kariyer Gelişimi",
+                        "text": "Kendini geliştirebileceğin fırsatlar"
+                    }
+                }
+            },
+            "form": {
+                "title": "İnsan Kaynakları Başvuru Formu",
+                "subtitle": "Bilgilerinizi doldurun, CV’nizi ekleyin, sizinle iletişime geçelim.",
+                "fields": {
+                    "fullName": "Ad Soyad",
+                    "email": "E-posta adresiniz",
+                    "phone": "+90 (532) 123-4567",
+                    "address": "Adres",
+                    "education": "Eğitim Durumu",
+                    "department": "Başvurulan Departman",
+                    "message": "Kendinizden ve başvurunuzdan bahsedin"
+                },
+                "cvLabel": "CV Yükle (PDF · max 5MB)",
+                "submit": "Başvuruyu Gönder",
+                "submitting": "Gönderiliyor..."
+            },
+            "validation": {
+                "fullNameMin": "Ad Soyad en az 2 karakter olmalıdır",
+                "emailInvalid": "Geçerli bir e-posta adresi giriniz",
+                "phoneInvalid": "Telefon numarası geçersiz",
+                "addressMin": "Adres en az 5 karakter olmalıdır",
+                "educationMin": "Eğitim bilgisi en az 5 karakter olmalıdır",
+                "departmentMin": "Departman bilgisi en az 5 karakter olmalıdır",
+                "messageMin": "Mesaj en az 20 karakter olmalıdır",
+                "cvType": "Sadece PDF dosyaları kabul edilir",
+                "cvSize": "Dosya boyutu en fazla 5MB olabilir"
+            }
+        },
         "about": {
             "meta": {
                 "title": "Hakkımızda",

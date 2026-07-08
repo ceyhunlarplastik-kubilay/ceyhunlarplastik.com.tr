@@ -2,28 +2,20 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Users, ShieldCheck, TrendingUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const items = [
-    {
-        icon: Users,
-        title: "Güçlü Ekip",
-        text: "Deneyimli ve destekleyici ekip kültürü",
-    },
-    {
-        icon: ShieldCheck,
-        title: "Güvenli Çalışma",
-        text: "Uzun vadeli ve güvenilir iş ortamı",
-    },
-    {
-        icon: TrendingUp,
-        title: "Kariyer Gelişimi",
-        text: "Kendini geliştirebileceğin fırsatlar",
-    },
-];
+// Metinler katalogdan gelir; burada yalnız ikon + key eşlemesi.
+const cards = [
+    { icon: Users, key: "team" },
+    { icon: ShieldCheck, key: "safe" },
+    { icon: TrendingUp, key: "career" },
+] as const;
 
 export default function HrHero() {
+    const t = useTranslations("public.hr.hero");
+
     const scrollToForm = () => {
         document.getElementById("hr-form")?.scrollIntoView({ behavior: "smooth" });
     };
@@ -34,7 +26,7 @@ export default function HrHero() {
             <div className="absolute inset-0 -z-10">
                 <Image
                     src="/logos/hr.jpg"
-                    alt="Ceyhunlar Plastik İnsan Kaynakları"
+                    alt={t("imageAlt")}
                     fill
                     priority
                     className="object-cover"
@@ -50,7 +42,7 @@ export default function HrHero() {
                     transition={{ duration: 0.6 }}
                     className="text-4xl md:text-5xl font-bold"
                 >
-                    İnsan Kaynakları
+                    {t("title")}
                 </motion.h1>
 
                 <motion.p
@@ -59,7 +51,7 @@ export default function HrHero() {
                     transition={{ duration: 0.6, delay: 0.15 }}
                     className="mt-6 text-lg text-white/90"
                 >
-                    Yeteneğine değer veren, birlikte üreten bir ekibin parçası ol.
+                    {t("subtitle")}
                 </motion.p>
 
                 {/* CTA BUTTON */}
@@ -79,7 +71,7 @@ export default function HrHero() {
               hover:text-white
             "
                     >
-                        Başvurunu Gönder
+                        {t("cta")}
                         <ArrowDown className="h-4 w-4" />
                     </Button>
                 </motion.div>
@@ -95,9 +87,9 @@ export default function HrHero() {
                     }}
                     className="mt-16 grid gap-6 md:grid-cols-3"
                 >
-                    {items.map((item, i) => (
+                    {cards.map((item) => (
                         <motion.div
-                            key={i}
+                            key={item.key}
                             variants={{
                                 hidden: { opacity: 0, y: 20 },
                                 visible: { opacity: 1, y: 0 },
@@ -129,10 +121,12 @@ export default function HrHero() {
                             />
 
                             <h3 className="mt-4 text-lg font-semibold text-white">
-                                {item.title}
+                                {t(`cards.${item.key}.title`)}
                             </h3>
 
-                            <p className="mt-2 text-sm text-white/80">{item.text}</p>
+                            <p className="mt-2 text-sm text-white/80">
+                                {t(`cards.${item.key}.text`)}
+                            </p>
                         </motion.div>
                     ))}
                 </motion.div>

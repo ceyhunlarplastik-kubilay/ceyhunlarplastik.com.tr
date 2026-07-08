@@ -182,6 +182,64 @@
                 "imageAlt3": "Energy production"
             }
         },
+        "hr": {
+            "meta": {
+                "title": "Human Resources",
+                "description": "Join the Ceyhunlar Plastik family. Submit your CV through the Human Resources application form.",
+                "ogDescription": "Join the Ceyhunlar Plastik family. Submit your CV.",
+                "ogImageAlt": "Ceyhunlar Plastik Human Resources",
+                "structuredDataName": "Human Resources",
+                "structuredDataDescription": "Ceyhunlar Plastik Human Resources application page.",
+                "keywords": ["Ceyhunlar Plastik", "Human Resources", "Job Application", "Career", "Plastics Industry"]
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar Plastik Human Resources",
+                "title": "Human Resources",
+                "subtitle": "Be part of a team that values your talent and creates together.",
+                "cta": "Submit Your Application",
+                "cards": {
+                    "team": {
+                        "title": "Strong Team",
+                        "text": "Experienced and supportive team culture"
+                    },
+                    "safe": {
+                        "title": "Secure Work",
+                        "text": "A long-term and reliable work environment"
+                    },
+                    "career": {
+                        "title": "Career Growth",
+                        "text": "Opportunities to develop yourself"
+                    }
+                }
+            },
+            "form": {
+                "title": "Human Resources Application Form",
+                "subtitle": "Fill in your details, attach your CV, and we will get in touch with you.",
+                "fields": {
+                    "fullName": "Full Name",
+                    "email": "Your email address",
+                    "phone": "+90 (532) 123-4567",
+                    "address": "Address",
+                    "education": "Education",
+                    "department": "Department Applied For",
+                    "message": "Tell us about yourself and your application"
+                },
+                "cvLabel": "Upload CV (PDF · max 5MB)",
+                "submit": "Submit Application",
+                "submitting": "Sending..."
+            },
+            "validation": {
+                "fullNameMin": "Full name must be at least 2 characters",
+                "emailInvalid": "Please enter a valid email address",
+                "phoneInvalid": "Invalid phone number",
+                "addressMin": "Address must be at least 5 characters",
+                "educationMin": "Education info must be at least 5 characters",
+                "departmentMin": "Department info must be at least 5 characters",
+                "messageMin": "Message must be at least 20 characters",
+                "cvType": "Only PDF files are accepted",
+                "cvSize": "File size can be at most 5MB"
+            }
+        },
         "about": {
             "meta": {
                 "title": "About Us",
