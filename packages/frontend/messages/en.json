@@ -139,7 +139,49 @@
             "copyright": "Copyright © 2026 Ceyhunlar – All rights reserved."
         }
     },
+    "shared": {
+        "enviroment": {
+            "word1": "NATURE",
+            "word2": "FRIENDLY",
+            "word3": "PRODUCTION",
+            "subtitle": "Our company sources <highlight>more than 80%</highlight> of its production from renewable energy.",
+            "paragraph": "Guided by our sensitivity and responsibility toward our environment, society and future, we use a nature-friendly production model and work for a sustainable world and a better future."
+        }
+    },
     "public": {
+        "sustainability": {
+            "meta": {
+                "title": "Sustainability",
+                "description": "Ceyhunlar Plastik's sustainable production and environmentally friendly approach."
+            },
+            "intro": {
+                "heroTitle": "Sustainable Production",
+                "heroBody": "Sustainable production is a way of manufacturing that is based on using the world's resources within sustainability limits, seeks ways to minimize the harm done to natural life, and secures the future. Today, all producers, like all consumers, must take sustainable steps. As Ceyhunlar Plastik, we do our part and take clean steps for a clean world.",
+                "imageAlt": "Nature and sustainability",
+                "protectTitle": "We Protect Our Natural Resources <highlight>and Our World.</highlight>",
+                "protectBody": "With the mission of acting with the environmental awareness we have adopted, we aim to bring years of knowledge and experience to the global plastics industry, developing dynamic and innovative solutions that consider both our country and nature.",
+                "certAlt": "Certificate {number}"
+            },
+            "impact": {
+                "title": "Recyclable Plastic",
+                "body1": "Plastic is a component of many consumer products and makes up most of the output and end products of the manufacturing industry. However, not all plastics are the same, which means they cannot all be disposed of and recycled in the same way.",
+                "body2": "As Ceyhunlar Plastik, we produce recyclable products. Within the framework of respect for nature, we take care to use renewable energy sources in our production area.",
+                "imageAlt": "Sustainability",
+                "items": {
+                    "recycling": "Recycling",
+                    "zeroWaste": "Zero Waste",
+                    "sustainableProduction": "Sustainable Production",
+                    "respectNature": "Respect for Nature"
+                }
+            },
+            "energy": {
+                "title": "Our Energy <highlight>Comes from the Sun!</highlight>",
+                "body": "Our company takes an important step toward the energy needs of the future with sustainable energy solutions. Solar energy is a clean, renewable and unlimited resource that nature offers us. We meet our energy needs by using this valuable resource.",
+                "imageAlt": "Solar energy production",
+                "imageAlt2": "Solar panel detail",
+                "imageAlt3": "Energy production"
+            }
+        },
         "about": {
             "meta": {
                 "title": "About Us",

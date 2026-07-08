@@ -2,8 +2,11 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 export function SustainabilityEnergy() {
+    const t = useTranslations("public.sustainability.energy");
+
     return (
         <section className="py-24 bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
@@ -18,7 +21,7 @@ export function SustainabilityEnergy() {
                 >
                     <Image
                         src="/logos/st3.jpg"
-                        alt="Güneş enerjisi üretim"
+                        alt={t("imageAlt")}
                         fill
                         className="object-cover"
                     />
@@ -34,19 +37,16 @@ export function SustainabilityEnergy() {
                 >
                     {/* TITLE */}
                     <h3 className="text-2xl md:text-3xl font-semibold text-neutral-900 leading-snug">
-                        Enerjimiz{" "}
-                        <span className="text-[var(--color-brand)]">
-                            Güneşten!
-                        </span>
+                        {t.rich("title", {
+                            highlight: (chunks) => (
+                                <span className="text-[var(--color-brand)]">{chunks}</span>
+                            ),
+                        })}
                     </h3>
 
                     {/* PARAGRAPH */}
                     <p className="text-muted-foreground leading-relaxed">
-                        Şirketimiz, sürdürülebilir enerji çözümleriyle geleceğin enerji
-                        ihtiyaçlarına yönelik önemli bir adım atmaktadır. Güneş enerjisi,
-                        doğanın bize sunduğu temiz, yenilenebilir ve sınırsız bir kaynaktır.
-                        Biz de bu değerli kaynağı kullanarak enerji ihtiyacımızı
-                        karşılıyoruz.
+                        {t("body")}
                     </p>
 
                     {/* SMALL IMAGES */}
@@ -60,7 +60,7 @@ export function SustainabilityEnergy() {
                         >
                             <Image
                                 src="/logos/st4.jpg"
-                                alt="Güneş paneli detay"
+                                alt={t("imageAlt2")}
                                 fill
                                 className="object-cover"
                             />
@@ -75,7 +75,7 @@ export function SustainabilityEnergy() {
                         >
                             <Image
                                 src="/logos/st5.jpg"
-                                alt="Enerji üretimi"
+                                alt={t("imageAlt3")}
                                 fill
                                 className="object-cover"
                             />

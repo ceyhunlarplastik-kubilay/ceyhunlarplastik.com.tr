@@ -139,7 +139,49 @@
             "copyright": "Copyright © 2026 Ceyhunlar – Tüm hakları saklıdır."
         }
     },
+    "shared": {
+        "enviroment": {
+            "word1": "DOĞA",
+            "word2": "DOSTU",
+            "word3": "ÜRETİM",
+            "subtitle": "Firmamız üretimlerinin <highlight>%80’den fazlasını</highlight> yenilenebilir enerji ile sağlamaktadır.",
+            "paragraph": "Çevremize, toplumumuza ve geleceğimize olan duyarlılığımızın ve sorumluluğumuzun ışığında doğa dostu üretim modeli kullanıyor; sürdürülebilir bir dünya ve iyi bir gelecek için çalışıyoruz."
+        }
+    },
     "public": {
+        "sustainability": {
+            "meta": {
+                "title": "Sürdürülebilirlik",
+                "description": "Ceyhunlar Plastik sürdürülebilir üretim ve çevre dostu yaklaşımı."
+            },
+            "intro": {
+                "heroTitle": "Sürdürülebilir Üretim",
+                "heroBody": "Sürdürülebilir üretim, dünya kaynaklarının sürdürülebilirlik sınırları içerisinde kullanılmasını temel alan ve doğal yaşama verilen zararı en aza indiren yolları arayan, geleceği güvence altına alan üretim biçimidir. Bugün artık bütün tüketicilerin olduğu gibi bütün üreticilerin de sürdürülebilir adımlar atması gerekmektedir. Ceyhunlar Plastik olarak biz üzerimize düşeni yapıyor, temiz bir dünya için temiz adımlar atıyoruz.",
+                "imageAlt": "Doğa ve sürdürülebilirlik",
+                "protectTitle": "Doğal Kaynaklarımızı <highlight>Dünyamızı Koruyoruz.</highlight>",
+                "protectBody": "Görev edindiğimiz doğa ve çevre bilinciyle hareket etme misyonu ile yılların verdiği bilgi ve birikimi dünya plastik sektöründe kullanmayı hedefleyerek hem ülkemizi hem de doğayı düşünen dinamik ve yenilikçi çözümler geliştiriyoruz.",
+                "certAlt": "Sertifika {number}"
+            },
+            "impact": {
+                "title": "Geri Dönüştürülebilir Plastik",
+                "body1": "Plastik, pek çok tüketici ürününün bir bileşeni olup, imalat sanayinin çıktı ve nihai ürünlerinin çoğunu oluşturur. Bununla birlikte, bütün plastikler aynı değildir ve bu, hepsinin aynı şekilde bertaraf edilip geri dönüştürülemeyeceği anlamına gelir.",
+                "body2": "Ceyhunlar Plastik olarak, geri dönüşüme uygun ürünler üretiyoruz. Doğaya saygı çerçevesinde üretim alanımızda yenilenebilir enerji kaynaklarını kullanmaya özen gösteriyoruz.",
+                "imageAlt": "Sürdürülebilirlik",
+                "items": {
+                    "recycling": "Geri Dönüşüm",
+                    "zeroWaste": "Sıfır Atık",
+                    "sustainableProduction": "Sürdürülebilir Üretim",
+                    "respectNature": "Doğaya Saygı"
+                }
+            },
+            "energy": {
+                "title": "Enerjimiz <highlight>Güneşten!</highlight>",
+                "body": "Şirketimiz, sürdürülebilir enerji çözümleriyle geleceğin enerji ihtiyaçlarına yönelik önemli bir adım atmaktadır. Güneş enerjisi, doğanın bize sunduğu temiz, yenilenebilir ve sınırsız bir kaynaktır. Biz de bu değerli kaynağı kullanarak enerji ihtiyacımızı karşılıyoruz.",
+                "imageAlt": "Güneş enerjisi üretim",
+                "imageAlt2": "Güneş paneli detay",
+                "imageAlt3": "Enerji üretimi"
+            }
+        },
         "about": {
             "meta": {
                 "title": "Hakkımızda",

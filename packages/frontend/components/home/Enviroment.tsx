@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "motion/react";
+import { useTranslations } from "next-intl";
 
 /* ------------------------------------------------------------------ */
 /* Motion config (v12+ uyumlu) */
@@ -34,6 +35,8 @@ const fadeUp: Variants = {
 /* ------------------------------------------------------------------ */
 
 export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
+    const t = useTranslations("shared.enviroment");
+
     return (
         <section
             className={`
@@ -86,7 +89,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
       font-light
       text-white
     ">
-                                DOĞA
+                                {t("word1")}
                             </h2>
                         </motion.div>
 
@@ -103,7 +106,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
       leading-none
       [text-shadow:0_10px_40px_rgba(0,0,0,0.5)]
     ">
-                                DOSTU
+                                {t("word2")}
                             </h2>
                         </motion.div>
 
@@ -119,7 +122,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
       tracking-[0.25em]
       text-white/90
     ">
-                                ÜRETİM
+                                {t("word3")}
                             </h2>
                         </motion.div>
 
@@ -130,11 +133,13 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
                         variants={fadeUp}
                         className="mt-6 text-base md:text-lg font-medium text-white/85"
                     >
-                        Firmamız üretimlerinin{" "}
-                        <span className="text-[var(--color-brand)] font-semibold">
-                            %80&apos;den fazlasını
-                        </span>{" "}
-                        yenilenebilir enerji ile sağlamaktadır.
+                        {t.rich("subtitle", {
+                            highlight: (chunks) => (
+                                <span className="text-[var(--color-brand)] font-semibold">
+                                    {chunks}
+                                </span>
+                            ),
+                        })}
                     </motion.p>
 
                     {/* Paragraph */}
@@ -142,9 +147,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
                         variants={fadeUp}
                         className="mt-4 text-sm md:text-base leading-relaxed text-white/75"
                     >
-                        Çevremize, toplumumuza ve geleceğimize olan duyarlılığımızın ve
-                        sorumluluğumuzun ışığında doğa dostu üretim modeli kullanıyor;
-                        sürdürülebilir bir dünya ve iyi bir gelecek için çalışıyoruz.
+                        {t("paragraph")}
                     </motion.p>
                 </motion.div>
             </div>

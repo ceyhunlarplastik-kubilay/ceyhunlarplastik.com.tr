@@ -2,8 +2,11 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 export function SustainabilityIntro() {
+    const t = useTranslations("public.sustainability.intro");
+
     return (
         <section className="bg-white py-20 overflow-hidden">
             <div className="space-y-20">
@@ -12,17 +15,11 @@ export function SustainabilityIntro() {
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="max-w-6xl space-y-6">
                         <h2 className="text-3xl md:text-4xl font-semibold text-neutral-900">
-                            Sürdürülebilir Üretim
+                            {t("heroTitle")}
                         </h2>
 
                         <p className="text-muted-foreground">
-                            Sürdürülebilir üretim, dünya kaynaklarının sürdürülebilirlik
-                            sınırları içerisinde kullanılmasını temel alan ve doğal yaşama
-                            verilen zararı en aza indiren yolları arayan, geleceği güvence
-                            altına alan üretim biçimidir. Bugün artık bütün tüketicilerin
-                            olduğu gibi bütün üreticilerin de sürdürülebilir adımlar atması
-                            gerekmektedir. Ceyhunlar Plastik olarak biz üzerimize düşeni
-                            yapıyor, temiz bir dünya için temiz adımlar atıyoruz.
+                            {t("heroBody")}
                         </p>
                     </div>
                 </div>
@@ -34,7 +31,7 @@ export function SustainabilityIntro() {
                     <div className="w-full lg:w-1/2 h-[350px] md:h-[450px] lg:h-[550px] relative">
                         <Image
                             src="/logos/cloud.jpg"
-                            alt="Doğa ve sürdürülebilirlik"
+                            alt={t("imageAlt")}
                             fill
                             priority
                             className="object-cover"
@@ -51,20 +48,23 @@ export function SustainabilityIntro() {
                                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                                 className="text-2xl md:text-3xl lg:text-4xl font-semibold text-neutral-900 leading-snug"
                             >
-                                Doğal Kaynaklarımızı{" "}
-                                <motion.span
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{
-                                        delay: 0.25,
-                                        duration: 0.6,
-                                        ease: [0.16, 1, 0.3, 1],
-                                    }}
-                                    className="text-[var(--color-brand)] block sm:inline"
-                                >
-                                    Dünyamızı Koruyoruz.
-                                </motion.span>
+                                {t.rich("protectTitle", {
+                                    highlight: (chunks) => (
+                                        <motion.span
+                                            initial={{ opacity: 0, y: 20 }}
+                                            whileInView={{ opacity: 1, y: 0 }}
+                                            viewport={{ once: true }}
+                                            transition={{
+                                                delay: 0.25,
+                                                duration: 0.6,
+                                                ease: [0.16, 1, 0.3, 1],
+                                            }}
+                                            className="text-[var(--color-brand)] block sm:inline"
+                                        >
+                                            {chunks}
+                                        </motion.span>
+                                    ),
+                                })}
                             </motion.h3>
 
                             <motion.p
@@ -74,10 +74,7 @@ export function SustainabilityIntro() {
                                 transition={{ delay: 0.35, duration: 0.6 }}
                                 className="text-lg text-muted-foreground"
                             >
-                                Görev edindiğimiz doğa ve çevre bilinciyle hareket etme
-                                misyonu ile yılların verdiği bilgi ve birikimi dünya plastik
-                                sektöründe kullanmayı hedefleyerek hem ülkemizi hem de doğayı
-                                düşünen dinamik ve yenilikçi çözümler geliştiriyoruz.
+                                {t("protectBody")}
                             </motion.p>
                         </div>
                     </div>
@@ -94,7 +91,7 @@ export function SustainabilityIntro() {
                             <div className="relative h-[120px] flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-1-150x150.png"
-                                    alt="Sertifika 1"
+                                    alt={t("certAlt", { number: 1 })}
                                     width={120}
                                     height={120}
                                     className="object-contain"
@@ -105,7 +102,7 @@ export function SustainabilityIntro() {
                             <div className="relative h-[120px] flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-2-150x150.png"
-                                    alt="Sertifika 2"
+                                    alt={t("certAlt", { number: 2 })}
                                     width={120}
                                     height={120}
                                     className="object-contain"
@@ -116,7 +113,7 @@ export function SustainabilityIntro() {
                             <div className="relative h-[120px] flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-3-150x150.png"
-                                    alt="Sertifika 3"
+                                    alt={t("certAlt", { number: 3 })}
                                     width={120}
                                     height={120}
                                     className="object-contain"
@@ -127,7 +124,7 @@ export function SustainabilityIntro() {
                             <div className="relative h-[120px] flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-4-150x150.png"
-                                    alt="Sertifika 4"
+                                    alt={t("certAlt", { number: 4 })}
                                     width={120}
                                     height={120}
                                     className="object-contain"

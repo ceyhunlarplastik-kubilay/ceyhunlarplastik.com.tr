@@ -1,12 +1,14 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { FaRecycle, FaLeaf, FaBolt, FaGlobeEurope } from "react-icons/fa";
 
 export function SustainabilityImpact() {
+    const t = useTranslations("public.sustainability.impact");
     const items = [
-        { icon: FaRecycle, label: "Geri Dönüşüm" },
-        { icon: FaLeaf, label: "Sıfır Atık" },
-        { icon: FaBolt, label: "Sürdürülebilir Üretim" },
-        { icon: FaGlobeEurope, label: "Doğaya Saygı" },
+        { icon: FaRecycle, label: t("items.recycling") },
+        { icon: FaLeaf, label: t("items.zeroWaste") },
+        { icon: FaBolt, label: t("items.sustainableProduction") },
+        { icon: FaGlobeEurope, label: t("items.respectNature") },
     ];
 
     return (
@@ -19,15 +21,15 @@ export function SustainabilityImpact() {
                     {/* TEXT */}
                     <div className="space-y-4">
                         <h3 className="text-3xl font-semibold text-neutral-900">
-                            Geri Dönüştürülebilir Plastik
+                            {t("title")}
                         </h3>
 
                         <p className="text-muted-foreground leading-relaxed">
-                            Plastik, pek çok tüketici ürününün bir bileşeni olup, imalat sanayinin çıktı ve nihai ürünlerinin çoğunu oluşturur. Bununla birlikte, bütün plastikler aynı değildir ve bu, hepsinin aynı şekilde bertaraf edilip geri dönüştürülemeyeceği anlamına gelir.
+                            {t("body1")}
                         </p>
 
                         <p className="text-muted-foreground leading-relaxed">
-                            Ceyhunlar Plastik olarak, geri dönüşüme uygun ürünler üretiyoruz. Doğaya saygı çerçevesinde üretim alanımızda yenilenebilir enerji kaynaklarını kullanmaya özen gösteriyoruz.
+                            {t("body2")}
                         </p>
                     </div>
 
@@ -55,7 +57,7 @@ export function SustainabilityImpact() {
                 <div className="relative w-full h-[420px] rounded-2xl overflow-hidden">
                     <Image
                         src="/logos/sustainability3.webp"
-                        alt="Sürdürülebilirlik"
+                        alt={t("imageAlt")}
                         fill
                         className="object-cover"
                     />
