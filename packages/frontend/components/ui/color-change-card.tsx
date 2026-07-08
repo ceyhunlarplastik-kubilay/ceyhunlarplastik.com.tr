@@ -1,12 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import AnimatedLetter from "@/components/ui/AnimatedLetter";
 import { cn } from "@/lib/utils";
 
+// Kart metinleri home.services.cards[] katalogdan; burada yalnız görsel + href + layout.
+const cardMeta = [
+    { image: "/services/rd.jpg", href: "/arge-ve-prototipleme" },
+    { image: "/services/3d-printer.jpg", href: "/3d-baski-ve-tarama" },
+    { image: "/services/cnc-1.jpg", href: "/talasli-imalat" },
+    { image: "/services/cnc-3.jpg", href: "/seri-uretim#metal" },
+    { image: "/services/serial-production.jpg", href: "/seri-uretim#plastic" },
+    { image: "/services/rubber-parts-16x9.jpg", href: "/seri-uretim#rubber" },
+    { image: "/services/rubber-parts-16x9.jpg", href: "/seri-uretim#bakelite" },
+] as const;
+
 export default function ServicesBentoGrid() {
+    const t = useTranslations("home.services");
+    const cards = t.raw("cards") as { title: string; description: string }[];
+    const c = cards.map((card, i) => ({ ...card, ...cardMeta[i] }));
+
     return (
         <section className="pb-10">
             <div className="mx-auto max-w-7xl px-0 space-y-6">
@@ -14,10 +30,10 @@ export default function ServicesBentoGrid() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto lg:h-[600px]">
                     {/* BIG CARD (Ar-Ge) */}
                     <ServiceCard
-                        title="Ar-Ge ve Prototipleme"
-                        description="Projenizin numune ve seri üretim öncesinde, ileri çizim ve analiz teknolojilerimizle geliştirilmesi sağlanır."
-                        href="/arge-ve-prototipleme"
-                        image="/services/rd.jpg" // Placeholder
+                        title={c[0].title}
+                        description={c[0].description}
+                        href={c[0].href}
+                        image={c[0].image}
                         className="h-[400px] lg:h-full"
                         priority
                     />
@@ -25,50 +41,32 @@ export default function ServicesBentoGrid() {
                     {/* RIGHT COLUMN */}
                     <div className="grid grid-rows-2 gap-6 h-[600px] lg:h-full">
                         <ServiceCard
-                            title="3D Baskı ve Tarama"
-                            description="Ar-Ge süreci tamamlanan projeleriniz, gerektiğinde taranarak CAD modellemesi yapılır ve 3D baskı ile prototiplenir."
-                            href="/3d-baski-ve-tarama"
-                            image="/services/3d-printer.jpg" // Placeholder
+                            title={c[1].title}
+                            description={c[1].description}
+                            href={c[1].href}
+                            image={c[1].image}
                         />
                         <ServiceCard
-                            title="Talaşlı İmalat"
-                            description="Ar-Ge, Analiz ve Prototiplemesi tamamlanan ürünlerinizin seri üretiminin yapılması adına Kalıphane bölümümüzde kalıpların hazırlanması."
-                            href="/talasli-imalat"
-                            image="/services/cnc-1.jpg" // Placeholder
+                            title={c[2].title}
+                            description={c[2].description}
+                            href={c[2].href}
+                            image={c[2].image}
                         />
                     </div>
                 </div>
 
                 {/* ================= BOTTOM ROW (4 Cols) ================= */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                    <ServiceCard
-                        title="Seri Üretim Metal"
-                        description="Metal seri imalat kalıpları tamamlanan parçalar, preshane bölümümüzde yüksek hassasiyetle metal seri üretim sürecine alınmaktadır."
-                        href="/seri-uretim#metal"
-                        image="/services/cnc-3.jpg"
-                        className="h-[400px]"
-                    />
-                    <ServiceCard
-                        title="Seri Üretim Plastik"
-                        description="Seri imalat kalıpları tamamlanan plastik parçalar, enjeksiyon, şişirme ve ekstrüzyon yöntemleriyle seri üretime alınır."
-                        href="/seri-uretim#plastic"
-                        image="/services/serial-production.jpg"
-                        className="h-[400px]"
-                    />
-                    <ServiceCard
-                        title="Seri Üretim Kauçuk"
-                        description="Seri imalat kalıpları tamamlanan kauçuk parçaların hidrolik pres bölümümüzde seri üretiminin yapılması."
-                        href="/seri-uretim#rubber"
-                        image="/services/rubber-parts-16x9.jpg"
-                        className="h-[400px]"
-                    />
-                    <ServiceCard
-                        title="Seri Üretim Bakalit"
-                        description="Seri imalat kalıpları tamamlanan bakalit parçaların bakalit enjeksiyon bölümümüzde seri üretimlerinin yapılması."
-                        href="/seri-uretim#bakelite"
-                        image="/services/rubber-parts-16x9.jpg"
-                        className="h-[400px]"
-                    />
+                    {c.slice(3).map((card) => (
+                        <ServiceCard
+                            key={card.href}
+                            title={card.title}
+                            description={card.description}
+                            href={card.href}
+                            image={card.image}
+                            className="h-[400px]"
+                        />
+                    ))}
                 </div>
             </div>
         </section>

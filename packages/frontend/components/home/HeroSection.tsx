@@ -1,23 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ClientsMarquee } from "./ClientsMarquee";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const WORDS = ["Arge ve Prototipleme", "3D Baskı ve Tarama", "Talaşlı İmalat", "Seri Üretim"];
-
 export function HeroSection() {
+    const t = useTranslations("home.hero");
+    const words = t.raw("words") as string[];
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
         const id = setInterval(() => {
-            setIndex((i) => (i + 1) % WORDS.length);
+            setIndex((i) => (i + 1) % words.length);
         }, 2500);
         return () => clearInterval(id);
-    }, []);
+    }, [words.length]);
 
     return (
         <section
@@ -43,24 +44,24 @@ export function HeroSection() {
                                     {/* <span className="relative inline-block min-w-[11ch] overflow-hidden text-brand align-bottom"> */}
                                     <span className="relative inline-block w-[22ch] overflow-hidden text-brand align-bottom">
                                         <span className="invisible" aria-hidden="true">
-                                            {WORDS[index]}
+                                            {words[index]}
                                         </span>
                                         <AnimatePresence mode="wait">
                                             <motion.span
-                                                key={WORDS[index]}
+                                                key={words[index]}
                                                 initial={{ y: "100%" }}
                                                 animate={{ y: 0 }}
                                                 exit={{ y: "-100%" }}
                                                 transition={{ duration: 0.5, ease: "easeOut" }}
                                                 className="absolute inset-0 flex items-center"
                                             >
-                                                {WORDS[index]}
+                                                {words[index]}
                                             </motion.span>
                                         </AnimatePresence>
                                     </span>
                                 </span>
                                 <br />
-                                Plastik Çözümler
+                                {t("titleSuffix")}
                             </h1>
 
                             <motion.p
@@ -69,10 +70,7 @@ export function HeroSection() {
                                 transition={{ delay: 0.4 }}
                                 className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground"
                             >
-                                Prototiplemeden seri üretime kadar tüm süreçleri tek çatı altında
-                                yöneten Ceyhunlar Plastik; plastik, kauçuk ve bakalit ürünlerde
-                                yüksek kalite, mühendislik gücü ve geniş ürün yelpazesiyle
-                                endüstriyel ihtiyaçlarınıza güvenilir çözümler sunar.
+                                {t("subtitle")}
                             </motion.p>
 
                             <motion.div
@@ -84,13 +82,13 @@ export function HeroSection() {
                                 <Button asChild variant="brand" size="lg">
                                     {/* <Link href="/urunler/filtre"> */}
                                     <Link href="/urunler">
-                                        Ürünlerimizi İnceleyin
+                                        {t("ctaProducts")}
                                     </Link>
                                 </Button>
 
                                 <Button asChild variant="outline" size="lg">
                                     <Link href="/iletisim">
-                                        Teklif Alın
+                                        {t("ctaQuote")}
                                     </Link>
                                 </Button>
                             </motion.div>
@@ -127,7 +125,7 @@ export function HeroSection() {
                                 {/* packages/frontend/public/favicon-5312.png */}
                                 <Image
                                     src="/favicon-5312.png"
-                                    alt="Plastic manufacturing"
+                                    alt={t("imageAlt")}
                                     fill
                                     priority
                                     className="object-cover"

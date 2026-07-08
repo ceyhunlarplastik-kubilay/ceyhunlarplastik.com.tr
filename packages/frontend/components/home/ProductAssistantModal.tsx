@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
+import { useRouter } from "@/i18n/navigation"
 import Image from "next/image"
 import { motion, AnimatePresence } from "motion/react"
 import { Sparkles, X, ArrowRight, CheckCircle2 } from "lucide-react"
@@ -28,13 +29,9 @@ type Props = {
     attributes: ProductAttribute[]
 }
 
-const STEP_TITLES = [
-    "Karşılama",
-    "Sektör",
-    "Üretim Grubu ve Kullanım Alanı",
-]
-
 export default function ProductAssistantModal({ attributes }: Props) {
+    const t = useTranslations("home.assistant")
+    const stepTitles = t.raw("steps") as string[]
     const router = useRouter()
 
     const [open, setOpen] = useState(true)
@@ -218,7 +215,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                         cursor-pointer
                         group
                     "
-                    aria-label="Ürün Asistanı"
+                    aria-label={t("title")}
                 >
                     <div className="relative flex items-center justify-center">
                         <svg
@@ -248,7 +245,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                     showCloseButton={false}
                     className="w-[min(1020px,calc(100vw-1.5rem))] h-[min(88vh,760px)] p-0 overflow-hidden rounded-2xl border-neutral-200"
                 >
-                    <DialogTitle className="sr-only">Ürün Asistanı</DialogTitle>
+                    <DialogTitle className="sr-only">{t("title")}</DialogTitle>
                     <div className="flex h-full flex-col">
                         <div className="bg-gradient-to-r from-[var(--color-brand)] to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
                             <div className="flex items-center justify-between">
@@ -257,8 +254,8 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         <Sparkles className="h-4 w-4" />
                                     </span>
                                     <div>
-                                        <p className="text-sm font-semibold">Ürün Asistanı</p>
-                                        <p className="text-xs text-white/80">{STEP_TITLES[step]}</p>
+                                        <p className="text-sm font-semibold">{t("title")}</p>
+                                        <p className="text-xs text-white/80">{stepTitles[step]}</p>
                                     </div>
                                 </div>
                                 <button
@@ -329,10 +326,10 @@ export default function ProductAssistantModal({ attributes }: Props) {
 
                                         <div className="space-y-4 max-w-sm">
                                             <h2 className="text-4xl font-bold tracking-tight text-neutral-900 leading-tight">
-                                                Merhaba <span className="inline-block animate-bounce">👋</span>
+                                                {t("welcome.greeting")} <span className="inline-block animate-bounce">👋</span>
                                             </h2>
                                             <p className="text-base text-neutral-600 leading-relaxed">
-                                                İhtiyacınıza en uygun ürünü bulmanızda sizlere rehberlik etmemi ister misiniz?
+                                                {t("welcome.question")}
                                             </p>
                                         </div>
 
@@ -341,7 +338,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                 onClick={() => setStep(1)}
                                                 className="h-14 text-lg font-semibold bg-brand text-white shadow-lg shadow-brand/20 transition-all hover:translate-y-[-2px] active:scale-95"
                                             >
-                                                Evet, Başlayalım
+                                                {t("welcome.start")}
                                                 <ArrowRight className="ml-2 h-5 w-5" />
                                             </Button>
                                             <Button
@@ -349,7 +346,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                 onClick={closeAndReset}
                                                 className="h-12 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 px-4"
                                             >
-                                                Şimdilik hayır, kendim bakarım
+                                                {t("welcome.decline")}
                                             </Button>
                                         </div>
                                     </motion.div>
@@ -364,8 +361,8 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
                                     >
                                         <div>
-                                            <h3 className="text-lg font-semibold">Faaliyet sektörünüzü seçin</h3>
-                                            <p className="text-sm text-neutral-500">Tek seçim yapın.</p>
+                                            <h3 className="text-lg font-semibold">{t("sector.title")}</h3>
+                                            <p className="text-sm text-neutral-500">{t("sector.hint")}</p>
                                         </div>
                                         <ScrollArea type="always" scrollHideDelay={0} className="h-[430px] rounded-lg border border-neutral-200/70 p-2 pr-3">
                                             <div className="grid grid-cols-2 gap-2 pb-2 md:grid-cols-3 lg:grid-cols-4">
@@ -392,7 +389,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                 />
                                                             ) : (
                                                                 <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-                                                                    Görsel yok
+                                                                    {t("noImage")}
                                                                 </div>
                                                             )}
                                                         </div>
@@ -415,8 +412,8 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
                                     >
                                         <div>
-                                            <h3 className="text-lg font-semibold">Üretim grubunuzu ve kullanım alanınızı seçin</h3>
-                                            <p className="text-sm text-neutral-500">Üretim gruplarına tıklayarak ilgili kullanım alanlarına hızlıca geçebilirsiniz.</p>
+                                            <h3 className="text-lg font-semibold">{t("usage.title")}</h3>
+                                            <p className="text-sm text-neutral-500">{t("usage.hint")}</p>
                                         </div>
 
                                         <ScrollArea type="always" scrollHideDelay={0} className="rounded-lg border border-neutral-200/70 px-2 py-2">
@@ -442,7 +439,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                             <input
                                                 value={query}
                                                 onChange={(e) => setQuery(e.target.value)}
-                                                placeholder="Kullanım alanı ara..."
+                                                placeholder={t("usage.searchPlaceholder")}
                                                 className="h-10 w-full rounded-xl border border-neutral-200 px-3 text-sm outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
                                             />
                                         </div>
@@ -492,7 +489,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                                         />
                                                                                     ) : (
                                                                                         <div className="flex h-full w-full items-center justify-center text-[11px] text-neutral-500">
-                                                                                            Görsel yok
+                                                                                            {t("noImage")}
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
@@ -509,7 +506,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                     })}
                                                     {totalFilteredUsageAreaCount === 0 && (
                                                         <p className="px-1 py-6 text-center text-sm text-neutral-500">
-                                                            Sonuç bulunamadı.
+                                                            {t("usage.noResults")}
                                                         </p>
                                                     )}
                                             </div>
@@ -536,7 +533,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                         {step > 0 && (
                             <div className="flex items-center justify-between border-t px-6 py-4">
                                 <Button variant="outline" onClick={goBack}>
-                                    Geri
+                                    {t("nav.back")}
                                 </Button>
 
                                 {step < 2 ? (
@@ -545,12 +542,12 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         disabled={!canContinue}
                                         className="bg-[var(--color-brand)] text-white"
                                     >
-                                        Devam Et
+                                        {t("nav.continue")}
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 ) : (
                                     <Button onClick={goToFilter} className="bg-[var(--color-brand)] text-white">
-                                        Ürünleri Listele
+                                        {t("nav.listProducts")}
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 )}

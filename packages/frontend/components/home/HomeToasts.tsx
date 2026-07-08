@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 export function HomeToasts({ error }: { error?: string }) {
+    const t = useTranslations("home.toasts");
     const handledRef = useRef(false);
 
     useEffect(() => {
@@ -13,7 +15,7 @@ export function HomeToasts({ error }: { error?: string }) {
             handledRef.current = true;
 
             setTimeout(() => {
-                toast.error("Bu sayfaya erişim yetkiniz bulunmuyor.", {
+                toast.error(t("accessDenied"), {
                     duration: 3000,
                     position: "top-center",
                     richColors: true,

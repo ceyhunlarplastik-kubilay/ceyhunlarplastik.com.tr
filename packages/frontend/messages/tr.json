@@ -152,6 +152,116 @@
             "paragraph": "Çevremize, toplumumuza ve geleceğimize olan duyarlılığımızın ve sorumluluğumuzun ışığında doğa dostu üretim modeli kullanıyor; sürdürülebilir bir dünya ve iyi bir gelecek için çalışıyoruz."
         }
     },
+    "home": {
+        "hero": {
+            "words": ["Arge ve Prototipleme", "3D Baskı ve Tarama", "Talaşlı İmalat", "Seri Üretim"],
+            "titleSuffix": "Plastik Çözümler",
+            "subtitle": "Prototiplemeden seri üretime kadar tüm süreçleri tek çatı altında yöneten Ceyhunlar Plastik; plastik, kauçuk ve bakalit ürünlerde yüksek kalite, mühendislik gücü ve geniş ürün yelpazesiyle endüstriyel ihtiyaçlarınıza güvenilir çözümler sunar.",
+            "ctaProducts": "Ürünlerimizi İnceleyin",
+            "ctaQuote": "Teklif Alın",
+            "imageAlt": "Plastik üretim"
+        },
+        "about": {
+            "brand": "Ceyhunlar",
+            "subtitle": "Projeden Seri Üretime",
+            "lead": "Ceyhunlar Plastik Sanayi ve Ticaret Ltd. Şti. olarak, projenizin her adımında yanınızdayız.",
+            "body1": "Plastik, kauçuk, metal ve bakalit ürün projelerinizde; taslaktan başlayan, Ar-Ge ile gelişen ve seri üretim ile sonuçlanan fayda/maliyet odaklı iş modelimizle size özel çözümler üretiyoruz.",
+            "body2": "Projelerinizin nihai ürüne ulaşması için: 3D modelleme, Model analizi, Numune ve prototip üretimi, Üretim analizi, Kalıplama ve Seri üretim baskı hizmetlerini tek çatı altında sunuyoruz.",
+            "body3": "Yeni ürün geliştirme talepleriniz için Ar-Ge hizmetlerimizden yararlanabilir, özel ürün siparişleriniz için fiyat teklifi alabilir, 35.000’den fazla ürünümüzü sergilediğimiz kataloglarımızı inceleyebilir ve bayimiz olmak için bizimle iletişime geçebilirsiniz.",
+            "infoTitle": "200+ Uzman Çalışan Gücümüzle",
+            "infoDescription": "Ekibimizin bilgi birikimi ve yetkinliği, sunduğumuz çözümlerin kalitesini ve güvenilirliğini garanti eder.",
+            "infoCtaPrimary": "Hakkımızda",
+            "infoCtaSecondary": "İletişim"
+        },
+        "services": {
+            "brand": "Ceyhunlar",
+            "subtitle": "Projeden Seri Üretime",
+            "cards": [
+                { "title": "Ar-Ge ve Prototipleme", "description": "Projenizin numune ve seri üretim öncesinde, ileri çizim ve analiz teknolojilerimizle geliştirilmesi sağlanır." },
+                { "title": "3D Baskı ve Tarama", "description": "Ar-Ge süreci tamamlanan projeleriniz, gerektiğinde taranarak CAD modellemesi yapılır ve 3D baskı ile prototiplenir." },
+                { "title": "Talaşlı İmalat", "description": "Ar-Ge, Analiz ve Prototiplemesi tamamlanan ürünlerinizin seri üretiminin yapılması adına Kalıphane bölümümüzde kalıpların hazırlanması." },
+                { "title": "Seri Üretim Metal", "description": "Metal seri imalat kalıpları tamamlanan parçalar, preshane bölümümüzde yüksek hassasiyetle metal seri üretim sürecine alınmaktadır." },
+                { "title": "Seri Üretim Plastik", "description": "Seri imalat kalıpları tamamlanan plastik parçalar, enjeksiyon, şişirme ve ekstrüzyon yöntemleriyle seri üretime alınır." },
+                { "title": "Seri Üretim Kauçuk", "description": "Seri imalat kalıpları tamamlanan kauçuk parçaların hidrolik pres bölümümüzde seri üretiminin yapılması." },
+                { "title": "Seri Üretim Bakalit", "description": "Seri imalat kalıpları tamamlanan bakalit parçaların bakalit enjeksiyon bölümümüzde seri üretimlerinin yapılması." }
+            ]
+        },
+        "products": {
+            "title": "Ürünlerimiz",
+            "subtitle": "Geniş ürün yelpazemiz ve yüksek üretim kapasitemiz ile her sektöre özel çözümler sunuyoruz."
+        },
+        "quality": {
+            "title": "Kalite Politikamız",
+            "body": "ISO standartlarına uygun üretim süreçleri, sürekli iyileştirme yaklaşımı ve tam izlenebilirlik prensipleri ile kaliteyi garanti altına alıyoruz.",
+            "highlights": [
+                { "title": "Hızlı Teslimat", "description": "En çok satan ürünlerde stoktan hızlı teslimat." },
+                { "title": "Sertifikalı Ürün", "description": "Sertifikalı üretim yaparak, her ürünün arkasında duruyoruz." },
+                { "title": "Numune Talebi", "description": "Satın almadan önce test etmek için numune isteyin." },
+                { "title": "Teknik Destek", "description": "Projenizin her aşamasında uzman desteği." }
+            ]
+        },
+        "process": {
+            "brand": "Ceyhunlar",
+            "title": "Projeden Seri Üretime Nedir?",
+            "block1Title": "Plastik, kauçuk, metal ve bakalit ürünlerinizin projeleri için;",
+            "block1Body": "Taslaktan başlayarak Ar-Ge ile devam eden ve seri üretim ile nihayete kavuşan fayda / maliyet temel esasına dayanan iş modelimizle sizlere hizmet veriyoruz.",
+            "block2Title": "Projelerinizin nihai ürüne ulaşması için;",
+            "block2Body": "3d modelleme, model analizi, numune ürün prototipleme, üretim analizi, kalıplama ve seri üretim baskısı ile projelerinizi nihai sonuca getiriyoruz.",
+            "features": [
+                { "title": "AR-GE ve Tasarım", "description": "Yenilikçi Ar-Ge süreçleri ve özgün tasarım yaklaşımı." },
+                { "title": "Kaliteli Üretim", "description": "Sıfır hata prensibi ile uçtan uca kalite kontrol." },
+                { "title": "Sertifikalı Ürün", "description": "Her ürün sertifikalı üretim anlayışıyla desteklenir." },
+                { "title": "Müşteri Memnuniyeti", "description": "Her aşamada şeffaf iletişim ve uzman desteği." }
+            ],
+            "ctaBanner": "Siz düşünün, birlikte karar verelim, biz üretelim.",
+            "form": {
+                "title": "Bizimle İletişime Geçin",
+                "subtitle": "Formu doldurun, uzman ekibimiz size en kısa sürede ulaşsın.",
+                "fullName": "Ad Soyad",
+                "phone": "Telefon (ör: +90 (532) 123-4567)",
+                "email": "Mail Adresi",
+                "submit": "Gönder",
+                "submitting": "Gönderiliyor...",
+                "toastLoading": "Gönderiliyor...",
+                "toastSuccess": "Mesajınız başarıyla iletildi!",
+                "toastError": "Gönderim sırasında bir hata oldu!"
+            },
+            "validation": {
+                "fullNameMin": "Ad Soyad en az 2 karakter olmalıdır",
+                "phoneInvalid": "Telefon numarası geçersiz",
+                "emailInvalid": "Geçerli bir e-posta adresi giriniz"
+            }
+        },
+        "assistant": {
+            "title": "Ürün Asistanı",
+            "steps": ["Karşılama", "Sektör", "Üretim Grubu ve Kullanım Alanı"],
+            "noImage": "Görsel yok",
+            "welcome": {
+                "greeting": "Merhaba",
+                "question": "İhtiyacınıza en uygun ürünü bulmanızda sizlere rehberlik etmemi ister misiniz?",
+                "start": "Evet, Başlayalım",
+                "decline": "Şimdilik hayır, kendim bakarım"
+            },
+            "sector": {
+                "title": "Faaliyet sektörünüzü seçin",
+                "hint": "Tek seçim yapın."
+            },
+            "usage": {
+                "title": "Üretim grubunuzu ve kullanım alanınızı seçin",
+                "hint": "Üretim gruplarına tıklayarak ilgili kullanım alanlarına hızlıca geçebilirsiniz.",
+                "searchPlaceholder": "Kullanım alanı ara...",
+                "noResults": "Sonuç bulunamadı."
+            },
+            "nav": {
+                "back": "Geri",
+                "continue": "Devam Et",
+                "listProducts": "Ürünleri Listele"
+            }
+        },
+        "toasts": {
+            "accessDenied": "Bu sayfaya erişim yetkiniz bulunmuyor."
+        }
+    },
     "public": {
         "sustainability": {
             "meta": {

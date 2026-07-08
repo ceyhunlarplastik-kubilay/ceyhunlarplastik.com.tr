@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 // import { useCategories } from "@/hooks/categories/useCategory";
@@ -9,6 +10,7 @@ import { useCategories } from "@/features/public/categories/hooks/useCategories"
 import { MotionMarquee } from "@/components/ui/MotionMarquee";
 
 export function ProductsSection() {
+    const t = useTranslations("home.products");
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -42,11 +44,10 @@ export function ProductsSection() {
             <div className="relative z-10 w-full">
                 <div className="mb-8 text-center px-6">
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                        Ürünlerimiz
+                        {t("title")}
                     </h2>
                     <p className="text-white/60 text-lg max-w-2xl mx-auto">
-                        Geniş ürün yelpazemiz ve yüksek üretim kapasitemiz ile her sektöre
-                        özel çözümler sunuyoruz.
+                        {t("subtitle")}
                     </p>
                 </div>
 

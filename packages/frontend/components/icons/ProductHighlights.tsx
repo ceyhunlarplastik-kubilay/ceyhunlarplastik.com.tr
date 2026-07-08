@@ -1,31 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Truck, BadgeCheck, FlaskConical, Headset } from "lucide-react";
 
 export function ProductHighlights() {
-    const items = [
-        {
-            icon: Truck,
-            title: "Hızlı Teslimat",
-            description: "En çok satan ürünlerde stoktan hızlı teslimat.",
-        },
-        {
-            icon: BadgeCheck,
-            title: "Sertifikalı Ürün",
-            description:
-                "Sertifikalı üretim yaparak, her ürünün arkasında duruyoruz.",
-        },
-        {
-            icon: FlaskConical,
-            title: "Numune Talebi",
-            description: "Satın almadan önce test etmek için numune isteyin.",
-        },
-        {
-            icon: Headset,
-            title: "Teknik Destek",
-            description: "Projenizin her aşamasında uzman desteği.",
-        },
-    ];
+    const t = useTranslations("home.quality");
+    const data = t.raw("highlights") as { title: string; description: string }[];
+    const icons = [Truck, BadgeCheck, FlaskConical, Headset];
+    const items = data.map((d, i) => ({ ...d, icon: icons[i] }));
 
     return (
         <section className="bg-[var(--color-section-bg)] py-12">

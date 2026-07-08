@@ -3,6 +3,7 @@
 import * as React from "react";
 import { IMaskInput } from "react-imask";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,15 +31,17 @@ import {
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
-/* Form Schema */
+/* Form Schema — factory (form+zod i18n deseni, bkz. dialogs/schemas.ts) */
 /* ------------------------------------------------------------------ */
-const contactFormSchema = z.object({
-    fullName: z.string().min(2, "Ad Soyad en az 2 karakter olmalıdır"),
-    phone: z.string().min(10, "Telefon numarası geçersiz"),
-    email: z.string().email("Geçerli bir e-posta adresi giriniz"),
-});
+function buildContactFormSchema(t: (key: string) => string) {
+    return z.object({
+        fullName: z.string().min(2, t("fullNameMin")),
+        phone: z.string().min(10, t("phoneInvalid")),
+        email: z.string().email(t("emailInvalid")),
+    });
+}
 
-type ContactFormValues = z.infer<typeof contactFormSchema>;
+type ContactFormValues = z.infer<ReturnType<typeof buildContactFormSchema>>;
 
 /* ------------------------------------------------------------------ */
 /* Motion config (motion/react v12 compatible) */
@@ -127,8 +130,15 @@ export function ProcessAndContactSection({
 }: {
     backgroundImageUrl?: string;
 }) {
+    const t = useTranslations("home.process");
+    const tf = useTranslations("home.process.form");
+    const tv = useTranslations("home.process.validation");
+    const features = t.raw("features") as { title: string; description: string }[];
+    const featureIcons = [Beaker, ClipboardList, BadgeCheck, Handshake];
+    const schema = React.useMemo(() => buildContactFormSchema(tv), [tv]);
+
     const form = useForm<ContactFormValues>({
-        resolver: zodResolver(contactFormSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             fullName: "",
             phone: "",
@@ -146,14 +156,14 @@ export function ProcessAndContactSection({
     const onSubmit = async (data: ContactFormValues) => {
         // API entegrasyonu buraya bağlanacak
         try {
-            toast.loading("Gönderiliyor...");
+            toast.loading(tf("toastLoading"));
             // Simulate API delay
             await new Promise((r) => setTimeout(r, 1200));
 
-            toast.success("Mesajınız başarıyla iletildi!");
+            toast.success(tf("toastSuccess"));
             reset();
         } catch (error) {
-            toast.error("Gönderim sırasında bir hata oldu!");
+            toast.error(tf("toastError"));
         }
     };
 
@@ -179,10 +189,10 @@ export function ProcessAndContactSection({
                     {/* Header */}
                     <motion.div variants={item} className="max-w-3xl">
                         <p className="text-sm font-semibold tracking-wide text-[var(--color-brand)]">
-                            Ceyhunlar
+                            {t("brand")}
                         </p>
                         <h2 className="mt-2 text-2xl md:text-4xl font-bold tracking-tight text-white">
-                            Projeden Seri Üretime Nedir?
+                            {t("title")}
                         </h2>
                     </motion.div>
 
@@ -194,26 +204,22 @@ export function ProcessAndContactSection({
                         {/* BLOK 1 */}
                         <div className="p-6">
                             <h4 className="mb-2 text-base font-semibold text-white">
-                                Plastik, kauçuk, metal ve bakalit ürünlerinizin projeleri için;
+                                {t("block1Title")}
                             </h4>
 
                             <p className="text-sm leading-relaxed text-white/80">
-                                Taslaktan başlayarak Ar-Ge ile devam eden ve seri üretim ile
-                                nihayete kavuşan fayda / maliyet temel esasına dayanan iş
-                                modelimizle sizlere hizmet veriyoruz.
+                                {t("block1Body")}
                             </p>
                         </div>
 
                         {/* BLOK 2 */}
                         <div className="p-6">
                             <h4 className="mb-2 text-base font-semibold text-white">
-                                Projelerinizin nihai ürüne ulaşması için;
+                                {t("block2Title")}
                             </h4>
 
                             <p className="text-sm leading-relaxed text-white/80">
-                                3d modelleme, model analizi, numune ürün prototipleme, üretim
-                                analizi, kalıplama ve seri üretim baskısı ile projelerinizi
-                                nihai sonuca getiriyoruz.
+                                {t("block2Body")}
                             </p>
                         </div>
                     </motion.div>
@@ -223,33 +229,21 @@ export function ProcessAndContactSection({
                         variants={item}
                         className="mt-14 grid gap-6 md:grid-cols-2"
                     >
-                        <FeatureCard
-                            Icon={Beaker}
-                            title="AR-GE ve Tasarım"
-                            description="Yenilikçi Ar-Ge süreçleri ve özgün tasarım yaklaşımı."
-                        />
-                        <FeatureCard
-                            Icon={ClipboardList}
-                            title="Kaliteli Üretim"
-                            description="Sıfır hata prensibi ile uçtan uca kalite kontrol."
-                        />
-                        <FeatureCard
-                            Icon={BadgeCheck}
-                            title="Sertifikalı Ürün"
-                            description="Her ürün sertifikalı üretim anlayışıyla desteklenir."
-                        />
-                        <FeatureCard
-                            Icon={Handshake}
-                            title="Müşteri Memnuniyeti"
-                            description="Her aşamada şeffaf iletişim ve uzman desteği."
-                        />
+                        {features.map((feature, i) => (
+                            <FeatureCard
+                                key={feature.title}
+                                Icon={featureIcons[i]}
+                                title={feature.title}
+                                description={feature.description}
+                            />
+                        ))}
                     </motion.div>
 
                     {/* CTA */}
                     <motion.div variants={item} className="mt-10 flex justify-center">
                         <span className="rounded-full border border-white/10 bg-black/30 px-6 py-2 text-sm text-white/80 backdrop-blur-sm group inline-flex items-center gap-2">
                             <Brain className="h-6 w-6 text-[var(--color-brand)] transition group-hover:scale-110" />
-                            Siz düşünün, birlikte karar verelim, biz üretelim.
+                            {t("ctaBanner")}
                         </span>
                     </motion.div>
 
@@ -261,10 +255,10 @@ export function ProcessAndContactSection({
                         <div className="grid gap-10 lg:grid-cols-2">
                             <div>
                                 <h3 className="text-2xl font-bold text-white">
-                                    Bizimle İletişime Geçin
+                                    {tf("title")}
                                 </h3>
                                 <p className="mt-2 text-sm text-white/70">
-                                    Formu doldurun, uzman ekibimiz size en kısa sürede ulaşsın.
+                                    {tf("subtitle")}
                                 </p>
                             </div>
 
@@ -279,7 +273,7 @@ export function ProcessAndContactSection({
                                                 <FormControl>
                                                     <Input
                                                         {...field}
-                                                        placeholder="Ad Soyad"
+                                                        placeholder={tf("fullName")}
                                                         className="rounded-xl bg-black/20 text-white placeholder:text-white/40 focus-visible:ring-[var(--color-brand)]"
                                                     />
                                                 </FormControl>
@@ -300,7 +294,7 @@ export function ProcessAndContactSection({
                                                         value={field.value}
                                                         unmask={false}
                                                         onAccept={(value) => field.onChange(value)}
-                                                        placeholder="Telefon (ör: +90 (532) 123-4567)"
+                                                        placeholder={tf("phone")}
                                                         className="
             w-full rounded-xl border border-white/10
             bg-black/20 px-4 py-3 text-sm text-white
@@ -323,7 +317,7 @@ export function ProcessAndContactSection({
                                                 <FormControl>
                                                     <Input
                                                         {...field}
-                                                        placeholder="Mail Adresi"
+                                                        placeholder={tf("email")}
                                                         className="rounded-xl bg-black/20 text-white placeholder:text-white/40 focus-visible:ring-[var(--color-brand)]"
                                                     />
                                                 </FormControl>
@@ -341,11 +335,11 @@ export function ProcessAndContactSection({
                                         {isSubmitting ? (
                                             <div className="flex items-center gap-2">
                                                 <Spinner className="h-4 w-4 text-black" />
-                                                Gönderiliyor...
+                                                {tf("submitting")}
                                             </div>
                                         ) : (
                                             <>
-                                                Gönder
+                                                {tf("submit")}
                                                 <ArrowUpRight className="ml-2 h-4 w-4" />
                                             </>
                                         )}

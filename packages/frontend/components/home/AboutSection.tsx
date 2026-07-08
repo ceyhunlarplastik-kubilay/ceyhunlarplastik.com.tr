@@ -1,10 +1,13 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { InfoCard } from "@/components/ui/info-card";
 import { StatsBar } from "@/components/icons/StatsBar";
 
 export function AboutSection() {
+    const t = useTranslations("home.about");
+
     return (
         <section className="relative bg-muted/30 pt-12 overflow-hidden">
             <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -18,36 +21,27 @@ export function AboutSection() {
                         className="flex flex-col justify-center lg:w-[45%]"
                     >
                         <h2 className="text-xl md:text-2xl font-bold text-brand mb-2">
-                            Ceyhunlar
+                            {t("brand")}
                         </h2>
 
                         <h3 className="text-2xl md:text-3xl font-semibold text-muted-foreground mb-2">
-                            Projeden Seri Üretime
+                            {t("subtitle")}
                         </h3>
 
                         <h4 className="text-l md:text-l font-semibold text-muted-foreground mb-2">
-                            Ceyhunlar Plastik Sanayi ve Ticaret Ltd. Şti. olarak, projenizin
-                            her adımında yanınızdayız.
+                            {t("lead")}
                         </h4>
 
                         <p className="text-lg md:text-l text-muted-foreground leading-relaxed mb-2">
-                            Plastik, kauçuk, metal ve bakalit ürün projelerinizde; taslaktan
-                            başlayan, Ar-Ge ile gelişen ve seri üretim ile sonuçlanan
-                            fayda/maliyet odaklı iş modelimizle size özel çözümler üretiyoruz.
+                            {t("body1")}
                         </p>
 
                         <p className="text-lg md:text-l text-muted-foreground leading-relaxed mb-6">
-                            Projelerinizin nihai ürüne ulaşması için: 3D modelleme, Model
-                            analizi, Numune ve prototip üretimi, Üretim analizi, Kalıplama ve
-                            Seri üretim baskı hizmetlerini tek çatı altında sunuyoruz.
+                            {t("body2")}
                         </p>
 
                         <p className="text-lg md:text-l text-muted-foreground leading-relaxed mb-8">
-                            Yeni ürün geliştirme talepleriniz için Ar-Ge hizmetlerimizden
-                            yararlanabilir, özel ürün siparişleriniz için fiyat teklifi
-                            alabilir, 35.000’den fazla ürünümüzü sergilediğimiz
-                            kataloglarımızı inceleyebilir ve bayimiz olmak için bizimle
-                            iletişime geçebilirsiniz.
+                            {t("body3")}
                         </p>
                     </motion.div>
 
@@ -61,10 +55,10 @@ export function AboutSection() {
                     >
                         <InfoCard
                             image="/logos/ekibimiz-banner.jpg"
-                            title="200+ Uzman Çalışan Gücümüzle"
-                            description="Ekibimizin bilgi birikimi ve yetkinliği, sunduğumuz çözümlerin kalitesini ve güvenilirliğini garanti eder."
-                            ctaPrimary="Hakkımızda"
-                            ctaSecondary="İletişim"
+                            title={t("infoTitle")}
+                            description={t("infoDescription")}
+                            ctaPrimary={t("infoCtaPrimary")}
+                            ctaSecondary={t("infoCtaSecondary")}
                             ctaPrimaryHref="/hakkimizda"
                             ctaSecondaryHref="/iletisim"
                             className="h-full shadow-2xl"

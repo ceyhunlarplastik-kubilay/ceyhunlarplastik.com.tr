@@ -2,8 +2,11 @@
 
 import ColorChangeCards from "@/components/ui/color-change-card";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 export function ServicesSection() {
+    const t = useTranslations("home.services");
+
     return (
         <section className="relative bg-[var(--color-section-bg)] pb-24">
             <div className="mx-auto max-w-7xl px-4">
@@ -17,10 +20,10 @@ export function ServicesSection() {
                         animate={{ opacity: 1 }}
                     >
                         <h2 className="text-xl md:text-2xl font-bold text-brand mb-2">
-                            Ceyhunlar
+                            {t("brand")}
                         </h2>
                         <h3 className="text-2xl md:text-3xl font-semibold text-muted-foreground mb-2">
-                            Projeden Seri Üretime
+                            {t("subtitle")}
                         </h3>
                     </motion.div>
                     <ColorChangeCards />

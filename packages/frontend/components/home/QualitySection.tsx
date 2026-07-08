@@ -1,7 +1,10 @@
+import { getTranslations } from "next-intl/server"
 import { AnimatedSection } from "@/components/ui/AnimatedSection"
 import { ProductHighlights } from "@/components/icons/ProductHighlights"
 
-export function QualitySection() {
+export async function QualitySection() {
+    const t = await getTranslations("home.quality")
+
     return (
         <AnimatedSection>
             <section className="relative bg-[var(--color-section-bg)] py-24">
@@ -9,13 +12,11 @@ export function QualitySection() {
                     {/* Header */}
                     <div className="mb-10 max-w-3xl mx-auto text-center">
                         <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-4">
-                            Kalite Politikamız
+                            {t("title")}
                         </h2>
 
                         <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-                            ISO standartlarına uygun üretim süreçleri, sürekli iyileştirme
-                            yaklaşımı ve tam izlenebilirlik prensipleri ile kaliteyi garanti
-                            altına alıyoruz.
+                            {t("body")}
                         </p>
                     </div>
 

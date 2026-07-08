@@ -152,6 +152,116 @@
             "paragraph": "Guided by our sensitivity and responsibility toward our environment, society and future, we use a nature-friendly production model and work for a sustainable world and a better future."
         }
     },
+    "home": {
+        "hero": {
+            "words": ["R&D and Prototyping", "3D Printing and Scanning", "CNC Machining", "Mass Production"],
+            "titleSuffix": "Plastic Solutions",
+            "subtitle": "Managing all processes from prototyping to mass production under one roof, Ceyhunlar Plastik provides reliable solutions for your industrial needs in plastic, rubber and bakelite products with high quality, engineering strength and a wide product range.",
+            "ctaProducts": "Explore Our Products",
+            "ctaQuote": "Get a Quote",
+            "imageAlt": "Plastic manufacturing"
+        },
+        "about": {
+            "brand": "Ceyhunlar",
+            "subtitle": "From Project to Mass Production",
+            "lead": "As Ceyhunlar Plastik Sanayi ve Ticaret Ltd. Şti., we are with you at every step of your project.",
+            "body1": "For your plastic, rubber, metal and bakelite product projects, we produce custom solutions with our benefit/cost-focused business model that starts from a draft, develops with R&D and results in mass production.",
+            "body2": "To bring your projects to the final product, we offer 3D modeling, model analysis, sample and prototype production, production analysis, molding and mass production printing services under one roof.",
+            "body3": "You can benefit from our R&D services for your new product development requests, get a price quote for your custom product orders, review our catalogs displaying more than 35,000 products, and contact us to become our dealer.",
+            "infoTitle": "With Our 200+ Expert Employees",
+            "infoDescription": "The knowledge and competence of our team guarantee the quality and reliability of the solutions we offer.",
+            "infoCtaPrimary": "About Us",
+            "infoCtaSecondary": "Contact"
+        },
+        "services": {
+            "brand": "Ceyhunlar",
+            "subtitle": "From Project to Mass Production",
+            "cards": [
+                { "title": "R&D and Prototyping", "description": "Your project is developed with our advanced drawing and analysis technologies before sampling and mass production." },
+                { "title": "3D Printing and Scanning", "description": "Your projects with completed R&D are scanned when needed, CAD modeled and prototyped with 3D printing." },
+                { "title": "CNC Machining", "description": "For the mass production of your products whose R&D, analysis and prototyping are complete, molds are prepared in our mold shop." },
+                { "title": "Mass Production Metal", "description": "Parts whose metal mass-production molds are complete are taken into the high-precision metal mass production process in our press shop." },
+                { "title": "Mass Production Plastic", "description": "Plastic parts whose mass-production molds are complete are taken into mass production by injection, blow molding and extrusion methods." },
+                { "title": "Mass Production Rubber", "description": "Mass production of rubber parts whose mass-production molds are complete is carried out in our hydraulic press section." },
+                { "title": "Mass Production Bakelite", "description": "Mass production of bakelite parts whose mass-production molds are complete is carried out in our bakelite injection section." }
+            ]
+        },
+        "products": {
+            "title": "Our Products",
+            "subtitle": "With our wide product range and high production capacity, we offer solutions tailored to every sector."
+        },
+        "quality": {
+            "title": "Our Quality Policy",
+            "body": "We guarantee quality with production processes compliant with ISO standards, a continuous improvement approach and full traceability principles.",
+            "highlights": [
+                { "title": "Fast Delivery", "description": "Fast delivery from stock for best-selling products." },
+                { "title": "Certified Product", "description": "By producing certified products, we stand behind every product." },
+                { "title": "Sample Request", "description": "Request a sample to test before buying." },
+                { "title": "Technical Support", "description": "Expert support at every stage of your project." }
+            ]
+        },
+        "process": {
+            "brand": "Ceyhunlar",
+            "title": "What is From Project to Mass Production?",
+            "block1Title": "For your plastic, rubber, metal and bakelite product projects;",
+            "block1Body": "We serve you with our business model based on a benefit/cost principle that starts from a draft, continues with R&D and is completed with mass production.",
+            "block2Title": "To bring your projects to the final product;",
+            "block2Body": "We bring your projects to the final result with 3D modeling, model analysis, sample product prototyping, production analysis, molding and mass production printing.",
+            "features": [
+                { "title": "R&D and Design", "description": "Innovative R&D processes and an original design approach." },
+                { "title": "Quality Production", "description": "End-to-end quality control with a zero-defect principle." },
+                { "title": "Certified Product", "description": "Every product is backed by a certified production approach." },
+                { "title": "Customer Satisfaction", "description": "Transparent communication and expert support at every stage." }
+            ],
+            "ctaBanner": "You think, let's decide together, we produce.",
+            "form": {
+                "title": "Get in Touch with Us",
+                "subtitle": "Fill out the form and our expert team will reach you as soon as possible.",
+                "fullName": "Full Name",
+                "phone": "Phone (e.g. +90 (532) 123-4567)",
+                "email": "Email Address",
+                "submit": "Send",
+                "submitting": "Sending...",
+                "toastLoading": "Sending...",
+                "toastSuccess": "Your message has been sent successfully!",
+                "toastError": "An error occurred while sending!"
+            },
+            "validation": {
+                "fullNameMin": "Full name must be at least 2 characters",
+                "phoneInvalid": "Invalid phone number",
+                "emailInvalid": "Please enter a valid email address"
+            }
+        },
+        "assistant": {
+            "title": "Product Assistant",
+            "steps": ["Welcome", "Sector", "Production Group and Usage Area"],
+            "noImage": "No image",
+            "welcome": {
+                "greeting": "Hello",
+                "question": "Would you like me to guide you in finding the most suitable product for your needs?",
+                "start": "Yes, Let's Start",
+                "decline": "Not now, I'll look around myself"
+            },
+            "sector": {
+                "title": "Select your industry",
+                "hint": "Make a single selection."
+            },
+            "usage": {
+                "title": "Select your production group and usage area",
+                "hint": "Click on production groups to quickly jump to the related usage areas.",
+                "searchPlaceholder": "Search usage area...",
+                "noResults": "No results found."
+            },
+            "nav": {
+                "back": "Back",
+                "continue": "Continue",
+                "listProducts": "List Products"
+            }
+        },
+        "toasts": {
+            "accessDenied": "You do not have permission to access this page."
+        }
+    },
     "public": {
         "sustainability": {
             "meta": {
