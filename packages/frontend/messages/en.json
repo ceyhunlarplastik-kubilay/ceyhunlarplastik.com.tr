@@ -186,6 +186,149 @@
                 "imageAlt3": "Energy production"
             }
         },
+        "catalog": {
+            "meta": {
+                "title": "Catalogs",
+                "description": "Browse Ceyhunlar Plastik product catalogs and download them as PDF."
+            },
+            "heroTitle": "Catalogs",
+            "breadcrumbSelf": "Catalogs",
+            "download": "Download"
+        },
+        "massProduction": {
+            "meta": {
+                "title": "Mass Production",
+                "description": "Ceyhunlar Plastik mass production: sheet metal, plastic injection, rubber and bakelite."
+            },
+            "heroTitle": "Mass Production",
+            "sectionLabel": "Mass Production",
+            "tabs": {
+                "metal": "Sheet Metal",
+                "plastic": "Plastic Injection",
+                "rubber": "Rubber",
+                "bakelite": "Bakelite"
+            },
+            "metal": {
+                "intro": "“Sheet metal” is a term that generally refers to metal sheets or plates. In the metal industry, it refers to metal sheets usually made of materials such as steel, aluminum or copper. These metal sheets can be of various thicknesses and properties and are used in industrial applications, the construction sector, the automotive industry, shipbuilding and many other fields.",
+                "imageAlt": "Sheet Metal Mass Production",
+                "items": [
+                    { "title": "Materials:", "text": "Sheet metal is usually made of metal materials such as steel, aluminum, copper and stainless steel. Material selection can vary depending on a range of criteria such as application, durability and cost factors." },
+                    { "title": "Production Process:", "text": "Sheet metal is produced by bringing metal plates to the desired thickness and shape using various production processes such as rolling or pressing. Metal sheets are shaped by rolling machines or pressing equipment." },
+                    { "title": "Areas of Use:", "text": "Sheet metal has a wide range of uses across many industries and sectors. For example, it is used in roof coverings in construction, vehicle body parts in the automotive industry, coating panels in appliance manufacturing and many other areas." },
+                    { "title": "Various Thicknesses and Sizes:", "text": "Sheet metal is available in a wide variety of thicknesses and sizes. This means it can be selected to suit specific application requirements." },
+                    { "title": "Corrosion Resistance and Coating:", "text": "Some types, such as stainless steel sheet metal, have corrosion-resistant properties to increase their durability. In addition, in some cases they can be subjected to special coating processes." },
+                    { "title": "Sustainability:", "text": "Recycling metal can increase the sustainability of sheet metal. Using recyclable metal can reduce environmental impact and use natural resources more efficiently." }
+                ],
+                "summaryTitle": "Sheet Metal Use in Industry",
+                "summaryQuote": "“Sheet metal is a material widely preferred in many industries due to its advantages such as durability, strength and formability. The use of this material continuously evolves along with technological developments.”",
+                "summaryBody": "Mold design refers to the design process of the mold or matrix used for mass production of products from materials such as metal or plastic. This design process is carried out to ensure that a predetermined product is produced in a specific form, size and material.",
+                "designItems": [
+                    "Needs Analysis: The first step is to analyze the needs and requirements of the part to be produced. This includes the part's dimensions, material, durability and other properties.",
+                    "Design Concepts: Based on the needs analysis, different design concepts are developed. These concepts include factors such as the shape, dimensions, material and production process of the product.",
+                    "CAD (Computer-Aided Design) Modeling: The selected design concepts are modeled digitally using CAD software. This step involves creating a three-dimensional design of the product.",
+                    "Analysis and Optimization: Analyses are performed on the CAD model and factors such as the design's durability, fluidity and temperature distribution are examined. If necessary, design optimization is carried out."
+                ],
+                "moldItems": [
+                    "Detailed Design: A detailed study is carried out on the selected design. In this step, every detail of the part, tolerances, assembly points and material selection are determined.",
+                    "Determining the Production Process: Mold design includes determining the production process. This covers factors such as which material will be used, the mold production process and the equipment needed for mold production.",
+                    "Prototype Production and Testing: A prototype of the design is produced and tested. This is important to evaluate how the design performs under real-world conditions.",
+                    "Mold Production: After prototype tests, mold production is carried out according to the approved design. This is usually done using high-precision production methods such as CNC (Computer Numerical Control) machines or electrical discharge processes."
+                ],
+                "closing": "Mold design plays a critical role in industrial production processes and has a major impact on the quality, cost and production speed of products. A good mold design allows products to be produced and marketed more effectively."
+            },
+            "plastic": {
+                "imageAlt": "Plastic Injection Mass Production",
+                "paragraphs": [
+                    "Plastic injection is one of the most widely used methods in mass production. This process, carried out by injecting molten plastic into a mold under high pressure, provides fast, repeatable and cost-efficient production.",
+                    "Parts produced with high precision are used in many sectors such as automotive, appliances, electronics, medical and packaging.",
+                    "Thanks to the variety in mold design, very complex forms can be produced and thousands of parts can be obtained in series at the same time.",
+                    "Thanks to its advantages of durability, flexibility and low cost, plastic injection is an indispensable manufacturing method in the industry."
+                ]
+            },
+            "rubber": {
+                "imageAlt": "Rubber Mass Production",
+                "paragraphs": [
+                    "In the mass production process, hydraulic presses are used especially for the production of rubber products. Rubber is an elastic and durable material and is widely used in a range of industries, especially in sectors such as automotive, electronics, medicine and construction.",
+                    "Hydraulic presses provide an effective and efficient method for the mass production of rubber products. This process is widely used in the production of rubber seals, seal profiles, rubber parts and similar products."
+                ]
+            },
+            "bakelite": {
+                "imageAlt": "Bakelite Mass Production",
+                "paragraphs": [
+                    "Bakelite is a hard thermoset plastic resistant to heat and chemicals. Due to its electrical insulation property, it is widely used in the electrical and electronics industry. It is also preferred in kitchenware, telephone bodies and various industrial equipment.",
+                    "Bakelite, which can be easily transformed into the desired form by molding, maintains its mechanical strength even at high temperatures. Thanks to these properties, it holds an important place in the industry as a long-lasting, reliable and cost-efficient material.",
+                    "Today, despite the emergence of modern plastics, bakelite continues to be preferred in some special applications."
+                ]
+            }
+        },
+        "suggestion": {
+            "meta": {
+                "title": "Suggestions & Complaints",
+                "description": "Ceyhunlar Plastik suggestions and complaints form. Share your feedback with us."
+            },
+            "heroTitle": "Suggestions & Complaints",
+            "heroSubtitle": "Your feedback is very important to us so we can serve you better. Through this form you can send us your opinions, suggestions and complaints about our company.",
+            "form": {
+                "fields": {
+                    "fullName": "Full Name",
+                    "email": "Email",
+                    "phone": "+90 (532) 123-4567",
+                    "message": "Your message"
+                },
+                "typeLabel": "Notification Type",
+                "typeSuggestion": "Suggestion",
+                "typeComplaint": "Complaint",
+                "consent": "I have read and accept the Privacy Policy.",
+                "submit": "Send",
+                "submitting": "Sending..."
+            },
+            "validation": {
+                "fullNameMin": "Full name must be at least 2 characters",
+                "emailInvalid": "Please enter a valid email address",
+                "phoneInvalid": "Invalid phone number",
+                "typeRequired": "Please select a notification type",
+                "messageMin": "Message must be at least 10 characters",
+                "consentRequired": "You must accept the privacy policy"
+            }
+        },
+        "contact": {
+            "meta": {
+                "title": "Contact",
+                "description": "Get in touch with Ceyhunlar Plastik. Address, phone, email and directions."
+            },
+            "infoTitle": "Get in Touch",
+            "infoBody": "You can contact us for any questions such as catalog requests, product requests, stock availability, needs assessment, certificate inquiries, custom production, mass production, shipment status, import regulations, customs processes and more.",
+            "addressLine1": "4308 Sk. No: 4A Aydın Mah.",
+            "addressLine2": "Karabağlar İzmir / TÜRKİYE",
+            "directionsCta": "Get Directions",
+            "formTitle": "Contact Form",
+            "formSubtitle1": "Start an interaction with us by filling out the form.",
+            "formSubtitle2": "Our expert team will call you shortly.",
+            "form": {
+                "fullName": "Full Name",
+                "email": "Email",
+                "phone": "Phone",
+                "message": "Your message",
+                "consent": "I have read and accept the Privacy Policy.",
+                "submit": "Send"
+            },
+            "routes": {
+                "sectionTitle": "Directions",
+                "sectionSubtitle": "Our facility, located in the heart of İzmir, is very easy to reach.",
+                "air": {
+                    "title": "By Air",
+                    "text": "It is about a 20-minute drive from Adnan Menderes Airport by taxi or car rental."
+                },
+                "road": {
+                    "title": "By Road",
+                    "text": "Easy access via public transport heading toward Karabağlar from the İzmir bus terminal or via the ring road."
+                },
+                "rail": {
+                    "title": "By Rail",
+                    "text": "You can reach our facility very quickly via the İZBAN commuter line, Semt Garajı stop."
+                }
+            }
+        },
         "machining": {
             "meta": {
                 "title": "CNC Machining",

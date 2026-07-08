@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -18,6 +19,10 @@ const fadeUp = {
 };
 
 export function MassProductionPlastic() {
+    const t = useTranslations("public.massProduction");
+    const tp = useTranslations("public.massProduction.plastic");
+    const paragraphs = tp.raw("paragraphs") as string[];
+
     return (
         <>
             <section id="plastic" className="py-20">
@@ -32,18 +37,17 @@ export function MassProductionPlastic() {
                         className="space-y-4"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            Seri Üretim
+                            {t("sectionLabel")}
                         </h2>
                         <h4 className="text-xl font-semibold text-[var(--color-brand)] -mt-4">
-                            Plastik Enjeksiyon
+                            {t("tabs.plastic")}
                         </h4>
 
-                        <p className="text-muted-foreground leading-relaxed">
-                            Plastik enjeksiyon, seri üretimde en yaygın kullanılan yöntemlerden biridir. Eritilmiş plastiğin kalıba yüksek basınçla enjekte edilmesiyle gerçekleştirilen bu süreç, hızlı, tekrarlanabilir ve maliyet açısından verimli bir üretim sağlar.
-                        </p>
-                        <p className="text-muted-foreground leading-relaxed">Yüksek hassasiyetle üretilen parçalar, otomotiv, beyaz eşya, elektronik, medikal ve ambalaj gibi birçok sektörde kullanılmaktadır.</p>
-                        <p className="text-muted-foreground leading-relaxed">Kalıp tasarımındaki çeşitlilik sayesinde çok karmaşık formlar üretilebilmekte ve aynı anda binlerce parça seri olarak elde edilebilmektedir.</p>
-                        <p className="text-muted-foreground leading-relaxed">Dayanıklılık, esneklik ve düşük maliyet avantajları sayesinde plastik enjeksiyon, endüstride vazgeçilmez bir imalat yöntemidir.</p>
+                        {paragraphs.map((text, i) => (
+                            <p key={i} className="text-muted-foreground leading-relaxed">
+                                {text}
+                            </p>
+                        ))}
                     </motion.div>
 
                     {/* IMAGE */}
@@ -56,7 +60,7 @@ export function MassProductionPlastic() {
                     >
                         <Image
                             src="/logos/massp.png"
-                            alt="Plastik Enjeksiyon Seri Üretim"
+                            alt={tp("imageAlt")}
                             fill
                             className="object-cover"
                         />

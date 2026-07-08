@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -18,6 +19,10 @@ const fadeUp = {
 };
 
 export function MassProductionBakalite() {
+    const t = useTranslations("public.massProduction");
+    const tbk = useTranslations("public.massProduction.bakelite");
+    const paragraphs = tbk.raw("paragraphs") as string[];
+
     return (
         <>
             <section id="bakelite" className="py-20">
@@ -32,21 +37,17 @@ export function MassProductionBakalite() {
                         className="space-y-4"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            Seri Üretim
+                            {t("sectionLabel")}
                         </h2>
                         <h4 className="text-xl font-semibold text-[var(--color-brand)] -mt-4">
-                            Bakalit
+                            {t("tabs.bakelite")}
                         </h4>
 
-                        <p className="text-muted-foreground leading-relaxed">
-                            Bakalit, ısıya ve kimyasallara dayanıklı, sert bir termoset plastiktir. Elektrik yalıtımı özelliği nedeniyle elektrik ve elektronik endüstrisinde yaygın olarak kullanılır. Ayrıca mutfak gereçleri, telefon gövdeleri ve çeşitli endüstriyel ekipmanlarda da tercih edilmektedir.
-                        </p>
-                        <p className="text-muted-foreground leading-relaxed">
-                            Kalıplama yöntemiyle istenilen forma kolayca dönüştürülebilen bakalit, yüksek sıcaklıklarda dahi mekanik dayanımını korur. Bu özellikleri sayesinde uzun ömürlü, güvenilir ve maliyet açısından verimli bir malzeme olarak endüstride önemli bir yer tutar.
-                        </p>
-                        <p className="text-muted-foreground leading-relaxed">
-                            Günümüzde modern plastiklerin ortaya çıkmasına rağmen, bakalit halen bazı özel uygulamalarda tercih edilmeye devam etmektedir.
-                        </p>
+                        {paragraphs.map((text, i) => (
+                            <p key={i} className="text-muted-foreground leading-relaxed">
+                                {text}
+                            </p>
+                        ))}
                     </motion.div>
 
                     {/* IMAGE */}
@@ -59,7 +60,7 @@ export function MassProductionBakalite() {
                     >
                         <Image
                             src="/logos/bakalite.png"
-                            alt="Bakalit Seri Üretim"
+                            alt={tbk("imageAlt")}
                             fill
                             className="object-cover"
                         />

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -18,6 +19,10 @@ const fadeUp = {
 };
 
 export function MassProductionRubber() {
+    const t = useTranslations("public.massProduction");
+    const trb = useTranslations("public.massProduction.rubber");
+    const paragraphs = trb.raw("paragraphs") as string[];
+
     return (
         <>
             <section id="rubber" className="py-20">
@@ -32,7 +37,7 @@ export function MassProductionRubber() {
                     >
                         <Image
                             src="/logos/rubber.png"
-                            alt="Kauçuk Seri Üretim"
+                            alt={trb("imageAlt")}
                             fill
                             className="object-cover"
                         />
@@ -47,18 +52,17 @@ export function MassProductionRubber() {
                         className="space-y-4"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            Seri Üretim
+                            {t("sectionLabel")}
                         </h2>
                         <h4 className="text-xl font-semibold text-[var(--color-brand)] -mt-4">
-                            Kauçuk
+                            {t("tabs.rubber")}
                         </h4>
 
-                        <p className="text-muted-foreground leading-relaxed">
-                            Seri imalat sürecinde hidrolik presler, özellikle kauçuk ürünlerin üretimi için kullanılır. Kauçuk, elastik ve dayanıklı bir malzemedir ve bir dizi endüstride, özellikle otomotiv, elektronik, tıp ve inşaat gibi sektörlerde yaygın olarak kullanılır.
-                        </p>
-                        <p className="text-muted-foreground leading-relaxed">
-                            Hidrolik presler, kauçuk ürünlerin seri üretimi için etkili ve verimli bir yöntem sağlar. Bu süreç, kauçuk contalar, conta profilleri, kauçuk parçalar ve benzeri ürünlerin üretiminde yaygın olarak kullanılır.
-                        </p>
+                        {paragraphs.map((text, i) => (
+                            <p key={i} className="text-muted-foreground leading-relaxed">
+                                {text}
+                            </p>
+                        ))}
                     </motion.div>
                 </div>
             </section>

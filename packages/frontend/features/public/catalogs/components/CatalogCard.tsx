@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { GlowCard } from "@/components/ui/spotlight-card"
 // import { PdfPreview } from "./PdfPreview"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,7 @@ const PdfPreview = dynamic(
 )
 
 export function CatalogCard({ category }: { category: any }) {
+    const t = useTranslations("public.catalog")
     const catalog = category.assets?.find(
         (a: any) => a.type === "PDF" && a.role === "DOCUMENT"
     )
@@ -58,7 +60,7 @@ export function CatalogCard({ category }: { category: any }) {
                         >
                             <a href={catalog.url} download>
                                 <Download className="w-4 h-4 mr-2" />
-                                İndir
+                                {t("download")}
                             </a>
                         </Button>
                     </div>

@@ -1,8 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import {
     User,
     Mail,
@@ -11,7 +13,7 @@ import {
 } from "lucide-react";
 
 import {
-    suggestionFormSchema,
+    buildSuggestionFormSchema,
     type SuggestionFormValues,
 } from "../schema";
 
@@ -21,8 +23,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
 
 export function SuggestionForm() {
+    const t = useTranslations("public.suggestion");
+    const tf = useTranslations("public.suggestion.form");
+    const tv = useTranslations("public.suggestion.validation");
+    const schema = useMemo(() => buildSuggestionFormSchema(tv), [tv]);
+
     const form = useForm<SuggestionFormValues>({
-        resolver: zodResolver(suggestionFormSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             fullName: "",
             email: "",
@@ -62,11 +69,11 @@ export function SuggestionForm() {
                 <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
 
                     <h1 className="text-white text-3xl md:text-4xl font-semibold">
-                        Öneri & Şikayet
+                        {t("heroTitle")}
                     </h1>
 
                     <p className="mt-4 text-white/90 max-w-2xl leading-relaxed">
-                        Sizlere daha iyi hizmet sunabilmek için geri bildirimleriniz bizim için büyük önem taşımaktadır. Bu form aracılığıyla işletmemiz hakkında görüş, öneri ve şikayetlerinizi iletebilirsiniz.
+                        {t("heroSubtitle")}
                     </p>
 
                 </div>
@@ -90,7 +97,7 @@ export function SuggestionForm() {
                                 <FormInputWithIcon
                                     control={control}
                                     name="fullName"
-                                    placeholder="Ad Soyad"
+                                    placeholder={tf("fields.fullName")}
                                     icon={User}
                                 />
 
@@ -98,7 +105,7 @@ export function SuggestionForm() {
                                     control={control}
                                     name="email"
                                     type="email"
-                                    placeholder="E-posta"
+                                    placeholder={tf("fields.email")}
                                     icon={Mail}
                                 />
 
@@ -106,14 +113,14 @@ export function SuggestionForm() {
                                     control={control}
                                     name="phone"
                                     mask="+90 (000) 000-0000"
-                                    placeholder="+90 (532) 123-4567"
+                                    placeholder={tf("fields.phone")}
                                     icon={PhoneCall}
                                 />
 
                                 {/* ================= TYPE ================= */}
                                 <div className="space-y-2">
                                     <p className="text-sm text-muted-foreground">
-                                        Bildirim Türü
+                                        {tf("typeLabel")}
                                     </p>
 
                                     <div className="flex gap-4">
@@ -123,7 +130,7 @@ export function SuggestionForm() {
                                                 value="suggestion"
                                                 {...register("type")}
                                             />
-                                            Öneri
+                                            {tf("typeSuggestion")}
                                         </label>
 
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -132,7 +139,7 @@ export function SuggestionForm() {
                                                 value="complaint"
                                                 {...register("type")}
                                             />
-                                            Şikayet
+                                            {tf("typeComplaint")}
                                         </label>
                                     </div>
                                 </div>
@@ -142,7 +149,7 @@ export function SuggestionForm() {
                                     name="message"
                                     textarea
                                     rows={5}
-                                    placeholder="Mesajınız"
+                                    placeholder={tf("fields.message")}
                                     icon={MessageSquare}
                                 />
 
@@ -153,7 +160,7 @@ export function SuggestionForm() {
                                         {...register("consent")}
                                         className="mt-1"
                                     />
-                                    Gizlilik Politikasını okudum ve kabul ediyorum.
+                                    {tf("consent")}
                                 </label>
 
                                 {/* honeypot */}
@@ -176,10 +183,10 @@ export function SuggestionForm() {
                                     {isSubmitting ? (
                                         <span className="flex items-center gap-2">
                                             <Spinner className="h-5 w-5" />
-                                            Gönderiliyor...
+                                            {tf("submitting")}
                                         </span>
                                     ) : (
-                                        "Gönder"
+                                        tf("submit")
                                     )}
                                 </Button>
                             </form>

@@ -186,6 +186,149 @@
                 "imageAlt3": "Enerji üretimi"
             }
         },
+        "catalog": {
+            "meta": {
+                "title": "Kataloglar",
+                "description": "Ceyhunlar Plastik ürün kataloglarını inceleyin ve PDF olarak indirin."
+            },
+            "heroTitle": "Kataloglar",
+            "breadcrumbSelf": "Kataloglar",
+            "download": "İndir"
+        },
+        "massProduction": {
+            "meta": {
+                "title": "Seri Üretim",
+                "description": "Ceyhunlar Plastik seri üretim: sac metal, plastik enjeksiyon, kauçuk ve bakalit."
+            },
+            "heroTitle": "Seri Üretim",
+            "sectionLabel": "Seri Üretim",
+            "tabs": {
+                "metal": "Sac Metal",
+                "plastic": "Plastik Enjeksiyon",
+                "rubber": "Kauçuk",
+                "bakelite": "Bakalit"
+            },
+            "metal": {
+                "intro": "“Sac metal,” genellikle metal levha veya plakaları ifade eden bir terimdir. Metal endüstrisinde, genellikle çelik, alüminyum veya bakır gibi malzemelerden yapılmış metal levhaları ifade eder. Bu metal levhalar, çeşitli kalınlıklarda ve özelliklerde olabilir ve endüstriyel uygulamalarda, inşaat sektöründe, otomotiv endüstrisinde, gemi yapımında ve birçok başka alanında kullanılır.",
+                "imageAlt": "Sac Metal Seri Üretim",
+                "items": [
+                    { "title": "Malzemeler:", "text": "Sac metal, genellikle çelik, alüminyum, bakır, paslanmaz çelik gibi metal malzemelerden yapılır. Malzeme seçimi, uygulama, dayanıklılık ve maliyet faktörleri gibi bir dizi kritere bağlı olarak değişebilir." },
+                    { "title": "Üretim Süreci:", "text": "Sac metal, metal plakaların haddeleme veya presleme gibi çeşitli üretim süreçleri kullanılarak istenen kalınlık ve şekle getirilmesiyle üretilir. Metal levhalar, haddeleme makineleri veya presleme ekipmanları aracılığıyla şekillendirilir." },
+                    { "title": "Kullanım Alanları:", "text": "Sac metal, birçok endüstri ve sektörde geniş bir kullanım alanına sahiptir. Örneğin, inşaat sektöründe çatı kaplamaları, otomotiv endüstrisinde araç gövdesi parçaları, beyaz eşya üretiminde kaplama panelleri gibi birçok alanda kullanılır." },
+                    { "title": "Çeşitli Kalınlıklar ve Boyutlar:", "text": "Sac metal, çok çeşitli kalınlıklarda ve boyutlarda bulunabilir. Bu, belirli uygulama gereksinimlerine uygun olarak seçilebileceği anlamına gelir." },
+                    { "title": "Paslanmazlık ve Kaplama:", "text": "Paslanmaz çelik sac metal gibi bazı türler, dayanıklılıklarını artırmak için paslanmazlık özelliklerine sahiptir. Ayrıca, bazı durumlarda özel kaplama işlemlerine tabi tutulabilirler." },
+                    { "title": "Sürdürülebilirlik:", "text": "Metalin geri dönüşümü, sac metalin sürdürülebilirliğini artırabilir. Geri dönüşüme uygun metal kullanımı, çevresel etkileri azaltabilir ve doğal kaynakları daha verimli bir şekilde kullanabilir." }
+                ],
+                "summaryTitle": "Endüstride Sac Metal Kullanımı",
+                "summaryQuote": "“Sac metal, dayanıklılık, mukavemet ve şekillendirilebilirlik gibi avantajları nedeniyle birçok endüstride yaygın olarak tercih edilen bir malzemedir. Bu malzemenin kullanımı, teknolojik gelişmelerle birlikte sürekli olarak evrim geçirir.”",
+                "summaryBody": "Kalıp tasarımı, genellikle metal veya plastik gibi malzemelerden ürünlerin seri üretimi için kullanılan kalıp ya da matrisin tasarım sürecini ifade eder. Bu tasarım süreci, önceden belirlenmiş bir ürünün belirli bir formda, ölçüde ve malzemede üretilmesini sağlamak amacıyla gerçekleştirilir.",
+                "designItems": [
+                    "İhtiyaç Analizi: İlk adım, üretilecek parçanın ihtiyaçları ve gereksinimleri üzerine bir analiz yapmaktır. Bu, parçanın boyutları, malzemesi, dayanıklılığı ve diğer özellikleri içerir.",
+                    "Tasarım Konseptleri: İhtiyaç analizine dayanarak, farklı tasarım konseptleri geliştirilir. Bu konseptler, ürünün şekli, boyutları, malzemesi ve üretim süreci gibi faktörleri içerir.",
+                    "CAD (Bilgisayar Destekli Tasarım) Modelleme: Seçilen tasarım konseptleri, CAD yazılımı kullanılarak dijital olarak modellenir. Bu adım, ürünün üç boyutlu bir tasarımının oluşturulmasını içerir.",
+                    "Analiz ve Optimizasyon: CAD modeli üzerinde analizler yapılır ve tasarımın dayanıklılığı, akışkanlık, sıcaklık dağılımı gibi faktörler incelenir. Gerekirse, tasarım optimizasyonu yapılır."
+                ],
+                "moldItems": [
+                    "Detaylı Tasarım: Seçilen tasarım üzerinde detaylı bir çalışma yapılır. Bu adımda, parçanın her bir detayı, toleranslar, montaj noktaları ve malzeme seçimi belirlenir.",
+                    "Üretim Sürecinin Belirlenmesi: Kalıp tasarımı, üretim sürecinin belirlenmesini içerir. Bu, hangi malzemenin kullanılacağı, kalıp üretim süreci ve kalıp üretimi için gereken ekipmanlar gibi faktörleri içerir.",
+                    "Prototip Üretimi ve Test: Tasarımın bir prototipi üretilir ve test edilir. Bu, tasarımın gerçek dünya koşullarında nasıl performans gösterdiğini değerlendirmek için önemlidir.",
+                    "Kalıp Üretimi: Prototip testlerinden sonra, onaylanan tasarıma göre kalıp üretimi gerçekleştirilir. Bu genellikle CNC (Bilgisayarlı Sayısal Kontrol) makineleri veya elektrik deşarj işlemleri gibi yüksek hassasiyetli üretim yöntemleri kullanılarak yapılır."
+                ],
+                "closing": "Kalıp tasarımı, endüstriyel üretim süreçlerinde kritik bir rol oynar ve ürünlerin kalitesi, maliyeti ve üretim hızı üzerinde büyük etkisi bulunmaktadır. İyi bir kalıp tasarımı, ürünlerin daha etkili bir şekilde üretilmesine ve pazarlanmasına olanak tanır."
+            },
+            "plastic": {
+                "imageAlt": "Plastik Enjeksiyon Seri Üretim",
+                "paragraphs": [
+                    "Plastik enjeksiyon, seri üretimde en yaygın kullanılan yöntemlerden biridir. Eritilmiş plastiğin kalıba yüksek basınçla enjekte edilmesiyle gerçekleştirilen bu süreç, hızlı, tekrarlanabilir ve maliyet açısından verimli bir üretim sağlar.",
+                    "Yüksek hassasiyetle üretilen parçalar, otomotiv, beyaz eşya, elektronik, medikal ve ambalaj gibi birçok sektörde kullanılmaktadır.",
+                    "Kalıp tasarımındaki çeşitlilik sayesinde çok karmaşık formlar üretilebilmekte ve aynı anda binlerce parça seri olarak elde edilebilmektedir.",
+                    "Dayanıklılık, esneklik ve düşük maliyet avantajları sayesinde plastik enjeksiyon, endüstride vazgeçilmez bir imalat yöntemidir."
+                ]
+            },
+            "rubber": {
+                "imageAlt": "Kauçuk Seri Üretim",
+                "paragraphs": [
+                    "Seri imalat sürecinde hidrolik presler, özellikle kauçuk ürünlerin üretimi için kullanılır. Kauçuk, elastik ve dayanıklı bir malzemedir ve bir dizi endüstride, özellikle otomotiv, elektronik, tıp ve inşaat gibi sektörlerde yaygın olarak kullanılır.",
+                    "Hidrolik presler, kauçuk ürünlerin seri üretimi için etkili ve verimli bir yöntem sağlar. Bu süreç, kauçuk contalar, conta profilleri, kauçuk parçalar ve benzeri ürünlerin üretiminde yaygın olarak kullanılır."
+                ]
+            },
+            "bakelite": {
+                "imageAlt": "Bakalit Seri Üretim",
+                "paragraphs": [
+                    "Bakalit, ısıya ve kimyasallara dayanıklı, sert bir termoset plastiktir. Elektrik yalıtımı özelliği nedeniyle elektrik ve elektronik endüstrisinde yaygın olarak kullanılır. Ayrıca mutfak gereçleri, telefon gövdeleri ve çeşitli endüstriyel ekipmanlarda da tercih edilmektedir.",
+                    "Kalıplama yöntemiyle istenilen forma kolayca dönüştürülebilen bakalit, yüksek sıcaklıklarda dahi mekanik dayanımını korur. Bu özellikleri sayesinde uzun ömürlü, güvenilir ve maliyet açısından verimli bir malzeme olarak endüstride önemli bir yer tutar.",
+                    "Günümüzde modern plastiklerin ortaya çıkmasına rağmen, bakalit halen bazı özel uygulamalarda tercih edilmeye devam etmektedir."
+                ]
+            }
+        },
+        "suggestion": {
+            "meta": {
+                "title": "Öneri & Şikayet",
+                "description": "Ceyhunlar Plastik öneri ve şikayet formu. Görüşlerinizi bizimle paylaşın."
+            },
+            "heroTitle": "Öneri & Şikayet",
+            "heroSubtitle": "Sizlere daha iyi hizmet sunabilmek için geri bildirimleriniz bizim için büyük önem taşımaktadır. Bu form aracılığıyla işletmemiz hakkında görüş, öneri ve şikayetlerinizi iletebilirsiniz.",
+            "form": {
+                "fields": {
+                    "fullName": "Ad Soyad",
+                    "email": "E-posta",
+                    "phone": "+90 (532) 123-4567",
+                    "message": "Mesajınız"
+                },
+                "typeLabel": "Bildirim Türü",
+                "typeSuggestion": "Öneri",
+                "typeComplaint": "Şikayet",
+                "consent": "Gizlilik Politikasını okudum ve kabul ediyorum.",
+                "submit": "Gönder",
+                "submitting": "Gönderiliyor..."
+            },
+            "validation": {
+                "fullNameMin": "Ad Soyad en az 2 karakter olmalıdır",
+                "emailInvalid": "Geçerli bir e-posta adresi giriniz",
+                "phoneInvalid": "Telefon numarası geçersiz",
+                "typeRequired": "Bildirim türü seçiniz",
+                "messageMin": "Mesaj en az 10 karakter olmalıdır",
+                "consentRequired": "Gizlilik politikasını kabul etmelisiniz"
+            }
+        },
+        "contact": {
+            "meta": {
+                "title": "İletişim",
+                "description": "Ceyhunlar Plastik ile iletişime geçin. Adres, telefon, e-posta ve ulaşım bilgileri."
+            },
+            "infoTitle": "Bize Ulaşın",
+            "infoBody": "Katalog talebi, ürün talebi, stok durumu, ihtiyaç tespiti, sertifika sorgulama, özel üretim, seri üretim, sevkiyat durumu, ithalat mevzuatları, gümrük süreçleri vb. her türlü sorunuz için bizimle iletişime geçebilirsiniz.",
+            "addressLine1": "4308 Sk. No: 4A Aydın Mah.",
+            "addressLine2": "Karabağlar İzmir / TÜRKİYE",
+            "directionsCta": "Yol Tarifi Al",
+            "formTitle": "İletişim Formu",
+            "formSubtitle1": "Formu doldurarak bizimle bir etkileşim başlatın.",
+            "formSubtitle2": "Uzman ekibimiz sizi kısa sürede arayacaktır.",
+            "form": {
+                "fullName": "Ad Soyad",
+                "email": "E-posta",
+                "phone": "Telefon",
+                "message": "Mesajınız",
+                "consent": "Gizlilik Politikasını okudum ve kabul ediyorum.",
+                "submit": "Gönder"
+            },
+            "routes": {
+                "sectionTitle": "Ulaşım Bilgileri",
+                "sectionSubtitle": "İzmir'in kalbinde yer alan tesisimize ulaşım oldukça kolaydır.",
+                "air": {
+                    "title": "Hava Yolu",
+                    "text": "Adnan Menderes Havalimanı'ndan taksi veya araç kiralama ile yaklaşık 20 dakika sürüş mesafesindedir."
+                },
+                "road": {
+                    "title": "Kara Yolu",
+                    "text": "İzmir Otogarı'ndan Karabağlar yönüne giden toplu taşıma araçları veya çevre yolu üzerinden kolay ulaşım."
+                },
+                "rail": {
+                    "title": "Demir Yolu",
+                    "text": "İZBAN banliyö hattı Semt Garajı durağı ile tesisimize çok kısa sürede bağlanabilirsiniz."
+                }
+            }
+        },
         "machining": {
             "meta": {
                 "title": "Talaşlı İmalat",

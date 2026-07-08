@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 
 const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -19,6 +20,12 @@ const fadeUp = {
 };
 
 export function MassProductionMetal() {
+    const t = useTranslations("public.massProduction");
+    const tm = useTranslations("public.massProduction.metal");
+    const items = tm.raw("items") as { title: string; text: string }[];
+    const designItems = tm.raw("designItems") as string[];
+    const moldItems = tm.raw("moldItems") as string[];
+
     return (
         <>
             {/* ================= 1. BLOCK ================= */}
@@ -34,14 +41,14 @@ export function MassProductionMetal() {
                         className="space-y-4"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            Seri Üretim
+                            {t("sectionLabel")}
                         </h2>
                         <h4 className="text-xl font-semibold text-[var(--color-brand)] -mt-4">
-                            Sac Metal
+                            {t("tabs.metal")}
                         </h4>
 
                         <p className="text-muted-foreground leading-relaxed">
-                            “Sac metal,” genellikle metal levha veya plakaları ifade eden bir terimdir. Metal endüstrisinde, genellikle çelik, alüminyum veya bakır gibi malzemelerden yapılmış metal levhaları ifade eder. Bu metal levhalar, çeşitli kalınlıklarda ve özelliklerde olabilir ve endüstriyel uygulamalarda, inşaat sektöründe, otomotiv endüstrisinde, gemi yapımında ve birçok başka alanında kullanılır.
+                            {tm("intro")}
                         </p>
                     </motion.div>
 
@@ -55,7 +62,7 @@ export function MassProductionMetal() {
                     >
                         <Image
                             src="/logos/metal.png"
-                            alt="Talaşlı İmalat"
+                            alt={tm("imageAlt")}
                             fill
                             className="object-cover"
                         />
@@ -77,7 +84,7 @@ export function MassProductionMetal() {
                     >
                         <Image
                             src="/logos/metal2.png"
-                            alt="Talaşlı İmalat"
+                            alt={tm("imageAlt")}
                             fill
                             className="object-cover"
                         />
@@ -91,84 +98,19 @@ export function MassProductionMetal() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Malzemeler:
-                                </h4>
+                        {items.map((item) => (
+                            <div key={item.title} className="space-y-2 group hover:translate-x-1 transition">
+                                <div className="flex items-center gap-3">
+                                    <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
+                                    <h4 className="font-semibold text-[var(--color-brand)]">
+                                        {item.title}
+                                    </h4>
+                                </div>
+                                <p className="text-muted-foreground leading-relaxed text-sm pl-9">
+                                    {item.text}
+                                </p>
                             </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Sac metal, genellikle çelik, alüminyum, bakır, paslanmaz çelik gibi metal malzemelerden yapılır. Malzeme seçimi, uygulama, dayanıklılık ve maliyet faktörleri gibi bir dizi kritere bağlı olarak değişebilir.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Üretim Süreci:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Sac metal, metal plakaların haddeleme veya presleme gibi çeşitli üretim süreçleri kullanılarak istenen kalınlık ve şekle getirilmesiyle üretilir. Metal levhalar, haddeleme makineleri veya presleme ekipmanları aracılığıyla şekillendirilir.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Kullanım Alanları:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Sac metal, birçok endüstri ve sektörde geniş bir kullanım alanına sahiptir. Örneğin, inşaat sektöründe çatı kaplamaları, otomotiv endüstrisinde araç gövdesi parçaları, beyaz eşya üretiminde kaplama panelleri gibi birçok alanda kullanılır.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Çeşitli Kalınlıklar ve Boyutlar:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Sac metal, çok çeşitli kalınlıklarda ve boyutlarda bulunabilir. Bu, belirli uygulama gereksinimlerine uygun olarak seçilebileceği anlamına gelir.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Paslanmazlık ve Kaplama:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Paslanmaz çelik sac metal gibi bazı türler, dayanıklılıklarını artırmak için paslanmazlık özelliklerine sahiptir. Ayrıca, bazı durumlarda özel kaplama işlemlerine tabi tutulabilirler.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Sürdürülebilirlik:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Metalin geri dönüşümü, sac metalin sürdürülebilirliğini artırabilir. Geri dönüşüme uygun metal kullanımı, çevresel etkileri azaltabilir ve doğal kaynakları daha verimli bir şekilde kullanabilir.
-                            </p>
-                        </div>
+                        ))}
                     </motion.div>
                 </div>
             </section>
@@ -188,10 +130,10 @@ export function MassProductionMetal() {
                         className="space-y-4"
                     >
                         <h4 className="text-xl md:text-2xl font-semibold text-[var(--color-brand)]">
-                            Endüstride Sac Metal Kullanımı
+                            {tm("summaryTitle")}
                         </h4>
                         <p className="text-lg md:text-xl text-neutral-300 leading-relaxed font-light italic">
-                            “Sac metal, dayanıklılık, mukavemet ve şekillendirilebilirlik gibi avantajları nedeniyle birçok endüstride yaygın olarak tercih edilen bir malzemedir. Bu malzemenin kullanımı, teknolojik gelişmelerle birlikte sürekli olarak evrim geçirir.”
+                            {tm("summaryQuote")}
                         </p>
                     </motion.div>
 
@@ -210,7 +152,7 @@ export function MassProductionMetal() {
                         viewport={{ once: true }}
                         className="text-neutral-400 leading-relaxed max-w-2xl mx-auto"
                     >
-                        Kalıp tasarımı, genellikle metal veya plastik gibi malzemelerden ürünlerin seri üretimi için kullanılan kalıp ya da matrisin tasarım sürecini ifade eder. Bu tasarım süreci, önceden belirlenmiş bir ürünün belirli bir formda, ölçüde ve malzemede üretilmesini sağlamak amacıyla gerçekleştirilir.
+                        {tm("summaryBody")}
                     </motion.p>
                 </div>
             </section>
@@ -227,30 +169,14 @@ export function MassProductionMetal() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                İhtiyaç Analizi: İlk adım, üretilecek parçanın ihtiyaçları ve gereksinimleri üzerine bir analiz yapmaktır. Bu, parçanın boyutları, malzemesi, dayanıklılığı ve diğer özellikleri içerir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                Tasarım Konseptleri: İhtiyaç analizine dayanarak, farklı tasarım konseptleri geliştirilir. Bu konseptler, ürünün şekli, boyutları, malzemesi ve üretim süreci gibi faktörleri içerir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                CAD (Bilgisayar Destekli Tasarım) Modelleme: Seçilen tasarım konseptleri, CAD yazılımı kullanılarak dijital olarak modellenir. Bu adım, ürünün üç boyutlu bir tasarımının oluşturulmasını içerir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                Analiz ve Optimizasyon: CAD modeli üzerinde analizler yapılır ve tasarımın dayanıklılığı, akışkanlık, sıcaklık dağılımı gibi faktörler incelenir. Gerekirse, tasarım optimizasyonu yapılır.
-                            </p>
-                        </div>
+                        {designItems.map((text, i) => (
+                            <div key={i} className="flex gap-3 items-start group hover:translate-x-1 transition">
+                                <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
+                                <p className="text-muted-foreground leading-relaxed text-sm">
+                                    {text}
+                                </p>
+                            </div>
+                        ))}
                     </motion.div>
 
                     {/* IMAGE */}
@@ -263,7 +189,7 @@ export function MassProductionMetal() {
                     >
                         <Image
                             src="/logos/fire.png"
-                            alt="Talaşlı İmalat"
+                            alt={tm("imageAlt")}
                             fill
                             className="object-cover"
                         />
@@ -284,7 +210,7 @@ export function MassProductionMetal() {
                     >
                         <Image
                             src="/logos/profile.jpeg"
-                            alt="Talaşlı İmalat"
+                            alt={tm("imageAlt")}
                             fill
                             className="object-cover"
                         />
@@ -298,30 +224,14 @@ export function MassProductionMetal() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                Detaylı Tasarım: Seçilen tasarım üzerinde detaylı bir çalışma yapılır. Bu adımda, parçanın her bir detayı, toleranslar, montaj noktaları ve malzeme seçimi belirlenir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                Üretim Sürecinin Belirlenmesi: Kalıp tasarımı, üretim sürecinin belirlenmesini içerir. Bu, hangi malzemenin kullanılacağı, kalıp üretim süreci ve kalıp üretimi için gereken ekipmanlar gibi faktörleri içerir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                Prototip Üretimi ve Test: Tasarımın bir prototipi üretilir ve test edilir. Bu, tasarımın gerçek dünya koşullarında nasıl performans gösterdiğini değerlendirmek için önemlidir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start group hover:translate-x-1 transition">
-                            <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
-                            <p className="text-muted-foreground leading-relaxed text-sm">
-                                Kalıp Üretimi: Prototip testlerinden sonra, onaylanan tasarıma göre kalıp üretimi gerçekleştirilir. Bu genellikle CNC (Bilgisayarlı Sayısal Kontrol) makineleri veya elektrik deşarj işlemleri gibi yüksek hassasiyetli üretim yöntemleri kullanılarak yapılır.
-                            </p>
-                        </div>
+                        {moldItems.map((text, i) => (
+                            <div key={i} className="flex gap-3 items-start group hover:translate-x-1 transition">
+                                <Check className="text-[var(--color-brand)] w-5 h-5 shrink-0 mt-1" />
+                                <p className="text-muted-foreground leading-relaxed text-sm">
+                                    {text}
+                                </p>
+                            </div>
+                        ))}
                     </motion.div>
                 </div>
             </section>
@@ -336,7 +246,7 @@ export function MassProductionMetal() {
                         viewport={{ once: true }}
                         className="text-xl md:text-lg font-medium text-[var(--color-brand)] leading-relaxed"
                     >
-                        Kalıp tasarımı, endüstriyel üretim süreçlerinde kritik bir rol oynar ve ürünlerin kalitesi, maliyeti ve üretim hızı üzerinde büyük etkisi bulunmaktadır. İyi bir kalıp tasarımı, ürünlerin daha etkili bir şekilde üretilmesine ve pazarlanmasına olanak tanır.
+                        {tm("closing")}
                     </motion.p>
                 </div>
             </section>
