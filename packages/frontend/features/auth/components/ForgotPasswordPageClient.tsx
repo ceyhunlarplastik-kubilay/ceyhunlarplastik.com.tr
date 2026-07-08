@@ -1,6 +1,7 @@
 "use client"
 
-import Link from "next/link"
+import { useMemo } from "react"
+import { Link } from "@/i18n/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -13,7 +14,7 @@ import { AuthFeedbackMessage } from "@/features/auth/components/AuthFeedbackMess
 import { useTranslations } from "next-intl"
 import { useForgotPassword } from "@/features/auth/hooks/useForgotPassword"
 import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
-import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/features/auth/schema/forgotPassword"
+import { buildForgotPasswordSchema, type ForgotPasswordFormValues } from "@/features/auth/schema/forgotPassword"
 
 type Props = {
     callbackUrl: string
@@ -21,16 +22,18 @@ type Props = {
 }
 
 export function ForgotPasswordPageClient({ callbackUrl, initialEmail }: Props) {
+    const t = useTranslations("auth.forgotPassword")
+    const te = useTranslations("auth.errors")
+    const tv = useTranslations("auth.validation.forgotPassword")
     const router = useRouter()
     const mutation = useForgotPassword()
     const form = useForm<ForgotPasswordFormValues>({
-        resolver: zodResolver(forgotPasswordSchema),
+        resolver: zodResolver(useMemo(() => buildForgotPasswordSchema(tv), [tv])),
         defaultValues: {
             email: initialEmail ?? "",
         },
     })
 
-    const te = useTranslations("auth.errors")
     const errorCode = mutation.error instanceof AuthApiClientError ? mutation.error.code : undefined
     const errorKey = resolveAuthErrorKey(errorCode)
     const errorMessage = errorKey ? { title: te(`${errorKey}.title`), description: te(`${errorKey}.description`) } : null
@@ -40,7 +43,7 @@ export function ForgotPasswordPageClient({ callbackUrl, initialEmail }: Props) {
             email: values.email.trim().toLowerCase(),
         })
 
-        toast.success("Şifre sıfırlama kodu gönderildi.")
+        toast.success(t("codeSentToast"))
         router.push(`/auth/reset-password?email=${encodeURIComponent(result.email)}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
     }
 
@@ -48,8 +51,8 @@ export function ForgotPasswordPageClient({ callbackUrl, initialEmail }: Props) {
         <div className="space-y-6">
             <AuthFeedbackMessage
                 variant="info"
-                title="Şifre sıfırlama"
-                description="Hesabınıza bağlı e-posta adresini girin. Yeni şifre belirlemeniz için doğrulama kodu gönderelim. AWS Cognito şifre sıfırlama kodları 1 saat geçerlidir."
+                title={t("infoTitle")}
+                description={t("infoDescription")}
             />
 
             {errorMessage ? (
@@ -58,20 +61,20 @@ export function ForgotPasswordPageClient({ callbackUrl, initialEmail }: Props) {
 
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                    <AuthField control={form.control} name="email" label="E-posta" type="email" placeholder="ornek@ceyhunlar.com" disabled={mutation.isPending} />
+                    <AuthField control={form.control} name="email" label={t("emailLabel")} type="email" placeholder={t("emailPlaceholder")} disabled={mutation.isPending} />
 
                     <Button type="submit" variant="brand" size="lg" className="h-11 w-full rounded-xl" disabled={mutation.isPending}>
-                        {mutation.isPending ? "Kod Gönderiliyor..." : "Sıfırlama Kodu Gönder"}
+                        {mutation.isPending ? t("submitting") : t("submit")}
                     </Button>
                 </form>
             </Form>
 
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
                 <Link href={`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="font-medium text-slate-700 hover:text-slate-950">
-                    Giriş ekranına dön
+                    {t("backToSignIn")}
                 </Link>
                 <Link href={`/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="hover:text-slate-950">
-                    Yeni hesap oluştur
+                    {t("createAccount")}
                 </Link>
             </div>
         </div>

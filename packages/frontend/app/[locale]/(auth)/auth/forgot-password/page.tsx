@@ -1,17 +1,22 @@
 import { redirect } from "next/navigation"
+import { getTranslations } from "next-intl/server"
 import { auth } from "@/lib/auth/auth"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { ForgotPasswordPageClient } from "@/features/auth/components/ForgotPasswordPageClient"
 import { resolveAuthHome } from "@/features/auth/lib/navigation"
 
 export default async function ForgotPasswordPage({
+    params,
     searchParams,
 }: {
+    params: Promise<{ locale: string }>
     searchParams: Promise<{ callbackUrl?: string; email?: string }>
 }) {
+    const { locale } = await params
     const session = await auth()
-    const params = await searchParams
-    const callbackUrl = params.callbackUrl || "/admin"
+    const query = await searchParams
+    const callbackUrl = query.callbackUrl || "/admin"
+    const t = await getTranslations({ locale, namespace: "auth.forgotPassword" })
 
     if (session) {
         redirect(resolveAuthHome(session.user?.groups ?? [], session.user?.accessStatus ?? "ACTIVE"))
@@ -19,13 +24,13 @@ export default async function ForgotPasswordPage({
 
     return (
         <AuthShell
-            eyebrow="Ceyhunlar Plastik"
-            title="Şifrenizi sıfırlayın"
-            description="E-posta adresinizi doğrulayarak yeni şifre belirleme akışını başlatabilirsiniz."
-            sideTitle="Kontrollü şifre yenileme akışı"
-            sideDescription="Şifre sıfırlama akışı uygulama içinde ilerler, Cognito ise güvenli token ve kullanıcı işlemlerini yürütür."
+            eyebrow={t("eyebrow")}
+            title={t("shellTitle")}
+            description=""
+            sideTitle={t("shellSideTitle")}
+            sideDescription=""
         >
-            <ForgotPasswordPageClient callbackUrl={callbackUrl} initialEmail={params.email} />
+            <ForgotPasswordPageClient callbackUrl={callbackUrl} initialEmail={query.email} />
         </AuthShell>
     )
 }

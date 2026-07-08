@@ -221,6 +221,60 @@
             "signInLink": "Sign in",
             "goHome": "Go to homepage"
         },
+        "forgotPassword": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Reset your password",
+            "shellSideTitle": "Controlled password renewal flow",
+            "infoTitle": "Password reset",
+            "infoDescription": "Enter the email address linked to your account. We will send a verification code so you can set a new password. AWS Cognito password reset codes are valid for 1 hour.",
+            "emailLabel": "Email",
+            "emailPlaceholder": "example@ceyhunlar.com",
+            "submit": "Send Reset Code",
+            "submitting": "Sending Code...",
+            "codeSentToast": "Password reset code sent.",
+            "backToSignIn": "Back to sign-in screen",
+            "createAccount": "Create a new account"
+        },
+        "resetPassword": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Create your new password",
+            "shellSideTitle": "Renew your password with a one-time verification",
+            "infoTitle": "Set a new password",
+            "infoDescription": "Set your new password using the code sent to your email. AWS Cognito password reset codes are valid for 1 hour.",
+            "emailLabel": "Email",
+            "emailPlaceholder": "example@ceyhunlar.com",
+            "codeLabel": "Verification Code",
+            "codeDescription": "The code is valid for 1 hour.",
+            "newPasswordLabel": "New Password",
+            "newPasswordPlaceholder": "At least 8 characters",
+            "confirmPasswordLabel": "Confirm New Password",
+            "confirmPasswordPlaceholder": "Re-enter your password",
+            "submit": "Update Password",
+            "submitting": "Updating Password...",
+            "successToast": "Your password has been updated. You can sign in with your new password.",
+            "resendCode": "Request the code again",
+            "backToSignIn": "Back to sign-in screen"
+        },
+        "confirmSignUp": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Verify your account",
+            "shellSideTitle": "Complete the first step with verification",
+            "infoTitle": "Verify your account",
+            "infoDescription": "Enter the verification code sent to your email address. If the code did not arrive, you can request a new one. AWS Cognito verification codes are valid for 24 hours.",
+            "emailLabel": "Email",
+            "emailPlaceholder": "example@ceyhunlar.com",
+            "codeLabel": "Verification Code",
+            "codeDescription": "The code is in the email message and is valid for 24 hours.",
+            "submit": "Verify Account",
+            "submitting": "Verifying...",
+            "resend": "Resend Code",
+            "resending": "Sending...",
+            "successToast": "Your account has been verified. Awaiting administrator approval.",
+            "resendToast": "A new verification code has been sent.",
+            "emailRequiredError": "An email address is required to send a code.",
+            "backToSignIn": "Back to sign-in screen",
+            "editEmail": "Edit email"
+        },
         "validation": {
             "signIn": {
                 "emailInvalid": "Enter a valid email address.",
@@ -233,6 +287,20 @@
                 "passwordMin": "Password must be at least 8 characters.",
                 "confirmPasswordRequired": "Re-enter your password.",
                 "passwordsMismatch": "Passwords do not match."
+            },
+            "forgotPassword": {
+                "emailInvalid": "Enter a valid email address."
+            },
+            "resetPassword": {
+                "emailInvalid": "Enter a valid email address.",
+                "codeMin": "Enter the verification code.",
+                "passwordMin": "Password must be at least 8 characters.",
+                "confirmPasswordRequired": "Re-enter your password.",
+                "passwordsMismatch": "Passwords do not match."
+            },
+            "confirmSignUp": {
+                "emailInvalid": "Enter a valid email address.",
+                "codeMin": "Enter the verification code."
             }
         }
     },

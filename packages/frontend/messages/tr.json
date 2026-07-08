@@ -221,6 +221,60 @@
             "signInLink": "Giriş yapın",
             "goHome": "Ana sayfaya git"
         },
+        "forgotPassword": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Şifrenizi sıfırlayın",
+            "shellSideTitle": "Kontrollü şifre yenileme akışı",
+            "infoTitle": "Şifre sıfırlama",
+            "infoDescription": "Hesabınıza bağlı e-posta adresini girin. Yeni şifre belirlemeniz için doğrulama kodu gönderelim. AWS Cognito şifre sıfırlama kodları 1 saat geçerlidir.",
+            "emailLabel": "E-posta",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "submit": "Sıfırlama Kodu Gönder",
+            "submitting": "Kod Gönderiliyor...",
+            "codeSentToast": "Şifre sıfırlama kodu gönderildi.",
+            "backToSignIn": "Giriş ekranına dön",
+            "createAccount": "Yeni hesap oluştur"
+        },
+        "resetPassword": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Yeni şifrenizi oluşturun",
+            "shellSideTitle": "Tek kullanımlık doğrulama ile şifre yenileyin",
+            "infoTitle": "Yeni şifre belirleyin",
+            "infoDescription": "E-postanıza gelen kod ile yeni şifrenizi tanımlayın. AWS Cognito şifre sıfırlama kodları 1 saat geçerlidir.",
+            "emailLabel": "E-posta",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "Doğrulama Kodu",
+            "codeDescription": "Kodun geçerlilik süresi 1 saattir.",
+            "newPasswordLabel": "Yeni Şifre",
+            "newPasswordPlaceholder": "En az 8 karakter",
+            "confirmPasswordLabel": "Yeni Şifre Tekrarı",
+            "confirmPasswordPlaceholder": "Şifreyi tekrar girin",
+            "submit": "Şifreyi Güncelle",
+            "submitting": "Şifre Güncelleniyor...",
+            "successToast": "Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.",
+            "resendCode": "Kodu yeniden iste",
+            "backToSignIn": "Giriş ekranına dön"
+        },
+        "confirmSignUp": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "Hesabınızı doğrulayın",
+            "shellSideTitle": "İlk adımı doğrulama ile tamamlayın",
+            "infoTitle": "Hesabınızı doğrulayın",
+            "infoDescription": "E-posta adresinize gelen doğrulama kodunu girin. Kod ulaşmadıysa yeni kod talep edebilirsiniz. AWS Cognito doğrulama kodları 24 saat geçerlidir.",
+            "emailLabel": "E-posta",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "Doğrulama Kodu",
+            "codeDescription": "Kod e-postadaki mesajda yer alır ve 24 saat boyunca geçerlidir.",
+            "submit": "Hesabı Doğrula",
+            "submitting": "Doğrulanıyor...",
+            "resend": "Kodu Yeniden Gönder",
+            "resending": "Gönderiliyor...",
+            "successToast": "Hesabınız doğrulandı. Yönetici onayı bekleniyor.",
+            "resendToast": "Yeni doğrulama kodu gönderildi.",
+            "emailRequiredError": "Kod gönderebilmek için e-posta adresi gerekli.",
+            "backToSignIn": "Giriş ekranına dön",
+            "editEmail": "E-postayı düzenle"
+        },
         "validation": {
             "signIn": {
                 "emailInvalid": "Geçerli bir e-posta adresi girin.",
@@ -233,6 +287,20 @@
                 "passwordMin": "Şifre en az 8 karakter olmalı.",
                 "confirmPasswordRequired": "Şifre tekrarını girin.",
                 "passwordsMismatch": "Şifreler eşleşmiyor."
+            },
+            "forgotPassword": {
+                "emailInvalid": "Geçerli bir e-posta adresi girin."
+            },
+            "resetPassword": {
+                "emailInvalid": "Geçerli bir e-posta adresi girin.",
+                "codeMin": "Doğrulama kodunu girin.",
+                "passwordMin": "Şifre en az 8 karakter olmalı.",
+                "confirmPasswordRequired": "Şifre tekrarını girin.",
+                "passwordsMismatch": "Şifreler eşleşmiyor."
+            },
+            "confirmSignUp": {
+                "emailInvalid": "Geçerli bir e-posta adresi girin.",
+                "codeMin": "Doğrulama kodunu girin."
             }
         }
     },

@@ -1,6 +1,7 @@
 "use client"
 
-import Link from "next/link"
+import { useMemo } from "react"
+import { Link } from "@/i18n/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -15,7 +16,7 @@ import { useConfirmSignUp } from "@/features/auth/hooks/useConfirmSignUp"
 import { useTranslations } from "next-intl"
 import { useResendConfirmation } from "@/features/auth/hooks/useResendConfirmation"
 import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
-import { confirmSignUpSchema, type ConfirmSignUpFormValues } from "@/features/auth/schema/confirmSignUp"
+import { buildConfirmSignUpSchema, type ConfirmSignUpFormValues } from "@/features/auth/schema/confirmSignUp"
 
 type Props = {
     callbackUrl: string
@@ -23,12 +24,14 @@ type Props = {
 }
 
 export function ConfirmSignUpPageClient({ callbackUrl, initialEmail }: Props) {
+    const t = useTranslations("auth.confirmSignUp")
+    const tv = useTranslations("auth.validation.confirmSignUp")
     const router = useRouter()
     const confirmMutation = useConfirmSignUp()
     const resendMutation = useResendConfirmation()
 
     const form = useForm<ConfirmSignUpFormValues>({
-        resolver: zodResolver(confirmSignUpSchema),
+        resolver: zodResolver(useMemo(() => buildConfirmSignUpSchema(tv), [tv])),
         defaultValues: {
             email: initialEmail ?? "",
             code: "",
@@ -51,27 +54,27 @@ export function ConfirmSignUpPageClient({ callbackUrl, initialEmail }: Props) {
             code: values.code.trim(),
         })
 
-        toast.success("Hesabınız doğrulandı. Yönetici onayı bekleniyor.")
+        toast.success(t("successToast"))
         router.push(`/auth/awaiting-approval?email=${encodeURIComponent(result.email)}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
     }
 
     async function handleResend() {
         const email = form.getValues("email").trim().toLowerCase()
         if (!email) {
-            form.setError("email", { message: "Kod gönderebilmek için e-posta adresi gerekli." })
+            form.setError("email", { message: t("emailRequiredError") })
             return
         }
 
         await resendMutation.mutateAsync({ email })
-        toast.success("Yeni doğrulama kodu gönderildi.")
+        toast.success(t("resendToast"))
     }
 
     return (
         <div className="space-y-6">
             <AuthFeedbackMessage
                 variant="info"
-                title="Hesabınızı doğrulayın"
-                description="E-posta adresinize gelen doğrulama kodunu girin. Kod ulaşmadıysa yeni kod talep edebilirsiniz. AWS Cognito doğrulama kodları 24 saat geçerlidir."
+                title={t("infoTitle")}
+                description={t("infoDescription")}
             />
 
             {errorMessage ? (
@@ -80,21 +83,21 @@ export function ConfirmSignUpPageClient({ callbackUrl, initialEmail }: Props) {
 
             <Form {...form}>
                 <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-                    <AuthField control={form.control} name="email" label="E-posta" type="email" placeholder="ornek@ceyhunlar.com" disabled={confirmMutation.isPending || resendMutation.isPending} />
+                    <AuthField control={form.control} name="email" label={t("emailLabel")} type="email" placeholder={t("emailPlaceholder")} disabled={confirmMutation.isPending || resendMutation.isPending} />
                     <AuthOtpField
                         control={form.control}
                         name="code"
-                        label="Doğrulama Kodu"
-                        description="Kod e-postadaki mesajda yer alır ve 24 saat boyunca geçerlidir."
+                        label={t("codeLabel")}
+                        description={t("codeDescription")}
                         disabled={confirmMutation.isPending || resendMutation.isPending}
                     />
 
                     <div className="flex flex-col gap-3 sm:flex-row">
                         <Button type="submit" variant="brand" size="lg" className="h-11 flex-1 rounded-xl" disabled={confirmMutation.isPending || resendMutation.isPending}>
-                            {confirmMutation.isPending ? "Doğrulanıyor..." : "Hesabı Doğrula"}
+                            {confirmMutation.isPending ? t("submitting") : t("submit")}
                         </Button>
                         <Button type="button" variant="outline" size="lg" className="h-11 rounded-xl px-5" disabled={confirmMutation.isPending || resendMutation.isPending} onClick={() => void handleResend()}>
-                            {resendMutation.isPending ? "Gönderiliyor..." : "Kodu Yeniden Gönder"}
+                            {resendMutation.isPending ? t("resending") : t("resend")}
                         </Button>
                     </div>
                 </form>
@@ -102,10 +105,10 @@ export function ConfirmSignUpPageClient({ callbackUrl, initialEmail }: Props) {
 
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
                 <Link href={`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="font-medium text-slate-700 hover:text-slate-950">
-                    Giriş ekranına dön
+                    {t("backToSignIn")}
                 </Link>
                 <Link href={`/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}&email=${encodeURIComponent(initialEmail ?? "")}`} className="hover:text-slate-950">
-                    E-postayı düzenle
+                    {t("editEmail")}
                 </Link>
             </div>
         </div>

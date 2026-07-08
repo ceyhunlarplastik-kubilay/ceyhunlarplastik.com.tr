@@ -1,17 +1,22 @@
 import { redirect } from "next/navigation"
+import { getTranslations } from "next-intl/server"
 import { auth } from "@/lib/auth/auth"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { ResetPasswordPageClient } from "@/features/auth/components/ResetPasswordPageClient"
 import { resolveAuthHome } from "@/features/auth/lib/navigation"
 
 export default async function ResetPasswordPage({
+    params,
     searchParams,
 }: {
+    params: Promise<{ locale: string }>
     searchParams: Promise<{ callbackUrl?: string; email?: string }>
 }) {
+    const { locale } = await params
     const session = await auth()
-    const params = await searchParams
-    const callbackUrl = params.callbackUrl || "/admin"
+    const query = await searchParams
+    const callbackUrl = query.callbackUrl || "/admin"
+    const t = await getTranslations({ locale, namespace: "auth.resetPassword" })
 
     if (session) {
         redirect(resolveAuthHome(session.user?.groups ?? [], session.user?.accessStatus ?? "ACTIVE"))
@@ -19,13 +24,13 @@ export default async function ResetPasswordPage({
 
     return (
         <AuthShell
-            eyebrow="Ceyhunlar Plastik"
-            title="Yeni şifrenizi oluşturun"
-            description="E-posta ile gelen kodu kullanarak hesabınız için yeni şifre tanımlayın."
-            sideTitle="Tek kullanımlık doğrulama ile şifre yenileyin"
-            sideDescription="Bu akış güvenliği korurken kullanıcıya Türkçe ve sade bir deneyim sunar."
+            eyebrow={t("eyebrow")}
+            title={t("shellTitle")}
+            description=""
+            sideTitle={t("shellSideTitle")}
+            sideDescription=""
         >
-            <ResetPasswordPageClient callbackUrl={callbackUrl} initialEmail={params.email} />
+            <ResetPasswordPageClient callbackUrl={callbackUrl} initialEmail={query.email} />
         </AuthShell>
     )
 }
