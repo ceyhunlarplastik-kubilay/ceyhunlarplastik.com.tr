@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 import { PageHero } from "@/components/sections/PageHero";
 
@@ -20,15 +21,19 @@ const fadeUp = {
 };
 
 export function DContent() {
+    const t = useTranslations("public.printing3d");
+    const tb = useTranslations("shared.breadcrumbs");
+    const items = t.raw("items") as { title: string; text: string }[];
+
     return (
         <main className="bg-white">
 
             {/* HERO */}
             <PageHero
-                title="3D Baskı ve Tarama"
+                title={t("heroTitle")}
                 breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Hizmetler" },
+                    { label: tb("home"), href: "/" },
+                    { label: tb("services") },
                 ]}
             />
             {/* ================= 1. BLOCK ================= */}
@@ -44,11 +49,11 @@ export function DContent() {
                         className="space-y-5"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            3D Baskı
+                            {t("introTitle")}
                         </h2>
 
                         <p className="text-muted-foreground leading-relaxed">
-                            3D baskı, üç boyutlu nesnelerin katman katman inşa edildiği bir üretim teknolojisidir. Bu teknoloji, bilgisayar destekli tasarım (CAD) yazılımı kullanılarak oluşturulan dijital modelleri fiziksel objelere dönüştürmek için kullanılır. 3D baskı ayrıca “katmanlı imalat” veya “hızlı prototipleme” olarak da bilinir.
+                            {t("introBody")}
                         </p>
                     </motion.div>
 
@@ -62,7 +67,7 @@ export function DContent() {
                     >
                         <Image
                             src="/logos/printer.jpg"
-                            alt="3D Baskı Yazıcı Printer"
+                            alt={t("imageAlt1")}
                             fill
                             className="object-cover"
                         />
@@ -84,7 +89,7 @@ export function DContent() {
                     >
                         <Image
                             src="/logos/arges.png"
-                            alt="Prototipleme"
+                            alt={t("imageAlt2")}
                             fill
                             className="object-cover"
                         />
@@ -98,71 +103,19 @@ export function DContent() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Çalışma Prensibi:
-                                </h4>
+                        {items.map((item) => (
+                            <div key={item.title} className="space-y-2 group hover:translate-x-1 transition">
+                                <div className="flex items-center gap-3">
+                                    <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
+                                    <h4 className="font-semibold text-[var(--color-brand)]">
+                                        {item.title}
+                                    </h4>
+                                </div>
+                                <p className="text-muted-foreground leading-relaxed text-sm pl-9">
+                                    {item.text}
+                                </p>
                             </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                3D baskı, bir nesneyi oluşturmak için materyalin katmanlar halinde bir araya getirilmesini sağlar. Bu katmanlar, dijital bir tasarım dosyasından alınan bilgilerle oluşturulur.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Malzemeler:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                3D baskıda kullanılan malzemeler geniş bir yelpazeye sahiptir. Plastik, metal, seramik, reçine ve hatta biyolojik materyaller gibi farklı malzemeler kullanılabilir. Malzame seçimi, nesnenin kullanım amacına ve tasarım gereksinimlerine bağlıdır.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Uygulama Alanları:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                3D baskı, prototip geliştirme, üretim, tıp, eğitim, inşaat, moda ve bir dizi diğer endüstriyel sektörlerde kullanılır. Özellikle, özel ve karmaşık parçaların hızlı üretimi ve prototiplemenin yanı sıra kişiselleştirilmiş ürünlerin üretimi için popülerdir.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Hızlı Prototipleme:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                3D baskı, tasarımların hızlı bir şekilde fiziksel prototiplere dönüştürülmesine olanak tanır. Bu, ürün geliştirme sürecini hızlandırabilir ve maliyetleri düşürebilir.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Sürdürülebilirlik:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                3D baskı, malzame israfını en aza indirme potansiyeli taşır. Geleneksel üretim yöntemlerinden farklı olarak, sadece gerekli malzemenin kullanılmasına olanak tanır.
-                            </p>
-                        </div>
+                        ))}
                     </motion.div>
                 </div>
             </section>
@@ -177,7 +130,7 @@ export function DContent() {
                         viewport={{ once: true }}
                         className="text-xl md:text-lg font-medium text-[var(--color-brand)] leading-relaxed"
                     >
-                        ARGE ve prototip geliştirme süreçleri, bir organizasyonun sürdürülebilirliğini sağlamak, rekabet avantajı elde etmek ve müşteri ihtiyaçlarına daha iyi yanıt verebilmek için önemli araçlardır. İyi planlanmış ARGE ve etkili prototip geliştirme süreçleri, bir şirketin büyümesine ve başarılı olmasına katkıda bulunabilir.
+                        {t("closing")}
                     </motion.p>
                 </div>
             </section>

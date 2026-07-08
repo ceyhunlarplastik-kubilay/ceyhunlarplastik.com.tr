@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 import { PageHero } from "@/components/sections/PageHero";
 
@@ -20,15 +21,19 @@ const fadeUp = {
 };
 
 export function MachiningContent() {
+    const t = useTranslations("public.machining");
+    const tb = useTranslations("shared.breadcrumbs");
+    const items = t.raw("items") as { title: string; text: string }[];
+
     return (
         <main className="bg-white">
 
             {/* HERO */}
             <PageHero
-                title="Talaşlı İmalat"
+                title={t("heroTitle")}
                 breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Hizmetler" },
+                    { label: tb("home"), href: "/" },
+                    { label: tb("services") },
                 ]}
             />
             {/* ================= 1. BLOCK ================= */}
@@ -44,14 +49,14 @@ export function MachiningContent() {
                         className="space-y-4"
                     >
                         <h4 className="text-xl font-semibold text-[var(--color-brand)]">
-                            Hizmetler
+                            {t("serviceLabel")}
                         </h4>
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900 -mt-4">
-                            Talaşlı İmalat Nedir?
+                            {t("introTitle")}
                         </h2>
 
                         <p className="text-muted-foreground leading-relaxed">
-                            Talaşlı imalat, metal ve diğer malzemelerin işlenmesinde kullanılan bir üretim yöntemidir. Bu yöntem, genellikle metal parçaların şekillendirilmesi ve işlenmesi için kullanılır ve metal talaşı üretir. Talaşlı imalat, çeşitli alt süreçleri içerir ve genellikle tornalama, frezeleme, delme, taşlama gibi işlemleri kapsar.
+                            {t("introBody")}
                         </p>
                     </motion.div>
 
@@ -65,7 +70,7 @@ export function MachiningContent() {
                     >
                         <Image
                             src="/logos/machining-1.png"
-                            alt="Talaşlı İmalat"
+                            alt={t("imageAlt")}
                             fill
                             className="object-cover"
                         />
@@ -87,7 +92,7 @@ export function MachiningContent() {
                     >
                         <Image
                             src="/logos/machining-2.jpg"
-                            alt="Talaşlı İmalat"
+                            alt={t("imageAlt")}
                             fill
                             className="object-cover"
                         />
@@ -101,58 +106,19 @@ export function MachiningContent() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Tornalama:
-                                </h4>
+                        {items.map((item) => (
+                            <div key={item.title} className="space-y-2 group hover:translate-x-1 transition">
+                                <div className="flex items-center gap-3">
+                                    <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
+                                    <h4 className="font-semibold text-[var(--color-brand)]">
+                                        {item.title}
+                                    </h4>
+                                </div>
+                                <p className="text-muted-foreground leading-relaxed text-sm pl-9">
+                                    {item.text}
+                                </p>
                             </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Tornalama işlemi, bir malzemenin dönen bir mil üzerindeki bir torna tezgahında döndürülerek, kesici bir takımın malzeme üzerinde şekil oluşturmasını sağlar. Bu yöntem genellikle silindirik parçaların üretilmesinde kullanılır.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Frezeleme:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Frezeleme, bir malzemenin üzerinde dönen bir kesici takımın, istenilen şekli oluşturması için malzeme üzerine sabitlenmiş bir tezgah üzerinde hareket etmesini içerir. Bu yöntem, düz yüzeylerin, olukların ve kompleks şekillerin üretilmesinde yaygın olarak kullanılır.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Delme:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Delme işlemi, malzeme üzerine delik açmak için kullanılır. Delme işleminde, genellikle dönen bir matkap ucu kullanılarak malzeme üzerinde delikler açılır.
-                            </p>
-                        </div>
-                        <div className="space-y-2 group hover:translate-x-1 transition">
-                            {/* ÜST SATIR: ICON + BAŞLIK */}
-                            <div className="flex items-center gap-3">
-                                <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                <h4 className="font-semibold text-[var(--color-brand)]">
-                                    Taşlama:
-                                </h4>
-                            </div>
-                            {/* ALT SATIR: PARAGRAF */}
-                            <p className="text-muted-foreground leading-relaxed text-sm pl-9">
-                                Taşlama, malzemenin yüzeyini düzeltmek, parlatmak veya belirli bir tolerans içinde şekillendirmek için kullanılır. Taşlama işlemi, genellikle hassas parçaların üretiminde ve yüzey kalitesinin iyileştirilmesinde önemli bir rol oynar.
-                            </p>
-                        </div>
+                        ))}
                     </motion.div>
                 </div>
             </section>

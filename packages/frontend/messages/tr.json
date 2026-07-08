@@ -140,6 +140,10 @@
         }
     },
     "shared": {
+        "breadcrumbs": {
+            "home": "Ana Sayfa",
+            "services": "Hizmetler"
+        },
         "enviroment": {
             "word1": "DOĞA",
             "word2": "DOSTU",
@@ -181,6 +185,69 @@
                 "imageAlt2": "Güneş paneli detay",
                 "imageAlt3": "Enerji üretimi"
             }
+        },
+        "machining": {
+            "meta": {
+                "title": "Talaşlı İmalat",
+                "description": "Ceyhunlar Plastik talaşlı imalat hizmetleri: tornalama, frezeleme, delme ve taşlama."
+            },
+            "heroTitle": "Talaşlı İmalat",
+            "serviceLabel": "Hizmetler",
+            "introTitle": "Talaşlı İmalat Nedir?",
+            "introBody": "Talaşlı imalat, metal ve diğer malzemelerin işlenmesinde kullanılan bir üretim yöntemidir. Bu yöntem, genellikle metal parçaların şekillendirilmesi ve işlenmesi için kullanılır ve metal talaşı üretir. Talaşlı imalat, çeşitli alt süreçleri içerir ve genellikle tornalama, frezeleme, delme, taşlama gibi işlemleri kapsar.",
+            "imageAlt": "Talaşlı İmalat",
+            "items": [
+                { "title": "Tornalama:", "text": "Tornalama işlemi, bir malzemenin dönen bir mil üzerindeki bir torna tezgahında döndürülerek, kesici bir takımın malzeme üzerinde şekil oluşturmasını sağlar. Bu yöntem genellikle silindirik parçaların üretilmesinde kullanılır." },
+                { "title": "Frezeleme:", "text": "Frezeleme, bir malzemenin üzerinde dönen bir kesici takımın, istenilen şekli oluşturması için malzeme üzerine sabitlenmiş bir tezgah üzerinde hareket etmesini içerir. Bu yöntem, düz yüzeylerin, olukların ve kompleks şekillerin üretilmesinde yaygın olarak kullanılır." },
+                { "title": "Delme:", "text": "Delme işlemi, malzeme üzerine delik açmak için kullanılır. Delme işleminde, genellikle dönen bir matkap ucu kullanılarak malzeme üzerinde delikler açılır." },
+                { "title": "Taşlama:", "text": "Taşlama, malzemenin yüzeyini düzeltmek, parlatmak veya belirli bir tolerans içinde şekillendirmek için kullanılır. Taşlama işlemi, genellikle hassas parçaların üretiminde ve yüzey kalitesinin iyileştirilmesinde önemli bir rol oynar." }
+            ]
+        },
+        "printing3d": {
+            "meta": {
+                "title": "3D Baskı ve Tarama",
+                "description": "Ceyhunlar Plastik 3D baskı ve tarama hizmetleri; hızlı prototipleme ve katmanlı imalat."
+            },
+            "heroTitle": "3D Baskı ve Tarama",
+            "introTitle": "3D Baskı",
+            "introBody": "3D baskı, üç boyutlu nesnelerin katman katman inşa edildiği bir üretim teknolojisidir. Bu teknoloji, bilgisayar destekli tasarım (CAD) yazılımı kullanılarak oluşturulan dijital modelleri fiziksel objelere dönüştürmek için kullanılır. 3D baskı ayrıca “katmanlı imalat” veya “hızlı prototipleme” olarak da bilinir.",
+            "imageAlt1": "3D Baskı Yazıcı Printer",
+            "imageAlt2": "Prototipleme",
+            "items": [
+                { "title": "Çalışma Prensibi:", "text": "3D baskı, bir nesneyi oluşturmak için materyalin katmanlar halinde bir araya getirilmesini sağlar. Bu katmanlar, dijital bir tasarım dosyasından alınan bilgilerle oluşturulur." },
+                { "title": "Malzemeler:", "text": "3D baskıda kullanılan malzemeler geniş bir yelpazeye sahiptir. Plastik, metal, seramik, reçine ve hatta biyolojik materyaller gibi farklı malzemeler kullanılabilir. Malzame seçimi, nesnenin kullanım amacına ve tasarım gereksinimlerine bağlıdır." },
+                { "title": "Uygulama Alanları:", "text": "3D baskı, prototip geliştirme, üretim, tıp, eğitim, inşaat, moda ve bir dizi diğer endüstriyel sektörlerde kullanılır. Özellikle, özel ve karmaşık parçaların hızlı üretimi ve prototiplemenin yanı sıra kişiselleştirilmiş ürünlerin üretimi için popülerdir." },
+                { "title": "Hızlı Prototipleme:", "text": "3D baskı, tasarımların hızlı bir şekilde fiziksel prototiplere dönüştürülmesine olanak tanır. Bu, ürün geliştirme sürecini hızlandırabilir ve maliyetleri düşürebilir." },
+                { "title": "Sürdürülebilirlik:", "text": "3D baskı, malzame israfını en aza indirme potansiyeli taşır. Geleneksel üretim yöntemlerinden farklı olarak, sadece gerekli malzemenin kullanılmasına olanak tanır." }
+            ],
+            "closing": "ARGE ve prototip geliştirme süreçleri, bir organizasyonun sürdürülebilirliğini sağlamak, rekabet avantajı elde etmek ve müşteri ihtiyaçlarına daha iyi yanıt verebilmek için önemli araçlardır. İyi planlanmış ARGE ve etkili prototip geliştirme süreçleri, bir şirketin büyümesine ve başarılı olmasına katkıda bulunabilir."
+        },
+        "arge": {
+            "meta": {
+                "title": "Ar-Ge ve Prototipleme",
+                "description": "Ceyhunlar Plastik Ar-Ge ve prototipleme süreçleri: yenilik, ürün geliştirme ve hızlı prototipleme."
+            },
+            "heroTitle": "Ar-Ge ve Prototipleme",
+            "block1Title": "ARGE ve Prototip Geliştirme Süreçleri",
+            "block1Body": "ARGE (Araştırma ve Geliştirme) ve prototip geliştirme, bir organizasyonun veya şirketin yenilik ve ilerleme sürecinde kritik bir rol oynar. Bu süreçler, yeni ürünlerin, hizmetlerin veya iş süreçlerinin yaratılması, iyileştirilmesi ve test edilmesi için kullanılır.",
+            "imageAlt1": "Ar-Ge",
+            "imageAlt2": "Prototipleme",
+            "imageAlt3": "Planlama",
+            "block2Title": "ARGE (Araştırma ve Geliştirme)",
+            "block2Items": [
+                "Yenilik ve İlerleme: ARGE, yeni fikirlerin ve teknolojilerin keşfi ve geliştirilmesi anlamına gelir. Bu, şirketin rekabet avantajını sürdürebilmesi için kritiktir.",
+                "Ürün ve Süreç Geliştirme: ARGE faaliyetleri, mevcut ürünleri veya iş süreçlerini iyileştirmek ve daha etkin hale getirmek için gerçekleştirilebilir. Bu, ürünlerin kalitesini artırabilir ve üretim süreçlerini optimize edebilir.",
+                "Pazar Analizi: ARGE, pazar eğilimlerini ve müşteri ihtiyaçlarını anlamak için kullanılabilir. Bu, gelecekteki taleplere uygun ürün ve hizmetlerin geliştirilmesine yardımcı olabilir.",
+                "Teknolojik Rekabet: ARGE faaliyetleri, teknolojik bir rekabet avantajı sağlamak için kullanılabilir. Yenilikçi teknolojiler ve çözümler, şirketin sektöründeki liderliğini sürdürebilmesine yardımcı olabilir."
+            ],
+            "block3Title": "Üretim Öncesi Planlama",
+            "block3Items": [
+                "Fiziksel Ürün veya Süreç Modelleme: Prototip geliştirme, bir fikrin veya konseptin fiziksel bir modelini oluşturmayı içerir. Bu, tasarım hatalarını belirlemek ve iyileştirmeler yapmak için önemlidir.",
+                "Test ve Geri Bildirim: Prototipler, gerçek dünya koşullarında test edilebilir. Bu, ürünün veya sürecin performansını değerlendirmek ve müşteri geri bildirimini toplamak için kullanılır.",
+                "Maliyet ve Zaman Tasarrufu: Prototip geliştirme aşaması, son ürün veya süreçte maliyetli hataların önlenmesine ve zaman tasarrufu sağlamaya yardımcı olabilir. İleri aşamalarda düzeltilmesi zor olan hataların erken tespiti mümkündür.",
+                "İnovasyon Teşviki: Prototipler, şirket içinde inovasyon kültürünü teşvik eder. Yaratıcı fikirlerin somut bir şekilde ifade edilmesini sağlar ve ekip üyelerinin katkılarını görmelerine olanak tanır."
+            ],
+            "closing": "ARGE ve prototip geliştirme süreçleri, bir organizasyonun sürdürülebilirliğini sağlamak, rekabet avantajı elde etmek ve müşteri ihtiyaçlarına daha iyi yanıt verebilmek için önemli araçlardır. İyi planlanmış ARGE ve etkili prototip geliştirme süreçleri, bir şirketin büyümesine ve başarılı olmasına katkıda bulunabilir."
         },
         "hr": {
             "meta": {

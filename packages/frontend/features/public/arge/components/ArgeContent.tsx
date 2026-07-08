@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 import { PageHero } from "@/components/sections/PageHero";
 
@@ -20,15 +21,20 @@ const fadeUp = {
 };
 
 export function ArgeContent() {
+    const t = useTranslations("public.arge");
+    const tb = useTranslations("shared.breadcrumbs");
+    const block2Items = t.raw("block2Items") as string[];
+    const block3Items = t.raw("block3Items") as string[];
+
     return (
         <main className="bg-white">
 
             {/* HERO */}
             <PageHero
-                title="Ar-Ge ve Prototipleme"
+                title={t("heroTitle")}
                 breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Hizmetler" },
+                    { label: tb("home"), href: "/" },
+                    { label: tb("services") },
                 ]}
             />
             {/* ================= 1. BLOCK ================= */}
@@ -44,11 +50,11 @@ export function ArgeContent() {
                         className="space-y-5"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            ARGE ve Prototip Geliştirme Süreçleri
+                            {t("block1Title")}
                         </h2>
 
                         <p className="text-muted-foreground leading-relaxed">
-                            ARGE (Araştırma ve Geliştirme) ve prototip geliştirme, bir organizasyonun veya şirketin yenilik ve ilerleme sürecinde kritik bir rol oynar. Bu süreçler, yeni ürünlerin, hizmetlerin veya iş süreçlerinin yaratılması, iyileştirilmesi ve test edilmesi için kullanılır.
+                            {t("block1Body")}
                         </p>
                     </motion.div>
 
@@ -62,7 +68,7 @@ export function ArgeContent() {
                     >
                         <Image
                             src="/logos/arge-1.webp"
-                            alt="Ar-Ge"
+                            alt={t("imageAlt1")}
                             fill
                             className="object-cover"
                         />
@@ -84,7 +90,7 @@ export function ArgeContent() {
                     >
                         <Image
                             src="/logos/arge-2.webp"
-                            alt="Prototipleme"
+                            alt={t("imageAlt2")}
                             fill
                             className="object-cover"
                         />
@@ -99,33 +105,17 @@ export function ArgeContent() {
                         className="space-y-4"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            ARGE (Araştırma ve Geliştirme)
+                            {t("block2Title")}
                         </h2>
 
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                Yenilik ve İlerleme: ARGE, yeni fikirlerin ve teknolojilerin keşfi ve geliştirilmesi anlamına gelir. Bu, şirketin rekabet avantajını sürdürebilmesi için kritiktir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                Ürün ve Süreç Geliştirme: ARGE faaliyetleri, mevcut ürünleri veya iş süreçlerini iyileştirmek ve daha etkin hale getirmek için gerçekleştirilebilir. Bu, ürünlerin kalitesini artırabilir ve üretim süreçlerini optimize edebilir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                Pazar Analizi: ARGE, pazar eğilimlerini ve müşteri ihtiyaçlarını anlamak için kullanılabilir. Bu, gelecekteki taleplere uygun ürün ve hizmetlerin geliştirilmesine yardımcı olabilir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                Teknolojik Rekabet: ARGE faaliyetleri, teknolojik bir rekabet avantajı sağlamak için kullanılabilir. Yenilikçi teknolojiler ve çözümler, şirketin sektöründeki liderliğini sürdürebilmesine yardımcı olabilir.
-                            </p>
-                        </div>
+                        {block2Items.map((text, i) => (
+                            <div key={i} className="flex gap-3 items-start">
+                                <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
+                                <p className="text-muted-foreground leading-relaxed">
+                                    {text}
+                                </p>
+                            </div>
+                        ))}
                     </motion.div>
                 </div>
             </section>
@@ -142,33 +132,17 @@ export function ArgeContent() {
                         className="space-y-4"
                     >
                         <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-                            Üretim Öncesi Planlama
+                            {t("block3Title")}
                         </h2>
 
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                Fiziksel Ürün veya Süreç Modelleme: Prototip geliştirme, bir fikrin veya konseptin fiziksel bir modelini oluşturmayı içerir. Bu, tasarım hatalarını belirlemek ve iyileştirmeler yapmak için önemlidir.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                Test ve Geri Bildirim: Prototipler, gerçek dünya koşullarında test edilebilir. Bu, ürünün veya sürecin performansını değerlendirmek ve müşteri geri bildirimini toplamak için kullanılır.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                Maliyet ve Zaman Tasarrufu: Prototip geliştirme aşaması, son ürün veya süreçte maliyetli hataların önlenmesine ve zaman tasarrufu sağlamaya yardımcı olabilir. İleri aşamalarda düzeltilmesi zor olan hataların erken tespiti mümkündür.
-                            </p>
-                        </div>
-                        <div className="flex gap-3 items-start">
-                            <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
-                            <p className="text-muted-foreground leading-relaxed">
-                                İnovasyon Teşviki: Prototipler, şirket içinde inovasyon kültürünü teşvik eder. Yaratıcı fikirlerin somut bir şekilde ifade edilmesini sağlar ve ekip üyelerinin katkılarını görmelerine olanak tanır.
-                            </p>
-                        </div>
+                        {block3Items.map((text, i) => (
+                            <div key={i} className="flex gap-3 items-start">
+                                <Check className="text-green-500 mt-1 w-6 h-6 shrink-0" />
+                                <p className="text-muted-foreground leading-relaxed">
+                                    {text}
+                                </p>
+                            </div>
+                        ))}
                     </motion.div>
 
                     {/* IMAGE */}
@@ -181,7 +155,7 @@ export function ArgeContent() {
                     >
                         <Image
                             src="/logos/arge-3.png"
-                            alt="Planlama"
+                            alt={t("imageAlt3")}
                             fill
                             className="object-cover"
                         />
@@ -199,7 +173,7 @@ export function ArgeContent() {
                         viewport={{ once: true }}
                         className="text-xl md:text-lg font-medium text-[var(--color-brand)] leading-relaxed"
                     >
-                        ARGE ve prototip geliştirme süreçleri, bir organizasyonun sürdürülebilirliğini sağlamak, rekabet avantajı elde etmek ve müşteri ihtiyaçlarına daha iyi yanıt verebilmek için önemli araçlardır. İyi planlanmış ARGE ve etkili prototip geliştirme süreçleri, bir şirketin büyümesine ve başarılı olmasına katkıda bulunabilir.
+                        {t("closing")}
                     </motion.p>
                 </div>
             </section>

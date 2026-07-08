@@ -140,6 +140,10 @@
         }
     },
     "shared": {
+        "breadcrumbs": {
+            "home": "Home",
+            "services": "Services"
+        },
         "enviroment": {
             "word1": "NATURE",
             "word2": "FRIENDLY",
@@ -181,6 +185,69 @@
                 "imageAlt2": "Solar panel detail",
                 "imageAlt3": "Energy production"
             }
+        },
+        "machining": {
+            "meta": {
+                "title": "CNC Machining",
+                "description": "Ceyhunlar Plastik machining services: turning, milling, drilling and grinding."
+            },
+            "heroTitle": "CNC Machining",
+            "serviceLabel": "Services",
+            "introTitle": "What is Machining?",
+            "introBody": "Machining is a production method used to process metal and other materials. It is generally used to shape and process metal parts and produces metal chips. Machining includes various sub-processes and typically covers operations such as turning, milling, drilling and grinding.",
+            "imageAlt": "CNC Machining",
+            "items": [
+                { "title": "Turning:", "text": "In turning, a material is rotated on a lathe on a rotating spindle, allowing a cutting tool to shape the material. This method is generally used to produce cylindrical parts." },
+                { "title": "Milling:", "text": "Milling involves a rotating cutting tool moving over a workpiece fixed on a bed to create the desired shape. This method is widely used to produce flat surfaces, grooves and complex shapes." },
+                { "title": "Drilling:", "text": "Drilling is used to open holes in a material. In drilling, holes are opened in the material, usually using a rotating drill bit." },
+                { "title": "Grinding:", "text": "Grinding is used to smooth, polish or shape the surface of a material within a certain tolerance. Grinding plays an important role in producing precision parts and improving surface quality." }
+            ]
+        },
+        "printing3d": {
+            "meta": {
+                "title": "3D Printing and Scanning",
+                "description": "Ceyhunlar Plastik 3D printing and scanning services; rapid prototyping and additive manufacturing."
+            },
+            "heroTitle": "3D Printing and Scanning",
+            "introTitle": "3D Printing",
+            "introBody": "3D printing is a manufacturing technology in which three-dimensional objects are built layer by layer. This technology is used to turn digital models created with computer-aided design (CAD) software into physical objects. 3D printing is also known as “additive manufacturing” or “rapid prototyping”.",
+            "imageAlt1": "3D Printing Printer",
+            "imageAlt2": "Prototyping",
+            "items": [
+                { "title": "How It Works:", "text": "3D printing brings material together in layers to create an object. These layers are formed using information taken from a digital design file." },
+                { "title": "Materials:", "text": "The materials used in 3D printing cover a wide range. Different materials such as plastic, metal, ceramic, resin and even biological materials can be used. Material selection depends on the intended use of the object and the design requirements." },
+                { "title": "Application Areas:", "text": "3D printing is used in prototype development, manufacturing, medicine, education, construction, fashion and a range of other industrial sectors. It is especially popular for the rapid production of custom and complex parts, prototyping, and the production of personalized products." },
+                { "title": "Rapid Prototyping:", "text": "3D printing allows designs to be quickly turned into physical prototypes. This can speed up the product development process and reduce costs." },
+                { "title": "Sustainability:", "text": "3D printing has the potential to minimize material waste. Unlike traditional production methods, it allows only the necessary material to be used." }
+            ],
+            "closing": "R&D and prototype development processes are important tools for ensuring an organization's sustainability, gaining a competitive advantage and responding better to customer needs. Well-planned R&D and effective prototype development processes can contribute to a company's growth and success."
+        },
+        "arge": {
+            "meta": {
+                "title": "R&D and Prototyping",
+                "description": "Ceyhunlar Plastik R&D and prototyping processes: innovation, product development and rapid prototyping."
+            },
+            "heroTitle": "R&D and Prototyping",
+            "block1Title": "R&D and Prototype Development Processes",
+            "block1Body": "R&D (Research and Development) and prototype development play a critical role in the innovation and progress of an organization or company. These processes are used to create, improve and test new products, services or business processes.",
+            "imageAlt1": "R&D",
+            "imageAlt2": "Prototyping",
+            "imageAlt3": "Planning",
+            "block2Title": "R&D (Research and Development)",
+            "block2Items": [
+                "Innovation and Progress: R&D means discovering and developing new ideas and technologies. This is critical for the company to maintain its competitive advantage.",
+                "Product and Process Development: R&D activities can be carried out to improve existing products or business processes and make them more efficient. This can increase product quality and optimize production processes.",
+                "Market Analysis: R&D can be used to understand market trends and customer needs. This can help develop products and services that meet future demand.",
+                "Technological Competition: R&D activities can be used to gain a technological competitive advantage. Innovative technologies and solutions can help the company maintain its leadership in the industry."
+            ],
+            "block3Title": "Pre-Production Planning",
+            "block3Items": [
+                "Physical Product or Process Modeling: Prototype development involves creating a physical model of an idea or concept. This is important for identifying design flaws and making improvements.",
+                "Testing and Feedback: Prototypes can be tested under real-world conditions. This is used to evaluate the performance of the product or process and to collect customer feedback.",
+                "Cost and Time Savings: The prototype development stage can help prevent costly mistakes in the final product or process and save time. Early detection of errors that are difficult to fix in later stages is possible.",
+                "Encouraging Innovation: Prototypes encourage a culture of innovation within the company. They allow creative ideas to be expressed concretely and let team members see their contributions."
+            ],
+            "closing": "R&D and prototype development processes are important tools for ensuring an organization's sustainability, gaining a competitive advantage and responding better to customer needs. Well-planned R&D and effective prototype development processes can contribute to a company's growth and success."
         },
         "hr": {
             "meta": {
