@@ -56,6 +56,68 @@
             "goToCart": "Sepete Git",
             "goToCartAria": "Talep sepetine git"
         },
+        "dialogs": {
+            "common": {
+                "submit": "Gönder",
+                "submitting": "Gönderiliyor...",
+                "sentSuccess": "Başarıyla gönderildi",
+                "sentError": "Bir hata oluştu"
+            },
+            "productRequest": {
+                "trigger": "Ürün Talep Et",
+                "title": "Ürün Talep Et",
+                "description": "Talep ettiğiniz ürün bilgisini paylaşın, sizinle iletişime geçelim.",
+                "fields": {
+                    "companyName": "Firma Adı",
+                    "fullName": "Ad Soyad",
+                    "phone": "Telefon (ör: +90 (532) 123-4567)",
+                    "email": "E-posta adresiniz",
+                    "product": "Talep edilen ürün"
+                },
+                "validation": {
+                    "companyNameRequired": "Firma adı zorunludur",
+                    "fullNameMin": "Ad Soyad en az 2 karakter olmalıdır",
+                    "phoneInvalid": "Telefon numarası geçersiz",
+                    "emailInvalid": "Geçerli bir email adresi giriniz",
+                    "productRequired": "Talep edilen ürünü yazınız"
+                }
+            },
+            "catalogRequest": {
+                "trigger": "Katalog Talep Et",
+                "title": "Katalog Talep Et",
+                "description": "Katalog talebinizi iletin, size e-posta ile gönderelim.",
+                "fields": {
+                    "companyName": "Firma Adı",
+                    "fullName": "Ad Soyad",
+                    "phone": "Telefon (ör: +90 (532) 123-4567)",
+                    "address": "Adres"
+                },
+                "validation": {
+                    "companyNameRequired": "Firma adı zorunludur",
+                    "fullNameMin": "Ad Soyad en az 2 karakter olmalıdır",
+                    "phoneInvalid": "Telefon numarası geçersiz",
+                    "addressMin": "Adres en az 10 karakter olmalıdır"
+                }
+            },
+            "mail": {
+                "trigger": "Mail Gönder",
+                "title": "Mail Gönder",
+                "description": "Mesajınızı iletin, en kısa sürede dönüş yapalım.",
+                "submit": "Mesajı Gönder",
+                "fields": {
+                    "fullName": "Ad Soyad",
+                    "phone": "Telefon (ör: +90 (532) 123-4567)",
+                    "email": "E-posta adresiniz",
+                    "message": "Mesajınızı detaylı şekilde yazabilirsiniz"
+                },
+                "validation": {
+                    "fullNameMin": "Ad Soyad en az 2 karakter olmalıdır",
+                    "phoneInvalid": "Telefon numarası geçersiz",
+                    "emailInvalid": "Geçerli bir e-posta adresi giriniz",
+                    "messageMin": "Mesaj en az 10 karakter olmalıdır"
+                }
+            }
+        },
         "footer": {
             "logoAlt": "Ceyhunlar",
             "description": "İlkelerimizden ödün vermeden geldiğimiz bu noktada; kaliteli üretim, teknolojik yatırımlar ve ufku açık düşüncelerle gelecekte de sizlere hizmet vermenin heyecanını yaşıyoruz.",

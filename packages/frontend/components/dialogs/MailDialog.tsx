@@ -1,13 +1,19 @@
 "use client";
 
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Mail, UserCircle, PhoneCall, MessageSquareText } from "lucide-react";
 
 import { BaseFormDialog } from "@/components/dialogs/BaseFormDialog";
-import { mailSchema, type MailValues } from "@/components/dialogs/schemas";
+import { buildMailSchema, type MailValues } from "@/components/dialogs/schemas";
 
 import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
 
 export function MailDialog() {
+    const t = useTranslations("chrome.dialogs.mail");
+    const tv = useTranslations("chrome.dialogs.mail.validation");
+    const schema = useMemo(() => buildMailSchema(tv), [tv]);
+
     const defaultValues: MailValues = {
         fullName: "",
         phone: "",
@@ -17,51 +23,47 @@ export function MailDialog() {
 
     return (
         <BaseFormDialog<MailValues>
-            title="Mail Gönder"
-            description="Mesajınızı iletin, en kısa sürede dönüş yapalım."
-            schema={mailSchema}
+            title={t("title")}
+            description={t("description")}
+            schema={schema}
             defaultValues={defaultValues}
-            submitLabel="Mesajı Gönder"
+            submitLabel={t("submit")}
             trigger={
                 <button className="flex items-center justify-center lg:justify-start gap-2 text-white/70 hover:text-white transition">
                     <Mail className="h-3.5 w-3.5 text-[var(--color-brand)]" />
-                    Mail Gönder
+                    {t("trigger")}
                 </button>
             }
         >
             {(form) => (
                 <>
-                    {/* Ad Soyad */}
                     <FormInputWithIcon
                         control={form.control}
                         name="fullName"
-                        placeholder="Ad Soyad"
+                        placeholder={t("fields.fullName")}
                         icon={UserCircle}
                     />
 
-                    {/* Telefon */}
                     <FormInputWithIcon
                         control={form.control}
                         name="phone"
-                        placeholder="Telefon (ör: +90 (532) 123-4567)"
+                        placeholder={t("fields.phone")}
                         icon={PhoneCall}
                         mask="+90 (000) 000-0000"
                     />
 
-                    {/* Email */}
                     <FormInputWithIcon
                         control={form.control}
                         name="email"
-                        placeholder="E-posta adresiniz"
+                        placeholder={t("fields.email")}
                         icon={Mail}
                         type="email"
                     />
 
-                    {/* Mesaj (TEXTAREA) */}
                     <FormInputWithIcon
                         control={form.control}
                         name="message"
-                        placeholder="Mesajınızı detaylı şekilde yazabilirsiniz"
+                        placeholder={t("fields.message")}
                         icon={MessageSquareText}
                         textarea
                         rows={6}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
     FileText,
     Building,
@@ -10,7 +12,7 @@ import {
 } from "lucide-react";
 import { BaseFormDialog } from "@/components/dialogs/BaseFormDialog";
 import {
-    productRequestSchema,
+    buildProductRequestSchema,
     type ProductRequestValues,
 } from "@/components/dialogs/schemas";
 import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
@@ -20,6 +22,10 @@ type Props = {
 };
 
 export function ProductRequestDialog({ className }: Props) {
+    const t = useTranslations("chrome.dialogs.productRequest");
+    const tv = useTranslations("chrome.dialogs.productRequest.validation");
+    const schema = useMemo(() => buildProductRequestSchema(tv), [tv]);
+
     const defaultValues: ProductRequestValues = {
         companyName: "",
         fullName: "",
@@ -30,16 +36,16 @@ export function ProductRequestDialog({ className }: Props) {
 
     return (
         <BaseFormDialog<ProductRequestValues>
-            title="Ürün Talep Et"
-            description="Talep ettiğiniz ürün bilgisini paylaşın, sizinle iletişime geçelim."
-            schema={productRequestSchema}
+            title={t("title")}
+            description={t("description")}
+            schema={schema}
             defaultValues={defaultValues}
             trigger={
                 <button
                     className={`flex items-center gap-2 transition ${className ?? "text-white/70 hover:text-white"}`}
                 >
                     <FileText className="h-3.5 w-3.5 text-[var(--color-brand)]" />
-                    Ürün Talep Et
+                    {t("trigger")}
                 </button>
             }
         >
@@ -48,7 +54,7 @@ export function ProductRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="companyName"
-                        placeholder="Firma Adı"
+                        placeholder={t("fields.companyName")}
                         icon={Building}
                         type="text"
                     />
@@ -56,7 +62,7 @@ export function ProductRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="fullName"
-                        placeholder="Ad Soyad"
+                        placeholder={t("fields.fullName")}
                         icon={UserCircle}
                         type="text"
                     />
@@ -64,7 +70,7 @@ export function ProductRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="phone"
-                        placeholder="Telefon (ör: +90 (532) 123-4567)"
+                        placeholder={t("fields.phone")}
                         icon={PhoneCall}
                         mask="+90 (000) 000-0000"
                     />
@@ -72,7 +78,7 @@ export function ProductRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="email"
-                        placeholder="E-posta adresiniz"
+                        placeholder={t("fields.email")}
                         icon={Mail}
                         type="email"
                     />
@@ -80,7 +86,7 @@ export function ProductRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="product"
-                        placeholder="Talep edilen ürün"
+                        placeholder={t("fields.product")}
                         icon={PackageSearch}
                         type="text"
                     />

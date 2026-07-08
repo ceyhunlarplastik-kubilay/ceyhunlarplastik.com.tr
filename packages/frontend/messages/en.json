@@ -56,6 +56,68 @@
             "goToCart": "Go to Cart",
             "goToCartAria": "Go to inquiry cart"
         },
+        "dialogs": {
+            "common": {
+                "submit": "Send",
+                "submitting": "Sending...",
+                "sentSuccess": "Sent successfully",
+                "sentError": "An error occurred"
+            },
+            "productRequest": {
+                "trigger": "Request a Product",
+                "title": "Request a Product",
+                "description": "Share the product you need and we will get in touch with you.",
+                "fields": {
+                    "companyName": "Company Name",
+                    "fullName": "Full Name",
+                    "phone": "Phone (e.g. +90 (532) 123-4567)",
+                    "email": "Your email address",
+                    "product": "Requested product"
+                },
+                "validation": {
+                    "companyNameRequired": "Company name is required",
+                    "fullNameMin": "Full name must be at least 2 characters",
+                    "phoneInvalid": "Invalid phone number",
+                    "emailInvalid": "Please enter a valid email address",
+                    "productRequired": "Please enter the requested product"
+                }
+            },
+            "catalogRequest": {
+                "trigger": "Request a Catalog",
+                "title": "Request a Catalog",
+                "description": "Send us your catalog request and we will email it to you.",
+                "fields": {
+                    "companyName": "Company Name",
+                    "fullName": "Full Name",
+                    "phone": "Phone (e.g. +90 (532) 123-4567)",
+                    "address": "Address"
+                },
+                "validation": {
+                    "companyNameRequired": "Company name is required",
+                    "fullNameMin": "Full name must be at least 2 characters",
+                    "phoneInvalid": "Invalid phone number",
+                    "addressMin": "Address must be at least 10 characters"
+                }
+            },
+            "mail": {
+                "trigger": "Send Mail",
+                "title": "Send Mail",
+                "description": "Send us your message and we will get back to you as soon as possible.",
+                "submit": "Send Message",
+                "fields": {
+                    "fullName": "Full Name",
+                    "phone": "Phone (e.g. +90 (532) 123-4567)",
+                    "email": "Your email address",
+                    "message": "You can write your message in detail"
+                },
+                "validation": {
+                    "fullNameMin": "Full name must be at least 2 characters",
+                    "phoneInvalid": "Invalid phone number",
+                    "emailInvalid": "Please enter a valid email address",
+                    "messageMin": "Message must be at least 10 characters"
+                }
+            }
+        },
         "footer": {
             "logoAlt": "Ceyhunlar",
             "description": "Having come this far without compromising our principles, we are excited to keep serving you in the future with quality production, technological investments and an open-minded vision.",

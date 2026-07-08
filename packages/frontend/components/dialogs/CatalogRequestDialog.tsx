@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
     BookOpen,
     Building,
@@ -9,7 +11,7 @@ import {
 } from "lucide-react";
 import { BaseFormDialog } from "@/components/dialogs/BaseFormDialog";
 import {
-    catalogRequestSchema,
+    buildCatalogRequestSchema,
     type CatalogRequestValues,
 } from "@/components/dialogs/schemas";
 import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
@@ -19,6 +21,10 @@ type Props = {
 };
 
 export function CatalogRequestDialog({ className }: Props) {
+    const t = useTranslations("chrome.dialogs.catalogRequest");
+    const tv = useTranslations("chrome.dialogs.catalogRequest.validation");
+    const schema = useMemo(() => buildCatalogRequestSchema(tv), [tv]);
+
     const defaultValues: CatalogRequestValues = {
         companyName: "",
         fullName: "",
@@ -28,16 +34,16 @@ export function CatalogRequestDialog({ className }: Props) {
 
     return (
         <BaseFormDialog<CatalogRequestValues>
-            title="Katalog Talep Et"
-            description="Katalog talebinizi iletin, size e-posta ile gönderelim."
-            schema={catalogRequestSchema}
+            title={t("title")}
+            description={t("description")}
+            schema={schema}
             defaultValues={defaultValues}
             trigger={
                 <button
                     className={`flex items-center gap-2 transition ${className ?? "text-white/70 hover:text-white"}`}
                 >
                     <BookOpen className="h-3.5 w-3.5 text-[var(--color-brand)]" />
-                    Katalog Talep Et
+                    {t("trigger")}
                 </button>
             }
         >
@@ -46,7 +52,7 @@ export function CatalogRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="companyName"
-                        placeholder="Firma Adı"
+                        placeholder={t("fields.companyName")}
                         icon={Building}
                         type="text"
                     />
@@ -54,7 +60,7 @@ export function CatalogRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="fullName"
-                        placeholder="Ad Soyad"
+                        placeholder={t("fields.fullName")}
                         icon={UserCircle}
                         type="text"
                     />
@@ -62,7 +68,7 @@ export function CatalogRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="phone"
-                        placeholder="Telefon (ör: +90 (532) 123-4567)"
+                        placeholder={t("fields.phone")}
                         icon={PhoneCall}
                         mask="+90 (000) 000-0000"
                     />
@@ -70,7 +76,7 @@ export function CatalogRequestDialog({ className }: Props) {
                     <FormInputWithIcon
                         control={form.control}
                         name="address"
-                        placeholder="Adres"
+                        placeholder={t("fields.address")}
                         icon={MapPin}
                         type="text"
                     />

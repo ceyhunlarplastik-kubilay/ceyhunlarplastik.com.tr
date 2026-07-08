@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import {
     useForm,
     type UseFormReturn,
@@ -37,10 +38,12 @@ export function BaseFormDialog<TFieldValues extends FieldValues>({
     description,
     schema,
     defaultValues,
-    submitLabel = "Gönder",
+    submitLabel,
     children,
     onSubmitted,
 }: BaseFormDialogProps<TFieldValues>) {
+    const t = useTranslations("chrome.dialogs.common");
+    const resolvedSubmitLabel = submitLabel ?? t("submit");
     const [open, setOpen] = React.useState(false);
     const [mounted, setMounted] = React.useState(false);
 
@@ -66,16 +69,16 @@ export function BaseFormDialog<TFieldValues extends FieldValues>({
     }, [open, reset, defaultValues]);
 
     const onSubmit: SubmitHandler<TFieldValues> = async (data) => {
-        const toastId = toast.loading("Gönderiliyor...");
+        const toastId = toast.loading(t("submitting"));
 
         try {
             await new Promise((r) => setTimeout(r, 1200));
             await onSubmitted?.(data);
 
-            toast.success("Başarıyla gönderildi", { id: toastId });
+            toast.success(t("sentSuccess"), { id: toastId });
             setOpen(false);
         } catch {
-            toast.error("Bir hata oluştu", { id: toastId });
+            toast.error(t("sentError"), { id: toastId });
         }
     };
 
@@ -102,10 +105,10 @@ export function BaseFormDialog<TFieldValues extends FieldValues>({
                             {isSubmitting ? (
                                 <span className="flex items-center gap-2">
                                     <Spinner className="h-4 w-4" />
-                                    Gönderiliyor...
+                                    {t("submitting")}
                                 </span>
                             ) : (
-                                submitLabel
+                                resolvedSubmitLabel
                             )}
                         </Button>
                     </form>
