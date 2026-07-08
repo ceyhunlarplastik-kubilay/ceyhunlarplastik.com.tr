@@ -1,22 +1,10 @@
+// Başlık/açıklamalar i18n kataloğundan gelir: chrome.nav.serviceItems.<key>
+// (bkz. messages/tr.json). Burada yalnız route bilgisi tutulur.
 export const serviceItems = [
-    {
-        title: "Ar-ge ve Prototipleme",
-        description: "İhtiyacınıza özel plastik ürün tasarımı.",
-        href: "/arge-ve-prototipleme"
-    },
-    {
-        title: "3D Baskı ve Tarama",
-        description: "Kurumsal müşterilerimiz için özel fiyatlar.",
-        href: "/3d-baski-ve-tarama"
-    },
-    {
-        title: "Talaşlı İmalat",
-        description: "Hızlı ve güvenli teslimat hizmetleri.",
-        href: "/talasli-imalat"
-    },
-    {
-        title: "Seri Üretim",
-        description: "Proje bazlı teknik danışmanlık hizmetleri.",
-        href: "/seri-uretim"
-    },
-];
+    { key: "rnd", href: "/arge-ve-prototipleme" },
+    { key: "printing3d", href: "/3d-baski-ve-tarama" },
+    { key: "machining", href: "/talasli-imalat" },
+    { key: "massProduction", href: "/seri-uretim" },
+] as const;
+
+export type ServiceItemKey = (typeof serviceItems)[number]["key"];

@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
     NavigationMenuContent,
     NavigationMenuItem,
@@ -12,10 +13,12 @@ import { ListItem } from "@/components/navigation/ListItem"
 import { corporateItems } from "@/constants/corporates";
 
 export const CorporateNavigationItem = () => {
+    const t = useTranslations("chrome.nav");
+
     return (
         <NavigationMenuItem>
             <NavigationMenuTrigger className="nav-pill text-base font-medium bg-transparent">
-                Kurumsal
+                {t("corporate")}
             </NavigationMenuTrigger>
             <NavigationMenuContent>
                 <ul className="grid gap-2 p-4 w-[600px] grid-cols-[.75fr_1fr]">
@@ -28,7 +31,7 @@ export const CorporateNavigationItem = () => {
                                 <div className="relative w-full h-20 mb-2 flex items-center justify-center">
                                     <Image
                                         src="/logos/ceyhunlar.png"
-                                        alt="Ceyhunlar Plastik"
+                                        alt={t("logoAlt")}
                                         width={200}
                                         height={80}
                                         className="object-contain"
@@ -38,10 +41,14 @@ export const CorporateNavigationItem = () => {
                             </Link>
                         </NavigationMenuLink>
                     </li>
-                    {corporateItems.map((item, index) => {
+                    {corporateItems.map((item) => {
                         return (
-                            <ListItem key={index} href={item.href} title={item.title}>
-                                {item.description}
+                            <ListItem
+                                key={item.key}
+                                href={item.href}
+                                title={t(`corporateItems.${item.key}.title`)}
+                            >
+                                {t(`corporateItems.${item.key}.description`)}
                             </ListItem>
                         );
                     })}

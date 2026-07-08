@@ -2,6 +2,81 @@
     "common": {
         "siteName": "Ceyhunlar Plastik"
     },
+    "chrome": {
+        "nav": {
+            "corporate": "Corporate",
+            "categories": "Categories",
+            "sectoralProducts": "Sectoral Products",
+            "services": "Services",
+            "catalogs": "Catalogs",
+            "contact": "Contact",
+            "logoAlt": "Ceyhunlar Plastik",
+            "corporateItems": {
+                "about": {
+                    "title": "About Us",
+                    "description": "Learn about our company history, vision and mission."
+                },
+                "sustainability": {
+                    "title": "Sustainability",
+                    "description": "Our environmentally friendly production processes and sustainability policies."
+                },
+                "hr": {
+                    "title": "Human Resources",
+                    "description": "Career opportunities and our employee values."
+                },
+                "feedback": {
+                    "title": "Suggestions & Complaints",
+                    "description": "Share your opinions and suggestions with us."
+                }
+            },
+            "serviceItems": {
+                "rnd": {
+                    "title": "R&D and Prototyping",
+                    "description": "Custom plastic product design for your needs."
+                },
+                "printing3d": {
+                    "title": "3D Printing and Scanning",
+                    "description": "Special prices for our corporate customers."
+                },
+                "machining": {
+                    "title": "CNC Machining",
+                    "description": "Fast and reliable delivery services."
+                },
+                "massProduction": {
+                    "title": "Mass Production",
+                    "description": "Project-based technical consulting services."
+                }
+            }
+        },
+        "mobileMenu": {
+            "title": "Menu",
+            "closeAria": "Close menu"
+        },
+        "cart": {
+            "goToCart": "Go to Cart",
+            "goToCartAria": "Go to inquiry cart"
+        },
+        "footer": {
+            "logoAlt": "Ceyhunlar",
+            "description": "Having come this far without compromising our principles, we are excited to keep serving you in the future with quality production, technological investments and an open-minded vision.",
+            "corporateTitle": "Corporate",
+            "servicesTitle": "Services",
+            "productsTitle": "Products",
+            "contactTitle": "Get in Touch",
+            "aboutLink": "About Us",
+            "productionGroupsLink": "Production Groups",
+            "hrLink": "Human Resources",
+            "sustainabilityLink": "Sustainability",
+            "contactLink": "Contact",
+            "rndLink": "R&D and Prototyping",
+            "printing3dLink": "3D Printing and Scanning",
+            "machiningLink": "CNC Machining",
+            "massProductionLink": "Mass Production",
+            "sectoralProductsLink": "Sectoral Products",
+            "address": "Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir",
+            "copyright": "Copyright © 2026 Ceyhunlar – All rights reserved."
+        }
+    },
     "public": {
         "about": {
             "meta": {

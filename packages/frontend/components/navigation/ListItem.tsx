@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 interface ListItemProps {
     title: string;

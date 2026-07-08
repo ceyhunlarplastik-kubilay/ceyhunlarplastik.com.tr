@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
     NavigationMenuItem,
     NavigationMenuTrigger,
@@ -14,12 +15,14 @@ export function CategoryNavigationItem({
 }: {
     categories: Category[];
 }) {
+    const t = useTranslations("chrome.nav");
+
     if (!categories?.length) return null;
 
     return (
         <NavigationMenuItem>
             <NavigationMenuTrigger className="nav-pill text-base font-medium bg-transparent">
-                Kategoriler
+                {t("categories")}
             </NavigationMenuTrigger>
 
             <NavigationMenuContent className="!fixed !left-0 !right-0 !w-screen !max-w-none data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out">

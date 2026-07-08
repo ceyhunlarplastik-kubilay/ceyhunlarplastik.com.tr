@@ -175,7 +175,8 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 
 ### Faz 1b ilerleme
 - **✅ Pilot: `hakkimizda` (2026-07-08)** — desen oturdu: 32 key (`public.about.*` + `common.siteName`), rich text başlıklar `t.rich` + `<highlight>`/`<br>` tag'leriyle, kategori kartlarında `next/link` → `@/i18n/navigation` Link (EN'de locale korunur), `generateMetadata` locale-aware (canonical + hreflang `tr`/`en`/`x-default` + `og:locale`), [app/sitemap.ts](packages/frontend/app/sitemap.ts) locale-aware iskeletiyle kuruldu (13 statik sayfa; dynamic girişler Faz 1c). Doğrulama build artefaktlarından: TR/EN prerendered HTML'de title/canonical/hreflang/içerik kontrolü. İki bilinçli normalizasyon: sayfa title'ı artık template üzerinden tek "| Ceyhunlar Plastik" eki alıyor (eskiden sayfa tam başlık yazıp template ile çiftlenme riski taşıyordu) ve `og.url: "/hakkimizda.jpg"` bug'ı kaldırıldı (URL yerine görsel path'i yazılmıştı).
-- Kalan Faz 1b yüzeyi: `(public)` 18 sayfa + navbar/footer chrome + auth ekranları — pilot deseniyle seri ilerlenecek.
+- **✅ Chrome: navbar + footer + mobil menü (2026-07-08)** — `chrome.*` namespace'i (45 key): 6 nav başlığı, kurumsal/hizmet menü öğeleri (constants key-tabanlı yapıldı — [constants/corporates.ts](packages/frontend/constants/corporates.ts) ve services.tsx artık yalnız `{key, href}` tutar, metinler katalogda), mobil menü, sepet CTA'sı, footer (17 metin). 15 chrome bileşeninde iç linkler `@/i18n/navigation` Link'e geçti; dış (sosyal/tel) linkler `next/link`'te bırakıldı (i18n Link dış URL için kullanılmaz). Bilinçli düzeltme: mobil menü kapatma butonunun aria-label'ı İngilizce hardcode'du ("Close Menu") → artık locale'e göre. Doğrulama: typecheck + build + iki dilin prerendered HTML'inde 6'şar chrome metni birebir mevcut. Yakalanan ölü kod (kök `Navbar.tsx`/`Footer.tsx`, `NavigationContactButton`) ayrı temizlik işi olarak işaretlendi.
+- Kalan Faz 1b yüzeyi: `(public)` 18 sayfa + TopBar/Footer dialogları (ProductRequest/CatalogRequest/Mail/CustomerLead — form+zod deseni burada oturacak) + auth ekranları + dil değiştirici UI (en son).
 
 ### Faz 1 uygulama sırası (her adım bağımsız doğrulanabilir)
 1. `next-intl` kurulumu + `messages/tr.json` (mevcut metinler) + `middleware.ts` + `[locale]` taşıma — **davranış değişikliği sıfır**, tüm site hâlâ TR.
@@ -187,12 +188,12 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 
 ## Skill Önerileri
 
-| İhtiyaç | Öneri |
+| İhtiyaç | Durum |
 |---|---|
-| PR/branch denetimi | Hazır: `/code-review` (her P0-P1 PR'ında), `/security-review` (P0.2, P0.3, P1.3 gibi güvenlik dokunuşlarında) |
-| Değişiklik doğrulama | Hazır: `verify` skill — özellikle `[locale]` taşıması ve Next yükseltmesi sonrası uçtan uca akış sürme |
-| i18n göçü | **Proje-özel skill oluşturulmalı** (`i18n-migrate`): bir sayfanın/feature'ın TR string'lerini namespace konvansiyonuyla catalog'a taşıma adımları, `getTranslations`/`useTranslations` kalıpları, hreflang kontrol listesi. 70+ dosyalık tekrarlı iş — skill tutarlılığı garanti eder. `skill-creator` ile üretilebilir. |
-| Validator tamamlama | **Proje-özel skill oluşturulmalı** (`add-response-validator`): mevcut response örneğini toplama → Zod validator yazma → `actions.ts` bağlama → frontend shape doğrulama checklist'i. 9 dosyalık tekrarlı iş. |
+| PR/branch denetimi | Hazır: `/code-review` (her P0-P1 PR'ında), `/security-review` (güvenlik dokunuşlarında). `/code-review ultra` yalnız kullanıcı tetikler (bulut, faturalı). |
+| Değişiklik doğrulama | Hazır: `verify` skill — büyük yapısal değişiklik sonrası uçtan uca akış sürme |
+| i18n göçü | **✅ Kuruldu ve kullanılıyor**: [.claude/skills/i18n-migrate](.claude/skills/i18n-migrate/SKILL.md) — `hakkimizda` pilotu bu skill'le yapıldı; kalan Faz 1b yüzeyi aynı reçeteyle seri ilerliyor. |
+| Validator tamamlama | **✅ Kuruldu, P1.2'de kullanılacak**: [.claude/skills/add-response-validator](.claude/skills/add-response-validator/SKILL.md) — 9 dosyalık backlog skill içinde referanslı. |
 | Yeni endpoint | Opsiyonel: AGENTS/ARCHITECTURE'daki endpoint ekleme adımları zaten net; skill'e dönüştürmek düşük öncelik. |
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar

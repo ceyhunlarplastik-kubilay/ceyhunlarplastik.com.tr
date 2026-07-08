@@ -1,7 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+// Dış (sosyal medya) linkler next/link'te kalır; iç linkler locale-aware Link kullanır.
+import ExternalLink from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useCategories } from "@/features/public/categories/hooks/useCategories";
 import { Phone, MapPin } from "lucide-react";
 import { SiFacebook, SiInstagram, SiYoutube } from "react-icons/si";
@@ -10,6 +13,7 @@ import { CatalogRequestDialog } from "@/components/dialogs/CatalogRequestDialog"
 import { MailDialog } from "@/components/dialogs/MailDialog";
 
 export function Footer() {
+    const t = useTranslations("chrome.footer");
     const { data, isLoading, error } = useCategories();
 
     return (
@@ -21,21 +25,19 @@ export function Footer() {
                     <div className="lg:col-span-2 flex flex-col items-center lg:items-start">
                         <Image
                             src="/logos/logo-text.png"
-                            alt="Ceyhunlar"
+                            alt={t("logoAlt")}
                             width={140}
                             height={35}
                             className="mb-4"
                         />
 
                         <p className="max-w-xs text-xs leading-relaxed text-white/70">
-                            İlkelerimizden ödün vermeden geldiğimiz bu noktada; kaliteli
-                            üretim, teknolojik yatırımlar ve ufku açık düşüncelerle gelecekte
-                            de sizlere hizmet vermenin heyecanını yaşıyoruz.
+                            {t("description")}
                         </p>
 
                         {/* Social */}
                         <div className="mt-5 flex items-center justify-center lg:justify-start gap-4">
-                            <Link
+                            <ExternalLink
                                 href="https://www.facebook.com/Ceyhunlarplastik/"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -43,8 +45,8 @@ export function Footer() {
                                 className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-[var(--color-brand)] hover:text-white"
                             >
                                 <SiFacebook className="h-4 w-4" />
-                            </Link>
-                            <Link
+                            </ExternalLink>
+                            <ExternalLink
                                 href="https://www.instagram.com/ceyhunlarplastik/"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -52,8 +54,8 @@ export function Footer() {
                                 className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-[var(--color-brand)] hover:text-white"
                             >
                                 <SiInstagram className="h-4 w-4" />
-                            </Link>
-                            <Link
+                            </ExternalLink>
+                            <ExternalLink
                                 href="https://www.youtube.com/@ceyhunlarplastik9455"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -61,40 +63,40 @@ export function Footer() {
                                 className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-[var(--color-brand)] hover:text-white"
                             >
                                 <SiYoutube className="h-4 w-4" />
-                            </Link>
+                            </ExternalLink>
                         </div>
                     </div>
 
                     {/* Kurumsal */}
                     <div>
-                        <h4 className="mb-3 text-sm font-semibold text-white">Kurumsal</h4>
+                        <h4 className="mb-3 text-sm font-semibold text-white">{t("corporateTitle")}</h4>
                         <ul className="space-y-1.5 text-white/70">
                             <li>
                                 <Link
                                     href="/hakkimizda"
                                     className="hover:text-[var(--color-brand)]"
                                 >
-                                    Hakkımızda
+                                    {t("aboutLink")}
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/urunler" className="hover:text-[var(--color-brand)]">
-                                    Üretim Grupları
+                                    {t("productionGroupsLink")}
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/ik" className="hover:text-[var(--color-brand)]">
-                                    İnsan Kaynakları
+                                    {t("hrLink")}
                                 </Link>
                             </li>
                             <li>
                                 <Link href="#" className="hover:text-[var(--color-brand)]">
-                                    Sürdürülebilirlik
+                                    {t("sustainabilityLink")}
                                 </Link>
                             </li>
                             <li>
                                 <Link href="#" className="hover:text-[var(--color-brand)]">
-                                    İletişim
+                                    {t("contactLink")}
                                 </Link>
                             </li>
                         </ul>
@@ -102,14 +104,14 @@ export function Footer() {
 
                     {/* Hizmetler */}
                     <div>
-                        <h4 className="mb-3 text-sm font-semibold text-white">Hizmetler</h4>
+                        <h4 className="mb-3 text-sm font-semibold text-white">{t("servicesTitle")}</h4>
                         <ul className="space-y-1.5 text-white/70">
                             <li>
                                 <Link
                                     href="/arge-ve-prototipleme"
                                     className="hover:text-[var(--color-brand)]"
                                 >
-                                    Ar-Ge ve Prototipleme
+                                    {t("rndLink")}
                                 </Link>
                             </li>
                             <li>
@@ -117,7 +119,7 @@ export function Footer() {
                                     href="/3d-baski-ve-tarama"
                                     className="hover:text-[var(--color-brand)]"
                                 >
-                                    3D Baskı ve Tarama
+                                    {t("printing3dLink")}
                                 </Link>
                             </li>
                             <li>
@@ -125,7 +127,7 @@ export function Footer() {
                                     href="/talasli-imalat"
                                     className="hover:text-[var(--color-brand)]"
                                 >
-                                    Talaşlı İmalat
+                                    {t("machiningLink")}
                                 </Link>
                             </li>
                             <li>
@@ -133,7 +135,7 @@ export function Footer() {
                                     href="/seri-uretim"
                                     className="hover:text-[var(--color-brand)]"
                                 >
-                                    Seri Üretim
+                                    {t("massProductionLink")}
                                 </Link>
                             </li>
                         </ul>
@@ -142,7 +144,7 @@ export function Footer() {
                     {/* Ürünler */}
                     <div className="flex flex-col items-center lg:items-start">
                         <h4 className="mb-3 text-sm font-semibold text-white text-center lg:text-left">
-                            Ürünler
+                            {t("productsTitle")}
                         </h4>
 
                         <ul className="space-y-1.5 text-white/70 w-full">
@@ -168,7 +170,7 @@ export function Footer() {
                                     href="/urunler/filtre"
                                     className="text-white/50 hover:text-white transition"
                                 >
-                                    Sektörel Ürünler
+                                    {t("sectoralProductsLink")}
                                 </Link>
                             </li>
                         </ul>
@@ -177,7 +179,7 @@ export function Footer() {
                     {/* Contact */}
                     <div>
                         <h4 className="mb-3 text-sm font-semibold text-white">
-                            İletişime Geçin
+                            {t("contactTitle")}
                         </h4>
 
                         <ul className="space-y-2 text-white/70">
@@ -210,10 +212,10 @@ export function Footer() {
             <div className="mx-auto max-w-7xl px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-[11px] text-white/70 text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start gap-2">
                     <MapPin className="h-3.5 w-3.5" />
-                    Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir
+                    {t("address")}
                 </div>
 
-                <div>Copyright © 2026 Ceyhunlar – Tüm hakları saklıdır.</div>
+                <div>{t("copyright")}</div>
             </div>
         </footer>
     );

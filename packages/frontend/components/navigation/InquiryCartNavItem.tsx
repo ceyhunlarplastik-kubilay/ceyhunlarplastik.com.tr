@@ -1,6 +1,7 @@
 "use client"
 
-import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { Link } from "@/i18n/navigation"
 import { ShoppingCart } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +13,7 @@ type Props = {
 }
 
 export function InquiryCartNavItem({ className }: Props) {
+    const t = useTranslations("chrome.cart")
     const items = useInquiryCartStore((state) => state.items)
     const [mounted, setMounted] = useState(false)
 
@@ -31,10 +33,10 @@ export function InquiryCartNavItem({ className }: Props) {
                 "inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-300 hover:bg-neutral-50",
                 className
             )}
-            aria-label="Talep sepetine git"
+            aria-label={t("goToCartAria")}
         >
             <ShoppingCart className="h-4 w-4" />
-            <span>Sepete Git</span>
+            <span>{t("goToCart")}</span>
             {mounted && totalCount > 0 && (
                 <Badge
                     variant="secondary"

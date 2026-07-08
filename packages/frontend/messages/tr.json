@@ -2,6 +2,81 @@
     "common": {
         "siteName": "Ceyhunlar Plastik"
     },
+    "chrome": {
+        "nav": {
+            "corporate": "Kurumsal",
+            "categories": "Kategoriler",
+            "sectoralProducts": "Sektörel Ürünler",
+            "services": "Hizmetler",
+            "catalogs": "Kataloglar",
+            "contact": "İletişim",
+            "logoAlt": "Ceyhunlar Plastik",
+            "corporateItems": {
+                "about": {
+                    "title": "Hakkımızda",
+                    "description": "Şirket tarihimiz, vizyonumuz ve misyonumuz hakkında bilgi edinin."
+                },
+                "sustainability": {
+                    "title": "Sürdürülebilirlik",
+                    "description": "Çevre dostu üretim süreçlerimiz ve sürdürülebilirlik politikalarımız."
+                },
+                "hr": {
+                    "title": "İnsan Kaynakları",
+                    "description": "Kariyer fırsatları ve çalışan değerlerimiz."
+                },
+                "feedback": {
+                    "title": "Öneri & Şikayet",
+                    "description": "Görüş ve önerilerinizi bizimle paylaşın."
+                }
+            },
+            "serviceItems": {
+                "rnd": {
+                    "title": "Ar-ge ve Prototipleme",
+                    "description": "İhtiyacınıza özel plastik ürün tasarımı."
+                },
+                "printing3d": {
+                    "title": "3D Baskı ve Tarama",
+                    "description": "Kurumsal müşterilerimiz için özel fiyatlar."
+                },
+                "machining": {
+                    "title": "Talaşlı İmalat",
+                    "description": "Hızlı ve güvenli teslimat hizmetleri."
+                },
+                "massProduction": {
+                    "title": "Seri Üretim",
+                    "description": "Proje bazlı teknik danışmanlık hizmetleri."
+                }
+            }
+        },
+        "mobileMenu": {
+            "title": "Menü",
+            "closeAria": "Menüyü kapat"
+        },
+        "cart": {
+            "goToCart": "Sepete Git",
+            "goToCartAria": "Talep sepetine git"
+        },
+        "footer": {
+            "logoAlt": "Ceyhunlar",
+            "description": "İlkelerimizden ödün vermeden geldiğimiz bu noktada; kaliteli üretim, teknolojik yatırımlar ve ufku açık düşüncelerle gelecekte de sizlere hizmet vermenin heyecanını yaşıyoruz.",
+            "corporateTitle": "Kurumsal",
+            "servicesTitle": "Hizmetler",
+            "productsTitle": "Ürünler",
+            "contactTitle": "İletişime Geçin",
+            "aboutLink": "Hakkımızda",
+            "productionGroupsLink": "Üretim Grupları",
+            "hrLink": "İnsan Kaynakları",
+            "sustainabilityLink": "Sürdürülebilirlik",
+            "contactLink": "İletişim",
+            "rndLink": "Ar-Ge ve Prototipleme",
+            "printing3dLink": "3D Baskı ve Tarama",
+            "machiningLink": "Talaşlı İmalat",
+            "massProductionLink": "Seri Üretim",
+            "sectoralProductsLink": "Sektörel Ürünler",
+            "address": "Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir",
+            "copyright": "Copyright © 2026 Ceyhunlar – Tüm hakları saklıdır."
+        }
+    },
     "public": {
         "about": {
             "meta": {

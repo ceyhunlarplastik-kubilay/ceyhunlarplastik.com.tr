@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { Category } from "@/features/public/categories/types";
 import type { ProductAttribute } from "@/features/public/productAttributes/types";
 import CustomerLeadDialog from "@/components/home/CustomerLeadDialog";
@@ -18,6 +19,8 @@ export const MobileMenu = ({
     categories?: Category[];
     attributes?: ProductAttribute[];
 }) => {
+    const t = useTranslations("chrome");
+
     return (
         <div
             className={`
@@ -43,11 +46,11 @@ export const MobileMenu = ({
             >
                 {/* CLOSE BUTTON */}
                 <div className="flex items-center justify-between p-5 border-b">
-                    <span className="text-lg font-semibold">Menü</span>
+                    <span className="text-lg font-semibold">{t("mobileMenu.title")}</span>
                     <button
                         onClick={() => setMobileOpen(false)}
                         className="p-2 rounded-full bg-gray-200/60 hover:bg-gray-300 transition"
-                        aria-label="Close Menu"
+                        aria-label={t("mobileMenu.closeAria")}
                     >
                         <svg viewBox="0 0 24 24" className="h-5 w-5">
                             <path
@@ -68,12 +71,12 @@ export const MobileMenu = ({
                         href="/hakkimizda"
                         onClick={() => setMobileOpen(false)}
                     >
-                        Kurumsal
+                        {t("nav.corporate")}
                     </Link>
 
                     <details className="menu-item-ios group border-b border-gray-100">
                         <summary className="cursor-pointer py-3 flex justify-between items-center list-none">
-                            Kategoriler
+                            {t("nav.categories")}
                             <svg
                                 className="w-4 h-4 transition-transform group-open:rotate-180"
                                 fill="none"
@@ -107,12 +110,12 @@ export const MobileMenu = ({
                         href="/urunler/filtre"
                         onClick={() => setMobileOpen(false)}
                     >
-                        Sektörel Ürünler
+                        {t("nav.sectoralProducts")}
                     </Link>
 
                     <details className="menu-item-ios group border-b border-gray-100">
                         <summary className="cursor-pointer py-3 flex justify-between items-center list-none">
-                            Hizmetler
+                            {t("nav.services")}
                             <svg
                                 className="w-4 h-4 transition-transform group-open:rotate-180"
                                 fill="none"
@@ -130,12 +133,12 @@ export const MobileMenu = ({
                         <div className="ml-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
                             {serviceItems.map((item) => (
                                 <Link
-                                    key={item.title}
+                                    key={item.key}
                                     href={item.href}
                                     className="py-1 block"
                                     onClick={() => setMobileOpen(false)}
                                 >
-                                    {item.title}
+                                    {t(`nav.serviceItems.${item.key}.title`)}
                                 </Link>
                             ))}
                         </div>
@@ -146,7 +149,7 @@ export const MobileMenu = ({
                         href="/kataloglar"
                         onClick={() => setMobileOpen(false)}
                     >
-                        Kataloglar
+                        {t("nav.catalogs")}
                     </Link>
 
                     <Link
@@ -154,7 +157,7 @@ export const MobileMenu = ({
                         href="/iletisim"
                         onClick={() => setMobileOpen(false)}
                     >
-                        İletişim
+                        {t("nav.contact")}
                     </Link>
 
                     <div className="pt-4">

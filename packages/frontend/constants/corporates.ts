@@ -1,22 +1,10 @@
+// Başlık/açıklamalar i18n kataloğundan gelir: chrome.nav.corporateItems.<key>
+// (bkz. messages/tr.json). Burada yalnız route bilgisi tutulur.
 export const corporateItems = [
-    {
-        title: "Hakkımızda",
-        description: "Şirket tarihimiz, vizyonumuz ve misyonumuz hakkında bilgi edinin.",
-        href: "/hakkimizda"
-    },
-    {
-        title: "Sürdürülebilirlik",
-        description: "Çevre dostu üretim süreçlerimiz ve sürdürülebilirlik politikalarımız.",
-        href: "/surdurulebilirlik"
-    },
-    {
-        title: "İnsan Kaynakları",
-        description: "Kariyer fırsatları ve çalışan değerlerimiz.",
-        href: "/ik"
-    },
-    {
-        title: "Öneri & Şikayet",
-        description: "Görüş ve önerilerinizi bizimle paylaşın.",
-        href: "/oneri-sikayet"
-    },
-];
+    { key: "about", href: "/hakkimizda" },
+    { key: "sustainability", href: "/surdurulebilirlik" },
+    { key: "hr", href: "/ik" },
+    { key: "feedback", href: "/oneri-sikayet" },
+] as const;
+
+export type CorporateItemKey = (typeof corporateItems)[number]["key"];
