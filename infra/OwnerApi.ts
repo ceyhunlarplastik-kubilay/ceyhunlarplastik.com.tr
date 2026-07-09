@@ -51,6 +51,12 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     runtime: "nodejs22.x",
     vpc: vpc,
     link: [rds, userPool, userAccessBus],
+    // P1.6 — structured logging (Powertools). retention "1 month" = SST varsayılanı (30gün).
+    logging: { retention: "1 month" },
+    environment: {
+        POWERTOOLS_SERVICE_NAME: "ceyhunlar-owner-api",
+        POWERTOOLS_LOG_LEVEL: $app.stage === "prod" ? "INFO" : "DEBUG",
+    },
 };
 
 // 🔁 reusable auth config

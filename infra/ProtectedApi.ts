@@ -62,8 +62,12 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     runtime: 'nodejs22.x',
     vpc: vpc,
     link: [rds, userPool, publicBucket],
+    // P1.6 — structured logging (Powertools). retention "1 month" = SST varsayılanı (30gün).
+    logging: { retention: "1 month" },
     environment: {
         BUCKET_NAME: publicBucket.name,
+        POWERTOOLS_SERVICE_NAME: "ceyhunlar-protected-api",
+        POWERTOOLS_LOG_LEVEL: $app.stage === "prod" ? "INFO" : "DEBUG",
         ASSET_PUBLIC_BASE_URL:
             $app.stage === "prod"
                 ? `https://cdn.${config.DOMAIN}`

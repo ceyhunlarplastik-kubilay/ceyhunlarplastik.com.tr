@@ -19,7 +19,6 @@ import validator from "@middy/validator"
 import { transpileSchema } from "@middy/validator/transpile"
 
 import inputOutputLogger from "@middy/input-output-logger"
-import errorLogger from "@middy/error-logger"
 
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware"
 
@@ -164,11 +163,13 @@ export const lambdaHandler = <TResponse = unknown>(
         chain.use(inputOutputLogger())
     } */
 
-    chain.use(errorLogger())
-
     /* ------------------------
      * 10 Custom error handler (EN SON)
      * ------------------------ */
+    // Not: eski @middy/error-logger kaldırıldı — httpErrorHandlerMiddleware'in
+    // onError'ı (en son eklendiği için middy tarafından İLK çalışır) yanıtı set
+    // edip zinciri durduruyordu; error-logger.onError hiç tetiklenmiyordu (ölü).
+    // Yapısal hata logu artık httpErrorHandlerMiddleware içinde (Powertools).
     chain.use(httpErrorHandlerMiddleware())
 
     return chain
