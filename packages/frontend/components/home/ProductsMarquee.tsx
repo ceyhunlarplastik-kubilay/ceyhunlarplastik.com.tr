@@ -5,8 +5,8 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
-// import { useCategories } from "@/hooks/categories/useCategory";
 import { useCategories } from "@/features/public/categories/hooks/useCategories";
+import { getCategoryPrimaryImage } from "@/features/public/categories/utils/getPrimaryImage";
 import { MotionMarquee } from "@/components/ui/MotionMarquee";
 
 export function ProductsSection() {
@@ -19,7 +19,7 @@ export function ProductsSection() {
 
     const y = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
 
-    const { data: categories, isLoading, error } = useCategories();
+    const { data: categories } = useCategories();
 
     return (
         <section
@@ -54,13 +54,13 @@ export function ProductsSection() {
                 <div className="space-y-6 w-full max-w-7xl mx-auto">
                     {/* Row 1: Right */}
                     <MotionMarquee speed={60} direction="right" gap="gap-4">
-                        {categories?.slice(0, 6).map((item, i) => (
+                        {categories?.slice(0, 6).map((item) => (
                             <MarqueeItem
                                 key={`row1-${item.id}`}
                                 item={{
                                     href: `/urun-kategori/${item.slug}`,
                                     title: item.name,
-                                    src: `/categories/img/${item.code}.jpg`,
+                                    src: getCategoryPrimaryImage(item) ?? "/placeholder.webp",
                                 }}
                             />
                         ))}
@@ -68,13 +68,13 @@ export function ProductsSection() {
 
                     {/* Row 2: Left (Reverse) */}
                     <MotionMarquee speed={50} direction="left" gap="gap-4">
-                        {categories?.slice(3, 9).map((item, i) => (
+                        {categories?.slice(3, 9).map((item) => (
                             <MarqueeItem
                                 key={`row2-${item.id}`}
                                 item={{
                                     href: `/urun-kategori/${item.slug}`,
                                     title: item.name,
-                                    src: `/categories/img/${item.code}.jpg`,
+                                    src: getCategoryPrimaryImage(item) ?? "/placeholder.webp",
                                 }}
                             />
                         ))}
@@ -82,13 +82,13 @@ export function ProductsSection() {
 
                     {/* Row 3: Right */}
                     <MotionMarquee speed={55} direction="right" gap="gap-4">
-                        {categories?.slice(6, 12).map((item, i) => (
+                        {categories?.slice(6, 12).map((item) => (
                             <MarqueeItem
                                 key={`row3-${item.id}`}
                                 item={{
                                     href: `/urun-kategori/${item.slug}`,
                                     title: item.name,
-                                    src: `/categories/img/${item.code}.jpg`,
+                                    src: getCategoryPrimaryImage(item) ?? "/placeholder.webp",
                                 }}
                             />
                         ))}
