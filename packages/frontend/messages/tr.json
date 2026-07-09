@@ -734,6 +734,49 @@
                 "openingGeneric": "Seçilen ölçüye ait varyantlar açılıyor."
             }
         },
+        "customerLead": {
+            "title": "Numune Talep Formu",
+            "steps": {
+                "welcome": "Karşılama",
+                "sector": "Sektör",
+                "productionGroup": "Üretim Grubu",
+                "usageArea": "Kullanım Alanı",
+                "contact": "İletişim"
+            },
+            "welcomeTitle": "Merhaba",
+            "welcomeBody1": "Ceyhunlar Plastik olarak geliştirdiğimiz bu platform ile sektörünüze özel ürünlere tek noktadan ulaşmanızı, ihtiyaçlarınıza en uygun çözümleri detaylı şekilde incelemenizi ve numune taleplerinizi pratik bir şekilde oluşturmanızı hedefliyoruz.",
+            "welcomeBody2": "Amacımız; karar süreçlerinizi hızlandıran, güvenilir ve kullanıcı odaklı bir deneyim sunmaktır.",
+            "imageMissing": "Görsel yok",
+            "sectorTitle": "Faaliyet sektörünüzü seçin",
+            "sectorSubtitle": "Tek seçim yapın.",
+            "productionGroupTitle": "2. Üretim grubunuzu seçin",
+            "usageAreaTitle": "3. Kullanım alanlarınızı seçin (birden fazla olabilir)",
+            "usageSearchPlaceholder": "Kullanım alanı ara...",
+            "noResults": "Sonuç bulunamadı.",
+            "contactTitle": "4. İletişim bilgilerinizi doldurun",
+            "companyPlaceholder": "Firma adı (opsiyonel)",
+            "fullNamePlaceholder": "Ad Soyad *",
+            "phonePlaceholder": "Telefon *",
+            "emailPlaceholder": "E-posta *",
+            "notePlaceholder": "Notunuz / Numune talebiniz",
+            "later": "Daha Sonra",
+            "start": "Başlayalım",
+            "back": "Geri",
+            "next": "Devam Et",
+            "submitting": "Kaydediliyor...",
+            "submit": "Bilgileri Gönder",
+            "successToast": "Bilgileriniz kaydedildi. En kısa sürede iletişime geçeceğiz.",
+            "errorToast": "Kayıt sırasında bir hata oluştu",
+            "validation": {
+                "sectorRequired": "Lütfen sektör seçin",
+                "productionGroupRequired": "Lütfen üretim grubu seçin",
+                "companyMax": "Firma adı en fazla 120 karakter olabilir",
+                "fullNameRequired": "Ad Soyad zorunludur",
+                "phoneRequired": "Telefon zorunludur",
+                "emailInvalid": "Geçerli bir e-posta girin",
+                "noteMax": "Not en fazla 1000 karakter olabilir"
+            }
+        },
         "catalog": {
             "meta": {
                 "title": "Kataloglar",

@@ -734,6 +734,49 @@
                 "openingGeneric": "Opening variants for the selected dimension."
             }
         },
+        "customerLead": {
+            "title": "Sample Request Form",
+            "steps": {
+                "welcome": "Welcome",
+                "sector": "Sector",
+                "productionGroup": "Production Group",
+                "usageArea": "Application Area",
+                "contact": "Contact"
+            },
+            "welcomeTitle": "Hello",
+            "welcomeBody1": "At Ceyhunlar Plastik, with this platform we developed, we aim to help you reach products specific to your sector from a single point, review the solutions best suited to your needs in detail, and create your sample requests in a practical way.",
+            "welcomeBody2": "Our goal is to offer a reliable, user-focused experience that speeds up your decision-making processes.",
+            "imageMissing": "No image",
+            "sectorTitle": "Select your industry",
+            "sectorSubtitle": "Make a single selection.",
+            "productionGroupTitle": "2. Select your production group",
+            "usageAreaTitle": "3. Select your application areas (you can choose more than one)",
+            "usageSearchPlaceholder": "Search application area...",
+            "noResults": "No results found.",
+            "contactTitle": "4. Fill in your contact information",
+            "companyPlaceholder": "Company name (optional)",
+            "fullNamePlaceholder": "Full Name *",
+            "phonePlaceholder": "Phone *",
+            "emailPlaceholder": "Email *",
+            "notePlaceholder": "Your note / sample request",
+            "later": "Later",
+            "start": "Let's Start",
+            "back": "Back",
+            "next": "Continue",
+            "submitting": "Saving...",
+            "submit": "Send Information",
+            "successToast": "Your information has been saved. We will get in touch as soon as possible.",
+            "errorToast": "An error occurred while saving",
+            "validation": {
+                "sectorRequired": "Please select a sector",
+                "productionGroupRequired": "Please select a production group",
+                "companyMax": "Company name can be at most 120 characters",
+                "fullNameRequired": "Full name is required",
+                "phoneRequired": "Phone is required",
+                "emailInvalid": "Enter a valid email",
+                "noteMax": "Note can be at most 1000 characters"
+            }
+        },
         "catalog": {
             "meta": {
                 "title": "Catalogs",

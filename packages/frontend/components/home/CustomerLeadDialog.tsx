@@ -5,6 +5,7 @@ import Image from "next/image"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { useTranslations } from "next-intl"
 import { AnimatePresence, motion } from "motion/react"
 import {
     ArrowRight,
@@ -54,36 +55,42 @@ type Props = {
     onDialogOpenChange?: (open: boolean) => void
 }
 
-const STEP_TITLES = [
-    "Karşılama",
-    "Sektör",
-    "Üretim Grubu",
-    "Kullanım Alanı",
-    "İletişim",
-]
+function buildCustomerLeadSchema(tv: (key: string) => string) {
+    return z.object({
+        sectorValueId: z.string().min(1, tv("sectorRequired")),
+        productionGroupValueId: z.string().min(1, tv("productionGroupRequired")),
+        usageAreaValueIds: z.array(z.string()).default([]),
+        companyName: z.string().trim().max(120, tv("companyMax")).optional().or(z.literal("")),
+        fullName: z.string().trim().min(2, tv("fullNameRequired")),
+        phone: z.string().trim().min(7, tv("phoneRequired")),
+        email: z.string().trim().email(tv("emailInvalid")),
+        note: z.string().trim().max(1000, tv("noteMax")).optional().or(z.literal("")),
+    })
+}
 
-const customerLeadSchema = z.object({
-    sectorValueId: z.string().min(1, "Lütfen sektör seçin"),
-    productionGroupValueId: z.string().min(1, "Lütfen üretim grubu seçin"),
-    usageAreaValueIds: z.array(z.string()).default([]),
-    companyName: z.string().trim().max(120, "Firma adı en fazla 120 karakter olabilir").optional().or(z.literal("")),
-    fullName: z.string().trim().min(2, "Ad Soyad zorunludur"),
-    phone: z.string().trim().min(7, "Telefon zorunludur"),
-    email: z.string().trim().email("Geçerli bir e-posta girin"),
-    note: z.string().trim().max(1000, "Not en fazla 1000 karakter olabilir").optional().or(z.literal("")),
-})
-
-type CustomerLeadFormValues = z.infer<typeof customerLeadSchema>
+type CustomerLeadFormValues = z.infer<ReturnType<typeof buildCustomerLeadSchema>>
 
 export default function CustomerLeadDialog({
     attributes,
     buttonClassName,
-    buttonLabel = "Numune Talep Formu",
+    buttonLabel,
     onDialogOpenChange,
 }: Props) {
+    const t = useTranslations("public.customerLead")
+    const tv = useTranslations("public.customerLead.validation")
     const [open, setOpen] = useState(false)
     const [step, setStep] = useState<0 | 1 | 2 | 3 | 4>(0)
     const [usageQuery, setUsageQuery] = useState("")
+
+    const customerLeadSchema = useMemo(() => buildCustomerLeadSchema(tv), [tv])
+    const stepTitles = [
+        t("steps.welcome"),
+        t("steps.sector"),
+        t("steps.productionGroup"),
+        t("steps.usageArea"),
+        t("steps.contact"),
+    ]
+    const triggerLabel = buttonLabel ?? t("title")
 
     const form = useForm<CustomerLeadFormValues>({
         resolver: zodResolver(customerLeadSchema) as any,
@@ -211,10 +218,10 @@ export default function CustomerLeadDialog({
                 usageAreaValueIds: values.usageAreaValueIds,
             })
 
-            toast.success("Bilgileriniz kaydedildi. En kısa sürede iletişime geçeceğiz.")
+            toast.success(t("successToast"))
             closeAndReset()
         } catch {
-            toast.error("Kayıt sırasında bir hata oluştu")
+            toast.error(t("errorToast"))
         }
     })
 
@@ -249,7 +256,7 @@ export default function CustomerLeadDialog({
                 >
                     <span className="inline-flex items-center gap-2">
                         <Factory className="h-4 w-4 text-white" />
-                        {buttonLabel}
+                        {triggerLabel}
                     </span>
                 </ButtonShine>
             </motion.div>
@@ -258,7 +265,7 @@ export default function CustomerLeadDialog({
                 showCloseButton={false}
                 className="w-[min(760px,calc(100vw-1.25rem))] h-[min(84vh,700px)] overflow-hidden p-0 rounded-2xl border-neutral-200"
             >
-                <DialogTitle className="sr-only">Numune Talep Formu</DialogTitle>
+                <DialogTitle className="sr-only">{t("title")}</DialogTitle>
 
                 <div className="flex h-full flex-col">
                     <div className="bg-gradient-to-r from-[var(--color-brand)] to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
@@ -268,8 +275,8 @@ export default function CustomerLeadDialog({
                                     <Sparkles className="h-4 w-4" />
                                 </span>
                                 <div>
-                                    <p className="text-sm font-semibold">Numune Talep Formu</p>
-                                    <p className="text-xs text-white/80">{STEP_TITLES[step]}</p>
+                                    <p className="text-sm font-semibold">{t("title")}</p>
+                                    <p className="text-xs text-white/80">{stepTitles[step]}</p>
                                 </div>
                             </div>
                             <button
@@ -322,13 +329,13 @@ export default function CustomerLeadDialog({
 
                                             <div className="space-y-3 max-w-l">
                                                 <h2 className="text-3xl font-bold tracking-tight text-neutral-900 leading-tight">
-                                                    Merhaba <span className="inline-block animate-bounce">👋</span>
+                                                    {t("welcomeTitle")} <span className="inline-block animate-bounce">👋</span>
                                                 </h2>
                                                 <p className="text-base text-neutral-600 leading-relaxed">
-                                                    Ceyhunlar Plastik olarak geliştirdiğimiz bu platform ile sektörünüze özel ürünlere tek noktadan ulaşmanızı, ihtiyaçlarınıza en uygun çözümleri detaylı şekilde incelemenizi ve numune taleplerinizi pratik bir şekilde oluşturmanızı hedefliyoruz.
+                                                    {t("welcomeBody1")}
                                                 </p>
                                                 <p className="text-base text-neutral-600 leading-relaxed">
-                                                    Amacımız; karar süreçlerinizi hızlandıran, güvenilir ve kullanıcı odaklı bir deneyim sunmaktır.
+                                                    {t("welcomeBody2")}
                                                 </p>
                                             </div>
                                         </motion.div>
@@ -343,8 +350,8 @@ export default function CustomerLeadDialog({
                                             className="flex h-full min-h-0 flex-col gap-3 overflow-hidden"
                                         >
                                             <div>
-                                                <h3 className="text-lg font-semibold">Faaliyet sektörünüzü seçin</h3>
-                                                <p className="text-sm text-neutral-500">Tek seçim yapın.</p>
+                                                <h3 className="text-lg font-semibold">{t("sectorTitle")}</h3>
+                                                <p className="text-sm text-neutral-500">{t("sectorSubtitle")}</p>
                                             </div>
 
                                             <ScrollArea
@@ -391,7 +398,7 @@ export default function CustomerLeadDialog({
                                                                     />
                                                                 ) : (
                                                                     <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
-                                                                        Görsel yok
+                                                                        {t("imageMissing")}
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -423,7 +430,7 @@ export default function CustomerLeadDialog({
                                             exit={{ opacity: 0, y: -10 }}
                                             className="flex h-full min-h-0 flex-col gap-3 overflow-hidden"
                                         >
-                                            <p className="text-sm font-medium">2. Üretim grubunuzu seçin</p>
+                                            <p className="text-sm font-medium">{t("productionGroupTitle")}</p>
                                             <ScrollArea type="always" className="min-h-0 flex-1 rounded-lg border p-2 pr-3">
                                                 <div className="grid grid-cols-1 gap-2 pb-2 sm:grid-cols-2">
                                                     {visibleProductionGroups.map((value) => (
@@ -473,19 +480,19 @@ export default function CustomerLeadDialog({
                                             exit={{ opacity: 0, y: -10 }}
                                             className="flex h-full min-h-0 flex-col gap-3 overflow-hidden"
                                         >
-                                            <p className="text-sm font-medium">3. Kullanım alanlarınızı seçin (birden fazla olabilir)</p>
+                                            <p className="text-sm font-medium">{t("usageAreaTitle")}</p>
                                             <div className="min-h-0 flex-1 overflow-hidden rounded-lg border">
                                                 <div className="border-b p-2">
                                                     <Input
                                                         value={usageQuery}
                                                         onChange={(e) => setUsageQuery(e.target.value)}
-                                                        placeholder="Kullanım alanı ara..."
+                                                        placeholder={t("usageSearchPlaceholder")}
                                                     />
                                                 </div>
 
                                                 <ScrollArea type="always" className="h-[320px] p-2 pr-3">
                                                     {filteredUsageAreas.length === 0 ? (
-                                                        <div className="py-8 text-center text-sm text-neutral-500">Sonuç bulunamadı.</div>
+                                                        <div className="py-8 text-center text-sm text-neutral-500">{t("noResults")}</div>
                                                     ) : (
                                                         <div className="space-y-1">
                                                             {filteredUsageAreas.map((value) => (
@@ -533,7 +540,7 @@ export default function CustomerLeadDialog({
                                             exit={{ opacity: 0, y: -10 }}
                                             className="grid gap-3"
                                         >
-                                            <p className="text-sm font-medium">4. İletişim bilgilerinizi doldurun</p>
+                                            <p className="text-sm font-medium">{t("contactTitle")}</p>
                                             <div className="grid gap-3 sm:grid-cols-2">
                                                 <FormField
                                                     control={form.control}
@@ -543,7 +550,7 @@ export default function CustomerLeadDialog({
                                                             <FormControl>
                                                                 <div className="relative">
                                                                     <Building2 className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder="Firma adı (opsiyonel)" className="pl-9" />
+                                                                    <Input {...field} placeholder={t("companyPlaceholder")} className="pl-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -559,7 +566,7 @@ export default function CustomerLeadDialog({
                                                             <FormControl>
                                                                 <div className="relative">
                                                                     <User2 className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder="Ad Soyad *" className="pl-9" />
+                                                                    <Input {...field} placeholder={t("fullNamePlaceholder")} className="pl-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -575,7 +582,7 @@ export default function CustomerLeadDialog({
                                                             <FormControl>
                                                                 <div className="relative">
                                                                     <Phone className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder="Telefon *" className="pl-9" />
+                                                                    <Input {...field} placeholder={t("phonePlaceholder")} className="pl-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -591,7 +598,7 @@ export default function CustomerLeadDialog({
                                                             <FormControl>
                                                                 <div className="relative">
                                                                     <Mail className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder="E-posta *" type="email" className="pl-9" />
+                                                                    <Input {...field} placeholder={t("emailPlaceholder")} type="email" className="pl-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -610,7 +617,7 @@ export default function CustomerLeadDialog({
                                                                 <MessageSquare className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
                                                                 <Textarea
                                                                     {...field}
-                                                                    placeholder="Notunuz / Numune talebiniz"
+                                                                    placeholder={t("notePlaceholder")}
                                                                     rows={5}
                                                                     className="pl-9"
                                                                 />
@@ -634,10 +641,10 @@ export default function CustomerLeadDialog({
                                             onClick={closeAndReset}
                                             disabled={form.formState.isSubmitting}
                                         >
-                                            Daha Sonra
+                                            {t("later")}
                                         </Button>
                                         <Button type="button" onClick={nextStep} className="bg-[var(--color-brand)] text-white">
-                                            Başlayalım
+                                            {t("start")}
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </Button>
                                     </>
@@ -649,7 +656,7 @@ export default function CustomerLeadDialog({
                                             onClick={prevStep}
                                             disabled={form.formState.isSubmitting}
                                         >
-                                            Geri
+                                            {t("back")}
                                         </Button>
 
                                         {step < 4 ? (
@@ -659,7 +666,7 @@ export default function CustomerLeadDialog({
                                                 disabled={form.formState.isSubmitting}
                                                 className="bg-[var(--color-brand)] text-white"
                                             >
-                                                Devam Et
+                                                {t("next")}
                                                 <ChevronRight className="ml-2 h-4 w-4" />
                                             </Button>
                                         ) : (
@@ -667,12 +674,12 @@ export default function CustomerLeadDialog({
                                                 {form.formState.isSubmitting ? (
                                                     <span className="inline-flex items-center gap-2">
                                                         <Spinner className="h-4 w-4" />
-                                                        Kaydediliyor...
+                                                        {t("submitting")}
                                                     </span>
                                                 ) : (
                                                     <>
                                                         <Send className="mr-2 h-4 w-4" />
-                                                        Bilgileri Gönder
+                                                        {t("submit")}
                                                     </>
                                                 )}
                                             </Button>
