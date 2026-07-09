@@ -1,4 +1,7 @@
+"use client"
+
 import { Clapperboard } from "lucide-react"
+import { useTranslations } from "next-intl"
 import ProductAssetFeatureSection from "@/features/public/products/components/ProductAssetFeatureSection"
 
 type Asset = {
@@ -31,6 +34,7 @@ export default function ProductAssemblyVideoSection({
     imageMinHeightPx,
     videoOnly = false,
 }: Props) {
+    const t = useTranslations("public.productDetail")
     if (videoOnly) {
         const videoAsset = product.assets?.find((asset) => asset.role === "ASSEMBLY_VIDEO" && asset.url)
 
@@ -58,11 +62,12 @@ export default function ProductAssemblyVideoSection({
             assets={product.assets}
             role="ASSEMBLY_VIDEO"
             badgeIcon={<Clapperboard size={14} />}
-            badgeLabel="Montaj Videosu"
-            title="Montaj Videosu"
-            description="Kurulum ve montaj adımlarını videodan izleyerek uygulamayı daha hızlı tamamlayabilirsiniz. Özel montaj ihtiyaçlarınız için bizimle iletişime geçebilirsiniz."
-            openButtonLabel="Montaj Videosunu Aç"
-            missingMessage="Bu ürün için montaj videosu henüz eklenmemiştir. Talep oluşturarak montaj videosu isteyebilirsiniz."
+            badgeLabel={t("assets.assemblyVideo.badge")}
+            title={t("assets.assemblyVideo.title")}
+            description={t("assets.assemblyVideo.description")}
+            openButtonLabel={t("assets.assemblyVideo.open")}
+            requestInfoLabel={t("assetSection.requestInfo")}
+            offerImageAlt={t("assetSection.offerImageAlt")}
             compact={compact}
             showTitle={showTitle}
             showDescription={showDescription}

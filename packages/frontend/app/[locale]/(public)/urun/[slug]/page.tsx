@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { PageHero } from "@/components/sections/PageHero"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
@@ -19,39 +20,55 @@ import SimilarProductsRow from "@/features/public/products/components/SimilarPro
 export const revalidate = 60
 
 type PageProps = {
-    params: Promise<{ slug: string }>
+    params: Promise<{ locale: string; slug: string }>
 }
 
 export async function generateMetadata(
     { params }: PageProps
 ): Promise<Metadata> {
 
-    const { slug } = await params
+    const { locale, slug } = await params
 
-    const product = await getProductBySlug(slug)
+    const [t, product] = await Promise.all([
+        getTranslations({ locale, namespace: "public.productDetail" }),
+        getProductBySlug(slug),
+    ])
 
     if (!product) return {}
 
+    const canonicalPath = locale === "tr" ? `/urun/${product.slug}` : `/en/urun/${product.slug}`
+
     return {
-        title: `${product.name} | Ceyhunlar Plastik`,
-        description: `${product.name} ürününü inceleyin.`,
+        // Root layout template "| Ceyhunlar Plastik" ekler
+        title: product.name,
+        description: t("metaDescription", { name: product.name }),
         openGraph: {
             title: product.name,
-            description: `${product.name} ürün detay sayfası`,
+            description: t("ogDescription", { name: product.name }),
             type: "website",
-            url: `https://ceyhunlarplastik.com.tr/urun/${product.slug}`,
+            locale: locale === "tr" ? "tr_TR" : "en_US",
         },
         alternates: {
-            canonical: `https://ceyhunlarplastik.com.tr/urun/${product.slug}`,
+            canonical: canonicalPath,
+            languages: {
+                tr: `/urun/${product.slug}`,
+                en: `/en/urun/${product.slug}`,
+                "x-default": `/urun/${product.slug}`,
+            },
         },
     }
 }
 
 export default async function ProductPage({ params }: PageProps) {
 
-    const { slug } = await params
+    const { locale, slug } = await params
+    setRequestLocale(locale)
 
-    const product = await getProductBySlug(slug)
+    const [tb, tf, product] = await Promise.all([
+        getTranslations({ locale, namespace: "shared.breadcrumbs" }),
+        getTranslations({ locale, namespace: "public.productDetail" }),
+        getProductBySlug(slug),
+    ])
 
     if (!product) notFound()
 
@@ -70,10 +87,9 @@ export default async function ProductPage({ params }: PageProps) {
             <PageHero
                 title={product.name}
                 breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Ürünler", href: "/urunler" },
-                    /* { label: product.category.name, href: `/kategori/${product.category.slug}` }, */
-                    { label: product.category?.name || "Kategori Yok", href: product.category?.slug ? `/urun-kategori/${product.category.slug}` : "/" },
+                    { label: tb("home"), href: "/" },
+                    { label: tf("breadcrumbProducts"), href: "/urunler" },
+                    { label: product.category?.name || tf("categoryFallback"), href: product.category?.slug ? `/urun-kategori/${product.category.slug}` : "/" },
                     { label: product.name }
                 ]}
             />

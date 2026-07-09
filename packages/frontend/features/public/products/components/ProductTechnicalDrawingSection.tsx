@@ -1,4 +1,7 @@
+"use client"
+
 import { FileText } from "lucide-react"
+import { useTranslations } from "next-intl"
 import ProductAssetFeatureSection from "@/features/public/products/components/ProductAssetFeatureSection"
 
 type Asset = {
@@ -18,17 +21,19 @@ type Props = {
 }
 
 export default function ProductTechnicalDrawingSection({ product, compact = false, mediaOnly = false }: Props) {
+    const t = useTranslations("public.productDetail")
     return (
         <ProductAssetFeatureSection
             productName={product.name}
             assets={product.assets}
             role="TECHNICAL_DRAWING"
             badgeIcon={<FileText size={14} />}
-            badgeLabel="Teknik Çizim"
-            title="Teknik Çizim"
-            description="Ürüne ait teknik çizim üzerinde ölçü ve form detaylarını inceleyebilirsiniz. Daha kapsamlı teknik dokümantasyon ve özel talepler için ekibimizle iletişime geçebilirsiniz."
-            openButtonLabel="Teknik Çizimi Aç"
-            missingMessage="Bu ürün için teknik çizim henüz eklenmemiştir. Talep oluşturarak teknik çizimi isteyebilirsiniz."
+            badgeLabel={t("assets.technicalDrawing.badge")}
+            title={t("assets.technicalDrawing.title")}
+            description={t("assets.technicalDrawing.description")}
+            openButtonLabel={t("assets.technicalDrawing.open")}
+            requestInfoLabel={t("assetSection.requestInfo")}
+            offerImageAlt={t("assetSection.offerImageAlt")}
             compact={compact}
             interactiveImage
             showTitle={!compact}

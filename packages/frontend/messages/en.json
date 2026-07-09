@@ -568,6 +568,99 @@
             "searchByLabel": "Search {label}...",
             "notFound": "Not found"
         },
+        "productDetail": {
+            "metaDescription": "Explore the {name} product.",
+            "ogDescription": "{name} product detail page",
+            "breadcrumbProducts": "Products",
+            "categoryFallback": "No Category",
+            "imageNotFound": "Image not found",
+            "imageDialogTitle": "Product image",
+            "catalogCode": "Catalog Code: {code}",
+            "descriptionFallback": "No product description has been added yet.",
+            "attributeFallback": "Attribute",
+            "showLess": "Show less",
+            "showMore": "+{count} more",
+            "quickNav": {
+                "dimensions": "Sizes & Options",
+                "industrialAreas": "Industrial Applications",
+                "technicalDrawing": "Technical Drawing",
+                "model3d": "3D Model",
+                "assemblyVideo": "Assembly Video",
+                "certificate": "Raw Material Certificate"
+            },
+            "usage": {
+                "readMore": "Read more",
+                "emptyTitle": "Industrial application area pending",
+                "emptyDesc": "Industrial application information for this product model is being prepared. Contact our team for detailed information.",
+                "colSector": "Sector",
+                "colProductionGroup": "Production Group",
+                "colIndustrialProduct": "Industrial Product Used In",
+                "colSampleImage": "Sample Image",
+                "colUsageFunction": "Usage Function",
+                "imageAlt": "{name} image",
+                "zoom": "Zoom",
+                "imageDialogTitle": "{name} sample usage image",
+                "openToZoom": "Open to zoom",
+                "imageMissing": "No image added",
+                "sectionTitle": "Industrial Areas Our Product Model Is Used In",
+                "sectionSubtitle": "Sample usage matches by sector, production group, and application area.",
+                "accordionTitle": "Industrial Areas of Application",
+                "accordionSubtitle": "Sectors, production groups, and industrial areas where the product is used.",
+                "reviewDetails": "View Details"
+            },
+            "zoomImage": {
+                "trigger": "Zoom",
+                "dialogTitle": "Image Viewer",
+                "close": "Close image"
+            },
+            "similar": {
+                "title": "Similar Products",
+                "subtitle": "Browse other products in the same category."
+            },
+            "assetSection": {
+                "requestInfo": "Request Detailed Information",
+                "offerImageAlt": "Offer image"
+            },
+            "assets": {
+                "certificate": {
+                    "badge": "Certificate",
+                    "title": "Certificate",
+                    "description": "You can view the quality and conformity documents for this product here. Our team will assist you with detailed document requests.",
+                    "open": "Open Certificate"
+                },
+                "technicalDrawing": {
+                    "badge": "Technical Drawing",
+                    "title": "Technical Drawing",
+                    "description": "You can review dimension and form details on the product's technical drawing. Contact our team for more comprehensive technical documentation and special requests.",
+                    "open": "Open Technical Drawing"
+                },
+                "assemblyVideo": {
+                    "badge": "Assembly Video",
+                    "title": "Assembly Video",
+                    "description": "You can complete the application faster by watching the installation and assembly steps in the video. Contact us for your special assembly needs.",
+                    "open": "Open Assembly Video"
+                },
+                "model3d": {
+                    "badge": "3D Model",
+                    "title": "3D Model",
+                    "description": "You can evaluate the form details more realistically by examining the product's 3D model. Contact our team for your CAD/technical needs.",
+                    "open": "Open 3D Model"
+                }
+            },
+            "media": {
+                "animationTitle": "Product Animation",
+                "technicalTitle": "Technical Drawing",
+                "videoTitle": "Product Video",
+                "notFound": "No content found",
+                "technicalAlt": "Technical drawing"
+            },
+            "assetsGallery": {
+                "imageMissing": "Product image not found",
+                "technicalDrawings": "Technical Drawings",
+                "productImages": "Product Images",
+                "technicalAlt": "Technical drawing"
+            }
+        },
         "catalog": {
             "meta": {
                 "title": "Catalogs",

@@ -1,4 +1,7 @@
+"use client"
+
 import { Box } from "lucide-react"
+import { useTranslations } from "next-intl"
 import ProductAssetFeatureSection from "@/features/public/products/components/ProductAssetFeatureSection"
 
 type Asset = {
@@ -16,17 +19,19 @@ type Props = {
 }
 
 export default function Product3DModelSection({ product }: Props) {
+    const t = useTranslations("public.productDetail")
     return (
         <ProductAssetFeatureSection
             productName={product.name}
             assets={product.assets}
             role="MODEL_3D"
             badgeIcon={<Box size={14} />}
-            badgeLabel="3D Model"
-            title="3D Model"
-            description="Ürünün 3D modelini inceleyerek form detaylarını daha gerçekçi şekilde değerlendirebilirsiniz. CAD/teknik ihtiyaçlarınız için ekibimizle iletişime geçebilirsiniz."
-            openButtonLabel="3D Modeli Aç"
-            missingMessage="Bu ürün için 3D model henüz eklenmemiştir. Talep oluşturarak 3D model isteyebilirsiniz."
+            badgeLabel={t("assets.model3d.badge")}
+            title={t("assets.model3d.title")}
+            description={t("assets.model3d.description")}
+            openButtonLabel={t("assets.model3d.open")}
+            requestInfoLabel={t("assetSection.requestInfo")}
+            offerImageAlt={t("assetSection.offerImageAlt")}
         />
     )
 }

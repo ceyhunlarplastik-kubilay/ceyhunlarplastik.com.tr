@@ -568,6 +568,99 @@
             "searchByLabel": "{label} ara...",
             "notFound": "Bulunamadı"
         },
+        "productDetail": {
+            "metaDescription": "{name} ürününü inceleyin.",
+            "ogDescription": "{name} ürün detay sayfası",
+            "breadcrumbProducts": "Ürünler",
+            "categoryFallback": "Kategori Yok",
+            "imageNotFound": "Görsel bulunamadı",
+            "imageDialogTitle": "Ürün görseli",
+            "catalogCode": "Katalog Kodu: {code}",
+            "descriptionFallback": "Ürün açıklaması henüz eklenmemiştir.",
+            "attributeFallback": "Özellik",
+            "showLess": "Daha az göster",
+            "showMore": "+{count} daha fazla",
+            "quickNav": {
+                "dimensions": "Ölçü ve Seçenekler",
+                "industrialAreas": "Kullanıldığı Endüstriyel Alanlar",
+                "technicalDrawing": "Teknik Çizim",
+                "model3d": "3D Model",
+                "assemblyVideo": "Montaj Videosu",
+                "certificate": "Hammadde Sertifikası"
+            },
+            "usage": {
+                "readMore": "Devamını oku",
+                "emptyTitle": "Endüstriyel kullanım alanı bekleniyor",
+                "emptyDesc": "Bu ürün modeli için endüstriyel kullanım alanı bilgisi hazırlanıyor. Detaylı bilgi için ekibimizle iletişime geçebilirsiniz.",
+                "colSector": "Sektör",
+                "colProductionGroup": "Üretim Grubu",
+                "colIndustrialProduct": "Kullanıldığı Endüstriyel Ürün",
+                "colSampleImage": "Örnek Görsel",
+                "colUsageFunction": "Kullanım Fonksiyonu",
+                "imageAlt": "{name} görseli",
+                "zoom": "Büyüt",
+                "imageDialogTitle": "{name} örnek kullanım görseli",
+                "openToZoom": "Büyütmek için aç",
+                "imageMissing": "Görsel eklenmedi",
+                "sectionTitle": "Ürün Modelimizin Kullanıldığı Endüstriyel Alanlar",
+                "sectionSubtitle": "Sektör, üretim grubu ve kullanım alanı bazında örnek kullanım eşleşmeleri.",
+                "accordionTitle": "Kullanıldığı Endüstriyel Alanlar",
+                "accordionSubtitle": "Ürünün kullanıldığı sektör, üretim grubu ve endüstriyel alanlar.",
+                "reviewDetails": "Detayları İncele"
+            },
+            "zoomImage": {
+                "trigger": "Büyüt",
+                "dialogTitle": "Görsel İnceleme",
+                "close": "Görseli kapat"
+            },
+            "similar": {
+                "title": "Benzer Ürünler",
+                "subtitle": "Aynı kategorideki diğer ürünlere göz atın."
+            },
+            "assetSection": {
+                "requestInfo": "Detaylı Bilgi Talep Et",
+                "offerImageAlt": "Teklif görseli"
+            },
+            "assets": {
+                "certificate": {
+                    "badge": "Sertifika",
+                    "title": "Sertifika",
+                    "description": "Ürüne ait kalite ve uygunluk belgelerini bu alandan görüntüleyebilirsiniz. Detaylı belge talebiniz varsa ekibimiz yardımcı olacaktır.",
+                    "open": "Sertifikayı Aç"
+                },
+                "technicalDrawing": {
+                    "badge": "Teknik Çizim",
+                    "title": "Teknik Çizim",
+                    "description": "Ürüne ait teknik çizim üzerinde ölçü ve form detaylarını inceleyebilirsiniz. Daha kapsamlı teknik dokümantasyon ve özel talepler için ekibimizle iletişime geçebilirsiniz.",
+                    "open": "Teknik Çizimi Aç"
+                },
+                "assemblyVideo": {
+                    "badge": "Montaj Videosu",
+                    "title": "Montaj Videosu",
+                    "description": "Kurulum ve montaj adımlarını videodan izleyerek uygulamayı daha hızlı tamamlayabilirsiniz. Özel montaj ihtiyaçlarınız için bizimle iletişime geçebilirsiniz.",
+                    "open": "Montaj Videosunu Aç"
+                },
+                "model3d": {
+                    "badge": "3D Model",
+                    "title": "3D Model",
+                    "description": "Ürünün 3D modelini inceleyerek form detaylarını daha gerçekçi şekilde değerlendirebilirsiniz. CAD/teknik ihtiyaçlarınız için ekibimizle iletişime geçebilirsiniz.",
+                    "open": "3D Modeli Aç"
+                }
+            },
+            "media": {
+                "animationTitle": "Ürün Animasyonu",
+                "technicalTitle": "Teknik Çizim",
+                "videoTitle": "Ürün Videosu",
+                "notFound": "İçerik bulunamadı",
+                "technicalAlt": "Teknik çizim"
+            },
+            "assetsGallery": {
+                "imageMissing": "Ürün görseli bulunamadı",
+                "technicalDrawings": "Teknik Çizimler",
+                "productImages": "Ürün Görselleri",
+                "technicalAlt": "Teknik çizim"
+            }
+        },
         "catalog": {
             "meta": {
                 "title": "Kataloglar",

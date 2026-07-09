@@ -1,4 +1,7 @@
+"use client"
+
 import { ShieldCheck } from "lucide-react"
+import { useTranslations } from "next-intl"
 import ProductAssetFeatureSection from "@/features/public/products/components/ProductAssetFeatureSection"
 
 type Asset = {
@@ -16,17 +19,19 @@ type Props = {
 }
 
 export default function ProductCertificateSection({ product }: Props) {
+    const t = useTranslations("public.productDetail")
     return (
         <ProductAssetFeatureSection
             productName={product.name}
             assets={product.assets}
             role="CERTIFICATE"
             badgeIcon={<ShieldCheck size={14} />}
-            badgeLabel="Sertifika"
-            title="Sertifika"
-            description="Ürüne ait kalite ve uygunluk belgelerini bu alandan görüntüleyebilirsiniz. Detaylı belge talebiniz varsa ekibimiz yardımcı olacaktır."
-            openButtonLabel="Sertifikayı Aç"
-            missingMessage="Bu ürün için sertifika henüz eklenmemiştir. Talep oluşturarak sertifika isteyebilirsiniz."
+            badgeLabel={t("assets.certificate.badge")}
+            title={t("assets.certificate.title")}
+            description={t("assets.certificate.description")}
+            openButtonLabel={t("assets.certificate.open")}
+            requestInfoLabel={t("assetSection.requestInfo")}
+            offerImageAlt={t("assetSection.offerImageAlt")}
         />
     )
 }

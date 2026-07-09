@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { MotionMarquee } from "@/components/ui/MotionMarquee"
 import { ProductCard } from "@/components/navigation/ProductCard"
 
@@ -24,13 +25,15 @@ export default function SimilarProductsRow({
     products,
     hrefBasePath = "/urun",
 }: Props) {
+    const t = useTranslations("public.productDetail.similar")
+
     if (!products?.length) return null
 
     return (
         <section className="pt-10">
             <div className="mb-4">
-                <h2 className="text-xl font-semibold tracking-tight">Benzer Ürünler</h2>
-                <p className="text-sm text-neutral-500">Aynı kategorideki diğer ürünlere göz atın.</p>
+                <h2 className="text-xl font-semibold tracking-tight">{t("title")}</h2>
+                <p className="text-sm text-neutral-500">{t("subtitle")}</p>
             </div>
 
             <MotionMarquee speed={10} direction="left" gap="gap-4">

@@ -3,6 +3,7 @@
 import Image from "next/image"
 import type { ComponentProps } from "react"
 import { motion } from "motion/react"
+import { useTranslations } from "next-intl"
 import { Dialog, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 
@@ -39,6 +40,7 @@ export default function ProductHero({
     assemblyVideoAutoPlay = false,
 }: Props) {
 
+    const t = useTranslations("public.productDetail")
     const primary = product.assets?.find((asset) => asset.role === "PRIMARY" && asset.url)
 
     return (
@@ -60,7 +62,7 @@ export default function ProductHero({
                                 />
                             ) : (
                                 <div className="flex h-full items-center justify-center text-neutral-400">
-                                    Görsel bulunamadı
+                                    {t("imageNotFound")}
                                 </div>
                             )}
                         </motion.div>
@@ -68,7 +70,7 @@ export default function ProductHero({
 
                     <DialogContent className="max-w-4xl">
                         <VisuallyHidden>
-                            <DialogTitle>Ürün görseli</DialogTitle>
+                            <DialogTitle>{t("imageDialogTitle")}</DialogTitle>
                         </VisuallyHidden>
 
                         {primary?.url ? (
@@ -89,7 +91,7 @@ export default function ProductHero({
                             <AnimatedSplitProductTitle title={product.name} />
                         </h1>
                         <p className="mt-2 text-neutral-500">
-                            Katalog Kodu: {product.code}
+                            {t("catalogCode", { code: product.code })}
                         </p>
                     </div>
 
@@ -119,7 +121,7 @@ export default function ProductHero({
                 >
                     <div className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-brand" />
                     <p className="pl-3 text-sm leading-relaxed text-neutral-700 sm:text-base">
-                        {product.description || "Ürün açıklaması henüz eklenmemiştir."}
+                        {product.description || t("descriptionFallback")}
                     </p>
                 </motion.div>
 

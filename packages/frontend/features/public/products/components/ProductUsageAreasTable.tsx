@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { motion } from "motion/react"
+import { useTranslations } from "next-intl"
 import { Activity, ImageOff } from "lucide-react"
 import {
     Accordion,
@@ -157,6 +158,7 @@ function UsageFunctionPreview({
     productionGroup: string
     value: string
 }) {
+    const t = useTranslations("public.productDetail.usage")
     const { preview, isTruncated } = useMemo(() => buildUsageFunctionPreview(value), [value])
 
     if (!isTruncated) {
@@ -172,7 +174,7 @@ function UsageFunctionPreview({
                         type="button"
                         className="inline-flex items-center gap-1.5 text-xs font-medium text-brand transition hover:text-brand/80"
                     >
-                        Devamını oku
+                        {t("readMore")}
                     </button>
                 </DialogTrigger>
             </div>
@@ -196,6 +198,7 @@ function UsageFunctionPreview({
 }
 
 export default function ProductUsageAreasTable({ product, collapsible = false }: Props) {
+    const t = useTranslations("public.productDetail.usage")
     const [isOpen, setIsOpen] = useState(false)
     const rows = product.industrialUsages?.length
         ? buildRowsFromIndustrialUsages(product.industrialUsages)
@@ -208,10 +211,10 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                 <Activity className="h-5 w-5" />
             </div>
             <h3 className="mt-4 text-base font-semibold text-neutral-950">
-                Endüstriyel kullanım alanı bekleniyor
+                {t("emptyTitle")}
             </h3>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-neutral-500">
-                Bu ürün modeli için endüstriyel kullanım alanı bilgisi hazırlanıyor. Detaylı bilgi için ekibimizle iletişime geçebilirsiniz.
+                {t("emptyDesc")}
             </p>
         </div>
     )
@@ -222,11 +225,11 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                 <TableHeader className="bg-neutral-50">
                     <TableRow>
                         <TableHead className="w-14 px-4">#</TableHead>
-                        <TableHead className="px-4">Sektör</TableHead>
-                        <TableHead className="px-4">Üretim Grubu</TableHead>
-                        <TableHead className="px-4">Kullanıldığı Endüstriyel Ürün</TableHead>
-                        <TableHead className="w-[180px] px-4">Örnek Görsel</TableHead>
-                        <TableHead className="px-4">Kullanım Fonksiyonu</TableHead>
+                        <TableHead className="px-4">{t("colSector")}</TableHead>
+                        <TableHead className="px-4">{t("colProductionGroup")}</TableHead>
+                        <TableHead className="px-4">{t("colIndustrialProduct")}</TableHead>
+                        <TableHead className="w-[180px] px-4">{t("colSampleImage")}</TableHead>
+                        <TableHead className="px-4">{t("colUsageFunction")}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -248,22 +251,22 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                                                 <div className="aspect-[4/3]">
                                                     <InteractiveZoomImage
                                                         src={row.imageUrl}
-                                                        alt={`${row.usageArea} görseli`}
-                                                        triggerLabel="Büyüt"
-                                                        dialogTitle={`${row.usageArea} örnek kullanım görseli`}
+                                                        alt={t("imageAlt", { name: row.usageArea })}
+                                                        triggerLabel={t("zoom")}
+                                                        dialogTitle={t("imageDialogTitle", { name: row.usageArea })}
                                                         dialogEyebrow={`${row.sector} / ${row.productionGroup}`}
                                                     />
                                                 </div>
                                             </div>
                                             <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
-                                                Büyütmek için aç
+                                                {t("openToZoom")}
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-neutral-50 text-center text-xs text-neutral-400">
                                             <div className="flex flex-col items-center gap-2 px-3">
                                                 <ImageOff className="h-4 w-4" />
-                                                <span>Görsel eklenmedi</span>
+                                                <span>{t("imageMissing")}</span>
                                             </div>
                                         </div>
                                     )}
@@ -288,10 +291,10 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
         <section id="usage-area-table" className="pt-10">
             <div className="mb-4">
                 <h2 className="text-xl font-semibold tracking-tight">
-                    Ürün Modelimizin Kullanıldığı Endüstriyel Alanlar
+                    {t("sectionTitle")}
                 </h2>
                 <p className="text-sm text-neutral-500">
-                    Sektör, üretim grubu ve kullanım alanı bazında örnek kullanım eşleşmeleri.
+                    {t("sectionSubtitle")}
                 </p>
             </div>
 
@@ -353,10 +356,10 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                                         </div>
                                         <div className="text-left">
                                             <p className="font-semibold text-neutral-900">
-                                                Kullanıldığı Endüstriyel Alanlar
+                                                {t("accordionTitle")}
                                             </p>
                                             <p className="text-xs font-normal text-neutral-500 hidden sm:block">
-                                                Ürünün kullanıldığı sektör, üretim grubu ve endüstriyel alanlar.
+                                                {t("accordionSubtitle")}
                                             </p>
                                         </div>
                                     </div>
@@ -371,7 +374,7 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                                                     <span className="absolute inline-flex h-full w-full rounded-full bg-brand opacity-75 animate-ping"></span>
                                                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand"></span>
                                                 </span>
-                                                Detayları İncele
+                                                {t("reviewDetails")}
                                             </motion.span>
                                         )}
                                     </div>

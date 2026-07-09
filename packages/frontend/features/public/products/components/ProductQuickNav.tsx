@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import { motion } from "motion/react"
 
@@ -15,18 +16,6 @@ import { PlayIcon } from "@/components/ui/play-icon"
 /* import { LayoutGridIcon } from "@/components/ui/layout-grid-icon" */
 // import { BadgeCentIcon } from "@/components/ui/badge-cent-icon"
 
-const items = [
-    { icon: SettingsIcon, label: "Ölçü ve Seçenekler", target: "product-variants", href: "#product-variants" },
-    { icon: BoxesIcon, label: "Kullanıldığı Endüstriyel Alanlar", target: "usage-area-table", href: "#usage-area-table" },
-    { icon: FolderOpenIcon, label: "Teknik Çizim", target: "product-technical-drawing", href: "#product-technical-drawing" },
-    /* { icon: LayoutGridIcon, label: "3D Model", target: "product-3d-model", href: "#product-3d-model" }, */
-    { icon: BoxIcon, label: "3D Model", target: "product-3d-model", href: "#product-3d-model" },
-    { icon: PlayIcon, label: "Montaj Videosu", target: "product-assembly-video", href: "#product-assembly-video" },
-    { icon: PaperclipIcon, label: "Hammadde Sertifikası", target: "product-certificate", href: "#product-certificate" },
-    /* { icon: CircleCheckIcon, label: "Kalite Belgeleri", target: "quality", href: "#product-variants" }, */
-    /* { icon: LayoutGridIcon, label: "Kategori", target: "category", href: "#" }, */
-]
-
 const COLS = 3
 
 type Props = {
@@ -34,7 +23,17 @@ type Props = {
 }
 
 export default function ProductQuickNav({ className }: Props) {
+    const t = useTranslations("public.productDetail.quickNav")
     const [active, setActive] = useState<string | null>(null)
+
+    const items = [
+        { icon: SettingsIcon, label: t("dimensions"), target: "product-variants", href: "#product-variants" },
+        { icon: BoxesIcon, label: t("industrialAreas"), target: "usage-area-table", href: "#usage-area-table" },
+        { icon: FolderOpenIcon, label: t("technicalDrawing"), target: "product-technical-drawing", href: "#product-technical-drawing" },
+        { icon: BoxIcon, label: t("model3d"), target: "product-3d-model", href: "#product-3d-model" },
+        { icon: PlayIcon, label: t("assemblyVideo"), target: "product-assembly-video", href: "#product-assembly-video" },
+        { icon: PaperclipIcon, label: t("certificate"), target: "product-certificate", href: "#product-certificate" },
+    ]
 
     function scrollTo(id: string) {
         const el = document.getElementById(id)

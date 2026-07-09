@@ -1,10 +1,13 @@
 import Image from "next/image"
+import { getTranslations } from "next-intl/server"
 
 type Props = {
     product: any
 }
 
-export default function ProductAssets({ product }: Props) {
+export default async function ProductAssets({ product }: Props) {
+
+    const t = await getTranslations("public.productDetail.assetsGallery")
 
     const primary = product.assets?.find((a: any) => a.role === "PRIMARY")
     const animation = product.assets?.find((a: any) => a.role === "ANIMATION")
@@ -33,7 +36,7 @@ export default function ProductAssets({ product }: Props) {
                 </div>
             ) : (
                 <div className="aspect-square flex items-center justify-center text-neutral-400 border rounded-xl">
-                    Ürün görseli bulunamadı
+                    {t("imageMissing")}
                 </div>
             )}
 
@@ -43,7 +46,7 @@ export default function ProductAssets({ product }: Props) {
                 <div>
 
                     <h3 className="text-sm font-medium mb-3">
-                        Teknik Çizimler
+                        {t("technicalDrawings")}
                     </h3>
 
                     <div className="grid grid-cols-3 gap-3">
@@ -57,7 +60,7 @@ export default function ProductAssets({ product }: Props) {
 
                                 <Image
                                     src={asset.url}
-                                    alt="Teknik çizim"
+                                    alt={t("technicalAlt")}
                                     fill
                                     className="object-contain"
                                 />
@@ -77,7 +80,7 @@ export default function ProductAssets({ product }: Props) {
                 <div>
 
                     <h3 className="text-sm font-medium mb-3">
-                        Ürün Görselleri
+                        {t("productImages")}
                     </h3>
 
                     <div className="grid grid-cols-3 gap-3">

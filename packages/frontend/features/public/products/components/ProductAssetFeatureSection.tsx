@@ -19,6 +19,8 @@ type Props = {
     title: string
     description: string
     openButtonLabel: string
+    requestInfoLabel: string
+    offerImageAlt: string
     missingMessage?: string
     fallbackImageSrc?: string
     requestHref?: string
@@ -40,6 +42,8 @@ export default function ProductAssetFeatureSection({
     title,
     description,
     openButtonLabel,
+    requestInfoLabel,
+    offerImageAlt,
     fallbackImageSrc = "/ceyhunlar-teklif-al.webp",
     requestHref = "/iletisim",
     compact = false,
@@ -79,13 +83,13 @@ export default function ProductAssetFeatureSection({
                         ) : interactiveImage && hasAsset ? (
                             <InteractiveZoomImage
                                 src={previewSrc}
-                                alt={hasAsset ? `${productName} ${title}` : "Teklif görseli"}
+                                alt={hasAsset ? `${productName} ${title}` : offerImageAlt}
                                 compact={compact}
                             />
                         ) : (
                             <Image
                                 src={previewSrc}
-                                alt={hasAsset ? `${productName} ${title}` : "Teklif görseli"}
+                                alt={hasAsset ? `${productName} ${title}` : offerImageAlt}
                                 fill
                                 className={`object-contain ${compact ? "p-2" : "p-3"}`}
                                 sizes="(min-width: 1024px) 60vw, 100vw"
@@ -136,7 +140,7 @@ export default function ProductAssetFeatureSection({
                                     href={requestHref}
                                     className={`inline-flex items-center justify-center rounded-xl border border-neutral-300 ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-neutral-800 transition-colors hover:bg-neutral-100`}
                                 >
-                                    Detaylı Bilgi Talep Et
+                                    {requestInfoLabel}
                                 </Link>
                             </div>
                         </div>

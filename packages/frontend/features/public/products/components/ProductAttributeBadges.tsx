@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { motion } from "motion/react"
+import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
 import { useRouter } from "next/navigation"
 
@@ -23,10 +24,10 @@ type Props = {
     attributeValues: ProductAttributeValue[]
 }
 
-function formatAttributeName(value: unknown) {
+function formatAttributeName(value: unknown, fallback: string) {
     const text = typeof value === "string" ? value.trim() : ""
 
-    if (!text) return "Özellik"
+    if (!text) return fallback
 
     return text
         .toLocaleLowerCase("tr-TR")
@@ -37,6 +38,8 @@ function formatAttributeName(value: unknown) {
 
 export default function ProductAttributeBadges({ attributeValues }: Props) {
     const router = useRouter()
+    const t = useTranslations("public.productDetail")
+    const attributeFallback = t("attributeFallback")
     const [usageAreasExpanded, setUsageAreasExpanded] = useState(false)
 
     if (!attributeValues || attributeValues.length === 0) return null
@@ -45,7 +48,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
         const code = val.attribute?.code ?? val.attribute?.name ?? "other"
         if (!acc[code]) {
             acc[code] = {
-                attributeName: val.attribute?.name ?? "Özellik",
+                attributeName: val.attribute?.name ?? attributeFallback,
                 values: [],
             }
         }
@@ -84,7 +87,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
 
                         {/* ATTRIBUTE TITLE */}
                         <p className="whitespace-nowrap text-xs font-semibold tracking-[0.01em] text-neutral-500">
-                            {formatAttributeName(group.attributeName)}:
+                            {formatAttributeName(group.attributeName, attributeFallback)}:
                         </p>
 
                         {/* VALUES */}
@@ -162,7 +165,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                             className="space-y-1.5"
                         >
                             <p className="text-[11px] font-semibold tracking-[0.01em] text-neutral-500">
-                                {formatAttributeName(group.attributeName)}:
+                                {formatAttributeName(group.attributeName, attributeFallback)}:
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                                 {group.values
@@ -198,8 +201,8 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                         className="text-xs text-[var(--color-brand)] hover:underline"
                                     >
                                         {usageAreasExpanded
-                                            ? "Daha az göster"
-                                            : `+${group.values.length - 5} daha fazla`}
+                                            ? t("showLess")
+                                            : t("showMore", { count: group.values.length - 5 })}
                                     </button>
                                 )}
                         </motion.div>

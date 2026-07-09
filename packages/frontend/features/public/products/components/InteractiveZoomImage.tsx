@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react"
 import Image from "next/image"
+import { useTranslations } from "next-intl"
 import { ZoomIn, ZoomOut, RotateCcw, Maximize2, X } from "lucide-react"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -21,10 +22,13 @@ export default function InteractiveZoomImage({
     src,
     alt,
     compact = false,
-    triggerLabel = "Büyüt",
-    dialogTitle = "Görsel İnceleme",
+    triggerLabel,
+    dialogTitle,
     dialogEyebrow,
 }: Props) {
+    const t = useTranslations("public.productDetail.zoomImage")
+    const trigger = triggerLabel ?? t("trigger")
+    const title = dialogTitle ?? t("dialogTitle")
     const [open, setOpen] = useState(false)
     const [hoverOrigin, setHoverOrigin] = useState({ x: 50, y: 50 })
     const [isHovering, setIsHovering] = useState(false)
@@ -62,7 +66,7 @@ export default function InteractiveZoomImage({
                     setHoverOrigin({ x: clamp(x, 0, 100), y: clamp(y, 0, 100) })
                 }}
                 className="group relative h-full w-full overflow-hidden"
-                aria-label={triggerLabel}
+                aria-label={trigger}
             >
                 <Image
                     src={src}
@@ -79,7 +83,7 @@ export default function InteractiveZoomImage({
                 <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/5" />
                 <div className="pointer-events-none absolute right-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
                     <Maximize2 className="h-3 w-3" />
-                    {triggerLabel}
+                    {trigger}
                 </div>
             </button>
 
@@ -94,7 +98,7 @@ export default function InteractiveZoomImage({
                     showCloseButton={false}
                     className="h-[90vh] w-[95vw] max-w-[1400px] overflow-hidden p-0"
                 >
-                    <DialogTitle className="sr-only">{dialogTitle}</DialogTitle>
+                    <DialogTitle className="sr-only">{title}</DialogTitle>
 
                     <div className="flex h-full flex-col bg-neutral-100">
                         <div className="flex items-center justify-between border-b border-neutral-800/20 bg-neutral-900 px-4 py-3 text-white">
@@ -104,7 +108,7 @@ export default function InteractiveZoomImage({
                                         {dialogEyebrow}
                                     </div>
                                 ) : null}
-                                <p className="text-sm font-medium">{dialogTitle}</p>
+                                <p className="text-sm font-medium">{title}</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button
@@ -141,7 +145,7 @@ export default function InteractiveZoomImage({
                                     size="sm"
                                     className="h-8 bg-white/10 text-white hover:bg-white/20"
                                     onClick={() => setOpen(false)}
-                                    aria-label="Görseli kapat"
+                                    aria-label={t("close")}
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>

@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react"
 import Image from "next/image"
+import { useTranslations } from "next-intl"
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { FileText, ImageIcon, Video } from "lucide-react"
 
@@ -11,6 +12,8 @@ type Props = {
 
 export default function ProductMediaRow({ product }: Props) {
 
+    const t = useTranslations("public.productDetail.media")
+
     const animation = product.assets?.find((a: any) => a.role === "ANIMATION")
     const technical = product.assets?.find((a: any) => a.role === "TECHNICAL_DRAWING")
     const video = product.assets?.find((a: any) => a.type === "VIDEO")
@@ -19,21 +22,21 @@ export default function ProductMediaRow({ product }: Props) {
         <div className="grid md:grid-cols-3 gap-6 mt-16">
 
             <MediaCard
-                title="Ürün Animasyonu"
+                title={t("animationTitle")}
                 icon={<ImageIcon size={18} />}
                 asset={animation}
                 type="image"
             />
 
             <MediaCard
-                title="Teknik Çizim"
+                title={t("technicalTitle")}
                 icon={<FileText size={18} />}
                 asset={technical}
                 type="technical"
             />
 
             <MediaCard
-                title="Ürün Videosu"
+                title={t("videoTitle")}
                 icon={<Video size={18} />}
                 asset={video}
                 type="video"
@@ -45,6 +48,8 @@ export default function ProductMediaRow({ product }: Props) {
 
 
 function MediaCard({ title, icon, asset, type }: any) {
+
+    const t = useTranslations("public.productDetail.media")
 
     return (
 
@@ -68,7 +73,7 @@ function MediaCard({ title, icon, asset, type }: any) {
 
                 {!asset && (
                     <span className="text-neutral-400 text-sm">
-                        İçerik bulunamadı
+                        {t("notFound")}
                     </span>
                 )}
 
@@ -79,7 +84,7 @@ function MediaCard({ title, icon, asset, type }: any) {
                         <DialogTrigger asChild>
                             <Image
                                 src={asset.url}
-                                alt="Teknik çizim"
+                                alt={t("technicalAlt")}
                                 width={600}
                                 height={400}
                                 className="object-contain w-full h-full cursor-zoom-in"
@@ -89,12 +94,12 @@ function MediaCard({ title, icon, asset, type }: any) {
                         <DialogContent className="max-w-4xl">
 
                             <DialogHeader className="sr-only">
-                                <DialogTitle>Teknik çizim</DialogTitle>
+                                <DialogTitle>{t("technicalAlt")}</DialogTitle>
                             </DialogHeader>
 
                             <Image
                                 src={asset.url}
-                                alt="Teknik çizim"
+                                alt={t("technicalAlt")}
                                 width={1200}
                                 height={900}
                                 className="object-contain w-full"
@@ -122,7 +127,7 @@ function MediaCard({ title, icon, asset, type }: any) {
                                 <DialogTrigger asChild>
                                     <Image
                                         src={asset.url}
-                                        alt="Teknik çizim"
+                                        alt={t("technicalAlt")}
                                         width={600}
                                         height={400}
                                         className="object-contain w-full h-full cursor-zoom-in"
@@ -132,12 +137,12 @@ function MediaCard({ title, icon, asset, type }: any) {
                                 <DialogContent className="max-w-4xl">
 
                                     <DialogHeader className="sr-only">
-                                        <DialogTitle>Teknik çizim</DialogTitle>
+                                        <DialogTitle>{t("technicalAlt")}</DialogTitle>
                                     </DialogHeader>
 
                                     <Image
                                         src={asset.url}
-                                        alt="Teknik çizim"
+                                        alt={t("technicalAlt")}
                                         width={1200}
                                         height={900}
                                         className="object-contain w-full"
