@@ -1,7 +1,7 @@
 import { Suspense } from "react"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { getCategories } from "@/features/public/categories/server/getCategories"
-// import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
 import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
 
 import ProductFilterSidebar from "@/features/public/products/components/ProductFilterSidebar"
@@ -11,30 +11,40 @@ import ProductGridSkeleton from "@/features/public/products/components/ProductGr
 
 import { PageHero } from "@/components/sections/PageHero";
 
-export default async function Page({ searchParams }: any) {
+export default async function Page({
+    params,
+    searchParams,
+}: {
+    params: Promise<{ locale: string }>
+    searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+    const { locale } = await params
+    setRequestLocale(locale)
 
     const resolvedParams = await searchParams;
     const categorySlug = resolvedParams?.category;
-    const [categories, attributes] = await Promise.all([
+    const [t, tb, categories, attributes] = await Promise.all([
+        getTranslations({ locale, namespace: "public.productFilter" }),
+        getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getCategories(),
         getAttributesForFilter(),
     ])
 
-    let title = "Sektörel Ürünler";
+    let title = t("pageTitle");
     let breadcrumbs = [
-        { label: "Ana Sayfa", href: "/" },
-        { label: "Sektörel Ürünler" }
+        { label: tb("home"), href: "/" },
+        { label: t("pageTitle") }
     ];
 
     if (categorySlug) {
         const selectedCategory = categories.find((c: any) => c.slug === categorySlug);
         if (selectedCategory) {
-            title = `${selectedCategory.name} Filtreleme`;
+            title = t("filteringTitle", { name: selectedCategory.name });
             breadcrumbs = [
-                { label: "Ana Sayfa", href: "/" },
-                { label: "Ürün Kategorileri", href: "/urunler" },
+                { label: tb("home"), href: "/" },
+                { label: t("productCategories"), href: "/urunler" },
                 { label: selectedCategory.name, href: `/urun-kategori/${selectedCategory.slug}` },
-                { label: "Filtreleme" }
+                { label: t("filteringLabel") }
             ];
         }
     }

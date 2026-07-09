@@ -1,6 +1,7 @@
 "use client"
 
 import { Check, ChevronsUpDown } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -33,15 +34,19 @@ type Props = {
     onToggle: (value: string) => void
 }
 
-function getTriggerLabel(label: string, options: Option[], selectedValues: string[]) {
+function getTriggerLabel(
+    placeholder: string,
+    options: Option[],
+    selectedValues: string[]
+) {
     if (selectedValues.length === 0) {
-        return `${label} seç`
+        return placeholder
     }
 
     const selectedOptions = options.filter((option) => selectedValues.includes(option.value))
 
     if (selectedOptions.length === 1) {
-        return selectedOptions[0]?.label ?? `${label} seç`
+        return selectedOptions[0]?.label ?? placeholder
     }
 
     if (selectedOptions.length === 2) {
@@ -60,6 +65,8 @@ export function ProductFilterPopoverSelect({
     selectedValues,
     onToggle,
 }: Props) {
+    const t = useTranslations("public.productFilter")
+    const placeholder = t("selectPlaceholder", { label })
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -68,7 +75,7 @@ export function ProductFilterPopoverSelect({
                     className="h-10 w-full justify-between rounded-xl px-3 text-left text-[13px]"
                 >
                     <span className="truncate">
-                        {getTriggerLabel(label, options, selectedValues)}
+                        {getTriggerLabel(placeholder, options, selectedValues)}
                     </span>
                     <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-60" />
                 </Button>
@@ -79,9 +86,9 @@ export function ProductFilterPopoverSelect({
                 align="start"
             >
                 <Command>
-                    <CommandInput placeholder={`${label} ara...`} className="text-[13px]" />
+                    <CommandInput placeholder={t("searchByLabel", { label })} className="text-[13px]" />
                     <CommandList>
-                        <CommandEmpty>Bulunamadı</CommandEmpty>
+                        <CommandEmpty>{t("notFound")}</CommandEmpty>
                         <CommandGroup>
                             <ScrollArea className="h-64">
                                 {options.map((option) => {

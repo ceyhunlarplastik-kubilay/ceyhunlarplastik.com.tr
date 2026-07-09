@@ -151,6 +151,9 @@
             "home": "Home",
             "services": "Services"
         },
+        "productCard": {
+            "navigationPending": "Opening product details"
+        },
         "enviroment": {
             "word1": "NATURE",
             "word2": "FRIENDLY",
@@ -538,6 +541,32 @@
             },
             "submit": "Send Inquiry",
             "submitting": "Sending..."
+        },
+        "productFilter": {
+            "pageTitle": "Sectoral Products",
+            "filteringTitle": "Filter {name}",
+            "filteringLabel": "Filtering",
+            "productCategories": "Product Categories",
+            "categoryMetaDescription": "Explore the {name} product group.",
+            "categoryOgDescription": "{name} product group",
+            "searchPlaceholder": "Search by product code or name",
+            "selectedCategory": "Selected category",
+            "categoriesTitle": "Categories",
+            "codePrefix": "Code",
+            "productFiltersTitle": "Product Filters",
+            "productFiltersDesc": "Category-based filters such as model, connection, profile, material and similar.",
+            "industrialTitle": "Industrial Use",
+            "industrialDesc": "Sector, production group and usage area are filtered from the product's industrial usage rows.",
+            "relevantToMe": "Filter Products Relevant to Me",
+            "filtering": "Filtering...",
+            "ready": "Ready",
+            "noResultsTitle": "No results found",
+            "noResultsSubtitle": "Try reducing the filters",
+            "countFound": "{count} products found",
+            "perPage": "Per page {limit}",
+            "selectPlaceholder": "Select {label}",
+            "searchByLabel": "Search {label}...",
+            "notFound": "Not found"
         },
         "catalog": {
             "meta": {

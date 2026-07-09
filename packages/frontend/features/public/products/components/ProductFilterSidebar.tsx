@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useMemo, useTransition, useEffect, useCallback, useDeferredValue, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { motion } from "motion/react"
 import { Box, Loader2, Search, Sparkles, X } from "lucide-react"
 
@@ -122,12 +123,14 @@ export default function ProductFilterSidebar({
     attributeSelectorVariant = "mixed",
     hiddenAttributeCodesWhenCategorySelected = [],
     showProductSearch = false,
-    productSearchPlaceholder = "Ürün kodu veya adı ara",
+    productSearchPlaceholder,
     showProductFiltersOnlyWhenCategorySelected = false,
     hideIndustrialFiltersWhenCategorySelected = false,
     customerUsageAreaSlugs = [],
     customerUsageAreaFilterPending = false,
 }: Props) {
+    const t = useTranslations("public.productFilter")
+    const searchPlaceholder = productSearchPlaceholder ?? t("searchPlaceholder")
     const router = useRouter()
     const searchParams = useSearchParams()
     const [isPending, startTransition] = useTransition()
@@ -528,7 +531,7 @@ export default function ProductFilterSidebar({
                         <ProductSidebarSearchControl
                             key={search}
                             committedSearch={search}
-                            placeholder={productSearchPlaceholder}
+                            placeholder={searchPlaceholder}
                             onCommit={(nextSearch) => {
                                 setSearch(nextSearch)
                                 pushStateToUrl(fixedCategorySlug ?? category, useFilterStore.getState().attributes, nextSearch)
@@ -540,7 +543,7 @@ export default function ProductFilterSidebar({
                         <section className="rounded-2xl border-2 border-[var(--color-brand)]/80 bg-[color-mix(in_oklab,var(--color-brand)_8%,white)] p-3 shadow-[0_14px_28px_-22px_rgba(0,0,0,0.35)] ring-2 ring-[var(--color-brand)]/10">
                             <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
                                 <Sparkles className="h-3 w-3" />
-                                Seçili kategori
+                                {t("selectedCategory")}
                             </div>
 
                             <div className="flex items-center gap-3">
@@ -563,7 +566,7 @@ export default function ProductFilterSidebar({
                                         {selectedCategory.name}
                                     </div>
                                     <div className="mt-1 text-xs text-slate-500">
-                                        Kod {selectedCategory.code}
+                                        {t("codePrefix")} {selectedCategory.code}
                                     </div>
                                 </div>
                             </div>
@@ -573,7 +576,7 @@ export default function ProductFilterSidebar({
                     {!hideCategoryFilter && (
                         <section>
                             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                                Kategoriler
+                                {t("categoriesTitle")}
                             </h3>
                             <div className="flex flex-wrap gap-2">
                                 {categories.map((cat) => {
@@ -601,10 +604,10 @@ export default function ProductFilterSidebar({
                         <section className="space-y-3">
                             <div>
                                 <h3 className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-                                    Ürün Filtreleri
+                                    {t("productFiltersTitle")}
                                 </h3>
                                 <p className="mt-1 text-xs leading-5 text-neutral-500">
-                                    Kategoriye bağlı model, bağlantı, profil, malzeme ve benzeri filtreler.
+                                    {t("productFiltersDesc")}
                                 </p>
                             </div>
                             {productFilterAttributes.map((attr) => renderAttributeFilter(attr))}
@@ -615,10 +618,10 @@ export default function ProductFilterSidebar({
                         <section className="space-y-3 rounded-2xl border border-amber-200/70 bg-amber-50/45 p-3">
                             <div>
                                 <h3 className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
-                                    Endüstriyel Kullanım
+                                    {t("industrialTitle")}
                                 </h3>
                                 <p className="mt-1 text-xs leading-5 text-amber-900/70">
-                                    Sektör, üretim grubu ve kullanım alanı ürünün industrial usage satırlarından filtrelenir.
+                                    {t("industrialDesc")}
                                 </p>
                             </div>
                             {hasCustomerUsageAreaQuickFilter ? (
@@ -631,7 +634,7 @@ export default function ProductFilterSidebar({
                                     className="w-full justify-center rounded-xl border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
                                 >
                                     <Sparkles className="mr-2 h-4 w-4" />
-                                    Benimle İlgili Ürünleri Filtrele
+                                    {t("relevantToMe")}
                                 </Button>
                             ) : null}
                             {industrialUsageAttributes.map((attr) => renderAttributeFilter(attr))}
@@ -640,7 +643,7 @@ export default function ProductFilterSidebar({
 
                     <div className="flex items-center gap-2 text-xs text-neutral-500">
                         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                        {isPending ? "Filtreleniyor..." : "Hazır"}
+                        {isPending ? t("filtering") : t("ready")}
                     </div>
                 </div>
             </div>

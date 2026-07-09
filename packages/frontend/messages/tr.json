@@ -151,6 +151,9 @@
             "home": "Ana Sayfa",
             "services": "Hizmetler"
         },
+        "productCard": {
+            "navigationPending": "Ürün detayı açılıyor"
+        },
         "enviroment": {
             "word1": "DOĞA",
             "word2": "DOSTU",
@@ -538,6 +541,32 @@
             },
             "submit": "Talebi Gönder",
             "submitting": "Gönderiliyor..."
+        },
+        "productFilter": {
+            "pageTitle": "Sektörel Ürünler",
+            "filteringTitle": "{name} Filtreleme",
+            "filteringLabel": "Filtreleme",
+            "productCategories": "Ürün Kategorileri",
+            "categoryMetaDescription": "{name} ürün grubunu inceleyin.",
+            "categoryOgDescription": "{name} ürün grubu",
+            "searchPlaceholder": "Ürün kodu veya adı ara",
+            "selectedCategory": "Seçili kategori",
+            "categoriesTitle": "Kategoriler",
+            "codePrefix": "Kod",
+            "productFiltersTitle": "Ürün Filtreleri",
+            "productFiltersDesc": "Kategoriye bağlı model, bağlantı, profil, malzeme ve benzeri filtreler.",
+            "industrialTitle": "Endüstriyel Kullanım",
+            "industrialDesc": "Sektör, üretim grubu ve kullanım alanı ürünün industrial usage satırlarından filtrelenir.",
+            "relevantToMe": "Benimle İlgili Ürünleri Filtrele",
+            "filtering": "Filtreleniyor...",
+            "ready": "Hazır",
+            "noResultsTitle": "Sonuç bulunamadı",
+            "noResultsSubtitle": "Filtreleri azaltmayı deneyin",
+            "countFound": "{count} ürün bulundu",
+            "perPage": "Sayfa başına {limit}",
+            "selectPlaceholder": "{label} seç",
+            "searchByLabel": "{label} ara...",
+            "notFound": "Bulunamadı"
         },
         "catalog": {
             "meta": {

@@ -2,7 +2,8 @@
 
 import { useState, type MouseEvent } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -45,8 +46,10 @@ export function ProductCard({
     showSpecialAttributeValues = false,
     onNavigationStart,
     navigationPending = false,
-    navigationPendingLabel = "Ürün detayı açılıyor",
+    navigationPendingLabel,
 }: ProductCardProps) {
+    const t = useTranslations("shared.productCard");
+    const pendingLabel = navigationPendingLabel ?? t("navigationPending");
     const [hovered, setHovered] = useState(false);
     const hiddenCodes = showSpecialAttributeValues
         ? new Set<string>()
@@ -132,7 +135,7 @@ export function ProductCard({
                                 <Loader2 className="h-4 w-4 animate-spin" />
                             </div>
                             <span className="max-w-[11rem] text-[11px] font-medium leading-4 text-neutral-700">
-                                {navigationPendingLabel}
+                                {pendingLabel}
                             </span>
                         </motion.div>
                     ) : null}
