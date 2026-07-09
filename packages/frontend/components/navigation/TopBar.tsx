@@ -13,6 +13,7 @@ import { Phone, PackageSearch, BookOpenText } from "lucide-react";
 
 import { ProductRequestDialog } from "@/components/dialogs/ProductRequestDialog";
 import { CatalogRequestDialog } from "@/components/dialogs/CatalogRequestDialog";
+import { LanguageSwitcher } from "@/components/navigation/LanguageSwitcher";
 
 export function TopBar() {
     return (
@@ -89,6 +90,8 @@ export function TopBar() {
                         <BookOpenText className="w-3.5 h-3.5" />
                         <CatalogRequestDialog className="link-underline text-black hover:text-[var(--color-brand)]" />
                     </div>
+
+                    <LanguageSwitcher />
 
                 </div>
 

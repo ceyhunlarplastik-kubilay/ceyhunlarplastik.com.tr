@@ -6,6 +6,7 @@ import type { Category } from "@/features/public/categories/types";
 import type { ProductAttribute } from "@/features/public/productAttributes/types";
 import CustomerLeadDialog from "@/components/home/CustomerLeadDialog";
 import { InquiryCartNavItem } from "@/components/navigation/InquiryCartNavItem";
+import { LanguageSwitcher } from "@/components/navigation/LanguageSwitcher";
 import { serviceItems } from "@/constants/services";
 
 export const MobileMenu = ({
@@ -169,6 +170,10 @@ export const MobileMenu = ({
                             attributes={attributes}
                             buttonClassName="w-full justify-center"
                         />
+                    </div>
+
+                    <div className="flex justify-center pt-4">
+                        <LanguageSwitcher className="text-sm" />
                     </div>
                 </nav>
             </div>

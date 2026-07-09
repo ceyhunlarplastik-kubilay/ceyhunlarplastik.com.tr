@@ -56,6 +56,13 @@
             "goToCart": "Go to Cart",
             "goToCartAria": "Go to inquiry cart"
         },
+        "languageSwitcher": {
+            "ariaLabel": "Language selection",
+            "tr": "TR",
+            "en": "EN",
+            "trFull": "Türkçe",
+            "enFull": "English"
+        },
         "dialogs": {
             "common": {
                 "submit": "Send",

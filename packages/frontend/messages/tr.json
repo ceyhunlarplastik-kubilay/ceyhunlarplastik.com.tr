@@ -56,6 +56,13 @@
             "goToCart": "Sepete Git",
             "goToCartAria": "Talep sepetine git"
         },
+        "languageSwitcher": {
+            "ariaLabel": "Dil seçimi",
+            "tr": "TR",
+            "en": "EN",
+            "trFull": "Türkçe",
+            "enFull": "English"
+        },
         "dialogs": {
             "common": {
                 "submit": "Gönder",
