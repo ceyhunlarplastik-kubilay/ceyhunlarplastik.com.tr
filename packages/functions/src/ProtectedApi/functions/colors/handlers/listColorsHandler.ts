@@ -1,4 +1,4 @@
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IPrismaColorRepository } from "@/core/helpers/prisma/colors/repository"
 
 export const listColorsHandler =
@@ -6,7 +6,7 @@ export const listColorsHandler =
         async () => {
             const colors = await colorRepository.listActiveColors()
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: { colors },
             })

@@ -61,3 +61,59 @@ export const idValidator = validatorWrapper(
         requiredRootFields: ["pathParameters"],
     }
 )
+
+// Response Validators
+// Shape mapMaterialWithAssets çıktısından: {...material, assets: mapAsset[]}.
+// mapAsset url türetiyor (asset.url ?? buildAssetUrl(key)); FK id/relation yok.
+// loose: ileride include/spread genişlerse 500 üretmesin.
+const materialAssetSchema = z.object({
+    id: z.uuid(),
+    key: z.string(),
+    mimeType: z.string(),
+    type: z.enum(AssetType),
+    role: z.enum(AssetRole),
+    url: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
+
+const materialSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    code: z.string().nullish(), // Material.code String?
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    assets: z.array(materialAssetSchema),
+}).loose()
+
+// getMaterial / createMaterial / updateMaterial / deleteMaterial → payload: { material }
+export const materialResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                material: materialSchema,
+            }),
+        }),
+    }).loose()
+)
+
+// listMaterials → payload: { data, meta }
+export const listMaterialResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(materialSchema),
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                }),
+            }),
+        }),
+    }).loose()
+)

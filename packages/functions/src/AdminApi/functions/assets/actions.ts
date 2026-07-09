@@ -26,6 +26,8 @@ import {
     createAssetValidator,
     idValidator,
     updateAssetValidator,
+    assetResponseValidator,
+    listAssetResponseValidator,
 } from "@/functions/AdminApi/validators/assets"
 
 const contentAssetManagerGroups = ["admin", "content_editor"]
@@ -37,6 +39,7 @@ export const listAssets = lambdaHandler(
         })(event as IListAssetsEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
+        responseValidator: listAssetResponseValidator,
     }
 )
 
@@ -48,6 +51,7 @@ export const getAsset = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: assetResponseValidator,
     }
 )
 
@@ -64,6 +68,7 @@ export const createAsset = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: createAssetValidator,
+        responseValidator: assetResponseValidator,
     }
 )
 
@@ -80,6 +85,7 @@ export const updateAsset = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateAssetValidator,
+        responseValidator: assetResponseValidator,
     }
 )
 
@@ -91,5 +97,6 @@ export const deleteAsset = lambdaHandler(
     {
         auth: { requiredPermissionGroups: contentAssetManagerGroups },
         requestValidator: idValidator,
+        responseValidator: assetResponseValidator,
     }
 )

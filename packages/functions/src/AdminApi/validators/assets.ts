@@ -71,3 +71,55 @@ export const idValidator = validatorWrapper(
         requiredRootFields: ["pathParameters"],
     }
 )
+
+// Response Validators
+// Asset modelinde url YOK; list/get category/product/variant/pav/material
+// relation'larını include ediyor, create/update/delete bare Asset dönüyor.
+// loose: include edilen relation objeleri (ve olası ekler) tolere edilsin;
+// zorunlu alanlar her iki varyantta da bulunan scalar'lar.
+const assetSchema = z.object({
+    id: z.uuid(),
+    key: z.string(),
+    mimeType: z.string(),
+    type: z.enum(AssetType),
+    role: z.enum(AssetRole),
+    categoryId: z.uuid().nullish(),
+    productId: z.uuid().nullish(),
+    variantId: z.uuid().nullish(),
+    productAttributeValueId: z.uuid().nullish(),
+    materialId: z.uuid().nullish(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
+
+// getAsset / createAsset / updateAsset / deleteAsset → payload: { asset }
+export const assetResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                asset: assetSchema,
+            }),
+        }),
+    }).loose()
+)
+
+// listAssets → payload: { data, meta }
+export const listAssetResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(assetSchema),
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                }),
+            }),
+        }),
+    }).loose()
+)

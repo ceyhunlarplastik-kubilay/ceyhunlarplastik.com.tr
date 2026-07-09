@@ -25,6 +25,8 @@ import {
     createMaterialValidator,
     idValidator,
     updateMaterialValidator,
+    materialResponseValidator,
+    listMaterialResponseValidator,
 } from "@/functions/AdminApi/validators/materials"
 
 export const listMaterials = lambdaHandler(
@@ -34,6 +36,7 @@ export const listMaterials = lambdaHandler(
         })(event as IListMaterialsEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
+        responseValidator: listMaterialResponseValidator,
     }
 )
 
@@ -45,6 +48,7 @@ export const getMaterial = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: materialResponseValidator,
     }
 )
 
@@ -56,6 +60,7 @@ export const createMaterial = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: createMaterialValidator,
+        responseValidator: materialResponseValidator,
     }
 )
 
@@ -68,6 +73,7 @@ export const updateMaterial = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateMaterialValidator,
+        responseValidator: materialResponseValidator,
     }
 )
 
@@ -79,6 +85,7 @@ export const deleteMaterial = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: materialResponseValidator,
     }
 )
 
