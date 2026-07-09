@@ -21,11 +21,30 @@ import { transpileSchema } from "@middy/validator/transpile"
 import inputOutputLogger from "@middy/input-output-logger"
 import errorLogger from "@middy/error-logger"
 
+import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware"
+
 import { Handler } from "aws-lambda"
 
 import { IAPIGatewayProxyEventWithUser } from "@/core/helpers/utils/api/types"
 import authMiddleware, { IAuthMiddlewareOptions } from "@/core/middleware/authMiddleware"
 import httpErrorHandlerMiddleware from "@/core/middleware/httpErrorHandlerMiddleware"
+import { logger } from "@/core/logger"
+
+/**
+ * Correlation id'yi (API Gateway HTTP requestId) invocation başına logger'a
+ * iliştirir; böylece o isteğe ait tüm structured loglar aynı id ile korele olur.
+ * jmespath bağımlılığı gerektiren correlationIdPath yerine manuel append —
+ * daha hafif. resetKeys (injectLambdaContext) warm invocation'lar arası
+ * sızmayı önler.
+ */
+const correlationIdMiddleware = () => ({
+    before: (request: { event?: { requestContext?: { requestId?: string } } }) => {
+        const requestId = request.event?.requestContext?.requestId
+        if (requestId) {
+            logger.appendKeys({ correlationId: requestId })
+        }
+    },
+})
 
 interface LambdaOptions {
     requestValidator?: object
@@ -50,6 +69,17 @@ export const lambdaHandler = <TResponse = unknown>(
     chain
         .use(httpEventNormalizer())
         .use(httpHeaderNormalizer())
+
+    /* ------------------------
+     * 2.5️⃣ Structured logging context (Powertools)
+     * injectLambdaContext: Lambda context + cold start alanlarını iliştirir;
+     * logEvent:false → tam event dump'ı YOK (maliyet nedeniyle bilinçli).
+     * resetKeys → warm invocation'lar arası key sızmasını önler.
+     * Kendiliğinden log üretmez; yalnız logger.x() çağrıldığında yazar.
+     * ------------------------ */
+    chain
+        .use(injectLambdaContext(logger, { logEvent: false, resetKeys: true }))
+        .use(correlationIdMiddleware())
 
     /* ------------------------
      * 3️⃣ Content negotiation

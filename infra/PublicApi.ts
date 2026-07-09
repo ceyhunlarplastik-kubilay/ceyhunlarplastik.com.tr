@@ -49,8 +49,15 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     runtime: 'nodejs22.x',
     vpc: vpc,
     link: [rds, publicBucket],
+    // P1.6 pilot — structured logging (Powertools). Yalnız PublicApi'de deneniyor;
+    // uygun görülürse ProtectedApi/AdminApi/OwnerApi defaultOptions'larına kopyalanır.
+    // retention "1 month" SST'nin zaten uyguladığı varsayılanla (30 gün) aynıdır —
+    // davranış değişmez, niyet belgelenir + gelecekte kazara "forever"'a kaymayı önler.
+    logging: { retention: "1 month" },
     environment: {
         BUCKET_NAME: publicBucket.name,
+        POWERTOOLS_SERVICE_NAME: "ceyhunlar-public-api",
+        POWERTOOLS_LOG_LEVEL: $app.stage === "prod" ? "INFO" : "DEBUG",
         ASSET_PUBLIC_BASE_URL:
             $app.stage === "prod"
                 ? `https://cdn.${config.DOMAIN}`

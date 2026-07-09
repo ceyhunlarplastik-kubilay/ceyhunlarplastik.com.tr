@@ -7,6 +7,7 @@ import {
   isDatabaseConnectionCapacityError,
 } from "@/core/helpers/prisma/errors"
 import { errorResponse } from "@/core/helpers/utils/api/response"
+import { logger } from "@/core/logger"
 
 
 interface MiddyValidatorErrorCause {
@@ -39,8 +40,9 @@ const httpErrorHandlerMiddleware = () => {
     APIGatewayProxyResult
   > = (request) => {
     const err = request.error
-    console.error("HttpErrorHandler Caught Error:", JSON.stringify(err, null, 2))
-    if (err) console.error("Error Raw:", err);
+    // Yapısal + correlationId'li hata logu (Powertools). Tam event dump'ı yok;
+    // yalnız hata mesajı/adı/stack — CloudWatch'ta kök neden izi için.
+    logger.error("HttpErrorHandler caught error", { error: err as Error })
 
     if (isDatabaseConnectionCapacityError(err)) {
       return errorResponse({
@@ -53,7 +55,7 @@ const httpErrorHandlerMiddleware = () => {
 
     // Custom validation error
     if (isMiddyValidatorError(err)) {
-      console.error("Middy validator details:", JSON.stringify(err.cause.data, null, 2))
+      logger.warn("Request validation failed", { validationErrors: err.cause.data })
 
       const errors = err.cause.data.map((e) => {
         let message = e.message
