@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
+import type { Metadata } from "next"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { PageHero } from "@/components/sections/PageHero"
 import ProductVariantDetailsTable from "@/features/public/products/components/ProductVariantDetailsTable"
@@ -10,12 +12,45 @@ import { getProductVariantTable } from "@/features/public/products/server/getPro
 import { buildMeasurementKey } from "@/features/public/products/utils/measurement"
 
 type PageProps = {
-    params: Promise<{ slug: string }>
+    params: Promise<{ locale: string; slug: string }>
     searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { locale, slug } = await params
+
+    const [t, product] = await Promise.all([
+        getTranslations({ locale, namespace: "public.productVariant" }),
+        getProductBySlug(slug),
+    ])
+
+    if (!product) return {}
+
+    const canonicalPath = locale === "tr" ? `/urun/${product.slug}/varyantlar` : `/en/urun/${product.slug}/varyantlar`
+
+    return {
+        title: t("pageTitle", { name: product.name }),
+        description: t("metaDescription", { name: product.name }),
+        openGraph: {
+            title: t("pageTitle", { name: product.name }),
+            description: t("metaDescription", { name: product.name }),
+            type: "website",
+            locale: locale === "tr" ? "tr_TR" : "en_US",
+        },
+        alternates: {
+            canonical: canonicalPath,
+            languages: {
+                tr: `/urun/${product.slug}/varyantlar`,
+                en: `/en/urun/${product.slug}/varyantlar`,
+                "x-default": `/urun/${product.slug}/varyantlar`,
+            },
+        },
+    }
+}
+
 export default async function ProductVariantDetailsPage({ params, searchParams }: PageProps) {
-    const { slug } = await params
+    const { locale, slug } = await params
+    setRequestLocale(locale)
     const resolvedSearchParams = await searchParams
 
     const measurementKey =
@@ -24,7 +59,11 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
     const product = await getProductBySlug(slug)
     if (!product) notFound()
 
-    const variants = await getProductVariantTable(product.id)
+    const [tb, t, variants] = await Promise.all([
+        getTranslations({ locale, namespace: "shared.breadcrumbs" }),
+        getTranslations({ locale, namespace: "public.productVariant" }),
+        getProductVariantTable(product.id),
+    ])
 
     const filtered = measurementKey
         ? variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
@@ -44,13 +83,13 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
     return (
         <main>
             <PageHero
-                title={`${product.name} - Varyant Detayı`}
+                title={t("pageTitle", { name: product.name })}
                 breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Ürünler", href: "/urunler" },
-                    { label: product.category?.name || "Kategori Yok", href: product.category?.slug ? `/urun-kategori/${product.category.slug}` : "/" },
+                    { label: tb("home"), href: "/" },
+                    { label: t("breadcrumbProducts"), href: "/urunler" },
+                    { label: product.category?.name || t("categoryFallback"), href: product.category?.slug ? `/urun-kategori/${product.category.slug}` : "/" },
                     { label: product.name, href: `/urun/${product.slug}` },
-                    { label: "Varyant Detayı" },
+                    { label: t("breadcrumbVariant") },
                 ]}
             />
 
@@ -67,14 +106,14 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
                             />
                         ) : (
                             <div className="flex h-full items-center justify-center text-sm text-neutral-400">
-                                Görsel bulunamadı
+                                {t("imageNotFound")}
                             </div>
                         )}
                     </div>
 
                     <div className="flex flex-col justify-center space-y-4">
                         <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">{product.name}</h2>
-                        <p className="text-sm text-neutral-500">Ürün Kodu: {product.code}</p>
+                        <p className="text-sm text-neutral-500">{t("productCode", { code: product.code })}</p>
                         {product.description && (
                             <p className="text-sm leading-7 text-neutral-700">{product.description}</p>
                         )}

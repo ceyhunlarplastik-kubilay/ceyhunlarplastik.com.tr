@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "motion/react"
+import { useTranslations } from "next-intl"
 
 import { Badge } from "@/components/ui/badge"
 import {
@@ -32,6 +33,7 @@ export default function ProductVariantDetailsTable({
     productName,
     categoryName,
 }: ProductVariantDetailsTableProps) {
+    const t = useTranslations("public.productVariant.details")
     const measurementColumns = Array.from(
         variants
             .flatMap((variant) => variant.measurements)
@@ -52,10 +54,10 @@ export default function ProductVariantDetailsTable({
             >
                 <div className="grid gap-4 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                     <div>
-                        <p className="mb-3 text-sm font-medium text-neutral-700">Seçilen Ölçü</p>
+                        <p className="mb-3 text-sm font-medium text-neutral-700">{t("selectedMeasurement")}</p>
                         <div className="flex flex-col items-start gap-2">
                             {selectedMeasurements.length === 0 ? (
-                                <p className="text-sm text-neutral-400">Geçerli bir ölçü seçimi bulunamadı.</p>
+                                <p className="text-sm text-neutral-400">{t("noSelection")}</p>
                             ) : (
                                 selectedMeasurements.map((measurement) => (
                                     <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-left">
@@ -74,7 +76,7 @@ export default function ProductVariantDetailsTable({
 
                     <div className="min-w-0 overflow-hidden rounded-lg border border-neutral-200 p-2">
                         {technicalDrawing ?? (
-                            <p className="p-2 text-sm text-neutral-400">Teknik çizim bulunamadı.</p>
+                            <p className="p-2 text-sm text-neutral-400">{t("drawingMissing")}</p>
                         )}
                     </div>
                 </div>
@@ -87,29 +89,29 @@ export default function ProductVariantDetailsTable({
                 className="rounded-xl border border-neutral-200 bg-white overflow-hidden"
             >
                 <div className="border-b border-neutral-100 px-4 py-3">
-                    <h2 className="text-base font-semibold text-neutral-900">Varyantlar</h2>
+                    <h2 className="text-base font-semibold text-neutral-900">{t("variantsTitle")}</h2>
                     <p className="text-sm text-neutral-500 mt-1">
                         {categoryName
-                            ? `${categoryName} kategorisindeki ${productName} ürün modelini inceliyorsunuz. Seçtiğiniz ölçüye uygun varyantları aşağıda karşılaştırabilirsiniz.`
-                            : `${productName} ürün modelini inceliyorsunuz. Seçtiğiniz ölçüye uygun varyantları aşağıda karşılaştırabilirsiniz.`}
+                            ? t("introCategory", { category: categoryName, product: productName })
+                            : t("intro", { product: productName })}
                     </p>
                 </div>
 
                 {variants.length === 0 ? (
-                    <div className="p-4 text-sm text-neutral-400">Bu ölçü için varyant bulunamadı.</div>
+                    <div className="p-4 text-sm text-neutral-400">{t("empty")}</div>
                 ) : (
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Full Code</TableHead>
+                                <TableHead>{t("fullCode")}</TableHead>
                                 {measurementColumns.map((column) => (
                                     <TableHead key={column.id}>
                                         {column.name} ({column.code})
                                     </TableHead>
                                 ))}
-                                <TableHead>Versiyon</TableHead>
-                                <TableHead>Renk</TableHead>
-                                <TableHead>Ham Madde</TableHead>
+                                <TableHead>{t("version")}</TableHead>
+                                <TableHead>{t("color")}</TableHead>
+                                <TableHead>{t("material")}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

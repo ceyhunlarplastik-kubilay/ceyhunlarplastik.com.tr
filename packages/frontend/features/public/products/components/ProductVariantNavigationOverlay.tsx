@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "motion/react"
+import { useTranslations } from "next-intl"
 import { Loader2 } from "lucide-react"
 
 type ProductVariantNavigationOverlayProps = {
@@ -10,6 +11,7 @@ type ProductVariantNavigationOverlayProps = {
 export default function ProductVariantNavigationOverlay({
     measurementLabel,
 }: ProductVariantNavigationOverlayProps) {
+    const t = useTranslations("public.productVariant.overlay")
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -23,7 +25,7 @@ export default function ProductVariantNavigationOverlay({
                 <div className="flex justify-end">
                     <div className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/92 px-3 py-1.5 text-xs font-medium text-neutral-600 shadow-sm">
                         <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" />
-                        Varyantlar açılıyor
+                        {t("opening")}
                     </div>
                 </div>
 
@@ -32,12 +34,12 @@ export default function ProductVariantNavigationOverlay({
                         <Loader2 className="h-5 w-5 animate-spin" />
                     </div>
                     <p className="text-sm font-semibold text-neutral-900">
-                        Varyant detayları hazırlanıyor
+                        {t("preparing")}
                     </p>
                     <p className="mt-1 text-xs leading-5 text-neutral-500">
                         {measurementLabel
-                            ? `${measurementLabel} ölçüsüne ait varyantlar açılıyor.`
-                            : "Seçilen ölçüye ait varyantlar açılıyor."}
+                            ? t("openingLabel", { label: measurementLabel })
+                            : t("openingGeneric")}
                     </p>
                 </div>
 

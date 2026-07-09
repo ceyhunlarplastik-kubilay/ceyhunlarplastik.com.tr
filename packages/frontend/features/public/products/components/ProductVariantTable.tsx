@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react"
 import { CircleHelp, Loader2, Palette, Ruler, Layers3, Hash } from "lucide-react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
+import { useTranslations } from "next-intl"
 
 import { Badge } from "@/components/ui/badge"
 import { ButtonShine } from "@/components/ui/button-shine"
@@ -133,12 +134,13 @@ function MeasurementHelpDialogButton({
     measurementCode: string
     videoUrl: string
 }) {
+    const t = useTranslations("public.productVariant.help")
     return (
         <Dialog>
             <DialogTrigger asChild>
                 <button
                     type="button"
-                    aria-label={`${measurementCode} ölçüsü hakkında videoyu aç`}
+                    aria-label={t("videoAria", { code: measurementCode })}
                     className="relative inline-flex size-5 items-center justify-center rounded-full text-brand transition hover:text-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
                     onClick={(event) => event.stopPropagation()}
                 >
@@ -170,12 +172,12 @@ function MeasurementHelpDialogButton({
                 </button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl overflow-hidden p-0">
-                <DialogTitle className="sr-only">Ölçü Açıklama Videosu</DialogTitle>
+                <DialogTitle className="sr-only">{t("dialogTitle")}</DialogTitle>
                 <div className="aspect-video w-full bg-black">
                     <iframe
                         className="h-full w-full"
                         src={videoUrl}
-                        title={`${measurementCode} ölçü videosu`}
+                        title={t("videoTitle", { code: measurementCode })}
                         allow="autoplay; encrypted-media"
                         allowFullScreen
                     />
@@ -234,6 +236,7 @@ export default function ProductVariantTable({
     focusOnMeasurements = false,
     measurementHelpVideoUrl = "https://www.youtube.com/embed/42mrTRiExjs?autoplay=1",
 }: ProductVariantTableProps) {
+    const t = useTranslations("public.productVariant.table")
     const { data: session } = useSession()
     const [pendingVariantKey, setPendingVariantKey] = useState<string | null>(null)
     const options = useMemo<GroupedMeasurementOption[]>(() => {
@@ -351,7 +354,7 @@ export default function ProductVariantTable({
     if (!options.length) {
         return (
             <div className="text-neutral-400 text-sm">
-                Ölçü bilgisi bulunamadı.
+                {t("empty")}
             </div>
         )
     }
@@ -370,18 +373,18 @@ export default function ProductVariantTable({
 
             <span className="sr-only" role="status">
                 {isNavigatingToVariant
-                    ? "Secilen varyant detay sayfasi aciliyor."
-                    : "Varyant tablosu hazir."}
+                    ? t("srNavigating")
+                    : t("srReady")}
             </span>
 
             <div className="border-b border-neutral-100 px-6 py-4 bg-neutral-50/50">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h2 className="text-base font-semibold text-neutral-900">Ölçü ve Seçenekler</h2>
+                        <h2 className="text-base font-semibold text-neutral-900">{t("title")}</h2>
                         <p className="mt-1 max-w-3xl text-xs leading-relaxed text-neutral-500">
                             {focusOnMeasurements
-                                ? "Ölçüler tekilleştirilmiştir. Başlıklardaki yardım ikonundan aynı açıklama videosunu açabilir, tabloyu ölçü matrisi gibi inceleyebilirsiniz."
-                                : "Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz."}
+                                ? t("descFocus")
+                                : t("descDefault")}
                         </p>
                     </div>
 
@@ -397,8 +400,8 @@ export default function ProductVariantTable({
                             >
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                 {pendingOption?.label
-                                    ? `${pendingOption.label} aciliyor`
-                                    : "Varyantlar aciliyor"}
+                                    ? t("navigatingLabel", { label: pendingOption.label })
+                                    : t("navigatingGeneric")}
                             </motion.div>
                         ) : null}
                     </AnimatePresence>
@@ -407,7 +410,7 @@ export default function ProductVariantTable({
 
             <div className="grid gap-5 p-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]">
                 <div className="space-y-2">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">Ölçü Seçenekleri</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{t("optionsTitle")}</p>
                     <div className="relative max-h-[860px] overflow-auto rounded-xl border border-neutral-200 bg-neutral-50/10 shadow-inner">
                         <Table className={cn(
                             focusOnMeasurements ? "min-w-[620px]" : "min-w-[780px]",
@@ -431,26 +434,26 @@ export default function ProductVariantTable({
                                     ))}
                                     {!focusOnMeasurements ? (
                                         <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
-                                            Renk
+                                            {t("colColor")}
                                         </TableHead>
                                     ) : null}
                                     {!focusOnMeasurements ? (
                                         <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
-                                            Ham Madde
+                                            {t("colMaterial")}
                                         </TableHead>
                                     ) : null}
                                     {!focusOnMeasurements ? (
                                         <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
-                                            Tedarikçi
+                                            {t("colSupplier")}
                                         </TableHead>
                                     ) : null}
                                     {!focusOnMeasurements ? (
                                         <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
-                                            Kod
+                                            {t("colCode")}
                                         </TableHead>
                                     ) : null}
                                     <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
-                                        Detay
+                                        {t("colDetail")}
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -523,27 +526,27 @@ export default function ProductVariantTable({
                                             {!focusOnMeasurements ? (
                                                 <TableCell className="text-center px-3 py-2.5">
                                                     <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
-                                                        {option.colors.length} Renk
+                                                        {t("colorCount", { count: option.colors.length })}
                                                     </Badge>
                                                 </TableCell>
                                             ) : null}
                                             {!focusOnMeasurements ? (
                                                 <TableCell className="text-center px-3 py-2.5">
                                                     <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
-                                                        {option.materials.length} H.M.
+                                                        {t("materialCount", { count: option.materials.length })}
                                                     </Badge>
                                                 </TableCell>
                                             ) : null}
                                             {!focusOnMeasurements ? (
                                                 <TableCell className="text-center px-3 py-2.5">
                                                     <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
-                                                        {option.suppliers.length} Ted.
+                                                        {t("supplierCount", { count: option.suppliers.length })}
                                                     </Badge>
                                                 </TableCell>
                                             ) : null}
                                             {!focusOnMeasurements ? (
                                                 <TableCell className="text-center px-3 py-2.5 font-mono text-[11px] text-neutral-500">
-                                                    {option.fullCodes.length} Kod
+                                                    {t("codeCount", { count: option.fullCodes.length })}
                                                 </TableCell>
                                             ) : null}
                                             <TableCell className="px-3 py-2.5 pr-4 text-right align-middle">
@@ -561,7 +564,7 @@ export default function ProductVariantTable({
                                                         }}
                                                         /* target="_blank"
                                                         rel="noopener noreferrer" */
-                                                        ariaLabel={`${option.label} varyantlarini goster`}
+                                                        ariaLabel={t("showVariantsAria", { label: option.label })}
                                                         className={cn(
                                                             "h-7 min-w-[132px] rounded-full border border-[var(--color-brand)]/80 bg-[var(--color-brand)] px-2.5 text-[11px] font-medium text-[var(--color-brand-foreground)] shadow-sm shadow-brand/10 transition-all duration-200 hover:border-[var(--color-brand)] hover:bg-white hover:text-[var(--color-brand)] active:scale-95",
                                                             isActive && "ring-2 ring-[var(--color-brand)]/20 ring-offset-1",
@@ -572,7 +575,7 @@ export default function ProductVariantTable({
                                                             {isPending ? (
                                                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                                             ) : null}
-                                                            {isPending ? "Aciliyor..." : "Varyantları Göster"}
+                                                            {isPending ? t("opening") : t("showVariants")}
                                                         </span>
                                                     </ButtonShine>
                                                     {canManageVariants && adminVariantsUrl && !focusOnMeasurements ? (
@@ -584,7 +587,7 @@ export default function ProductVariantTable({
                                                             disabled={isNavigatingToVariant}
                                                         >
                                                             <Link href={adminVariantsUrl} target="_blank" rel="noopener noreferrer">
-                                                                Adminde Aç
+                                                                {t("openInAdmin")}
                                                             </Link>
                                                         </Button>
                                                     ) : null}
@@ -610,7 +613,7 @@ export default function ProductVariantTable({
                         <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-4">
                             <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm">
                                 <Ruler className="w-4 h-4 text-brand" />
-                                <span>Seçilen Ölçü Detayları</span>
+                                <span>{t("selectedDetailsTitle")}</span>
                             </div>
                             {focusOnMeasurements ? (
                                 <div className="flex items-center gap-1.5">
@@ -618,7 +621,7 @@ export default function ProductVariantTable({
                                         measurementCode="GENEL"
                                         videoUrl={measurementHelpVideoUrl}
                                     />
-                                    <span className="text-[10px] text-neutral-400">Açıklama Videosu</span>
+                                    <span className="text-[10px] text-neutral-400">{t("helpVideo")}</span>
                                 </div>
                             ) : null}
                         </div>
@@ -656,10 +659,10 @@ export default function ProductVariantTable({
                     <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
                         <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
                             <Hash className="w-4 h-4 text-brand" />
-                            <span>Mevcut Varyant Kodları</span>
+                            <span>{t("codesTitle")}</span>
                         </div>
                         {selected.fullCodes.length === 0 ? (
-                            <p className="text-xs text-neutral-400">Bu ölçü için varyant kodu bulunamadı.</p>
+                            <p className="text-xs text-neutral-400">{t("codesEmpty")}</p>
                         ) : (
                             <div className="flex flex-wrap gap-1.5">
                                 {selected.fullCodes.map((fullCode) => (
@@ -679,10 +682,10 @@ export default function ProductVariantTable({
                     <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
                         <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
                             <Palette className="w-4 h-4 text-brand" />
-                            <span>Renk Seçenekleri</span>
+                            <span>{t("colorsTitle")}</span>
                         </div>
                         {selected.colors.length === 0 ? (
-                            <p className="text-xs text-neutral-400">Bu ölçü için renk bilgisi bulunamadı.</p>
+                            <p className="text-xs text-neutral-400">{t("colorsEmpty")}</p>
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {selected.colors.map((color) => (
@@ -705,10 +708,10 @@ export default function ProductVariantTable({
                     <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
                         <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
                             <Layers3 className="w-4 h-4 text-brand" />
-                            <span>Ham Madde Seçenekleri</span>
+                            <span>{t("materialsTitle")}</span>
                         </div>
                         {selected.materials.length === 0 ? (
-                            <p className="text-xs text-neutral-400">Bu ölçü için ham madde bilgisi bulunamadı.</p>
+                            <p className="text-xs text-neutral-400">{t("materialsEmpty")}</p>
                         ) : (
                             <div className="flex flex-wrap gap-1.5">
                                 {selected.materials.map((material) => (

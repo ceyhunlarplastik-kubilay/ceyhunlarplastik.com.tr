@@ -661,6 +661,79 @@
                 "technicalAlt": "Teknik çizim"
             }
         },
+        "productVariant": {
+            "pageTitle": "{name} - Varyant Detayı",
+            "metaDescription": "{name} varyant detaylarını inceleyin.",
+            "breadcrumbProducts": "Ürünler",
+            "categoryFallback": "Kategori Yok",
+            "breadcrumbVariant": "Varyant Detayı",
+            "imageNotFound": "Görsel bulunamadı",
+            "productCode": "Ürün Kodu: {code}",
+            "table": {
+                "empty": "Ölçü bilgisi bulunamadı.",
+                "srNavigating": "Seçilen varyant detay sayfası açılıyor.",
+                "srReady": "Varyant tablosu hazır.",
+                "title": "Ölçü ve Seçenekler",
+                "descFocus": "Ölçüler tekilleştirilmiştir. Başlıklardaki yardım ikonundan aynı açıklama videosunu açabilir, tabloyu ölçü matrisi gibi inceleyebilirsiniz.",
+                "descDefault": "Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz.",
+                "navigatingLabel": "{label} açılıyor",
+                "navigatingGeneric": "Varyantlar açılıyor",
+                "optionsTitle": "Ölçü Seçenekleri",
+                "colColor": "Renk",
+                "colMaterial": "Ham Madde",
+                "colSupplier": "Tedarikçi",
+                "colCode": "Kod",
+                "colDetail": "Detay",
+                "colorCount": "{count} Renk",
+                "materialCount": "{count} H.M.",
+                "supplierCount": "{count} Ted.",
+                "codeCount": "{count} Kod",
+                "showVariantsAria": "{label} varyantlarını göster",
+                "opening": "Açılıyor...",
+                "showVariants": "Varyantları Göster",
+                "openInAdmin": "Adminde Aç",
+                "selectedDetailsTitle": "Seçilen Ölçü Detayları",
+                "helpVideo": "Açıklama Videosu",
+                "codesTitle": "Mevcut Varyant Kodları",
+                "codesEmpty": "Bu ölçü için varyant kodu bulunamadı.",
+                "colorsTitle": "Renk Seçenekleri",
+                "colorsEmpty": "Bu ölçü için renk bilgisi bulunamadı.",
+                "materialsTitle": "Ham Madde Seçenekleri",
+                "materialsEmpty": "Bu ölçü için ham madde bilgisi bulunamadı."
+            },
+            "help": {
+                "videoAria": "{code} ölçüsü hakkında videoyu aç",
+                "dialogTitle": "Ölçü Açıklama Videosu",
+                "videoTitle": "{code} ölçü videosu"
+            },
+            "details": {
+                "selectedMeasurement": "Seçilen Ölçü",
+                "noSelection": "Geçerli bir ölçü seçimi bulunamadı.",
+                "drawingMissing": "Teknik çizim bulunamadı.",
+                "variantsTitle": "Varyantlar",
+                "introCategory": "{category} kategorisindeki {product} ürün modelini inceliyorsunuz. Seçtiğiniz ölçüye uygun varyantları aşağıda karşılaştırabilirsiniz.",
+                "intro": "{product} ürün modelini inceliyorsunuz. Seçtiğiniz ölçüye uygun varyantları aşağıda karşılaştırabilirsiniz.",
+                "empty": "Bu ölçü için varyant bulunamadı.",
+                "fullCode": "Full Code",
+                "version": "Versiyon",
+                "color": "Renk",
+                "material": "Ham Madde"
+            },
+            "actions": {
+                "whatsappMessage": "Merhaba. Ürününüz ile ilgili bilgi almak istiyorum.\nÜrün Adı: {name}\nÜrün Linki: {url}",
+                "addedToCart": "Varyant talep sepetine eklendi.",
+                "whatsappAria": "WhatsApp üzerinden hızlı fiyat al",
+                "whatsapp": "Hızlı Fiyat Al",
+                "addToCartAria": "Ürünü talep sepetine ekle",
+                "addToCart": "Sepete Ekle"
+            },
+            "overlay": {
+                "opening": "Varyantlar açılıyor",
+                "preparing": "Varyant detayları hazırlanıyor",
+                "openingLabel": "{label} ölçüsüne ait varyantlar açılıyor.",
+                "openingGeneric": "Seçilen ölçüye ait varyantlar açılıyor."
+            }
+        },
         "catalog": {
             "meta": {
                 "title": "Kataloglar",

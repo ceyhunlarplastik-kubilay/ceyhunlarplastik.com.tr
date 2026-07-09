@@ -2,6 +2,7 @@
 
 import { ShoppingCart } from "lucide-react"
 import { SiWhatsapp } from "react-icons/si"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -29,11 +30,12 @@ export default function ProductVariantHeaderActions({
     variantId,
     variantFullCode,
 }: Props) {
+    const t = useTranslations("public.productVariant.actions")
     const addItem = useInquiryCartStore((state) => state.addItem)
 
     function handleWhatsappClick() {
         const currentUrl = window.location.href
-        const message = `Merhaba. Ürününüz ile ilgili bilgi almak istiyorum.\nÜrün Adı: ${productName}\nÜrün Linki: ${currentUrl}`
+        const message = t("whatsappMessage", { name: productName, url: currentUrl })
         const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`
         window.open(whatsappUrl, "_blank", "noopener,noreferrer")
     }
@@ -50,7 +52,7 @@ export default function ProductVariantHeaderActions({
             quantity: 1,
         })
 
-        toast.success("Varyant talep sepetine eklendi.")
+        toast.success(t("addedToCart"))
     }
 
     return (
@@ -58,21 +60,21 @@ export default function ProductVariantHeaderActions({
             <Button
                 type="button"
                 onClick={handleWhatsappClick}
-                aria-label="WhatsApp üzerinden hızlı fiyat al"
+                aria-label={t("whatsappAria")}
                 className="h-11 w-full gap-2 bg-emerald-600 text-white hover:bg-emerald-700"
             >
                 <SiWhatsapp className="h-4 w-4" />
-                Hızlı Fiyat Al
+                {t("whatsapp")}
             </Button>
 
             <ButtonShine
                 onClick={handleAddToCart}
-                ariaLabel="Ürünü talep sepetine ekle"
+                ariaLabel={t("addToCartAria")}
                 className="h-11 w-full gap-2"
             >
                 <span className="inline-flex items-center gap-2">
                     <ShoppingCart className="h-4 w-4" />
-                    Sepete Ekle
+                    {t("addToCart")}
                 </span>
             </ButtonShine>
         </div>

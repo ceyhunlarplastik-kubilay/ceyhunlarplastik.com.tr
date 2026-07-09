@@ -661,6 +661,79 @@
                 "technicalAlt": "Technical drawing"
             }
         },
+        "productVariant": {
+            "pageTitle": "{name} - Variant Details",
+            "metaDescription": "Explore the variant details of {name}.",
+            "breadcrumbProducts": "Products",
+            "categoryFallback": "No Category",
+            "breadcrumbVariant": "Variant Details",
+            "imageNotFound": "Image not found",
+            "productCode": "Product Code: {code}",
+            "table": {
+                "empty": "No dimension information found.",
+                "srNavigating": "Opening the selected variant detail page.",
+                "srReady": "Variant table ready.",
+                "title": "Dimensions & Options",
+                "descFocus": "Dimensions are deduplicated. You can open the same explanation video from the help icon in the headers and review the table as a dimension matrix.",
+                "descDefault": "Dimensions are deduplicated. When you select a dimension, you can see the color and raw material options for that dimension.",
+                "navigatingLabel": "Opening {label}",
+                "navigatingGeneric": "Opening variants",
+                "optionsTitle": "Dimension Options",
+                "colColor": "Color",
+                "colMaterial": "Raw Material",
+                "colSupplier": "Supplier",
+                "colCode": "Code",
+                "colDetail": "Details",
+                "colorCount": "{count} Colors",
+                "materialCount": "{count} Mat.",
+                "supplierCount": "{count} Sup.",
+                "codeCount": "{count} Codes",
+                "showVariantsAria": "Show variants for {label}",
+                "opening": "Opening...",
+                "showVariants": "Show Variants",
+                "openInAdmin": "Open in Admin",
+                "selectedDetailsTitle": "Selected Dimension Details",
+                "helpVideo": "Explanation Video",
+                "codesTitle": "Available Variant Codes",
+                "codesEmpty": "No variant code found for this dimension.",
+                "colorsTitle": "Color Options",
+                "colorsEmpty": "No color information found for this dimension.",
+                "materialsTitle": "Raw Material Options",
+                "materialsEmpty": "No raw material information found for this dimension."
+            },
+            "help": {
+                "videoAria": "Open the video about the {code} dimension",
+                "dialogTitle": "Dimension Explanation Video",
+                "videoTitle": "{code} dimension video"
+            },
+            "details": {
+                "selectedMeasurement": "Selected Dimension",
+                "noSelection": "No valid dimension selection found.",
+                "drawingMissing": "Technical drawing not found.",
+                "variantsTitle": "Variants",
+                "introCategory": "You are viewing the {product} product model in the {category} category. You can compare the variants matching your selected dimension below.",
+                "intro": "You are viewing the {product} product model. You can compare the variants matching your selected dimension below.",
+                "empty": "No variant found for this dimension.",
+                "fullCode": "Full Code",
+                "version": "Version",
+                "color": "Color",
+                "material": "Raw Material"
+            },
+            "actions": {
+                "whatsappMessage": "Hello. I would like to get information about your product.\nProduct Name: {name}\nProduct Link: {url}",
+                "addedToCart": "Variant added to the inquiry cart.",
+                "whatsappAria": "Get a quick quote via WhatsApp",
+                "whatsapp": "Get a Quick Quote",
+                "addToCartAria": "Add product to inquiry cart",
+                "addToCart": "Add to Cart"
+            },
+            "overlay": {
+                "opening": "Opening variants",
+                "preparing": "Preparing variant details",
+                "openingLabel": "Opening variants for dimension {label}.",
+                "openingGeneric": "Opening variants for the selected dimension."
+            }
+        },
         "catalog": {
             "meta": {
                 "title": "Catalogs",

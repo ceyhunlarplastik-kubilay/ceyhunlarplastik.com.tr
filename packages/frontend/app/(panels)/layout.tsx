@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
 import { Providers } from "../providers";
 import { baseMetadata } from "../sharedMetadata";
 import { bodyFontClassName } from "../fonts";
@@ -17,6 +18,12 @@ export const metadata: Metadata = baseMetadata;
  * - /en/admin gibi bir yüzey hiç oluşmaz.
  * Paneller Faz 2'de çevrilecekse bu grup [locale] altına taşınır ve matcher
  * locale-aware yapılır — ikisi AYNI değişiklikte yapılmak zorunda.
+ *
+ * NextIntlClientProvider TR-sabit olarak buraya da sarılır: paneller [locale]
+ * ağacının dışında olsa da bazı bileşenler (ör. paylaşılan ProductVariantTable)
+ * next-intl'e bağımlı. Provider olmadan panellerde useTranslations patlardı.
+ * i18n/request.ts panel route'larında locale'i zaten TR'ye düşürdüğünden
+ * provider'a props geçmeye gerek yok; panel metinleri TR kalır.
  */
 export default function PanelsLayout({
     children,
@@ -26,7 +33,9 @@ export default function PanelsLayout({
     return (
         <html lang="tr" suppressHydrationWarning>
             <body suppressHydrationWarning className={bodyFontClassName}>
-                <Providers>{children}</Providers>
+                <Providers>
+                    <NextIntlClientProvider>{children}</NextIntlClientProvider>
+                </Providers>
             </body>
         </html>
     );
