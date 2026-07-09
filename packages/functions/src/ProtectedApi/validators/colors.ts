@@ -25,3 +25,59 @@ export const updateColorValidator = validatorWrapper(
         }),
     }),
 )
+
+export const getColorValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
+)
+
+// Response Validators
+// Shape, colorRepository'nin döndürdüğü tam Color modelinden türetildi (select yok).
+// Permissive taraf: hex düz string (regex değil), rgb nullish (Int?), system enum
+// schema.prisma'daki ColorSystem'den birebir.
+const colorSchema = z.object({
+    id: z.uuid(),
+    system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
+    code: z.string(),
+    name: z.string(),
+    hex: z.string(),
+    rgbR: z.number().nullish(),
+    rgbG: z.number().nullish(),
+    rgbB: z.number().nullish(),
+    isActive: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+
+// Tekil: getColor / createColor / updateColor → payload: { color }
+export const colorResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                color: colorSchema,
+            }),
+        }),
+    }).loose()
+)
+
+// Liste: listColors → payload: { colors: [...] } (ProtectedApi listActiveColors,
+// AdminApi'deki data/meta paginasyonundan farklı)
+export const listColorResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                colors: z.array(colorSchema),
+            }),
+        }),
+    }).loose()
+)
