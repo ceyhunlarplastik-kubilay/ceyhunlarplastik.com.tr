@@ -8,14 +8,17 @@ export const listProductAttributeValuesHandler = ({
     return async (event: IListProductAttributeValuesEvent) => {
         console.log("listProductAttributeValuesHandler", event.pathParameters);
 
+        // GET /product-attribute-values?attributeId=<uuid> path parametresi taşımaz,
+        // GET /product-attribute-values/{id} ise attribute id'yi {id} olarak verir.
         const attributeId =
             event.pathParameters?.attributeId ??
-            (event.pathParameters as { id?: string } | undefined)?.id
+            event.pathParameters?.id ??
+            event.queryStringParameters?.attributeId
 
         if (!attributeId) {
             return apiResponseDTO({
                 statusCode: 400,
-                payload: { message: "attributeId (or id) path parameter is required" }
+                payload: { message: "attributeId is required (path parameter or ?attributeId= query string)" }
             })
         }
 

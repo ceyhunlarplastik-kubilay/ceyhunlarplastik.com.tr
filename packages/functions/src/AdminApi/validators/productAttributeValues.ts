@@ -140,6 +140,7 @@ export const deleteProductAttributeValueResponseValidator = z.toJSONSchema(
 // list / get (alias): handler attributeId yoksa 400 + { message } döndürüyor,
 // aksi halde 200 + { data }. İKİ BRANCH DE geçerli response → union şart,
 // yoksa 400 yolu response validation ile 500'e dönerdi.
+// attributeId: /{id} path parametresinden veya ?attributeId= query string'inden.
 export const listProductAttributeValueResponseValidator = z.toJSONSchema(
     z.object({
         statusCode: z.number(),

@@ -5,5 +5,10 @@ export interface IProductAttributeValueDependencies {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
 }
 
+// attributeId iki yoldan gelebilir: /{id} path parametresi veya ?attributeId= query string.
 export type IListProductAttributeValuesEvent =
-    IAPIGatewayProxyEventWithUserGeneric<{}, { attributeId: string }>
+    IAPIGatewayProxyEventWithUserGeneric<
+        {},
+        { attributeId?: string; id?: string } | undefined,
+        { attributeId?: string } | undefined
+    >

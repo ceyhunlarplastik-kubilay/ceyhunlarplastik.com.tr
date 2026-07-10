@@ -30,8 +30,7 @@ const pavWithRelationsSchema = z.object({
 
 // listProductAttributeValues: handler attributeId yoksa 400 + { message },
 // aksi halde 200 + { data }. İKİ BRANCH DE geçerli response → union şart.
-// Not: GET /product-attribute-values route'u path parametresi TAŞIMIYOR, bu yüzden
-// pratikte her zaman { message } branch'ine düşüyor (mevcut davranış korunuyor).
+// attributeId ?attributeId= query string'inden okunur (route path parametresi taşımaz).
 export const listProductAttributeValueResponseValidator = z.toJSONSchema(
     z.object({
         statusCode: z.number(),
