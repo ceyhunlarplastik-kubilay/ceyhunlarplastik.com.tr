@@ -11,12 +11,38 @@ const parsePositiveInteger = (value: string | undefined, fallback: number) => {
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
-const connectionString =
-    `postgresql://${Resource.MyPostgres.username}` +
-    `:${Resource.MyPostgres.password}` +
-    `@${Resource.MyPostgres.host}` +
-    `:${Resource.MyPostgres.port}` +
-    `/${Resource.MyPostgres.database}`;
+type LinkedNeonPostgres = {
+    url: string
+}
+
+type LinkedRdsPostgres = {
+    database: string
+    host: string
+    password: string
+    port: number | string
+    username: string
+}
+
+type LinkedPostgres = LinkedNeonPostgres | LinkedRdsPostgres
+
+const hasConnectionUrl = (resource: LinkedPostgres): resource is LinkedNeonPostgres =>
+    "url" in resource && typeof resource.url === "string" && resource.url.length > 0
+
+const buildConnectionString = (resource: LinkedPostgres) => {
+    if (hasConnectionUrl(resource)) return resource.url
+
+    return (
+        `postgresql://${resource.username}` +
+        `:${resource.password}` +
+        `@${resource.host}` +
+        `:${resource.port}` +
+        `/${resource.database}`
+    )
+}
+
+const connectionString = buildConnectionString(
+    Resource.MyPostgres as unknown as LinkedPostgres,
+)
 
 const adapter = new PrismaPg({
     connectionString,

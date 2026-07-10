@@ -11,7 +11,7 @@ export default $config({
   },
   async run() {
     const storage = await import("./infra/storage");
-    const { DATABASE_URL } = await import("./infra/db");
+    const db = await import("./infra/db");
     await import("./infra/businessWorkflow");
     await import("./infra/PublicApi");
     await import("./infra/ProtectedApi");
@@ -21,6 +21,8 @@ export default $config({
     // await import("./infra/observability");
     void storage;
 
-    return { DATABASE_URL };
+    return {
+      databaseProvider: db.databaseProvider,
+    };
   },
 });

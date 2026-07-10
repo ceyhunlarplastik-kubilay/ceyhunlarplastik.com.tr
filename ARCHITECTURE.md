@@ -22,7 +22,7 @@ At runtime, the system is primarily composed of:
 - a Next.js frontend deployed through SST
 - multiple API Gateway v2 HTTP APIs backed by Lambda
 - Cognito for authentication
-- PostgreSQL on RDS
+- PostgreSQL through Prisma: AWS RDS in production, Neon Postgres in non-production stages
 - S3 for public assets
 - EventBridge + Step Functions for human approval workflow orchestration
 - SST Realtime / AWS IoT for browser-visible realtime notification delivery
@@ -37,7 +37,7 @@ Key modules:
 - `sst.config.ts`
   Main SST entrypoint. Loads the infra modules and defines stage behavior.
 - `infra/db.ts`
-  VPC and PostgreSQL definitions.
+  Stage-aware database wiring. Production creates the VPC and AWS RDS Postgres resources; non-production stages link Neon connection strings through SST secrets.
 - `infra/cognito.ts`
   Cognito User Pool, app client, groups, custom auth support, and legacy hosted UI domain wiring.
 - `infra/storage.ts`
@@ -132,16 +132,18 @@ Current behavior:
 - infra modules are loaded inside `run()`
 
 ### Networking and database
-`infra/db.ts` creates:
-- an SST VPC
-- an SST Postgres instance
-- a linked `DATABASE_URL`
-- a local Prisma Studio dev command
+`infra/db.ts` is stage-aware:
+
+- `prod` creates the SST VPC and AWS RDS Postgres instance.
+- non-production stages such as `kubi` and `dev` do not create a VPC or RDS database; they link a Neon pooled connection string as `Resource.MyPostgres.url`.
+- Prisma CLI commands use `DIRECT_URL` when present, falling back to `DATABASE_URL`.
+- the local Prisma Studio dev command receives both `DATABASE_URL` and `DIRECT_URL`.
 
 Notable implementation detail:
-- Lambdas linked to the VPC do not have default public internet access.
+- Lambdas linked to the production VPC do not have default public internet access.
 - This matters for any future AWS public endpoint usage from inside VPC-backed functions.
 - RDS Proxy is enabled in prod to protect the production database from serverless connection spikes.
+- Non-production Neon runtime connections should use the pooled Neon URL; import, restore, migration, and introspection work should use the direct Neon URL.
 - Prisma uses a small `pg` pool by default in non-development runtimes; raise it only with an explicit capacity review.
 
 ### Authentication
@@ -151,7 +153,7 @@ Notable implementation detail:
 - hosted UI domain configuration retained for compatibility and rollback
 - Cognito groups:
   `owner`, `admin`, `user`, `supplier`, `purchasing`, `sales`, `sales_director`, `customer`, `content_editor`
-- a `postConfirmation` trigger Lambda linked to RDS
+- a `postConfirmation` trigger Lambda linked to the stage database
 
 Frontend authentication is handled by NextAuth with a custom Cognito credentials flow.
 Admin and protected API requests currently send the Cognito `idToken` as the bearer token.
@@ -620,10 +622,11 @@ Keep these flags consistent across frontend assumptions, middleware output, and 
 ## Core and Data Layer
 
 ### Prisma access
-`packages/core/src/core/db/prisma.ts` creates the Prisma client using SST resource linkage to the RDS instance.
+`packages/core/src/core/db/prisma.ts` creates the Prisma client using SST resource linkage to the stage database.
 
 Current notable behavior:
-- Prisma uses the SST-provided database credentials
+- In prod, Prisma builds the connection string from the linked RDS fields.
+- In non-prod, Prisma uses the linked Neon pooled URL.
 - global reuse is enabled in non-production environments
 - Prisma query extensions implement soft-delete behavior for some models such as `color` and `supplier`
 
