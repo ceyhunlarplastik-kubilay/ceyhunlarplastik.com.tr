@@ -16,6 +16,9 @@ import {
     updateProductAttributeValueValidator,
     idValidator,
     createProductAttributeValueAssetUploadValidator,
+    productAttributeValueResponseValidator,
+    deleteProductAttributeValueResponseValidator,
+    listProductAttributeValueResponseValidator,
 } from "@/functions/AdminApi/validators/productAttributeValues"
 
 const productAttributeValueManagerGroups = ["admin", "content_editor"]
@@ -30,7 +33,8 @@ export const createProductAttributeValue = lambdaHandler(
     },
     {
         auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
-        requestValidator: createProductAttributeValueValidator
+        requestValidator: createProductAttributeValueValidator,
+        responseValidator: productAttributeValueResponseValidator,
     }
 )
 
@@ -43,7 +47,8 @@ export const listProductAttributeValues = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: productAttributeValueManagerGroups }
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
+        responseValidator: listProductAttributeValueResponseValidator,
     }
 )
 
@@ -58,7 +63,9 @@ export const getProductAttributeValue = lambdaHandler(
         })(event as any)
     },
     {
-        auth: { requiredPermissionGroups: productAttributeValueManagerGroups }
+        auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
+        requestValidator: idValidator,
+        responseValidator: listProductAttributeValueResponseValidator,
     }
 )
 
@@ -72,7 +79,8 @@ export const updateProductAttributeValue = lambdaHandler(
     },
     {
         auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
-        requestValidator: updateProductAttributeValueValidator
+        requestValidator: updateProductAttributeValueValidator,
+        responseValidator: productAttributeValueResponseValidator,
     }
 )
 
@@ -86,7 +94,8 @@ export const deleteProductAttributeValue = lambdaHandler(
     },
     {
         auth: { requiredPermissionGroups: productAttributeValueManagerGroups },
-        requestValidator: idValidator
+        requestValidator: idValidator,
+        responseValidator: deleteProductAttributeValueResponseValidator,
     }
 )
 

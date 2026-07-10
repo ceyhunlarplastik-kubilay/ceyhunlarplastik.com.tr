@@ -6,6 +6,7 @@ export const listProductAttributeValuesHandler = ({
 }: IProductAttributeValueDependencies) => {
 
     return async (event: IListProductAttributeValuesEvent) => {
+        console.log("listProductAttributeValuesHandler", event.pathParameters);
 
         const attributeId =
             event.pathParameters?.attributeId ??

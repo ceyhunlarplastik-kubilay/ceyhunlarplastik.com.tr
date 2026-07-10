@@ -1,6 +1,7 @@
 import { lambdaHandler } from "@/core/middy"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { listProductAttributeValuesHandler } from "@/functions/PublicApi/functions/productAttributeValues/handlers"
+import { listProductAttributeValueResponseValidator } from "@/functions/PublicApi/validators/productAttributeValues"
 
 export const listProductAttributeValues = lambdaHandler(
     async (event) => {
@@ -8,5 +9,8 @@ export const listProductAttributeValues = lambdaHandler(
             productAttributeValueRepository: productAttributeValueRepository()
         })(event as any)
     },
-    { auth: false }
+    {
+        auth: false,
+        responseValidator: listProductAttributeValueResponseValidator,
+    }
 )

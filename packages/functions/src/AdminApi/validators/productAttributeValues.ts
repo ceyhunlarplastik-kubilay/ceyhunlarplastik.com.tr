@@ -75,3 +75,80 @@ export const createProductAttributeValueAssetUploadValidator = validatorWrapper(
         requiredBodyFields: ["productAttributeValueId", "assetRole", "fileName", "contentType"],
     }
 )
+
+// Response Validators
+// AdminApi list, asset'lere buildAssetUrl ile `url` ekliyor; PublicApi eklemiyor
+// → loose, iki varyantı da kabul eder.
+const pavAssetSchema = z.object({
+    id: z.uuid(),
+    key: z.string(),
+    mimeType: z.string(),
+    type: assetTypeEnum,
+    role: assetRoleEnum,
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
+
+const pavBaseShape = {
+    id: z.uuid(),
+    name: z.string(),
+    slug: z.string(),
+    attributeId: z.uuid(),
+    parentValueId: z.uuid().nullish(),
+    displayOrder: z.number(),
+    isActive: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}
+
+// createValue/updateValue/deleteValue include KULLANMIYOR → bare scalar'lar.
+const pavBaseSchema = z.object(pavBaseShape).loose()
+
+// listValues include { parentValue, assets } → parentValue loose sayesinde tolere edilir.
+const pavWithRelationsSchema = z.object({
+    ...pavBaseShape,
+    assets: z.array(pavAssetSchema),
+}).loose()
+
+// createProductAttributeValue / updateProductAttributeValue → payload: { value }
+export const productAttributeValueResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                value: pavBaseSchema,
+            }),
+        }),
+    }).loose()
+)
+
+// deleteProductAttributeValue → payload: { success, value }
+export const deleteProductAttributeValueResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                success: z.boolean(),
+                value: pavBaseSchema,
+            }),
+        }),
+    }).loose()
+)
+
+// list / get (alias): handler attributeId yoksa 400 + { message } döndürüyor,
+// aksi halde 200 + { data }. İKİ BRANCH DE geçerli response → union şart,
+// yoksa 400 yolu response validation ile 500'e dönerdi.
+export const listProductAttributeValueResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.union([
+                z.object({ data: z.array(pavWithRelationsSchema) }),
+                z.object({ message: z.string() }),
+            ]),
+        }),
+    }).loose()
+)
