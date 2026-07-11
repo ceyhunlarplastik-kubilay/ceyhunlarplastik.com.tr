@@ -1,6 +1,6 @@
 # Ceyhunlar Plastik — SST v3 Monorepo
 
-An SST v3 monorepo application built with AWS Lambda, API Gateway V2, Cognito, RDS Postgres (via Prisma), and a VPC. [Learn more about SST monorepos](https://sst.dev/docs/set-up-a-monorepo).
+An SST v3 monorepo application built with AWS Lambda, API Gateway V2, Cognito, PostgreSQL via Prisma, and stage-aware infrastructure. Production uses AWS RDS inside a VPC; non-production stages use Neon Postgres to keep local development lightweight. [Learn more about SST monorepos](https://sst.dev/docs/set-up-a-monorepo).
 
 ---
 
@@ -18,7 +18,7 @@ The `infra/` directory splits AWS infrastructure into logical files:
 
 | File | Description |
 |---|---|
-| `infra/db.ts` | VPC, RDS Postgres (with RDS Proxy), Prisma DevCommand |
+| `infra/db.ts` | Stage-aware database wiring: prod VPC/RDS, non-prod Neon, Prisma DevCommand |
 | `infra/cognito.ts` | Cognito User Pool, Groups (owner/admin/user), OAuth client |
 | `infra/AdminApi.ts` | Admin API Gateway (JWT-protected) |
 | `infra/PublicApi.ts` | Public-facing API |
@@ -31,8 +31,9 @@ The `infra/` directory splits AWS infrastructure into logical files:
 
 - Node.js (see `.nvmrc`)
 - AWS CLI configured with a named profile (e.g. `ceyhunlar-prod`)
-- Docker (for local Postgres)
-- `sudo npx sst tunnel install` (once, for deployed stage DB access)
+- Neon Postgres project for non-production stages (`kubi`, `dev`)
+- Docker only if you need to dump/import the legacy local Postgres container
+- `sudo npx sst tunnel install` (once, only for production RDS access)
 
 ---
 
@@ -48,7 +49,18 @@ DOMAIN="yourdomain.com"
 RDS_PASSWORD="your-strong-rds-password"
 ```
 
-> The `packages/core/.env` file is **only used by Prisma CLI locally** (pointing to Docker Postgres). It is ignored in deployed stages — Lambda gets `DATABASE_URL` injected by SST automatically.
+> The `packages/core/.env` file is **only used by Prisma CLI when you run Prisma directly from `packages/core`**. Runtime database access is provided through SST links: prod receives RDS connection fields, non-prod receives the Neon pooled URL.
+
+For non-production Neon stages, set these SST secrets per stage:
+
+```bash
+npx sst secret set NeonDatabaseUrl --stage kubi
+npx sst secret set NeonDirectUrl --stage kubi
+```
+
+- `NeonDatabaseUrl`: pooled Neon connection string, used by Lambda/Next.js runtime.
+- `NeonDirectUrl`: direct Neon connection string, used by Prisma CLI, `pg_dump`, and `pg_restore`.
+- Repeat the same secret names for `--stage dev` when the `dev` branch is ready. Do not use prod RDS credentials for these secrets.
 
 ---
 
@@ -60,16 +72,57 @@ RDS_PASSWORD="your-strong-rds-password"
 npm install
 ```
 
-### 2. Start Docker Postgres
+### 2. Configure non-prod Neon
 
-Make sure Docker is running and a local Postgres container is up on `localhost:5432` with:
-- user: `postgres`
-- password: `password`
-- database: `local`
+Recommended Neon setup:
 
-This matches the `dev` block in `infra/db.ts`.
+- Project: `ceyhunlar-nonprod`
+- Region: `AWS Europe West 2 (London)` for the current `eu-west-1` local AWS region.
+- Branches: `kubi` and `dev`
+- PostgreSQL version: choose PostgreSQL 16 for the first migration if Neon offers it. The legacy `ceyhunlar-postgres` container currently runs PostgreSQL 16.4; do not combine the Docker-to-Neon migration with a major Postgres upgrade. PostgreSQL 18 should be treated as a separate, later upgrade after the import is verified.
 
-### 3. Run migrations locally
+Current migration note: the `kubi` Neon branch was created on PostgreSQL 18.4 and the PostgreSQL 16.4 Docker dump restored successfully on 2026-07-10. If a PG18-specific issue appears, recreate the non-prod Neon project on PostgreSQL 16/17 and restore the same verified dump.
+
+The `kubi` stage should point to the Neon `kubi` branch. The `dev` stage can be prepared with secrets, but should not be deployed until intentionally needed.
+
+### 3. Preserve and import legacy Docker data
+
+Do not remove the `ceyhunlar-postgres` container or its Docker volume before the Neon import is verified.
+
+First, start Docker only for the migration window and inspect the source database:
+
+```bash
+docker exec ceyhunlar-postgres psql -U postgres -d local -c "select version();"
+docker exec ceyhunlar-postgres psql -U postgres -d local -c "select pg_size_pretty(pg_database_size('local'));"
+```
+
+Create a permanent custom-format backup before touching Neon:
+
+```bash
+mkdir -p "$HOME/Backups/ceyhunlar"
+pg_dump -Fc --verbose --no-owner --no-acl \
+  --dbname "postgresql://postgres:password@localhost:5432/local" \
+  --file "$HOME/Backups/ceyhunlar/local-$(date +%Y%m%d-%H%M%S).dump"
+```
+
+Restore that dump into an empty Neon `kubi` branch using the direct, non-pooled URL:
+
+```bash
+pg_restore --verbose --exit-on-error --no-owner --no-acl \
+  --dbname "$NEON_DIRECT_URL" \
+  "$HOME/Backups/ceyhunlar/local-YYYYMMDD-HHMMSS.dump"
+```
+
+After restore, verify row counts and Prisma migration state before switching daily development to Neon:
+
+```bash
+cd packages/core
+DIRECT_URL="$NEON_DIRECT_URL" npx prisma migrate status
+```
+
+Only after the `kubi` branch is validated should the Neon `dev` branch be created from the `kubi` snapshot.
+
+### 4. Run migrations locally
 
 ```bash
 cd packages/core
@@ -78,18 +131,18 @@ npx prisma generate
 cd ../..
 ```
 
-> You do **not** need `sst tunnel` locally — SST uses the `dev` config in `db.ts` which points directly to your local Docker Postgres.
+> You do **not** need `sst tunnel` for `kubi` or `dev`. Non-production stages connect to Neon over the public TLS endpoint. Use `DIRECT_URL` for Prisma CLI commands when running outside `sst shell`.
 
-### 4. Start the dev server
+### 5. Start the dev server
 
 ```bash
 export AWS_PROFILE=ceyhunlar-prod
 npx sst dev --stage kubi
 ```
 
-> Replace `kubi` with your own personal stage name. Each developer uses their own stage to avoid conflicts.
+> Replace `kubi` with your own personal stage name only if matching Neon secrets and a matching Neon branch exist.
 
-### 5. (Optional) Open Prisma Studio locally
+### 6. (Optional) Open Prisma Studio locally
 
 Prisma Studio is defined as a `DevCommand` in `infra/db.ts`. While `sst dev` is running:
 
@@ -122,38 +175,50 @@ npx sst deploy --stage test-1
 
 ## Database Migrations on a Deployed Stage
 
-Because RDS runs inside a private VPC, you must open an SST tunnel before running Prisma CLI commands against a deployed stage.
+Production RDS runs inside a private VPC, so production Prisma CLI access requires an SST tunnel. Non-production Neon stages do not require a VPC or tunnel.
 
-### Step 1 — Install the tunnel (once, requires sudo)
+### Non-production Neon stages
+
+Use the stage-specific Neon direct URL through `sst shell`:
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"
+```
+
+### Production RDS
+
+Do not point production at Neon. Keep using the production RDS/VPC path.
+
+#### Step 1 — Install the tunnel (once, requires sudo)
 
 ```bash
 sudo npx sst tunnel install
 ```
 
-### Step 2 — Open the tunnel (keep this terminal running)
+#### Step 2 — Open the tunnel (keep this terminal running)
 
 ```bash
-npx sst tunnel --stage test-1
+npx sst tunnel --stage prod
 ```
 
 > This requires `bastion: true` on the VPC (already configured in `infra/db.ts`).
 
-### Step 3 — Run migrations (in a new terminal)
+#### Step 3 — Run migrations (in a new terminal)
 
 ```bash
-npx sst shell --stage test-1 --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"
+npx sst shell --stage prod --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"
 ```
 
 > Use `migrate deploy` (not `migrate dev`) for deployed stages. It applies existing migration files without resetting or creating new ones.
 
-### Step 4 — (Optional) Open Prisma Studio against the deployed DB
+#### Step 4 — (Optional) Open Prisma Studio against production RDS
 
 ```bash
 # Terminal 1: tunnel must be running
-npx sst tunnel --stage test-1
+npx sst tunnel --stage prod
 
-# Terminal 2: open a shell with the RDS DATABASE_URL
-npx sst shell --stage test-1 --target Prisma
+# Terminal 2: open a shell with the RDS DATABASE_URL / DIRECT_URL
+npx sst shell --stage prod --target Prisma
 # Inside the shell:
 cd packages/core && npx prisma studio
 ```
@@ -203,7 +268,7 @@ Authentication is managed via **AWS Cognito** (`infra/cognito.ts`).
 
 ### Post-Confirmation Trigger
 
-When a user confirms their email (`PostConfirmation_ConfirmSignUp`), a Lambda trigger (`postConfirmation.ts`) automatically creates a `User` record in the RDS database:
+When a user confirms their email (`PostConfirmation_ConfirmSignUp`), a Lambda trigger (`postConfirmation.ts`) automatically creates a `User` record in the configured PostgreSQL database:
 
 ```
 Cognito confirm email
@@ -212,7 +277,7 @@ Cognito confirm email
       → If not: create User in DB with email, identifier, groups: ["user"]
 ```
 
-The trigger runs inside the VPC and is linked to RDS.
+In prod, the trigger runs inside the VPC and is linked to RDS. In non-prod, it is not VPC-attached and uses the Neon database link.
 
 ---
 
