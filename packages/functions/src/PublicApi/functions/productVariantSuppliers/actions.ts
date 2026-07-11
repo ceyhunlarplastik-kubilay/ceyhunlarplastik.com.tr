@@ -4,7 +4,11 @@ import { productVariantRepository } from "@/core/helpers/prisma/productVariants/
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 
 import { getProductVariantSupplierHandler, listProductVariantSuppliersHandler } from "@/functions/PublicApi/functions/productVariantSuppliers/handlers"
-import { idValidator } from "@/functions/PublicApi/validators/productVariantSuppliers"
+import {
+    idValidator,
+    productVariantSupplierResponseValidator,
+    listProductVariantSuppliersResponseValidator,
+} from "@/functions/PublicApi/validators/productVariantSuppliers"
 import type {
     IProductVariantSupplierDependencies,
     IGetProductVariantSupplierEvent,
@@ -26,6 +30,7 @@ export const getProductVariantSupplier = lambdaHandler(
     {
         auth: false,
         requestValidator: idValidator,
+        responseValidator: productVariantSupplierResponseValidator,
     }
 )
 
@@ -38,5 +43,6 @@ export const listProductVariantSuppliers = lambdaHandler(
     },
     {
         auth: false,
+        responseValidator: listProductVariantSuppliersResponseValidator,
     }
 )

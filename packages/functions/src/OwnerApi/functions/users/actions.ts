@@ -6,7 +6,10 @@ import { userRepository } from "@/core/helpers/prisma/users/repository"
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import { updateUserGroupsHandler } from "./handlers"
-import { addUserToGroupValidator } from "@/functions/OwnerApi/validators/users"
+import {
+    addUserToGroupValidator,
+    updateUserGroupsResponseValidator,
+} from "@/functions/OwnerApi/validators/users"
 
 import type { IUpdateUserGroupsEvent } from "@/functions/OwnerApi/types/users"
 
@@ -38,5 +41,6 @@ export const updateUserGroups = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["owner"] },
         requestValidator: addUserToGroupValidator,
+        responseValidator: updateUserGroupsResponseValidator,
     },
 )

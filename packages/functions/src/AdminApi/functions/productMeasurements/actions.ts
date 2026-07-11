@@ -23,6 +23,8 @@ import {
     createProductMeasurementValidator,
     idValidator,
     updateProductMeasurementValidator,
+    productMeasurementResponseValidator,
+    listProductMeasurementResponseValidator,
 } from "@/functions/AdminApi/validators/productMeasurements"
 
 export const listProductMeasurements = lambdaHandler(
@@ -32,6 +34,7 @@ export const listProductMeasurements = lambdaHandler(
         } as any)(event as IListProductMeasurementsEvent),
     {
         auth: { requiredPermissionGroups: ["admin"] },
+        responseValidator: listProductMeasurementResponseValidator,
     }
 )
 
@@ -43,6 +46,7 @@ export const getProductMeasurement = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: productMeasurementResponseValidator,
     }
 )
 
@@ -56,6 +60,7 @@ export const createProductMeasurement = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: createProductMeasurementValidator,
+        responseValidator: productMeasurementResponseValidator,
     }
 )
 
@@ -69,6 +74,7 @@ export const updateProductMeasurement = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: updateProductMeasurementValidator,
+        responseValidator: productMeasurementResponseValidator,
     }
 )
 
@@ -80,5 +86,6 @@ export const deleteProductMeasurement = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin"] },
         requestValidator: idValidator,
+        responseValidator: productMeasurementResponseValidator,
     }
 )
