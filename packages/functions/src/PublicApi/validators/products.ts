@@ -53,15 +53,28 @@ export const assetSchema = z.object({
     updatedAt: z.string(),
 }).loose()
 
+// industrialUsages değerleri bilinçli olarak slim taşınır (bkz. mapIndustrialUsageValue):
+// derin attribute/parentValue zincirleri Lambda 6MB yanıt limitini aşıyordu.
+export const industrialUsageValueSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    slug: z.string(),
+    attribute: z.object({
+        id: z.uuid(),
+        code: z.string(),
+        name: z.string(),
+    }).nullable().optional(),
+}).loose()
+
 export const industrialUsageSchema = z.object({
     id: z.uuid(),
     productId: z.uuid(),
     sectorValueId: z.uuid().nullable().optional(),
-    sectorValue: attributeValueSchema.nullable().optional(),
+    sectorValue: industrialUsageValueSchema.nullable().optional(),
     productionGroupValueId: z.uuid().nullable().optional(),
-    productionGroupValue: attributeValueSchema.nullable().optional(),
+    productionGroupValue: industrialUsageValueSchema.nullable().optional(),
     usageAreaValueId: z.uuid().nullable().optional(),
-    usageAreaValue: attributeValueSchema.nullable().optional(),
+    usageAreaValue: industrialUsageValueSchema.nullable().optional(),
     usageFunction: z.string().nullable().optional(),
     imageKey: z.string().nullable().optional(),
     imageUrl: z.string().nullable().optional(),

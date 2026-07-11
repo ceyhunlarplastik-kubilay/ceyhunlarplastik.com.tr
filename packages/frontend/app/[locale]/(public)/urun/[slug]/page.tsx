@@ -16,6 +16,7 @@ import ProductCertificateSection from "@/features/public/products/components/Pro
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
+import { toSimilarProductItems } from "@/features/public/products/utils/similarProducts"
 
 export const revalidate = 60
 
@@ -74,12 +75,11 @@ export default async function ProductPage({ params }: PageProps) {
 
     const [variants, productsByCategory] = await Promise.all([
         getProductVariantTable(product.id),
-        getProductsByCategory(product.categoryId, "id", { limit: 24 }),
+        // 13 = 12 benzer ürün + ürünün kendisi ilk sayfadaysa yedek.
+        getProductsByCategory(product.categoryId, "id", { limit: 13 }),
     ])
 
-    const similarProducts = productsByCategory
-        .filter((item) => item.id !== product.id)
-        .slice(0, 12)
+    const similarProducts = toSimilarProductItems(productsByCategory, product.id)
 
     return (
         <main>

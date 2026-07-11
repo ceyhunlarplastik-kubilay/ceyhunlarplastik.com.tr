@@ -9,6 +9,7 @@ import ProductVariantTable from "@/features/public/products/components/ProductVa
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
+import { toSimilarProductItems } from "@/features/public/products/utils/similarProducts"
 import { CustomerPortalProductDetailHeader } from "@/features/customerPortal/components/CustomerPortalProductDetailHeader"
 
 export default async function CustomerPortalProductDetailPage({
@@ -23,12 +24,11 @@ export default async function CustomerPortalProductDetailPage({
 
     const [variants, productsByCategory] = await Promise.all([
         getProductVariantTable(product.id),
-        getProductsByCategory(product.categoryId, "id", { limit: 24 }),
+        // 13 = 12 benzer ürün + ürünün kendisi ilk sayfadaysa yedek.
+        getProductsByCategory(product.categoryId, "id", { limit: 13 }),
     ])
 
-    const similarProducts = productsByCategory
-        .filter((item) => item.id !== product.id)
-        .slice(0, 12)
+    const similarProducts = toSimilarProductItems(productsByCategory, product.id)
 
     return (
         <div className="space-y-6">

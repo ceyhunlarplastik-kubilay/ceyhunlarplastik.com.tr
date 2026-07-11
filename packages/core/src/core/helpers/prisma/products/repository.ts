@@ -143,65 +143,73 @@ import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndus
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Product } from "@/prisma/generated/prisma/client"
 
-export type ProductWithRelations = Prisma.ProductGetPayload<{
+// Ürün attribute değerleri (model_type vb.) küçük sözlük kayıtlarıdır;
+// enrich/badge akışları parentValue zincirini kullandığı için shape korunur.
+const attributeValuesInclude = {
     include: {
-        category: true
-        assets: true
-        attributeValues: {
+        attribute: true,
+        parentValue: {
             include: {
-                attribute: true
+                attribute: true,
                 parentValue: {
                     include: {
-                        attribute: true
-                        parentValue: {
-                            include: {
-                                attribute: true
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        industrialUsages: {
-            include: {
-                sectorValue: {
-                    include: {
-                        attribute: true
-                    }
-                }
-                productionGroupValue: {
-                    include: {
-                        attribute: true
-                        parentValue: {
-                            include: {
-                                attribute: true
-                            }
-                        }
-                    }
-                }
-                usageAreaValue: {
-                    include: {
-                        attribute: true
-                        parentValue: {
-                            include: {
-                                attribute: true
-                                parentValue: {
-                                    include: {
-                                        attribute: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}>
+                        attribute: true,
+                    },
+                },
+            },
+        },
+    },
+} as const
+
+// industrialUsages değerlerinde derin attribute/parentValue zincirleri taşınmaz:
+// public kullanım tablosu yalnız name, admin formu yalnız *ValueId okur. Derin
+// zincir 138 usage'lı üründe ~0.5MB/ürün üretip Lambda 6MB yanıt limitini aşıyordu.
+const industrialUsageValueSelect = {
+    id: true,
+    name: true,
+    slug: true,
+    attribute: {
+        select: { id: true, code: true, name: true },
+    },
+} as const
+
+const baseInclude = {
+    category: true,
+    assets: true,
+    attributeValues: attributeValuesInclude,
+    industrialUsages: {
+        orderBy: {
+            displayOrder: "asc",
+        },
+        include: {
+            sectorValue: { select: industrialUsageValueSelect },
+            productionGroupValue: { select: industrialUsageValueSelect },
+            usageAreaValue: { select: industrialUsageValueSelect },
+        },
+    },
+} satisfies Prisma.ProductInclude
+
+// Card görünümü (public liste yüzeyleri): industrialUsages hiç taşınmaz.
+const listCardInclude = {
+    category: true,
+    assets: true,
+    attributeValues: attributeValuesInclude,
+} satisfies Prisma.ProductInclude
+
+export type ProductWithRelations = Prisma.ProductGetPayload<{ include: typeof baseInclude }>
+
+export type ProductListItem = Prisma.ProductGetPayload<{ include: typeof listCardInclude }> & {
+    industrialUsages?: ProductWithRelations["industrialUsages"]
+}
+
+export type ProductListView = "card" | "full"
 
 export interface IPrismaProductRepository {
-    listProducts(query: IPaginationQuery & { categoryId?: string; category?: string }): Promise<{
-        data: ProductWithRelations[]
+    listProducts(
+        query: IPaginationQuery & { categoryId?: string; category?: string },
+        options?: { view?: ProductListView },
+    ): Promise<{
+        data: ProductListItem[]
         meta: {
             page: number
             limit: number
@@ -218,64 +226,15 @@ export interface IPrismaProductRepository {
 
 export const productRepository = (): IPrismaProductRepository => {
 
-    const baseInclude = {
-        category: true,
-        assets: true,
-        attributeValues: {
-            include: {
-                attribute: true,
-                parentValue: {
-                    include: {
-                        attribute: true,
-                        parentValue: {
-                            include: {
-                                attribute: true,
-                            },
-                        },
-                    },
-                },
-            }
-        },
-        industrialUsages: {
-            orderBy: {
-                displayOrder: "asc",
-            },
-            include: {
-                sectorValue: {
-                    include: {
-                        attribute: true,
-                    },
-                },
-                productionGroupValue: {
-                    include: {
-                        attribute: true,
-                        parentValue: {
-                            include: {
-                                attribute: true,
-                            },
-                        },
-                    },
-                },
-                usageAreaValue: {
-                    include: {
-                        attribute: true,
-                        parentValue: {
-                            include: {
-                                attribute: true,
-                                parentValue: {
-                                    include: {
-                                        attribute: true,
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        }
-    } satisfies Prisma.ProductInclude
-
-    const listProducts = async (query: IPaginationQuery & { categoryId?: string; category?: string }) => {
+    const listProducts = async (
+        query: IPaginationQuery & { categoryId?: string; category?: string },
+        options?: { view?: ProductListView },
+    ) => {
+        // Cast: iki include de baseInclude'un alt kümesi; Prisma.ProductInclude
+        // anotasyonu tsc'de aşırı derin tip karşılaştırmasına yol açıyor.
+        const listInclude = (
+            options?.view === "card" ? listCardInclude : baseInclude
+        ) as typeof baseInclude
 
         const filterWhere = buildFilterQuery<Product>(query, [
             "name",
@@ -430,7 +389,7 @@ export const productRepository = (): IPrismaProductRepository => {
         const sortByCode = (query.sort ?? "code") === "code"
         const sortDirection: "asc" | "desc" = query.order === "desc" ? "desc" : "asc"
 
-        let data: ProductWithRelations[] = []
+        let data: ProductListItem[] = []
         let total = 0
 
         if (sortByCode) {
@@ -454,10 +413,10 @@ export const productRepository = (): IPrismaProductRepository => {
             if (pagedIds.length === 0) {
                 data = []
             } else {
-                const pagedData = await prisma.product.findMany({
+                const pagedData = (await prisma.product.findMany({
                     where: { id: { in: pagedIds } },
-                    include: baseInclude,
-                })
+                    include: listInclude,
+                })) as unknown as ProductListItem[]
 
                 const orderMap = new Map(pagedIds.map((id, index) => [id, index]))
                 data = pagedData.sort(
@@ -467,13 +426,13 @@ export const productRepository = (): IPrismaProductRepository => {
                 )
             }
         } else {
-            data = await prisma.product.findMany({
+            data = (await prisma.product.findMany({
                 where: finalWhere,
                 orderBy,
                 skip,
                 take,
-                include: baseInclude,
-            })
+                include: listInclude,
+            })) as unknown as ProductListItem[]
             total = await prisma.product.count({ where: finalWhere })
         }
 

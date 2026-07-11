@@ -33,7 +33,7 @@ import { buildAssetUrl } from "./buildAssetUrl"
 import { INDUSTRIAL_ATTRIBUTE_CODE_SET } from "@/core/helpers/products/productIndustrialUsages"
 import { AssetRole } from "@/prisma/generated/prisma/client"
 
-function mapAsset(asset: any) {
+export function mapAsset(asset: any) {
     return {
         id: asset.id,
         key: asset.key,
@@ -77,16 +77,36 @@ function enrichHierarchyAttributeValues(attributeValues: any[]) {
     return result
 }
 
+// Usage değerlerini isim/slug + attribute künyesine indirger: public tablo yalnız
+// name, admin formu yalnız *ValueId okur. Derin attribute/parentValue zincirleri
+// yanıt boyutunu ürün başına ~0.5MB'a şişirip Lambda 6MB limitini aşıyordu.
+function mapIndustrialUsageValue(value: any) {
+    if (!value) return null
+
+    return {
+        id: value.id,
+        name: value.name,
+        slug: value.slug,
+        attribute: value.attribute
+            ? {
+                id: value.attribute.id,
+                code: value.attribute.code,
+                name: value.attribute.name,
+            }
+            : null,
+    }
+}
+
 function mapIndustrialUsage(usage: any) {
     return {
         id: usage.id,
         productId: usage.productId,
         sectorValueId: usage.sectorValueId ?? null,
-        sectorValue: usage.sectorValue ?? null,
+        sectorValue: mapIndustrialUsageValue(usage.sectorValue),
         productionGroupValueId: usage.productionGroupValueId ?? null,
-        productionGroupValue: usage.productionGroupValue ?? null,
+        productionGroupValue: mapIndustrialUsageValue(usage.productionGroupValue),
         usageAreaValueId: usage.usageAreaValueId ?? null,
-        usageAreaValue: usage.usageAreaValue ?? null,
+        usageAreaValue: mapIndustrialUsageValue(usage.usageAreaValue),
         usageFunction: usage.usageFunction ?? null,
         imageKey: usage.imageKey ?? null,
         imageUrl: usage.imageKey ? buildAssetUrl(usage.imageKey) : null,

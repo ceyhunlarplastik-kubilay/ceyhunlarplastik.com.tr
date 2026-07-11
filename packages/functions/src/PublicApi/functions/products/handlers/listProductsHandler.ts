@@ -68,6 +68,9 @@ export const listProductsHandler =
                 })
 
             try {
+                // Public liste yüzeyleri (katalog kartları, benzer ürünler) industrialUsages
+                // kullanmaz; card view bu ilişkiyi hiç taşımayarak 6MB Lambda yanıt
+                // limitine takılmayı önler. Detay endpoint'leri full include'da kalır.
                 const result = await productRepository.listProducts({
                     page,
                     limit,
@@ -78,7 +81,7 @@ export const listProductsHandler =
                     category: query.category,
                     attributeFilters,
                     attributeValueIds
-                })
+                }, { view: "card" })
 
                 return apiResponseDTO({
                     statusCode: 200,

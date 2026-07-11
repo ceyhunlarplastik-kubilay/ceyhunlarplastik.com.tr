@@ -1,6 +1,7 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
+import { mapPublicProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
 import { IProductVariantTableDependencies, IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
 
 const sortMeasurements = (
@@ -117,7 +118,9 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: paginated, // Matches list endpoints structure
+                    // Ham Prisma satırları yerine güvenli DTO: iç maliyet/tedarik
+                    // alanları public yanıtına çıkmaz.
+                    data: paginated.map(mapPublicProductVariantTableRow), // Matches list endpoints structure
                     meta: {
                         page,
                         limit,
