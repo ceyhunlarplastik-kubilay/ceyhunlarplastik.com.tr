@@ -56,3 +56,146 @@ export const updateMyProfileValidator = validatorWrapper(
         requiredRootFields: ["body"],
     },
 )
+
+export const idValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
+)
+
+// Response Validators
+//
+// userSchema iki varyantı da karşılar: getUser/getMe raw UserWithRelations
+// (userInclude relation'ları .loose() ile tolere edilir) ve
+// mapAdminUserForApi/mapUserWithImage çıktısı (+imageUrl) → imageUrl nullish.
+// accessStatus/groups permissive string — yeni rol/durum 500 üretmesin.
+const userSchema = z.object({
+    id: z.uuid(),
+    cognitoSub: z.string(),
+    email: z.string(),
+    identifier: z.string(),
+    firstName: z.string().nullish(),
+    lastName: z.string().nullish(),
+    imageKey: z.string().nullish(),
+    imageUrl: z.string().nullish(),
+    phone: z.string().nullish(),
+    groups: z.array(z.string()),
+    accessStatus: z.string(),
+    supplierId: z.uuid().nullish(),
+    customerId: z.uuid().nullish(),
+    isActive: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
+
+// getUser / getMe / updateMyProfile / updateMyProfileImage → payload: { user }
+export const userResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                user: userSchema,
+            }),
+        }),
+    }).loose()
+)
+
+// listUsers → payload: { data, meta }
+export const listUsersResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(userSchema),
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                }),
+            }),
+        }),
+    }).loose()
+)
+
+// getMyAccess → payload: { user, canAccessPanels }
+export const myAccessResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                user: userSchema,
+                canAccessPanels: z.boolean(),
+            }),
+        }),
+    }).loose()
+)
+
+// UserNotification: `data` Json? alanı bilinçli olarak listelenmedi (her shape
+// olabilir; loose tolere eder). type permissive string (enum büyüyebilir).
+const notificationSchema = z.object({
+    id: z.uuid(),
+    userId: z.uuid(),
+    type: z.string(),
+    title: z.string(),
+    message: z.string(),
+    readAt: z.string().nullish(),
+    createdAt: z.string(),
+}).loose()
+
+// listMyNotifications → payload: { data, meta, unreadCount } (unreadCount ekstra!)
+export const listMyNotificationsResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(notificationSchema),
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                }),
+                unreadCount: z.number(),
+            }),
+        }),
+    }).loose()
+)
+
+// markMyNotificationRead → payload: { notification } (null → handler 404 atıyor)
+export const notificationResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                notification: notificationSchema,
+            }),
+        }),
+    }).loose()
+)
+
+// mePermissions → payload permission matrisinin kendisi; flags/can loose —
+// yeni yetenek bayrağı eklemek validator değişikliği gerektirmesin.
+export const mePermissionsResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                roles: z.array(z.string()),
+                flags: z.object({}).loose(),
+                can: z.object({}).loose(),
+            }),
+        }),
+    }).loose()
+)

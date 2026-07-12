@@ -32,6 +32,13 @@ import {
     createMyProfileImageUploadValidator,
     updateMyProfileValidator,
     updateMyProfileImageValidator,
+    idValidator,
+    userResponseValidator,
+    listUsersResponseValidator,
+    myAccessResponseValidator,
+    listMyNotificationsResponseValidator,
+    notificationResponseValidator,
+    mePermissionsResponseValidator,
 } from "@/functions/ProtectedApi/validators/users"
 
 export const listUsers = lambdaHandler(
@@ -48,6 +55,7 @@ export const listUsers = lambdaHandler(
         auth: {
             requiredPermissionGroups: ["user"],
         },
+        responseValidator: listUsersResponseValidator,
     }
 )
 
@@ -65,6 +73,8 @@ export const getUser = lambdaHandler(
         auth: {
             requiredPermissionGroups: ["user"],
         },
+        requestValidator: idValidator,
+        responseValidator: userResponseValidator,
     }
 )
 
@@ -78,6 +88,7 @@ export const getMe = lambdaHandler(
     },
     {
         auth: {},
+        responseValidator: userResponseValidator,
     }
 );
 
@@ -91,6 +102,7 @@ export const updateMyProfile = lambdaHandler(
     {
         auth: {},
         requestValidator: updateMyProfileValidator,
+        responseValidator: userResponseValidator,
     },
 )
 
@@ -103,6 +115,7 @@ export const getMyAccess = lambdaHandler(
         auth: {
             allowInactive: true,
         },
+        responseValidator: myAccessResponseValidator,
     }
 )
 
@@ -115,6 +128,7 @@ export const listMyNotifications = lambdaHandler(
         auth: {
             allowInactive: true,
         },
+        responseValidator: listMyNotificationsResponseValidator,
     }
 )
 
@@ -127,6 +141,8 @@ export const markMyNotificationRead = lambdaHandler(
         auth: {
             allowInactive: true,
         },
+        requestValidator: idValidator,
+        responseValidator: notificationResponseValidator,
     }
 )
 
@@ -142,6 +158,7 @@ export const mePermissions = lambdaHandler(
     },
     {
         auth: {},
+        responseValidator: mePermissionsResponseValidator,
     }
 );
 
@@ -164,5 +181,6 @@ export const updateMyProfileImage = lambdaHandler(
     {
         auth: {},
         requestValidator: updateMyProfileImageValidator,
+        responseValidator: userResponseValidator,
     }
 )

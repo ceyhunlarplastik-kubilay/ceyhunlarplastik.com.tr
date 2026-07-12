@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponse, apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
 import { deleteS3Object } from "@/core/helpers/s3/deleteObject"
 import { generateUserProfileImageUpload } from "@/core/helpers/s3/presign"
@@ -82,7 +82,7 @@ export const updateMyProfileImageHandler =
                 })
             }
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: {
                     user: mapUserWithImage(updated),

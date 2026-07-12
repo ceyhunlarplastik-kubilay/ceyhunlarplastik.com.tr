@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { apiResponse } from "@/core/helpers/utils/api/response"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IGetUserDependencies, IGetUserEvent} from "@/functions/ProtectedApi/types/users";
 
 export const getUserHandler = ({ userRepository }: IGetUserDependencies) => {
@@ -16,7 +16,7 @@ export const getUserHandler = ({ userRepository }: IGetUserDependencies) => {
       throw createError.NotFound("User not found")
     }
 
-    return apiResponse({
+    return apiResponseDTO({
       statusCode: 200,
       payload: { user },
     })

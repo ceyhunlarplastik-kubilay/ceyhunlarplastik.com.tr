@@ -1,5 +1,5 @@
 import createError from "http-errors";
-import { apiResponse } from "@/core/helpers/utils/api/response";
+import { apiResponseDTO } from "@/core/helpers/utils/api/response";
 import { IGetMeDependencies, IGetMeEvent } from "@/functions/ProtectedApi/types/users";
 
 export const getMeHandler =
@@ -17,7 +17,7 @@ export const getMeHandler =
                 throw createError.NotFound("User not found");
             }
 
-            return apiResponse({
+            return apiResponseDTO({
                 statusCode: 200,
                 payload: {
                     user,
