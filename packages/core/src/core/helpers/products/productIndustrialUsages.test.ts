@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
     assertNoIndustrialAttributeValues,
     normalizeProductIndustrialUsages,
-} from "./productIndustrialUsages.ts"
+} from "./productIndustrialUsages"
 import type { IPrismaProductAttributeValueRepository } from "../prisma/productAttributeValues/repository"
 
 function makeValue(id: string, code: string, options: { isActive?: boolean; attributeActive?: boolean } = {}) {
@@ -42,6 +42,9 @@ function makeRepository(values: Record<string, ReturnType<typeof makeValue>>): I
             throw new Error("not implemented")
         },
         deleteValue: async () => {
+            throw new Error("not implemented")
+        },
+        getDeleteBlockers: async () => {
             throw new Error("not implemented")
         },
     }

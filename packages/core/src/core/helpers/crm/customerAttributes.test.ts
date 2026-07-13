@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest"
-import { resolveCustomerAttributeAssignments } from "./customerAttributes.ts"
+import { resolveCustomerAttributeAssignments } from "./customerAttributes"
 import type { IPrismaProductAttributeValueRepository, ProductAttributeValueWithAttribute } from "../prisma/productAttributeValues/repository"
 
 function createRepository(values: Record<string, ProductAttributeValueWithAttribute | null>): IPrismaProductAttributeValueRepository {
@@ -13,6 +13,9 @@ function createRepository(values: Record<string, ProductAttributeValueWithAttrib
             throw new Error("not implemented")
         },
         deleteValue: async () => {
+            throw new Error("not implemented")
+        },
+        getDeleteBlockers: async () => {
             throw new Error("not implemented")
         },
     }

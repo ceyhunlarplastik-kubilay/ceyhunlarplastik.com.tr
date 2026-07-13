@@ -1,0 +1,31 @@
+{
+    // Backend (core + functions) izole typecheck'i — CI'da sst shell/.sst OLMADAN çalışır (P1.7).
+    //
+    // Root tsconfig CI'da gate olarak KULLANILAMAZ çünkü include'u:
+    // - infra/** + sst.config.ts içerir → global `sst.*` tipleri .sst/platform'dan gelir,
+    //   CI'da .sst yoktur (gitignored) → her infra dosyası patlar.
+    // - packages/frontend'i jsx flag'siz içerir → yüzlerce TS17004 üretir
+    //   (frontend'in kendi tsconfig'i + `typecheck -w frontend` script'i ayrıca var).
+    // - packages/scripts/example.ts template kalıntısı Resource.MyBucket'a referans verir (kırık).
+    //
+    // Bu config yalnız Lambda'ya giden kodu kapsar; `sst-env.d.ts` Resource tiplerini sağlar.
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        // node_modules .d.ts hataları bizim kapımız değil (@middy'nin opsiyonel
+        // @aws/durable-execution-sdk-js referansı, sst vector tipleri vb.)
+        "skipLibCheck": true
+    },
+    "include": [
+        "packages/core/src/**/*",
+        "packages/core/prisma.config.ts",
+        "packages/functions/src/**/*",
+        "sst-env.d.ts"
+    ],
+    "exclude": [
+        // Tek seferlik slug doldurma script'leri — Prisma 7'nin where tipleriyle
+        // kırık (`slug: null` filtresi artık geçersiz; slug şemada zorunlu oldu).
+        // İşlerini çoktan bitirdiler; silme kararı ayrı bir temizlik işi.
+        "packages/core/src/scripts/fillCategorySlugs.ts",
+        "packages/core/src/scripts/fillProductSlugs.ts"
+    ]
+}

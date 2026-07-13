@@ -1,4 +1,4 @@
-import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/productVariantSupplier"
+import { resolveProductVariantSupplierPricing, type DecimalLike } from "@/core/helpers/pricing/productVariantSupplier"
 
 type SupplierProfileInput = {
     name?: unknown
@@ -110,8 +110,8 @@ export function snapshotSupplierVariantPricing(input: {
 
 export function buildApprovedVariantPricingUpdate(
     existing: {
-        operationalCostRate?: unknown
-        profitRate?: unknown
+        operationalCostRate?: DecimalLike
+        profitRate?: DecimalLike
     },
     input: {
         price?: number

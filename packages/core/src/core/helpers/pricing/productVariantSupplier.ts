@@ -1,4 +1,4 @@
-type DecimalLike = number | string | { toNumber?: () => number } | null | undefined
+export type DecimalLike = number | string | { toNumber?: () => number } | null | undefined
 
 type VariantPricingInput = {
     price?: number

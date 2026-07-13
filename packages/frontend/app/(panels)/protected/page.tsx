@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { auth } from "@/lib/auth/auth"
 import { redirect } from "next/navigation"
 
@@ -32,12 +33,12 @@ export default async function ProtectedPage() {
                 </div>
 
                 <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                    <a
+                    <Link
                         href="/"
                         className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
                     >
                         &larr; Ana Sayfaya Dön
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

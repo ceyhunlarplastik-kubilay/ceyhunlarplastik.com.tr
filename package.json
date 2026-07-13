@@ -8,6 +8,7 @@
     "node": ">=22 <23"
   },
   "scripts": {
+    "typecheck:backend": "tsc --noEmit -p tsconfig.backend.json",
     "dev:local": "npx sst dev --stage $LOCAL_STAGE",
     "remove:local": "npx sst remove --stage $LOCAL_STAGE",
     "deploy:dev": "npx sst deploy --stage dev",
