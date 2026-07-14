@@ -671,6 +671,7 @@
             "productCode": "Ürün Kodu: {code}",
             "table": {
                 "empty": "Ölçü bilgisi bulunamadı.",
+                "loadError": "Varyant bilgisi yüklenemedi. Lütfen sayfayı yenileyin.",
                 "srNavigating": "Seçilen varyant detay sayfası açılıyor.",
                 "srReady": "Varyant tablosu hazır.",
                 "title": "Ölçü ve Seçenekler",

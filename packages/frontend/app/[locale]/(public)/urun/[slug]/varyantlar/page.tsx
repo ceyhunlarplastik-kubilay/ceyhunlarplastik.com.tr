@@ -59,14 +59,14 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
     const product = await getProductBySlug(slug)
     if (!product) notFound()
 
-    const [tb, t, variants] = await Promise.all([
+    const [tb, t, variantTable] = await Promise.all([
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getTranslations({ locale, namespace: "public.productVariant" }),
         getProductVariantTable(product.id),
     ])
 
     const filtered = measurementKey
-        ? variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
+        ? variantTable.variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
         : []
 
     const selectedMeasurements =

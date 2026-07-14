@@ -671,6 +671,7 @@
             "productCode": "Product Code: {code}",
             "table": {
                 "empty": "No dimension information found.",
+                "loadError": "Variant data could not be loaded. Please refresh the page.",
                 "srNavigating": "Opening the selected variant detail page.",
                 "srReady": "Variant table ready.",
                 "title": "Dimensions & Options",

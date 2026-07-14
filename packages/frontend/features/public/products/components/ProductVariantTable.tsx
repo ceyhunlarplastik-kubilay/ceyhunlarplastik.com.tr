@@ -125,6 +125,10 @@ interface ProductVariantTableProps {
     variantDetailsPathname?: string
     focusOnMeasurements?: boolean
     measurementHelpVideoUrl?: string
+    // P1.8f: veri fetch'i BAŞARISIZ olduğunda true. Boş varyant listesi "varyant
+    // yok" değil "yüklenemedi" olarak gösterilsin diye — yanıltıcı empty state'i
+    // hata state'inden ayırır.
+    loadError?: boolean
 }
 
 function MeasurementHelpDialogButton({
@@ -235,6 +239,7 @@ export default function ProductVariantTable({
     variantDetailsPathname,
     focusOnMeasurements = false,
     measurementHelpVideoUrl = "https://www.youtube.com/embed/42mrTRiExjs?autoplay=1",
+    loadError = false,
 }: ProductVariantTableProps) {
     const t = useTranslations("public.productVariant.table")
     const { data: session } = useSession()
@@ -352,9 +357,10 @@ export default function ProductVariantTable({
     }, [options])
 
     if (!options.length) {
+        // P1.8f: fetch hatasında "varyant yok" değil, "yüklenemedi" göster.
         return (
-            <div className="text-neutral-400 text-sm">
-                {t("empty")}
+            <div className={cn("text-sm", loadError ? "text-red-600" : "text-neutral-400")}>
+                {loadError ? t("loadError") : t("empty")}
             </div>
         )
     }

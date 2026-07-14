@@ -22,7 +22,7 @@ export default async function CustomerPortalProductDetailPage({
     const product = await getProductBySlug(slug)
     if (!product) notFound()
 
-    const [variants, productsByCategory] = await Promise.all([
+    const [variantTable, productsByCategory] = await Promise.all([
         getProductVariantTable(product.id),
         // 13 = 12 benzer ürün + ürünün kendisi ilk sayfadaysa yedek.
         getProductsByCategory(product.categoryId, "id", { limit: 13 }),
@@ -48,7 +48,8 @@ export default async function CustomerPortalProductDetailPage({
 
             <div id="product-variants">
                 <ProductVariantTable
-                    variants={variants}
+                    variants={variantTable.variants}
+                    loadError={variantTable.error}
                     productSlug={product.slug}
                     productId={product.id}
                     technicalDrawing={(

@@ -32,9 +32,9 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
     const product = await getProductBySlug(slug)
     if (!product) notFound()
 
-    const variants = await getProductVariantTable(product.id)
+    const variantTable = await getProductVariantTable(product.id)
     const filtered = measurementKey
-        ? variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
+        ? variantTable.variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
         : []
 
     const selectedMeasurements =
