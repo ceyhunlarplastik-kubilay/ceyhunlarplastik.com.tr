@@ -44,7 +44,7 @@ export interface IPrismaProductVariantRepository {
     createProductVariant(data: Prisma.ProductVariantCreateInput): Promise<ProductVariant>
     updateProductVariant(id: string, data: Prisma.ProductVariantUpdateInput): Promise<ProductVariant>
     deleteProductVariant(id: string): Promise<ProductVariant>
-    getProductVariantTableData(productId: string): Promise<any[]>
+    getProductVariantTableData(productId: string, options?: { includeListPrice?: boolean }): Promise<any[]>
 }
 
 const defaultInclude = {
@@ -149,7 +149,7 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             include: defaultInclude,
         })
 
-    const getProductVariantTableData = async (productId: string) => {
+    const getProductVariantTableData = async (productId: string, options: { includeListPrice?: boolean } = {}) => {
         return prisma.productVariant.findMany({
             where: { productId },
             orderBy: [
@@ -172,29 +172,25 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                         },
                     },
                 },
-                variantSuppliers: {
-                    // P1.8(B1): public/customer DTO (mapPublicProductVariantTableRow)
-                    // yalnız listPrice + tedarikçi künyesini (id/name) kullanır.
-                    // Tedarikçi maliyeti (price), netCost, profitRate,
-                    // operationalCostRate, paymentTermDays, supplierNote,
-                    // supplierVariantCode, minOrderQty, stockQty iç ticari veridir;
-                    // supplier'ın adres/vergiNo/not gibi 12 alanı da gereksiz.
-                    // select ile bunlar DB'den Lambda'ya HİÇ çekilmez (defense-in-depth
-                    // + transfer↓). DTO çıktısı birebir aynı kalır.
-                    select: {
-                        id: true,
-                        isActive: true,
-                        currency: true,
-                        listPrice: true,
-                        pricingUpdatedAt: true,
-                        updatedAt: true,
-                        supplier: { select: { id: true, name: true } },
-                    },
-                    orderBy: [
-                        { isActive: "desc" },
-                        { supplier: { name: "asc" } },
-                    ],
-                },
+                // P1.8(B0): variantSuppliers YALNIZ customer varyant-tablosu için
+                // (liste fiyatı overlay'i). Public yanıta HİÇ dahil edilmez —
+                // listPrice + tedarikçi kimliği public'e çıkmamalı. Customer'da da
+                // yalnız fiyat alanları seçilir (resolveMinListPrice'ın kullandığı):
+                // tedarikçi maliyeti (price/netCost/profitRate/...) ve tedarikçi
+                // künyesi (id/name/adres/vergiNo) DB'den HİÇ çekilmez.
+                ...(options.includeListPrice
+                    ? {
+                        variantSuppliers: {
+                            select: {
+                                listPrice: true,
+                                currency: true,
+                                pricingUpdatedAt: true,
+                                updatedAt: true,
+                            },
+                            orderBy: [{ isActive: "desc" as const }],
+                        },
+                    }
+                    : {}),
                 measurements: {
                     orderBy: [
                         { measurementType: { displayOrder: "asc" } },

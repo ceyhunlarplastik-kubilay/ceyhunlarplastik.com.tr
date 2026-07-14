@@ -51,3 +51,8 @@ export async function adminServerClient() {
     const idToken = await getServerAuthToken()
     return createServerClient(endpoints.adminApi, idToken ?? undefined);
 }
+
+export async function protectedServerClient() {
+    const idToken = await getServerAuthToken()
+    return createServerClient(endpoints.protectedApi, idToken ?? undefined);
+}

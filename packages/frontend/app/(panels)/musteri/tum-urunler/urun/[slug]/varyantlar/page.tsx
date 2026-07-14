@@ -5,7 +5,7 @@ import ProductAssemblyVideoSection from "@/features/public/products/components/P
 import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
-import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
+import { getCustomerProductVariantTable } from "@/features/customerPortal/server/getCustomerProductVariantTable"
 import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
@@ -32,7 +32,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
     const product = await getProductBySlug(slug)
     if (!product) notFound()
 
-    const variantTable = await getProductVariantTable(product.id)
+    const variantTable = await getCustomerProductVariantTable(product.id)
     const filtered = measurementKey
         ? variantTable.variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
         : []

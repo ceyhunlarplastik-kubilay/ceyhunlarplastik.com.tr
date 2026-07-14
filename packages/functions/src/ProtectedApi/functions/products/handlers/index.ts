@@ -1,0 +1,1 @@
+export { getCustomerProductVariantTableHandler } from "./getCustomerProductVariantTableHandler"

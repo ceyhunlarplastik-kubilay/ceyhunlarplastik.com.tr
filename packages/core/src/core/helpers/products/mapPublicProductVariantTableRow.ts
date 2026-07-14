@@ -1,16 +1,10 @@
 import { mapAsset } from "@/core/helpers/assets/mapProductWithAssets"
 
 /**
- * Public/portal varyant tablosu satırını güvenli DTO'ya indirger.
- *
- * variantSuppliers'tan yalnız liste fiyatı ve tedarikçi künyesi taşınır;
- * tedarikçi maliyeti (price), netCost, profitRate, operationalCostRate,
- * paymentTermDays, supplierNote, supplierVariantCode, minOrderQty ve stockQty
- * iç ticari veridir ve public yanıtına çıkmamalıdır. Müşteri portalının
- * liste fiyatı gösterimi (resolveMinListPrice) listPrice + currency +
- * pricingUpdatedAt alanlarına dayandığı için bunlar korunur.
+ * Varyant tablosu satırının ORTAK (hassas olmayan) yapısı: ölçü, renk, hammadde,
+ * kodlar. Ne fiyat ne tedarikçi içerir — public ve customer DTO'ları bunu paylaşır.
  */
-export function mapPublicProductVariantTableRow(variant: any) {
+function mapVariantTableStructure(variant: any) {
     return {
         id: variant.id,
         productId: variant.productId,
@@ -33,18 +27,40 @@ export function mapPublicProductVariantTableRow(variant: any) {
             label: measurement.label ?? "",
             measurementType: measurement.measurementType,
         })),
-        variantSuppliers: (variant.variantSuppliers ?? []).map((item: any) => ({
-            id: item.id,
-            isActive: item.isActive,
-            currency: item.currency ?? null,
-            listPrice: item.listPrice ?? null,
-            pricingUpdatedAt: item.pricingUpdatedAt ?? null,
-            updatedAt: item.updatedAt,
-            supplier: item.supplier
-                ? { id: item.supplier.id, name: item.supplier.name }
-                : null,
-        })),
         createdAt: variant.createdAt,
         updatedAt: variant.updatedAt,
+    }
+}
+
+/**
+ * PUBLIC varyant tablosu satırı (P1.8 B0).
+ *
+ * Fiyat ve tedarikçi bilgisi HİÇ taşınmaz — public kullanıcı bunları ne UI'da
+ * ne network yanıtında görmemeli (iş kuralı + veri sızıntısı önlemi). Repository
+ * `includeListPrice:false` ile çağrıldığından variantSuppliers zaten çekilmez;
+ * bu mapper da onu döndürmez.
+ */
+export function mapPublicProductVariantTableRow(variant: any) {
+    return mapVariantTableStructure(variant)
+}
+
+/**
+ * CUSTOMER varyant tablosu satırı (P1.8 B0).
+ *
+ * Public yapıya EK olarak yalnız liste fiyatı alanlarını taşır
+ * (resolveMinListPrice'ın kullandığı): listPrice, currency, pricingUpdatedAt,
+ * updatedAt. Tedarikçi kimliği (id/name) ve tedarikçi maliyeti (price/netCost/
+ * profitRate/...) HİÇ taşınmaz — bunlar admin/sales'e özgüdür (bkz. B0-admin).
+ * Yalnız ProtectedApi (giriş yapmış) endpoint'inden döner.
+ */
+export function mapCustomerProductVariantTableRow(variant: any) {
+    return {
+        ...mapVariantTableStructure(variant),
+        variantSuppliers: (variant.variantSuppliers ?? []).map((item: any) => ({
+            listPrice: item.listPrice ?? null,
+            currency: item.currency ?? null,
+            pricingUpdatedAt: item.pricingUpdatedAt ?? null,
+            updatedAt: item.updatedAt,
+        })),
     }
 }

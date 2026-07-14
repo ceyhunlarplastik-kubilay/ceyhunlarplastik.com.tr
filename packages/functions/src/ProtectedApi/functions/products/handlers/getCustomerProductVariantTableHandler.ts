@@ -2,41 +2,44 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { dedupeAndPaginateVariantTable } from "@/core/helpers/products/dedupeVariantTable"
-import { mapPublicProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
+import { mapCustomerProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
 import { IProductVariantTableDependencies, IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
 
-export const getProductVariantTableHandler = ({ productVariantRepository }: IProductVariantTableDependencies) => {
+/**
+ * CUSTOMER varyant tablosu (P1.8 B0).
+ *
+ * Public handler ile AYNI yapısal mantığı (dedupeAndPaginateVariantTable)
+ * paylaşır; farkı: repository `includeListPrice:true` ile çağrılır ve customer
+ * DTO'su liste fiyatı alanlarını taşır. Tedarikçi kimliği/maliyeti taşınmaz.
+ * ProtectedApi (giriş yapmış) olduğundan fiyat public'e sızmaz.
+ */
+export const getCustomerProductVariantTableHandler = ({ productVariantRepository }: IProductVariantTableDependencies) => {
     return async (event: IGetProductVariantTableEvent) => {
         const productId = event.pathParameters?.id
         if (!productId) throw new createError.BadRequest("productId required")
 
         const { page, limit, search, order } =
             normalizeListQuery(event.queryStringParameters, {
-                allowedSortFields: ["id"], // Custom sorting handled in memory
+                allowedSortFields: ["id"],
                 defaultSort: "id",
-                // P1.8(e): frontend tabloyu tek seferde çeker (limit=500, client-side
-                // sayfalama yok). Default maxLimit=100 100+ varyantlı üründe sessiz
-                // kesme yapıyordu; payload güvenli DTO olduğu için 500'e çıkarıldı.
                 maxLimit: 500,
             })
 
         try {
-            // P1.8(B0): PUBLIC — fiyat/tedarikçi çekilmez (includeListPrice yok).
-            const rawVariants = await productVariantRepository.getProductVariantTableData(productId)
+            const rawVariants = await productVariantRepository.getProductVariantTableData(productId, { includeListPrice: true })
 
             const { paginated, meta } = dedupeAndPaginateVariantTable(rawVariants, { page, limit, search, order })
 
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    // Public DTO: yapı yalnız (variantSuppliers/fiyat YOK).
-                    data: paginated.map(mapPublicProductVariantTableRow),
+                    data: paginated.map(mapCustomerProductVariantTableRow),
                     meta,
                 },
             })
         } catch (err) {
             console.error(err)
-            throw new createError.InternalServerError("Failed to get variant table")
+            throw new createError.InternalServerError("Failed to get customer variant table")
         }
     }
 }

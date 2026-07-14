@@ -339,6 +339,9 @@ export default function ProductVariantTable({
     const [selectedKey, setSelectedKey] = useState<string>("")
 
     const isNavigatingToVariant = pendingVariantKey !== null
+    // P1.8(B0): tedarikçi verisi yoksa (public + customer-main artık
+    // variantSuppliers'sız) Tedarikçi sütununu/rozetini gizle.
+    const hasSupplierData = options.some((option) => option.suppliers.length > 0)
     const selected = options.find((option) => option.key === selectedKey) ?? options[0]
     const pendingOption = options.find((option) => option.key === pendingVariantKey)
     const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
@@ -448,7 +451,7 @@ export default function ProductVariantTable({
                                             {t("colMaterial")}
                                         </TableHead>
                                     ) : null}
-                                    {!focusOnMeasurements ? (
+                                    {!focusOnMeasurements && hasSupplierData ? (
                                         <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
                                             {t("colSupplier")}
                                         </TableHead>
@@ -543,7 +546,7 @@ export default function ProductVariantTable({
                                                     </Badge>
                                                 </TableCell>
                                             ) : null}
-                                            {!focusOnMeasurements ? (
+                                            {!focusOnMeasurements && hasSupplierData ? (
                                                 <TableCell className="text-center px-3 py-2.5">
                                                     <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
                                                         {t("supplierCount", { count: option.suppliers.length })}

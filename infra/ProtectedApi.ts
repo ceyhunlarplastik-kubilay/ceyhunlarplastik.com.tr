@@ -326,6 +326,13 @@ protectedApi.route('GET /portal/customer/orders', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// P1.8(B0): müşteri varyant tablosu — yapı + liste fiyatı (public endpoint'ten
+// fiyat çıkarıldı, buraya taşındı). Giriş yapmış kullanıcıya açık.
+protectedApi.route('GET /portal/customer/products/{id}/variant-table', {
+    handler: `${folderPrefix}/products/actions.getCustomerProductVariantTable`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/orders', {
     handler: `${folderPrefix}/orders/actions.listSalesOrders`,
     ...defaultRouteOptions
