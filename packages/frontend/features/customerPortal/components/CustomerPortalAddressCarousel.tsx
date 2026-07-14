@@ -208,6 +208,8 @@ export function CustomerPortalAddressCarousel({ customer }: Props) {
     }, [totalItems])
 
     useEffect(() => {
+        // Meşru senkron: adres listesi küçülünce aktif index'i sınıra çeker.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setActiveIndex((current) => Math.min(current, addresses.length))
     }, [addresses.length])
 

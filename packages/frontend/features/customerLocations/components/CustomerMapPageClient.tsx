@@ -91,6 +91,9 @@ export function CustomerMapPageClient({
             point.customerId === activePoint.customerId && point.addressId === activePoint.addressId,
         )
         if (!stillVisible) {
+            // Meşru senkron: seçili nokta yeni fetch sonucunda artık yoksa
+            // (harita sınırları/filtre değişti) seçimi düşürür.
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActivePoint(null)
         }
     }, [activePoint, mapQuery.data])

@@ -167,8 +167,12 @@ export default function ProductAssistantModal({ attributes }: Props) {
         const current = selectedProductionGroupSlug ?? activeProductionGroupSlug
         if (current && visibleProductionGroups.some((value) => value.slug === current)) return
         const first = visibleProductionGroups[0]?.slug ?? null
+        // Meşru senkron: 2. adıma geçildiğinde/görünür grup listesi değiştiğinde,
+        // seçim artık listede yoksa ilk gruba düşürülür. Guard'lı ve idempotent.
+        /* eslint-disable react-hooks/set-state-in-effect */
         setSelectedProductionGroupSlug(first)
         setActiveProductionGroupSlug(first)
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, [step, visibleProductionGroups, selectedProductionGroupSlug, activeProductionGroupSlug])
 
     useEffect(() => {

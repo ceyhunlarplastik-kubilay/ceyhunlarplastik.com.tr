@@ -60,7 +60,13 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
     const { data: attributes, isLoading } = useAttributesForFilter()
     const presignMutation = usePresignProductAsset()
     const [uploadingRowIndex, setUploadingRowIndex] = useState<number | null>(null)
+    // Latest-ref deseni: updateRow/emit event handler'ları en güncel `value`
+    // prop'unu bayat closure olmadan okusun diye render'da senkronlanır. Effect'e
+    // taşımak ref'i bir commit geciktirir → art arda satır düzenlemelerinde veri
+    // kaybı. Bu bilinçli, yaygın ve güvenli bir kullanım.
+    // eslint-disable-next-line react-hooks/refs
     const valueRef = useRef(value)
+    // eslint-disable-next-line react-hooks/refs
     valueRef.current = value
 
     const sectorValues = useMemo(

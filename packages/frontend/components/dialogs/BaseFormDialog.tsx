@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { ZodType } from "zod";
 
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 import { MotionDialog } from "@/components/dialogs/primitives/MotionDialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -45,11 +46,7 @@ export function BaseFormDialog<TFieldValues extends FieldValues>({
     const t = useTranslations("chrome.dialogs.common");
     const resolvedSubmitLabel = submitLabel ?? t("submit");
     const [open, setOpen] = React.useState(false);
-    const [mounted, setMounted] = React.useState(false);
-
-    React.useEffect(() => {
-        setMounted(true);
-    }, []);
+    const mounted = useHydrated();
 
     const form = useForm<TFieldValues>({
         resolver: zodResolver(schema as any),

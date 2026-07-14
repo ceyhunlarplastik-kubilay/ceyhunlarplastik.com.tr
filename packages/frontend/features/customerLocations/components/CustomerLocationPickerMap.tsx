@@ -32,6 +32,10 @@ export function CustomerLocationPickerMap({
 
     useEffect(() => {
         if (latitude == null || longitude == null) return
+        // Meşru senkron: dışarıdan seçilen koordinat değişince haritayı ortalar.
+        // Dahili viewState onMove ile de güncellendiği için render'da türetilemez;
+        // functional update mevcut zoom'u korur.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setViewState((current) => ({
             ...current,
             latitude,

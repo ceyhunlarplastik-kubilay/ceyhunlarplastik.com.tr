@@ -3,9 +3,10 @@
 import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"
 import { ShoppingCart } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { useInquiryCartStore } from "@/features/public/cart/store/useInquiryCartStore"
+import { useHydrated } from "@/lib/hooks/useHydrated"
 import { cn } from "@/lib/utils"
 
 type Props = {
@@ -15,11 +16,7 @@ type Props = {
 export function InquiryCartNavItem({ className }: Props) {
     const t = useTranslations("chrome.cart")
     const items = useInquiryCartStore((state) => state.items)
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+    const mounted = useHydrated()
 
     const totalCount = useMemo(
         () => items.reduce((acc, item) => acc + item.quantity, 0),
