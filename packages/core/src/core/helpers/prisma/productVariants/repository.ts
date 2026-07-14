@@ -173,8 +173,22 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                     },
                 },
                 variantSuppliers: {
-                    include: {
-                        supplier: true,
+                    // P1.8(B1): public/customer DTO (mapPublicProductVariantTableRow)
+                    // yalnız listPrice + tedarikçi künyesini (id/name) kullanır.
+                    // Tedarikçi maliyeti (price), netCost, profitRate,
+                    // operationalCostRate, paymentTermDays, supplierNote,
+                    // supplierVariantCode, minOrderQty, stockQty iç ticari veridir;
+                    // supplier'ın adres/vergiNo/not gibi 12 alanı da gereksiz.
+                    // select ile bunlar DB'den Lambda'ya HİÇ çekilmez (defense-in-depth
+                    // + transfer↓). DTO çıktısı birebir aynı kalır.
+                    select: {
+                        id: true,
+                        isActive: true,
+                        currency: true,
+                        listPrice: true,
+                        pricingUpdatedAt: true,
+                        updatedAt: true,
+                        supplier: { select: { id: true, name: true } },
                     },
                     orderBy: [
                         { isActive: "desc" },
