@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo } from "react"
-import mqtt from "mqtt"
+import type { MqttClient } from "mqtt"
 import { useSession } from "next-auth/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -26,12 +26,15 @@ function createClientId() {
     return `ceyhunlar_${randomId}`
 }
 
-function createConnection(input: {
-    endpoint: string
-    authorizer: string
-    token: string
-}) {
-    return mqtt.connect(`wss://${input.endpoint}/mqtt?x-amz-customauthorizer-name=${encodeURIComponent(input.authorizer)}`, {
+function createConnection(
+    mqttConnect: typeof import("mqtt")["default"]["connect"],
+    input: {
+        endpoint: string
+        authorizer: string
+        token: string
+    },
+) {
+    return mqttConnect(`wss://${input.endpoint}/mqtt?x-amz-customauthorizer-name=${encodeURIComponent(input.authorizer)}`, {
         protocolVersion: 5,
         manualConnect: true,
         username: "",
@@ -85,47 +88,59 @@ export function useRealtimeNotifications({ enabled = true }: Options = {}) {
     useEffect(() => {
         if (!enabled || status !== "authenticated" || !token || !config) return
 
-        const connection = createConnection({
-            endpoint: config.endpoint,
-            authorizer: config.authorizer,
-            token,
-        })
+        // mqtt yalnız gerçekten bağlanılacağı an dinamik yüklenir; ağır kütüphane
+        // panel route bundle'ından çıkar (P2.1). import() async olduğu için
+        // unmount yarışına karşı cancelled + connection referansıyla korunur.
+        let cancelled = false
+        let connection: MqttClient | null = null
 
-        connection.on("connect", () => {
-            connection.subscribe(config.topic, { qos: 1 }, (error) => {
-                if (error) {
-                    console.error("Realtime notification subscription failed", error)
+        void (async () => {
+            const { default: mqtt } = await import("mqtt")
+            if (cancelled) return
+
+            connection = createConnection(mqtt.connect, {
+                endpoint: config.endpoint,
+                authorizer: config.authorizer,
+                token,
+            })
+
+            connection.on("connect", () => {
+                connection?.subscribe(config.topic, { qos: 1 }, (error) => {
+                    if (error) {
+                        console.error("Realtime notification subscription failed", error)
+                    }
+                })
+            })
+
+            connection.on("message", (topic, payload) => {
+                if (topic !== config.topic) return
+
+                const notification = parsePayload(payload)
+                if (!notification) return
+
+                toast.info(notification.title, {
+                    description: notification.message,
+                })
+
+                void queryClient.invalidateQueries({ queryKey: ["my-notifications"] })
+                void queryClient.invalidateQueries({ queryKey: ["business-requests"] })
+            })
+
+            connection.on("error", (error) => {
+                if (isAuthorizationError(error)) {
+                    connection?.end(true)
+                    return
                 }
-            })
-        })
 
-        connection.on("message", (topic, payload) => {
-            if (topic !== config.topic) return
-
-            const notification = parsePayload(payload)
-            if (!notification) return
-
-            toast.info(notification.title, {
-                description: notification.message,
+                console.error("Realtime notification connection error", error)
             })
 
-            void queryClient.invalidateQueries({ queryKey: ["my-notifications"] })
-            void queryClient.invalidateQueries({ queryKey: ["business-requests"] })
-        })
-
-        connection.on("error", (error) => {
-            if (isAuthorizationError(error)) {
-                connection.end(true)
-                return
-            }
-
-            console.error("Realtime notification connection error", error)
-        })
-
-        connection.connect()
+            connection.connect()
+        })()
 
         return () => {
-            connection.end(true)
+            cancelled = true
+            connection?.end(true)
         }
     }, [config, enabled, queryClient, status, token])
 

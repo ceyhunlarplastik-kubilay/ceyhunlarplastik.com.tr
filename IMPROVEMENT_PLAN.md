@@ -136,9 +136,8 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 
 ### P2 — İyileştirme
 
-**P2.1 — Bundle diyeti** · kapsam: orta
-- Ne: `PdfPreview` (pdfjs), harita bileşenleri (maplibre) ve mqtt hook'unu `next/dynamic` ile lazy yükle; [layout.tsx](packages/frontend/app/layout.tsx)'teki global `maplibre-gl.css` importunu harita bileşenlerine taşı. 425 client component'lik yüzeyde en büyük kazanım bu üç bağımlılıktadır; genel "use client azaltma" refactor'ı ancak sayfa bazında, ölçerek yapılmalı.
-- Etki: yalnız **frontend**; davranış değişmez, route-level bundle küçülür.
+**P2.1 — Bundle diyeti** · kapsam: orta · **✅ Uygulandı (2026-07-14)**
+- Uygulama notları (2026-07-14): Üç ağır bağımlılığın **ikisi zaten lazy'ydi** (önceki işlerde çözülmüş): `PdfPreview` (pdfjs) `MaterialCertificateCard` + `CatalogCard`'da `next/dynamic` `{ssr:false}` ile; harita bileşenleri (`ManagedCustomerMap`→Client, `CustomerLocationPicker`→PickerMap) yine `next/dynamic` `{ssr:false}` ile; global `maplibre-gl.css` layout'tan harita bileşenlerine taşınmış (P1.1 Faz 1a'da). **Kalan tek iş mqtt'ydi:** [useRealtimeNotifications.ts](packages/frontend/features/notifications/hooks/useRealtimeNotifications.ts) modül tepesinde `import mqtt from "mqtt"` yapıyordu → `NotificationBell`'i içeren HER panel route'u mqtt'yi baştan yüklüyordu. Hook olduğu için `next/dynamic` uymaz; çözüm: type-only `import type { MqttClient }` (bundle'a girmez) + effect içinde `await import("mqtt")` (yalnız gerçekten bağlanılacağı an). Unmount yarışına karşı `cancelled` flag + `connection` referansıyla korundu; `createConnection` artık `mqtt.connect`'i parametre alıyor. Sonuç (build ile doğrulandı): mqtt tek, ayrı **352 KB lazy chunk**'a çıktı → panel ilk yükleme bundle'ından düştü, ihtiyaç anına ertelendi. Doğrulama: frontend tsc + lint + `next build` (kubi) "Compiled successfully" + chunk analizi. Davranış değişmez (bağlantı yine enabled+authenticated'da kurulur, ilk seferde chunk fetch'i kadar ~ms gecikme). Not: genel "use client azaltma" refactor'u kapsam dışı (sayfa bazında, ölçerek).
 
 **P2.2 — next-auth v4 → Auth.js v5 kararı** · kapsam: büyük, riskli
 - Ne: v5 migration'ı ayrı bir proje olarak planla; o zamana dek v4 + `overrides` ile yaşa (P0.3).
