@@ -33,6 +33,13 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
             normalizeListQuery(event.queryStringParameters, {
                 allowedSortFields: ["id"], // Custom sorting handled in memory
                 defaultSort: "id",
+                // P1.8(e): frontend varyant tablosu tüm satırları tek seferde çeker
+                // (getProductVariantTable limit=500, client-side sayfalama yok).
+                // Paylaşılan default maxLimit=100 bu isteği sessizce 100'e kırpıp
+                // 100+ varyantlı üründe tabloyu eksik gösteriyordu. Payload artık
+                // güvenli DTO (mapPublicProductVariantTableRow) olduğu için 500'e
+                // çıkarıldı. (>500 için kalıcı çözüm sayfalama UI'ı — bkz. P1.8(d).)
+                maxLimit: 500,
             })
 
         try {
