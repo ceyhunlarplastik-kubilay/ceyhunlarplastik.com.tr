@@ -27,14 +27,21 @@ export const listProductsHandler =
                 })
 
             try {
-                const result = await productRepository.listProducts({
-                    page,
-                    limit,
-                    search,
-                    sort,
-                    order,
-                    categoryId: query.categoryId,
-                })
+                // P1.8(a): Admin listesi "card" view kullanır → ağır
+                // industrialUsages derin zinciri listeden düşer (Lambda 6MB/413
+                // riski). Edit dialog artık tam ürünü GET /products/{id} ile
+                // ayrıca fetch ediyor; liste satırının derin ilişkilere ihtiyacı yok.
+                const result = await productRepository.listProducts(
+                    {
+                        page,
+                        limit,
+                        search,
+                        sort,
+                        order,
+                        categoryId: query.categoryId,
+                    },
+                    { view: "card" },
+                )
 
                 return apiResponseDTO({
                     statusCode: 200,

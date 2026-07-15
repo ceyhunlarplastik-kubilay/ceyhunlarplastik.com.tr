@@ -5,6 +5,7 @@ import slugify from "slugify"
 import { useForm, Controller, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 import {
     Dialog,
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/select"
 
 import { useUpdateProduct } from "@/features/admin/products/hooks/useUpdateProduct"
+import { useProduct } from "@/features/admin/products/hooks/useProduct"
 import { ProductAssetManager } from "@/features/admin/products/components/asset/ProductAssetManager"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
 import { ProductIndustrialUsageEditor } from "@/features/admin/products/components/ProductIndustrialUsageEditor"
@@ -57,13 +59,59 @@ type Props = {
 
 const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"]
 
+// P1.8(a): Liste "card" view'a indiği için satır-prop'unda industrialUsages yok.
+// Dialog açılınca tam ürünü (attributeValues + industrialUsages + assets) fetch
+// eder; form default'ları tam veriyle bir kez kurulsun diye form iç bileşene
+// ayrıldı (effect ile form.reset yerine — mount-anı defaultValues).
 export function EditProductDialog({
     product,
     open,
     onOpenChange,
     categories,
-    onUpdated
+    onUpdated,
 }: Props) {
+    const { data: fullProduct, isLoading, isError, refetch } = useProduct(product.id, {
+        enabled: open,
+    })
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Ürün Düzenle</DialogTitle>
+                </DialogHeader>
+
+                {isError ? (
+                    <div className="flex flex-col items-center gap-3 py-16 text-center">
+                        <p className="text-sm text-red-600">Ürün bilgisi yüklenemedi.</p>
+                        <Button type="button" variant="outline" size="sm" onClick={() => refetch()}>
+                            Tekrar dene
+                        </Button>
+                    </div>
+                ) : isLoading || !fullProduct ? (
+                    <div className="flex items-center justify-center gap-2 py-24 text-sm text-neutral-500">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Ürün yükleniyor...
+                    </div>
+                ) : (
+                    <EditProductForm
+                        product={fullProduct}
+                        categories={categories}
+                        onUpdated={onUpdated}
+                    />
+                )}
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+type EditProductFormProps = {
+    product: Product
+    categories: Category[]
+    onUpdated: (product: Product) => void
+}
+
+function EditProductForm({ product, categories, onUpdated }: EditProductFormProps) {
     const updateMutation = useUpdateProduct()
 
     const form = useForm<ProductFormValues>({
@@ -111,14 +159,8 @@ export function EditProductDialog({
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Ürün Düzenle</DialogTitle>
-                </DialogHeader>
-
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                    <div className="grid grid-cols-12 gap-6">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="grid grid-cols-12 gap-6">
                         <div className="col-span-4">
                             <FieldGroup>
                                 <Controller
@@ -223,8 +265,6 @@ export function EditProductDialog({
                             />
                         </div>
                     </div>
-                </form>
-            </DialogContent>
-        </Dialog>
+        </form>
     )
 }
