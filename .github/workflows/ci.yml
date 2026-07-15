@@ -27,7 +27,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Typecheck (backend: core + functions)
+      - name: "Typecheck (backend: core + functions)"
         run: npm run typecheck:backend
       - name: Typecheck (frontend)
         run: npm run typecheck -w frontend
