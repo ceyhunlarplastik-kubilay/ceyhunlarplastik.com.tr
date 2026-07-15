@@ -6,6 +6,7 @@ import SimilarProductsRow from "@/features/public/products/components/SimilarPro
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
+import { groupVariantMeasurements } from "@/features/public/products/utils/groupVariantMeasurements"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
@@ -48,7 +49,7 @@ export default async function CustomerPortalProductDetailPage({
 
             <div id="product-variants">
                 <ProductVariantTable
-                    variants={variantTable.variants}
+                    options={groupVariantMeasurements(variantTable.variants)}
                     loadError={variantTable.error}
                     productSlug={product.slug}
                     productId={product.id}

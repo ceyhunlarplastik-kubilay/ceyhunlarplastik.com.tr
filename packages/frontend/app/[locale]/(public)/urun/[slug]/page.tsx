@@ -14,6 +14,7 @@ import Product3DModelSection from "@/features/public/products/components/Product
 import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
 import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
+import { groupVariantMeasurements } from "@/features/public/products/utils/groupVariantMeasurements"
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 import { toSimilarProductItems } from "@/features/public/products/utils/similarProducts"
@@ -112,7 +113,7 @@ export default async function ProductPage({ params }: PageProps) {
 
                 <div id="product-variants">
                     <ProductVariantTable
-                        variants={variantTable.variants}
+                        options={groupVariantMeasurements(variantTable.variants)}
                         loadError={variantTable.error}
                         productSlug={product.slug}
                         productId={product.id}

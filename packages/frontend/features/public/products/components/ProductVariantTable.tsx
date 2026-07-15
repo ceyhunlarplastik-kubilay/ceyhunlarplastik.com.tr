@@ -26,10 +26,9 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import {
-    buildMeasurementKey,
     formatMeasurementValue,
-    toMeasurementLabel,
 } from "@/features/public/products/utils/measurement"
+import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupVariantMeasurements"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import ProductVariantNavigationOverlay from "@/features/public/products/components/ProductVariantNavigationOverlay"
 
@@ -97,28 +96,11 @@ export type VariantTableData = {
     variantSuppliers?: VariantSupplier[]
 }
 
-type GroupedMeasurementOption = {
-    key: string
-    label: string
-    measurements: VariantMeasurement[]
-    colors: VariantColor[]
-    materials: VariantMaterial[]
-    suppliers: Array<{
-        supplierId: string
-        supplierName: string
-        priceText: string
-        currency: string
-        isActive: boolean
-    }>
-    minPrice?: {
-        value: number
-        currency: string
-    }
-    fullCodes: string[]
-}
-
 interface ProductVariantTableProps {
-    variants: VariantTableData[]
+    // F1.2: Artık ham satır (`VariantTableData[]`) yerine önceden GRUPLANMIŞ
+    // option'lar alınır. Gruplama RSC sayfa katmanında (groupVariantMeasurements)
+    // yapılır → client'a ~500 satır değil grup sayısı kadar veri serialize edilir.
+    options: GroupedMeasurementOption[]
     productSlug: string
     technicalDrawing?: React.ReactNode
     productId: string
@@ -191,36 +173,6 @@ function MeasurementHelpDialogButton({
     )
 }
 
-function decimalLikeToText(
-    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
-) {
-    if (value === null || value === undefined) return ""
-    if (typeof value === "number") return value.toFixed(2)
-    if (typeof value === "string") return value
-
-    const sign = value.s === -1 ? "-" : ""
-    const digits = Array.isArray(value.d) ? value.d.join("") : ""
-    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
-    if (!digits) return ""
-
-    if (exponent >= digits.length - 1) {
-        return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
-    }
-    if (exponent < 0) {
-        return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
-    }
-    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
-}
-
-function decimalLikeToNumber(
-    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined
-) {
-    const text = decimalLikeToText(value)
-    if (!text || text === "-") return null
-    const parsed = Number(text)
-    return Number.isFinite(parsed) ? parsed : null
-}
-
 function isModifiedClick(event: MouseEvent) {
     return (
         event.metaKey ||
@@ -232,7 +184,7 @@ function isModifiedClick(event: MouseEvent) {
 }
 
 export default function ProductVariantTable({
-    variants,
+    options,
     productSlug,
     technicalDrawing,
     productId,
@@ -244,98 +196,6 @@ export default function ProductVariantTable({
     const t = useTranslations("public.productVariant.table")
     const { data: session } = useSession()
     const [pendingVariantKey, setPendingVariantKey] = useState<string | null>(null)
-    const options = useMemo<GroupedMeasurementOption[]>(() => {
-        const groups = new Map<string, GroupedMeasurementOption>()
-
-        for (const variant of variants) {
-            const key = buildMeasurementKey(variant.measurements)
-            const existing = groups.get(key)
-
-            if (!existing) {
-                groups.set(key, {
-                    key,
-                    label: toMeasurementLabel(variant.measurements),
-                    measurements: [...variant.measurements].sort(
-                        (a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder
-                    ),
-                    colors: variant.color ? [variant.color] : [],
-                    materials: [...variant.materials],
-                    suppliers: (variant.variantSuppliers ?? []).map((item) => ({
-                        supplierId: item.supplier.id,
-                        supplierName: item.supplier.name,
-                        priceText: decimalLikeToText(item.price),
-                        currency: item.currency ?? "TRY",
-                        isActive: Boolean(item.isActive),
-                    })),
-                    minPrice: (() => {
-                        const priced = (variant.variantSuppliers ?? [])
-                            .map((item) => ({
-                                value: decimalLikeToNumber(item.price),
-                                currency: item.currency ?? "TRY",
-                            }))
-                            .filter((item): item is { value: number; currency: string } => item.value !== null)
-                        if (!priced.length) return undefined
-                        return priced.reduce((min, cur) => (cur.value < min.value ? cur : min))
-                    })(),
-                    fullCodes: [variant.fullCode],
-                })
-                continue
-            }
-
-            if (variant.color && !existing.colors.find((color) => color.id === variant.color?.id)) {
-                existing.colors.push(variant.color)
-            }
-
-            for (const material of variant.materials) {
-                if (!existing.materials.find((item) => item.id === material.id)) {
-                    existing.materials.push(material)
-                }
-            }
-
-            for (const supplier of variant.variantSuppliers ?? []) {
-                const next = {
-                    supplierId: supplier.supplier.id,
-                    supplierName: supplier.supplier.name,
-                    priceText: decimalLikeToText(supplier.price),
-                    currency: supplier.currency ?? "TRY",
-                    isActive: Boolean(supplier.isActive),
-                }
-                const exists = existing.suppliers.find(
-                    (item) =>
-                        item.supplierId === next.supplierId &&
-                        item.priceText === next.priceText &&
-                        item.currency === next.currency
-                )
-                if (!exists) {
-                    existing.suppliers.push(next)
-                }
-            }
-
-            const allPriced = existing.suppliers
-                .map((item) => ({
-                    value: Number(item.priceText),
-                    currency: item.currency,
-                }))
-                .filter((item) => Number.isFinite(item.value))
-
-            if (allPriced.length > 0) {
-                existing.minPrice = allPriced.reduce((min, cur) =>
-                    cur.value < min.value ? cur : min
-                )
-            }
-
-            if (!existing.fullCodes.includes(variant.fullCode)) {
-                existing.fullCodes.push(variant.fullCode)
-            }
-        }
-
-        return Array.from(groups.values()).sort((a, b) => {
-            const aFirst = a.measurements[0]?.value ?? 0
-            const bFirst = b.measurements[0]?.value ?? 0
-            return aFirst - bFirst
-        })
-    }, [variants])
-
     const [selectedKey, setSelectedKey] = useState<string>("")
 
     const isNavigatingToVariant = pendingVariantKey !== null
