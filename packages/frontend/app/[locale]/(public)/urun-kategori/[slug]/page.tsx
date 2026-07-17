@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getCategoryBySlug } from "@/features/public/categories/server/getCategoryBySlug";
@@ -19,12 +19,21 @@ export async function generateMetadata(
 
     const [t, category] = await Promise.all([
         getTranslations({ locale, namespace: "public.productFilter" }),
-        getCategoryBySlug(slug),
+        getCategoryBySlug(slug, locale),
     ])
 
     if (!category) return {}
 
-    const canonicalPath = locale === "tr" ? `/urun-kategori/${category.slug}` : `/en/urun-kategori/${category.slug}`
+    const trSlug = category.alternateSlugs.tr ?? category.slug
+    const enSlug = category.alternateSlugs.en
+    const canonicalPath = locale === "tr"
+        ? `/urun-kategori/${trSlug}`
+        : `/en/urun-kategori/${enSlug ?? category.slug}`
+    const languages = {
+        tr: `/urun-kategori/${trSlug}`,
+        "x-default": `/urun-kategori/${trSlug}`,
+        ...(enSlug ? { en: `/en/urun-kategori/${enSlug}` } : {}),
+    }
 
     return {
         // Root layout template "| Ceyhunlar Plastik" ekler
@@ -38,12 +47,11 @@ export async function generateMetadata(
         },
         alternates: {
             canonical: canonicalPath,
-            languages: {
-                tr: `/urun-kategori/${category.slug}`,
-                en: `/en/urun-kategori/${category.slug}`,
-                "x-default": `/urun-kategori/${category.slug}`,
-            },
+            languages,
         },
+        ...(category.translationMissing && {
+            robots: { index: false, follow: true },
+        }),
     }
 }
 
@@ -56,11 +64,19 @@ export default async function CategoryPage(
 
     const [tb, category, attributes] = await Promise.all([
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
-        getCategoryBySlug(slug),
+        getCategoryBySlug(slug, locale),
         getAttributesForFilter(),
     ])
 
     if (!category) notFound()
+
+    if (category.slug !== slug) {
+        permanentRedirect(
+            locale === "tr"
+                ? `/urun-kategori/${category.slug}`
+                : `/en/urun-kategori/${category.slug}`,
+        )
+    }
 
     const tf = await getTranslations({ locale, namespace: "public.productFilter" })
 

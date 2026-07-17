@@ -3,13 +3,15 @@ import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICategoryDependencies, IGetCategoryEvent } from "@/functions/PublicApi/types/categories"
 import { mapCategoryWithAssets } from "@/core/helpers/assets/mapCategoryWithAssets"
+import { getSupportedLocale } from "@/core/i18n/locales"
 
 export const getCategoryHandler = ({ categoryRepository }: ICategoryDependencies) => {
     return async (event: IGetCategoryEvent) => {
         const { id } = event.pathParameters;
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         try {
-            const category = await categoryRepository.getCategory(id);
+            const category = await categoryRepository.getCategory(id, locale);
 
             return apiResponseDTO({
                 statusCode: 200,

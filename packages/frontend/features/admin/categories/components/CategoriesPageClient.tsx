@@ -1,38 +1,29 @@
 "use client";
 
-import { useMemo } from "react";
 import { useCategories } from "../hooks/useCategories";
 import { CategoriesTable } from "./CategoriesTable";
 import { Spinner } from "@/components/ui/spinner";
 import { CategoriesFilters } from "@/features/admin/categories/components/CategoriesFilters";
 import { useCategoryListFilters } from "@/features/admin/categories/hooks/useCategoryListFilters";
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar";
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination";
 
 export function CategoriesPageClient() {
     const {
         filters,
+        params,
         setSearch,
+        setPage,
+        setLimit,
         setRefreshIntervalSeconds,
     } = useCategoryListFilters()
 
     const { data, isLoading, isError, isFetching, refetch, dataUpdatedAt } = useCategories({
+        params,
         autoRefreshIntervalMs: filters.refreshIntervalSeconds > 0
             ? filters.refreshIntervalSeconds * 1000
             : false,
     });
-
-    const filteredCategories = useMemo(() => {
-        const normalizedSearch = filters.search.trim().toLocaleLowerCase("tr-TR")
-        const categories = data ?? []
-
-        if (!normalizedSearch) return categories
-
-        return categories.filter((category) =>
-            `${category.code} ${category.name} ${category.slug}`
-                .toLocaleLowerCase("tr-TR")
-                .includes(normalizedSearch)
-        )
-    }, [data, filters.search])
 
     if (isLoading) {
         return (
@@ -50,6 +41,9 @@ export function CategoriesPageClient() {
         );
     }
 
+    const categories = data?.data ?? []
+    const meta = data?.meta
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -61,7 +55,7 @@ export function CategoriesPageClient() {
                 </div>
 
                 <div className="rounded-2xl border bg-white px-4 py-3 text-sm text-neutral-600 shadow-sm lg:min-w-[220px]">
-                    Toplam <span className="font-semibold text-neutral-900">{filteredCategories.length}</span> kategori
+                    Toplam <span className="font-semibold text-neutral-900">{meta?.total ?? categories.length}</span> kategori
                 </div>
             </div>
 
@@ -75,7 +69,17 @@ export function CategoriesPageClient() {
                 onRefreshIntervalChange={setRefreshIntervalSeconds}
             />
 
-            <CategoriesTable categories={filteredCategories} />
+            <CategoriesTable categories={categories} />
+
+            <AdminListPagination
+                page={filters.page}
+                limit={filters.limit}
+                total={meta?.total}
+                totalPages={meta?.totalPages}
+                itemLabel="kategori"
+                onPageChange={setPage}
+                onLimitChange={setLimit}
+            />
         </div>
     );
 }

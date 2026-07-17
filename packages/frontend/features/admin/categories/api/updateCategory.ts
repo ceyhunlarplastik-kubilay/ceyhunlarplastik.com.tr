@@ -1,8 +1,15 @@
 import { adminApiClient } from "@/lib/http/client"
+import { normalizeCategory } from "@/features/public/categories/normalizeCategory"
 
-type Params = {
+export type UpdateCategoryParams = {
     id: string
     name?: string
+    translations?: Array<{
+        locale: "tr" | "en"
+        name: string
+        slug?: string
+    }>
+    removeTranslationLocales?: Array<"en">
     allowedAttributeValueIds?: string[]
     assetKey?: string
     assetRole?: string
@@ -10,7 +17,7 @@ type Params = {
     mimeType?: string
 }
 
-export async function updateCategory(params: Params) {
+export async function updateCategory(params: UpdateCategoryParams) {
 
     const { id, ...body } = params
 
@@ -19,5 +26,5 @@ export async function updateCategory(params: Params) {
         body
     )
 
-    return res.data.payload.category
+    return normalizeCategory(res.data.payload.category, "tr")
 }

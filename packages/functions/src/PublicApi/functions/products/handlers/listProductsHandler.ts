@@ -7,14 +7,25 @@ import {
     DATABASE_CONNECTION_CAPACITY_MESSAGE,
     isDatabaseConnectionCapacityError,
 } from "@/core/helpers/prisma/errors"
+import { Prisma } from "@/prisma/generated/prisma/client"
+import {
+    getSupportedLocale,
+    isSupportedLocale,
+} from "@/core/i18n/locales"
 
 const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt"] as const
 
 export const listProductsHandler =
-    ({ productRepository }: IProductDependencies) =>
+    ({ productRepository, categoryRepository }: IProductDependencies) =>
         async (event: IListProductsEvent) => {
 
             const query = event.queryStringParameters ?? {}
+
+            if (query.locale && !isSupportedLocale(query.locale)) {
+                throw new createError.BadRequest("Unsupported locale")
+            }
+
+            const locale = getSupportedLocale(query.locale)
 
             /* const attributeFilters = Object.entries(query).filter(
                 ([key]) =>
@@ -57,6 +68,7 @@ export const listProductsHandler =
                         "categoryId",
                         "category",
                         "attributeValueIds",
+                        "locale",
                     ].includes(key)
             )
 
@@ -68,6 +80,25 @@ export const listProductsHandler =
                 })
 
             try {
+                let categoryId = query.categoryId
+
+                if (query.category) {
+                    try {
+                        categoryId = (
+                            await categoryRepository.getCategoryBySlug(query.category, locale)
+                        ).id
+                    } catch (error) {
+                        if (
+                            error instanceof Prisma.PrismaClientKnownRequestError &&
+                            error.code === "P2025"
+                        ) {
+                            categoryId = "__missing_category__"
+                        } else {
+                            throw error
+                        }
+                    }
+                }
+
                 // Public liste yüzeyleri (katalog kartları, benzer ürünler) industrialUsages
                 // kullanmaz; card view bu ilişkiyi hiç taşımayarak 6MB Lambda yanıt
                 // limitine takılmayı önler. Detay endpoint'leri full include'da kalır.
@@ -77,8 +108,7 @@ export const listProductsHandler =
                     search,
                     sort,
                     order,
-                    categoryId: query.categoryId,
-                    category: query.category,
+                    categoryId,
                     attributeFilters,
                     attributeValueIds
                 }, { view: "card" })
@@ -86,7 +116,7 @@ export const listProductsHandler =
                 return apiResponseDTO({
                     statusCode: 200,
                     payload: {
-                        data: result.data.map(mapProductWithAssets),
+                        data: result.data.map((product) => mapProductWithAssets(product, locale)),
                         meta: result.meta,
                     },
                 })

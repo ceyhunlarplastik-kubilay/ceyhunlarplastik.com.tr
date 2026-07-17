@@ -46,7 +46,7 @@ export const listProductsHandler =
                 return apiResponseDTO({
                     statusCode: 200,
                     payload: {
-                        data: result.data.map(mapProductWithAssets),
+                        data: result.data.map((product) => mapProductWithAssets(product)),
                         meta: result.meta,
                     },
                 })

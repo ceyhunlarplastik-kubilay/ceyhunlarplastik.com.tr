@@ -12,9 +12,9 @@ export interface IProductVariantTableDependencies {
     productVariantRepository: IPrismaProductVariantRepository
 }
 
-export type IGetProductEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+export type IGetProductEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }, { locale?: string }>
 
-export type IGetProductBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }>
+export type IGetProductBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }, { locale?: string }>
 
 export type IListProductsEvent =
     IAPIGatewayProxyEventWithUserGeneric<
@@ -28,6 +28,7 @@ export type IListProductsEvent =
             order?: "asc" | "desc"
             categoryId?: string
             category?: string
+            locale?: string
             attributeValueIds?: string
         }
     >

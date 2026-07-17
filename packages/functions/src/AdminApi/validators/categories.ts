@@ -1,6 +1,15 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const localeSchema = z.enum(["tr", "en"])
+const removableTranslationLocaleSchema = z.literal("en")
+
+const categoryTranslationInputSchema = z.object({
+    locale: localeSchema,
+    name: z.string().min(2).max(100),
+    slug: z.string().min(1).max(160).optional(),
+})
+
 const assetTypeEnum = z.enum([
     "IMAGE",
     "VIDEO",
@@ -36,6 +45,18 @@ export const categorySchema = z.object({
     code: z.number().optional(),
     name: z.string().optional(),
     slug: z.string().optional(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    alternateSlugs: z.record(z.string(), z.string()).optional(),
+    translations: z.array(z.object({
+        id: z.uuid(),
+        locale: z.string(),
+        name: z.string(),
+        slug: z.string(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+    })).optional(),
     allowedAttributeValueIds: z.array(z.string()).optional(),
     assets: z.array(assetSchema).optional(),
     createdAt: z.string().optional(),
@@ -47,6 +68,7 @@ export const createCategoryValidator = validatorWrapper(
         body: z.object({
             code: z.coerce.number().int().positive(),
             name: z.string().min(2).max(100),
+            translations: z.array(categoryTranslationInputSchema).max(10).optional(),
             allowedAttributeValueIds: z.array(z.uuid()).optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),
@@ -64,7 +86,8 @@ export const getCategoryValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
             id: z.uuid(),
-        })
+        }),
+        queryStringParameters: z.object({ locale: localeSchema.optional() }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
@@ -87,6 +110,7 @@ export const slugValidator = validatorWrapper(
         pathParameters: z.object({
             slug: z.string(),
         }),
+        queryStringParameters: z.object({ locale: localeSchema.optional() }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
@@ -100,6 +124,8 @@ export const updateCategoryValidator = validatorWrapper(
         }),
         body: z.object({
             name: z.string().min(2).max(100).optional(),
+            translations: z.array(categoryTranslationInputSchema).max(10).optional(),
+            removeTranslationLocales: z.array(removableTranslationLocaleSchema).max(1).optional(),
             allowedAttributeValueIds: z.array(z.uuid()).optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),
@@ -110,6 +136,20 @@ export const updateCategoryValidator = validatorWrapper(
     {
         requiredRootFields: ["pathParameters", "body"],
     }
+)
+
+export const listCategoriesValidator = validatorWrapper(
+    z.object({
+        queryStringParameters: z.object({
+            page: z.coerce.number().int().positive().optional(),
+            limit: z.coerce.number().int().positive().max(500).optional(),
+            search: z.string().trim().optional(),
+            sort: z.enum(["code", "name", "createdAt"]).optional(),
+            order: z.enum(["asc", "desc"]).optional(),
+            locale: localeSchema.optional(),
+        }).optional(),
+    }).loose(),
+    { requiredRootFields: [] },
 )
 
 // Response Validators

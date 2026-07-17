@@ -24,8 +24,10 @@ import { Input } from "@/components/ui/input";
 import { CategoryAssetManager } from "./CategoryAssetManager";
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect";
 import { useUpdateCategory } from "@/features/admin/categories/hooks/useUpdateCategory";
+import { buildCategoryTranslationUpdatePayload } from "@/features/admin/categories/utils/buildCategoryTranslationUpdatePayload";
 
 import type { Category } from "@/features/public/categories/types";
+import { normalizeCategory } from "@/features/public/categories/normalizeCategory";
 
 type Props = {
     category: Category;
@@ -41,6 +43,7 @@ const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "
 
 const schema = z.object({
     name: z.string().min(2, "Kategori adı gerekli"),
+    englishName: z.string().max(100, "İngilizce kategori adı en fazla 100 karakter olabilir"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -58,6 +61,12 @@ export function EditCategoryDialog({
     const [allowedAttributeValueIds, setAllowedAttributeValueIds] = useState<string[]>(
         initialCategory.allowedAttributeValueIds ?? []
     );
+    const [savedAllowedAttributeValueIds, setSavedAllowedAttributeValueIds] = useState<string[]>(
+        initialCategory.allowedAttributeValueIds ?? []
+    );
+    const englishTranslation = category.translations.find(
+        (translation) => translation.locale === "en",
+    )
 
     const authHeader = useMemo(() => {
         if (!session?.idToken) return null;
@@ -68,6 +77,7 @@ export function EditCategoryDialog({
         resolver: zodResolver(schema),
         defaultValues: {
             name: category.name,
+            englishName: englishTranslation?.name ?? "",
         },
     });
 
@@ -80,12 +90,19 @@ export function EditCategoryDialog({
                 { headers: authHeader }
             );
 
-            const updated = res.data.payload.category;
+            const updated = normalizeCategory(res.data.payload.category, "tr");
 
             setCategory(updated);
             onUpdated(updated);
-            form.reset({ name: updated.name });
-            setAllowedAttributeValueIds(updated.allowedAttributeValueIds ?? []);
+            form.reset({
+                name: updated.name,
+                englishName: updated.translations.find(
+                    (translation: Category["translations"][number]) => translation.locale === "en",
+                )?.name ?? "",
+            });
+            const updatedAllowedAttributeValueIds = updated.allowedAttributeValueIds ?? []
+            setAllowedAttributeValueIds(updatedAllowedAttributeValueIds);
+            setSavedAllowedAttributeValueIds(updatedAllowedAttributeValueIds);
         } catch (err) {
             console.error(err);
             toast.error("Kategori yenilenemedi");
@@ -93,36 +110,77 @@ export function EditCategoryDialog({
     }, [authHeader, category.id, onUpdated, form]);
 
     const hasAttributeChanges = useMemo(() => {
-        const initial = [...(initialCategory.allowedAttributeValueIds ?? [])].sort()
+        const initial = [...savedAllowedAttributeValueIds].sort()
         const current = [...allowedAttributeValueIds].sort()
 
         if (initial.length !== current.length) return true
         return initial.some((valueId, index) => valueId !== current[index])
-    }, [allowedAttributeValueIds, initialCategory.allowedAttributeValueIds])
+    }, [allowedAttributeValueIds, savedAllowedAttributeValueIds])
 
-    const onSubmit = async (data: FormValues) => {
+    const saveTranslations = async (data: FormValues) => {
+        const { dirtyFields } = form.formState
+        if (!dirtyFields.name && !dirtyFields.englishName) return
+
         try {
             setSaving(true);
+            const hasEnglishTranslation = category.translations.some(
+                (translation) => translation.locale === "en",
+            )
+            const payload = buildCategoryTranslationUpdatePayload({
+                name: data.name,
+                englishName: data.englishName,
+                nameChanged: Boolean(dirtyFields.name),
+                englishNameChanged: Boolean(dirtyFields.englishName),
+                hasEnglishTranslation,
+            })
 
             const updated = await updateCategoryMutation.mutateAsync({
                 id: category.id,
-                name: data.name,
-                allowedAttributeValueIds,
+                ...payload,
             })
 
             setCategory(updated);
-            setAllowedAttributeValueIds(updated.allowedAttributeValueIds ?? []);
             onUpdated(updated);
-            form.reset({ name: updated.name });
+            form.reset({
+                name: updated.name,
+                englishName: updated.translations.find(
+                    (translation: Category["translations"][number]) => translation.locale === "en",
+                )?.name ?? "",
+            });
 
-            toast.success("Kategori güncellendi");
+            toast.success("Kategori çevirileri güncellendi");
         } catch (err) {
             console.error(err);
-            toast.error("Kategori güncellenemedi");
+            toast.error("Kategori çevirileri güncellenemedi");
         } finally {
             setSaving(false);
         }
     };
+
+    const saveAttributeValues = async () => {
+        if (!hasAttributeChanges) return
+
+        try {
+            setSaving(true)
+
+            const updated = await updateCategoryMutation.mutateAsync({
+                id: category.id,
+                allowedAttributeValueIds,
+            })
+            const updatedAllowedAttributeValueIds = updated.allowedAttributeValueIds ?? []
+
+            setCategory(updated)
+            setAllowedAttributeValueIds(updatedAllowedAttributeValueIds)
+            setSavedAllowedAttributeValueIds(updatedAllowedAttributeValueIds)
+            onUpdated(updated)
+            toast.success("İzinli attribute değerleri güncellendi")
+        } catch (err) {
+            console.error(err)
+            toast.error("İzinli attribute değerleri güncellenemedi")
+        } finally {
+            setSaving(false)
+        }
+    }
 
     return (
         <Dialog open onOpenChange={onClose}>
@@ -144,7 +202,7 @@ export function EditCategoryDialog({
                     <div className="col-span-3 space-y-4">
 
                         <form
-                            onSubmit={form.handleSubmit(onSubmit)}
+                            onSubmit={form.handleSubmit(saveTranslations)}
                             className="rounded-xl border p-4 bg-neutral-50 space-y-3"
                         >
 
@@ -155,7 +213,7 @@ export function EditCategoryDialog({
                             <div className="space-y-2">
 
                                 <div className="text-xs text-neutral-500">
-                                    Kategori Adı
+                                    Kategori Adı (TR)
                                 </div>
 
                                 <Input
@@ -170,12 +228,26 @@ export function EditCategoryDialog({
 
                             </div>
 
+                            <div className="space-y-2">
+                                <div className="text-xs text-neutral-500">
+                                    Kategori Adı (EN)
+                                </div>
+
+                                <Input {...form.register("englishName")} />
+
+                                {form.formState.errors.englishName && (
+                                    <p className="text-xs text-red-500">
+                                        {form.formState.errors.englishName.message}
+                                    </p>
+                                )}
+                            </div>
+
                             <Button
                                 type="submit"
-                                disabled={saving}
+                                disabled={saving || !form.formState.isDirty}
                                 className="w-full"
                             >
-                                {saving ? "Kaydediliyor..." : "Adı Kaydet"}
+                                {saving ? "Kaydediliyor..." : "Çevirileri Kaydet"}
                             </Button>
 
                             <div className="text-xs text-neutral-500 space-y-1 pt-2">
@@ -186,6 +258,10 @@ export function EditCategoryDialog({
 
                                 <div>
                                     Slug: <b>{category.slug}</b>
+                                </div>
+
+                                <div>
+                                    EN Slug: <b>{category.alternateSlugs.en ?? "Eksik"}</b>
                                 </div>
 
                                 <div>
@@ -212,7 +288,7 @@ export function EditCategoryDialog({
                                 <Button
                                     type="button"
                                     size="sm"
-                                    onClick={form.handleSubmit(onSubmit)}
+                                    onClick={() => void saveAttributeValues()}
                                     disabled={saving || !hasAttributeChanges}
                                     className="shrink-0 gap-2"
                                 >

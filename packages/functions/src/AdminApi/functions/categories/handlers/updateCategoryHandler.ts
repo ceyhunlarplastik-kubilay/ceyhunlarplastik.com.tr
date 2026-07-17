@@ -1,10 +1,14 @@
 import { Prisma } from "@/prisma/generated/prisma/client"
-import slugify from "slugify"
 import createError, { HttpError } from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IUpdateCategoryDependencies, IUpdateCategoryEvent } from "@/functions/AdminApi/types/categories"
 import { mapCategoryWithAssets } from "@/core/helpers/assets/mapCategoryWithAssets"
 import { assertNoIndustrialAttributeValues } from "@/core/helpers/products/productIndustrialUsages"
+import {
+    CategoryTranslationInputError,
+    normalizeCategoryTranslations,
+} from "@/core/helpers/categories/categoryTranslations"
+import { DEFAULT_LOCALE } from "@/core/i18n/locales"
 
 export const updateCategoryHandler = ({
     categoryRepository,
@@ -19,7 +23,7 @@ export const updateCategoryHandler = ({
         if (!body || Object.keys(body).length === 0)
             throw new createError.BadRequest("At least one field must be provided")
 
-        const allowedFields = ["name", "allowedAttributeValueIds", "assetType", "assetRole", "assetKey", "mimeType"] as const
+        const allowedFields = ["name", "translations", "removeTranslationLocales", "allowedAttributeValueIds", "assetType", "assetRole", "assetKey", "mimeType"] as const
 
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
@@ -30,25 +34,74 @@ export const updateCategoryHandler = ({
                 `Invalid fields provided: ${invalidFields.join(", ")}`
             )
 
-        const { name, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
+        const { name, translations, removeTranslationLocales, allowedAttributeValueIds, assetType, assetRole, assetKey, mimeType } = body
+
+        const removableLocales = new Set<string>(removeTranslationLocales ?? [])
+        const conflictingLocales = translations
+            ?.map((translation) => translation.locale)
+            .filter((locale) => removableLocales.has(locale)) ?? []
+
+        if (conflictingLocales.length > 0) {
+            throw new createError.BadRequest(
+                `Cannot update and remove the same translation locale: ${conflictingLocales.join(", ")}`
+            )
+        }
 
         if (allowedAttributeValueIds !== undefined) {
             await assertNoIndustrialAttributeValues(productAttributeValueRepository, allowedAttributeValueIds)
         }
 
-        const updateData: Prisma.CategoryUpdateInput = {
-            ...(name !== undefined && {
-                name,
-                slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
-            }),
-            ...(allowedAttributeValueIds !== undefined && {
-                allowedAttributeValueIds,
-            }),
-        }
-
         try {
+            const normalized = normalizeCategoryTranslations({
+                legacyName: name,
+                translations,
+            })
+            const explicitSlugLocales = new Set(
+                translations
+                    ?.filter((translation) => translation.slug?.trim())
+                    .map((translation) => translation.locale) ?? [],
+            )
+            const translationWrites = normalized.translations.length > 0 || removeTranslationLocales?.length
+                ? {
+                    ...(normalized.translations.length > 0 && {
+                        upsert: normalized.translations.map((translation) => ({
+                            where: {
+                                categoryId_locale: {
+                                    categoryId: id,
+                                    locale: translation.locale,
+                                },
+                            },
+                            create: translation,
+                            update: {
+                                name: translation.name,
+                                ...(translation.locale === DEFAULT_LOCALE || explicitSlugLocales.has(translation.locale)
+                                    ? { slug: translation.slug }
+                                    : {}),
+                            },
+                        })),
+                    }),
+                    ...(removeTranslationLocales?.length && {
+                        deleteMany: {
+                            locale: { in: removeTranslationLocales },
+                        },
+                    }),
+                }
+                : undefined
+            const updateData: Prisma.CategoryUpdateInput = {
+                ...(normalized.turkish && {
+                    name: normalized.turkish.name,
+                    slug: normalized.turkish.slug,
+                }),
+                ...(translationWrites && {
+                    translations: translationWrites,
+                }),
+                ...(allowedAttributeValueIds !== undefined && {
+                    allowedAttributeValueIds,
+                }),
+            }
+
             // 1️⃣ Category update
-            let category = await categoryRepository.updateCategory(id, updateData as any)
+            let category = await categoryRepository.updateCategory(id, updateData)
 
             // 2️⃣ Yeni asset geldiyse lifecycle yönetimi
             if (assetType && assetKey && mimeType) {
@@ -75,6 +128,9 @@ export const updateCategoryHandler = ({
 
         } catch (err: any) {
             if (err instanceof HttpError) throw err
+            if (err instanceof CategoryTranslationInputError) {
+                throw new createError.BadRequest(err.message)
+            }
 
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
                 if (err.code === "P2025")

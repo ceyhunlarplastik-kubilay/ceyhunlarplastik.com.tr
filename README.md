@@ -49,7 +49,7 @@ DOMAIN="yourdomain.com"
 RDS_PASSWORD="your-strong-rds-password"
 ```
 
-> The `packages/core/.env` file is **only used by Prisma CLI when you run Prisma directly from `packages/core`**. Runtime database access is provided through SST links: prod receives RDS connection fields, non-prod receives the Neon pooled URL.
+> The `packages/core/.env` file is reserved for local database utilities such as Prisma CLI and the translation script. Runtime database access is provided through SST links: prod receives RDS connection fields, non-prod receives the Neon pooled URL. DeepL setup is documented at the end of this file.
 
 For non-production Neon stages, set these SST secrets per stage:
 
@@ -198,29 +198,73 @@ sudo npx sst tunnel install
 #### Step 2 — Open the tunnel (keep this terminal running)
 
 ```bash
+export AWS_PROFILE=ceyhunlar-prod
 npx sst tunnel --stage prod
 ```
 
 > This requires `bastion: true` on the VPC (already configured in `infra/db.ts`).
 
-#### Step 3 — Run migrations (in a new terminal)
+#### Step 3 — Prepare Prisma commands (in a new terminal)
+
+With `proxy: true`, SST exposes the RDS Proxy hostname through `prodRds.host`. On
+some macOS DNS configurations that hostname does not resolve through the system
+resolver even though the tunnel routes its private `10.0.x.x` addresses. Define
+this helper once in the second terminal. It resolves the current private IP at
+runtime, so no RDS hostname, IP address, or `DIRECT_URL` secret is hardcoded.
 
 ```bash
-npx sst shell --stage prod --target Prisma -- bash -lc "cd packages/core && npx prisma migrate deploy"
+export AWS_PROFILE=ceyhunlar-prod
+
+prod_prisma() {
+  AWS_PROFILE=ceyhunlar-prod npx sst shell --stage prod --target Prisma -- bash -lc '
+    set -euo pipefail
+    cd packages/core
+
+    db_host="$(node -p "new URL(process.env.DIRECT_URL).hostname")"
+    db_ip="$(dig +time=2 +tries=1 +short @1.1.1.1 "$db_host" A | grep -m 1 "^10\\." || true)"
+    test -n "$db_ip" || {
+      echo "RDS private IP could not be resolved"
+      exit 1
+    }
+
+    db_url="${DIRECT_URL/$db_host/$db_ip}"
+    separator="?"
+    [[ "$db_url" == *"?"* ]] && separator="&"
+
+    export DIRECT_URL="${db_url}${separator}sslmode=require"
+    export DATABASE_URL="$DIRECT_URL"
+    exec "$@"
+  ' bash "$@"
+}
+```
+
+The helper only exists in the terminal where it is defined. `sst shell` still
+provides the credentials; the helper only replaces the unresolvable hostname
+for the child command.
+
+#### Step 4 — Check migration status
+
+```bash
+prod_prisma npx prisma migrate status
+```
+
+Prisma returns exit code `1` when pending migrations exist. Review the listed
+migrations before continuing.
+
+#### Step 5 — Run migrations
+
+```bash
+prod_prisma npx prisma migrate deploy
 ```
 
 > Use `migrate deploy` (not `migrate dev`) for deployed stages. It applies existing migration files without resetting or creating new ones.
 
-#### Step 4 — (Optional) Open Prisma Studio against production RDS
+#### Step 6 — (Optional) Open Prisma Studio against production RDS
 
 ```bash
-# Terminal 1: tunnel must be running
-npx sst tunnel --stage prod
-
-# Terminal 2: open a shell with the RDS DATABASE_URL / DIRECT_URL
-npx sst shell --stage prod --target Prisma
-# Inside the shell:
-cd packages/core && npx prisma studio
+# Terminal 1 must still be running the tunnel.
+# Run this in Terminal 2 after defining prod_prisma above.
+prod_prisma npx prisma studio
 ```
 
 ---
@@ -435,3 +479,185 @@ For a deployed stage, use `migrate deploy` via `sst shell --target Prisma` as de
 ---
 
 **SST Community** — [Discord](https://sst.dev/discord) | [YouTube](https://www.youtube.com/c/sst-dev) | [X.com](https://x.com/SST_dev)
+
+---
+
+## DeepL Category Translation Operations
+
+The Category translation CLI reads Turkish `CategoryTranslation` rows and only
+selects categories that do not have an English translation. Existing English
+translations are never overwritten.
+
+`npx sst dev --stage kubi` does **not** need to be running for these commands.
+`sst shell --target Prisma` supplies the database connection to one command and
+exits when that command finishes.
+
+### DeepL API key setup
+
+Create the API key as `ceyhunlar-i18n-batch-translator` in the DeepL dashboard.
+Keep its value only in the gitignored `packages/core/.env` file:
+
+```bash
+DEEPL_API_KEY="your-deepl-api-key"
+# Optional: use an existing TR -> EN glossary; the script never creates or deletes it.
+DEEPL_GLOSSARY_ID="your-glossary-id"
+```
+
+The key is only required by `--generate`. Do not expose it through frontend
+environment variables or add it to Lambda links/SST secrets for this local
+batch workflow.
+
+Show all CLI options without connecting to a database:
+
+```bash
+npm --workspace packages/core run translate:category-translations -- --help
+```
+
+### Local/non-production (`kubi`) sequence
+
+1. Select the AWS profile. A running `sst dev` session is not required.
+
+```bash
+export AWS_PROFILE=ceyhunlar-prod
+```
+
+2. Run the read-only plan. This does not call DeepL or write to Neon.
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:category-translations -- --plan'
+```
+
+3. Optionally narrow the pilot to a small set or one category.
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:category-translations -- --plan --limit 5'
+
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:category-translations -- --plan --category-code 101'
+```
+
+4. Generate translations. DeepL is called, but the database is not written.
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:category-translations -- --generate'
+```
+
+5. Review and, when necessary, edit both `target.name` and `target.slug` in:
+
+```text
+packages/core/.translation-drafts/category-tr-en.json
+```
+
+6. Apply the reviewed draft atomically.
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:category-translations -- --apply .translation-drafts/category-tr-en.json'
+```
+
+7. Run the plan again. A complete run should report `candidates: 0`.
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:category-translations -- --plan'
+```
+
+The same kubi commands can be run without `sst shell` when the direct Neon URL
+is already available locally:
+
+```bash
+cd packages/core
+DIRECT_URL="$NEON_DIRECT_URL" npm run translate:category-translations -- --plan
+```
+
+At the time this workflow was verified, kubi contained 17 categories, all 17
+had TR and EN translations, and the plan reported `candidates: 0`. In that
+state, `--generate` exits without calling DeepL.
+
+### Production sequence
+
+Production translation starts only after the additive Category translation
+migration and TR backfill are complete. Do not remove the legacy Category
+columns as part of this rollout.
+
+1. Create/verify a production RDS snapshot or PITR restore point.
+
+2. In Terminal 1, open the production tunnel and keep it running.
+
+```bash
+export AWS_PROFILE=ceyhunlar-prod
+npx sst tunnel --stage prod
+```
+
+3. In Terminal 2, export the same profile and define the `prod_prisma` helper
+documented in **Database Migrations on a Deployed Stage** above.
+
+4. Check, deploy, and re-check the additive migration.
+
+```bash
+prod_prisma npx prisma migrate status
+prod_prisma npx prisma migrate deploy
+prod_prisma npx prisma migrate status
+```
+
+5. Deploy the current application code after reviewing the migration result.
+
+```bash
+cd /path/to/repository-root
+export AWS_PROFILE=ceyhunlar-prod
+npm run deploy:prod
+```
+
+6. Dry-run, apply, and verify the Turkish translation backfill.
+
+```bash
+prod_prisma npm run backfill:category-translations
+prod_prisma npm run backfill:category-translations -- --apply
+prod_prisma npm run backfill:category-translations
+```
+
+The final dry-run must report `missing: 0`. Investigate divergent TR/legacy
+records instead of overwriting them automatically.
+
+7. Plan the English translation run.
+
+```bash
+prod_prisma npm run translate:category-translations -- --plan
+```
+
+8. Generate the review draft. This calls DeepL but does not write production.
+
+```bash
+prod_prisma npm run translate:category-translations -- --generate
+```
+
+9. Review `packages/core/.translation-drafts/category-tr-en.json`, then apply it.
+
+```bash
+prod_prisma npm run translate:category-translations -- \
+  --apply .translation-drafts/category-tr-en.json
+```
+
+10. Run the plan again and test TR/EN category list, ID detail, localized slug,
+alternate slug, sitemap, and admin edit flows.
+
+```bash
+prod_prisma npm run translate:category-translations -- --plan
+```
+
+### Safety behavior
+
+- Running without a mode flag is the same as `--plan`; it does not call DeepL
+  or write to the database.
+- `--generate` only creates a gitignored JSON draft.
+- `--apply` does not call DeepL or consume the character quota again.
+- Existing manual EN translations are never overwritten.
+- Source fingerprints prevent applying a draft after its TR content changes.
+- Target slug conflicts and duplicate draft entries stop the entire operation.
+- Apply revalidates the current data and writes all rows in one serializable
+  Prisma transaction.
+- An existing draft is not silently replaced. Use another `--output` path to
+  preserve reviewed work.

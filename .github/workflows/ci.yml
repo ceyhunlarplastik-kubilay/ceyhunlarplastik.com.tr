@@ -34,6 +34,9 @@ jobs:
       - name: Unit tests (core)
         # vitest core'un devDependency'si; sst shell GEREKMEZ (prisma testlerde mock'lanır)
         run: npm run test:ci -w @ceyhunlarweb/core
+      - name: Unit tests (functions)
+        # Response validator kontratlarını gerçek functions workspace sınırında doğrular.
+        run: npm run test -w @ceyhunlarweb/functions
       - name: Unit tests (frontend)
         # vitest root node_modules'a hoist edilir (core devDep); lockfile bunu deterministik kılar
         run: npm run test -w frontend

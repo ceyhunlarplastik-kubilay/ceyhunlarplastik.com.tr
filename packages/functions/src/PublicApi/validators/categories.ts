@@ -1,35 +1,7 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
-/* const assetTypeEnum = z.enum([
-    "IMAGE",
-    "VIDEO",
-    "PDF",
-    "TECHNICAL_DRAWING",
-    "CERTIFICATE",
-])
-
-export const assetSchema = z.object({
-    id: z.uuid(),
-    key: z.string(),
-    mimeType: z.string(),
-    type: assetTypeEnum,
-    isPrimary: z.boolean(),
-    url: z.string(), // ✅ runtime generated
-    createdAt: z.string(),
-    updatedAt: z.string(),
-}) 
-    
-export const categorySchema = z.object({
-    id: z.uuid(),
-    code: z.number(),
-    name: z.string(),
-    slug: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    assets: z.array(assetSchema).optional(),
-}) */
-
+const localeSchema = z.enum(["tr", "en"])
 
 const assetTypeEnum = z.enum([
     "IMAGE",
@@ -66,6 +38,18 @@ export const categorySchema = z.object({
     code: z.number(),
     name: z.string(),
     slug: z.string(),
+    locale: localeSchema,
+    resolvedLocale: z.string(),
+    translationMissing: z.boolean(),
+    alternateSlugs: z.record(z.string(), z.string()),
+    translations: z.array(z.object({
+        id: z.uuid(),
+        locale: z.string(),
+        name: z.string(),
+        slug: z.string(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+    })),
     allowedAttributeValueIds: z.array(z.string()).optional(),
     assets: z.array(assetSchema).optional(),
     createdAt: z.string(),
@@ -78,6 +62,9 @@ export const idValidator = validatorWrapper(
         pathParameters: z.object({
             id: z.uuid(),
         }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+        }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
@@ -89,10 +76,27 @@ export const slugValidator = validatorWrapper(
         pathParameters: z.object({
             slug: z.string(),
         }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+        }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
     }
+)
+
+export const listCategoriesValidator = validatorWrapper(
+    z.object({
+        queryStringParameters: z.object({
+            page: z.coerce.number().int().positive().optional(),
+            limit: z.coerce.number().int().positive().max(500).optional(),
+            search: z.string().trim().optional(),
+            sort: z.enum(["code", "name", "createdAt"]).optional(),
+            order: z.enum(["asc", "desc"]).optional(),
+            locale: localeSchema.optional(),
+        }).optional(),
+    }).loose(),
+    { requiredRootFields: [] },
 )
 
 // Response Validators

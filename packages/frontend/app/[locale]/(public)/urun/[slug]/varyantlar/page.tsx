@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const [t, product] = await Promise.all([
         getTranslations({ locale, namespace: "public.productVariant" }),
-        getProductBySlug(slug),
+        getProductBySlug(slug, locale),
     ])
 
     if (!product) return {}
@@ -56,7 +56,7 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
     const measurementKey =
         typeof resolvedSearchParams?.m === "string" ? resolvedSearchParams.m : undefined
 
-    const product = await getProductBySlug(slug)
+    const product = await getProductBySlug(slug, locale)
     if (!product) notFound()
 
     const [tb, t, variantTable] = await Promise.all([

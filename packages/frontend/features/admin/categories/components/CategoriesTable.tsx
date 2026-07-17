@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 import {
     Pencil,
@@ -97,6 +98,7 @@ export function CategoriesTable({ categories }: Props) {
                         <TableRow>
                             <TableHead className="w-[90px]">Kod</TableHead>
                             <TableHead>Ad</TableHead>
+                            <TableHead className="w-[130px]">Diller</TableHead>
                             <TableHead className="w-[180px]">Asset</TableHead>
                             <TableHead className="w-[120px]">Oluşturulma</TableHead>
                             <TableHead className="w-[120px]">Güncellenme</TableHead>
@@ -121,6 +123,18 @@ export function CategoriesTable({ categories }: Props) {
                                             <span className="text-xs text-muted-foreground">
                                                 {category.slug}
                                             </span>
+                                        </div>
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1">
+                                            <Badge variant="secondary">TR</Badge>
+                                            <Badge
+                                                variant={category.alternateSlugs.en ? "secondary" : "outline"}
+                                                className={category.alternateSlugs.en ? undefined : "text-neutral-500"}
+                                            >
+                                                {category.alternateSlugs.en ? "EN" : "EN eksik"}
+                                            </Badge>
                                         </div>
                                     </TableCell>
 

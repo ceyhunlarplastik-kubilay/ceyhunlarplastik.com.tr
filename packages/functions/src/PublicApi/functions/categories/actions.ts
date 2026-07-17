@@ -1,7 +1,7 @@
 import { lambdaHandler } from "@/core/middy"
 import { categoryRepository } from "@/core/helpers/prisma/categories/repository"
 import { listCategoriesHandler, getCategoryHandler, getCategoryBySlugHandler } from "@/functions/PublicApi/functions/categories/handlers";
-import { idValidator, slugValidator, categoryResponseValidator, listCategoryResponseValidator } from "@/functions/PublicApi/validators/categories"
+import { idValidator, slugValidator, listCategoriesValidator, categoryResponseValidator, listCategoryResponseValidator } from "@/functions/PublicApi/validators/categories"
 import type { ICategoryDependencies, IListCategoriesEvent, IGetCategoryEvent, IGetCategoryBySlugEvent } from "@/functions/PublicApi/types/categories"
 
 export const listCategories = lambdaHandler(
@@ -16,6 +16,7 @@ export const listCategories = lambdaHandler(
     },
     {
         auth: false,
+        requestValidator: listCategoriesValidator,
         responseValidator: listCategoryResponseValidator,
     }
 )

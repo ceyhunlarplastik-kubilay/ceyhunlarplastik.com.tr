@@ -388,6 +388,7 @@ export const ModelName = {
   UserNotification: 'UserNotification',
   Color: 'Color',
   Category: 'Category',
+  CategoryTranslation: 'CategoryTranslation',
   Product: 'Product',
   ProductAttribute: 'ProductAttribute',
   ProductAttributeValue: 'ProductAttributeValue',
@@ -435,7 +436,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "category" | "product" | "productAttribute" | "productAttributeValue" | "productIndustrialUsage" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "category" | "categoryTranslation" | "product" | "productAttribute" | "productAttributeValue" | "productIndustrialUsage" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -732,6 +733,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CategoryCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CategoryCountAggregateOutputType> | number
+        }
+      }
+    }
+    CategoryTranslation: {
+      payload: Prisma.$CategoryTranslationPayload<ExtArgs>
+      fields: Prisma.CategoryTranslationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CategoryTranslationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CategoryTranslationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>
+        }
+        findFirst: {
+          args: Prisma.CategoryTranslationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CategoryTranslationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>
+        }
+        findMany: {
+          args: Prisma.CategoryTranslationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>[]
+        }
+        create: {
+          args: Prisma.CategoryTranslationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>
+        }
+        createMany: {
+          args: Prisma.CategoryTranslationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CategoryTranslationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>[]
+        }
+        delete: {
+          args: Prisma.CategoryTranslationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>
+        }
+        update: {
+          args: Prisma.CategoryTranslationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>
+        }
+        deleteMany: {
+          args: Prisma.CategoryTranslationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CategoryTranslationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CategoryTranslationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>[]
+        }
+        upsert: {
+          args: Prisma.CategoryTranslationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryTranslationPayload>
+        }
+        aggregate: {
+          args: Prisma.CategoryTranslationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCategoryTranslation>
+        }
+        groupBy: {
+          args: Prisma.CategoryTranslationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryTranslationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CategoryTranslationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryTranslationCountAggregateOutputType> | number
         }
       }
     }
@@ -3213,6 +3288,19 @@ export const CategoryScalarFieldEnum = {
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
 
 
+export const CategoryTranslationScalarFieldEnum = {
+  id: 'id',
+  categoryId: 'categoryId',
+  locale: 'locale',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoryTranslationScalarFieldEnum = (typeof CategoryTranslationScalarFieldEnum)[keyof typeof CategoryTranslationScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -4388,6 +4476,7 @@ export type GlobalOmitConfig = {
   userNotification?: Prisma.UserNotificationOmit
   color?: Prisma.ColorOmit
   category?: Prisma.CategoryOmit
+  categoryTranslation?: Prisma.CategoryTranslationOmit
   product?: Prisma.ProductOmit
   productAttribute?: Prisma.ProductAttributeOmit
   productAttributeValue?: Prisma.ProductAttributeValueOmit

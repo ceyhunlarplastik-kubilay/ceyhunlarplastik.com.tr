@@ -26,7 +26,7 @@ export default async function Page({
     const [t, tb, categories, attributes] = await Promise.all([
         getTranslations({ locale, namespace: "public.productFilter" }),
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
-        getCategories(),
+        getCategories(locale),
         getAttributesForFilter(),
     ])
 

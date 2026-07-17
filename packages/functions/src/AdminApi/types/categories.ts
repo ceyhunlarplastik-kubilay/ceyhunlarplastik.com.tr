@@ -3,16 +3,20 @@ import { IPrismaCategoryRepository } from "@/core/helpers/prisma/categories/repo
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository";
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository";
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
+import type { CategoryTranslationInput } from "@/core/helpers/categories/categoryTranslations"
 
 export interface ICreateCategoryBody {
     code: number
     name: string
+    translations?: CategoryTranslationInput[]
     allowedAttributeValueIds?: string[]
     assetType?: AssetType
     assetRole?: AssetRole
     assetKey?: string
     mimeType?: string
 }
+
+export type RemovableCategoryTranslationLocale = "en"
 
 export type ICreateCategoryEvent = IAPIGatewayProxyEventWithUser<ICreateCategoryBody>
 
@@ -22,6 +26,7 @@ export interface IListCategoriesQueryParams {
     search?: string
     sort?: "code" | "name" | "createdAt"
     order?: "asc" | "desc"
+    locale?: string
 }
 
 export type IListCategoriesEvent =
@@ -29,9 +34,9 @@ export type IListCategoriesEvent =
         queryStringParameters?: IListCategoriesQueryParams
     }
 
-export type IGetCategoryEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+export type IGetCategoryEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }, { locale?: string }>
 
-export type IGetCategoryBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }>
+export type IGetCategoryBySlugEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { slug: string }, { locale?: string }>
 
 export type IDeleteCategoryEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
@@ -43,6 +48,8 @@ export type IUpdateCategoryEvent =
         body: Partial<{
             code: string
             name: string
+            translations?: CategoryTranslationInput[]
+            removeTranslationLocales?: RemovableCategoryTranslationLocale[]
             allowedAttributeValueIds?: string[]
             assetKey?: string
             assetRole?: AssetRole

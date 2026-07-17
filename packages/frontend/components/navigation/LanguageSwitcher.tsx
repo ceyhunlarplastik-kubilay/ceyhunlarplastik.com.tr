@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import { fetchCategoryBySlug } from "@/features/public/categories/api/fetchCategories";
 
 /**
  * Dil değiştirici. Mevcut yolu koruyarak locale değiştirir:
@@ -25,7 +26,22 @@ export function LanguageSwitcher({ className }: { className?: string }) {
 
     function switchTo(nextLocale: string) {
         if (nextLocale === locale || isPending) return;
-        startTransition(() => {
+
+        startTransition(async () => {
+            if (
+                pathname.startsWith("/urun-kategori/") &&
+                typeof params.slug === "string"
+            ) {
+                try {
+                    const category = await fetchCategoryBySlug(params.slug, locale);
+                    const targetSlug = category.alternateSlugs[nextLocale] ?? params.slug;
+                    router.replace(`/urun-kategori/${targetSlug}`, { locale: nextLocale });
+                    return;
+                } catch {
+                    // Genel locale geçişi aşağıdaki mevcut rota davranışına düşer.
+                }
+            }
+
             // @ts-expect-error -- next-intl kabul eder; params tipi rota-özel
             router.replace({ pathname, params }, { locale: nextLocale });
         });

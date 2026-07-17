@@ -13,8 +13,18 @@ async function ensureUniqueCategorySlug(base: string, categoryId: string) {
     while (true) {
         const conflict = await prisma.category.findFirst({
             where: {
-                slug: candidate,
                 NOT: { id: categoryId },
+                OR: [
+                    { slug: candidate },
+                    {
+                        translations: {
+                            some: {
+                                locale: "tr",
+                                slug: candidate,
+                            },
+                        },
+                    },
+                ],
             },
             select: { id: true },
         });
@@ -26,7 +36,7 @@ async function ensureUniqueCategorySlug(base: string, categoryId: string) {
 
 async function main() {
     const categories = await prisma.category.findMany({
-        where: { OR: [{ slug: null }, { slug: "" }] },
+        where: { slug: "" },
         select: { id: true, name: true },
     });
 
@@ -38,14 +48,35 @@ async function main() {
 
         await prisma.category.update({
             where: { id: c.id },
-            data: { slug: unique },
+            data: {
+                slug: unique,
+                translations: {
+                    upsert: {
+                        where: {
+                            categoryId_locale: {
+                                categoryId: c.id,
+                                locale: "tr",
+                            },
+                        },
+                        create: {
+                            locale: "tr",
+                            name: c.name,
+                            slug: unique,
+                        },
+                        update: {
+                            name: c.name,
+                            slug: unique,
+                        },
+                    },
+                },
+            },
         });
 
         console.log(`✅ ${c.name} -> ${unique}`);
     }
 
     // ekstra kontrol: hala null var mı?
-    const remaining = await prisma.category.count({ where: { slug: null } });
+    const remaining = await prisma.category.count({ where: { slug: "" } });
     if (remaining > 0) {
         throw new Error(`Backfill incomplete. Remaining null slugs: ${remaining}`);
     }

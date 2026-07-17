@@ -38,7 +38,7 @@ export default async function ProductsPage({ params }: PageProps) {
     const [t, tb, categories] = await Promise.all([
         getTranslations({ locale, namespace: "public.products" }),
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
-        getCategories(),
+        getCategories(locale),
     ])
 
     return (
