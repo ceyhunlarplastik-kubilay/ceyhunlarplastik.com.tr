@@ -18,7 +18,7 @@ export default $config({
     await import("./infra/AdminApi");
     await import("./infra/OwnerApi");
     await import("./infra/frontend");
-    // await import("./infra/observability");
+    await import("./infra/observability");
     void storage;
 
     return {

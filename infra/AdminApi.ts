@@ -531,7 +531,8 @@ adminApi.route("DELETE /product-measurements/{id}", {
 }, { ...defaultAuthOptions });
 
 /*----------------------- PRODUCTS -----------------------*/
-adminApi.route("GET /products", {
+// P1.8(c): observability RequestEntityTooLarge alarmı için route referansı export edilir.
+export const adminListProductsRoute = adminApi.route("GET /products", {
     handler: `${folderPrefix}/products/actions.listProducts`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });

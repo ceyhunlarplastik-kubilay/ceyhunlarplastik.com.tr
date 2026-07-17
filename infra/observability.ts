@@ -4,6 +4,7 @@ import {
     getProductVariantTableRoute,
     listProductsRoute,
 } from "./PublicApi";
+import { adminListProductsRoute } from "./AdminApi";
 
 function parsePositiveIntegerEnv(name: string, fallback: number) {
     const value = process.env[name];
@@ -193,5 +194,71 @@ if (isProd) {
                 concern: "public-api-duration",
             },
         });
+    }
+
+    // P1.8(c): RequestEntityTooLarge / 6MB response payload alarmı.
+    // Lambda senkron yanıtı 6MB limitini aşınca runtime CloudWatch log'una
+    // "Response payload size exceeded maximum allowed payload size" satırını yazar.
+    // Yalnız BUFFERED API Gateway Lambda'ları hedeflenir; frontend server
+    // aws-lambda-streaming kullandığı için bu limite tabi değildir (kapsam dışı).
+    const RESPONSE_TOO_LARGE_NAMESPACE = "Ceyhunlarweb/Prod";
+
+    const responsePayloadRoutes = [
+        { id: "PublicProductList", name: "public-product-list", route: listProductsRoute },
+        { id: "PublicProductBySlug", name: "public-product-by-slug", route: getProductBySlugRoute },
+        { id: "PublicProductVariantTable", name: "public-product-variant-table", route: getProductVariantTableRoute },
+        { id: "AdminProductList", name: "admin-product-list", route: adminListProductsRoute },
+    ];
+
+    for (const { id, name, route } of responsePayloadRoutes) {
+        // Yönetilen log group'a doğrudan referans → filtre, log group oluşmadan
+        // yaratılmaz (create-ordering race'i engellenir). Fallback: default ad.
+        const logGroupName = route.nodes.function.apply((fn) =>
+            fn.nodes.logGroup.apply((lg) => lg?.name ?? $interpolate`/aws/lambda/${fn.name}`),
+        );
+        const metricName = `ResponsePayloadTooLarge-${name}`;
+
+        const responseTooLargeFilter = new aws.cloudwatch.LogMetricFilter(
+            `Prod${id}ResponseTooLargeFilter`,
+            {
+                name: `ceyhunlarweb-prod-${name}-response-too-large`,
+                logGroupName,
+                pattern: '"Response payload size exceeded maximum allowed payload size"',
+                metricTransformation: {
+                    name: metricName,
+                    namespace: RESPONSE_TOO_LARGE_NAMESPACE,
+                    value: "1",
+                    defaultValue: "0",
+                    unit: "Count",
+                },
+            },
+        );
+
+        new aws.cloudwatch.MetricAlarm(
+            `Prod${id}ResponseTooLargeAlarm`,
+            {
+                name: `ceyhunlarweb-prod-${name}-response-too-large`,
+                alarmDescription:
+                    `The ${name} API Lambda returned a response larger than the Lambda 6MB payload limit (RequestEntityTooLarge). Slim the response DTO or add pagination if this alarm fires.`,
+                namespace: RESPONSE_TOO_LARGE_NAMESPACE,
+                metricName,
+                statistic: "Sum",
+                period: 300,
+                evaluationPeriods: 1,
+                datapointsToAlarm: 1,
+                threshold: 0,
+                comparisonOperator: "GreaterThanThreshold",
+                treatMissingData: "notBreaching",
+                actionsEnabled: true,
+                alarmActions: alarmActionArns,
+                okActions: alarmActionArns,
+                tags: {
+                    app: "ceyhunlarweb",
+                    stage: "prod",
+                    concern: "response-payload-too-large",
+                },
+            },
+            { dependsOn: responseTooLargeFilter },
+        );
     }
 }
