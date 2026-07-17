@@ -3,6 +3,7 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IListCategoriesDependencies, IListCategoriesEvent } from "@/functions/AdminApi/types/categories"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { mapCategoryWithAssets } from "@/core/helpers/assets/mapCategoryWithAssets"
+import { getSupportedLocale } from "@/core/i18n/locales"
 
 const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt"] as const
 
@@ -12,7 +13,9 @@ export const listCategoryHandler = ({ categoryRepository }: IListCategoriesDepen
             normalizeListQuery(event.queryStringParameters, {
                 allowedSortFields: ALLOWED_SORT_FIELDS,
                 defaultSort: "code",
+                maxLimit: 500,
             })
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         try {
             const result = await categoryRepository.listCategories({
@@ -21,6 +24,7 @@ export const listCategoryHandler = ({ categoryRepository }: IListCategoriesDepen
                 search,
                 sort,
                 order,
+                locale,
             })
 
             return apiResponseDTO({

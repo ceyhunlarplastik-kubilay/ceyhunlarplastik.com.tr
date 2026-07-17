@@ -138,13 +138,31 @@ model Category {
   slug                     String   @unique
   allowedAttributeValueIds String[] @default([])
 
-  products Product[]
-  assets   Asset[]
+  products     Product[]
+  assets       Asset[]
+  translations CategoryTranslation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([code])
+}
+
+model CategoryTranslation {
+  id         String @id @default(uuid())
+  categoryId String
+  locale     String @db.VarChar(16)
+  name       String
+  slug       String
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, locale])
+  @@unique([locale, slug])
+  @@index([locale, categoryId])
 }
 
 ///////////////////////////////////////////////////////

@@ -37,7 +37,7 @@ export default async function CatalogPage({ params }: PageProps) {
     const [t, tb, categories] = await Promise.all([
         getTranslations({ locale, namespace: "public.catalog" }),
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
-        getCategories(),
+        getCategories(locale),
     ])
 
     const catalogs = categories.filter((c: any) =>

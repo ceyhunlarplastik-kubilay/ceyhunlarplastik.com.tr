@@ -32,6 +32,8 @@ export function mapProductWithAssets(product: any) {
 import { buildAssetUrl } from "./buildAssetUrl"
 import { INDUSTRIAL_ATTRIBUTE_CODE_SET } from "@/core/helpers/products/productIndustrialUsages"
 import { AssetRole } from "@/prisma/generated/prisma/client"
+import { localizeCategory } from "@/core/helpers/categories/localizeCategory"
+import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
 
 export function mapAsset(asset: any) {
     return {
@@ -116,7 +118,10 @@ function mapIndustrialUsage(usage: any) {
     }
 }
 
-export function mapProductWithAssets(product: any) {
+export function mapProductWithAssets(
+    product: any,
+    locale: SupportedLocale = DEFAULT_LOCALE,
+) {
 
     const assets = product.assets?.map(mapAsset) ?? []
     const primary = assets.find((a: any) => a.role === AssetRole.PRIMARY)
@@ -135,7 +140,9 @@ export function mapProductWithAssets(product: any) {
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
 
-        category: product.category,
+        category: product.category
+            ? localizeCategory(product.category, locale)
+            : null,
 
         assets,
 

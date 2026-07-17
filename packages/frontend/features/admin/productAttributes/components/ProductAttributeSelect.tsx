@@ -201,6 +201,17 @@ export function ProductAttributeSelect({
             .filter((attribute) => (attribute.values?.length ?? 0) > 0)
     }, [data, allowedSet, hasRestriction, excludedCodes])
 
+    const excludedValueIds = useMemo(() => {
+        const ids = new Set<string>()
+
+        for (const attribute of data ?? []) {
+            if (!excludedCodes.has(attribute.code)) continue
+            for (const value of attribute.values ?? []) ids.add(value.id)
+        }
+
+        return ids
+    }, [data, excludedCodes])
+
     const orderedAttributes = useMemo(() => {
         const priority = ["sector", "production_group", "usage_area"]
         const seen = new Set<string>()
@@ -275,6 +286,10 @@ export function ProductAttributeSelect({
 
     function normalizeSelection(next: string[]) {
         const nextSet = new Set(next)
+
+        for (const excludedValueId of excludedValueIds) {
+            nextSet.delete(excludedValueId)
+        }
 
         if (singleSelectNonHierarchy) {
             for (const attribute of scopedAttributes) {

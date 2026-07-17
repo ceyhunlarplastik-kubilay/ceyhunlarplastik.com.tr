@@ -2,6 +2,8 @@ import { z } from "zod"
 import { categorySchema } from "@/functions/PublicApi/validators/categories";
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const localeSchema = z.enum(["tr", "en"])
+
 export const assetTypeEnum = z.enum([
     "IMAGE",
     "VIDEO",
@@ -104,6 +106,9 @@ export const idValidator = validatorWrapper(
         pathParameters: z.object({
             id: z.uuid(),
         }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+        }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
@@ -115,6 +120,9 @@ export const slugValidator = validatorWrapper(
         pathParameters: z.object({
             slug: z.string(),
         }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+        }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],

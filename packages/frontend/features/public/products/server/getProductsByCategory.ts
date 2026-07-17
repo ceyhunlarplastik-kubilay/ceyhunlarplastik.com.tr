@@ -19,13 +19,14 @@ export type ListProductsResponse = ApiEnvelope<ProductsListPayload>;
 async function fetchProductsByCategory(
     category: string,
     by: "id" | "slug" = "id",
+    locale = "tr",
     limit = 500,
 ): Promise<Product[]> {
     try {
         const res = await publicServerClient().get<ListProductsResponse>("/products", {
             params: by === "id"
-                ? { categoryId: category, limit }
-                : { category, limit },
+                ? { categoryId: category, locale, limit }
+                : { category, locale, limit },
         });
 
         return res.data.payload.data ?? [];
@@ -51,10 +52,15 @@ const getCachedProductsByCategory = unstable_cache(fetchProductsByCategory, ["pu
 export const getProductsByCategory = cache(async (
     category: string,
     by: "id" | "slug" = "id",
-    options: { limit?: number } = {},
+    options: { locale?: string; limit?: number } = {},
 ): Promise<Product[]> => {
     try {
-        return await getCachedProductsByCategory(category, by, options.limit ?? 500);
+        return await getCachedProductsByCategory(
+            category,
+            by,
+            options.locale ?? "tr",
+            options.limit ?? 500,
+        );
     } catch {
         return [];
     }

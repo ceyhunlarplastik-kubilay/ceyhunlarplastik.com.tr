@@ -3,17 +3,19 @@ import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductDependencies, IGetProductBySlugEvent } from "@/functions/PublicApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import { getSupportedLocale } from "@/core/i18n/locales"
 
 export const getProductBySlugHandler = ({ productRepository }: Pick<IProductDependencies, "productRepository">) => {
     return async (event: IGetProductBySlugEvent) => {
         const { slug } = event.pathParameters;
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         try {
             const product = await productRepository.getProductBySlug(slug);
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: { product: mapProductWithAssets(product) },
+                payload: { product: mapProductWithAssets(product, locale) },
             });
         } catch (err: any) {
             if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") throw new createError.NotFound("Product not found");

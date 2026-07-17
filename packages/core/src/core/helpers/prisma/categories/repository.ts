@@ -1,15 +1,33 @@
 import { prisma } from "@/core/db/prisma"
-import { Prisma } from "@/prisma/generated/prisma/client"
-import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQuery"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
-import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
+import {
+    DEFAULT_LOCALE,
+    getSupportedLocale,
+    type SupportedLocale,
+} from "@/core/i18n/locales"
+import {
+    localizeCategory,
+    type LocalizedCategory,
+} from "@/core/helpers/categories/localizeCategory"
+import { Prisma } from "@/prisma/generated/prisma/client"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
-import type { Category, Asset } from "@/prisma/generated/prisma/client"
+import type { Category } from "@/prisma/generated/prisma/client"
+
+const CATEGORY_MAX_LIMIT = 500
+
+const categoryInclude = {
+    assets: true,
+    translations: {
+        orderBy: { locale: "asc" },
+    },
+} satisfies Prisma.CategoryInclude
+
+type CategoryWithRelations = Prisma.CategoryGetPayload<{ include: typeof categoryInclude }>
 
 export interface IPrismaCategoryRepository {
-    listCategories(query: IPaginationQuery): Promise<{
-        data: Category[]
+    listCategories(query: IPaginationQuery & { locale?: SupportedLocale }): Promise<{
+        data: LocalizedCategory<CategoryWithRelations>[]
         meta: {
             page: number
             limit: number
@@ -17,122 +35,160 @@ export interface IPrismaCategoryRepository {
             totalPages: number
         }
     }>
-    getCategory(id: string): Promise<Category | null>
-    getCategoryBySlug(slug: string): Promise<Category | null>
-    createCategory(data: Prisma.CategoryCreateInput): Promise<Category>
-    updateCategory(id: string, data: Prisma.CategoryUpdateInput): Promise<Category>
+    getCategory(id: string, locale?: SupportedLocale): Promise<LocalizedCategory<CategoryWithRelations>>
+    getCategoryBySlug(slug: string, locale?: SupportedLocale): Promise<LocalizedCategory<CategoryWithRelations>>
+    createCategory(data: Prisma.CategoryCreateInput): Promise<LocalizedCategory<CategoryWithRelations>>
+    updateCategory(id: string, data: Prisma.CategoryUpdateInput): Promise<LocalizedCategory<CategoryWithRelations>>
     deleteCategory(id: string): Promise<Category>
 }
 
-function mapAsset(asset: Asset) {
-    return {
-        id: asset.id,
-        key: asset.key,
-        mimeType: asset.mimeType,
-        type: asset.type,
-        role: asset.role,
-        createdAt: asset.createdAt,
-        updatedAt: asset.updatedAt,
-    }
-}
-
-function mapCategory(category: Category & { assets: Asset[] }) {
-    return {
-        id: category.id,
-        code: category.code,
-        name: category.name,
-        slug: category.slug,
-        allowedAttributeValueIds: (category as any).allowedAttributeValueIds ?? [],
-        createdAt: category.createdAt,
-        updatedAt: category.updatedAt,
-        assets: category.assets?.map(mapAsset) ?? [],
-    }
-}
-
 export const categoryRepository = (): IPrismaCategoryRepository => {
+    const listCategories = async (
+        query: IPaginationQuery & { locale?: SupportedLocale },
+    ) => {
+        const locale = getSupportedLocale(query.locale)
+        const page = query.page && query.page > 0 ? query.page : 1
+        const limit = query.limit && query.limit > 0
+            ? Math.min(query.limit, CATEGORY_MAX_LIMIT)
+            : 20
+        const skip = (page - 1) * limit
+        const order = query.order === "desc" ? "desc" : "asc"
+        const search = query.search?.trim()
+        const searchableLocales = locale === DEFAULT_LOCALE
+            ? [DEFAULT_LOCALE]
+            : [locale, DEFAULT_LOCALE]
 
-    const listCategories = async (query: IPaginationQuery & Record<string, any>) => {
-        const filterWhere = buildFilterQuery<Category>(query, [
-            "name",
-            "code"
-        ])
+        const where: Prisma.CategoryWhereInput = search
+            ? {
+                OR: [
+                    {
+                        name: {
+                            contains: search,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        translations: {
+                            some: {
+                                locale: { in: searchableLocales },
+                                name: {
+                                    contains: search,
+                                    mode: "insensitive",
+                                },
+                            },
+                        },
+                    },
+                    ...(/^\d+$/.test(search)
+                        ? [{ code: Number.parseInt(search, 10) }]
+                        : []),
+                ],
+            }
+            : {}
 
-        const {
-            where,
-            orderBy,
-            skip,
-            take,
-            page,
-            limit,
-        } = buildPaginationQuery<Category>(query, {
-            searchableFields: ["name", "code"],
-            defaultSort: "code",
-        })
-
-        const finalWhere = {
-            ...where,
-            ...filterWhere,
+        const sort = query.sort === "name" || query.sort === "createdAt"
+            ? query.sort
+            : "code"
+        const orderBy: Prisma.CategoryOrderByWithRelationInput = {
+            [sort]: order,
         }
 
-        const [data, total] = await Promise.all([
+        const [categories, total] = await Promise.all([
             prisma.category.findMany({
-                where: finalWhere,
+                where,
                 orderBy,
                 skip,
-                take,
-                include: { assets: true },
+                take: limit,
+                include: categoryInclude,
             }),
-            prisma.category.count({ where: finalWhere }),
+            prisma.category.count({ where }),
         ])
 
-        /* return buildPaginationResponse(data, {
-            page,
-            limit,
-            total,
-            totalPages: Math.ceil(total / limit),
-        }) */
         return buildPaginationResponse(
-            data.map(mapCategory),
+            categories.map((category) => localizeCategory(category, locale)),
             {
                 page,
                 limit,
                 total,
                 totalPages: Math.ceil(total / limit),
-            }
+            },
         )
     }
 
-    const getCategory = async (id: string) => {
-        return prisma.category.findUniqueOrThrow({
+    const getCategory = async (
+        id: string,
+        locale: SupportedLocale = DEFAULT_LOCALE,
+    ) => {
+        const category = await prisma.category.findUniqueOrThrow({
             where: { id },
-            include: { assets: true },
+            include: categoryInclude,
         })
+
+        return localizeCategory(category, locale)
     }
 
-    const getCategoryBySlug = async (slug: string) => {
-        return prisma.category.findUniqueOrThrow({
+    const getCategoryBySlug = async (
+        slug: string,
+        locale: SupportedLocale = DEFAULT_LOCALE,
+    ) => {
+        const findTranslation = (translationLocale: SupportedLocale) =>
+            prisma.categoryTranslation.findUnique({
+                where: {
+                    locale_slug: {
+                        locale: translationLocale,
+                        slug,
+                    },
+                },
+                include: {
+                    category: {
+                        include: categoryInclude,
+                    },
+                },
+            })
+
+        const exactTranslation = await findTranslation(locale)
+        if (exactTranslation) {
+            return localizeCategory(exactTranslation.category, locale)
+        }
+
+        if (locale !== DEFAULT_LOCALE) {
+            const fallbackTranslation = await findTranslation(DEFAULT_LOCALE)
+            if (fallbackTranslation) {
+                return localizeCategory(fallbackTranslation.category, locale)
+            }
+        }
+
+        const legacyCategory = await prisma.category.findUniqueOrThrow({
             where: { slug },
-            include: { assets: true },
+            include: categoryInclude,
         })
+
+        return localizeCategory(legacyCategory, locale)
     }
 
     const createCategory = async (data: Prisma.CategoryCreateInput) => {
-        return prisma.category.create({ data, include: { assets: true } })
+        const category = await prisma.category.create({
+            data,
+            include: categoryInclude,
+        })
+
+        return localizeCategory(category, DEFAULT_LOCALE)
     }
 
-    const updateCategory = async (id: string, data: Prisma.CategoryUpdateInput) => {
-        return prisma.category.update({
+    const updateCategory = async (
+        id: string,
+        data: Prisma.CategoryUpdateInput,
+    ) => {
+        const category = await prisma.category.update({
             where: { id },
             data,
-            include: { assets: true },
+            include: categoryInclude,
         })
+
+        return localizeCategory(category, DEFAULT_LOCALE)
     }
 
-    const deleteCategory = async (id: string) => {
-        return await prisma.category.delete({
-            where: { id },
-        })
-    }
+    const deleteCategory = (id: string) =>
+        prisma.category.delete({ where: { id } })
 
     return {
         listCategories,

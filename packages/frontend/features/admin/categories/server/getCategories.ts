@@ -2,6 +2,7 @@ import axios from "axios";
 import { auth } from "@/lib/auth/auth";
 // Public'den alındı şuan
 import type { Category } from "@/features/public/categories/types";
+import { normalizeCategory } from "@/features/public/categories/normalizeCategory";
 
 type ListCategoriesApiResponse = {
     statusCode: number;
@@ -25,8 +26,9 @@ export async function getCategories(): Promise<Category[]> {
         `${process.env.NEXT_PUBLIC_ADMIN_API_URL}/categories`,
         {
             headers: { Authorization: `Bearer ${session.idToken}` },
+            params: { locale: "tr", limit: 500 },
         }
     );
 
-    return res.data.payload.data ?? [];
+    return (res.data.payload.data ?? []).map((category) => normalizeCategory(category, "tr"));
 }

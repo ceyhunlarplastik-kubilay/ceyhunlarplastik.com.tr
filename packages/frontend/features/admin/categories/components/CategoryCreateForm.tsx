@@ -47,6 +47,7 @@ const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "
 const schema = z.object({
     code: z.number().int().positive("Kod pozitif olmalı"),
     name: z.string().min(2, "Kategori adı gerekli"),
+    englishName: z.string().max(100, "İngilizce kategori adı en fazla 100 karakter olabilir"),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -80,13 +81,21 @@ export function CategoryCreateForm({ onCreated }: Props) {
         defaultValues: {
             code: undefined,
             name: "",
+            englishName: "",
         },
     })
 
     const watchedName = useWatch({ control: form.control, name: "name" })
+    const watchedEnglishName = useWatch({ control: form.control, name: "englishName" })
     const slugPreview = useMemo(
         () => (watchedName ? slugify(watchedName, { lower: true, strict: true, locale: "tr" }) : "kategori-slug"),
         [watchedName]
+    )
+    const englishSlugPreview = useMemo(
+        () => (watchedEnglishName
+            ? slugify(watchedEnglishName, { lower: true, strict: true, locale: "en" })
+            : "english-category-slug"),
+        [watchedEnglishName],
     )
 
     async function onSubmit(values: FormValues) {
@@ -117,6 +126,9 @@ export function CategoryCreateForm({ onCreated }: Props) {
             const category = await createMutation.mutateAsync({
                 code: values.code,
                 name: values.name,
+                translations: values.englishName.trim()
+                    ? [{ locale: "en", name: values.englishName.trim() }]
+                    : undefined,
                 allowedAttributeValueIds,
                 assetType,
                 assetRole,
@@ -125,7 +137,7 @@ export function CategoryCreateForm({ onCreated }: Props) {
             })
 
             onCreated?.(category)
-            form.reset({ code: undefined, name: "" })
+            form.reset({ code: undefined, name: "", englishName: "" })
             setAllowedAttributeValueIds([])
             setFile(null)
             setUploadProgress(0)
@@ -175,16 +187,26 @@ export function CategoryCreateForm({ onCreated }: Props) {
                                     <ControllerField
                                         control={form.control}
                                         name="name"
-                                        label="Kategori Adı"
+                                        label="Kategori Adı (TR)"
                                         render={({ field }) => (
                                             <Input {...field} placeholder="Bakalit Tutamaklar" />
                                         )}
                                     />
 
+                                    <ControllerField
+                                        control={form.control}
+                                        name="englishName"
+                                        label="Kategori Adı (EN)"
+                                        render={({ field }) => (
+                                            <Input {...field} placeholder="Bakelite Handles" />
+                                        )}
+                                    />
+
                                     <Field>
                                         <FieldLabel>Slug Önizlemesi</FieldLabel>
-                                        <div className="rounded-xl border border-dashed border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-600">
-                                            /{slugPreview}
+                                        <div className="space-y-1 rounded-xl border border-dashed border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-600">
+                                            <div>TR: /{slugPreview}</div>
+                                            <div>EN: /en/urun-kategori/{englishSlugPreview}</div>
                                         </div>
                                     </Field>
                                 </FieldGroup>

@@ -4,6 +4,12 @@ export type ListCategoriesResponse = {
     statusCode: number
     payload: {
         data: Category[]
+        meta: {
+            page: number
+            limit: number
+            total: number
+            totalPages: number
+        }
     }
 }
 

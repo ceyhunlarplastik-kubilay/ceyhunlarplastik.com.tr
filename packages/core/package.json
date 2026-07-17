@@ -5,6 +5,8 @@
   "scripts": {
     "test": "sst shell vitest",
     "test:ci": "vitest run",
+    "backfill:category-translations": "tsx prisma/backfill-category-translations.ts",
+    "translate:category-translations": "tsx prisma/translate-category-translations.ts",
     "seed:geo": "tsx prisma/seed-geo.ts"
   },
   "exports": {
@@ -38,6 +40,7 @@
     "@middy/warmup": "^7.0.2",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
+    "deepl-node": "^1.27.0",
     "prisma": "^7.3.0",
     "sst": "*"
   },

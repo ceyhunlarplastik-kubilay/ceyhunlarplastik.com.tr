@@ -1,6 +1,7 @@
 import { adminApiClient } from "@/lib/http/client"
 
 import type { Category } from "@/features/public/categories/types"
+import { normalizeCategory } from "@/features/public/categories/normalizeCategory"
 import type { AssetRole, AssetType } from "@/features/public/assets/types"
 
 import type { CreateCategoryResponse } from "./types"
@@ -8,6 +9,11 @@ import type { CreateCategoryResponse } from "./types"
 type Params = {
     code: number
     name: string
+    translations?: Array<{
+        locale: "tr" | "en"
+        name: string
+        slug?: string
+    }>
     allowedAttributeValueIds?: string[]
 
     assetType?: AssetType
@@ -20,6 +26,7 @@ type Params = {
 export async function createCategory({
     code,
     name,
+    translations,
     allowedAttributeValueIds,
     assetType,
     assetRole,
@@ -33,6 +40,7 @@ export async function createCategory({
             {
                 code,
                 name,
+                translations,
                 allowedAttributeValueIds,
                 assetType,
                 assetRole,
@@ -41,5 +49,5 @@ export async function createCategory({
             }
         )
 
-    return res.data.payload.category
+    return normalizeCategory(res.data.payload.category, "tr")
 }

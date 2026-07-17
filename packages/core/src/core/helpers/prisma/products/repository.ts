@@ -173,8 +173,14 @@ const industrialUsageValueSelect = {
     },
 } as const
 
+const categoryInclude = {
+    include: {
+        translations: true,
+    },
+} as const
+
 const baseInclude = {
-    category: true,
+    category: categoryInclude,
     assets: true,
     attributeValues: attributeValuesInclude,
     industrialUsages: {
@@ -191,7 +197,7 @@ const baseInclude = {
 
 // Card görünümü (public liste yüzeyleri): industrialUsages hiç taşınmaz.
 const listCardInclude = {
-    category: true,
+    category: categoryInclude,
     assets: true,
     attributeValues: attributeValuesInclude,
 } satisfies Prisma.ProductInclude

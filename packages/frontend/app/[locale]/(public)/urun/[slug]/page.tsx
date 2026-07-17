@@ -33,7 +33,7 @@ export async function generateMetadata(
 
     const [t, product] = await Promise.all([
         getTranslations({ locale, namespace: "public.productDetail" }),
-        getProductBySlug(slug),
+        getProductBySlug(slug, locale),
     ])
 
     if (!product) return {}
@@ -69,7 +69,7 @@ export default async function ProductPage({ params }: PageProps) {
     const [tb, tf, product] = await Promise.all([
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getTranslations({ locale, namespace: "public.productDetail" }),
-        getProductBySlug(slug),
+        getProductBySlug(slug, locale),
     ])
 
     if (!product) notFound()
@@ -77,7 +77,7 @@ export default async function ProductPage({ params }: PageProps) {
     const [variantTable, productsByCategory] = await Promise.all([
         getProductVariantTable(product.id),
         // 13 = 12 benzer ürün + ürünün kendisi ilk sayfadaysa yedek.
-        getProductsByCategory(product.categoryId, "id", { limit: 13 }),
+        getProductsByCategory(product.categoryId, "id", { locale, limit: 13 }),
     ])
 
     const similarProducts = toSimilarProductItems(productsByCategory, product.id)

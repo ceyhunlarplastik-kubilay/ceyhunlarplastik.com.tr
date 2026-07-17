@@ -13,6 +13,7 @@ import {
 } from "@/functions/AdminApi/functions/categories/handlers";
 import {
     createCategoryValidator,
+    listCategoriesValidator,
     getCategoryValidator,
     slugValidator,
     deleteCategoryValidator,
@@ -68,6 +69,7 @@ export const listCategories = lambdaHandler(
     },
     {
         auth: { requiredPermissionGroups: categoryManagerGroups },
+        requestValidator: listCategoriesValidator,
         responseValidator: listCategoryResponseValidator,
     }
 )

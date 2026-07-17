@@ -73,7 +73,7 @@ export function SuppliersPageClient() {
     const updateSupplierMutation = useUpdateSupplier()
     const bulkUpdatePricingMutation = useBulkUpdateSupplierVariantPricing()
     const referencesQuery = useVariantReferences()
-    const categoriesQuery = useCategories()
+    const categoriesQuery = useCategories({ params: { limit: 500 } })
     const usersQuery = useUsers({ params: { page: 1, limit: 500 } })
     const productsQuery = useSupplierProducts({
         supplierId: selectedSupplier?.id,
@@ -96,7 +96,7 @@ export function SuppliersPageClient() {
 
     const suppliers = supplierQuery.data?.data ?? []
     const supplierMeta = supplierQuery.data?.meta
-    const categories = categoriesQuery.data ?? []
+    const categories = categoriesQuery.data?.data ?? []
     const products = productsQuery.data?.data ?? []
     const purchasingUsers = (usersQuery.data?.data ?? []).filter((user) => user.groups.includes("purchasing") || user.groups.includes("admin") || user.groups.includes("owner"))
     const purchasingUserOptions = useMemo(

@@ -18,6 +18,7 @@
     "include": [
         "packages/core/src/**/*",
         "packages/core/prisma.config.ts",
+        "packages/core/prisma/translate-category-translations.ts",
         "packages/functions/src/**/*",
         "sst-env.d.ts"
     ],

@@ -562,12 +562,21 @@ async function applyApprovedBusinessRequestTx(
 
         await assertNoIndustrialAttributeValuesInTransaction(tx, allowedAttributeValueIds, "Supplier category create request")
 
+        const slug = slugify(name, { lower: true, strict: true, locale: "tr" })
+
         await tx.category.create({
             data: {
                 code,
                 name,
-                slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
+                slug,
                 ...(allowedAttributeValueIds.length > 0 ? { allowedAttributeValueIds } : {}),
+                translations: {
+                    create: {
+                        locale: "tr",
+                        name,
+                        slug,
+                    },
+                },
             },
         })
         return

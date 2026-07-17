@@ -10,9 +10,11 @@ type GetProductBySlugApiResponse = {
     };
 };
 
-async function fetchProductBySlug(slug: string): Promise<Product | null> {
+async function fetchProductBySlug(slug: string, locale: string): Promise<Product | null> {
     try {
-        const res = await publicServerClient().get<GetProductBySlugApiResponse>(`/products/slug/${slug}`);
+        const res = await publicServerClient().get<GetProductBySlugApiResponse>(`/products/slug/${slug}`, {
+            params: { locale },
+        });
 
         return res.data?.payload?.product ?? null;
     } catch (error: any) {
@@ -22,6 +24,7 @@ async function fetchProductBySlug(slug: string): Promise<Product | null> {
 
         console.error("getProductBySlug error:", {
             slug,
+            locale,
             status: error?.response?.status,
             data: error?.response?.data,
             message: error?.message,
@@ -31,15 +34,16 @@ async function fetchProductBySlug(slug: string): Promise<Product | null> {
     }
 }
 
-const getCachedProductBySlug = unstable_cache(fetchProductBySlug, ["public-product-by-slug"], {
+const getCachedProductBySlug = unstable_cache(fetchProductBySlug, ["public-product-by-slug-v2"], {
     revalidate: 60,
 });
 
 export const getProductBySlug = cache(async (
-    slug: string
+    slug: string,
+    locale = "tr",
 ): Promise<Product | null> => {
     try {
-        return await getCachedProductBySlug(slug);
+        return await getCachedProductBySlug(slug, locale);
     } catch {
         return null;
     }
