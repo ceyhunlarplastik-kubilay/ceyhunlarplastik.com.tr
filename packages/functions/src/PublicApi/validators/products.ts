@@ -115,6 +115,36 @@ export const idValidator = validatorWrapper(
     }
 )
 
+/**
+ * Variant-table route'ları (public + customer) için request validator.
+ *
+ * NEDEN AYRI: `idValidator`'ın `queryStringParameters` objesi KATI (`.loose()` yok)
+ * → `z.toJSONSchema` `additionalProperties: false` üretiyor ve `validatorWrapper`
+ * `additionalProperties: true`'yu yalnız KÖK şemaya uyguluyor. Bu route'ların
+ * frontend çağrıları `limit=500` gönderdiği için istek 400 ile reddediliyordu
+ * ("must NOT have additional properties: limit"). Sayfalama parametreleri burada
+ * açıkça beyan edilir. Query string değerleri her zaman string gelir;
+ * sayısal ayrıştırmayı `normalizeListQuery` yapar.
+ */
+export const productVariantTableRequestValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+            page: z.string().optional(),
+            limit: z.string().optional(),
+            search: z.string().optional(),
+            sort: z.string().optional(),
+            order: z.string().optional(),
+        }).optional(),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
+)
+
 export const slugValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({

@@ -1,6 +1,6 @@
 "use server"
 
-import { prisma } from "../../../../core/src/core/db/prisma"
+import { prisma } from "@core/db/prisma"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
 export type AuthUserAccessState = {

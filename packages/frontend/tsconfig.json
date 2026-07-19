@@ -25,6 +25,19 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      // P2.8: packages/core'a kırılgan relative path (../../../../core/src/...)
+      // yerine sabit alias. Paket adıyla import (@ceyhunlarweb/core/...) denendi
+      // ama core build step'siz ham TS yayınlıyor (exports -> ./src/*.ts) ve
+      // Turbopack bunu çözemiyor; alias hem tsc hem bundler tarafında çalışır.
+      // Backend'in root tsconfig'indeki "@/core/*" konvansiyonuyla aynı okunur.
+      "@core/*": [
+        "../core/src/core/*"
+      ],
+      // Generated Prisma client + schema (backend'deki "@/prisma/*" karşılığı).
+      // Ayrı prefix: "@core-prisma/" ile "@core/" çakışmaz.
+      "@core-prisma/*": [
+        "../core/prisma/*"
       ]
     }
   },

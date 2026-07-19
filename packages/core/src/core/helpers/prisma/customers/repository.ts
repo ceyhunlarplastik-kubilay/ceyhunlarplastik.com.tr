@@ -359,6 +359,11 @@ export interface IPrismaCustomerRepository {
         }
     }>
     getCustomer(id: string): Promise<CustomerDetail | null>
+    /**
+     * P2.8(a): Yalnız fiyat bağlamı için DAR sorgu. `getCustomer` müşteri detayının
+     * tüm relation'larını çeker; portal fiyat hesabı için tek alan yeterli.
+     */
+    getCustomerPricingContext(id: string): Promise<{ generalDiscountPercent: Prisma.Decimal | null } | null>
     createCustomer(data: Prisma.CustomerCreateInput): Promise<CustomerWithRelations>
     updateCustomer(id: string, data: Prisma.CustomerUpdateInput): Promise<CustomerWithRelations>
     createAddress(
@@ -657,6 +662,12 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             include: customerDetailInclude,
         })
 
+    const getCustomerPricingContext = async (id: string) =>
+        prisma.customer.findUnique({
+            where: { id },
+            select: { generalDiscountPercent: true },
+        })
+
     const createCustomer = async (data: Prisma.CustomerCreateInput) =>
         prisma.customer.create({
             data,
@@ -953,6 +964,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         listCustomers,
         listCustomersForMap,
         getCustomer,
+        getCustomerPricingContext,
         createCustomer,
         updateCustomer,
         createAddress,

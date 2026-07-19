@@ -1,5 +1,5 @@
-import { Prisma } from "../../../../core/prisma/generated/prisma/client"
-import { prisma } from "../../../../core/src/core/db/prisma"
+import { Prisma } from "@core-prisma/generated/prisma/client"
+import { prisma } from "@core/db/prisma"
 import type {
     GeocodeAddressParts,
     GeocodeResult,

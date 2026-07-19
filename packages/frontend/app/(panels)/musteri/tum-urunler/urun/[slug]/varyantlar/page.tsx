@@ -1,6 +1,5 @@
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { auth } from "@/lib/auth/auth"
 import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
 import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
@@ -10,11 +9,6 @@ import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/p
 import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
 import { AnimatedSplitProductTitle } from "@/features/public/products/components/AnimatedSplitProductTitle"
-// Not (teknik borç): frontend'in core'a relative-path importu AGENTS.md veri akışı
-// kuralına aykırı; features/auth ve customerLocations'ta da aynı desen var.
-// (panels) taşımasında derinlik değişince kırıldığı için path güncellendi.
-import { prisma } from "../../../../../../../../core/src/core/db/prisma"
-import { normalizeCustomerDiscountPercent } from "../../../../../../../../core/src/core/helpers/pricing/customerPricing"
 
 type PageProps = {
     params: Promise<{ slug: string }>
@@ -24,7 +18,6 @@ type PageProps = {
 export default async function CustomerPortalVariantDetailPage({ params, searchParams }: PageProps) {
     const { slug } = await params
     const resolvedSearchParams = await searchParams
-    const session = await auth()
 
     const measurementKey =
         typeof resolvedSearchParams?.m === "string" ? resolvedSearchParams.m : undefined
@@ -67,15 +60,6 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
     const fallbackAsset = product.assets?.find(
         (asset) => asset?.type === "IMAGE" || asset?.type === undefined,
     )
-    const portalCustomer = session?.user?.customerId
-        ? await prisma.customer.findUnique({
-            where: { id: session.user.customerId },
-            select: {
-                generalDiscountPercent: true,
-            },
-        })
-        : null
-
     return (
         <div className="space-y-6">
             <CustomerPortalVariantPageHeader
@@ -183,7 +167,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                 productCode={product.code}
                 productCategoryId={product.categoryId}
                 categoryName={product.category?.name}
-                customerDiscountPercent={normalizeCustomerDiscountPercent(portalCustomer?.generalDiscountPercent)}
+                customerDiscountPercent={variantTable.customerDiscountPercent}
                 productImageUrl={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
             />
         </div>
