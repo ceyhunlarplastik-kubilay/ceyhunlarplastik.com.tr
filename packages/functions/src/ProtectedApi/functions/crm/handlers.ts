@@ -849,6 +849,38 @@ export const getPortalCustomerHandler = ({ customerRepository }: IProtectedCrmDe
     }
 }
 
+/**
+ * Portal overview (panel ilk-yük pattern'i): getPortalCustomer'ın hafif hali.
+ * Overview sayfası ürünleri render etmez; featured/assigned ürün AĞAÇLARI yerine
+ * yalnız sayıları döner (customer objesi içinde, customerSchema `.loose()` kabul
+ * eder). mapCustomerForApi optional-safe olduğundan aynen kullanılır; `_count`
+ * spread'e sızmasın diye ayrıştırılır.
+ */
+export const getPortalCustomerOverviewHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IManagedCustomerEvent) => {
+        const customerId = event.user?.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(event.user, customerId)
+
+        const customer = await customerRepository.getCustomerPortalOverview(customerId)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        const { _count, ...profile } = customer
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                customer: {
+                    ...mapCustomerForApi(profile),
+                    featuredProductCount: _count.featuredProducts,
+                    assignedProductCount: _count.assignedProducts,
+                },
+            },
+        })
+    }
+}
+
 export const createPortalCustomerUserHandler = ({
     customerRepository,
     userRepository,

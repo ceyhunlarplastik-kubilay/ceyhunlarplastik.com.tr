@@ -262,8 +262,28 @@ const customerDetailInclude = {
     },
 } satisfies Prisma.CustomerInclude
 
+// Panel ilk-yük pattern'i: portal overview sayfası ürünleri RENDER ETMEZ, yalnız
+// sayaçlarını gösterir. customerDetailInclude'un en ağır kısmı olan
+// featuredProducts/assignedProducts ürün ağaçları (ürün başına ~175KB sınıfı)
+// burada _count'a indirilir; profil/iletişim/adres/kullanım-alanı blokları kalır.
+const customerPortalOverviewInclude = {
+    ...customerBaseInclude,
+    portalUsers: customerDetailInclude.portalUsers,
+    addresses: customerDetailInclude.addresses,
+    _count: {
+        select: {
+            featuredProducts: true,
+            assignedProducts: true,
+        },
+    },
+} satisfies Prisma.CustomerInclude
+
 export type CustomerWithRelations = Prisma.CustomerGetPayload<{
     include: typeof customerBaseInclude
+}>
+
+export type CustomerPortalOverview = Prisma.CustomerGetPayload<{
+    include: typeof customerPortalOverviewInclude
 }>
 
 export type CustomerDetail = Prisma.CustomerGetPayload<{
@@ -364,6 +384,11 @@ export interface IPrismaCustomerRepository {
      * tüm relation'larını çeker; portal fiyat hesabı için tek alan yeterli.
      */
     getCustomerPricingContext(id: string): Promise<{ generalDiscountPercent: Prisma.Decimal | null } | null>
+    /**
+     * Portal overview: ürün ağaçları yerine _count taşıyan hafif müşteri profili
+     * (panel ilk-yük pattern'i — sayfa ürünleri render etmez, yalnız sayar).
+     */
+    getCustomerPortalOverview(id: string): Promise<CustomerPortalOverview | null>
     createCustomer(data: Prisma.CustomerCreateInput): Promise<CustomerWithRelations>
     updateCustomer(id: string, data: Prisma.CustomerUpdateInput): Promise<CustomerWithRelations>
     createAddress(
@@ -668,6 +693,12 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             select: { generalDiscountPercent: true },
         })
 
+    const getCustomerPortalOverview = async (id: string) =>
+        prisma.customer.findUnique({
+            where: { id },
+            include: customerPortalOverviewInclude,
+        })
+
     const createCustomer = async (data: Prisma.CustomerCreateInput) =>
         prisma.customer.create({
             data,
@@ -965,6 +996,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         listCustomersForMap,
         getCustomer,
         getCustomerPricingContext,
+        getCustomerPortalOverview,
         createCustomer,
         updateCustomer,
         createAddress,

@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
 import { Spinner } from "@/components/ui/spinner"
-import { usePortalCustomer } from "@/features/customerPortal/hooks/usePortalCustomer"
+import { usePortalCustomerOverview } from "@/features/customerPortal/hooks/usePortalCustomerOverview"
 import {
     CustomerPortalPageHeader,
     CustomerPortalPageHeaderStat,
@@ -27,8 +27,11 @@ import { buildCompanyContactCards } from "@/lib/customers/contactCards"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
 export function CustomerPortalOverviewPageClient() {
-    const query = usePortalCustomer()
+    // Panel ilk-yük pattern'i: overview ürün AĞACI indirmez, sayaçlar API'den gelir.
+    const query = usePortalCustomerOverview()
     const customer = query.data
+    const featuredProductCount = customer?.featuredProductCount ?? customer?.featuredProducts?.length ?? 0
+    const assignedProductCount = customer?.assignedProductCount ?? customer?.assignedProducts?.length ?? 0
     const assignedSalesDisplayName = customer?.assignedSalesUser
         ? getUserDisplayName(customer.assignedSalesUser)
         : ""
@@ -95,7 +98,7 @@ export function CustomerPortalOverviewPageClient() {
             label: "Tanımlı Varyantlar",
             description: "Firmanıza özel tanımlanmış ürün varyant portföyü.",
             icon: Boxes,
-            metric: `${customer.assignedProducts?.length ?? 0} varyant`,
+            metric: `${assignedProductCount} varyant`,
             className: "from-slate-50 via-zinc-50 to-white text-slate-700",
         },
         {
@@ -103,7 +106,7 @@ export function CustomerPortalOverviewPageClient() {
             label: "İlgili Ürünler",
             description: "Profilinize göre öne çıkan ürünleri inceleyin.",
             icon: Sparkles,
-            metric: `${customer.featuredProducts?.length ?? 0} ürün`,
+            metric: `${featuredProductCount} ürün`,
             className: "from-emerald-50 via-teal-50 to-white text-emerald-700",
         },
         {
@@ -132,11 +135,11 @@ export function CustomerPortalOverviewPageClient() {
                     <div className="grid gap-3 sm:grid-cols-2">
                         <CustomerPortalPageHeaderStat
                             label="İlgili Ürün"
-                            value={customer.featuredProducts?.length ?? 0}
+                            value={featuredProductCount}
                         />
                         <CustomerPortalPageHeaderStat
                             label="Tanımlı Varyant"
-                            value={customer.assignedProducts?.length ?? 0}
+                            value={assignedProductCount}
                         />
                         <CustomerPortalPageHeaderStat
                             label="Adres Kaydı"
@@ -238,6 +241,8 @@ export function CustomerPortalOverviewPageClient() {
                 <CustomerPortalProfileSummaryCard
                     customer={customer}
                     assignedSalesDisplayName={assignedSalesDisplayName}
+                    featuredProductCount={featuredProductCount}
+                    assignedProductCount={assignedProductCount}
                 />
             </div>
         </div>

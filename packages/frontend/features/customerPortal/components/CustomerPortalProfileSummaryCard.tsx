@@ -27,6 +27,10 @@ type ProfileSummaryItem = {
 type Props = {
     customer: AdminCustomer
     assignedSalesDisplayName?: string
+    // Panel ilk-yük pattern'i: overview slim endpoint'i ürün dizilerini göndermez,
+    // sayıları API'den geçirir. Verilmezse dizilerin length'ine düşülür.
+    featuredProductCount?: number
+    assignedProductCount?: number
 }
 
 function formatOptional(value?: string | number | null) {
@@ -104,6 +108,8 @@ function buildCustomerProfileSummaryItems(
 export function CustomerPortalProfileSummaryCard({
     customer,
     assignedSalesDisplayName,
+    featuredProductCount,
+    assignedProductCount,
 }: Props) {
     const summaryItems = buildCustomerProfileSummaryItems(customer, assignedSalesDisplayName)
     const hasCommercialNote = Boolean(customer.paymentTermNote?.trim() || customer.note?.trim())
@@ -197,10 +203,10 @@ export function CustomerPortalProfileSummaryCard({
                         {customer.addresses?.length ?? 0} adres
                     </Badge>
                     <Badge variant="outline" className="bg-white">
-                        {customer.featuredProducts?.length ?? 0} ilgili ürün
+                        {featuredProductCount ?? customer.featuredProducts?.length ?? 0} ilgili ürün
                     </Badge>
                     <Badge variant="outline" className="bg-white">
-                        {customer.assignedProducts?.length ?? 0} tanımlı varyant
+                        {assignedProductCount ?? customer.assignedProducts?.length ?? 0} tanımlı varyant
                     </Badge>
                     {hasCommercialNote ? (
                         <Badge className="border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-50">

@@ -27,6 +27,7 @@ import {
     deletePortalCustomerAddressHandler,
     getPortalCustomerFeaturedProductsHandler,
     getPortalCustomerHandler,
+    getPortalCustomerOverviewHandler,
     listManagedCustomersMapHandler,
     listManagedCustomerSpecialPricesHandler,
     listManagedCompanyContactsHandler,
@@ -325,6 +326,16 @@ export const getPortalCustomer = lambdaHandler(
     async (event) => getPortalCustomerHandler(deps)(event as IManagedCustomerEvent),
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        responseValidator: customerResponseValidator,
+    },
+)
+
+export const getPortalCustomerOverview = lambdaHandler(
+    async (event) => getPortalCustomerOverviewHandler(deps)(event as IManagedCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        // customerSchema `.loose()` → ek featuredProductCount/assignedProductCount
+        // alanları customer objesi içinde kabul edilir (AJV ile doğrulandı).
         responseValidator: customerResponseValidator,
     },
 )

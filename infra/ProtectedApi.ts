@@ -428,6 +428,11 @@ protectedApi.route('GET /portal/customer', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /portal/customer/overview', {
+    handler: `${folderPrefix}/crm/actions.getPortalCustomerOverview`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /portal/customer/special-prices', {
     handler: `${folderPrefix}/crm/actions.listPortalCustomerSpecialPrices`,
     ...defaultRouteOptions
