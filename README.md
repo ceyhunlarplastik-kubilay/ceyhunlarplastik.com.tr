@@ -231,7 +231,7 @@ prod_prisma() {
     separator="?"
     [[ "$db_url" == *"?"* ]] && separator="&"
 
-    export DIRECT_URL="${db_url}${separator}sslmode=require"
+    export DIRECT_URL="${db_url}${separator}uselibpqcompat=true&sslmode=require"
     export DATABASE_URL="$DIRECT_URL"
     exec "$@"
   ' bash "$@"
@@ -240,7 +240,10 @@ prod_prisma() {
 
 The helper only exists in the terminal where it is defined. `sst shell` still
 provides the credentials; the helper only replaces the unresolvable hostname
-for the child command.
+for the child command. `uselibpqcompat=true&sslmode=require` keeps TLS enabled
+without hostname verification, which is required when the production tunnel
+connects through `localhost` or a private IP while the RDS Proxy certificate is
+issued for the AWS proxy hostname.
 
 #### Step 4 — Check migration status
 
@@ -263,10 +266,10 @@ prod_prisma npx prisma migrate deploy
 
 ```bash
 # Terminal 1 must still be running the tunnel.
-# Run this in Terminal 2 after defining prod_prisma above.
-prod_prisma npx prisma studio
+# Run this in Terminal 2.
+export AWS_PROFILE=ceyhunlar-prod
+npx sst shell --stage prod --target Prisma -- bash -lc 'cd packages/core && npx prisma studio'
 ```
-
 ---
 
 ## Tearing Down a Stage
