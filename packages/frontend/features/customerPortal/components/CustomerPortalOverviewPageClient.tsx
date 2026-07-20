@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
 import { Spinner } from "@/components/ui/spinner"
 import { usePortalCustomerOverview } from "@/features/customerPortal/hooks/usePortalCustomerOverview"
+import type { PortalCustomerOverview } from "@/features/customerPortal/api/getPortalCustomerOverview"
 import {
     CustomerPortalPageHeader,
     CustomerPortalPageHeaderStat,
@@ -26,9 +27,15 @@ import { CustomerPortalUsageAreaCarousel } from "@/features/customerPortal/compo
 import { buildCompanyContactCards } from "@/lib/customers/contactCards"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
-export function CustomerPortalOverviewPageClient() {
+export function CustomerPortalOverviewPageClient({
+    initialOverview,
+}: {
+    // Dilim 3: RSC'de çekilen slim overview — varsa ilk boya spinner'sız gelir,
+    // yoksa (server fetch hatası) hook kendi client fetch'ine düşer.
+    initialOverview?: PortalCustomerOverview
+}) {
     // Panel ilk-yük pattern'i: overview ürün AĞACI indirmez, sayaçlar API'den gelir.
-    const query = usePortalCustomerOverview()
+    const query = usePortalCustomerOverview({ initialData: initialOverview })
     const customer = query.data
     const featuredProductCount = customer?.featuredProductCount ?? customer?.featuredProducts?.length ?? 0
     const assignedProductCount = customer?.assignedProductCount ?? customer?.assignedProducts?.length ?? 0

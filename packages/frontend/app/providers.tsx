@@ -25,7 +25,8 @@ export function Providers({ children }: { children: ReactNode }) {
                         closeButton
                         duration={3500}
                     />
-                    <ReactQueryDevtools initialIsOpen={true} />
+                    {/* Dilim 4: dev'de her sayfada açık panel gürültüydü; prod build'de zaten tree-shaken. */}
+                    <ReactQueryDevtools initialIsOpen={false} />
                 </QueryClientProvider>
             </NuqsAdapter>
         </SessionProvider>
