@@ -205,9 +205,26 @@ model ProductAttribute {
   isCustomerAssignable Boolean @default(false)
 
   values ProductAttributeValue[]
+  translations ProductAttributeTranslation[]
+  valueTranslations ProductAttributeValueTranslation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ProductAttributeTranslation {
+  id                 String @id @default(uuid())
+  productAttributeId String
+  locale             String @db.VarChar(16)
+  name               String
+
+  productAttribute ProductAttribute @relation(fields: [productAttributeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productAttributeId, locale])
+  @@index([locale, productAttributeId])
 }
 
 model ProductAttributeValue {
@@ -226,6 +243,7 @@ model ProductAttributeValue {
   // 🔥 MANY TO MANY
   products                          Product[]
   assets                            Asset[]
+  translations                      ProductAttributeValueTranslation[]
   customerSectors                   Customer[]                         @relation("CustomerSector")
   customerProductionGroups          Customer[]                         @relation("CustomerProductionGroup")
   customerUsageAreas                Customer[]                         @relation("CustomerUsageAreas")
@@ -243,6 +261,25 @@ model ProductAttributeValue {
   @@unique([attributeId, name])
   @@index([attributeId])
   @@index([parentValueId])
+}
+
+model ProductAttributeValueTranslation {
+  id                      String @id @default(uuid())
+  productAttributeValueId String
+  attributeId             String
+  locale                  String @db.VarChar(16)
+  name                    String
+  slug                    String
+
+  productAttributeValue ProductAttributeValue @relation(fields: [productAttributeValueId], references: [id], onDelete: Cascade)
+  attribute             ProductAttribute      @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productAttributeValueId, locale])
+  @@unique([attributeId, locale, slug])
+  @@index([locale, attributeId])
 }
 
 model ProductIndustrialUsage {

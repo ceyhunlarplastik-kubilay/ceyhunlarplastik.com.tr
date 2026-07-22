@@ -2,6 +2,18 @@ export type ProductAttributeValue = {
     id: string
     name: string
     slug: string
+    locale?: "tr" | "en"
+    resolvedLocale?: string
+    translationMissing?: boolean
+    alternateSlugs?: Record<string, string>
+    translations?: {
+        id: string
+        locale: string
+        name: string
+        slug: string
+        createdAt: string
+        updatedAt: string
+    }[]
     displayOrder?: number
     parentValueId?: string | null
     parentValue?: {
@@ -22,6 +34,16 @@ export type ProductAttribute = {
     id: string
     code: string
     name: string
+    locale?: "tr" | "en"
+    resolvedLocale?: string
+    translationMissing?: boolean
+    translations?: {
+        id: string
+        locale: string
+        name: string
+        createdAt: string
+        updatedAt: string
+    }[]
     displayOrder: number
     isActive?: boolean
     isCustomerAssignable?: boolean

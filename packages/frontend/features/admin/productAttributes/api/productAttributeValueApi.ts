@@ -11,12 +11,21 @@ export type AttributeWithValues = {
 
 export type CreateProductAttributeValueInput = {
     name: string
+    translations?: Array<{
+        locale: "en"
+        name: string
+    }>
     attributeId: string
     parentValueId?: string | null
 }
 
 export type UpdateProductAttributeValueInput = {
     name?: string
+    translations?: Array<{
+        locale: "en"
+        name: string
+    }>
+    removeTranslationLocales?: "en"[]
     parentValueId?: string | null
     assetType?: "IMAGE"
     assetRole?: "PRIMARY"

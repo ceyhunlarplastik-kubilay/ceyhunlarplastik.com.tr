@@ -9,6 +9,7 @@ import { HomeToasts } from "@/components/home/HomeToasts";
 import ProductAssistantModal from "@/components/home/ProductAssistantModal"
 // import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
 import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
+import { getLocale } from "next-intl/server"
 
 export default async function Home({
     searchParams,
@@ -16,10 +17,11 @@ export default async function Home({
     searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
     const params = await searchParams;
+    const locale = await getLocale()
 
     const error = typeof params?.error === "string" ? params.error : undefined;
 
-    const attributes = await getAttributesForFilter()
+    const attributes = await getAttributesForFilter(locale)
 
     return (
         <div className="min-h-screen">

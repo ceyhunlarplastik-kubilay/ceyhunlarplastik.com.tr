@@ -35,6 +35,7 @@ function makeValue(
         isCustomerAssignable: true,
         createdAt: new Date(),
         updatedAt: new Date(),
+        translations: [],
     }
 
     return {
@@ -48,6 +49,7 @@ function makeValue(
         createdAt: options.createdAt ?? new Date(),
         updatedAt: options.updatedAt ?? new Date(),
         assets: options.assets ?? [],
+        translations: options.translations ?? [],
         attribute,
         parentValue: options.parentValue ?? null,
     }
@@ -85,6 +87,7 @@ describe("resolveCustomerAttributeAssignments", () => {
                     isCustomerAssignable: false,
                     createdAt: new Date(),
                     updatedAt: new Date(),
+                    translations: [],
                 },
             }),
         })
@@ -105,6 +108,7 @@ describe("resolveCustomerAttributeAssignments", () => {
                 isCustomerAssignable: false,
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                translations: [],
             },
         })
         const productionGroup = makeValue("pg-a", "production_group", {
@@ -119,6 +123,7 @@ describe("resolveCustomerAttributeAssignments", () => {
                 isCustomerAssignable: false,
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                translations: [],
             },
         })
         const usageArea = makeValue("ua-a", "usage_area", {
@@ -136,6 +141,7 @@ describe("resolveCustomerAttributeAssignments", () => {
                 isCustomerAssignable: false,
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                translations: [],
             },
         })
 

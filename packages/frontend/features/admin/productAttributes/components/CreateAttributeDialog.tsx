@@ -27,6 +27,7 @@ export function CreateAttributeDialog({
     const queryClient = useQueryClient()
 
     const [name, setName] = useState("")
+    const [englishName, setEnglishName] = useState("")
     const [code, setCode] = useState("")
     const [isCustomerAssignable, setIsCustomerAssignable] = useState(false)
     const isSystemCustomerAttribute = ["sector", "production_group", "usage_area"].includes(code.trim())
@@ -36,11 +37,15 @@ export function CreateAttributeDialog({
             await adminApiClient.post("/product-attributes", {
                 name,
                 code,
+                ...(englishName.trim() && {
+                    translations: [{ locale: "en", name: englishName.trim() }],
+                }),
                 isCustomerAssignable: isSystemCustomerAttribute ? true : isCustomerAssignable,
             })
         },
         onSuccess() {
             setName("")
+            setEnglishName("")
             setCode("")
             setIsCustomerAssignable(false)
             onOpenChange(false)
@@ -70,6 +75,16 @@ export function CreateAttributeDialog({
                                 placeholder="Örn. Sektör"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="attribute-english-name">İngilizce ad</Label>
+                            <Input
+                                id="attribute-english-name"
+                                placeholder="Ex. Sector"
+                                value={englishName}
+                                onChange={(e) => setEnglishName(e.target.value)}
                             />
                         </div>
 

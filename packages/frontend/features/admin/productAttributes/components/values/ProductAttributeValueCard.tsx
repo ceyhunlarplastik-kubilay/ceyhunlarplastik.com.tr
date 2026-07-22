@@ -33,6 +33,7 @@ type Props = {
     onUpdateValue: (input: {
         id: string
         name: string
+        englishName?: string
         parentValueId?: string
     }) => Promise<void>
     onRequestDeleteValue: (value: ProductAttributeValue) => void

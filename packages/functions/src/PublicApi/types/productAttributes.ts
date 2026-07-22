@@ -6,4 +6,4 @@ export interface IProductAttributeDependencies {
 }
 
 export type IListAttributesWithValuesEvent =
-    IAPIGatewayProxyEventWithUserGeneric<{}, {}, {}>
+    IAPIGatewayProxyEventWithUserGeneric<{}, {}, { locale?: string }>

@@ -1,6 +1,8 @@
 import { z } from "zod"
 import { assetTypeEnum, assetRoleEnum } from "@/functions/PublicApi/validators/products"
 
+const localeSchema = z.enum(["tr", "en"])
+
 // Response Validators
 // PublicApi list, repository çıktısını ham döndürüyor (AdminApi'den farklı olarak
 // asset'lere `url` eklemiyor) → loose, ileride eklenirse de kırılmaz.
@@ -19,6 +21,18 @@ const pavWithRelationsSchema = z.object({
     id: z.uuid(),
     name: z.string(),
     slug: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    alternateSlugs: z.record(z.string(), z.string()).optional(),
+    translations: z.array(z.object({
+        id: z.uuid(),
+        locale: z.string(),
+        name: z.string(),
+        slug: z.string(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+    })).optional(),
     attributeId: z.uuid(),
     parentValueId: z.uuid().nullish(),
     displayOrder: z.number(),

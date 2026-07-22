@@ -1,4 +1,5 @@
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { getSupportedLocale } from "@/core/i18n/locales"
 import { IProductAttributeValueDependencies, IListProductAttributeValuesEvent } from "@/functions/PublicApi/types/productAttributeValues"
 
 export const listProductAttributeValuesHandler = ({
@@ -22,7 +23,8 @@ export const listProductAttributeValuesHandler = ({
             })
         }
 
-        const data = await productAttributeValueRepository.listValues(attributeId)
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
+        const data = await productAttributeValueRepository.listValues(attributeId, locale)
 
         return apiResponseDTO({
             statusCode: 200,

@@ -5,12 +5,34 @@ const productAttributeCodeSchema = z.string().min(2).max(100).regex(
     /^[a-z][a-z0-9_]*$/,
     "Code must be lower snake_case"
 )
+const localeSchema = z.enum(["tr", "en"])
+const removableTranslationLocaleSchema = z.literal("en")
+const productAttributeTranslationInputSchema = z.object({
+    locale: localeSchema,
+    name: z.string().min(2).max(100),
+})
+const productAttributeTranslationSchema = z.object({
+    id: z.uuid(),
+    locale: z.string(),
+    name: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+const productAttributeValueTranslationSchema = z.object({
+    id: z.uuid(),
+    locale: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
 
 export const createProductAttributeValidator = validatorWrapper(
     z.object({
         body: z.object({
             code: productAttributeCodeSchema,
             name: z.string().min(2).max(100),
+            translations: z.array(productAttributeTranslationInputSchema).max(10).optional(),
             displayOrder: z.number().optional(),
             isCustomerAssignable: z.boolean().optional(),
         }),
@@ -51,6 +73,8 @@ export const updateProductAttributeValidator = validatorWrapper(
         body: z.object({
             code: productAttributeCodeSchema.optional(),
             name: z.string().min(2).max(100).optional(),
+            translations: z.array(productAttributeTranslationInputSchema).max(10).optional(),
+            removeTranslationLocales: z.array(removableTranslationLocaleSchema).max(1).optional(),
             displayOrder: z.number().optional(),
             isCustomerAssignable: z.boolean().optional(),
         }),
@@ -65,6 +89,10 @@ export const productAttributeSchema = z.object({
     id: z.uuid(),
     code: z.string(),
     name: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    translations: z.array(productAttributeTranslationSchema).optional(),
     displayOrder: z.number(),
     isActive: z.boolean(),
     isCustomerAssignable: z.boolean(),
@@ -116,6 +144,11 @@ const productAttributeFilterSchema = z.object({
             id: z.uuid(),
             name: z.string(),
             slug: z.string(),
+            locale: localeSchema.optional(),
+            resolvedLocale: z.string().optional(),
+            translationMissing: z.boolean().optional(),
+            alternateSlugs: z.record(z.string(), z.string()).optional(),
+            translations: z.array(productAttributeValueTranslationSchema).optional(),
             parentValueId: z.uuid().nullable().optional(),
             assets: z.array(
                 z.object({
@@ -127,9 +160,9 @@ const productAttributeFilterSchema = z.object({
                     url: z.string(),
                 }).loose()
             ).optional(),
-        })
+        }).loose()
     )
-})
+}).loose()
 
 export const listAttributesWithValuesResponseValidator = z.toJSONSchema(
     z.object({

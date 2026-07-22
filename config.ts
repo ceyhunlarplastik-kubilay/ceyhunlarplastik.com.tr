@@ -6,6 +6,7 @@ interface ENV {
     RDS_PASSWORD: string | undefined;
     GMAIL_SMTP_USER: string | undefined;
     GMAIL_SMTP_APP_PASSWORD: string | undefined;
+    DIRECT_RDS_HOST: string | undefined;
 }
 
 interface Config {
@@ -16,6 +17,7 @@ interface Config {
     RDS_PASSWORD: string;
     GMAIL_SMTP_USER: string;
     GMAIL_SMTP_APP_PASSWORD: string;
+    DIRECT_RDS_HOST: string;
 }
 
 const getConfig = (): ENV => {
@@ -27,6 +29,7 @@ const getConfig = (): ENV => {
         RDS_PASSWORD: process.env.RDS_PASSWORD,
         GMAIL_SMTP_USER: process.env.GMAIL_SMTP_USER,
         GMAIL_SMTP_APP_PASSWORD: process.env.GMAIL_SMTP_APP_PASSWORD,
+        DIRECT_RDS_HOST: process.env.DIRECT_RDS_HOST,
     };
 };
 
@@ -43,6 +46,7 @@ const getSanitizedConfig = (config: ENV): Config => {
         RDS_PASSWORD: config.RDS_PASSWORD ?? "",
         GMAIL_SMTP_USER: config.GMAIL_SMTP_USER ?? "",
         GMAIL_SMTP_APP_PASSWORD: config.GMAIL_SMTP_APP_PASSWORD ?? "",
+        DIRECT_RDS_HOST: config.DIRECT_RDS_HOST ?? "",
     } as Config;
 };
 

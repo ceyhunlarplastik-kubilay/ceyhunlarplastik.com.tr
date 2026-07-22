@@ -1,7 +1,10 @@
 import createError, { HttpError } from "http-errors"
-import slugify from "slugify"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductAttributeValueDependencies, ICreateProductAttributeValueEvent } from "@/functions/AdminApi/types/productAttributeValues"
+import {
+    ProductAttributeTranslationInputError,
+    normalizeProductAttributeValueTranslations,
+} from "@/core/helpers/productAttributes/productAttributeTranslations"
 
 const ATTRIBUTE_CODES = {
     sector: "sector",
@@ -15,11 +18,17 @@ export const createProductAttributeValueHandler = ({
     assetRepository,
 }: IProductAttributeValueDependencies) => {
     return async (event: ICreateProductAttributeValueEvent) => {
-        const { name, attributeId, displayOrder, parentValueId, assetType, assetRole, assetKey, mimeType } = event.body
+        const { name, translations, attributeId, displayOrder, parentValueId, assetType, assetRole, assetKey, mimeType } = event.body
 
         try {
             const attribute = await productAttributeRepository.getProductAttribute(attributeId)
             if (!attribute) throw new createError.NotFound("Attribute not found")
+            const normalized = normalizeProductAttributeValueTranslations({
+                legacyName: name,
+                translations,
+                requireTurkish: true,
+            })
+            const turkish = normalized.turkish!
 
             let validatedParentValueId: string | null = null
 
@@ -48,11 +57,19 @@ export const createProductAttributeValueHandler = ({
             }
 
             const value = await productAttributeValueRepository.createValue({
-                name,
-                slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
+                name: turkish.name,
+                slug: turkish.slug,
                 displayOrder: displayOrder ?? 0,
                 attribute: {
                     connect: { id: attributeId }
+                },
+                translations: {
+                    create: normalized.translations.map((translation) => ({
+                        ...translation,
+                        attribute: {
+                            connect: { id: attributeId },
+                        },
+                    })),
                 },
                 ...(validatedParentValueId && {
                     parentValue: {
@@ -82,6 +99,9 @@ export const createProductAttributeValueHandler = ({
 
         } catch (error) {
             if (error instanceof HttpError) throw error
+            if (error instanceof ProductAttributeTranslationInputError) {
+                throw new createError.BadRequest(error.message)
+            }
             console.error(error);
             throw new createError.InternalServerError("Failed to create value");
         }

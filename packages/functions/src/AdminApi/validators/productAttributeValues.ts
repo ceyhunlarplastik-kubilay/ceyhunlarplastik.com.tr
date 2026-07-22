@@ -2,10 +2,19 @@ import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { assetTypeEnum, assetRoleEnum } from "@/functions/PublicApi/validators/products"
 
+const localeSchema = z.enum(["tr", "en"])
+const removableTranslationLocaleSchema = z.literal("en")
+const productAttributeValueTranslationInputSchema = z.object({
+    locale: localeSchema,
+    name: z.string().min(2).max(100),
+    slug: z.string().min(1).max(160).optional(),
+})
+
 export const createProductAttributeValueValidator = validatorWrapper(
     z.object({
         body: z.object({
             name: z.string().min(1),
+            translations: z.array(productAttributeValueTranslationInputSchema).max(10).optional(),
             attributeId: z.uuid(),
             displayOrder: z.number().optional(),
             parentValueId: z.uuid().nullable().optional(),
@@ -28,6 +37,8 @@ export const updateProductAttributeValueValidator = validatorWrapper(
         }),
         body: z.object({
             name: z.string().optional(),
+            translations: z.array(productAttributeValueTranslationInputSchema).max(10).optional(),
+            removeTranslationLocales: z.array(removableTranslationLocaleSchema).max(1).optional(),
             displayOrder: z.number().optional(),
             parentValueId: z.uuid().nullable().optional(),
             assetType: assetTypeEnum.optional(),
@@ -93,6 +104,18 @@ const pavBaseShape = {
     id: z.uuid(),
     name: z.string(),
     slug: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    alternateSlugs: z.record(z.string(), z.string()).optional(),
+    translations: z.array(z.object({
+        id: z.uuid(),
+        locale: z.string(),
+        name: z.string(),
+        slug: z.string(),
+        createdAt: z.string(),
+        updatedAt: z.string(),
+    })).optional(),
     attributeId: z.uuid(),
     parentValueId: z.uuid().nullish(),
     displayOrder: z.number(),

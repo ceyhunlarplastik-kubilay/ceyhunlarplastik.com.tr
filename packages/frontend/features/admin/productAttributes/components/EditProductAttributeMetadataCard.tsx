@@ -21,7 +21,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { updateProductAttribute } from "@/features/admin/productAttributes/api/productAttributeApi"
+import {
+    updateProductAttribute,
+    type UpdateProductAttributeInput,
+} from "@/features/admin/productAttributes/api/productAttributeApi"
 import { getApiErrorMessage, mapApiErrorToFormErrors } from "@/features/admin/productAttributes/api/errorHelpers"
 import { productAttributeKeys } from "@/features/admin/productAttributes/api/productAttributeKeys"
 import { isSystemCustomerAttributeCode } from "@/features/admin/productAttributes/constants"
@@ -35,16 +38,18 @@ type Props = {
     attribute: ProductAttribute
 }
 
-const metadataFormFields = ["name", "code", "displayOrder", "isCustomerAssignable"] as const
+const metadataFormFields = ["name", "englishName", "code", "displayOrder", "isCustomerAssignable"] as const
 
 export function EditProductAttributeMetadataCard({ attribute }: Props) {
     const queryClient = useQueryClient()
     const isSystemCustomerAttribute = isSystemCustomerAttributeCode(attribute.code)
+    const englishTranslation = attribute.translations?.find((translation) => translation.locale === "en")
 
     const form = useForm<ProductAttributeMetadataFormValues>({
         resolver: zodResolver(productAttributeMetadataSchema),
         defaultValues: {
             name: attribute.name,
+            englishName: englishTranslation?.name ?? "",
             code: attribute.code,
             displayOrder: attribute.displayOrder,
             isCustomerAssignable: isSystemCustomerAttribute || Boolean(attribute.isCustomerAssignable),
@@ -55,23 +60,31 @@ export function EditProductAttributeMetadataCard({ attribute }: Props) {
     useEffect(() => {
         form.reset({
             name: attribute.name,
+            englishName: englishTranslation?.name ?? "",
             code: attribute.code,
             displayOrder: attribute.displayOrder,
             isCustomerAssignable: isSystemCustomerAttribute || Boolean(attribute.isCustomerAssignable),
         })
-    }, [attribute, form, isSystemCustomerAttribute])
+    }, [attribute, englishTranslation?.name, form, isSystemCustomerAttribute])
 
     const mutation = useMutation({
-        mutationFn: async (values: ProductAttributeMetadataFormValues) =>
-            updateProductAttribute(attribute.id, {
-                ...values,
-                code: isSystemCustomerAttribute ? attribute.code : values.code,
-                isCustomerAssignable: isSystemCustomerAttribute ? true : values.isCustomerAssignable,
-            }),
+        mutationFn: async (
+            values: ProductAttributeMetadataFormValues &
+                Pick<UpdateProductAttributeInput, "translations" | "removeTranslationLocales">
+        ) => {
+            const { englishName: _englishName, ...payload } = values
+
+            return updateProductAttribute(attribute.id, {
+                ...payload,
+                code: isSystemCustomerAttribute ? attribute.code : payload.code,
+                isCustomerAssignable: isSystemCustomerAttribute ? true : payload.isCustomerAssignable,
+            })
+        },
         onSuccess: async (updatedAttribute) => {
             toast.success("Özellik ayarları güncellendi.")
             form.reset({
                 name: updatedAttribute.name,
+                englishName: updatedAttribute.translations?.find((translation) => translation.locale === "en")?.name ?? "",
                 code: updatedAttribute.code,
                 displayOrder: updatedAttribute.displayOrder,
                 isCustomerAssignable: isSystemCustomerAttributeCode(updatedAttribute.code) ||
@@ -99,7 +112,17 @@ export function EditProductAttributeMetadataCard({ attribute }: Props) {
             return
         }
 
-        mutation.mutate(values)
+        const englishName = values.englishName?.trim() ?? ""
+
+        mutation.mutate({
+            ...values,
+            englishName,
+            ...(englishName
+                ? { translations: [{ locale: "en", name: englishName }] }
+                : englishTranslation
+                    ? { removeTranslationLocales: ["en"] }
+                    : {}),
+        })
     }
 
     return (
@@ -140,6 +163,23 @@ export function EditProductAttributeMetadataCard({ attribute }: Props) {
                                     <FormControl>
                                         <Input {...field} placeholder="Örn. Sektör" />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="englishName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>İngilizce ad</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} placeholder="Ex. Sector" disabled={mutation.isPending} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Boş bırakılırsa İngilizce çeviri kaydı kaldırılır.
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}

@@ -67,7 +67,7 @@ export const DATABASE_URL = isProd
   : neonDatabaseUrl!.value;
 
 export const DIRECT_URL = isProd
-  ? DATABASE_URL
+  ? $interpolate`postgresql://${prodRds!.username}:${prodRds!.password}@${config.DIRECT_RDS_HOST}:${prodRds!.port}/${prodRds!.database}`
   : neonDirectUrl!.value;
 
 new sst.x.DevCommand("Prisma", {
