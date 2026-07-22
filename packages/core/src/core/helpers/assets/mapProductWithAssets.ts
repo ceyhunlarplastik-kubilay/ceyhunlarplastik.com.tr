@@ -33,6 +33,10 @@ import { buildAssetUrl } from "./buildAssetUrl"
 import { INDUSTRIAL_ATTRIBUTE_CODE_SET } from "@/core/helpers/products/productIndustrialUsages"
 import { AssetRole } from "@/prisma/generated/prisma/client"
 import { localizeCategory } from "@/core/helpers/categories/localizeCategory"
+import {
+    localizeProductAttribute,
+    localizeProductAttributeValue,
+} from "@/core/helpers/productAttributes/localizeProductAttribute"
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
 
 export function mapAsset(asset: any) {
@@ -79,36 +83,84 @@ function enrichHierarchyAttributeValues(attributeValues: any[]) {
     return result
 }
 
-// Usage değerlerini isim/slug + attribute künyesine indirger: public tablo yalnız
-// name, admin formu yalnız *ValueId okur. Derin attribute/parentValue zincirleri
-// yanıt boyutunu ürün başına ~0.5MB'a şişirip Lambda 6MB limitini aşıyordu.
-function mapIndustrialUsageValue(value: any) {
-    if (!value) return null
+function mapProductAttribute(attribute: any, locale: SupportedLocale) {
+    if (!attribute) return null
+
+    const localized = localizeProductAttribute(attribute, locale)
+    const { translations: _translations, ...rest } = attribute
 
     return {
-        id: value.id,
-        name: value.name,
-        slug: value.slug,
-        attribute: value.attribute
-            ? {
-                id: value.attribute.id,
-                code: value.attribute.code,
-                name: value.attribute.name,
-            }
-            : null,
+        ...rest,
+        name: localized.name,
+        locale: localized.locale,
+        resolvedLocale: localized.resolvedLocale,
+        translationMissing: localized.translationMissing,
     }
 }
 
-function mapIndustrialUsage(usage: any) {
+function mapIndustrialUsageAttribute(attribute: any, locale: SupportedLocale) {
+    if (!attribute) return null
+
+    const localized = localizeProductAttribute(attribute, locale)
+
+    return {
+        id: attribute.id,
+        code: attribute.code,
+        name: localized.name,
+    }
+}
+
+function mapProductAttributeValue(value: any, locale: SupportedLocale): any {
+    if (!value) return null
+
+    const localized = localizeProductAttributeValue(value, locale)
+    const { translations: _translations, ...rest } = value
+
+    return {
+        ...rest,
+        name: localized.name,
+        slug: localized.slug,
+        locale: localized.locale,
+        resolvedLocale: localized.resolvedLocale,
+        translationMissing: localized.translationMissing,
+        alternateSlugs: localized.alternateSlugs,
+        attribute: mapProductAttribute(value.attribute, locale),
+        parentValue: value.parentValue
+            ? mapProductAttributeValue(value.parentValue, locale)
+            : value.parentValue ?? null,
+    }
+}
+
+// Usage değerlerini isim/slug + attribute künyesine indirger: public tablo yalnız
+// name, admin formu yalnız *ValueId okur. Derin attribute/parentValue zincirleri
+// yanıt boyutunu ürün başına ~0.5MB'a şişirip Lambda 6MB limitini aşıyordu.
+function mapIndustrialUsageValue(value: any, locale: SupportedLocale) {
+    if (!value) return null
+
+    const localized = localizeProductAttributeValue(value, locale)
+
+    return {
+        id: value.id,
+        name: localized.name,
+        slug: localized.slug,
+        locale: localized.locale,
+        resolvedLocale: localized.resolvedLocale,
+        translationMissing: localized.translationMissing,
+        alternateSlugs: localized.alternateSlugs,
+        attribute: mapIndustrialUsageAttribute(value.attribute, locale),
+    }
+}
+
+function mapIndustrialUsage(usage: any, locale: SupportedLocale) {
     return {
         id: usage.id,
         productId: usage.productId,
         sectorValueId: usage.sectorValueId ?? null,
-        sectorValue: mapIndustrialUsageValue(usage.sectorValue),
+        sectorValue: mapIndustrialUsageValue(usage.sectorValue, locale),
         productionGroupValueId: usage.productionGroupValueId ?? null,
-        productionGroupValue: mapIndustrialUsageValue(usage.productionGroupValue),
+        productionGroupValue: mapIndustrialUsageValue(usage.productionGroupValue, locale),
         usageAreaValueId: usage.usageAreaValueId ?? null,
-        usageAreaValue: mapIndustrialUsageValue(usage.usageAreaValue),
+        usageAreaValue: mapIndustrialUsageValue(usage.usageAreaValue, locale),
         usageFunction: usage.usageFunction ?? null,
         imageKey: usage.imageKey ?? null,
         imageUrl: usage.imageKey ? buildAssetUrl(usage.imageKey) : null,
@@ -153,9 +205,11 @@ export function mapProductWithAssets(
         // documents,
         // technicalDrawings,
 
-        attributeValues: enrichHierarchyAttributeValues(product.attributeValues ?? []).filter(
-            (value) => !INDUSTRIAL_ATTRIBUTE_CODE_SET.has(value.attribute?.code ?? ""),
+        attributeValues: enrichHierarchyAttributeValues(product.attributeValues ?? [])
+            .map((value) => mapProductAttributeValue(value, locale))
+            .filter((value) => !INDUSTRIAL_ATTRIBUTE_CODE_SET.has(value.attribute?.code ?? "")),
+        industrialUsages: (product.industrialUsages ?? []).map((usage: any) =>
+            mapIndustrialUsage(usage, locale)
         ),
-        industrialUsages: (product.industrialUsages ?? []).map(mapIndustrialUsage),
     }
 }
