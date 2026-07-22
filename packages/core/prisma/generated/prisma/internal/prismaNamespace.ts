@@ -391,7 +391,9 @@ export const ModelName = {
   CategoryTranslation: 'CategoryTranslation',
   Product: 'Product',
   ProductAttribute: 'ProductAttribute',
+  ProductAttributeTranslation: 'ProductAttributeTranslation',
   ProductAttributeValue: 'ProductAttributeValue',
+  ProductAttributeValueTranslation: 'ProductAttributeValueTranslation',
   ProductIndustrialUsage: 'ProductIndustrialUsage',
   Customer: 'Customer',
   UserInvitation: 'UserInvitation',
@@ -436,7 +438,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "category" | "categoryTranslation" | "product" | "productAttribute" | "productAttributeValue" | "productIndustrialUsage" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "category" | "categoryTranslation" | "product" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -958,6 +960,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProductAttributeTranslation: {
+      payload: Prisma.$ProductAttributeTranslationPayload<ExtArgs>
+      fields: Prisma.ProductAttributeTranslationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductAttributeTranslationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductAttributeTranslationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductAttributeTranslationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductAttributeTranslationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>
+        }
+        findMany: {
+          args: Prisma.ProductAttributeTranslationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>[]
+        }
+        create: {
+          args: Prisma.ProductAttributeTranslationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>
+        }
+        createMany: {
+          args: Prisma.ProductAttributeTranslationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductAttributeTranslationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductAttributeTranslationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>
+        }
+        update: {
+          args: Prisma.ProductAttributeTranslationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductAttributeTranslationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductAttributeTranslationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductAttributeTranslationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductAttributeTranslationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeTranslationPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductAttributeTranslationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductAttributeTranslation>
+        }
+        groupBy: {
+          args: Prisma.ProductAttributeTranslationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductAttributeTranslationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductAttributeTranslationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductAttributeTranslationCountAggregateOutputType> | number
+        }
+      }
+    }
     ProductAttributeValue: {
       payload: Prisma.$ProductAttributeValuePayload<ExtArgs>
       fields: Prisma.ProductAttributeValueFieldRefs
@@ -1029,6 +1105,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductAttributeValueCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductAttributeValueCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductAttributeValueTranslation: {
+      payload: Prisma.$ProductAttributeValueTranslationPayload<ExtArgs>
+      fields: Prisma.ProductAttributeValueTranslationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductAttributeValueTranslationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductAttributeValueTranslationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductAttributeValueTranslationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductAttributeValueTranslationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>
+        }
+        findMany: {
+          args: Prisma.ProductAttributeValueTranslationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>[]
+        }
+        create: {
+          args: Prisma.ProductAttributeValueTranslationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>
+        }
+        createMany: {
+          args: Prisma.ProductAttributeValueTranslationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductAttributeValueTranslationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductAttributeValueTranslationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>
+        }
+        update: {
+          args: Prisma.ProductAttributeValueTranslationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductAttributeValueTranslationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductAttributeValueTranslationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductAttributeValueTranslationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductAttributeValueTranslationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductAttributeValueTranslationPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductAttributeValueTranslationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductAttributeValueTranslation>
+        }
+        groupBy: {
+          args: Prisma.ProductAttributeValueTranslationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductAttributeValueTranslationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductAttributeValueTranslationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductAttributeValueTranslationCountAggregateOutputType> | number
         }
       }
     }
@@ -3329,6 +3479,18 @@ export const ProductAttributeScalarFieldEnum = {
 export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
 
 
+export const ProductAttributeTranslationScalarFieldEnum = {
+  id: 'id',
+  productAttributeId: 'productAttributeId',
+  locale: 'locale',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductAttributeTranslationScalarFieldEnum = (typeof ProductAttributeTranslationScalarFieldEnum)[keyof typeof ProductAttributeTranslationScalarFieldEnum]
+
+
 export const ProductAttributeValueScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -3342,6 +3504,20 @@ export const ProductAttributeValueScalarFieldEnum = {
 } as const
 
 export type ProductAttributeValueScalarFieldEnum = (typeof ProductAttributeValueScalarFieldEnum)[keyof typeof ProductAttributeValueScalarFieldEnum]
+
+
+export const ProductAttributeValueTranslationScalarFieldEnum = {
+  id: 'id',
+  productAttributeValueId: 'productAttributeValueId',
+  attributeId: 'attributeId',
+  locale: 'locale',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductAttributeValueTranslationScalarFieldEnum = (typeof ProductAttributeValueTranslationScalarFieldEnum)[keyof typeof ProductAttributeValueTranslationScalarFieldEnum]
 
 
 export const ProductIndustrialUsageScalarFieldEnum = {
@@ -4479,7 +4655,9 @@ export type GlobalOmitConfig = {
   categoryTranslation?: Prisma.CategoryTranslationOmit
   product?: Prisma.ProductOmit
   productAttribute?: Prisma.ProductAttributeOmit
+  productAttributeTranslation?: Prisma.ProductAttributeTranslationOmit
   productAttributeValue?: Prisma.ProductAttributeValueOmit
+  productAttributeValueTranslation?: Prisma.ProductAttributeValueTranslationOmit
   productIndustrialUsage?: Prisma.ProductIndustrialUsageOmit
   customer?: Prisma.CustomerOmit
   userInvitation?: Prisma.UserInvitationOmit

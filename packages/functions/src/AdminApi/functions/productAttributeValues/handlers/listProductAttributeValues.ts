@@ -1,6 +1,7 @@
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductAttributeValueDependencies, IListProductAttributeValuesEvent } from "@/functions/AdminApi/types/productAttributeValues"
 import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
+import { getSupportedLocale } from "@/core/i18n/locales"
 
 export const listProductAttributeValuesHandler = ({
     productAttributeValueRepository
@@ -22,7 +23,8 @@ export const listProductAttributeValuesHandler = ({
             })
         }
 
-        const values = await productAttributeValueRepository.listValues(attributeId)
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
+        const values = await productAttributeValueRepository.listValues(attributeId, locale)
         const data = values.map((value) => ({
             ...value,
             assets: ((value as any).assets ?? []).map((asset: any) => ({

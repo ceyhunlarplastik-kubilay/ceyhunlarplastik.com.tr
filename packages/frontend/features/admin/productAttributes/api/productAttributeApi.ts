@@ -6,6 +6,11 @@ export type UpdateProductAttributeInput = {
     code: string
     displayOrder: number
     isCustomerAssignable: boolean
+    translations?: Array<{
+        locale: "en"
+        name: string
+    }>
+    removeTranslationLocales?: "en"[]
 }
 
 type UpdateProductAttributeResponse = {

@@ -66,8 +66,10 @@ export const DATABASE_URL = isProd
   ? $interpolate`postgresql://${prodRds!.username}:${prodRds!.password}@${prodRds!.host}:${prodRds!.port}/${prodRds!.database}`
   : neonDatabaseUrl!.value;
 
+// const DIRECT_RDS_HOST = "ceyhunlarweb-prod-mypostgresinstance-zfwoarbk.c5um082caw7t.eu-central-1.rds.amazonaws.com";
+
 export const DIRECT_URL = isProd
-  ? DATABASE_URL
+  ? $interpolate`postgresql://${prodRds!.username}:${prodRds!.password}@${config.DIRECT_RDS_HOST}:${prodRds!.port}/${prodRds!.database}`
   : neonDirectUrl!.value;
 
 new sst.x.DevCommand("Prisma", {

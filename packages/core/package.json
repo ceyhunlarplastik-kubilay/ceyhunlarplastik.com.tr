@@ -7,6 +7,8 @@
     "test:ci": "vitest run",
     "backfill:category-translations": "tsx prisma/backfill-category-translations.ts",
     "translate:category-translations": "tsx prisma/translate-category-translations.ts",
+    "backfill:product-taxonomy-translations": "tsx prisma/backfill-product-taxonomy-translations.ts",
+    "translate:product-taxonomy-translations": "tsx prisma/translate-product-taxonomy-translations.ts",
     "seed:geo": "tsx prisma/seed-geo.ts"
   },
   "exports": {

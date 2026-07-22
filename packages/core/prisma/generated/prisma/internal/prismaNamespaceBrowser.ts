@@ -58,7 +58,9 @@ export const ModelName = {
   CategoryTranslation: 'CategoryTranslation',
   Product: 'Product',
   ProductAttribute: 'ProductAttribute',
+  ProductAttributeTranslation: 'ProductAttributeTranslation',
   ProductAttributeValue: 'ProductAttributeValue',
+  ProductAttributeValueTranslation: 'ProductAttributeValueTranslation',
   ProductIndustrialUsage: 'ProductIndustrialUsage',
   Customer: 'Customer',
   UserInvitation: 'UserInvitation',
@@ -218,6 +220,18 @@ export const ProductAttributeScalarFieldEnum = {
 export type ProductAttributeScalarFieldEnum = (typeof ProductAttributeScalarFieldEnum)[keyof typeof ProductAttributeScalarFieldEnum]
 
 
+export const ProductAttributeTranslationScalarFieldEnum = {
+  id: 'id',
+  productAttributeId: 'productAttributeId',
+  locale: 'locale',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductAttributeTranslationScalarFieldEnum = (typeof ProductAttributeTranslationScalarFieldEnum)[keyof typeof ProductAttributeTranslationScalarFieldEnum]
+
+
 export const ProductAttributeValueScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -231,6 +245,20 @@ export const ProductAttributeValueScalarFieldEnum = {
 } as const
 
 export type ProductAttributeValueScalarFieldEnum = (typeof ProductAttributeValueScalarFieldEnum)[keyof typeof ProductAttributeValueScalarFieldEnum]
+
+
+export const ProductAttributeValueTranslationScalarFieldEnum = {
+  id: 'id',
+  productAttributeValueId: 'productAttributeValueId',
+  attributeId: 'attributeId',
+  locale: 'locale',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductAttributeValueTranslationScalarFieldEnum = (typeof ProductAttributeValueTranslationScalarFieldEnum)[keyof typeof ProductAttributeValueTranslationScalarFieldEnum]
 
 
 export const ProductIndustrialUsageScalarFieldEnum = {

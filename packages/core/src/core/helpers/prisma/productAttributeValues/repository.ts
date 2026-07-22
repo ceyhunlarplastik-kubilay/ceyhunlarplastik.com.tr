@@ -1,24 +1,56 @@
 import { prisma } from "@/core/db/prisma"
 import { Prisma, ProductAttributeValue } from "@/prisma/generated/prisma/client"
+import {
+    DEFAULT_LOCALE,
+    getSupportedLocale,
+    type SupportedLocale,
+} from "@/core/i18n/locales"
+import {
+    localizeProductAttribute,
+    localizeProductAttributeValue,
+} from "@/core/helpers/productAttributes/localizeProductAttribute"
 
 export type ProductAttributeValueWithParent = Prisma.ProductAttributeValueGetPayload<{
-    include: { parentValue: true, assets: true }
+    include: {
+        parentValue: {
+            include: {
+                translations: true
+            }
+        }
+        assets: true
+        translations: true
+    }
 }>
 
 export type ProductAttributeValueWithAttribute = Prisma.ProductAttributeValueGetPayload<{
     include: {
-        attribute: true
+        attribute: {
+            include: {
+                translations: true
+            }
+        }
         parentValue: {
             include: {
-                attribute: true
+                translations: true
+                attribute: {
+                    include: {
+                        translations: true
+                    }
+                }
                 parentValue: {
                     include: {
-                        attribute: true
+                        translations: true
+                        attribute: {
+                            include: {
+                                translations: true
+                            }
+                        }
                     }
                 }
             }
         }
         assets: true
+        translations: true
     }
 }>
 
@@ -32,18 +64,42 @@ export type ProductAttributeValueDeleteBlockers = {
 }
 
 export interface IPrismaProductAttributeValueRepository {
-    listValues(attributeId: string): Promise<ProductAttributeValueWithParent[]>
-    getValueById(id: string): Promise<ProductAttributeValueWithAttribute | null>
+    listValues(attributeId: string, locale?: SupportedLocale): Promise<any[]>
+    getValueById(id: string, locale?: SupportedLocale): Promise<any | null>
     getDeleteBlockers(id: string): Promise<ProductAttributeValueDeleteBlockers>
-    createValue(data: Prisma.ProductAttributeValueCreateInput): Promise<ProductAttributeValue>
-    updateValue(id: string, data: Prisma.ProductAttributeValueUpdateInput): Promise<ProductAttributeValue>
+    createValue(data: Prisma.ProductAttributeValueCreateInput): Promise<any>
+    updateValue(id: string, data: Prisma.ProductAttributeValueUpdateInput): Promise<any>
     deleteValue(id: string): Promise<ProductAttributeValue>
 }
 
 export const productAttributeValueRepository = (): IPrismaProductAttributeValueRepository => {
+    const localizeValue = <T extends ProductAttributeValue & { translations?: any[] }>(
+        value: T,
+        locale: SupportedLocale = DEFAULT_LOCALE,
+    ) => {
+        const localized = localizeProductAttributeValue(value, locale)
+        const valueWithRelations = value as T & {
+            parentValue?: (ProductAttributeValue & { translations?: any[] }) | null
+            attribute?: Parameters<typeof localizeProductAttribute>[0] | null
+        }
 
-    const listValues = (attributeId: string) =>
-        prisma.productAttributeValue.findMany({
+        return {
+            ...localized,
+            ...(valueWithRelations.parentValue && {
+                parentValue: localizeProductAttributeValue(valueWithRelations.parentValue, locale),
+            }),
+            ...(valueWithRelations.attribute && {
+                attribute: localizeProductAttribute(valueWithRelations.attribute, locale),
+            }),
+        }
+    }
+
+    const listValues = async (
+        attributeId: string,
+        requestedLocale?: SupportedLocale,
+    ) => {
+        const locale = getSupportedLocale(requestedLocale)
+        const values = await prisma.productAttributeValue.findMany({
             where: {
                 attributeId,
                 isActive: true
@@ -52,22 +108,65 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
                 displayOrder: "asc"
             },
             include: {
-                parentValue: true,
+                translations: {
+                    orderBy: { locale: "asc" },
+                },
+                parentValue: {
+                    include: {
+                        translations: {
+                            orderBy: { locale: "asc" },
+                        },
+                    },
+                },
                 assets: true,
             },
         })
 
-    const getValueById = (id: string) =>
-        prisma.productAttributeValue.findUnique({
+        return values.map((value) => localizeValue(value, locale))
+    }
+
+    const getValueById = async (
+        id: string,
+        requestedLocale?: SupportedLocale,
+    ) => {
+        const locale = getSupportedLocale(requestedLocale)
+        const value = await prisma.productAttributeValue.findUnique({
             where: { id },
             include: {
-                attribute: true,
+                translations: {
+                    orderBy: { locale: "asc" },
+                },
+                attribute: {
+                    include: {
+                        translations: {
+                            orderBy: { locale: "asc" },
+                        },
+                    },
+                },
                 parentValue: {
                     include: {
-                        attribute: true,
+                        translations: {
+                            orderBy: { locale: "asc" },
+                        },
+                        attribute: {
+                            include: {
+                                translations: {
+                                    orderBy: { locale: "asc" },
+                                },
+                            },
+                        },
                         parentValue: {
                             include: {
-                                attribute: true,
+                                translations: {
+                                    orderBy: { locale: "asc" },
+                                },
+                                attribute: {
+                                    include: {
+                                        translations: {
+                                            orderBy: { locale: "asc" },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -75,6 +174,9 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
                 assets: true,
             },
         })
+
+        return value ? localizeValue(value, locale) : null
+    }
 
     const getDeleteBlockers = async (id: string): Promise<ProductAttributeValueDeleteBlockers> => {
         const [
@@ -139,16 +241,46 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
         }
     }
 
-    const createValue = (data: Prisma.ProductAttributeValueCreateInput) =>
-        prisma.productAttributeValue.create({
-            data
+    const createValue = async (data: Prisma.ProductAttributeValueCreateInput) => {
+        const value = await prisma.productAttributeValue.create({
+            data,
+            include: {
+                translations: {
+                    orderBy: { locale: "asc" },
+                },
+                assets: true,
+                parentValue: {
+                    include: {
+                        translations: {
+                            orderBy: { locale: "asc" },
+                        },
+                    },
+                },
+            },
         })
+        return localizeValue(value)
+    }
 
-    const updateValue = (id: string, data: Prisma.ProductAttributeValueUpdateInput) =>
-        prisma.productAttributeValue.update({
+    const updateValue = async (id: string, data: Prisma.ProductAttributeValueUpdateInput) => {
+        const value = await prisma.productAttributeValue.update({
             where: { id },
-            data
+            data,
+            include: {
+                translations: {
+                    orderBy: { locale: "asc" },
+                },
+                assets: true,
+                parentValue: {
+                    include: {
+                        translations: {
+                            orderBy: { locale: "asc" },
+                        },
+                    },
+                },
+            },
         })
+        return localizeValue(value)
+    }
 
     const deleteValue = (id: string) =>
         prisma.productAttributeValue.delete({

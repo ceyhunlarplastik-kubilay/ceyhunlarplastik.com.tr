@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { getSupportedLocale } from "@/core/i18n/locales"
 import {
     IProductAttributeDependencies,
     IListAttributesWithValuesEvent,
@@ -8,9 +9,10 @@ import {
 export const listAttributesWithValuesHandler = ({
     productAttributeRepository,
 }: IProductAttributeDependencies) => {
-    return async (_event: IListAttributesWithValuesEvent) => {
+    return async (event: IListAttributesWithValuesEvent) => {
         try {
-            const data = await productAttributeRepository.listAttributesForFilter()
+            const locale = getSupportedLocale(event.queryStringParameters?.locale)
+            const data = await productAttributeRepository.listAttributesForFilter(locale)
 
             return apiResponseDTO({
                 statusCode: 200,

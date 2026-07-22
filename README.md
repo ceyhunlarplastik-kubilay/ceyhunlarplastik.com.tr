@@ -266,9 +266,9 @@ prod_prisma npx prisma migrate deploy
 
 ```bash
 # Terminal 1 must still be running the tunnel.
-# Run this in Terminal 2.
+# Run this in Terminal 2 after defining the prod_prisma helper from Step 3.
 export AWS_PROFILE=ceyhunlar-prod
-npx sst shell --stage prod --target Prisma -- bash -lc 'cd packages/core && npx prisma studio'
+prod_prisma npx prisma studio --browser none
 ```
 ---
 
@@ -664,3 +664,98 @@ prod_prisma npm run translate:category-translations -- --plan
   Prisma transaction.
 - An existing draft is not silently replaced. Use another `--output` path to
   preserve reviewed work.
+
+---
+
+## DeepL Product Taxonomy Translation Operations
+
+This workflow covers the first post-Category migration step:
+`ProductAttribute` and `ProductAttributeValue`. It keeps the legacy `name` and
+`slug` columns, backfills Turkish source rows, then generates reviewed English
+translation drafts. Existing EN translations are never overwritten.
+
+Show all CLI options:
+
+```bash
+npm --workspace packages/core run backfill:product-taxonomy-translations -- --help
+npm --workspace packages/core run translate:product-taxonomy-translations -- --help
+```
+
+### Local/non-production (`kubi`) sequence
+
+Run the additive migration first, then backfill TR and generate/apply EN drafts:
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npx prisma migrate deploy'
+
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run backfill:product-taxonomy-translations'
+
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run backfill:product-taxonomy-translations -- --apply'
+
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:product-taxonomy-translations -- --plan'
+
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:product-taxonomy-translations -- --generate'
+```
+
+Review the generated draft before applying:
+
+```text
+packages/core/.translation-drafts/product-taxonomy-tr-en.json
+```
+
+```bash
+npx sst shell --stage kubi --target Prisma -- bash -lc \
+  'cd packages/core && npm run translate:product-taxonomy-translations -- --apply .translation-drafts/product-taxonomy-tr-en.json'
+```
+
+Useful narrow pilots:
+
+```bash
+npm --workspace packages/core run translate:product-taxonomy-translations -- --plan --entity attributes --limit 5
+npm --workspace packages/core run translate:product-taxonomy-translations -- --plan --entity values --attribute-code sector
+```
+
+### Production sequence
+
+Use the same production tunnel and `prod_prisma` helper documented in
+**Database Migrations on a Deployed Stage**.
+
+```bash
+# Terminal 1
+export AWS_PROFILE=ceyhunlar-prod
+npx sst tunnel --stage prod
+```
+
+In Terminal 2, define `prod_prisma`, then run:
+
+```bash
+prod_prisma npx prisma migrate status
+prod_prisma npx prisma migrate deploy
+prod_prisma npx prisma migrate status
+
+prod_prisma npm run backfill:product-taxonomy-translations
+prod_prisma npm run backfill:product-taxonomy-translations -- --apply
+prod_prisma npm run backfill:product-taxonomy-translations
+
+prod_prisma npm run translate:product-taxonomy-translations -- --plan
+prod_prisma npm run translate:product-taxonomy-translations -- --generate
+```
+
+Review `packages/core/.translation-drafts/product-taxonomy-tr-en.json`, then:
+
+```bash
+prod_prisma npm run translate:product-taxonomy-translations -- \
+  --apply .translation-drafts/product-taxonomy-tr-en.json
+
+prod_prisma npm run translate:product-taxonomy-translations -- --plan
+```
+
+The final backfill dry-run should report `missing: 0`, and the final translate
+plan should report `candidates: 0`. Test TR/EN public filters, attribute badges,
+customer profile taxonomy, and admin attribute/value edit forms before moving on
+to `MeasurementType`.

@@ -10,5 +10,5 @@ export type IListProductAttributeValuesEvent =
     IAPIGatewayProxyEventWithUserGeneric<
         {},
         { attributeId?: string; id?: string } | undefined,
-        { attributeId?: string } | undefined
+        { attributeId?: string; locale?: string } | undefined
     >

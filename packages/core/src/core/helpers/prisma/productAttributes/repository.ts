@@ -5,16 +5,48 @@ import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginati
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
 import { getEffectiveCustomerAssignable } from "@/core/helpers/productAttributes/customerAssignableAttributes"
+import {
+    DEFAULT_LOCALE,
+    getSupportedLocale,
+    type SupportedLocale,
+} from "@/core/i18n/locales"
+import {
+    localizeProductAttribute,
+    localizeProductAttributeValue,
+    type LocalizedProductAttribute,
+} from "@/core/helpers/productAttributes/localizeProductAttribute"
 
 type ProductAttributeForFilter = {
     id: string
     code: string
     name: string
+    locale: SupportedLocale
+    resolvedLocale: string
+    translationMissing: boolean
+    translations: {
+        id: string
+        locale: string
+        name: string
+        createdAt: Date
+        updatedAt: Date
+    }[]
     isCustomerAssignable: boolean
     values: {
         id: string
         name: string
         slug: string
+        locale: SupportedLocale
+        resolvedLocale: string
+        translationMissing: boolean
+        alternateSlugs: Record<string, string>
+        translations: {
+            id: string
+            locale: string
+            name: string
+            slug: string
+            createdAt: Date
+            updatedAt: Date
+        }[]
         parentValueId: string | null
         assets: {
             id: string
@@ -27,9 +59,19 @@ type ProductAttributeForFilter = {
     }[]
 }
 
+const productAttributeInclude = {
+    translations: {
+        orderBy: { locale: "asc" },
+    },
+} satisfies Prisma.ProductAttributeInclude
+
+type ProductAttributeWithTranslations = Prisma.ProductAttributeGetPayload<{
+    include: typeof productAttributeInclude
+}>
+
 export interface IPrismaProductAttributeRepository {
-    listProductAttributes(query: IPaginationQuery): Promise<{
-        data: ProductAttribute[]
+    listProductAttributes(query: IPaginationQuery & { locale?: SupportedLocale }): Promise<{
+        data: LocalizedProductAttribute<ProductAttributeWithTranslations>[]
         meta: {
             page: number
             limit: number
@@ -37,11 +79,11 @@ export interface IPrismaProductAttributeRepository {
             totalPages: number
         }
     }>
-    listAttributesWithValues(): Promise<ProductAttribute[]>
-    listAttributesForFilter(): Promise<ProductAttributeForFilter[]>
-    getProductAttribute(id: string): Promise<ProductAttribute | null>
-    createProductAttribute(data: Prisma.ProductAttributeCreateInput): Promise<ProductAttribute>
-    updateProductAttribute(id: string, data: Prisma.ProductAttributeUpdateInput): Promise<ProductAttribute>
+    listAttributesWithValues(locale?: SupportedLocale): Promise<any[]>
+    listAttributesForFilter(locale?: SupportedLocale): Promise<ProductAttributeForFilter[]>
+    getProductAttribute(id: string, locale?: SupportedLocale): Promise<LocalizedProductAttribute<ProductAttributeWithTranslations>>
+    createProductAttribute(data: Prisma.ProductAttributeCreateInput): Promise<LocalizedProductAttribute<ProductAttributeWithTranslations>>
+    updateProductAttribute(id: string, data: Prisma.ProductAttributeUpdateInput): Promise<LocalizedProductAttribute<ProductAttributeWithTranslations>>
     deleteProductAttribute(id: string): Promise<ProductAttribute>
 }
 
@@ -50,11 +92,19 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
         ...attribute,
         isCustomerAssignable: getEffectiveCustomerAssignable(attribute),
     })
+    const localizeAttribute = <T extends ProductAttribute & { translations?: any[] }>(
+        attribute: T,
+        locale: SupportedLocale = DEFAULT_LOCALE,
+    ) => applyEffectiveCustomerAssignable(localizeProductAttribute(attribute, locale))
 
-    const listProductAttributes = async (query: IPaginationQuery) => {
+    const listProductAttributes = async (query: IPaginationQuery & { locale?: SupportedLocale }) => {
+        const locale = getSupportedLocale(query.locale)
+        const search = query.search?.trim()
+        const searchableLocales = locale === DEFAULT_LOCALE
+            ? [DEFAULT_LOCALE]
+            : [locale, DEFAULT_LOCALE]
 
         const {
-            where,
             orderBy,
             skip,
             take,
@@ -64,6 +114,35 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
             searchableFields: ["name"],
             defaultSort: "createdAt",
         })
+        const where: Prisma.ProductAttributeWhereInput = search
+            ? {
+                OR: [
+                    {
+                        name: {
+                            contains: search,
+                            mode: "insensitive",
+                        },
+                    },
+                    {
+                        translations: {
+                            some: {
+                                locale: { in: searchableLocales },
+                                name: {
+                                    contains: search,
+                                    mode: "insensitive",
+                                },
+                            },
+                        },
+                    },
+                    {
+                        code: {
+                            contains: search,
+                            mode: "insensitive",
+                        },
+                    },
+                ],
+            }
+            : {}
 
         const [data, total] = await Promise.all([
             prisma.productAttribute.findMany({
@@ -71,11 +150,12 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                 orderBy,
                 skip,
                 take,
+                include: productAttributeInclude,
             }),
             prisma.productAttribute.count({ where }),
         ])
 
-        return buildPaginationResponse(data.map(applyEffectiveCustomerAssignable), {
+        return buildPaginationResponse(data.map((attribute) => localizeAttribute(attribute, locale)), {
             page,
             limit,
             total,
@@ -83,7 +163,8 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
         })
     }
 
-    const listAttributesWithValues = async () => {
+    const listAttributesWithValues = async (requestedLocale?: SupportedLocale) => {
+        const locale = getSupportedLocale(requestedLocale)
         const attributes = await prisma.productAttribute.findMany({
             where: {
                 isActive: true,
@@ -92,6 +173,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                 displayOrder: "asc",
             },
             include: {
+                ...productAttributeInclude,
                 values: {
                     where: {
                         isActive: true,
@@ -99,20 +181,43 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                     orderBy: {
                         displayOrder: "asc",
                     },
+                    include: {
+                        translations: {
+                            orderBy: { locale: "asc" },
+                        },
+                    },
                 },
             },
         })
 
-        return attributes.map(applyEffectiveCustomerAssignable)
+        return attributes.map((attribute) => localizeAttribute({
+            ...attribute,
+            values: attribute.values.map((value) => localizeProductAttributeValue(value, locale)),
+        }, locale))
     }
 
-    const listAttributesForFilter = async () => {
+    const listAttributesForFilter = async (requestedLocale?: SupportedLocale) => {
+        const locale = getSupportedLocale(requestedLocale)
         const attributes = await prisma.productAttribute.findMany({
             where: { isActive: true },
             select: {
                 id: true,
                 code: true,
                 name: true,
+                displayOrder: true,
+                isActive: true,
+                createdAt: true,
+                updatedAt: true,
+                translations: {
+                    orderBy: { locale: "asc" },
+                    select: {
+                        id: true,
+                        locale: true,
+                        name: true,
+                        createdAt: true,
+                        updatedAt: true,
+                    },
+                },
                 isCustomerAssignable: true,
                 values: {
                     where: { isActive: true },
@@ -120,6 +225,22 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                         id: true,
                         name: true,
                         slug: true,
+                        attributeId: true,
+                        displayOrder: true,
+                        isActive: true,
+                        createdAt: true,
+                        updatedAt: true,
+                        translations: {
+                            orderBy: { locale: "asc" },
+                            select: {
+                                id: true,
+                                locale: true,
+                                name: true,
+                                slug: true,
+                                createdAt: true,
+                                updatedAt: true,
+                            },
+                        },
                         parentValueId: true,
                         assets: {
                             select: {
@@ -139,10 +260,10 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
         })
 
         return attributes.map((attribute) => ({
-            ...attribute,
+            ...localizeAttribute(attribute, locale),
             isCustomerAssignable: getEffectiveCustomerAssignable(attribute),
             values: attribute.values.map((value) => ({
-                ...value,
+                ...localizeProductAttributeValue(value, locale),
                 assets: value.assets.map((asset) => ({
                     ...asset,
                     url: buildAssetUrl(asset.key),
@@ -151,23 +272,34 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
         }))
     }
 
-    const getProductAttribute = async (id: string) => {
+    const getProductAttribute = async (
+        id: string,
+        requestedLocale?: SupportedLocale,
+    ) => {
+        const locale = getSupportedLocale(requestedLocale)
         const attribute = await prisma.productAttribute.findUniqueOrThrow({
             where: { id },
+            include: productAttributeInclude,
         })
-        return applyEffectiveCustomerAssignable(attribute)
+        return localizeAttribute(attribute, locale)
     }
 
-    const createProductAttribute = (data: Prisma.ProductAttributeCreateInput) =>
-        prisma.productAttribute.create({
+    const createProductAttribute = async (data: Prisma.ProductAttributeCreateInput) => {
+        const attribute = await prisma.productAttribute.create({
             data,
+            include: productAttributeInclude,
         })
+        return localizeAttribute(attribute)
+    }
 
-    const updateProductAttribute = (id: string, data: Prisma.ProductAttributeUpdateInput) =>
-        prisma.productAttribute.update({
+    const updateProductAttribute = async (id: string, data: Prisma.ProductAttributeUpdateInput) => {
+        const attribute = await prisma.productAttribute.update({
             where: { id },
             data,
+            include: productAttributeInclude,
         })
+        return localizeAttribute(attribute)
+    }
 
     const deleteProductAttribute = (id: string) =>
         prisma.productAttribute.delete({

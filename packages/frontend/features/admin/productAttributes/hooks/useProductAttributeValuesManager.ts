@@ -26,6 +26,7 @@ import type { ProductAttributeValue } from "@/features/admin/productAttributes/t
 
 type CreateValueInput = {
     name: string
+    englishName?: string
     parentValueId?: string
     file?: File | null
 }
@@ -33,6 +34,7 @@ type CreateValueInput = {
 type UpdateValueInput = {
     id: string
     name: string
+    englishName?: string
     parentValueId?: string
 }
 
@@ -123,9 +125,12 @@ export function useProductAttributeValuesManager({ attributeId, attributeCode }:
     }
 
     const createMutation = useMutation({
-        mutationFn: async ({ name, parentValueId: parentId, file }: CreateValueInput) => {
+        mutationFn: async ({ name, englishName, parentValueId: parentId, file }: CreateValueInput) => {
             const createdValue = await createProductAttributeValue({
                 name,
+                ...(englishName?.trim() && {
+                    translations: [{ locale: "en", name: englishName.trim() }],
+                }),
                 attributeId,
                 ...(parentAttributeCode && { parentValueId: parentId }),
             })
@@ -158,10 +163,19 @@ export function useProductAttributeValuesManager({ attributeId, attributeCode }:
     })
 
     const updateMutation = useMutation({
-        mutationFn: async ({ id, name, parentValueId: parentId }: UpdateValueInput) => {
+        mutationFn: async ({ id, name, englishName, parentValueId: parentId }: UpdateValueInput) => {
             setUpdatingValueId(id)
+            const currentValue = values.find((value) => value.id === id)
+            const hasEnglishTranslation = currentValue?.translations?.some((translation) => translation.locale === "en")
+            const normalizedEnglishName = englishName?.trim() ?? ""
+
             await updateProductAttributeValue(id, {
                 name,
+                ...(normalizedEnglishName
+                    ? { translations: [{ locale: "en", name: normalizedEnglishName }] }
+                    : hasEnglishTranslation
+                        ? { removeTranslationLocales: ["en"] }
+                        : {}),
                 ...(parentAttributeCode && { parentValueId: parentId }),
             })
         },

@@ -65,7 +65,7 @@ export default async function CategoryPage(
     const [tb, category, attributes] = await Promise.all([
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getCategoryBySlug(slug, locale),
-        getAttributesForFilter(),
+        getAttributesForFilter(locale),
     ])
 
     if (!category) notFound()

@@ -27,7 +27,7 @@ export default async function Page({
         getTranslations({ locale, namespace: "public.productFilter" }),
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getCategories(locale),
-        getAttributesForFilter(),
+        getAttributesForFilter(locale),
     ])
 
     let title = t("pageTitle");

@@ -25,7 +25,7 @@ export const deleteProductAttributeValueHandler = ({ productAttributeValueReposi
                 )
             }
 
-            const assetKeys = value.assets.map((asset) => asset.key)
+            const assetKeys = value.assets.map((asset: { key: string }) => asset.key)
 
             try {
                 await deleteS3Objects(assetKeys)

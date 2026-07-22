@@ -10,18 +10,21 @@ const ALPHABETICAL_ATTRIBUTE_CODES = new Set([
     "usage_area",
 ])
 
-const trCollator = new Intl.Collator("tr", {
-    sensitivity: "base",
-    numeric: true,
-})
+function sortValuesByName(values: NonNullable<ProductAttribute["values"]>, locale: string) {
+    const collator = new Intl.Collator(locale === "en" ? "en" : "tr", {
+        sensitivity: "base",
+        numeric: true,
+    })
 
-function sortValuesByName(values: NonNullable<ProductAttribute["values"]>) {
-    return [...values].sort((a, b) => trCollator.compare(a.name, b.name))
+    return [...values].sort((a, b) => collator.compare(a.name, b.name))
 }
 
-async function fetchAttributesForFilter(): Promise<ProductAttribute[]> {
+async function fetchAttributesForFilter(locale = "tr"): Promise<ProductAttribute[]> {
     try {
-        const res = await publicServerClient().get<ListAttributesResponse>("/product-attributes/with-values");
+        const res = await publicServerClient().get<ListAttributesResponse>(
+            "/product-attributes/with-values",
+            { params: { locale } },
+        );
 
         const attributes = res.data.payload.data ?? [];
 
@@ -32,7 +35,7 @@ async function fetchAttributesForFilter(): Promise<ProductAttribute[]> {
 
             return {
                 ...attribute,
-                values: sortValuesByName(attribute.values),
+                values: sortValuesByName(attribute.values, locale),
             }
         })
     } catch (error: any) {
@@ -49,9 +52,9 @@ const getCachedAttributesForFilter = unstable_cache(fetchAttributesForFilter, ["
     revalidate: 60,
 });
 
-export const getAttributesForFilter = cache(async (): Promise<ProductAttribute[]> => {
+export const getAttributesForFilter = cache(async (locale = "tr"): Promise<ProductAttribute[]> => {
     try {
-        return await getCachedAttributesForFilter();
+        return await getCachedAttributesForFilter(locale);
     } catch {
         return [];
     }

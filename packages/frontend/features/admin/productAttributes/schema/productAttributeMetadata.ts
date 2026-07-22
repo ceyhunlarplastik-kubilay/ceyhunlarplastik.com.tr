@@ -4,6 +4,7 @@ export const productAttributeMetadataSchema = z.object({
     name: z.string()
         .trim()
         .min(2, "Özellik adı en az 2 karakter olmalıdır."),
+    englishName: z.string().trim().optional(),
     code: z.string()
         .trim()
         .min(2, "Kod en az 2 karakter olmalıdır.")

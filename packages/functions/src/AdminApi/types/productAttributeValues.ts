@@ -3,6 +3,7 @@ import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/pr
 import { IPrismaProductAttributeRepository } from "@/core/helpers/prisma/productAttributes/repository"
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository"
 import { AssetRole, AssetType } from "@/prisma/generated/prisma/client"
+import type { ProductAttributeValueTranslationInput } from "@/core/helpers/productAttributes/productAttributeTranslations"
 
 export interface IProductAttributeValueDependencies {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
@@ -12,6 +13,7 @@ export interface IProductAttributeValueDependencies {
 
 export interface ICreateProductAttributeValueBody {
     name: string
+    translations?: ProductAttributeValueTranslationInput[]
     attributeId: string
     displayOrder?: number
     parentValueId?: string | null
@@ -20,6 +22,8 @@ export interface ICreateProductAttributeValueBody {
     assetKey?: string
     mimeType?: string
 }
+
+export type RemovableProductAttributeValueTranslationLocale = "en"
 
 export interface ICreateProductAttributeValueAssetUploadBody {
     productAttributeValueId: string
@@ -36,12 +40,14 @@ export type IListProductAttributeValuesEvent =
     IAPIGatewayProxyEventWithUserGeneric<
         {},
         { attributeId?: string; id?: string } | undefined,
-        { attributeId?: string } | undefined
+        { attributeId?: string; locale?: string } | undefined
     >
 
 export type IUpdateProductAttributeValueEvent =
     IAPIGatewayProxyEventWithUserGeneric<
-        Partial<ICreateProductAttributeValueBody>,
+        Partial<ICreateProductAttributeValueBody> & {
+            removeTranslationLocales?: RemovableProductAttributeValueTranslationLocale[]
+        },
         { id: string }
     >
 

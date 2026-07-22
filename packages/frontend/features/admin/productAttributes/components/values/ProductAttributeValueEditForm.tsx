@@ -37,6 +37,7 @@ type Props = {
     onSave: (input: {
         id: string
         name: string
+        englishName?: string
         parentValueId?: string
     }) => Promise<void>
 }
@@ -54,6 +55,7 @@ export function ProductAttributeValueEditForm({
         resolver: zodResolver(productAttributeValueEditSchema),
         defaultValues: {
             name: value.name,
+            englishName: value.translations?.find((translation) => translation.locale === "en")?.name ?? "",
             parentValueId: value.parentValueId ?? "",
         },
         mode: "onChange",
@@ -76,6 +78,7 @@ export function ProductAttributeValueEditForm({
             await onSave({
                 id: value.id,
                 name: values.name.trim(),
+                englishName: values.englishName?.trim(),
                 ...(parentAttributeCode && { parentValueId: values.parentValueId }),
             })
             onCancel()
@@ -104,6 +107,20 @@ export function ProductAttributeValueEditForm({
                             <FormLabel>Değer adı</FormLabel>
                             <FormControl>
                                 <Input {...field} autoFocus disabled={isPending} placeholder="Değer adı" />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="englishName"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>İngilizce değer</FormLabel>
+                            <FormControl>
+                                <Input {...field} disabled={isPending} placeholder="English label" />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

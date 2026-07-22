@@ -41,6 +41,7 @@ type Props = {
     isPending: boolean
     onCreate: (input: {
         name: string
+        englishName?: string
         parentValueId?: string
         file?: File | null
     }) => Promise<void>
@@ -62,6 +63,7 @@ export function ProductAttributeValueCreatePanel({
         resolver: zodResolver(productAttributeValueCreateSchema),
         defaultValues: {
             name: "",
+            englishName: "",
             parentValueId: "",
             imageFile: null,
         },
@@ -119,6 +121,7 @@ export function ProductAttributeValueCreatePanel({
         try {
             await onCreate({
                 name: values.name.trim(),
+                englishName: values.englishName?.trim(),
                 ...(parentAttributeCode && { parentValueId: values.parentValueId }),
                 file: values.imageFile ?? null,
             })
@@ -166,6 +169,24 @@ export function ProductAttributeValueCreatePanel({
                                     <Input
                                         {...field}
                                         placeholder={`${currentLabel} adı yazın`}
+                                        disabled={isPending}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="englishName"
+                        render={({ field }) => (
+                            <FormItem className="min-w-0">
+                                <FormLabel>İngilizce değer</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        {...field}
+                                        placeholder="English label"
                                         disabled={isPending}
                                     />
                                 </FormControl>

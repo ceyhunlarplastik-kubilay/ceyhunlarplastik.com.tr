@@ -241,6 +241,8 @@ export type ProductAttributeWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   values?: Prisma.ProductAttributeValueListRelationFilter
+  translations?: Prisma.ProductAttributeTranslationListRelationFilter
+  valueTranslations?: Prisma.ProductAttributeValueTranslationListRelationFilter
 }
 
 export type ProductAttributeOrderByWithRelationInput = {
@@ -253,6 +255,8 @@ export type ProductAttributeOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   values?: Prisma.ProductAttributeValueOrderByRelationAggregateInput
+  translations?: Prisma.ProductAttributeTranslationOrderByRelationAggregateInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationOrderByRelationAggregateInput
 }
 
 export type ProductAttributeWhereUniqueInput = Prisma.AtLeast<{
@@ -268,6 +272,8 @@ export type ProductAttributeWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductAttribute"> | Date | string
   values?: Prisma.ProductAttributeValueListRelationFilter
+  translations?: Prisma.ProductAttributeTranslationListRelationFilter
+  valueTranslations?: Prisma.ProductAttributeValueTranslationListRelationFilter
 }, "id" | "code">
 
 export type ProductAttributeOrderByWithAggregationInput = {
@@ -310,6 +316,8 @@ export type ProductAttributeCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   values?: Prisma.ProductAttributeValueCreateNestedManyWithoutAttributeInput
+  translations?: Prisma.ProductAttributeTranslationCreateNestedManyWithoutProductAttributeInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationCreateNestedManyWithoutAttributeInput
 }
 
 export type ProductAttributeUncheckedCreateInput = {
@@ -322,6 +330,8 @@ export type ProductAttributeUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   values?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutAttributeInput
+  translations?: Prisma.ProductAttributeTranslationUncheckedCreateNestedManyWithoutProductAttributeInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUncheckedCreateNestedManyWithoutAttributeInput
 }
 
 export type ProductAttributeUpdateInput = {
@@ -334,6 +344,8 @@ export type ProductAttributeUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductAttributeValueUpdateManyWithoutAttributeNestedInput
+  translations?: Prisma.ProductAttributeTranslationUpdateManyWithoutProductAttributeNestedInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUpdateManyWithoutAttributeNestedInput
 }
 
 export type ProductAttributeUncheckedUpdateInput = {
@@ -346,6 +358,8 @@ export type ProductAttributeUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutAttributeNestedInput
+  translations?: Prisma.ProductAttributeTranslationUncheckedUpdateManyWithoutProductAttributeNestedInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUncheckedUpdateManyWithoutAttributeNestedInput
 }
 
 export type ProductAttributeCreateManyInput = {
@@ -427,6 +441,20 @@ export type ProductAttributeScalarRelationFilter = {
   isNot?: Prisma.ProductAttributeWhereInput
 }
 
+export type ProductAttributeCreateNestedOneWithoutTranslationsInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeCreateWithoutTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutTranslationsInput>
+  connectOrCreate?: Prisma.ProductAttributeCreateOrConnectWithoutTranslationsInput
+  connect?: Prisma.ProductAttributeWhereUniqueInput
+}
+
+export type ProductAttributeUpdateOneRequiredWithoutTranslationsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeCreateWithoutTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutTranslationsInput>
+  connectOrCreate?: Prisma.ProductAttributeCreateOrConnectWithoutTranslationsInput
+  upsert?: Prisma.ProductAttributeUpsertWithoutTranslationsInput
+  connect?: Prisma.ProductAttributeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductAttributeUpdateToOneWithWhereWithoutTranslationsInput, Prisma.ProductAttributeUpdateWithoutTranslationsInput>, Prisma.ProductAttributeUncheckedUpdateWithoutTranslationsInput>
+}
+
 export type ProductAttributeCreateNestedOneWithoutValuesInput = {
   create?: Prisma.XOR<Prisma.ProductAttributeCreateWithoutValuesInput, Prisma.ProductAttributeUncheckedCreateWithoutValuesInput>
   connectOrCreate?: Prisma.ProductAttributeCreateOrConnectWithoutValuesInput
@@ -441,6 +469,88 @@ export type ProductAttributeUpdateOneRequiredWithoutValuesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductAttributeUpdateToOneWithWhereWithoutValuesInput, Prisma.ProductAttributeUpdateWithoutValuesInput>, Prisma.ProductAttributeUncheckedUpdateWithoutValuesInput>
 }
 
+export type ProductAttributeCreateNestedOneWithoutValueTranslationsInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeCreateWithoutValueTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutValueTranslationsInput>
+  connectOrCreate?: Prisma.ProductAttributeCreateOrConnectWithoutValueTranslationsInput
+  connect?: Prisma.ProductAttributeWhereUniqueInput
+}
+
+export type ProductAttributeUpdateOneRequiredWithoutValueTranslationsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductAttributeCreateWithoutValueTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutValueTranslationsInput>
+  connectOrCreate?: Prisma.ProductAttributeCreateOrConnectWithoutValueTranslationsInput
+  upsert?: Prisma.ProductAttributeUpsertWithoutValueTranslationsInput
+  connect?: Prisma.ProductAttributeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductAttributeUpdateToOneWithWhereWithoutValueTranslationsInput, Prisma.ProductAttributeUpdateWithoutValueTranslationsInput>, Prisma.ProductAttributeUncheckedUpdateWithoutValueTranslationsInput>
+}
+
+export type ProductAttributeCreateWithoutTranslationsInput = {
+  id?: string
+  code: string
+  name: string
+  displayOrder?: number
+  isActive?: boolean
+  isCustomerAssignable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  values?: Prisma.ProductAttributeValueCreateNestedManyWithoutAttributeInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationCreateNestedManyWithoutAttributeInput
+}
+
+export type ProductAttributeUncheckedCreateWithoutTranslationsInput = {
+  id?: string
+  code: string
+  name: string
+  displayOrder?: number
+  isActive?: boolean
+  isCustomerAssignable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  values?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutAttributeInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUncheckedCreateNestedManyWithoutAttributeInput
+}
+
+export type ProductAttributeCreateOrConnectWithoutTranslationsInput = {
+  where: Prisma.ProductAttributeWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductAttributeCreateWithoutTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutTranslationsInput>
+}
+
+export type ProductAttributeUpsertWithoutTranslationsInput = {
+  update: Prisma.XOR<Prisma.ProductAttributeUpdateWithoutTranslationsInput, Prisma.ProductAttributeUncheckedUpdateWithoutTranslationsInput>
+  create: Prisma.XOR<Prisma.ProductAttributeCreateWithoutTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutTranslationsInput>
+  where?: Prisma.ProductAttributeWhereInput
+}
+
+export type ProductAttributeUpdateToOneWithWhereWithoutTranslationsInput = {
+  where?: Prisma.ProductAttributeWhereInput
+  data: Prisma.XOR<Prisma.ProductAttributeUpdateWithoutTranslationsInput, Prisma.ProductAttributeUncheckedUpdateWithoutTranslationsInput>
+}
+
+export type ProductAttributeUpdateWithoutTranslationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  values?: Prisma.ProductAttributeValueUpdateManyWithoutAttributeNestedInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUpdateManyWithoutAttributeNestedInput
+}
+
+export type ProductAttributeUncheckedUpdateWithoutTranslationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  values?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutAttributeNestedInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUncheckedUpdateManyWithoutAttributeNestedInput
+}
+
 export type ProductAttributeCreateWithoutValuesInput = {
   id?: string
   code: string
@@ -450,6 +560,8 @@ export type ProductAttributeCreateWithoutValuesInput = {
   isCustomerAssignable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  translations?: Prisma.ProductAttributeTranslationCreateNestedManyWithoutProductAttributeInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationCreateNestedManyWithoutAttributeInput
 }
 
 export type ProductAttributeUncheckedCreateWithoutValuesInput = {
@@ -461,6 +573,8 @@ export type ProductAttributeUncheckedCreateWithoutValuesInput = {
   isCustomerAssignable?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  translations?: Prisma.ProductAttributeTranslationUncheckedCreateNestedManyWithoutProductAttributeInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUncheckedCreateNestedManyWithoutAttributeInput
 }
 
 export type ProductAttributeCreateOrConnectWithoutValuesInput = {
@@ -488,6 +602,8 @@ export type ProductAttributeUpdateWithoutValuesInput = {
   isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  translations?: Prisma.ProductAttributeTranslationUpdateManyWithoutProductAttributeNestedInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUpdateManyWithoutAttributeNestedInput
 }
 
 export type ProductAttributeUncheckedUpdateWithoutValuesInput = {
@@ -499,6 +615,76 @@ export type ProductAttributeUncheckedUpdateWithoutValuesInput = {
   isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  translations?: Prisma.ProductAttributeTranslationUncheckedUpdateManyWithoutProductAttributeNestedInput
+  valueTranslations?: Prisma.ProductAttributeValueTranslationUncheckedUpdateManyWithoutAttributeNestedInput
+}
+
+export type ProductAttributeCreateWithoutValueTranslationsInput = {
+  id?: string
+  code: string
+  name: string
+  displayOrder?: number
+  isActive?: boolean
+  isCustomerAssignable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  values?: Prisma.ProductAttributeValueCreateNestedManyWithoutAttributeInput
+  translations?: Prisma.ProductAttributeTranslationCreateNestedManyWithoutProductAttributeInput
+}
+
+export type ProductAttributeUncheckedCreateWithoutValueTranslationsInput = {
+  id?: string
+  code: string
+  name: string
+  displayOrder?: number
+  isActive?: boolean
+  isCustomerAssignable?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  values?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutAttributeInput
+  translations?: Prisma.ProductAttributeTranslationUncheckedCreateNestedManyWithoutProductAttributeInput
+}
+
+export type ProductAttributeCreateOrConnectWithoutValueTranslationsInput = {
+  where: Prisma.ProductAttributeWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductAttributeCreateWithoutValueTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutValueTranslationsInput>
+}
+
+export type ProductAttributeUpsertWithoutValueTranslationsInput = {
+  update: Prisma.XOR<Prisma.ProductAttributeUpdateWithoutValueTranslationsInput, Prisma.ProductAttributeUncheckedUpdateWithoutValueTranslationsInput>
+  create: Prisma.XOR<Prisma.ProductAttributeCreateWithoutValueTranslationsInput, Prisma.ProductAttributeUncheckedCreateWithoutValueTranslationsInput>
+  where?: Prisma.ProductAttributeWhereInput
+}
+
+export type ProductAttributeUpdateToOneWithWhereWithoutValueTranslationsInput = {
+  where?: Prisma.ProductAttributeWhereInput
+  data: Prisma.XOR<Prisma.ProductAttributeUpdateWithoutValueTranslationsInput, Prisma.ProductAttributeUncheckedUpdateWithoutValueTranslationsInput>
+}
+
+export type ProductAttributeUpdateWithoutValueTranslationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  values?: Prisma.ProductAttributeValueUpdateManyWithoutAttributeNestedInput
+  translations?: Prisma.ProductAttributeTranslationUpdateManyWithoutProductAttributeNestedInput
+}
+
+export type ProductAttributeUncheckedUpdateWithoutValueTranslationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isCustomerAssignable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  values?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutAttributeNestedInput
+  translations?: Prisma.ProductAttributeTranslationUncheckedUpdateManyWithoutProductAttributeNestedInput
 }
 
 
@@ -508,10 +694,14 @@ export type ProductAttributeUncheckedUpdateWithoutValuesInput = {
 
 export type ProductAttributeCountOutputType = {
   values: number
+  translations: number
+  valueTranslations: number
 }
 
 export type ProductAttributeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   values?: boolean | ProductAttributeCountOutputTypeCountValuesArgs
+  translations?: boolean | ProductAttributeCountOutputTypeCountTranslationsArgs
+  valueTranslations?: boolean | ProductAttributeCountOutputTypeCountValueTranslationsArgs
 }
 
 /**
@@ -531,6 +721,20 @@ export type ProductAttributeCountOutputTypeCountValuesArgs<ExtArgs extends runti
   where?: Prisma.ProductAttributeValueWhereInput
 }
 
+/**
+ * ProductAttributeCountOutputType without action
+ */
+export type ProductAttributeCountOutputTypeCountTranslationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductAttributeTranslationWhereInput
+}
+
+/**
+ * ProductAttributeCountOutputType without action
+ */
+export type ProductAttributeCountOutputTypeCountValueTranslationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductAttributeValueTranslationWhereInput
+}
+
 
 export type ProductAttributeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -542,6 +746,8 @@ export type ProductAttributeSelect<ExtArgs extends runtime.Types.Extensions.Inte
   createdAt?: boolean
   updatedAt?: boolean
   values?: boolean | Prisma.ProductAttribute$valuesArgs<ExtArgs>
+  translations?: boolean | Prisma.ProductAttribute$translationsArgs<ExtArgs>
+  valueTranslations?: boolean | Prisma.ProductAttribute$valueTranslationsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductAttributeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productAttribute"]>
 
@@ -581,6 +787,8 @@ export type ProductAttributeSelectScalar = {
 export type ProductAttributeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "displayOrder" | "isActive" | "isCustomerAssignable" | "createdAt" | "updatedAt", ExtArgs["result"]["productAttribute"]>
 export type ProductAttributeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   values?: boolean | Prisma.ProductAttribute$valuesArgs<ExtArgs>
+  translations?: boolean | Prisma.ProductAttribute$translationsArgs<ExtArgs>
+  valueTranslations?: boolean | Prisma.ProductAttribute$valueTranslationsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductAttributeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductAttributeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -590,6 +798,8 @@ export type $ProductAttributePayload<ExtArgs extends runtime.Types.Extensions.In
   name: "ProductAttribute"
   objects: {
     values: Prisma.$ProductAttributeValuePayload<ExtArgs>[]
+    translations: Prisma.$ProductAttributeTranslationPayload<ExtArgs>[]
+    valueTranslations: Prisma.$ProductAttributeValueTranslationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -995,6 +1205,8 @@ readonly fields: ProductAttributeFieldRefs;
 export interface Prisma__ProductAttributeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   values<T extends Prisma.ProductAttribute$valuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttribute$valuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  translations<T extends Prisma.ProductAttribute$translationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttribute$translationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductAttributeTranslationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  valueTranslations<T extends Prisma.ProductAttribute$valueTranslationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductAttribute$valueTranslationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValueTranslationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1446,6 +1658,54 @@ export type ProductAttribute$valuesArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.ProductAttributeValueScalarFieldEnum | Prisma.ProductAttributeValueScalarFieldEnum[]
+}
+
+/**
+ * ProductAttribute.translations
+ */
+export type ProductAttribute$translationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductAttributeTranslation
+   */
+  select?: Prisma.ProductAttributeTranslationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductAttributeTranslation
+   */
+  omit?: Prisma.ProductAttributeTranslationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductAttributeTranslationInclude<ExtArgs> | null
+  where?: Prisma.ProductAttributeTranslationWhereInput
+  orderBy?: Prisma.ProductAttributeTranslationOrderByWithRelationInput | Prisma.ProductAttributeTranslationOrderByWithRelationInput[]
+  cursor?: Prisma.ProductAttributeTranslationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductAttributeTranslationScalarFieldEnum | Prisma.ProductAttributeTranslationScalarFieldEnum[]
+}
+
+/**
+ * ProductAttribute.valueTranslations
+ */
+export type ProductAttribute$valueTranslationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductAttributeValueTranslation
+   */
+  select?: Prisma.ProductAttributeValueTranslationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductAttributeValueTranslation
+   */
+  omit?: Prisma.ProductAttributeValueTranslationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductAttributeValueTranslationInclude<ExtArgs> | null
+  where?: Prisma.ProductAttributeValueTranslationWhereInput
+  orderBy?: Prisma.ProductAttributeValueTranslationOrderByWithRelationInput | Prisma.ProductAttributeValueTranslationOrderByWithRelationInput[]
+  cursor?: Prisma.ProductAttributeValueTranslationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductAttributeValueTranslationScalarFieldEnum | Prisma.ProductAttributeValueTranslationScalarFieldEnum[]
 }
 
 /**
