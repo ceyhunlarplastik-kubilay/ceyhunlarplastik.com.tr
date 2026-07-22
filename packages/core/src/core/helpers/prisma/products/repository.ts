@@ -143,17 +143,49 @@ import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndus
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Product } from "@/prisma/generated/prisma/client"
 
+const productAttributeTranslationsSelect = {
+    orderBy: { locale: "asc" },
+    select: {
+        id: true,
+        locale: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+    },
+} as const
+
+const productAttributeValueTranslationsSelect = {
+    orderBy: { locale: "asc" },
+    select: {
+        id: true,
+        locale: true,
+        name: true,
+        slug: true,
+        createdAt: true,
+        updatedAt: true,
+    },
+} as const
+
+const productAttributeInclude = {
+    include: {
+        translations: productAttributeTranslationsSelect,
+    },
+} as const
+
 // Ürün attribute değerleri (model_type vb.) küçük sözlük kayıtlarıdır;
 // enrich/badge akışları parentValue zincirini kullandığı için shape korunur.
 const attributeValuesInclude = {
     include: {
-        attribute: true,
+        attribute: productAttributeInclude,
+        translations: productAttributeValueTranslationsSelect,
         parentValue: {
             include: {
-                attribute: true,
+                attribute: productAttributeInclude,
+                translations: productAttributeValueTranslationsSelect,
                 parentValue: {
                     include: {
-                        attribute: true,
+                        attribute: productAttributeInclude,
+                        translations: productAttributeValueTranslationsSelect,
                     },
                 },
             },
@@ -168,8 +200,14 @@ const industrialUsageValueSelect = {
     id: true,
     name: true,
     slug: true,
+    translations: productAttributeValueTranslationsSelect,
     attribute: {
-        select: { id: true, code: true, name: true },
+        select: {
+            id: true,
+            code: true,
+            name: true,
+            translations: productAttributeTranslationsSelect,
+        },
     },
 } as const
 

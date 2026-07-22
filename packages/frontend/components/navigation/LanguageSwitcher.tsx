@@ -7,6 +7,32 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { fetchCategoryBySlug } from "@/features/public/categories/api/fetchCategories";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
+const languageOptions = {
+    tr: {
+        flag: "🇹🇷",
+        shortLabelKey: "tr",
+        fullLabelKey: "trFull",
+    },
+    en: {
+        flag: "🇬🇧",
+        shortLabelKey: "en",
+        fullLabelKey: "enFull",
+    },
+} as const;
+
+type LanguageCode = keyof typeof languageOptions;
+
+function getLanguageOption(code: string) {
+    return languageOptions[code as LanguageCode] ?? languageOptions.tr;
+}
 
 /**
  * Dil değiştirici. Mevcut yolu koruyarak locale değiştirir:
@@ -23,6 +49,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     const params = useParams();
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const selectedLocale = locale in languageOptions ? locale : routing.defaultLocale;
 
     function switchTo(nextLocale: string) {
         if (nextLocale === locale || isPending) return;
@@ -48,35 +75,44 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     }
 
     return (
-        <div
-            role="group"
-            aria-label={t("ariaLabel")}
-            className={cn(
-                "inline-flex items-center rounded-full border border-neutral-200 bg-white p-0.5 text-[11px] font-medium",
-                isPending && "opacity-60",
-                className
-            )}
+        <Select
+            value={selectedLocale}
+            onValueChange={switchTo}
+            disabled={isPending}
         >
-            {routing.locales.map((code) => {
-                const isActive = code === locale;
-                return (
-                    <button
-                        key={code}
-                        type="button"
-                        onClick={() => switchTo(code)}
-                        aria-current={isActive ? "true" : undefined}
-                        title={code === "tr" ? t("trFull") : t("enFull")}
-                        className={cn(
-                            "rounded-full px-2 py-0.5 transition-colors",
-                            isActive
-                                ? "bg-[var(--color-brand)] text-white"
-                                : "text-neutral-500 hover:text-neutral-900"
-                        )}
-                    >
-                        {code === "tr" ? t("tr") : t("en")}
-                    </button>
-                );
-            })}
-        </div>
+            <SelectTrigger
+                size="sm"
+                aria-label={t("ariaLabel")}
+                className={cn(
+                    "h-8 rounded-full border-neutral-200 bg-white px-2.5 text-[11px] font-semibold text-neutral-700 shadow-none transition-colors hover:border-neutral-300 hover:bg-neutral-50 focus-visible:border-[var(--color-brand)] focus-visible:ring-[var(--color-brand)]/20",
+                    isPending && "opacity-60",
+                    className
+                )}
+            >
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="end" className="min-w-[9rem]">
+                {routing.locales.map((code) => {
+                    const option = getLanguageOption(code);
+
+                    return (
+                        <SelectItem
+                            key={code}
+                            value={code}
+                            title={t(option.fullLabelKey)}
+                            className="text-sm"
+                        >
+                            <span className="text-base leading-none" aria-hidden="true">
+                                {option.flag}
+                            </span>
+                            <span>{t(option.fullLabelKey)}</span>
+                            <span className="text-xs text-neutral-500">
+                                {t(option.shortLabelKey)}
+                            </span>
+                        </SelectItem>
+                    );
+                })}
+            </SelectContent>
+        </Select>
     );
 }
