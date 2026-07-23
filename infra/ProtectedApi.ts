@@ -8,6 +8,9 @@ import { apiRouteLambdaNamer } from "./lambdaNaming";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
+const gmailSmtpUser = new sst.Secret("GmailSmtpUser");
+const gmailSmtpAppPassword = new sst.Secret("GmailSmtpAppPassword");
+
 export const protectedApi = new sst.aws.ApiGatewayV2("CeyhunlarProtectedApi", {
     cors: apiCors,
     transform: {
@@ -88,11 +91,15 @@ const frontendBaseUrl =
 
 const portalCustomerInviteRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultRouteOptions,
+    // Gmail secret'ları YALNIZ bu route'a link'lenir (en dar yetki). defaultRouteOptions.link
+    // `Input<any[]>` tipinde olduğu için spread edilemiyor → temel link'ler açıkça yazılır
+    // (defaultRouteOptions'takiyle aynı liste; orası değişirse burası da güncellenmeli).
+    link: [rds, userPool, publicBucket, gmailSmtpUser, gmailSmtpAppPassword],
     environment: {
         ...defaultRouteOptions.environment,
+        // GMAIL_* buradan kaldırıldı → artık Resource.*.value ile okunuyor.
+        // Aşağıdakiler secret değil, davranış/görünüm ayarı.
         MAIL_TRANSPORT_MODE: process.env.MAIL_TRANSPORT_MODE ?? "gmail",
-        GMAIL_SMTP_USER: process.env.GMAIL_SMTP_USER ?? "",
-        GMAIL_SMTP_APP_PASSWORD: process.env.GMAIL_SMTP_APP_PASSWORD ?? "",
         INVITE_FROM_EMAIL: process.env.INVITE_FROM_EMAIL ?? "",
         INVITE_FROM_NAME: process.env.INVITE_FROM_NAME ?? "",
         FRONTEND_BASE_URL: frontendBaseUrl,

@@ -25,16 +25,21 @@ const neonDirectUrl = isNeonStage
   ? new sst.Secret("NeonDirectUrl")
   : undefined;
 
+const rdsPassword = isProd
+  ? new sst.Secret("RdsPassword")
+  : undefined;
+
+const deeplApiKey = new sst.Secret("DeeplApiKey");
+
 const prodRds = isProd
   ? new sst.aws.Postgres("MyPostgres", {
     vpc: vpc!,
     instance: "t4g.micro",
     multiAz: false, // Todo: true yap, maliyete bakılacak
     storage: "20 GB", // Todo: konuşulacak
-    // password: "password", // Todo: s3 secret manager ile saklanacak
     // RDS Proxy protects the small prod database from serverless connection spikes.
     proxy: true,
-    password: config.RDS_PASSWORD,
+    password: rdsPassword!.value,
     /*   transform: {
         subnetGroup: (_args, opts) => {
           if (isProd) opts.retainOnDelete = true;
@@ -75,6 +80,8 @@ new sst.x.DevCommand("Prisma", {
   environment: {
     DATABASE_URL,
     DIRECT_URL,
+    // translate-*.ts CLI'ları bunu process.env'den okur (bkz. deeplApiKey notu).
+    DEEPL_API_KEY: deeplApiKey.value,
   },
   dev: {
     autostart: false,

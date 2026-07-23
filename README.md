@@ -41,26 +41,49 @@ The `infra/` directory splits AWS infrastructure into logical files:
 
 Set the following in the **root `.env`** file (not `packages/core/.env`):
 
+`.env` holds **non-secret, stage-specific infra config only**. Credentials live in SST secrets (see below).
+
 ```bash
 // AWS_REGION="eu-west-1"
-AWS_REGION="eu-central-1" => for prod
+AWS_REGION="eu-central-1" => for prod   # required — config.ts throws if missing
 HOSTED_ZONE_ID="your-route53-hosted-zone-id"
+DOMAIN_CERTIFICATE_ARN="arn:aws:acm:..."
 DOMAIN="yourdomain.com"
-RDS_PASSWORD="your-strong-rds-password"
+DIRECT_RDS_HOST="your-rds-instance-endpoint"   # prod DIRECT_URL (migrations bypass the proxy)
+DEEPL_GLOSSARY_ID="optional-glossary-id"
 ```
 
 > The `packages/core/.env` file is reserved for local database utilities such as Prisma CLI and the translation script. Runtime database access is provided through SST links: prod receives RDS connection fields, non-prod receives the Neon pooled URL. DeepL setup is documented at the end of this file.
 
-For non-production Neon stages, set these SST secrets per stage:
+### SST Secrets
+
+Credentials are **never** kept in `.env`. Secret names are PascalCase and must match exactly — a missing secret fails `sst dev`/`sst deploy` for that stage.
 
 ```bash
+# Non-production (Neon) stages
 npx sst secret set NeonDatabaseUrl --stage kubi
 npx sst secret set NeonDirectUrl --stage kubi
+
+# Gmail SMTP — needed on EVERY stage that deploys ProtectedApi
+# (linked only to the customer-invitation route)
+npx sst secret set GmailSmtpUser --stage kubi
+npx sst secret set GmailSmtpAppPassword --stage kubi
+
+# DeepL — used only by the packages/core/prisma/translate-*.ts CLIs,
+# which run under `sst shell --target Prisma`
+npx sst secret set DeeplApiKey --stage kubi
+
+# Production only — RDS master password (non-prod stages use Neon)
+npx sst secret set RdsPassword --stage prod
 ```
 
 - `NeonDatabaseUrl`: pooled Neon connection string, used by Lambda/Next.js runtime.
 - `NeonDirectUrl`: direct Neon connection string, used by Prisma CLI, `pg_dump`, and `pg_restore`.
 - Repeat the same secret names for `--stage dev` when the `dev` branch is ready. Do not use prod RDS credentials for these secrets.
+
+> ⚠️ **`RdsPassword` must equal the password the prod RDS instance already has.** A different value makes RDS reset the master password and breaks every connection. After setting it, run `npx sst diff --stage prod` and confirm the `MyPostgres` resource shows **no** password change before deploying.
+
+> After the first `sst dev`/`sst deploy` with these secrets set, `sst-env.d.ts` is regenerated and `Resource.GmailSmtpUser` / `Resource.GmailSmtpAppPassword` become typed. Commit the regenerated file.
 
 ---
 

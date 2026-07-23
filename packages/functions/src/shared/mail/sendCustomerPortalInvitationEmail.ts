@@ -1,4 +1,5 @@
 import { createTransport } from "nodemailer"
+import { Resource } from "sst"
 
 type SendCustomerPortalInvitationEmailInput = {
     to: string
@@ -11,16 +12,18 @@ type SendCustomerPortalInvitationEmailInput = {
 
 let cachedTransporter: ReturnType<typeof createTransport> | null = null
 
-function getRequiredEnv(...names: string[]) {
-    for (const name of names) {
-        const value = process.env[name]?.trim()
+const secretResources = Resource as unknown as Partial<
+    Record<"GmailSmtpUser" | "GmailSmtpAppPassword", { value?: string }>
+>
 
-        if (value) {
-            return value
-        }
+function getRequiredSecret(name: "GmailSmtpUser" | "GmailSmtpAppPassword") {
+    const value = secretResources[name]?.value?.trim()
+
+    if (!value) {
+        throw new Error(`${name} secret is required for customer invitation emails`)
     }
 
-    throw new Error(`${names.join(" or ")} env is required for customer invitation emails`)
+    return value
 }
 
 function getTransporter() {
@@ -35,8 +38,8 @@ function getTransporter() {
     cachedTransporter = createTransport({
         service: "gmail",
         auth: {
-            user: getRequiredEnv("GMAIL_SMTP_USER"),
-            pass: getRequiredEnv("GMAIL_SMTP_APP_PASSWORD"),
+            user: getRequiredSecret("GmailSmtpUser"),
+            pass: getRequiredSecret("GmailSmtpAppPassword"),
         },
     })
 
@@ -44,7 +47,7 @@ function getTransporter() {
 }
 
 function formatSender() {
-    const fromEmail = process.env.INVITE_FROM_EMAIL?.trim() || getRequiredEnv("GMAIL_SMTP_USER")
+    const fromEmail = process.env.INVITE_FROM_EMAIL?.trim() || getRequiredSecret("GmailSmtpUser")
     const fromName = process.env.INVITE_FROM_NAME?.trim()
 
     return fromName ? `${fromName} <${fromEmail}>` : fromEmail

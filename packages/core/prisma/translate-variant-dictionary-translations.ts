@@ -110,9 +110,6 @@ function parseCliOptions(): CliOptions {
 }
 
 function printHelp() {
-    console.log("DIRECT_URL", process.env.DIRECT_URL);
-    console.log("DATABASE_URL", process.env.DATABASE_URL);
-    console.log("DEEPL_API_KEY", process.env.DEEPL_API_KEY);
     console.log([
         "Generate and apply reviewed English MeasurementType/Material/Color translation drafts with DeepL.",
         "",

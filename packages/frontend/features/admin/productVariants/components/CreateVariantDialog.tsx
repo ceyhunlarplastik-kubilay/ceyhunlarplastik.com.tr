@@ -553,7 +553,7 @@ function MultiCombobox<T extends { id: string; name: string }>({
                         type="button"
                         variant="outline"
                         role="combobox"
-                        className="w-full justify-between font-normal text-sm h-auto min-h-[36px] flex-wrap gap-1 px-3 py-1.5"
+                        className="w-full justify-between font-normal text-sm h-auto min-h-9 flex-wrap gap-1 px-3 py-1.5"
                     >
                         {value.length === 0 ? (
                             <span className="text-neutral-400">{placeholder}</span>
@@ -1499,7 +1499,7 @@ export function CreateVariantDialog({
                         <div className="space-y-2">
                             <Label className="text-xs text-neutral-500">Tedarikçi Fiyatları</Label>
                             <div className="rounded-lg border border-neutral-200 overflow-auto">
-                                <table className="w-full min-w-[1240px] text-xs">
+                                <table className="w-full min-w-310 text-xs">
                                     <thead className="bg-neutral-50 border-b border-neutral-200">
                                         <tr>
                                             <th className="text-left px-3 py-2 text-xs font-semibold text-neutral-600">Tedarikçi</th>
