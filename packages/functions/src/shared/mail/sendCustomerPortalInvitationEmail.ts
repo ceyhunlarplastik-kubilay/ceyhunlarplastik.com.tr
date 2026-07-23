@@ -12,12 +12,12 @@ type SendCustomerPortalInvitationEmailInput = {
 
 let cachedTransporter: ReturnType<typeof createTransport> | null = null
 
-const secretResources = Resource as unknown as Partial<
-    Record<"GmailSmtpUser" | "GmailSmtpAppPassword", { value?: string }>
->
-
+// P1.3: Gmail kimlik bilgileri env'de değil, SST Secret olarak link'li
+// (infra/ProtectedApi.ts, yalnız davet route'u). Link'lenen secret değerleri düz
+// Lambda environment'ına YAZILMAZ; şifreli `resource.enc` bundle'ında taşınıp
+// runtime'da çözülür — env-injection alternatifinde konsolda görünürlerdi.
 function getRequiredSecret(name: "GmailSmtpUser" | "GmailSmtpAppPassword") {
-    const value = secretResources[name]?.value?.trim()
+    const value = Resource[name]?.value?.trim()
 
     if (!value) {
         throw new Error(`${name} secret is required for customer invitation emails`)
