@@ -2,11 +2,25 @@ import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { AssetRole, AssetType } from "@/prisma/generated/prisma/client"
 
+const localeSchema = z.enum(["tr", "en"])
+const dictionaryTranslationInputSchema = z.object({
+    locale: localeSchema,
+    name: z.string().min(1).max(100),
+})
+const dictionaryTranslationSchema = z.object({
+    id: z.uuid(),
+    locale: z.string(),
+    name: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+
 export const createMaterialValidator = validatorWrapper(
     z.object({
         body: z.object({
             name: z.string().min(1),
             code: z.string().optional(),
+            translations: z.array(dictionaryTranslationInputSchema).max(10).optional(),
         }),
     }),
     {
@@ -23,6 +37,7 @@ export const updateMaterialValidator = validatorWrapper(
         body: z.object({
             name: z.string().min(1).optional(),
             code: z.string().optional(),
+            translations: z.array(dictionaryTranslationInputSchema).max(10).optional(),
             assetKey: z.string().optional(),
             assetType: z.enum(AssetType).optional(),
             assetRole: z.enum(AssetRole).optional(),
@@ -80,6 +95,10 @@ const materialAssetSchema = z.object({
 const materialSchema = z.object({
     id: z.uuid(),
     name: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    translations: z.array(dictionaryTranslationSchema).optional(),
     code: z.string().nullish(), // Material.code String?
     createdAt: z.string(),
     updatedAt: z.string(),

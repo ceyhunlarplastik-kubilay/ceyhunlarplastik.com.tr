@@ -21,12 +21,38 @@ const measurementCodeValues = [
     "M",
     "R_L",
 ] as const
+const localeSchema = z.enum(["tr", "en"])
+const dictionaryTranslationInputSchema = z.object({
+    locale: localeSchema,
+    name: z.string().min(1).max(100),
+})
+const dictionaryTranslationSchema = z.object({
+    id: z.uuid(),
+    locale: z.string(),
+    name: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
+const measurementTypeSchema = z.object({
+    id: z.uuid(),
+    code: z.string(),
+    name: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    translations: z.array(dictionaryTranslationSchema).optional(),
+    baseUnit: z.string(),
+    displayOrder: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
 
 export const createMeasurementTypeValidator = validatorWrapper(
     z.object({
         body: z.object({
             code: z.enum(measurementCodeValues),
             name: z.string().min(2).max(100),
+            translations: z.array(dictionaryTranslationInputSchema).max(10).optional(),
             baseUnit: z.string().min(1).max(20),
             displayOrder: z.number().int().optional().default(0),
         }),
@@ -56,6 +82,7 @@ export const updateMeasurementTypeValidator = validatorWrapper(
         body: z.object({
             code: z.enum(measurementCodeValues).optional(),
             name: z.string().min(2).max(100).optional(),
+            translations: z.array(dictionaryTranslationInputSchema).max(10).optional(),
             baseUnit: z.string().min(1).max(20).optional(),
             displayOrder: z.number().int().optional(),
         }),
@@ -73,15 +100,7 @@ export const measurementTypeResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                measurementType: z.object({
-                    id: z.uuid(),
-                    code: z.string(),
-                    name: z.string(),
-                    baseUnit: z.string(),
-                    displayOrder: z.number(),
-                    createdAt: z.string(),
-                    updatedAt: z.string(),
-                })
+                measurementType: measurementTypeSchema
             })
         })
     }).loose()
@@ -93,17 +112,7 @@ export const listMeasurementTypeResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                data: z.array(
-                    z.object({
-                        id: z.uuid(),
-                        code: z.string(),
-                        name: z.string(),
-                        baseUnit: z.string(),
-                        displayOrder: z.number(),
-                        createdAt: z.string(),
-                        updatedAt: z.string(),
-                    })
-                ),
+                data: z.array(measurementTypeSchema),
                 meta: z.object({
                     page: z.number(),
                     limit: z.number(),

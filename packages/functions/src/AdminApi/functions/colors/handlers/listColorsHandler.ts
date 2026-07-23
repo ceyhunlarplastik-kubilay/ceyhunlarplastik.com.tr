@@ -1,11 +1,15 @@
 import createError from "http-errors"
 import { safeNumber } from "@/core/helpers/utils/number"
-import { apiResponse, apiResponseDTO } from "@/core/helpers/utils/api/response"
-import { IColorDependencies, IListColorsEvent } from "@/functions/AdminApi/types/colors"
+import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { ColorSystem, IColorDependencies, IListColorsEvent } from "@/functions/AdminApi/types/colors"
+
+const allowedColorSystems = new Set<string>(Object.values(ColorSystem))
 
 export const listColorsHandler = ({ colorRepository }: IColorDependencies) => {
     return async (event: IListColorsEvent) => {
-        const { page, limit, search, sort, order } = event.queryStringParameters ?? {};
+        const { page, limit, search, sort, order, system } = event.queryStringParameters ?? {};
+        const normalizedSystem = system && allowedColorSystems.has(system) ? system : undefined
+
         try {
             const result = await colorRepository.listColors({
                 page: safeNumber(page),
@@ -13,6 +17,7 @@ export const listColorsHandler = ({ colorRepository }: IColorDependencies) => {
                 search,
                 sort,
                 order: order === "desc" ? "desc" : "asc",
+                system: normalizedSystem,
             })
 
             return apiResponseDTO({

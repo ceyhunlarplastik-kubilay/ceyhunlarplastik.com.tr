@@ -62,7 +62,7 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
     const [tb, t, variantTable] = await Promise.all([
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getTranslations({ locale, namespace: "public.productVariant" }),
-        getProductVariantTable(product.id),
+        getProductVariantTable(product.id, { locale }),
     ])
 
     const filtered = measurementKey

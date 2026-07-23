@@ -3,6 +3,11 @@ import { AssetRole, AssetType, Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { mapMaterialWithAssets } from "@/core/helpers/assets/mapMaterialWithAssets"
 import { IMaterialDependencies, IUpdateMaterialEvent } from "@/functions/AdminApi/types/materials"
+import { DEFAULT_LOCALE } from "@/core/i18n/locales"
+import {
+    normalizeVariantDictionaryTranslations,
+    VariantDictionaryTranslationInputError,
+} from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
 
 export const updateMaterialHandler = ({ materialRepository, assetRepository }: IMaterialDependencies) => {
     return async (event: IUpdateMaterialEvent) => {
@@ -16,15 +21,51 @@ export const updateMaterialHandler = ({ materialRepository, assetRepository }: I
             const {
                 name,
                 code,
+                translations,
                 assetKey,
                 assetType,
                 assetRole,
                 mimeType,
             } = body
+            const normalized = normalizeVariantDictionaryTranslations({
+                legacyName: name,
+                translations,
+            })
+            const translationWrites: Prisma.MaterialUpdateInput["translations"] =
+                normalized.turkish || normalized.createOnlyTranslations.length > 0
+                    ? {
+                        ...(normalized.turkish && {
+                            upsert: {
+                                where: {
+                                    materialId_locale: {
+                                        materialId: id,
+                                        locale: DEFAULT_LOCALE,
+                                    },
+                                },
+                                create: normalized.turkish,
+                                update: {
+                                    name: normalized.turkish.name,
+                                },
+                            },
+                        }),
+                        ...(normalized.createOnlyTranslations.length > 0 && {
+                            connectOrCreate: normalized.createOnlyTranslations.map((translation) => ({
+                                where: {
+                                    materialId_locale: {
+                                        materialId: id,
+                                        locale: translation.locale,
+                                    },
+                                },
+                                create: translation,
+                            })),
+                        }),
+                    }
+                    : undefined
 
             const updated = await materialRepository.updateMaterial(id, {
-                ...(name !== undefined && { name }),
+                ...(normalized.turkish && { name: normalized.turkish.name }),
                 ...(code !== undefined && { code }),
+                ...(translationWrites && { translations: translationWrites }),
             });
 
             if (assetKey || assetType || assetRole || mimeType) {
@@ -57,6 +98,9 @@ export const updateMaterialHandler = ({ materialRepository, assetRepository }: I
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err
+            if (err instanceof VariantDictionaryTranslationInputError) {
+                throw new createError.BadRequest(err.message)
+            }
             if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
                 throw new createError.Conflict("Material name already exists");
             }

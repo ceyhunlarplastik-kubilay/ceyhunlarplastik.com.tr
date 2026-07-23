@@ -5,7 +5,7 @@ export interface IColorDependencies {
     colorRepository: IPrismaColorRepository
 }
 export type IGetColorEvent =
-    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+    IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }, { locale?: string }>
 
 export type IListColorsEvent =
     IAPIGatewayProxyEventWithUserGeneric<
@@ -17,5 +17,6 @@ export type IListColorsEvent =
             search?: string
             sort?: "code" | "name" | "createdAt"
             order?: "asc" | "desc"
+            locale?: string
         }
     >

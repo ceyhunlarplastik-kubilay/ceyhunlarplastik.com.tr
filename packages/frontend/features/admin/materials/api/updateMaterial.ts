@@ -1,10 +1,16 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { MaterialResponse } from "./types"
 
+type TranslationInput = {
+    locale: "tr" | "en"
+    name: string
+}
+
 export type UpdateMaterialParams = {
     id: string
     name?: string
     code?: string
+    translations?: TranslationInput[]
     assetKey?: string
     assetType?: "PDF"
     assetRole?: "CERTIFICATE"

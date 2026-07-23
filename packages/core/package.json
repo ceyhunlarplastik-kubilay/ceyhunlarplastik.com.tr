@@ -9,6 +9,8 @@
     "translate:category-translations": "tsx prisma/translate-category-translations.ts",
     "backfill:product-taxonomy-translations": "tsx prisma/backfill-product-taxonomy-translations.ts",
     "translate:product-taxonomy-translations": "tsx prisma/translate-product-taxonomy-translations.ts",
+    "backfill:variant-dictionary-translations": "tsx prisma/backfill-variant-dictionary-translations.ts",
+    "translate:variant-dictionary-translations": "tsx prisma/translate-variant-dictionary-translations.ts",
     "seed:geo": "tsx prisma/seed-geo.ts"
   },
   "exports": {

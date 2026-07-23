@@ -75,7 +75,7 @@ export default async function ProductPage({ params }: PageProps) {
     if (!product) notFound()
 
     const [variantTable, productsByCategory] = await Promise.all([
-        getProductVariantTable(product.id),
+        getProductVariantTable(product.id, { locale }),
         // 13 = 12 benzer ürün + ürünün kendisi ilk sayfadaysa yedek.
         getProductsByCategory(product.categoryId, "id", { locale, limit: 13 }),
     ])

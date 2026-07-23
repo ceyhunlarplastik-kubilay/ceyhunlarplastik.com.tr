@@ -12,6 +12,8 @@ import {
     Building2,
     Boxes,
     Folder,
+    Palette,
+    Ruler,
     Settings,
     Truck,
     FlaskConical,
@@ -51,6 +53,16 @@ const navItems = [
         href: "/admin/materials",
         label: "Ham Maddeler",
         icon: FlaskConical,
+    },
+    {
+        href: "/admin/colors",
+        label: "Renkler",
+        icon: Palette,
+    },
+    {
+        href: "/admin/measurement-types",
+        label: "Ölçü Tipleri",
+        icon: Ruler,
     },
     {
         href: "/admin/productAttributes",

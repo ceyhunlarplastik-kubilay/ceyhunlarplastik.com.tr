@@ -1,8 +1,17 @@
 import type { Asset } from "@/features/public/assets/types"
 
+export type MaterialTranslation = {
+    id: string
+    locale: string
+    name: string
+    createdAt: string
+    updatedAt: string
+}
+
 export type Material = {
     id: string
     name: string
+    translations?: MaterialTranslation[]
     code?: string | null
     assets?: Asset[]
     createdAt: string

@@ -426,11 +426,10 @@ adminApi.route("PUT /measurement-types/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
-// NOTE: Foreign key constraint nedeniyle silme işlemi yapılamıyor.
-/* adminApi.route("DELETE /measurement-types/{id}", {
+adminApi.route("DELETE /measurement-types/{id}", {
     handler: `${folderPrefix}/measurementTypes/actions.deleteMeasurementType`,
     ...defaultRouteOptions,
-}, { ...defaultAuthOptions }); */
+}, { ...defaultAuthOptions });
 
 /*----------------------- PRODUCT VARIANT SUPPLIERS -----------------------*/
 adminApi.route("GET /product-variant-suppliers", {

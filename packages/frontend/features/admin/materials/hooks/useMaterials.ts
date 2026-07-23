@@ -11,6 +11,7 @@ const materialParamsSchema = z.object({
     search: z.string().trim().optional(),
     sort: z.string().trim().optional(),
     order: z.enum(["asc", "desc"]).optional(),
+    certificateOnly: z.boolean().optional(),
 })
 
 type Options = {

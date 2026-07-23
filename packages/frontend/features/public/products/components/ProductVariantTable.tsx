@@ -35,6 +35,9 @@ import ProductVariantNavigationOverlay from "@/features/public/products/componen
 export type MeasurementTypeDetails = {
     id: string
     name: string
+    locale?: "tr" | "en"
+    resolvedLocale?: string
+    translationMissing?: boolean
     code: string
     baseUnit: string
     displayOrder: number
@@ -50,6 +53,9 @@ export type VariantMeasurement = {
 export type VariantColor = {
     id: string
     name: string
+    locale?: "tr" | "en"
+    resolvedLocale?: string
+    translationMissing?: boolean
     system?: string
     code?: string
     hex?: string
@@ -58,6 +64,9 @@ export type VariantColor = {
 export type VariantMaterial = {
     id: string
     name: string
+    locale?: "tr" | "en"
+    resolvedLocale?: string
+    translationMissing?: boolean
     code?: string | null
     assets?: Array<{
         id: string

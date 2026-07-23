@@ -1,15 +1,22 @@
 import { notFound } from "next/navigation"
+import { getTranslations, setRequestLocale } from "next-intl/server"
 import { PageHero } from "@/components/sections/PageHero"
 import { MaterialCertificateCard } from "@/features/public/materials/components/MaterialCertificateCard"
 import { getMaterial } from "@/features/public/materials/server/getMaterial"
 
 type PageProps = {
-    params: Promise<{ materialId: string }>
+    params: Promise<{ locale: string; materialId: string }>
 }
 
 export default async function MaterialCertificateDetailPage({ params }: PageProps) {
-    const { materialId } = await params
-    const material = await getMaterial(materialId)
+    const { locale, materialId } = await params
+    setRequestLocale(locale)
+
+    const [t, tb, material] = await Promise.all([
+        getTranslations({ locale, namespace: "public.materials" }),
+        getTranslations({ locale, namespace: "shared.breadcrumbs" }),
+        getMaterial(materialId, { locale }),
+    ])
 
     if (!material) notFound()
 
@@ -23,8 +30,8 @@ export default async function MaterialCertificateDetailPage({ params }: PageProp
             <PageHero
                 title={title}
                 breadcrumbs={[
-                    { label: "Ana Sayfa", href: "/" },
-                    { label: "Ham Madde Sertifikaları", href: "/ham-madde-sertifikalari" },
+                    { label: tb("home"), href: "/" },
+                    { label: t("breadcrumbSelf"), href: "/ham-madde-sertifikalari" },
                     { label: material.name },
                 ]}
             />
@@ -35,7 +42,7 @@ export default async function MaterialCertificateDetailPage({ params }: PageProp
             >
                 {certificates.length === 0 ? (
                     <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-sm text-neutral-500">
-                        Bu ham madde için yayınlanmış sertifika bulunmuyor.
+                        {t("empty")}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 xl:grid-cols-4">
@@ -43,7 +50,7 @@ export default async function MaterialCertificateDetailPage({ params }: PageProp
                             <MaterialCertificateCard
                                 key={certificate.id}
                                 title={title}
-                                subtitle={certificates.length > 1 ? `Sertifika ${index + 1}` : undefined}
+                                subtitle={certificates.length > 1 ? t("certificateSuffix", { number: index + 1 }) : undefined}
                                 certificate={certificate}
                             />
                         ))}

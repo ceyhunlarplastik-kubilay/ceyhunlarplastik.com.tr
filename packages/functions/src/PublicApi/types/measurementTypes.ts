@@ -8,11 +8,11 @@ export interface IMeasurementTypeDependencies {
 export type IListMeasurementTypesEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     {},
-    IAPIGatewayPaginationQuery
+    IAPIGatewayPaginationQuery & { locale?: string }
 >
 
 export type IGetMeasurementTypeEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     { id: string },
-    {}
+    { locale?: string }
 >

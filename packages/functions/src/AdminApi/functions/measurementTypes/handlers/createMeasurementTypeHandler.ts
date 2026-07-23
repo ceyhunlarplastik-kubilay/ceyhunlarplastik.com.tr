@@ -2,6 +2,10 @@ import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IMeasurementTypeDependencies, ICreateMeasurementTypeEvent } from "@/functions/AdminApi/types/measurementTypes"
+import {
+    normalizeVariantDictionaryTranslations,
+    VariantDictionaryTranslationInputError,
+} from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
 
 /* export const createMeasurementTypeHandler = ({ measurementTypeRepository }: ICreateMeasurementTypeDependencies) => {
     return async (event: ICreateMeasurementTypeEvent) => {
@@ -48,14 +52,23 @@ import { IMeasurementTypeDependencies, ICreateMeasurementTypeEvent } from "@/fun
 
 export const createMeasurementTypeHandler = ({ measurementTypeRepository }: IMeasurementTypeDependencies) => {
     return async (event: ICreateMeasurementTypeEvent) => {
-        const { name, code, baseUnit, displayOrder } = event.body;
+        const { name, code, baseUnit, displayOrder, translations } = event.body;
 
         try {
+            const normalized = normalizeVariantDictionaryTranslations({
+                legacyName: name,
+                translations,
+                requireTurkish: true,
+            })
+            const turkish = normalized.turkish!
             const measurementType = await measurementTypeRepository.createMeasurementType({
-                name,
+                name: turkish.name,
                 code,
                 baseUnit,
                 displayOrder,
+                translations: {
+                    create: normalized.translations,
+                },
             })
 
             return apiResponseDTO({
@@ -64,6 +77,9 @@ export const createMeasurementTypeHandler = ({ measurementTypeRepository }: IMea
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err
+            if (err instanceof VariantDictionaryTranslationInputError) {
+                throw new createError.BadRequest(err.message)
+            }
             if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") throw new createError.Conflict("Measurement type code already exists");
             console.error(err);
             throw new createError.InternalServerError("Failed to create measurement type");

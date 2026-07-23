@@ -26,6 +26,7 @@ import {
 
 const materialFormSchema = z.object({
     name: z.string().min(1, "Ham madde adı zorunludur"),
+    englishName: z.string().optional(),
     code: z.string().optional(),
 })
 
@@ -42,11 +43,13 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
     const createMaterialMutation = useCreateMaterial()
     const updateMaterialMutation = useUpdateMaterial()
     const presignMutation = usePresignMaterialAsset()
+    const englishTranslation = material?.translations?.find((translation) => translation.locale === "en")
 
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
         defaultValues: {
             name: "",
+            englishName: "",
             code: "",
         },
     })
@@ -62,9 +65,10 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
 
         form.reset({
             name: material?.name ?? "",
+            englishName: englishTranslation?.name ?? "",
             code: material?.code ?? "",
         })
-    }, [form, material, open])
+    }, [englishTranslation?.name, form, material, open])
 
     function handleOpenChange(nextOpen: boolean) {
         if (!nextOpen) setCertificateFile(null)
@@ -100,9 +104,16 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
     }
 
     const onSubmit = form.handleSubmit(async (values) => {
+        const englishName = values.englishName?.trim()
         const payload = {
             name: values.name.trim(),
             code: values.code?.trim() || undefined,
+            translations: [
+                { locale: "tr" as const, name: values.name.trim() },
+                ...(!englishTranslation && englishName
+                    ? [{ locale: "en" as const, name: englishName }]
+                    : []),
+            ],
         }
 
         try {
@@ -144,6 +155,16 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
                     </div>
 
                     <div className="space-y-1.5">
+                        <Label htmlFor="material-english-name">İngilizce Ad</Label>
+                        <Input
+                            id="material-english-name"
+                            placeholder="örn. Polypropylene"
+                            disabled={Boolean(englishTranslation)}
+                            {...form.register("englishName")}
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
                         <Label htmlFor="material-code">Kod</Label>
                         <Input
                             id="material-code"
@@ -179,7 +200,7 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
                     </div>
 
                     <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                             İptal
                         </Button>
                         <Button type="submit" disabled={isPending}>

@@ -5,14 +5,26 @@ import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, ProductVariant } from "@/prisma/generated/prisma/client"
+import { colorTranslationSelect } from "@/core/helpers/prisma/colors/repository"
+import { materialTranslationSelect } from "@/core/helpers/prisma/materials/repository"
+import { measurementTypeTranslationSelect } from "@/core/helpers/prisma/measurementTypes/repository"
 
 export type ProductVariantWithRelations = Prisma.ProductVariantGetPayload<{
     include: {
         product: true
-        color: true
+        color: {
+            include: {
+                translations: {
+                    select: typeof colorTranslationSelect
+                }
+            }
+        }
         materials: {
             include: {
                 assets: true
+                translations: {
+                    select: typeof materialTranslationSelect
+                }
             }
         }
         variantSuppliers: {
@@ -22,7 +34,13 @@ export type ProductVariantWithRelations = Prisma.ProductVariantGetPayload<{
         }
         measurements: {
             include: {
-                measurementType: true
+                measurementType: {
+                    include: {
+                        translations: {
+                            select: typeof measurementTypeTranslationSelect
+                        }
+                    }
+                }
             }
         }
     }
@@ -49,17 +67,37 @@ export interface IPrismaProductVariantRepository {
 
 const defaultInclude = {
     product: true,
-    color: true,
+    color: {
+        include: {
+            translations: {
+                orderBy: { locale: "asc" },
+                select: colorTranslationSelect,
+            },
+        },
+    },
     materials: {
         include: {
             assets: true,
+            translations: {
+                orderBy: { locale: "asc" },
+                select: materialTranslationSelect,
+            },
         },
     },
     variantSuppliers: {
         include: { supplier: true }
     },
     measurements: {
-        include: { measurementType: true }
+        include: {
+            measurementType: {
+                include: {
+                    translations: {
+                        orderBy: { locale: "asc" },
+                        select: measurementTypeTranslationSelect,
+                    },
+                },
+            },
+        },
     }
 } satisfies Prisma.ProductVariantInclude
 
@@ -158,7 +196,14 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                 { variantIndex: "asc" },
             ],
             include: {
-                color: true,
+                color: {
+                    include: {
+                        translations: {
+                            orderBy: { locale: "asc" },
+                            select: colorTranslationSelect,
+                        },
+                    },
+                },
                 materials: {
                     include: {
                         assets: {
@@ -169,6 +214,10 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                             orderBy: {
                                 createdAt: "desc",
                             },
+                        },
+                        translations: {
+                            orderBy: { locale: "asc" },
+                            select: materialTranslationSelect,
                         },
                     },
                 },
@@ -199,7 +248,14 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                         { label: "asc" },
                     ],
                     include: {
-                        measurementType: true
+                        measurementType: {
+                            include: {
+                                translations: {
+                                    orderBy: { locale: "asc" },
+                                    select: measurementTypeTranslationSelect,
+                                },
+                            },
+                        },
                     }
                 }
             }

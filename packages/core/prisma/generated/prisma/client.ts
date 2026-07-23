@@ -57,6 +57,11 @@ export type UserNotification = Prisma.UserNotificationModel
  */
 export type Color = Prisma.ColorModel
 /**
+ * Model ColorTranslation
+ *
+ */
+export type ColorTranslation = Prisma.ColorTranslationModel
+/**
  * Model Category
  *
  */
@@ -152,6 +157,11 @@ export type ProductVariant = Prisma.ProductVariantModel
  */
 export type MeasurementType = Prisma.MeasurementTypeModel
 /**
+ * Model MeasurementTypeTranslation
+ *
+ */
+export type MeasurementTypeTranslation = Prisma.MeasurementTypeTranslationModel
+/**
  * Model ProductMeasurement
  *
  */
@@ -231,6 +241,11 @@ export type ActivityLog = Prisma.ActivityLogModel
  *
  */
 export type Material = Prisma.MaterialModel
+/**
+ * Model MaterialTranslation
+ *
+ */
+export type MaterialTranslation = Prisma.MaterialTranslationModel
 /**
  * Model Asset
  *

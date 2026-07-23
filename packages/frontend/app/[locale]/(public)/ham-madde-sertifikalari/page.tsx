@@ -37,7 +37,7 @@ export default async function MaterialCertificatesPage({ params }: PageProps) {
     const [t, tb, materials] = await Promise.all([
         getTranslations({ locale, namespace: "public.materials" }),
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
-        getMaterials(),
+        getMaterials({ locale }),
     ])
 
     const certificateItems = materials.flatMap((material) =>

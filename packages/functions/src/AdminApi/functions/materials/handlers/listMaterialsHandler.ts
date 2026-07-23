@@ -6,7 +6,7 @@ import { IMaterialDependencies, IListMaterialsEvent } from "@/functions/AdminApi
 
 export const listMaterialsHandler = ({ materialRepository }: Pick<IMaterialDependencies, "materialRepository">) => {
     return async (event: IListMaterialsEvent) => {
-        const { page, limit, search, sort, order } = event.queryStringParameters ?? {};
+        const { page, limit, search, sort, order, certificateOnly } = event.queryStringParameters ?? {};
 
         try {
             const result = await materialRepository.listMaterials({
@@ -15,6 +15,7 @@ export const listMaterialsHandler = ({ materialRepository }: Pick<IMaterialDepen
                 search,
                 sort,
                 order,
+                certificateOnly: certificateOnly === "true",
             })
 
             return apiResponseDTO({

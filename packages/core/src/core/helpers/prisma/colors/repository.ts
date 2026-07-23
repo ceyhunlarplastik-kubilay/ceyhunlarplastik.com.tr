@@ -7,10 +7,31 @@ import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import type { Color } from "@/prisma/generated/prisma/client"
 
+export const colorTranslationSelect = {
+    id: true,
+    locale: true,
+    name: true,
+    createdAt: true,
+    updatedAt: true,
+} satisfies Prisma.ColorTranslationSelect
+
+const colorInclude = {
+    translations: {
+        orderBy: { locale: "asc" },
+        select: colorTranslationSelect,
+    },
+} satisfies Prisma.ColorInclude
+
+export type ColorWithTranslations = Prisma.ColorGetPayload<{
+    include: typeof colorInclude
+}>
+
+type ColorListQuery = IPaginationQuery & Pick<Partial<Color>, "system" | "code" | "name">
+
 export interface IPrismaColorRepository {
-    listActiveColors(): Promise<Color[]>
-    listColors(query: IPaginationQuery): Promise<{
-        data: Color[]
+    listActiveColors(): Promise<ColorWithTranslations[]>
+    listColors(query: ColorListQuery): Promise<{
+        data: ColorWithTranslations[]
         meta: {
             page: number
             limit: number
@@ -18,16 +39,17 @@ export interface IPrismaColorRepository {
             totalPages: number
         }
     }>
-    getColor(id: string): Promise<Color | null>
-    createColor(data: Prisma.ColorCreateInput): Promise<Color>
-    updateColor(id: string, data: Prisma.ColorUpdateInput): Promise<Color>
-    deleteColor(id: string): Promise<Color>
+    getColor(id: string): Promise<ColorWithTranslations | null>
+    createColor(data: Prisma.ColorCreateInput): Promise<ColorWithTranslations>
+    updateColor(id: string, data: Prisma.ColorUpdateInput): Promise<ColorWithTranslations>
+    deleteColor(id: string): Promise<ColorWithTranslations>
 }
 
 export const colorRepository = (): IPrismaColorRepository => {
     const listActiveColors = async () => {
         return prisma.color.findMany({
             orderBy: { code: "asc" },
+            include: colorInclude,
         })
     }
 
@@ -64,6 +86,7 @@ export const colorRepository = (): IPrismaColorRepository => {
                 orderBy,
                 skip,
                 take,
+                include: colorInclude,
             }),
             prisma.color.count({ where: finalWhere }),
         ])
@@ -79,23 +102,29 @@ export const colorRepository = (): IPrismaColorRepository => {
     const getColor = async (id: string) => {
         return prisma.color.findUniqueOrThrow({
             where: { id },
+            include: colorInclude,
         })
     }
 
     const createColor = async (data: Prisma.ColorCreateInput) => {
-        return prisma.color.create({ data })
+        return prisma.color.create({
+            data,
+            include: colorInclude,
+        })
     }
 
     const updateColor = async (id: string, data: Prisma.ColorUpdateInput) => {
         return prisma.color.update({
             where: { id },
             data,
+            include: colorInclude,
         })
     }
 
     const deleteColor = async (id: string) => {
         return await prisma.color.delete({
             where: { id },
+            include: colorInclude,
         })
     }
 

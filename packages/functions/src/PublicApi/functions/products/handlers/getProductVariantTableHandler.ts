@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { dedupeAndPaginateVariantTable } from "@/core/helpers/products/dedupeVariantTable"
 import { mapPublicProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
@@ -9,6 +10,7 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
     return async (event: IGetProductVariantTableEvent) => {
         const productId = event.pathParameters?.id
         if (!productId) throw new createError.BadRequest("productId required")
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         const { page, limit, search, order } =
             normalizeListQuery(event.queryStringParameters, {
@@ -30,7 +32,9 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
                 statusCode: 200,
                 payload: {
                     // Public DTO: yapı yalnız (variantSuppliers/fiyat YOK).
-                    data: paginated.map(mapPublicProductVariantTableRow),
+                    data: paginated.map((variant) =>
+                        mapPublicProductVariantTableRow(variant, locale),
+                    ),
                     meta,
                 },
             })

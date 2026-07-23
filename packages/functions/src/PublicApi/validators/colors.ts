@@ -2,12 +2,33 @@ import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
 const z_hex = z.string().regex(/^#([0-9A-Fa-f]{6})$/)
+const localeSchema = z.enum(["tr", "en"])
+
+const colorSchema = z.object({
+    id: z.uuid(),
+    system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
+    code: z.string(),
+    name: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    hex: z_hex,
+    rgbR: z.number().min(0).max(255).optional(),
+    rgbG: z.number().min(0).max(255).optional(),
+    rgbB: z.number().min(0).max(255).optional(),
+    isActive: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
 
 export const idValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
             id: z.uuid(),
         }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+        }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
@@ -21,19 +42,7 @@ export const colorResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                color: z.object({
-                    id: z.uuid(),
-                    system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
-                    code: z.number(),
-                    name: z.string(),
-                    hex: z_hex,
-                    rgbR: z.number().min(0).max(255).optional(),
-                    rgbG: z.number().min(0).max(255).optional(),
-                    rgbB: z.number().min(0).max(255).optional(),
-                    isActive: z.boolean(),
-                    createdAt: z.string(),
-                    updatedAt: z.string(),
-                })
+                color: colorSchema
             })
         })
     }).loose()
@@ -45,21 +54,7 @@ export const listColorResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                data: z.array(
-                    z.object({
-                        id: z.uuid(),
-                        system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
-                        code: z.number(),
-                        name: z.string(),
-                        hex: z_hex,
-                        rgbR: z.number().min(0).max(255).optional(),
-                        rgbG: z.number().min(0).max(255).optional(),
-                        rgbB: z.number().min(0).max(255).optional(),
-                        isActive: z.boolean(),
-                        createdAt: z.string(),
-                        updatedAt: z.string(),
-                    })
-                ),
+                data: z.array(colorSchema),
                 meta: z.object({
                     page: z.number(),
                     limit: z.number(),

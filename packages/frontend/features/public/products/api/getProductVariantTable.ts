@@ -13,12 +13,16 @@ type ProductVariantTableResponse = ApiEnvelope<{
     }
 }>
 
-export async function getProductVariantTable(productId: string): Promise<VariantTableData[]> {
+export async function getProductVariantTable(
+    productId: string,
+    options: { locale?: string } = {},
+): Promise<VariantTableData[]> {
     const res = await publicApiClient.get<ProductVariantTableResponse>(
         `/products/${productId}/variant-table`,
         {
             params: {
                 limit: 500,
+                locale: options.locale ?? "tr",
             },
         },
     )

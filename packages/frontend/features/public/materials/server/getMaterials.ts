@@ -14,10 +14,10 @@ type ListMaterialsResponse = ApiEnvelope<{
     }
 }>
 
-async function fetchMaterials(limit = 500): Promise<PublicMaterial[]> {
+async function fetchMaterials(limit = 500, locale = "tr"): Promise<PublicMaterial[]> {
     try {
         const res = await publicServerClient().get<ListMaterialsResponse>("/materials", {
-            params: { limit },
+            params: { limit, locale },
         })
 
         return res.data.payload.data ?? []
@@ -36,9 +36,11 @@ const getCachedMaterials = unstable_cache(fetchMaterials, ["public-materials"], 
     revalidate: 60,
 })
 
-export const getMaterials = cache(async (options: { limit?: number } = {}): Promise<PublicMaterial[]> => {
+export const getMaterials = cache(async (
+    options: { limit?: number; locale?: string } = {},
+): Promise<PublicMaterial[]> => {
     try {
-        return await getCachedMaterials(options.limit ?? 500)
+        return await getCachedMaterials(options.limit ?? 500, options.locale ?? "tr")
     } catch {
         return []
     }

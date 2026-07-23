@@ -26,13 +26,13 @@ export type CustomerProductVariantTableResult = ProductVariantTableResult & {
  */
 export const getCustomerProductVariantTable = cache(async (
     productId: string,
-    options: { limit?: number } = {},
+    options: { limit?: number; locale?: string } = {},
 ): Promise<CustomerProductVariantTableResult> => {
     try {
         const client = await protectedServerClient();
         const res = await client.get<CustomerVariantTableResponse>(
             `/portal/customer/products/${productId}/variant-table`,
-            { params: { limit: options.limit ?? 500 } },
+            { params: { limit: options.limit ?? 500, locale: options.locale ?? "tr" } },
         );
         return {
             variants: res.data.payload.data ?? [],
