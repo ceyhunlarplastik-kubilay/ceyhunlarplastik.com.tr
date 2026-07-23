@@ -40,9 +40,16 @@ if (isProd) {
     // "sorun geçti mi?" sorusu için konsola bakmak gerekmez.
     const alarmActionArns = [alarmTopic.arn];
 
+    // Bu alarmın amacı "hesap eşzamanlılık limitine yaklaşıldı" uyarısıdır.
+    // Eşik 8'di; eu-central-1 kotası ise 1000 (2026-07-23'te doğrulandı:
+    // service-quotas L-B99A9384) → limitin %0.8'inde tetikleniyordu. SSR sayfa
+    // yüklemeleri API'lere dağıldığında 8 eşzamanlı Lambda normal trafikte
+    // görülür; alarm sürekli ötüp gürültü (ve alarm körlüğü) üretirdi.
+    // Yeni varsayılan kotanın ~%80'i. KOTA DEĞİŞİRSE BURASI DA GÜNCELLENMELİ
+    // (ya da env ile ezilmeli) — eşik kotaya göre anlamlıdır, mutlak değil.
     const accountConcurrencyThreshold = parsePositiveIntegerEnv(
         "LAMBDA_ACCOUNT_CONCURRENCY_ALARM_THRESHOLD",
-        8,
+        800,
     );
 
     new aws.cloudwatch.MetricAlarm("ProdLambdaAccountConcurrentExecutionsHigh", {
