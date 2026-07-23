@@ -33,6 +33,10 @@ type Params = {
     name: string
     baseUnit: string
     displayOrder?: number
+    translations?: Array<{
+        locale: "tr" | "en"
+        name: string
+    }>
 }
 
 export async function createMeasurementTypeReference({
@@ -40,6 +44,7 @@ export async function createMeasurementTypeReference({
     name,
     baseUnit,
     displayOrder = 0,
+    translations,
 }: Params): Promise<MeasurementTypeReference> {
     const res = await adminApiClient.post<CreateMeasurementTypeResponse>(
         "/measurement-types",
@@ -48,6 +53,7 @@ export async function createMeasurementTypeReference({
             name,
             baseUnit,
             displayOrder,
+            translations,
         }
     )
 

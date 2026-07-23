@@ -6,9 +6,20 @@ import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Material } from "@/prisma/generated/prisma/client"
 
+export const materialTranslationSelect = {
+    id: true,
+    locale: true,
+    name: true,
+    createdAt: true,
+    updatedAt: true,
+} satisfies Prisma.MaterialTranslationSelect
+
 export type MaterialWithAssets = Prisma.MaterialGetPayload<{
     include: {
         assets: true
+        translations: {
+            select: typeof materialTranslationSelect
+        }
     }
 }>
 
@@ -35,6 +46,10 @@ const materialInclude = {
         orderBy: [
             { createdAt: "desc" },
         ],
+    },
+    translations: {
+        orderBy: { locale: "asc" },
+        select: materialTranslationSelect,
     },
 } satisfies Prisma.MaterialInclude
 

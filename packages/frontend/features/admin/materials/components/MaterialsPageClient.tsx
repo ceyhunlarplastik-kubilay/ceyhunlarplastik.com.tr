@@ -1,6 +1,14 @@
 "use client"
 
+import { motion } from "motion/react"
 import { Input } from "@/components/ui/input"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
@@ -13,6 +21,7 @@ export function MaterialsPageClient() {
         filters,
         params,
         setSearch,
+        setCertificate,
         setPage,
         setLimit,
         setRefreshIntervalSeconds,
@@ -41,7 +50,12 @@ export function MaterialsPageClient() {
     const meta = data?.meta
 
     return (
-        <div className="space-y-6">
+        <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="space-y-6"
+        >
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-1">
                     <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Ham Maddeler</h1>
@@ -55,13 +69,21 @@ export function MaterialsPageClient() {
                 </div>
             </div>
 
-            <div className="rounded-2xl border bg-white p-4 shadow-sm">
+            <div className="grid gap-3 rounded-2xl border bg-white p-4 shadow-sm lg:grid-cols-[minmax(260px,1fr)_220px]">
                 <Input
                     value={filters.search}
                     onChange={(event) => void setSearch(event.target.value)}
                     placeholder="Ham madde adı veya kodu ile ara"
-                    className="max-w-md"
                 />
+                <Select value={filters.certificate} onValueChange={setCertificate}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Sertifika" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Tüm ham maddeler</SelectItem>
+                        <SelectItem value="with-certificates">Sertifikalı olanlar</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             <AdminListRefreshBar
@@ -83,6 +105,6 @@ export function MaterialsPageClient() {
                 onPageChange={setPage}
                 onLimitChange={setLimit}
             />
-        </div>
+        </motion.div>
     )
 }

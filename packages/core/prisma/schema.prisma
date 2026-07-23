@@ -112,12 +112,28 @@ model Color {
   rgbB     Int?
   isActive Boolean     @default(true)
 
-  variants ProductVariant[]
+  variants     ProductVariant[]
+  translations ColorTranslation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([system, code])
+}
+
+model ColorTranslation {
+  id      String @id @default(uuid())
+  colorId String
+  locale  String @db.VarChar(16)
+  name    String
+
+  color Color @relation(fields: [colorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([colorId, locale])
+  @@index([locale, colorId])
 }
 
 enum ColorSystem {
@@ -653,10 +669,26 @@ model MeasurementType {
   baseUnit     String // mm, degree, kg
   displayOrder Int             @default(0)
 
-  measurements ProductMeasurement[]
+  measurements  ProductMeasurement[]
+  translations  MeasurementTypeTranslation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model MeasurementTypeTranslation {
+  id                String @id @default(uuid())
+  measurementTypeId String
+  locale            String @db.VarChar(16)
+  name              String
+
+  measurementType MeasurementType @relation(fields: [measurementTypeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([measurementTypeId, locale])
+  @@index([locale, measurementTypeId])
 }
 
 ///////////////////////////////////////////////////////
@@ -1234,13 +1266,29 @@ model Material {
   name String
   code String? // PP, PE, PVC gibi
 
-  variants ProductVariant[]
-  assets   Asset[]
+  variants     ProductVariant[]
+  assets       Asset[]
+  translations MaterialTranslation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([name])
+}
+
+model MaterialTranslation {
+  id         String @id @default(uuid())
+  materialId String
+  locale     String @db.VarChar(16)
+  name       String
+
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([materialId, locale])
+  @@index([locale, materialId])
 }
 
 enum AssetType {

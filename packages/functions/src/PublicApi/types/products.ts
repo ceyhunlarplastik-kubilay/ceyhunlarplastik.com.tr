@@ -43,5 +43,6 @@ export type IGetProductVariantTableEvent =
             search?: string
             sort?: string
             order?: "asc" | "desc"
+            locale?: string
         }
     >

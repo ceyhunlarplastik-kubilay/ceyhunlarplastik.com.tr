@@ -11,6 +11,14 @@ export type VariantMeasurement = {
     }
 }
 
+export type DictionaryTranslation = {
+    id: string
+    locale: string
+    name: string
+    createdAt: string
+    updatedAt: string
+}
+
 export type VariantSupplier = {
     id: string
     isActive: boolean
@@ -45,6 +53,7 @@ export type ProductVariant = {
     color?: {
         id: string
         name: string
+        translations?: DictionaryTranslation[]
         hex?: string
         hexCode?: string
         code: string
@@ -58,6 +67,7 @@ export type ProductVariant = {
 export type ColorReference = {
     id: string
     name: string
+    translations?: DictionaryTranslation[]
     hexCode?: string
     code?: string
     system?: string
@@ -66,6 +76,7 @@ export type ColorReference = {
 export type MaterialReference = {
     id: string
     name: string
+    translations?: DictionaryTranslation[]
     code?: string | null
     description?: string
     assets?: Array<{
@@ -89,6 +100,7 @@ export type SupplierReference = {
 export type MeasurementTypeReference = {
     id: string
     name: string
+    translations?: DictionaryTranslation[]
     code: string
     baseUnit: string
     displayOrder: number

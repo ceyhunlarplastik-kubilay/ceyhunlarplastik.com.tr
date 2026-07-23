@@ -1,5 +1,6 @@
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaColorRepository } from "@/core/helpers/prisma/colors/repository"
+import type { VariantDictionaryTranslationInput } from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
 
 export type IGetColorEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
@@ -15,6 +16,8 @@ export interface ICreateColorBody {
     code: string
     name: string
     hex: string
+    isActive?: boolean
+    translations?: VariantDictionaryTranslationInput[]
 }
 
 export type ICreateColorEvent =
@@ -30,6 +33,7 @@ export type IListColorsEvent =
             search?: string
             sort?: string
             order?: "asc" | "desc"
+            system?: ColorSystem
         }
     >
 

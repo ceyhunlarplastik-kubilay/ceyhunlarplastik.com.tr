@@ -1,14 +1,24 @@
 import { adminServerClient } from "@/lib/http/serverClient";
 
+type DictionaryTranslation = {
+    id: string;
+    locale: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+};
+
 export type Color = {
     id: string;
     name: string;
+    translations?: DictionaryTranslation[];
     hexCode: string;
 };
 
 export type Material = {
     id: string;
     name: string;
+    translations?: DictionaryTranslation[];
     description?: string;
 };
 
@@ -22,6 +32,7 @@ export type Supplier = {
 export type MeasurementType = {
     id: string;
     name: string;
+    translations?: DictionaryTranslation[];
     code: string;
     baseUnit: string;
     displayOrder: number;

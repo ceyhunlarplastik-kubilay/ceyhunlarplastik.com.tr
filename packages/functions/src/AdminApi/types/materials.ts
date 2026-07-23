@@ -2,6 +2,7 @@ import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/t
 import { IPrismaMaterialRepository } from "@/core/helpers/prisma/materials/repository"
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository"
 import { AssetRole, AssetType } from "@/prisma/generated/prisma/client"
+import type { VariantDictionaryTranslationInput } from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
 
 export interface IMaterialDependencies {
     materialRepository: IPrismaMaterialRepository
@@ -11,6 +12,7 @@ export interface IMaterialDependencies {
 export interface ICreateMaterialBody {
     name: string
     code?: string
+    translations?: VariantDictionaryTranslationInput[]
 }
 
 export interface IUpdateMaterialBody extends Partial<ICreateMaterialBody> {
@@ -57,5 +59,6 @@ export type IListMaterialsEvent =
             search?: string
             sort?: string
             order?: "asc" | "desc"
+            certificateOnly?: "true" | "false"
         }
     >

@@ -1,11 +1,28 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
+const localeSchema = z.enum(["tr", "en"])
+const measurementTypeSchema = z.object({
+    id: z.uuid(),
+    code: z.string(),
+    name: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    baseUnit: z.string(),
+    displayOrder: z.number(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
+
 export const idValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
             id: z.uuid(),
-        })
+        }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+        }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
@@ -19,15 +36,7 @@ export const measurementTypeResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                measurementType: z.object({
-                    id: z.uuid(),
-                    code: z.string(),
-                    name: z.string(),
-                    baseUnit: z.string(),
-                    displayOrder: z.number(),
-                    createdAt: z.string(),
-                    updatedAt: z.string(),
-                })
+                measurementType: measurementTypeSchema
             })
         })
     }).loose()
@@ -39,17 +48,7 @@ export const listMeasurementTypeResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                data: z.array(
-                    z.object({
-                        id: z.uuid(),
-                        code: z.string(),
-                        name: z.string(),
-                        baseUnit: z.string(),
-                        displayOrder: z.number(),
-                        createdAt: z.string(),
-                        updatedAt: z.string(),
-                    })
-                ),
+                data: z.array(measurementTypeSchema),
                 meta: z.object({
                     page: z.number(),
                     limit: z.number(),

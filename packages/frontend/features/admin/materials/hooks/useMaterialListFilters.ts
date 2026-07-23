@@ -11,6 +11,7 @@ import {
 export function useMaterialListFilters() {
     const [state, setState] = useQueryStates({
         search: parseAsString.withDefault(""),
+        certificate: parseAsString.withDefault("all"),
         page: parseAsInteger.withDefault(1),
         limit: parseAsInteger.withDefault(DEFAULT_ADMIN_LIST_PAGE_SIZE),
         refresh: parseAsInteger.withDefault(DEFAULT_ADMIN_LIST_REFRESH_INTERVAL_SECONDS),
@@ -23,19 +24,22 @@ export function useMaterialListFilters() {
             page: state.page,
             limit: state.limit,
             ...(state.search.trim() ? { search: state.search.trim() } : {}),
+            ...(state.certificate === "with-certificates" ? { certificateOnly: true } : {}),
         }),
-        [state.limit, state.page, state.search],
+        [state.certificate, state.limit, state.page, state.search],
     )
 
     return {
         filters: {
             search: state.search,
+            certificate: state.certificate,
             page: state.page,
             limit: state.limit,
             refreshIntervalSeconds,
         },
         params,
         setSearch: (search: string) => setState({ search, page: 1 }),
+        setCertificate: (certificate: string) => setState({ certificate, page: 1 }),
         setPage: (page: number) => setState({ page }),
         setLimit: (limit: number) => setState({ limit, page: 1 }),
         setRefreshIntervalSeconds: (refresh: number) =>

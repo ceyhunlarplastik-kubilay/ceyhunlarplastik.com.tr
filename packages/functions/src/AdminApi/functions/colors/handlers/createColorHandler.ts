@@ -3,6 +3,10 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IColorDependencies, ICreateColorEvent } from "@/functions/AdminApi/types/colors"
 import { ColorSystem } from "@/functions/AdminApi/types/colors"
 import { Prisma } from "@/prisma/generated/prisma/client"
+import {
+    normalizeVariantDictionaryTranslations,
+    VariantDictionaryTranslationInputError,
+} from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
 
 function hexToRgb(hex: string) {
     const clean = hex.replace("#", "");
@@ -30,28 +34,37 @@ export const createColorHandler = ({ colorRepository }: IColorDependencies) => {
 
         if (!body || Object.keys(body).length === 0) throw new createError.BadRequest("At least  one field must be provided");
 
-        const allowedFields = ["system", "code", "name", "hex"] as const
+        const allowedFields = ["system", "code", "name", "hex", "translations"] as const
         const invalidFields = Object.keys(body).filter(
             key => !allowedFields.includes(key as any)
         )
 
         if (invalidFields.length > 0) throw new createError.BadRequest(`Invalid fields provided: ${invalidFields.join(", ")}`)
 
-        const { system, code, name, hex } = body;
+        const { system, code, name, hex, translations } = body;
 
         const systemValue = system ?? ColorSystem.RAL;
 
         const { r, g, b } = hexToRgb(hex);
 
         try {
+            const normalized = normalizeVariantDictionaryTranslations({
+                legacyName: name,
+                translations,
+                requireTurkish: true,
+            })
+            const turkish = normalized.turkish!
             const color = await colorRepository.createColor({
                 system: systemValue,
                 code,
-                name,
+                name: turkish.name,
                 hex,
                 rgbR: r,
                 rgbG: g,
                 rgbB: b,
+                translations: {
+                    create: normalized.translations,
+                },
             })
 
             return apiResponseDTO({
@@ -60,6 +73,9 @@ export const createColorHandler = ({ colorRepository }: IColorDependencies) => {
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err;
+            if (err instanceof VariantDictionaryTranslationInputError) {
+                throw new createError.BadRequest(err.message)
+            }
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
                 if (err.code === "P2002") throw new createError.Conflict(`Color with system ${system} and code ${code} already exists`)
             }

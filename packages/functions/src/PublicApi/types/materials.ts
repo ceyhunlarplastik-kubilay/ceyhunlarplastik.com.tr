@@ -5,7 +5,7 @@ export interface IMaterialDependencies {
     materialRepository: IPrismaMaterialRepository
 }
 
-export type IGetMaterialEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+export type IGetMaterialEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }, { locale?: string }>
 
 export type IListMaterialsEvent =
     IAPIGatewayProxyEventWithUserGeneric<
@@ -17,5 +17,6 @@ export type IListMaterialsEvent =
             search?: string
             sort?: string
             order?: "asc" | "desc"
+            locale?: string
         }
     >

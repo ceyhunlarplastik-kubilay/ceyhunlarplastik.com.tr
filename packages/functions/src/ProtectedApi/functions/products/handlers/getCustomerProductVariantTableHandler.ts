@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { dedupeAndPaginateVariantTable } from "@/core/helpers/products/dedupeVariantTable"
 import { mapCustomerProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
@@ -23,6 +24,7 @@ export const getCustomerProductVariantTableHandler = ({ productVariantRepository
     return async (event: IGetProductVariantTableEvent) => {
         const productId = event.pathParameters?.id
         if (!productId) throw new createError.BadRequest("productId required")
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         const { page, limit, search, order } =
             normalizeListQuery(event.queryStringParameters, {
@@ -47,7 +49,9 @@ export const getCustomerProductVariantTableHandler = ({ productVariantRepository
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: paginated.map(mapCustomerProductVariantTableRow),
+                    data: paginated.map((variant) =>
+                        mapCustomerProductVariantTableRow(variant, locale),
+                    ),
                     meta,
                     customerDiscountPercent: normalizeCustomerDiscountPercent(pricingContext?.generalDiscountPercent),
                 },

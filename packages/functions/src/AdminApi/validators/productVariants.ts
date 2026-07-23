@@ -30,7 +30,7 @@ const colorSchema = z.object({
     isActive: z.boolean(),
     createdAt: z.string(),
     updatedAt: z.string(),
-}).nullable()
+}).loose().nullable()
 
 const materialSchema = z.object({
     id: z.string(),

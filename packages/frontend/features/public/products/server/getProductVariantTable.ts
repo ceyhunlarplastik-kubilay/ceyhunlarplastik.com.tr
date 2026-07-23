@@ -10,10 +10,14 @@ export type ProductsVariantTableListPayload = {
 
 export type ListProductsVariantTableResponse = ApiEnvelope<ProductsVariantTableListPayload>;
 
-async function fetchProductVariantTable(productId: string, limit = 500): Promise<VariantTableData[]> {
+async function fetchProductVariantTable(
+    productId: string,
+    limit = 500,
+    locale = "tr",
+): Promise<VariantTableData[]> {
     const res = await publicServerClient().get<ListProductsVariantTableResponse>(
         `/products/${productId}/variant-table`,
-        { params: { limit } }
+        { params: { limit, locale } }
     );
 
     return res.data.payload.data ?? [];
@@ -37,10 +41,14 @@ export type ProductVariantTableResult = {
 
 export const getProductVariantTable = cache(async (
     productId: string,
-    options: { limit?: number } = {},
+    options: { limit?: number; locale?: string } = {},
 ): Promise<ProductVariantTableResult> => {
     try {
-        const variants = await getCachedProductVariantTable(productId, options.limit ?? 500);
+        const variants = await getCachedProductVariantTable(
+            productId,
+            options.limit ?? 500,
+            options.locale ?? "tr",
+        );
         return { variants, error: false };
     } catch (error: any) {
         console.error("getProductVariantTable error:", {

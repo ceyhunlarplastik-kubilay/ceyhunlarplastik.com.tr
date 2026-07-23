@@ -13,6 +13,10 @@ type Params = {
     system?: "RAL" | "PANTONE" | "NCS" | "CUSTOM"
     code: string
     hex: string
+    translations?: Array<{
+        locale: "tr" | "en"
+        name: string
+    }>
 }
 
 export async function createColorReference({
@@ -20,12 +24,14 @@ export async function createColorReference({
     system = "CUSTOM",
     code,
     hex,
+    translations,
 }: Params): Promise<ColorReference> {
     const res = await adminApiClient.post<CreateColorResponse>("/colors", {
         name,
         system,
         code,
         hex,
+        translations,
     })
 
     return res.data.payload.color

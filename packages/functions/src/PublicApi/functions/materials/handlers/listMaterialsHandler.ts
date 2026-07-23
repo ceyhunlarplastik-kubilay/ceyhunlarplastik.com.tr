@@ -1,12 +1,18 @@
 import createError from "http-errors"
 import { safeNumber } from "@/core/helpers/utils/number"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { getSupportedLocale } from "@/core/i18n/locales"
 import { mapMaterialWithAssets } from "@/core/helpers/assets/mapMaterialWithAssets"
+import {
+    localizeMaterial,
+    withoutDictionaryTranslations,
+} from "@/core/helpers/variantDictionaries/localizeVariantDictionary"
 import type { IMaterialDependencies, IListMaterialsEvent } from "@/functions/PublicApi/types/materials"
 
 export const listMaterialsHandler = ({ materialRepository }: IMaterialDependencies) => {
     return async (event: IListMaterialsEvent) => {
         const { page, limit, search, sort, order } = event.queryStringParameters ?? {}
+        const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         try {
             const result = await materialRepository.listMaterials({
@@ -23,7 +29,10 @@ export const listMaterialsHandler = ({ materialRepository }: IMaterialDependenci
                 payload: {
                     ...result,
                     data: result.data.map((material) =>
-                        mapMaterialWithAssets(material, { certificatesOnly: true }),
+                        mapMaterialWithAssets(
+                            withoutDictionaryTranslations(localizeMaterial(material, locale)),
+                            { certificatesOnly: true },
+                        ),
                     ),
                 },
             })

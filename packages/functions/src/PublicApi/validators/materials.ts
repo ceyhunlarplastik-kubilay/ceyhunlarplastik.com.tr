@@ -2,11 +2,16 @@ import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { assetRoleEnum, assetSchema, assetTypeEnum } from "@/functions/PublicApi/validators/products"
 
+const localeSchema = z.enum(["tr", "en"])
+
 export const idValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
             id: z.uuid(),
         }),
+        queryStringParameters: z.object({
+            locale: localeSchema.optional(),
+        }).optional(),
     }),
     {
         requiredRootFields: ["pathParameters"],
@@ -16,6 +21,9 @@ export const idValidator = validatorWrapper(
 export const materialSchema = z.object({
     id: z.uuid(),
     name: z.string(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
     code: z.string().nullable().optional(),
     assets: z.array(
         assetSchema.extend({

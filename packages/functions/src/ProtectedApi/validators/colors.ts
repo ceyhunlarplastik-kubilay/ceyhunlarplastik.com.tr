@@ -2,6 +2,13 @@ import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
 const z_hex = z.string().regex(/^#([0-9A-Fa-f]{6})$/)
+const translationSchema = z.object({
+    id: z.uuid(),
+    locale: z.string(),
+    name: z.string(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+})
 
 export const createColorValidator = validatorWrapper(
     z.object({
@@ -46,6 +53,7 @@ const colorSchema = z.object({
     system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
     code: z.string(),
     name: z.string(),
+    translations: z.array(translationSchema).optional(),
     hex: z.string(),
     rgbR: z.number().nullish(),
     rgbG: z.number().nullish(),
@@ -53,7 +61,7 @@ const colorSchema = z.object({
     isActive: z.boolean(),
     createdAt: z.string(),
     updatedAt: z.string(),
-})
+}).loose()
 
 // Tekil: getColor / createColor / updateColor → payload: { color }
 export const colorResponseValidator = z.toJSONSchema(

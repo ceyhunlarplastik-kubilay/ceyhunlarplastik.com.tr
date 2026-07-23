@@ -7,6 +7,7 @@ export type GetMaterialsParams = {
     search?: string
     sort?: string
     order?: "asc" | "desc"
+    certificateOnly?: boolean
 }
 
 export async function getMaterials(params?: GetMaterialsParams): Promise<ListMaterialsResponse["payload"]> {
