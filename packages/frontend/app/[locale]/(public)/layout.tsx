@@ -11,7 +11,7 @@ export default function PublicLayout({
         <>
             <Navbar />
             {/* {children} */}
-            <main className="pt-[var(--navbar-height)]">{children}</main>
+            <main className="pt-(--navbar-height)">{children}</main>
             <Footer />
         </>
     );

@@ -7,7 +7,6 @@ import { ProcessAndContactSection } from "@/components/home/ProcessAndContactSec
 import { Enviroment } from "@/components/home/Enviroment";
 import { HomeToasts } from "@/components/home/HomeToasts";
 import ProductAssistantModal from "@/components/home/ProductAssistantModal"
-// import { getAttributesForFilter } from "@/features/admin/productAttributes/server/getAttributesForFilter"
 import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
 import { getLocale } from "next-intl/server"
 
@@ -27,8 +26,7 @@ export default async function Home({
         <div className="min-h-screen">
             {/* Toast sadece gerekiyorsa çalışsın */}
             <HomeToasts error={error} />
-            {/* <main className="[padding-top:var(--navbar-height)] max-w-8xl mx-auto"> */}
-            <main className="max-w-8xl mx-auto">
+            <div className="max-w-8xl mx-auto">
                 <HeroSection />
                 <AboutSection />
                 <ServicesSection />
@@ -37,7 +35,7 @@ export default async function Home({
                 <ProcessAndContactSection />
                 <Enviroment />
                 <ProductAssistantModal attributes={attributes} />
-            </main>
+            </div>
         </div>
     );
 }

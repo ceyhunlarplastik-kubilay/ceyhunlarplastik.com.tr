@@ -41,7 +41,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
         <section
             className={`
                 relative isolate overflow-hidden
-                ${fullScreen ? "min-h-[calc(100vh-var(--navbar-height))]" : ""}
+                ${fullScreen ? "min-h-[calc(100dvh-var(--navbar-height))]" : ""}
             `}
         >
             {/* Background image */}
@@ -61,7 +61,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
             <div
                 className={`
                     mx-auto max-w-6xl px-6
-                    ${fullScreen ? "h-[calc(100vh-var(--navbar-height))]" : "min-h-[520px] lg:min-h-[600px]"}
+                    ${fullScreen ? "h-[calc(100dvh-var(--navbar-height))]" : "min-h-130 lg:min-h-150"}
                     flex items-center justify-center text-center
                 `}
             >
@@ -131,11 +131,11 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
                     {/* Subtitle */}
                     <motion.p
                         variants={fadeUp}
-                        className="mt-6 text-base md:text-lg font-medium text-white/85"
+                        className="mt-6 text-pretty text-base md:text-lg font-medium text-white/85"
                     >
                         {t.rich("subtitle", {
                             highlight: (chunks) => (
-                                <span className="text-[var(--color-brand)] font-semibold">
+                                <span className="text-(--color-brand) font-semibold">
                                     {chunks}
                                 </span>
                             ),
@@ -145,7 +145,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
                     {/* Paragraph */}
                     <motion.p
                         variants={fadeUp}
-                        className="mt-4 text-sm md:text-base leading-relaxed text-white/75"
+                        className="mt-4 text-pretty text-sm md:text-base leading-relaxed text-white/75"
                     >
                         {t("paragraph")}
                     </motion.p>

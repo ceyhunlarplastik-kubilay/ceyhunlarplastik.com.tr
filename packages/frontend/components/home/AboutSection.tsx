@@ -9,7 +9,7 @@ export function AboutSection() {
     const t = useTranslations("home.about");
 
     return (
-        <section className="relative bg-muted/30 pt-12 overflow-hidden">
+        <section className="relative bg-muted/30 pt-16 pb-12 overflow-hidden">
             <div className="mx-auto max-w-7xl px-6 lg:px-10">
                 <div className="flex flex-col lg:flex-row items-stretch justify-between gap-12 lg:gap-20">
                     {/* LEFT – TEXT */}
@@ -20,29 +20,23 @@ export function AboutSection() {
                         viewport={{ once: true }}
                         className="flex flex-col justify-center lg:w-[45%]"
                     >
-                        <h2 className="text-xl md:text-2xl font-bold text-brand mb-2">
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">
                             {t("brand")}
+                        </p>
+
+                        <h2 className="mt-3 text-balance text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+                            {t("subtitle")}
                         </h2>
 
-                        <h3 className="text-2xl md:text-3xl font-semibold text-muted-foreground mb-2">
-                            {t("subtitle")}
-                        </h3>
-
-                        <h4 className="text-l md:text-l font-semibold text-muted-foreground mb-2">
+                        <p className="mt-4 text-lg font-medium text-foreground/80">
                             {t("lead")}
-                        </h4>
-
-                        <p className="text-lg md:text-l text-muted-foreground leading-relaxed mb-2">
-                            {t("body1")}
                         </p>
 
-                        <p className="text-lg md:text-l text-muted-foreground leading-relaxed mb-6">
-                            {t("body2")}
-                        </p>
-
-                        <p className="text-lg md:text-l text-muted-foreground leading-relaxed mb-8">
-                            {t("body3")}
-                        </p>
+                        <div className="mt-4 space-y-4 text-pretty text-base md:text-lg text-muted-foreground leading-relaxed">
+                            <p>{t("body1")}</p>
+                            <p>{t("body2")}</p>
+                            <p>{t("body3")}</p>
+                        </div>
                     </motion.div>
 
                     {/* RIGHT – INFO CARD */}

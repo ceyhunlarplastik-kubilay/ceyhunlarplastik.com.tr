@@ -292,6 +292,38 @@ Category pilotunun kanıtladığı Translation Table deseninin ikinci uygulamas�
 | i18n göçü | **✅ Kuruldu ve kullanılıyor**: [.claude/skills/i18n-migrate](.claude/skills/i18n-migrate/SKILL.md) — `hakkimizda` pilotu bu skill'le yapıldı; kalan Faz 1b yüzeyi aynı reçeteyle seri ilerliyor. |
 | Validator tamamlama | **✅ Kuruldu, P1.2'de kullanılacak**: [.claude/skills/add-response-validator](.claude/skills/add-response-validator/SKILL.md) — 9 dosyalık backlog skill içinde referanslı. |
 | Yeni endpoint | Opsiyonel: AGENTS/ARCHITECTURE'daki endpoint ekleme adımları zaten net; skill'e dönüştürmek düşük öncelik. |
+| UI/UX redesign taste | **✅ Kuruldu**: `Leonxlnx/taste-skill` (`npx skills add`) → `.agents/skills/*` (13 skill), `.claude/skills/` symlink. Homepage pilotu `redesign-existing-projects` ile yapıldı. |
+
+### Taste-skill kurulumu + homepage UI pilotu (2026-07-24)
+
+**Ne yapıldı:** `npx skills add Leonxlnx/taste-skill` ile 13 skill kuruldu (`.agents/skills/`, Claude Code'a symlink). `redesign-existing-projects` skill'inin audit-first yöntemiyle homepage (`app/[locale]/(public)/page.tsx` + `layout.tsx` + `components/home/*`) tarandı; ilk dilim "hatalar + üst section (Hero/About/Services) polish" olarak uygulandı.
+
+**Düzeltilen gerçek hatalar:**
+- `globals.css`: `--font-sans` tanımsız `var(--font-inter)`'a bağlıydı → gövde fontu (Geist) hiç uygulanmıyordu; `var(--font-geist-sans)`'e çevrildi (global etki), `--font-mono` da geist-mono fallback'ine bağlandı.
+- `HeroSection`: hero görseli favicon (`/favicon-5312.png`) idi → gerçek `/logos/ceyhunlar-hero.jpg`; `framer-motion` importu (package.json'da yok, transitive) → `motion/react`; `sizes` eklendi; ölü Unsplash kodu silindi.
+- `ServicesSection`: `lg-grid-cols-2` yazım hatası (grid lg'de hiç 2 sütun olmuyordu) → `lg:grid-cols-2`; çelişen `animate`+`whileInView` temizlendi.
+- `AboutSection`: geçersiz `text-l` sınıfları → geçerli boyutlar; eyebrow(`<p>`)+`<h2>` semantik hiyerarşi.
+- `page.tsx`: layout'taki `<main>` içinde iç içe ikinci `<main>` (çift landmark) → `<div>`; ölü yorum kodu silindi.
+
+**Polish:** başlıklarda `text-balance`/`text-pretty`, tutarlı eyebrow+heading deseni, section dikey ritmi, Services sol kolonda `lg:sticky`.
+
+**Nasıl doğrulandı:** `npm run typecheck -w frontend` (temiz), `npm run lint -w frontend` (0 error, 119 warning — hepsi mevcut/tolere edilen), `npm run test -w frontend` (16/16). i18n kataloglarına dokunulmadı (yalnız markup/className).
+
+**Kalan / kullanıcıda bekleyen:** kubi'de görsel doğrulama (aşağıdaki adımlar); commit/push kullanıcıda. Not: `images.unoptimized: true` olduğu için `/logos/ceyhunlar-hero.jpg` doğrudan servis edilir, `/_next/image` regresyonundan (memory) etkilenmez. Alt section'lar (Products/Quality/Process/Enviroment) bu dilimde kapsam dışı → 2. dilimde ele alındı.
+
+### Homepage 2. dilim — alt section polish (2026-07-24)
+
+**Kapsam:** ana sayfanın kalan section'ları (Products / Quality / Process / Enviroment) + Quality'nin alt bileşeni ProductHighlights. Footer/Navbar (layout ortak chrome) ve koyu-görselli editorial ritim bilerek dışarıda bırakıldı.
+
+**Düzeltilen gerçek hatalar:**
+- `QualitySection`: `AnimatedSection`(=`motion.section`) > `section` > ProductHighlights(`section`) üçlü iç içe `<section>` → iç ikisi `<div>` yapıldı; hardcoded `text-gray-900/600` + `via-gray-200` → tema token'ları (`text-foreground`/`text-muted-foreground`/`via-border`).
+- `ProductHighlights`: `<section>`→`<div>`; hardcoded griler → token; ikonlar tek-accent (`text-brand`) + ince hover.
+- `ProcessAndContactSection`: kullanılmayan `catch (error)` → `catch {` (lint warning giderildi).
+- `Enviroment`: fullScreen dalında `100vh` → `100dvh` (iOS Safari viewport zıplaması).
+
+**Polish:** `ProductsMarquee`'ye yükleme/boş **skeleton** (kategoriler gelene kadar boş şerit yerine `animate-pulse` kartlar); başlıklarda `text-balance`/`text-pretty`; Process eyebrow'u About/Services ile tutarlı (`uppercase tracking-[0.18em]`).
+
+**Nasıl doğrulandı:** typecheck ✅ · lint ✅ 0 error (119→118, Process `catch` uyarısı gitti) · test ✅ 16/16. i18n kataloglarına dokunulmadı. TS narrowing tuzağı (`isEmpty` ara boolean `categories`'i daraltmaz) optional chaining ile çözüldü.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

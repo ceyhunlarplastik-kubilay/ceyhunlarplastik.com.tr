@@ -10,30 +10,30 @@ export function ProductHighlights() {
     const items = data.map((d, i) => ({ ...d, icon: icons[i] }));
 
     return (
-        <section className="bg-[var(--color-section-bg)] py-12">
+        <div className="bg-[var(--color-section-bg)] py-12">
             <div className="mx-auto max-w-7xl px-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
                     {items.map((item, index) => (
                         <div
                             key={index}
-                            className="flex flex-col items-center text-center gap-4"
+                            className="group flex flex-col items-center text-center gap-4"
                         >
                             {/* Icon */}
-                            <item.icon className="h-12 w-12 text-gray-900" />
+                            <item.icon className="h-12 w-12 text-brand transition-transform duration-300 group-hover:-translate-y-1" />
 
                             {/* Title */}
-                            <h3 className="text-lg font-semibold text-gray-900">
+                            <h3 className="text-lg font-semibold text-foreground">
                                 {item.title}
                             </h3>
 
                             {/* Description */}
-                            <p className="text-sm text-gray-600 max-w-xs">
+                            <p className="text-pretty text-sm text-muted-foreground max-w-xs">
                                 {item.description}
                             </p>
                         </div>
                     ))}
                 </div>
             </div>
-        </section>
+        </div>
     );
 }
