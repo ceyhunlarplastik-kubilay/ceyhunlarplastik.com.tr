@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ClientsMarquee } from "./ClientsMarquee";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useState } from "react";
 
 export function HeroSection() {
@@ -25,8 +25,8 @@ export function HeroSection() {
             className="
                 relative w-full bg-white overflow-hidden
                 lg:h-[calc(100dvh-var(--navbar-height,80px))]
-                lg:min-h-[560px]
-                lg:max-h-[900px]
+                lg:min-h-140
+                lg:max-h-225
                 flex flex-col
             "
         >
@@ -36,12 +36,9 @@ export function HeroSection() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-20 items-center">
                         {/* LEFT — Text */}
                         <div>
-                            <h1 className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-tight">
+                            <h1 className="text-balance text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-[1.1]">
                                 <span className="inline-flex items-baseline gap-3">
-                                    {/* <span>Global</span> */}
-
                                     {/* Animated word container */}
-                                    {/* <span className="relative inline-block min-w-[11ch] overflow-hidden text-brand align-bottom"> */}
                                     <span className="relative inline-block w-[22ch] overflow-hidden text-brand align-bottom">
                                         <span className="invisible" aria-hidden="true">
                                             {words[index]}
@@ -68,7 +65,7 @@ export function HeroSection() {
                                 initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4 }}
-                                className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground"
+                                className="mt-6 max-w-xl text-pretty text-base sm:text-lg leading-relaxed text-muted-foreground"
                             >
                                 {t("subtitle")}
                             </motion.p>
@@ -104,30 +101,22 @@ export function HeroSection() {
                             <div
                                 className="
                                     relative w-full overflow-hidden rounded-2xl shadow-xl
-                                    aspect-[4/5]
+                                    aspect-4/5
                                     lg:aspect-auto
                                     lg:h-[min(60vh,520px)]
                                     xl:h-[min(64vh,580px)]
                                 "
                             >
-                                <div className="absolute inset-0 z-10 bg-gradient-to-tr from-black/20 via-transparent to-transparent" />
+                                {/* Depth overlays — consistent single light source (top) */}
+                                <div className="absolute inset-0 z-10 bg-linear-to-tr from-black/25 via-transparent to-transparent" />
+                                <div className="absolute inset-0 z-10 bg-linear-to-t from-black/20 to-transparent" />
 
-                                {/* <Image
-                                    loader={() =>
-                                        "https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=2152&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                    }
-                                    src="https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=2152&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                    alt="Plastic manufacturing"
-                                    fill
-                                    priority
-                                    className="object-cover"
-                                /> */}
-                                {/* packages/frontend/public/favicon-5312.png */}
                                 <Image
-                                    src="/favicon-5312.png"
+                                    src="/logos/ceyhunlar-hero.jpg"
                                     alt={t("imageAlt")}
                                     fill
                                     priority
+                                    sizes="(max-width: 1024px) 100vw, 50vw"
                                     className="object-cover"
                                 />
                             </div>

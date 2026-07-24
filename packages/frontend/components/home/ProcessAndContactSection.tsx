@@ -100,14 +100,14 @@ function FeatureCard({
     return (
         <motion.div
             variants={item}
-            className="group relative rounded-2xl p-6 transition-all duration-300 hover:bg-[var(--color-brand)]/90"
+            className="group relative rounded-2xl p-6 transition-all duration-300 hover:bg-brand/90"
         >
             {/* Accent line */}
-            <span className="absolute left-0 top-6 h-10 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-[var(--color-brand)]" />
+            <span className="absolute left-0 top-6 h-10 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-(--color-brand)" />
 
             <div className="flex gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 transition-colors group-hover:bg-white/20">
-                    <Icon className="h-6 w-6 text-[var(--color-brand)] group-hover:text-white transition-colors" />
+                    <Icon className="h-6 w-6 text-(--color-brand) group-hover:text-white transition-colors" />
                 </div>
 
                 <div>
@@ -162,7 +162,7 @@ export function ProcessAndContactSection({
 
             toast.success(tf("toastSuccess"));
             reset();
-        } catch (error) {
+        } catch {
             toast.error(tf("toastError"));
         }
     };
@@ -188,10 +188,10 @@ export function ProcessAndContactSection({
                 >
                     {/* Header */}
                     <motion.div variants={item} className="max-w-3xl">
-                        <p className="text-sm font-semibold tracking-wide text-[var(--color-brand)]">
+                        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-(--color-brand)">
                             {t("brand")}
                         </p>
-                        <h2 className="mt-2 text-2xl md:text-4xl font-bold tracking-tight text-white">
+                        <h2 className="mt-3 text-balance text-2xl md:text-4xl font-bold tracking-tight text-white">
                             {t("title")}
                         </h2>
                     </motion.div>
@@ -242,7 +242,7 @@ export function ProcessAndContactSection({
                     {/* CTA */}
                     <motion.div variants={item} className="mt-10 flex justify-center">
                         <span className="rounded-full border border-white/10 bg-black/30 px-6 py-2 text-sm text-white/80 backdrop-blur-sm group inline-flex items-center gap-2">
-                            <Brain className="h-6 w-6 text-[var(--color-brand)] transition group-hover:scale-110" />
+                            <Brain className="h-6 w-6 text-(--color-brand) transition group-hover:scale-110" />
                             {t("ctaBanner")}
                         </span>
                     </motion.div>
@@ -274,7 +274,7 @@ export function ProcessAndContactSection({
                                                     <Input
                                                         {...field}
                                                         placeholder={tf("fullName")}
-                                                        className="rounded-xl bg-black/20 text-white placeholder:text-white/40 focus-visible:ring-[var(--color-brand)]"
+                                                        className="rounded-xl bg-black/20 text-white placeholder:text-white/40 focus-visible:ring-(--color-brand)"
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -299,7 +299,7 @@ export function ProcessAndContactSection({
             w-full rounded-xl border border-white/10
             bg-black/20 px-4 py-3 text-sm text-white
             placeholder:text-white/40 outline-none
-            focus:border-[var(--color-brand)]
+            focus:border-(--color-brand)
           "
                                                     />
                                                 </FormControl>
@@ -318,7 +318,7 @@ export function ProcessAndContactSection({
                                                     <Input
                                                         {...field}
                                                         placeholder={tf("email")}
-                                                        className="rounded-xl bg-black/20 text-white placeholder:text-white/40 focus-visible:ring-[var(--color-brand)]"
+                                                        className="rounded-xl bg-black/20 text-white placeholder:text-white/40 focus-visible:ring-(--color-brand)"
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -330,7 +330,7 @@ export function ProcessAndContactSection({
                                     <Button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="mt-2 rounded-xl bg-white text-black hover:bg-[var(--color-brand)] hover:text-white"
+                                        className="mt-2 rounded-xl bg-white text-black hover:bg-(--color-brand) hover:text-white"
                                     >
                                         {isSubmitting ? (
                                             <div className="flex items-center gap-2">
