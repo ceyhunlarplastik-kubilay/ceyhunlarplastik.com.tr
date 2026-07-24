@@ -65,7 +65,7 @@ export function CustomerPortalOverviewPageClient({
 
     if (query.isLoading) {
         return (
-            <div className="flex min-h-[220px] items-center justify-center rounded-3xl border bg-white shadow-sm">
+            <div className="flex min-h-55 items-center justify-center rounded-3xl border bg-white shadow-sm">
                 <Spinner className="size-5" />
             </div>
         )
@@ -216,9 +216,9 @@ export function CustomerPortalOverviewPageClient({
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className="group relative min-h-[154px] overflow-hidden rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_18px_36px_-28px_rgba(15,23,42,0.55)]"
+                                        className="group relative min-h-38.5 overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_18px_36px_-28px_rgba(15,23,42,0.55)]"
                                     >
-                                        <div className={`absolute inset-0 bg-gradient-to-br ${item.className} opacity-80`} />
+                                        <div className={`absolute inset-0 bg-linear-to-br ${item.className} opacity-80`} />
                                         <div className="relative flex h-full flex-col justify-between gap-4">
                                             <div className="flex items-start justify-between gap-3">
                                                 <span className="rounded-2xl border border-white/80 bg-white/85 p-2.5 shadow-sm">
