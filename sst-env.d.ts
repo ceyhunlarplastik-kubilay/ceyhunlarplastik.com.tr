@@ -19,6 +19,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "Ceyhunlar-AppRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "Ceyhunlar-Frontend": {
       "type": "sst.aws.Nextjs"
       "url": string
@@ -65,14 +69,18 @@ declare module "sst" {
       "value": string
     }
     "MyPostgres": {
-      "type": "sst.sst.Linkable"
-      "url": string
+      "database": string
+      "host": string
+      "password": string
+      "port": number
+      "type": "sst.aws.Postgres"
+      "username": string
     }
-    "NeonDatabaseUrl": {
-      "type": "sst.sst.Secret"
-      "value": string
+    "MyVpc": {
+      "bastion": string
+      "type": "sst.aws.Vpc"
     }
-    "NeonDirectUrl": {
+    "RdsPassword": {
       "type": "sst.sst.Secret"
       "value": string
     }

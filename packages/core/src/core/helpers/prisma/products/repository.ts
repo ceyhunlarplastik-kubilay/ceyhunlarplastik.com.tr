@@ -139,9 +139,26 @@ import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQ
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
+import {
+    DEFAULT_LOCALE,
+    type SupportedLocale,
+} from "@/core/i18n/locales"
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, Product } from "@/prisma/generated/prisma/client"
+
+const productTranslationsSelect = {
+    orderBy: { locale: "asc" },
+    select: {
+        id: true,
+        locale: true,
+        name: true,
+        slug: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
+    },
+} as const
 
 const productAttributeTranslationsSelect = {
     orderBy: { locale: "asc" },
@@ -231,6 +248,7 @@ const categoryInclude = {
 const baseInclude = {
     category: categoryInclude,
     assets: true,
+    translations: productTranslationsSelect,
     attributeValues: attributeValuesInclude,
     industrialUsages: {
         orderBy: {
@@ -249,6 +267,7 @@ const baseInclude = {
 const listCardInclude = {
     category: categoryInclude,
     assets: true,
+    translations: productTranslationsSelect,
     attributeValues: attributeValuesInclude,
 } satisfies Prisma.ProductInclude
 
@@ -262,7 +281,7 @@ export type ProductListView = "card" | "full"
 
 export interface IPrismaProductRepository {
     listProducts(
-        query: IPaginationQuery & { categoryId?: string; category?: string },
+        query: IPaginationQuery & { categoryId?: string; category?: string; locale?: SupportedLocale },
         options?: { view?: ProductListView },
     ): Promise<{
         data: ProductListItem[]
@@ -274,7 +293,7 @@ export interface IPrismaProductRepository {
         }
     }>
     getProduct(id: string): Promise<ProductWithRelations>
-    getProductBySlug(slug: string): Promise<ProductWithRelations>
+    getProductBySlug(slug: string, locale?: SupportedLocale): Promise<ProductWithRelations>
     createProduct(data: Prisma.ProductCreateInput): Promise<ProductWithRelations>
     updateProduct(id: string, data: Prisma.ProductUpdateInput): Promise<ProductWithRelations>
     deleteProduct(id: string): Promise<ProductWithRelations>
@@ -283,7 +302,7 @@ export interface IPrismaProductRepository {
 export const productRepository = (): IPrismaProductRepository => {
 
     const listProducts = async (
-        query: IPaginationQuery & { categoryId?: string; category?: string },
+        query: IPaginationQuery & { categoryId?: string; category?: string; locale?: SupportedLocale },
         options?: { view?: ProductListView },
     ) => {
         // Cast: iki include de baseInclude'un alt kümesi; Prisma.ProductInclude
@@ -308,6 +327,38 @@ export const productRepository = (): IPrismaProductRepository => {
             searchableFields: ["name", "code"],
             defaultSort: "code",
         })
+        const search = query.search?.trim()
+        const locale = query.locale ?? DEFAULT_LOCALE
+        const searchableLocales = locale === DEFAULT_LOCALE
+            ? [DEFAULT_LOCALE]
+            : [locale, DEFAULT_LOCALE]
+
+        if (search) {
+            where.OR = [
+                ...(where.OR ?? []),
+                {
+                    translations: {
+                        some: {
+                            locale: { in: searchableLocales },
+                            OR: [
+                                {
+                                    name: {
+                                        contains: search,
+                                        mode: "insensitive",
+                                    },
+                                },
+                                {
+                                    description: {
+                                        contains: search,
+                                        mode: "insensitive",
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            ]
+        }
 
         const buildFilterValues = (rawValue: unknown) => {
             if (Array.isArray(rawValue)) {
@@ -506,11 +557,38 @@ export const productRepository = (): IPrismaProductRepository => {
             include: baseInclude
         })
 
-    const getProductBySlug = (slug: string) =>
-        prisma.product.findUniqueOrThrow({
+    const getProductBySlug = async (
+        slug: string,
+        locale: SupportedLocale = DEFAULT_LOCALE,
+    ) => {
+        const findTranslation = (translationLocale: SupportedLocale) =>
+            prisma.productTranslation.findUnique({
+                where: {
+                    locale_slug: {
+                        locale: translationLocale,
+                        slug,
+                    },
+                },
+                include: {
+                    product: {
+                        include: baseInclude,
+                    },
+                },
+            })
+
+        const exactTranslation = await findTranslation(locale)
+        if (exactTranslation) return exactTranslation.product
+
+        if (locale !== DEFAULT_LOCALE) {
+            const fallbackTranslation = await findTranslation(DEFAULT_LOCALE)
+            if (fallbackTranslation) return fallbackTranslation.product
+        }
+
+        return prisma.product.findUniqueOrThrow({
             where: { slug },
             include: baseInclude
         })
+    }
 
     const createProduct = (data: Prisma.ProductCreateInput) =>
         prisma.product.create({

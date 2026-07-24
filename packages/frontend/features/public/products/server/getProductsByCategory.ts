@@ -45,7 +45,7 @@ async function fetchProductsByCategory(
     }
 }
 
-const getCachedProductsByCategory = unstable_cache(fetchProductsByCategory, ["public-products-by-category"], {
+const getCachedProductsByCategory = unstable_cache(fetchProductsByCategory, ["public-products-by-category-v2"], {
     revalidate: 60,
 });
 

@@ -38,7 +38,21 @@ export async function generateMetadata(
 
     if (!product) return {}
 
-    const canonicalPath = locale === "tr" ? `/urun/${product.slug}` : `/en/urun/${product.slug}`
+    const turkishSlug = product.alternateSlugs?.tr ?? product.slug
+    const englishSlug = product.translationMissing
+        ? undefined
+        : product.alternateSlugs?.en
+    const canonicalSlug = locale === "tr"
+        ? turkishSlug
+        : englishSlug ?? product.slug
+    const canonicalPath = locale === "tr" ? `/urun/${canonicalSlug}` : `/en/urun/${canonicalSlug}`
+    const turkishUrl = `/urun/${turkishSlug}`
+    const englishUrl = englishSlug ? `/en/urun/${englishSlug}` : undefined
+    const languages = {
+        tr: turkishUrl,
+        "x-default": turkishUrl,
+        ...(englishUrl ? { en: englishUrl } : {}),
+    }
 
     return {
         // Root layout template "| Ceyhunlar Plastik" ekler
@@ -50,13 +64,12 @@ export async function generateMetadata(
             type: "website",
             locale: locale === "tr" ? "tr_TR" : "en_US",
         },
+        robots: locale !== "tr" && product.translationMissing
+            ? { index: false, follow: true }
+            : undefined,
         alternates: {
             canonical: canonicalPath,
-            languages: {
-                tr: `/urun/${product.slug}`,
-                en: `/en/urun/${product.slug}`,
-                "x-default": `/urun/${product.slug}`,
-            },
+            languages,
         },
     }
 }

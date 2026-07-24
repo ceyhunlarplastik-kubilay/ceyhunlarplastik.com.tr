@@ -90,6 +90,12 @@ export function CreateProductDialog({
             categoryId: "",
             attributeValueIds: [],
             industrialUsages: [],
+            translations: [{
+                locale: "en",
+                name: "",
+                slug: "",
+                description: "",
+            }],
         },
     })
 
@@ -149,6 +155,12 @@ export function CreateProductDialog({
                 categoryId: "",
                 attributeValueIds: [],
                 industrialUsages: [],
+                translations: [{
+                    locale: "en",
+                    name: "",
+                    slug: "",
+                    description: "",
+                }],
             })
             setFile(null)
             setUploadProgress(0)
@@ -243,6 +255,59 @@ export function CreateProductDialog({
                                             </Field>
                                         )}
                                     />
+
+                                    <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+                                        <div className="mb-4 space-y-1">
+                                            <div className="text-sm font-semibold text-neutral-900">İngilizce Çeviri</div>
+                                            <div className="text-xs text-neutral-500">Boş bırakılırsa EN ürün çevirisi oluşturulmaz. Slug boşsa İngilizce addan üretilir.</div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <Controller
+                                                name="translations.0.name"
+                                                control={form.control}
+                                                render={({ field }) => (
+                                                    <Field>
+                                                        <FieldLabel>EN Ürün Adı</FieldLabel>
+                                                        <Input {...field} value={field.value ?? ""} placeholder="Bakelite Handle 10.11" />
+                                                    </Field>
+                                                )}
+                                            />
+
+                                            <Controller
+                                                name="translations.0.slug"
+                                                control={form.control}
+                                                render={({ field }) => (
+                                                    <Field>
+                                                        <FieldLabel>EN Slug</FieldLabel>
+                                                        <Input {...field} value={field.value ?? ""} placeholder="bakelite-handle-10-11" />
+                                                    </Field>
+                                                )}
+                                            />
+
+                                            <Controller
+                                                name="translations.0.description"
+                                                control={form.control}
+                                                render={({ field }) => (
+                                                    <Field>
+                                                        <FieldLabel>EN Açıklama</FieldLabel>
+                                                        <InputGroup>
+                                                            <InputGroupTextarea
+                                                                {...field}
+                                                                value={field.value ?? ""}
+                                                                rows={4}
+                                                                className="min-h-[108px]"
+                                                                placeholder="Enter the translated product description"
+                                                            />
+                                                            <InputGroupAddon align="block-end">
+                                                                <InputGroupText>{field.value?.length ?? 0}/500</InputGroupText>
+                                                            </InputGroupAddon>
+                                                        </InputGroup>
+                                                    </Field>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
                                 </FieldGroup>
                             </div>
 

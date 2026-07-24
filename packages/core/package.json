@@ -13,6 +13,8 @@
     "translate:variant-dictionary-translations": "tsx prisma/translate-variant-dictionary-translations.ts",
     "backfill:product-industrial-usage-translations": "tsx prisma/backfill-product-industrial-usage-translations.ts",
     "translate:product-industrial-usage-translations": "tsx prisma/translate-product-industrial-usage-translations.ts",
+    "backfill:product-translations": "tsx prisma/backfill-product-translations.ts",
+    "translate:product-translations": "tsx prisma/translate-product-translations.ts",
     "seed:geo": "tsx prisma/seed-geo.ts"
   },
   "exports": {

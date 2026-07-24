@@ -58,6 +58,7 @@ export const ModelName = {
   Category: 'Category',
   CategoryTranslation: 'CategoryTranslation',
   Product: 'Product',
+  ProductTranslation: 'ProductTranslation',
   ProductAttribute: 'ProductAttribute',
   ProductAttributeTranslation: 'ProductAttributeTranslation',
   ProductAttributeValue: 'ProductAttributeValue',
@@ -220,6 +221,20 @@ export const ProductScalarFieldEnum = {
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const ProductTranslationScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  locale: 'locale',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductTranslationScalarFieldEnum = (typeof ProductTranslationScalarFieldEnum)[keyof typeof ProductTranslationScalarFieldEnum]
 
 
 export const ProductAttributeScalarFieldEnum = {

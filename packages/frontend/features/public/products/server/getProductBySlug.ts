@@ -34,7 +34,7 @@ async function fetchProductBySlug(slug: string, locale: string): Promise<Product
     }
 }
 
-const getCachedProductBySlug = unstable_cache(fetchProductBySlug, ["public-product-by-slug-v2"], {
+const getCachedProductBySlug = unstable_cache(fetchProductBySlug, ["public-product-by-slug-v3"], {
     revalidate: 60,
 });
 

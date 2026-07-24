@@ -108,6 +108,7 @@ export const listProductsHandler =
                     search,
                     sort,
                     order,
+                    locale,
                     categoryId,
                     attributeFilters,
                     attributeValueIds

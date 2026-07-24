@@ -98,6 +98,44 @@ function makeProduct(overrides: Record<string, unknown> = {}) {
 }
 
 describe("mapProductWithAssets", () => {
+    it("localizes product fields and exposes slug metadata", () => {
+        const mapped = mapProductWithAssets(makeProduct({
+            description: "Türkçe açıklama",
+            translations: [
+                {
+                    id: "product-tr",
+                    productId: "product-1",
+                    locale: "tr",
+                    name: "Test Ürün",
+                    slug: "test-urun",
+                    description: "Türkçe açıklama",
+                    createdAt: now,
+                    updatedAt: now,
+                },
+                {
+                    id: "product-en",
+                    productId: "product-1",
+                    locale: "en",
+                    name: "Test Product",
+                    slug: "test-product",
+                    description: "English description",
+                    createdAt: now,
+                    updatedAt: now,
+                },
+            ],
+        }), "en")
+
+        expect(mapped.name).toBe("Test Product")
+        expect(mapped.slug).toBe("test-product")
+        expect(mapped.description).toBe("English description")
+        expect(mapped.resolvedLocale).toBe("en")
+        expect(mapped.translationMissing).toBe(false)
+        expect(mapped.alternateSlugs).toEqual({
+            tr: "test-urun",
+            en: "test-product",
+        })
+    })
+
     it("localizes industrial usage taxonomy values for public product detail", () => {
         const sectorAttribute = makeAttribute("attribute-sector", "sector", "Sektör", "Sector")
         const productionGroupAttribute = makeAttribute(

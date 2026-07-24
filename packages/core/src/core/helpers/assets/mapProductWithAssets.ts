@@ -38,6 +38,7 @@ import {
     localizeProductAttributeValue,
 } from "@/core/helpers/productAttributes/localizeProductAttribute"
 import { localizeProductIndustrialUsage } from "@/core/helpers/products/localizeProductIndustrialUsage"
+import { localizeProduct } from "@/core/helpers/products/localizeProduct"
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
 
 export function mapAsset(asset: any) {
@@ -181,6 +182,7 @@ export function mapProductWithAssets(
     product: any,
     locale: SupportedLocale = DEFAULT_LOCALE,
 ) {
+    const localized = localizeProduct(product, locale)
 
     const assets = product.assets?.map(mapAsset) ?? []
     const primary = assets.find((a: any) => a.role === AssetRole.PRIMARY)
@@ -192,9 +194,14 @@ export function mapProductWithAssets(
     return {
         id: product.id,
         code: product.code,
-        name: product.name,
-        slug: product.slug,
-        description: product.description ?? null,
+        name: localized.name,
+        slug: localized.slug,
+        description: localized.description,
+        locale: localized.locale,
+        resolvedLocale: localized.resolvedLocale,
+        translationMissing: localized.translationMissing,
+        alternateSlugs: localized.alternateSlugs,
+        translations: localized.translations,
         categoryId: product.categoryId,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,

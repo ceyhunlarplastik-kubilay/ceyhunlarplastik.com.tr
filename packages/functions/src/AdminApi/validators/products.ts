@@ -74,6 +74,13 @@ const productIndustrialUsageInputSchema = z.object({
     displayOrder: z.number().int().min(0).nullable().optional(),
 })
 
+const productTranslationInputSchema = z.object({
+    locale: z.enum(["tr", "en"]),
+    name: z.string().max(255).nullable().optional(),
+    slug: z.string().max(255).nullable().optional(),
+    description: z.string().max(2000).nullable().optional(),
+})
+
 const productAssetUploadPurposeEnum = z.enum([
     "PRODUCT_ASSET",
     "INDUSTRIAL_USAGE_IMAGE",
@@ -92,6 +99,7 @@ export const createProductValidator = validatorWrapper(
             mimeType: z.string().optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
+            translations: z.array(productTranslationInputSchema).max(10).optional(),
         }),
     }),
     {
@@ -116,6 +124,7 @@ export const updateProductValidator = validatorWrapper(
             mimeType: z.string().optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
+            translations: z.array(productTranslationInputSchema).max(10).optional(),
         }),
     }),
     {

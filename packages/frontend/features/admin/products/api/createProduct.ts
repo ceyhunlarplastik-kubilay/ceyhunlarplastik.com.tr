@@ -2,7 +2,10 @@ import { adminApiClient } from "@/lib/http/client"
 
 import type { Product } from "@/features/public/products/types"
 import type { AssetRole, AssetType } from "@/features/public/assets/types"
-import type { ProductIndustrialUsageFormValues } from "@/features/admin/products/schema/productFormSchema"
+import type {
+    ProductIndustrialUsageFormValues,
+    ProductTranslationFormValues,
+} from "@/features/admin/products/schema/productFormSchema"
 
 import type { CreateProductResponse } from "./types"
 
@@ -17,10 +20,17 @@ type Params = {
     mimeType?: string
     attributeValueIds?: string[]
     industrialUsages?: ProductIndustrialUsageFormValues[]
+    translations?: ProductTranslationFormValues[]
 }
 
 function serializeIndustrialUsages(industrialUsages?: ProductIndustrialUsageFormValues[]) {
     return industrialUsages?.map(({ imageUrl, ...row }) => row)
+}
+
+function serializeTranslations(translations?: ProductTranslationFormValues[]) {
+    return translations?.filter((translation) =>
+        translation.locale === "tr" || Boolean(translation.name?.trim())
+    )
 }
 
 export async function createProduct({
@@ -33,7 +43,8 @@ export async function createProduct({
     assetKey,
     mimeType,
     attributeValueIds,
-    industrialUsages
+    industrialUsages,
+    translations,
 }: Params): Promise<Product> {
     const res = await adminApiClient.post<CreateProductResponse>(
         "/products",
@@ -48,6 +59,7 @@ export async function createProduct({
             mimeType,
             attributeValueIds,
             industrialUsages: serializeIndustrialUsages(industrialUsages),
+            translations: serializeTranslations(translations),
         }
     )
     return res.data.payload.product

@@ -201,6 +201,7 @@ model Product {
   assets              Asset[]
   attributeValues     ProductAttributeValue[]
   industrialUsages    ProductIndustrialUsage[]
+  translations        ProductTranslation[]
   featuredByCustomers CustomerFeaturedProduct[]
 
   createdAt DateTime @default(now())
@@ -208,6 +209,24 @@ model Product {
 
   @@unique([code])
   @@index([categoryId])
+}
+
+model ProductTranslation {
+  id          String  @id @default(uuid())
+  productId   String
+  locale      String  @db.VarChar(16)
+  name        String
+  slug        String
+  description String? @db.Text
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, locale])
+  @@unique([locale, slug])
+  @@index([locale, productId])
 }
 
 model ProductAttribute {
