@@ -125,10 +125,17 @@ function EditProductForm({ product, categories, onUpdated }: EditProductFormProp
                 ?.filter((value) => !PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES.includes(value.attribute?.code ?? ""))
                 .map((v) => v.id) ?? [],
             industrialUsages: product.industrialUsages?.map((usage, index) => ({
+                id: usage.id ?? null,
                 sectorValueId: usage.sectorValueId ?? null,
                 productionGroupValueId: usage.productionGroupValueId ?? null,
                 usageAreaValueId: usage.usageAreaValueId ?? null,
                 usageFunction: usage.usageFunction ?? "",
+                translations: usage.translations
+                    ?.filter((translation) => translation.locale === "tr" || translation.locale === "en")
+                    .map((translation) => ({
+                        locale: translation.locale as "tr" | "en",
+                        usageFunction: translation.usageFunction,
+                    })) ?? [],
                 imageKey: usage.imageKey ?? null,
                 imageUrl: usage.imageUrl ?? null,
                 displayOrder: usage.displayOrder ?? index,

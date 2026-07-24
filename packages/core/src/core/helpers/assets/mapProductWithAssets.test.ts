@@ -149,6 +149,24 @@ describe("mapProductWithAssets", () => {
                     usageAreaValueId: usageArea.id,
                     usageAreaValue: usageArea,
                     usageFunction: "Kullanım açıklaması",
+                    translations: [
+                        {
+                            id: "usage-translation-tr",
+                            productIndustrialUsageId: "industrial-usage-1",
+                            locale: "tr",
+                            usageFunction: "Kullanım açıklaması",
+                            createdAt: now,
+                            updatedAt: now,
+                        },
+                        {
+                            id: "usage-translation-en",
+                            productIndustrialUsageId: "industrial-usage-1",
+                            locale: "en",
+                            usageFunction: "Usage explanation",
+                            createdAt: now,
+                            updatedAt: now,
+                        },
+                    ],
                     imageKey: null,
                     displayOrder: 0,
                     createdAt: now,
@@ -169,6 +187,8 @@ describe("mapProductWithAssets", () => {
             code: "usage_area",
             name: "Usage Area",
         })
+        expect(industrialUsage.usageFunction).toBe("Usage explanation")
+        expect(industrialUsage.translationMissing).toBe(false)
         expect(industrialUsage.usageAreaValue.translationMissing).toBe(false)
         expect(industrialUsage.usageAreaValue.translations).toBeUndefined()
     })

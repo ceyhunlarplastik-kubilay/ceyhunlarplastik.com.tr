@@ -166,6 +166,17 @@ const productAttributeValueTranslationsSelect = {
     },
 } as const
 
+const productIndustrialUsageTranslationsSelect = {
+    orderBy: { locale: "asc" },
+    select: {
+        id: true,
+        locale: true,
+        usageFunction: true,
+        createdAt: true,
+        updatedAt: true,
+    },
+} as const
+
 const productAttributeInclude = {
     include: {
         translations: productAttributeTranslationsSelect,
@@ -226,6 +237,7 @@ const baseInclude = {
             displayOrder: "asc",
         },
         include: {
+            translations: productIndustrialUsageTranslationsSelect,
             sectorValue: { select: industrialUsageValueSelect },
             productionGroupValue: { select: industrialUsageValueSelect },
             usageAreaValue: { select: industrialUsageValueSelect },

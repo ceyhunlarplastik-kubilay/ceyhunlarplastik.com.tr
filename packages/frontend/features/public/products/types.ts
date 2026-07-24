@@ -26,6 +26,16 @@ export type ProductIndustrialUsage = {
     usageAreaValueId?: string | null;
     usageAreaValue?: any | null;
     usageFunction?: string | null;
+    locale?: string;
+    resolvedLocale?: string;
+    translationMissing?: boolean;
+    translations?: Array<{
+        id: string;
+        locale: string;
+        usageFunction: string;
+        createdAt: string;
+        updatedAt: string;
+    }>;
     imageKey?: string | null;
     imageUrl?: string | null;
     displayOrder?: number;

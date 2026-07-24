@@ -44,6 +44,7 @@ function normalizeRows(rows: ProductIndustrialUsageFormValues[]) {
         productionGroupValueId: row.productionGroupValueId || null,
         usageAreaValueId: row.usageAreaValueId || null,
         usageFunction: row.usageFunction ?? "",
+        translations: row.translations ?? [],
         imageKey: row.imageKey?.trim() || null,
         imageUrl: row.imageUrl ?? null,
         displayOrder: index,
@@ -98,6 +99,7 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
                 productionGroupValueId: null,
                 usageAreaValueId: null,
                 usageFunction: "",
+                translations: [],
                 imageKey: null,
                 imageUrl: null,
                 displayOrder: valueRef.current.length,
@@ -150,6 +152,31 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
         updateRow(index, {
             imageKey: null,
             imageUrl: null,
+        })
+    }
+
+    function getEnglishUsageFunction(row: ProductIndustrialUsageFormValues) {
+        return row.translations?.find((translation) => translation.locale === "en")?.usageFunction ?? ""
+    }
+
+    function updateEnglishUsageFunction(index: number, usageFunction: string) {
+        const current = valueRef.current[index]
+        if (!current) return
+
+        const otherTranslations = (current.translations ?? []).filter(
+            (translation) => translation.locale !== "en",
+        )
+
+        updateRow(index, {
+            translations: usageFunction.trim()
+                ? [
+                    ...otherTranslations,
+                    {
+                        locale: "en",
+                        usageFunction,
+                    },
+                ]
+                : otherTranslations,
         })
     }
 
@@ -282,13 +309,21 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
                                     </Select>
                                 </div>
 
-                                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_260px]">
+                                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_260px]">
                                     <Textarea
                                         value={row.usageFunction ?? ""}
                                         onChange={(event) => updateRow(index, { usageFunction: event.target.value })}
                                         rows={5}
                                         className="rounded-xl"
                                         placeholder="Bu ürün bu kullanım alanında nasıl fayda sağlar? Örn. Çekyat gövdesine cıvata bağlantısı ile sabitlenerek sağlam taşıyıcı ayak görevi görür."
+                                    />
+
+                                    <Textarea
+                                        value={getEnglishUsageFunction(row)}
+                                        onChange={(event) => updateEnglishUsageFunction(index, event.target.value)}
+                                        rows={5}
+                                        className="rounded-xl"
+                                        placeholder="English usage function"
                                     />
 
                                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3">
