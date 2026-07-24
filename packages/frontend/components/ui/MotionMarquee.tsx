@@ -57,6 +57,17 @@ export function MotionMarquee({
         .marquee-container:hover .marquee-track {
           animation-play-state: ${pauseOnHover ? "paused" : "running"};
         }
+
+        /* Sonsuz yatay kayma, hareket hassasiyeti olan kullanıcılar için durur.
+           İçerik erişilemez kalmasın diye şerit elle kaydırılabilir hale gelir. */
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track {
+            animation: none;
+          }
+          .marquee-container {
+            overflow-x: auto;
+          }
+        }
       `}</style>
 
             <div className="marquee-container flex w-full overflow-hidden">
