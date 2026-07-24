@@ -5,6 +5,7 @@ import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository"
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository";
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 import type { ProductIndustrialUsageInput } from "@/core/helpers/products/productIndustrialUsages";
+import type { ProductTranslationInput } from "@/core/helpers/products/productTranslations";
 
 export interface IProductDependencies {
     productRepository: IPrismaProductRepository
@@ -31,6 +32,7 @@ export interface ICreateProductBody {
     mimeType?: string
     attributeValueIds?: string[]
     industrialUsages?: ProductIndustrialUsageInput[]
+    translations?: ProductTranslationInput[]
 }
 
 export type ICreateProductEvent = IAPIGatewayProxyEventWithUserGeneric<ICreateProductBody>

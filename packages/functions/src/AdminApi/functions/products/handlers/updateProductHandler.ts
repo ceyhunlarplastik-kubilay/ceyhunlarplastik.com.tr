@@ -100,6 +100,11 @@ import {
     buildProductIndustrialUsageUpdateInput,
     normalizeProductIndustrialUsages,
 } from "@/core/helpers/products/productIndustrialUsages"
+import {
+    ProductTranslationInputError,
+    buildProductTranslationUpserts,
+    normalizeProductTranslations,
+} from "@/core/helpers/products/productTranslations"
 
 function isAttributeValueAllowedWithParents(
     allowedIds: Set<string>,
@@ -132,7 +137,7 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
         const body = event.body;
 
         // 🔥 asset alanlarını ayır
-        const { assetType, assetRole, assetKey, mimeType, attributeValueIds, industrialUsages, categoryId, ...productData } = body;
+        const { assetType, assetRole, assetKey, mimeType, attributeValueIds, industrialUsages, translations, categoryId, ...productData } = body;
 
         try {
 
@@ -182,6 +187,26 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
 
             if (!targetCategory) throw new createError.NotFound("Category not found")
 
+            const descriptionWasProvided = Object.prototype.hasOwnProperty.call(productData, "description")
+            const nextName = productData.name ?? existing.name
+            const nextSlug = productData.name
+                ? slugify(productData.name, {
+                    lower: true,
+                    strict: true,
+                    locale: "tr",
+                })
+                : existing.slug
+            const nextDescription = descriptionWasProvided
+                ? productData.description ?? null
+                : existing.description ?? null
+            const normalizedProductTranslations = normalizeProductTranslations({
+                legacyName: nextName,
+                legacySlug: nextSlug,
+                legacyDescription: nextDescription,
+                translations,
+                requireTurkish: true,
+            })
+
             await assertNoIndustrialAttributeValues(productAttributeValueRepository, attributeValueIds)
             const normalizedIndustrialUsages = industrialUsages !== undefined
                 ? await normalizeProductIndustrialUsages(productAttributeValueRepository, industrialUsages)
@@ -223,12 +248,15 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
                 }),
 
                 ...(productData.name && {
-                    slug: slugify(productData.name, {
-                        lower: true,
-                        strict: true,
-                        locale: "tr"
-                    })
+                    slug: nextSlug,
                 }),
+
+                translations: {
+                    upsert: buildProductTranslationUpserts(
+                        id,
+                        normalizedProductTranslations.translations,
+                    ),
+                },
 
                 ...(attributeValueIds !== undefined && {
                     attributeValues: {
@@ -283,6 +311,7 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
 
         } catch (err: any) {
             if (err instanceof HttpError) throw err
+            if (err instanceof ProductTranslationInputError) throw new createError.BadRequest(err.message)
 
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
                 if (err.code === "P2002") {

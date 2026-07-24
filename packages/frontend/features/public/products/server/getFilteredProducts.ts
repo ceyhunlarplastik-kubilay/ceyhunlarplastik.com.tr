@@ -66,7 +66,7 @@ async function fetchFilteredProducts(serializedParams: string): Promise<Filtered
     }
 }
 
-const getCachedFilteredProducts = unstable_cache(fetchFilteredProducts, ["public-filtered-products"], {
+const getCachedFilteredProducts = unstable_cache(fetchFilteredProducts, ["public-filtered-products-v2"], {
     revalidate: 60,
 })
 

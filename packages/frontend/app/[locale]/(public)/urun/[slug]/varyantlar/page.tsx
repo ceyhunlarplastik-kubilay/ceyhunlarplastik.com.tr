@@ -26,7 +26,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!product) return {}
 
-    const canonicalPath = locale === "tr" ? `/urun/${product.slug}/varyantlar` : `/en/urun/${product.slug}/varyantlar`
+    const turkishSlug = product.alternateSlugs?.tr ?? product.slug
+    const englishSlug = product.translationMissing
+        ? undefined
+        : product.alternateSlugs?.en
+    const canonicalSlug = locale === "tr"
+        ? turkishSlug
+        : englishSlug ?? product.slug
+    const canonicalPath = locale === "tr"
+        ? `/urun/${canonicalSlug}/varyantlar`
+        : `/en/urun/${canonicalSlug}/varyantlar`
+    const turkishUrl = `/urun/${turkishSlug}/varyantlar`
+    const englishUrl = englishSlug
+        ? `/en/urun/${englishSlug}/varyantlar`
+        : undefined
+    const languages = {
+        tr: turkishUrl,
+        "x-default": turkishUrl,
+        ...(englishUrl ? { en: englishUrl } : {}),
+    }
 
     return {
         title: t("pageTitle", { name: product.name }),
@@ -37,13 +55,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             type: "website",
             locale: locale === "tr" ? "tr_TR" : "en_US",
         },
+        robots: locale !== "tr" && product.translationMissing
+            ? { index: false, follow: true }
+            : undefined,
         alternates: {
             canonical: canonicalPath,
-            languages: {
-                tr: `/urun/${product.slug}/varyantlar`,
-                en: `/en/urun/${product.slug}/varyantlar`,
-                "x-default": `/urun/${product.slug}/varyantlar`,
-            },
+            languages,
         },
     }
 }

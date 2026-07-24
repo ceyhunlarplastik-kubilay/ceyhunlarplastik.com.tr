@@ -7,6 +7,11 @@ export type Product = {
     name: string;
     slug: string;
     description?: string | null;
+    locale?: string;
+    resolvedLocale?: string;
+    translationMissing?: boolean;
+    alternateSlugs?: Record<string, string>;
+    translations?: ProductTranslation[];
     categoryId: string;
     createdAt: string;
     updatedAt: string;
@@ -14,6 +19,16 @@ export type Product = {
     assets?: any[];
     attributeValues?: any[];
     industrialUsages?: ProductIndustrialUsage[];
+};
+
+export type ProductTranslation = {
+    id: string;
+    locale: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    createdAt: string;
+    updatedAt: string;
 };
 
 export type ProductIndustrialUsage = {

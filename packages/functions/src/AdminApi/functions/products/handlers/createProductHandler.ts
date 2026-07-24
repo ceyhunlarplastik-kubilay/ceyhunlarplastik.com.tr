@@ -9,6 +9,11 @@ import {
     buildProductIndustrialUsageCreateInputs,
     normalizeProductIndustrialUsages,
 } from "@/core/helpers/products/productIndustrialUsages"
+import {
+    ProductTranslationInputError,
+    buildProductTranslationCreateInputs,
+    normalizeProductTranslations,
+} from "@/core/helpers/products/productTranslations"
 
 function isAttributeValueAllowedWithParents(
     allowedIds: Set<string>,
@@ -36,7 +41,7 @@ function isAttributeValueAllowedWithParents(
 
 export const createProductHandler = ({ productRepository, categoryRepository, assetRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
     return async (event: ICreateProductEvent) => {
-        const { code, name, description, categoryId, attributeValueIds, industrialUsages, assetType, assetRole, assetKey, mimeType } = event.body;
+        const { code, name, description, categoryId, attributeValueIds, industrialUsages, translations, assetType, assetRole, assetKey, mimeType } = event.body;
 
         try {
             const category = await categoryRepository.getCategory(categoryId)
@@ -66,12 +71,24 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
                 }
             }
 
+            const slug = slugify(name, { lower: true, strict: true, locale: "tr" })
+            const normalizedTranslations = normalizeProductTranslations({
+                legacyName: name,
+                legacySlug: slug,
+                legacyDescription: description ?? null,
+                translations,
+                requireTurkish: true,
+            })
+
             let product = await productRepository.createProduct({
                 code,
                 name,
                 description,
-                slug: slugify(name, { lower: true, strict: true, locale: "tr" }),
+                slug,
                 category: { connect: { id: categoryId } },
+                translations: {
+                    create: buildProductTranslationCreateInputs(normalizedTranslations.translations),
+                },
                 // 🔥 CORE LOGIC
                 attributeValues: attributeValueIds?.length
                     ? {
@@ -108,8 +125,14 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err
+            if (err instanceof ProductTranslationInputError) throw new createError.BadRequest(err.message)
             if (err instanceof Prisma.PrismaClientKnownRequestError) {
-                if (err.code === "P2002") throw new createError.Conflict("Product code already exists");
+                if (err.code === "P2002") {
+                    const targets = (err.meta?.target as string[] | undefined) ?? [];
+                    if (targets.includes("code")) throw new createError.Conflict("Product code already exists");
+                    if (targets.includes("slug")) throw new createError.Conflict("Product slug already exists");
+                    throw new createError.Conflict("Unique constraint failed");
+                }
                 if (err.code === "P2025") throw new createError.NotFound("Category not found");
             }
             throw new createError.InternalServerError("Failed to create product");

@@ -11,7 +11,7 @@ export const getProductBySlugHandler = ({ productRepository }: Pick<IProductDepe
         const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         try {
-            const product = await productRepository.getProductBySlug(slug);
+            const product = await productRepository.getProductBySlug(slug, locale);
 
             return apiResponseDTO({
                 statusCode: 200,

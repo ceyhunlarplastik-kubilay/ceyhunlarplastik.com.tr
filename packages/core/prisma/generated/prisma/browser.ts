@@ -53,6 +53,11 @@ export type CategoryTranslation = Prisma.CategoryTranslationModel
  */
 export type Product = Prisma.ProductModel
 /**
+ * Model ProductTranslation
+ *
+ */
+export type ProductTranslation = Prisma.ProductTranslationModel
+/**
  * Model ProductAttribute
  *
  */

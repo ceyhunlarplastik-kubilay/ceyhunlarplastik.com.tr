@@ -96,12 +96,27 @@ export const industrialUsageSchema = z.object({
 }).loose()
 
 // --- Shared Schemas ---
+export const productTranslationSchema = z.object({
+    id: z.uuid(),
+    locale: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().nullable().optional(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+}).loose()
+
 export const productSchema = z.object({
     id: z.uuid(),
     code: z.string(),
     name: z.string(),
     slug: z.string(),
     description: z.string().nullable().optional(),
+    locale: localeSchema.optional(),
+    resolvedLocale: z.string().optional(),
+    translationMissing: z.boolean().optional(),
+    alternateSlugs: z.record(z.string(), z.string()).optional(),
+    translations: z.array(productTranslationSchema).optional(),
     categoryId: z.uuid(),
     createdAt: z.string(),
     updatedAt: z.string(),
