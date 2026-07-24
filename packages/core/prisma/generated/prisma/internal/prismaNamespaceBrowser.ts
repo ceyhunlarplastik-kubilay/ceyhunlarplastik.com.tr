@@ -63,6 +63,7 @@ export const ModelName = {
   ProductAttributeValue: 'ProductAttributeValue',
   ProductAttributeValueTranslation: 'ProductAttributeValueTranslation',
   ProductIndustrialUsage: 'ProductIndustrialUsage',
+  ProductIndustrialUsageTranslation: 'ProductIndustrialUsageTranslation',
   Customer: 'Customer',
   UserInvitation: 'UserInvitation',
   CustomerAttributeValueAssignment: 'CustomerAttributeValueAssignment',
@@ -290,6 +291,18 @@ export const ProductIndustrialUsageScalarFieldEnum = {
 } as const
 
 export type ProductIndustrialUsageScalarFieldEnum = (typeof ProductIndustrialUsageScalarFieldEnum)[keyof typeof ProductIndustrialUsageScalarFieldEnum]
+
+
+export const ProductIndustrialUsageTranslationScalarFieldEnum = {
+  id: 'id',
+  productIndustrialUsageId: 'productIndustrialUsageId',
+  locale: 'locale',
+  usageFunction: 'usageFunction',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductIndustrialUsageTranslationScalarFieldEnum = (typeof ProductIndustrialUsageTranslationScalarFieldEnum)[keyof typeof ProductIndustrialUsageTranslationScalarFieldEnum]
 
 
 export const CustomerScalarFieldEnum = {

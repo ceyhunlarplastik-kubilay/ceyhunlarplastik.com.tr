@@ -317,6 +317,8 @@ model ProductIndustrialUsage {
   imageKey      String?
   displayOrder  Int     @default(0)
 
+  translations ProductIndustrialUsageTranslation[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -324,6 +326,21 @@ model ProductIndustrialUsage {
   @@index([sectorValueId])
   @@index([productionGroupValueId])
   @@index([usageAreaValueId])
+}
+
+model ProductIndustrialUsageTranslation {
+  id                       String @id @default(uuid())
+  productIndustrialUsageId String
+  locale                   String @db.VarChar(16)
+  usageFunction            String @db.Text
+
+  productIndustrialUsage ProductIndustrialUsage @relation(fields: [productIndustrialUsageId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productIndustrialUsageId, locale])
+  @@index([locale, productIndustrialUsageId])
 }
 
 model Customer {

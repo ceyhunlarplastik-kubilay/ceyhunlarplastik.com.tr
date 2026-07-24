@@ -37,6 +37,7 @@ import {
     localizeProductAttribute,
     localizeProductAttributeValue,
 } from "@/core/helpers/productAttributes/localizeProductAttribute"
+import { localizeProductIndustrialUsage } from "@/core/helpers/products/localizeProductIndustrialUsage"
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
 
 export function mapAsset(asset: any) {
@@ -152,6 +153,8 @@ function mapIndustrialUsageValue(value: any, locale: SupportedLocale) {
 }
 
 function mapIndustrialUsage(usage: any, locale: SupportedLocale) {
+    const localized = localizeProductIndustrialUsage(usage, locale)
+
     return {
         id: usage.id,
         productId: usage.productId,
@@ -161,7 +164,11 @@ function mapIndustrialUsage(usage: any, locale: SupportedLocale) {
         productionGroupValue: mapIndustrialUsageValue(usage.productionGroupValue, locale),
         usageAreaValueId: usage.usageAreaValueId ?? null,
         usageAreaValue: mapIndustrialUsageValue(usage.usageAreaValue, locale),
-        usageFunction: usage.usageFunction ?? null,
+        usageFunction: localized.usageFunction,
+        locale: localized.locale,
+        resolvedLocale: localized.resolvedLocale,
+        translationMissing: localized.translationMissing,
+        translations: localized.translations,
         imageKey: usage.imageKey ?? null,
         imageUrl: usage.imageKey ? buildAssetUrl(usage.imageKey) : null,
         displayOrder: usage.displayOrder ?? 0,

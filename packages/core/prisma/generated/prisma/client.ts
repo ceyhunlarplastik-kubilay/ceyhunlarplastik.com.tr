@@ -102,6 +102,11 @@ export type ProductAttributeValueTranslation = Prisma.ProductAttributeValueTrans
  */
 export type ProductIndustrialUsage = Prisma.ProductIndustrialUsageModel
 /**
+ * Model ProductIndustrialUsageTranslation
+ *
+ */
+export type ProductIndustrialUsageTranslation = Prisma.ProductIndustrialUsageTranslationModel
+/**
  * Model Customer
  *
  */

@@ -1,10 +1,15 @@
 import { z } from "zod"
 
 export const productIndustrialUsageFormSchema = z.object({
+    id: z.uuid().nullable().optional(),
     sectorValueId: z.uuid().nullable().optional(),
     productionGroupValueId: z.uuid().nullable().optional(),
     usageAreaValueId: z.uuid().nullable().optional(),
     usageFunction: z.string().max(2000).nullable().optional(),
+    translations: z.array(z.object({
+        locale: z.enum(["tr", "en"]),
+        usageFunction: z.string().max(2000).nullable().optional(),
+    })).optional(),
     imageKey: z.string().max(2048).nullable().optional(),
     imageUrl: z.string().nullable().optional(),
     displayOrder: z.number().int().min(0).nullable().optional(),

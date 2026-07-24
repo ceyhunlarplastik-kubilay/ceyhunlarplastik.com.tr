@@ -97,6 +97,7 @@ import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets
 import {
     assertNoIndustrialAttributeValues,
     buildProductIndustrialUsageCreateInputs,
+    buildProductIndustrialUsageUpdateInput,
     normalizeProductIndustrialUsages,
 } from "@/core/helpers/products/productIndustrialUsages"
 
@@ -185,6 +186,18 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
             const normalizedIndustrialUsages = industrialUsages !== undefined
                 ? await normalizeProductIndustrialUsages(productAttributeValueRepository, industrialUsages)
                 : undefined
+            const existingIndustrialUsageIds = new Set(
+                (existing.industrialUsages ?? []).map((usage) => usage.id),
+            )
+            const retainedIndustrialUsageIds = normalizedIndustrialUsages
+                ?.flatMap((usage) => usage.id ? [usage.id] : []) ?? []
+
+            const invalidIndustrialUsageIds = retainedIndustrialUsageIds.filter(
+                (usageId) => !existingIndustrialUsageIds.has(usageId),
+            )
+            if (invalidIndustrialUsageIds.length > 0) {
+                throw new createError.BadRequest("Some industrial usage rows do not belong to this product")
+            }
 
             const allowedAttributeValueIds = (targetCategory as any).allowedAttributeValueIds as string[] | undefined
             if (attributeValueIds !== undefined && allowedAttributeValueIds && allowedAttributeValueIds.length > 0) {
@@ -225,9 +238,21 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
 
                 ...(normalizedIndustrialUsages !== undefined && {
                     industrialUsages: {
-                        deleteMany: {},
-                        ...(normalizedIndustrialUsages.length > 0 && {
-                            create: buildProductIndustrialUsageCreateInputs(normalizedIndustrialUsages),
+                        deleteMany: retainedIndustrialUsageIds.length > 0
+                            ? { id: { notIn: retainedIndustrialUsageIds } }
+                            : {},
+                        ...(normalizedIndustrialUsages.some((usage) => usage.id) && {
+                            update: normalizedIndustrialUsages
+                                .filter((usage) => usage.id)
+                                .map((usage) => ({
+                                    where: { id: usage.id! },
+                                    data: buildProductIndustrialUsageUpdateInput(usage),
+                                })),
+                        }),
+                        ...(normalizedIndustrialUsages.some((usage) => !usage.id) && {
+                            create: buildProductIndustrialUsageCreateInputs(
+                                normalizedIndustrialUsages.filter((usage) => !usage.id),
+                            ),
                         }),
                     },
                 }),

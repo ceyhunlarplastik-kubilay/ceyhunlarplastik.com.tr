@@ -396,6 +396,7 @@ export const ModelName = {
   ProductAttributeValue: 'ProductAttributeValue',
   ProductAttributeValueTranslation: 'ProductAttributeValueTranslation',
   ProductIndustrialUsage: 'ProductIndustrialUsage',
+  ProductIndustrialUsageTranslation: 'ProductIndustrialUsageTranslation',
   Customer: 'Customer',
   UserInvitation: 'UserInvitation',
   CustomerAttributeValueAssignment: 'CustomerAttributeValueAssignment',
@@ -441,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "measurementTypeTranslation" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "measurementTypeTranslation" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1330,6 +1331,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductIndustrialUsageCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductIndustrialUsageCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductIndustrialUsageTranslation: {
+      payload: Prisma.$ProductIndustrialUsageTranslationPayload<ExtArgs>
+      fields: Prisma.ProductIndustrialUsageTranslationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductIndustrialUsageTranslationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductIndustrialUsageTranslationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductIndustrialUsageTranslationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductIndustrialUsageTranslationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>
+        }
+        findMany: {
+          args: Prisma.ProductIndustrialUsageTranslationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>[]
+        }
+        create: {
+          args: Prisma.ProductIndustrialUsageTranslationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>
+        }
+        createMany: {
+          args: Prisma.ProductIndustrialUsageTranslationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductIndustrialUsageTranslationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductIndustrialUsageTranslationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>
+        }
+        update: {
+          args: Prisma.ProductIndustrialUsageTranslationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductIndustrialUsageTranslationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductIndustrialUsageTranslationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductIndustrialUsageTranslationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductIndustrialUsageTranslationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductIndustrialUsageTranslationPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductIndustrialUsageTranslationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductIndustrialUsageTranslation>
+        }
+        groupBy: {
+          args: Prisma.ProductIndustrialUsageTranslationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductIndustrialUsageTranslationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductIndustrialUsageTranslationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductIndustrialUsageTranslationCountAggregateOutputType> | number
         }
       }
     }
@@ -3773,6 +3848,18 @@ export const ProductIndustrialUsageScalarFieldEnum = {
 export type ProductIndustrialUsageScalarFieldEnum = (typeof ProductIndustrialUsageScalarFieldEnum)[keyof typeof ProductIndustrialUsageScalarFieldEnum]
 
 
+export const ProductIndustrialUsageTranslationScalarFieldEnum = {
+  id: 'id',
+  productIndustrialUsageId: 'productIndustrialUsageId',
+  locale: 'locale',
+  usageFunction: 'usageFunction',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductIndustrialUsageTranslationScalarFieldEnum = (typeof ProductIndustrialUsageTranslationScalarFieldEnum)[keyof typeof ProductIndustrialUsageTranslationScalarFieldEnum]
+
+
 export const CustomerScalarFieldEnum = {
   id: 'id',
   companyName: 'companyName',
@@ -4921,6 +5008,7 @@ export type GlobalOmitConfig = {
   productAttributeValue?: Prisma.ProductAttributeValueOmit
   productAttributeValueTranslation?: Prisma.ProductAttributeValueTranslationOmit
   productIndustrialUsage?: Prisma.ProductIndustrialUsageOmit
+  productIndustrialUsageTranslation?: Prisma.ProductIndustrialUsageTranslationOmit
   customer?: Prisma.CustomerOmit
   userInvitation?: Prisma.UserInvitationOmit
   customerAttributeValueAssignment?: Prisma.CustomerAttributeValueAssignmentOmit

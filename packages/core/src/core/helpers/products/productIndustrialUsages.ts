@@ -1,5 +1,7 @@
 import createError from "http-errors"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+import { DEFAULT_LOCALE, isSupportedLocale, type SupportedLocale } from "@/core/i18n/locales"
+import type { Prisma } from "@/prisma/generated/prisma/client"
 
 export const INDUSTRIAL_ATTRIBUTE_CODES = {
     sector: "sector",
@@ -12,21 +14,84 @@ export const INDUSTRIAL_ATTRIBUTE_CODE_SET = new Set<string>(Object.values(INDUS
 type AttributeValueLookup = NonNullable<Awaited<ReturnType<IPrismaProductAttributeValueRepository["getValueById"]>>>
 
 export type ProductIndustrialUsageInput = {
+    id?: string | null
     sectorValueId?: string | null
     productionGroupValueId?: string | null
     usageAreaValueId?: string | null
     usageFunction?: string | null
+    translations?: ProductIndustrialUsageTranslationInput[] | null
     imageKey?: string | null
     displayOrder?: number | null
 }
 
+export type ProductIndustrialUsageTranslationInput = {
+    locale: string
+    usageFunction?: string | null
+}
+
+export type NormalizedProductIndustrialUsageTranslation = {
+    locale: SupportedLocale
+    usageFunction: string
+}
+
 export type NormalizedProductIndustrialUsage = {
+    id: string | null
     sectorValueId: string | null
     productionGroupValueId: string | null
     usageAreaValueId: string | null
     usageFunction: string | null
+    translations: NormalizedProductIndustrialUsageTranslation[]
+    createOnlyTranslations: NormalizedProductIndustrialUsageTranslation[]
     imageKey: string | null
     displayOrder: number
+}
+
+function normalizeProductIndustrialUsageTranslations({
+    usageFunction,
+    translations,
+}: {
+    usageFunction: string | null
+    translations?: ProductIndustrialUsageTranslationInput[] | null
+}) {
+    const byLocale = new Map<SupportedLocale, NormalizedProductIndustrialUsageTranslation>()
+
+    if (usageFunction) {
+        byLocale.set(DEFAULT_LOCALE, {
+            locale: DEFAULT_LOCALE,
+            usageFunction,
+        })
+    }
+
+    for (const translation of translations ?? []) {
+        if (!isSupportedLocale(translation.locale)) {
+            throw new createError.BadRequest(`Unsupported industrial usage translation locale: ${translation.locale}`)
+        }
+
+        if (translation.locale === DEFAULT_LOCALE) continue
+
+        const translatedUsageFunction = translation.usageFunction?.trim()
+        if (!translatedUsageFunction) continue
+        if (!usageFunction) {
+            throw new createError.BadRequest("Turkish usageFunction is required before target translations")
+        }
+
+        const existing = byLocale.get(translation.locale)
+        if (existing && existing.usageFunction !== translatedUsageFunction) {
+            throw new createError.BadRequest(`Duplicate industrial usage translation locale: ${translation.locale}`)
+        }
+
+        byLocale.set(translation.locale, {
+            locale: translation.locale,
+            usageFunction: translatedUsageFunction,
+        })
+    }
+
+    const normalized = [...byLocale.values()]
+
+    return {
+        translations: normalized,
+        createOnlyTranslations: normalized.filter((translation) => translation.locale !== DEFAULT_LOCALE),
+    }
 }
 
 export function buildProductIndustrialUsageCreateInputs(rows: NormalizedProductIndustrialUsage[]) {
@@ -34,6 +99,11 @@ export function buildProductIndustrialUsageCreateInputs(rows: NormalizedProductI
         usageFunction: row.usageFunction,
         imageKey: row.imageKey,
         displayOrder: row.displayOrder,
+        ...(row.translations.length > 0 && {
+            translations: {
+                create: row.translations,
+            },
+        }),
         ...(row.sectorValueId && {
             sectorValue: {
                 connect: { id: row.sectorValueId },
@@ -50,6 +120,68 @@ export function buildProductIndustrialUsageCreateInputs(rows: NormalizedProductI
             },
         }),
     }))
+}
+
+export function buildProductIndustrialUsageUpdateInput(
+    row: NormalizedProductIndustrialUsage,
+): Prisma.ProductIndustrialUsageUpdateWithoutProductInput {
+    const translationUpserts = [
+        ...(row.usageFunction
+            ? [{
+                where: {
+                    productIndustrialUsageId_locale: {
+                        productIndustrialUsageId: row.id!,
+                        locale: DEFAULT_LOCALE,
+                    },
+                },
+                create: {
+                    locale: DEFAULT_LOCALE,
+                    usageFunction: row.usageFunction,
+                },
+                update: {
+                    usageFunction: row.usageFunction,
+                },
+            }]
+            : []),
+        ...row.createOnlyTranslations.map((translation) => ({
+            where: {
+                productIndustrialUsageId_locale: {
+                    productIndustrialUsageId: row.id!,
+                    locale: translation.locale,
+                },
+            },
+            create: translation,
+            update: {
+                usageFunction: translation.usageFunction,
+            },
+        })),
+    ]
+    const translationWrites: Prisma.ProductIndustrialUsageTranslationUpdateManyWithoutProductIndustrialUsageNestedInput = {
+        ...(translationUpserts.length > 0 && {
+            upsert: translationUpserts,
+        }),
+        ...(!row.usageFunction && {
+            deleteMany: {
+                locale: DEFAULT_LOCALE,
+            },
+        }),
+    }
+
+    return {
+        usageFunction: row.usageFunction,
+        imageKey: row.imageKey,
+        displayOrder: row.displayOrder,
+        sectorValue: row.sectorValueId
+            ? { connect: { id: row.sectorValueId } }
+            : { disconnect: true },
+        productionGroupValue: row.productionGroupValueId
+            ? { connect: { id: row.productionGroupValueId } }
+            : { disconnect: true },
+        usageAreaValue: row.usageAreaValueId
+            ? { connect: { id: row.usageAreaValueId } }
+            : { disconnect: true },
+        translations: translationWrites,
+    }
 }
 
 async function getAttributeValueOrThrow(
@@ -110,6 +242,10 @@ export async function normalizeProductIndustrialUsages(
 
     for (const [index, row] of industrialUsages.entries()) {
         const usageFunction = row.usageFunction?.trim() || null
+        const translationState = normalizeProductIndustrialUsageTranslations({
+            usageFunction,
+            translations: row.translations,
+        })
         const imageKey = row.imageKey?.trim() || null
         const sectorValueId = await validateAttributeValueCode(
             repository,
@@ -139,10 +275,13 @@ export async function normalizeProductIndustrialUsages(
         }
 
         normalizedRows.push({
+            id: row.id?.trim() || null,
             sectorValueId,
             productionGroupValueId,
             usageAreaValueId,
             usageFunction,
+            translations: translationState.translations,
+            createOnlyTranslations: translationState.createOnlyTranslations,
             imageKey,
             displayOrder: Number.isInteger(row.displayOrder) && Number(row.displayOrder) >= 0
                 ? Number(row.displayOrder)
