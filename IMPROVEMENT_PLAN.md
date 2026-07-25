@@ -325,6 +325,64 @@ Category pilotunun kanıtladığı Translation Table deseninin ikinci uygulamas�
 
 **Nasıl doğrulandı:** typecheck ✅ · lint ✅ 0 error (119→118, Process `catch` uyarısı gitti) · test ✅ 16/16. i18n kataloglarına dokunulmadı. TS narrowing tuzağı (`isEmpty` ara boolean `categories`'i daraltmaz) optional chaining ile çözüldü.
 
+## Ana sayfa performansı (teşhis + Dalga 1, 2026-07-25)
+
+**Teşhis (canlı prod ölçümü, `page-performance` skill):** `curl https://ceyhunlarplastik.xyz/`
+→ TTFB soğukta **5.0s**, warm 0.75s; HTML **1.66MB**; `cache-control: no-store` +
+`x-cache: Miss from cloudfront`. Kök nedenler: (KN-1) ana sayfa `searchParams` yüzünden
+**dynamic** → CDN'de cache yok, her istek cold-start riskli SSR; (KN-2) over-fetch (kategori
+`limit=500` tam ağaç + tüm attribute×value×translations×assets) RSC flight'a serialize →
+1.66MB; (KN-3) kategori çift-fetch (server + client); (KN-4) NavbarServer waterfall; (KN-5)
+public'te `/api/auth/session` round-trip; (KN-6) ölü kod + eager dialog; (KN-8) fazla font weight.
+Kararlar plan dosyasında (`~/.claude/plans/imperative-churning-pretzel.md`).
+
+**Dalga 1 uygulandı (frontend, kod-complete):**
+- **KN-1:** `page.tsx` `searchParams` kaldırıldı → `params` + `setRequestLocale` + `export const revalidate = 60` (ISR). `HomeToasts` error'u `window.location`'dan client'ta okur. → ana sayfa static/ISR olmalı (CDN cache, cold-start bypass).
+- **KN-3:** `useCategories(initialData)` eklendi; `page.tsx` server kategorilerini `ProductsSection`'a `initialCategories` prop'u ile geçiyor → client'taki ikinci `/categories?limit=500` fetch'i gitmez.
+- **KN-4:** `NavbarServer` `Promise.all` (waterfall kesildi).
+- **KN-6 (kısmi):** ölü `ProductAssistant.tsx` (743 satır) silindi.
+- **KN-8:** Montserrat weight `[400-800]` → `["300","800"]` (gerçek kullanım; 300 latent-bug'ı da düzeltir).
+
+**Bilinçli ertelenenler (uygulama sırasında risk/fayda yeniden değerlendirildi):**
+- **KN-5 (SessionProvider):** basit "kaldır" DEĞİL — `SessionProvider` paylaşılan `[locale]/layout.tsx`'te ve `/urun/[slug]` (`ProductVariantTable`) session'a ihtiyaç duyuyor. Session fetch'i non-blocking (ilk boyayı geciktirmez). Güvenli çözüm SessionProvider'ı yalnız tüketen route'lara scope etmek → ayrı, dikkatli dilim.
+- **KN-6 CustomerLeadDialog dynamic:** ana sayfada `ProcessAndContactSection` zaten react-hook-form+zod yüklüyor → dialog'u dynamic yapmak ana sayfa bundle'ını anlamlı küçültmez; ayrıca her zaman görünür tetikleyici butonu ssr:false yapmak layout-shift yaratır (component split gerektirir). Ayrı bundle-optimizasyon dilimi.
+- **ProductAssistantModal auto-open:** `useState(true)` ile her ana sayfa ziyaretinde otomatik açılıyor (UX kararı, hata değil). Auto-open kaldırılırsa modal `next/dynamic` ile ertelenebilir (gerçek bundle kazancı) — UX kararı kullanıcıda.
+
+**Doğrulama:** typecheck ✅ · lint ✅ 0 error (118→117) · `next build` → **Compiled successfully in 8.4s** + TypeScript OK ("Collecting page data"daki SST-links hatası beklenen, kod-dışı). **Kalan (kullanıcıda):** static/ISR'i kanıtlamak için `sst shell -- next build` route tablosunda ana sayfa `○/●` (dynamic `ƒ` değil); deploy sonrası `curl -w` ile `x-cache: Hit` + HTML boyutu düşüşü.
+
+**Hotfix (Footer hydration mismatch):** Dalga 1'in `ProductsSection` initialData'sı `["categories",locale]` cache'ini client'ta doldurunca, aynı key'i `initialData`'sız kullanan `Footer` (`useCategories()`) server (data yok) ↔ client (data var) uyuşmazlığı verdi. Çözüm: `(public)/layout.tsx` kategorileri server'da çekip `Footer`'a prop geçiyor; `Footer` client hook'u bıraktı → server/client aynı render + Footer'ın ekstra client fetch'i de gitti. (Kullanılmayan `components/Footer.tsx` ölü kopyası dokunulmadan bırakıldı.)
+
+**Dalga 2 uygulandı — attributes payload slim (asıl 1.66MB kaynağı):**
+Ölçüm (canlı API): `/product-attributes/with-values` = **1246 KB** (9 code, 1087 value, 2192 translation); `/categories` = yalnız 40KB (dokunulmadı). Ana sayfa asistanı + navbar numune-talep dialog'u yalnız 3 code (sector/production_group/usage_area) + value başına id/name/slug/parentValueId + PRIMARY asset kullanıyor.
+- **Regresyon kontrolü:** `getAttributesForFilter` PAYLAŞILAN — `urunler/filtre`, `urun-kategori/[slug]`, admin/satış/müşteri defined-products sayfaları 6 product-filter code'unu tam haliyle kullanıyor. Bu yüzden o fn'e DOKUNULMADI.
+- **Çözüm:** yeni `getAssistantAttributes(locale)` slim fn (`server/getAttributesForFilter.ts`) — full (cache'li) sonucu yeniden kullanır (ilave endpoint fetch'i yok), 3 code + slim value + PRIMARY asset'e indirger. Slim tip `ProductAttributeFilter`/`ProductAttributeFilterValue` (`types.ts`). Tüketiciler (`page.tsx` modal, `NavbarServer`→`NavbarClient`→`CustomerLeadDialog`+`MobileMenu`) slim tipe geçti; backend/validator'a dokunulmadı (tuzak yok).
+- **Kazanç (gerçek veri ölçümü):** attributes flight payload **1246 KB → 329 KB = %73.6 küçülme** (her public sayfanın navbar'ında). Kalan 329KB'nin çoğu `usage_area`'nın 805 value'su + görselleri (asistanın gerçekten gösterdiği veri). **Olası Dalga 2b:** usage_area'yı asistan adımında lazy client-fetch → ilk HTML'den çıkar.
+
+**Dalga 2 doğrulama:** typecheck ✅ (slim tip tüm tüketicilerden temiz geçti) · lint ✅ 0 error (115) · `next build` → Compiled successfully · test ✅ 16/16. Kalan (kullanıcıda): kubi'de asistan + numune-talep dialog + filtre/kategori sayfalarının (full attributes hâlâ çalışıyor) elle testi; deploy sonrası HTML boyutu düşüşü ölçümü.
+
+**Dalga 2b uygulandı — usage_area lazy (kalan 329KB'nin çoğu):**
+Slim payload'un %90'ı `usage_area`'nın 805 value'su + görselleriydi. Asistan/dialog bunu yalnız kendi usage adımında kullanıyor → ilk HTML'den çıkarıldı, lazy client-fetch'e alındı.
+- `getAssistantAttributes` artık yalnız **sector + production_group** döndürür (SSR eager = **26.3 KB**).
+- Yeni `getUsageAreaValues(locale)` + BFF route handler `app/api/assistant/usage-areas/route.ts` (full cache'i yeniden kullanır, `Cache-Control: s-maxage=60`) + client hook `useUsageAreaValues(enabled)`.
+- `ProductAssistantModal` (`enabled = open && step>=1` — otomatik açıldığı için karşılamayı kapatana çekmez) ve `CustomerLeadDialog` (`enabled = open`) usage_area'yı lazy alır. Ortak `toSlimValues` helper.
+- **Sonuç (ölçüm):** attributes ilk-HTML payload'u **1246 KB → 329 KB → 26.3 KB (~%98 azalma)**. usage_area'nın 302KB'si yalnız kullanıcı asistan/dialog akışına girince client'ta (CDN-cache'lenebilir BFF'ten) iner.
+- **Doğrulama:** typecheck ✅ · lint ✅ 0 error (115) · `next build` → Compiled successfully · test ✅ 16/16.
+- **Kalan (kullanıcıda):** kubi'de asistan usage adımı + numune-talep dialog usage adımının veriyi lazy yükleyip doğru gösterdiği; step>=1 gate'inin akışı bozmadığı elle test. Deploy sonrası ilk HTML boyutu (1.66MB'den) ölçümü.
+
+### Dalga 3 — infra cold start (ERTELENDİ, 2026-07-25 kararı)
+
+**Durum: UYGULANMADI.** Wave 1 (ana sayfa static/ISR → CDN) cold-start'ı ana sayfada zaten büyük ölçüde çözdüğü için düşük öncelik. Kullanıcı kararı: arm64+memory+`warm:1` mantıklı ama **şimdilik yapılmayacak**; **provisioned concurrency pahalı, bugün için yok**. İleride yapmak istenirse hazır reçete:
+
+- **`infra/frontend.ts`** — yorumlu `server` bloğunu aç + arm64 + prod-only warm:
+  ```ts
+  server: { memory: "2048 MB", timeout: "30 seconds", architecture: "arm64" },
+  warm: $app.stage === "prod" ? 1 : 0,
+  ```
+- **`infra/PublicApi.ts`** — `defaultOptions`'a ekle: `architecture: 'arm64'`, `memory: '1536 MB'` (tüm public route'lara uygulanır).
+- **⚠️ arm64 ön-koşulu:** Public API + frontend server Prisma kullanıyor. Şema `generator client { provider = "prisma-client" }` (yeni generator) + `PrismaPg` driver adapter → native query-engine binary YOK, yani arm64 uyumlu OLMALI. Yine de **önce kubi'de deploy edip DB sorgularını doğrula**, sonra prod. `npx sst diff --stage prod` (READ-ONLY) ile prod diff'ini önden göster.
+- **Maliyet:** arm64 ~%20 ucuz (invocation), memory pay-per-use, warm ≈ ~$0.2/ay → net ek ~$1-2/ay altı. Provisioned concurrency (yapılmıyor) referans: 1'er birim ~$30-38/ay, gerçek eşzamanlılık için $75-115/ay.
+- **warm yalnız frontend Nextjs'te** (API'ye warm ApiGatewayV2'de route-başına kurulum ister, kapsam dışı).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

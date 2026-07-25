@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
-import type { ProductAttribute } from "@/features/public/productAttributes/types"
+import type { ProductAttributeFilter } from "@/features/public/productAttributes/types"
+import { useUsageAreaValues } from "@/features/public/productAttributes/hooks/useUsageAreaValues"
 
 type AttributeValue = {
     id: string
@@ -26,7 +27,7 @@ type AttributeValue = {
 }
 
 type Props = {
-    attributes: ProductAttribute[]
+    attributes: ProductAttributeFilter[]
 }
 
 export default function ProductAssistantModal({ attributes }: Props) {
@@ -59,10 +60,9 @@ export default function ProductAssistantModal({ attributes }: Props) {
         () => (attrsByCode.get("production_group")?.values ?? []) as AttributeValue[],
         [attrsByCode]
     )
-    const usageAreaValues = useMemo(
-        () => (attrsByCode.get("usage_area")?.values ?? []) as AttributeValue[],
-        [attrsByCode]
-    )
+    // usage_area artık SSR payload'unda gelmiyor. Modal otomatik açıldığı için karşılama
+    // ekranını kapatanlara boşuna ~300KB çekmeyelim: kullanıcı akışa girince (step >= 1) prefetch.
+    const { data: usageAreaValues = [] } = useUsageAreaValues(open && step >= 1)
 
     const sectorBySlug = useMemo(
         () => new Map(sectorValues.map((value) => [value.slug, value])),

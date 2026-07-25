@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Category } from "@/features/public/categories/types";
-import type { ProductAttribute } from "@/features/public/productAttributes/types";
+import type { ProductAttributeFilter } from "@/features/public/productAttributes/types";
 import CustomerLeadDialog from "@/components/home/CustomerLeadDialog";
 import { InquiryCartNavItem } from "@/components/navigation/InquiryCartNavItem";
 import { LanguageSwitcher } from "@/components/navigation/LanguageSwitcher";
@@ -18,7 +18,7 @@ export const MobileMenu = ({
     setMobileOpen: (open: boolean) => void;
     mobileOpen: boolean;
     categories?: Category[];
-    attributes?: ProductAttribute[];
+    attributes?: ProductAttributeFilter[];
 }) => {
     const t = useTranslations("chrome");
 

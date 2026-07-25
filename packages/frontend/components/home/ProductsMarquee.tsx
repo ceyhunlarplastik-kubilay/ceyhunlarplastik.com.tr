@@ -8,8 +8,13 @@ import { useRef } from "react";
 import { useCategories } from "@/features/public/categories/hooks/useCategories";
 import { getCategoryPrimaryImage } from "@/features/public/categories/utils/getPrimaryImage";
 import { MotionMarquee } from "@/components/ui/MotionMarquee";
+import type { Category } from "@/features/public/categories/types";
 
-export function ProductsSection() {
+export function ProductsSection({
+    initialCategories,
+}: {
+    initialCategories?: Category[];
+}) {
     const t = useTranslations("home.products");
     const containerRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
@@ -20,7 +25,8 @@ export function ProductsSection() {
     const y = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
     const reduce = useReducedMotion();
 
-    const { data: categories } = useCategories();
+    // Server'dan gelen kategoriler initialData olur → client'ta ikinci /categories fetch'i gitmez.
+    const { data: categories } = useCategories(initialCategories);
     const isEmpty = !categories || categories.length === 0;
 
     return (

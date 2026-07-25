@@ -33,7 +33,8 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 
-import type { ProductAttribute } from "@/features/public/productAttributes/types"
+import type { ProductAttributeFilter } from "@/features/public/productAttributes/types"
+import { useUsageAreaValues } from "@/features/public/productAttributes/hooks/useUsageAreaValues"
 import { createCustomer } from "@/features/public/customers/api/createCustomer"
 
 type AttributeValue = {
@@ -49,7 +50,7 @@ type AttributeValue = {
 }
 
 type Props = {
-    attributes: ProductAttribute[]
+    attributes: ProductAttributeFilter[]
     buttonClassName?: string
     buttonLabel?: string
     onDialogOpenChange?: (open: boolean) => void
@@ -121,10 +122,8 @@ export default function CustomerLeadDialog({
         [attrsByCode]
     )
 
-    const usageAreaValues = useMemo(
-        () => (attrsByCode.get("usage_area")?.values ?? []) as AttributeValue[],
-        [attrsByCode]
-    )
+    // usage_area artık SSR payload'unda gelmiyor; dialog açılınca lazy çekilir (~250KB).
+    const { data: usageAreaValues = [] } = useUsageAreaValues(open)
 
     const selectedSectorId = form.watch("sectorValueId")
     const selectedProductionGroupId = form.watch("productionGroupValueId")

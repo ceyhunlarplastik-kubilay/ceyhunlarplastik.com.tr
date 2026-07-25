@@ -10,7 +10,7 @@ import CustomerLeadDialog from "@/components/home/CustomerLeadDialog";
 import { MobileHamburgerButton } from "@/components/navigation/MobileHamburgerButton";
 import { InquiryCartNavItem } from "@/components/navigation/InquiryCartNavItem";
 import type { Category } from "@/features/public/categories/types";
-import type { ProductAttribute } from "@/features/public/productAttributes/types";
+import type { ProductAttributeFilter } from "@/features/public/productAttributes/types";
 
 const NavigationGroup = dynamic(
     () =>
@@ -25,7 +25,7 @@ export function NavbarClient({
     attributes,
 }: {
     categories: Category[];
-    attributes: ProductAttribute[];
+    attributes: ProductAttributeFilter[];
 }) {
     const [isVisible, setIsVisible] = useState(true);
     const [mobileOpen, setMobileOpen] = useState(false);

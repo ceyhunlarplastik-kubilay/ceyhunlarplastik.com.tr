@@ -7,30 +7,39 @@ import { ProcessAndContactSection } from "@/components/home/ProcessAndContactSec
 import { Enviroment } from "@/components/home/Enviroment";
 import { HomeToasts } from "@/components/home/HomeToasts";
 import ProductAssistantModal from "@/components/home/ProductAssistantModal"
-import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
-import { getLocale } from "next-intl/server"
+import { getAssistantAttributes } from "@/features/public/productAttributes/server/getAttributesForFilter"
+import { getCategories } from "@/features/public/categories/server/getCategories"
+import { setRequestLocale } from "next-intl/server"
+
+// ISR: sayfa CDN'de cache'lenir ve 60 sn'de bir arka planda yenilenir.
+// searchParams KULLANILMAZ — aksi halde route dynamic'e düşer ve her istek
+// cold-start riskli tam-SSR olur (error param'ı HomeToasts client tarafında okur).
+export const revalidate = 60;
 
 export default async function Home({
-    searchParams,
+    params,
 }: {
-    searchParams?: Promise<Record<string, string | string[] | undefined>>;
+    params: Promise<{ locale: string }>;
 }) {
-    const params = await searchParams;
-    const locale = await getLocale()
+    const { locale } = await params;
+    setRequestLocale(locale);
 
-    const error = typeof params?.error === "string" ? params.error : undefined;
-
-    const attributes = await getAttributesForFilter(locale)
+    // Kategoriler navbar için zaten çekiliyor; aynı (cache'li) veriyi ProductsSection'a
+    // initialData olarak geçerek client'taki ikinci /categories fetch'ini de öldürüyoruz.
+    const [attributes, categories] = await Promise.all([
+        getAssistantAttributes(locale),
+        getCategories(locale),
+    ]);
 
     return (
         <div className="min-h-screen">
-            {/* Toast sadece gerekiyorsa çalışsın */}
-            <HomeToasts error={error} />
+            {/* Toast sadece gerekiyorsa çalışsın (error param'ı client'ta okunur) */}
+            <HomeToasts />
             <div className="max-w-8xl mx-auto">
                 <HeroSection />
                 <AboutSection />
                 <ServicesSection />
-                <ProductsSection />
+                <ProductsSection initialCategories={categories} />
                 <QualitySection />
                 <ProcessAndContactSection />
                 <Enviroment />

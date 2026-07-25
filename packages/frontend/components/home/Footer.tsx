@@ -5,16 +5,15 @@ import Image from "next/image";
 import ExternalLink from "next/link";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useCategories } from "@/features/public/categories/hooks/useCategories";
+import type { Category } from "@/features/public/categories/types";
 import { Phone, MapPin } from "lucide-react";
 import { SiFacebook, SiInstagram, SiYoutube } from "react-icons/si";
 import { ProductRequestDialog } from "@/components/dialogs/ProductRequestDialog";
 import { CatalogRequestDialog } from "@/components/dialogs/CatalogRequestDialog";
 import { MailDialog } from "@/components/dialogs/MailDialog";
 
-export function Footer() {
+export function Footer({ categories }: { categories: Category[] }) {
     const t = useTranslations("chrome.footer");
-    const { data, isLoading, error } = useCategories();
 
     return (
         <footer className="bg-[#1f2428] text-white/80">
@@ -148,7 +147,7 @@ export function Footer() {
                         </h4>
 
                         <ul className="space-y-1.5 text-white/70 w-full">
-                            {data?.slice(0, 5).map((category) => (
+                            {categories.slice(0, 5).map((category) => (
                                 <li key={category.id}>
                                     <Link
                                         href={`/urun-kategori/${category.slug}`}

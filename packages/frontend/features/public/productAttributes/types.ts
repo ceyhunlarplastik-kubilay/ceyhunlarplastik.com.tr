@@ -55,3 +55,26 @@ export type ProductAttribute = {
 export type ListAttributesResponse = ApiEnvelope<{
     data: ProductAttribute[]
 }>
+
+/**
+ * Ana sayfa ürün asistanı + navbar numune-talep dialog'unun ihtiyaç duyduğu slim şekil.
+ * Full attribute ağacı (9 code × 1087 value × translations × assets ≈ 1.28MB) tarayıcıya
+ * RSC flight ile iniyordu; bu yüzeyler yalnız 3 müşteri-profili code'unu ve value başına
+ * id/name/slug/parentValueId + PRIMARY asset url'ini kullanıyor. Slim tip bu farkı tipte de sabitler.
+ */
+export type ProductAttributeFilterValue = {
+    id: string
+    name: string
+    slug: string
+    parentValueId?: string | null
+    assets?: {
+        id: string
+        role: string
+        url: string
+    }[]
+}
+
+export type ProductAttributeFilter = {
+    code: string
+    values: ProductAttributeFilterValue[]
+}
