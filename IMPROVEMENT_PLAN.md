@@ -383,6 +383,88 @@ Slim payload'un %90'ı `usage_area`'nın 805 value'su + görselleriydi. Asistan/
 - **Maliyet:** arm64 ~%20 ucuz (invocation), memory pay-per-use, warm ≈ ~$0.2/ay → net ek ~$1-2/ay altı. Provisioned concurrency (yapılmıyor) referans: 1'er birim ~$30-38/ay, gerçek eşzamanlılık için $75-115/ay.
 - **warm yalnız frontend Nextjs'te** (API'ye warm ApiGatewayV2'de route-başına kurulum ister, kapsam dışı).
 
+## Kategori sayfası performansı (urun-kategori/[slug], 2026-07-25)
+
+**Teşhis (canlı prod):** `curl .../urun-kategori/profil-tapalari` → TTFB 0.5–1.4s, HTML **1.64MB**,
+`cache-control: no-store` + `x-cache: Miss` → `export const revalidate = 60` yazmasına rağmen sayfa
+**dynamic** (ana sayfa Wave 1 sonrası ISR olmuştu; buradaki fark aşağıda).
+- **KN-1 (dynamic sebebi):** `ProductFilterSidebar` `useSearchParams()` kullanıyor ve `page.tsx`'te
+  Suspense yoktu → Suspense'siz useSearchParams tüm route'u static'ten düşürür → no-store, CDN cache yok.
+- **KN-2 (1.64MB):** sidebar'a full `getAttributesForFilter` (1.28MB: 9 code + 2192 translation + tüm
+  value'lar) geçiliyordu; sidebar bunları client'ta filtreliyor ama tüm ağaç HTML'e serialize oluyordu.
+
+**Uygulandı (KN-1 + KN-2):**
+- **KN-1:** `ProductFilterSidebar` ve `ProductFilterList` `<Suspense>`'e sarıldı (page.tsx) → useSearchParams
+  bailout izole edildi, sayfa tekrar ISR/CDN-cache'lenebilir olmalı.
+- **KN-2:** yeni `slimCategoryFilterAttributes(attributes, category.allowedAttributeValueIds)` util —
+  translations atar (sidebar kullanmıyor) + non-industrial value'ları kategorinin allowedValueIds'ine
+  göre ön-filtreler (sidebar'ın kendi mantığıyla birebir → davranış değişmez). Industrial değerler
+  korunur (sidebar kategori sayfasında gösteriyor).
+- **Ölçüm:** attributes payload **1246 KB → 738 KB (~%41)** (profil-tapalari, 22 allowedValueId).
+  `/urunler/filtre` (paylaşılan bileşen, kategori yok) full attributes ile çalışmaya devam eder — dokunulmadı.
+
+**Doğrulama:** typecheck ✅ · lint ✅ 0 error (115) · `next build` → Compiled successfully.
+**Kalan (kullanıcıda):** deploy sonrası `curl` ile `no-store → s-maxage` (ISR) + HTML boyutu düşüşü;
+kubi'de kategori sayfası + `/urunler/filtre` filtrelerinin çalıştığı elle test.
+**Olası devam:** kalan 738KB'nin ~302KB'si `usage_area`'nın 805 industrial value'su — kategori sayfasında
+industrial filtreleri gizlemek (`hideIndustrialFiltersWhenCategorySelected`) ya da lazy yüklemek (homepage
+Wave 2b deseni) bunu da keser. UX kararı gerektirir.
+
+**KN-3 uygulandı — ProductFilterList ürünleri SSR/ISR'e alındı (2026-07-25):**
+Kabuk hızlandıktan sonra kalan yavaşlık: `ProductFilterList` ürünleri client'ta `useProducts` ile çekiyordu
+(SSR yok) → hydrate→store-sync→fetch→render waterfall'u. Ölçüm: `/products?category=...&page=1&limit=20` =
+115KB, TTFB **warm ~0.25-0.8s, cold ~3.46s** (public API Lambda VPC cold-start), CDN cache header'ı yok →
+her client fetch Lambda'ya. Payload zaten card-view slim (backend `listProducts(..., {view:"card"})` kullanıyor).
+- **Çözüm (skill P4 — RSC-first + initialData):** yeni `getCategoryProducts(slug, locale)` server fn
+  (`features/public/products/server/`, unstable_cache 60sn) filtresiz ilk sayfayı (page 1, limit 20) server'da
+  çeker; `page.tsx` `Promise.all`'a eklendi, `ProductFilterList`'e `initialProducts` prop'u geçilir.
+  `useProducts` `initialData` alır. **Guard:** initialData YALNIZ filtresiz varsayılan görünümde uygulanır
+  (`isDefaultView = page===1 && !search && !attrFilters`) → filtre/sayfa değişince yeni query key'e yanlış seed olmaz.
+  `ProductListPayload` tipi `products/types.ts`'e taşındı (client'ın server dosyasından import etmemesi için).
+- **Sonuç:** kategori sayfasına filtresiz girişte ürünler ISR/CDN-cache'li HTML'de gelir → client fetch yok,
+  cold-start (3.46s) kullanıcıya değil ISR üretimine (60sn'de bir) yansır. Filtre uygulanınca client fetch devam eder.
+- **Doğrulama:** typecheck ✅ · lint ✅ 0 error (116) · `next build` → Compiled successfully.
+- **Kalan (kullanıcıda):** deploy sonrası kategori sayfasına filtresiz girişte ürünlerin spinner'sız geldiği +
+  filtre uygulayınca client fetch'in çalıştığı elle test.
+
+## Görsel ağırlığı — asıl darboğaz (2026-07-25)
+
+Wave 1+2+2b deploy edildikten SONRA canlı ana sayfa ölçümü: TTFB **0.05s** (`x-cache: Hit from
+cloudfront`, ISR çalışıyor ✅), HTML **391KB** (1.66MB'den). Buna rağmen sayfa "yavaş" hissettiriyordu.
+Sebep sunucu değil, **tek bir görsel**:
+
+| Kaynak | Boyut | Pay |
+|---|---|---|
+| **/logos/nature.jpg** | **5747 KB** | **%87** |
+| JS (29 chunk, sıkıştırılmış) | 473 KB | %7 |
+| HTML | 391 KB | %6 |
+| CSS | 29 KB | %0.4 |
+
+**Kök neden:** `Enviroment.tsx` görseli **CSS `background-image`** olarak kullanıyordu → `next/image`
+optimizasyonu (WebP/AVIF + cihaz genişliği + lazy-load) tamamen bypass ediliyor, ham dosya iniyordu.
+Kaynak dosya ayrıca absürt boyuttaydı: **12111×3530 px / 5.48MB** (üstünde `bg-black/45` overlay olan
+dekoratif bir arka plan için).
+
+**Uygulandı:**
+1. Kaynak `public/logos/nature.jpg` yeniden boyutlandırıldı: 12111×3530 / 5.48MB → **2560×746 / 315KB**
+   (sharp, q80 mozjpeg progressive) = **%94.4 küçülme**. Tam-genişlik dekoratif arka plan için 2560px fazlasıyla yeterli.
+2. `Enviroment.tsx` CSS background → `next/image` (`fill`, `sizes="100vw"`, `quality={70}`, alt=""+aria-hidden,
+   fold altında olduğu için lazy). Artık Next WebP/AVIF'e çevirip cihaz genişliğine göre servis eder → beklenen ~80-150KB.
+   Bu component `/surdurulebilirlik` sayfasında da kullanılıyor, oraya da yarıyor.
+
+**Beklenen etki:** ana sayfa toplam ağırlığı **~6.6MB → ~1.0MB (~%85 azalma)**.
+
+**Repo geneli tarama:** başka `next/image` bypass eden CSS background yok. Kalan tek dosya-referanslı
+CSS background `ProcessAndContactSection` → `hakkimizda.jpg` (64KB, `background-attachment: fixed`
+parallax efekti için — kabul edilebilir, dokunulmadı). Diğer büyük `public/` görselleri (`machining-1.png`
+1MB, `metal.png` 983KB vb.) `next/image` üzerinden servis edildikleri için optimize ediliyor; yalnızca
+Next optimizer'ın işlemesi pahalı → istenirse kaynakları da küçültülebilir (düşük öncelik).
+
+**Sıradaki fırsat (yapılmadı):** JS 473KB / 29 chunk. `CustomerLeadDialog` (696 satır +
+react-hook-form + zod + resolvers) navbar üzerinden HER public sayfada kapalıyken bile bundle'da;
+`ProductAssistantModal` de eager. Tetikleyici butonu statik bırakıp dialog içeriğini `next/dynamic`'e
+almak gerçek kazanç sağlar ama component split gerektirir → ayrı dilim.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

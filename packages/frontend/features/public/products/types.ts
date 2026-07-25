@@ -75,3 +75,6 @@ export type ListProductsResponse = ApiEnvelope<{
         totalPages: number;
     };
 }>;
+
+// /products liste yanıtının payload'ı ({ data, meta }). SSR initialData + client hook paylaşır.
+export type ProductListPayload = ListProductsResponse["payload"];

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, type Variants } from "motion/react";
 import { useTranslations } from "next-intl";
 
@@ -44,15 +45,20 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
                 ${fullScreen ? "min-h-[calc(100dvh-var(--navbar-height))]" : ""}
             `}
         >
-            {/* Background image */}
-            <div
-                className="absolute inset-0 -z-10 bg-center bg-no-repeat"
-                style={{
-                    backgroundImage: "url(/logos/nature.jpg)",
-                    // backgroundSize: "110%", // zoom-out
-                    backgroundSize: "cover", // zoom-out
-                }}
-            />
+            {/* Background image — CSS background yerine next/image: optimizasyon (WebP/AVIF +
+                cihaz genişliğine göre boyut) ve lazy-load devreye girer. CSS background
+                kullanılırken ham 5.5MB dosya iniyordu. */}
+            <div className="absolute inset-0 -z-10">
+                <Image
+                    src="/logos/nature.jpg"
+                    alt=""
+                    aria-hidden="true"
+                    fill
+                    sizes="100vw"
+                    quality={70}
+                    className="object-cover object-center"
+                />
+            </div>
 
             {/* Dark overlay */}
             <div className="absolute inset-0 -z-10 bg-black/45" />

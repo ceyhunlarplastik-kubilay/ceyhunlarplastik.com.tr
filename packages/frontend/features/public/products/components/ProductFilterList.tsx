@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl"
 import { ProductCard } from "@/components/navigation/ProductCard"
-import type { Product } from "@/features/public/products/types"
+import type { Product, ProductListPayload } from "@/features/public/products/types"
 import { useProducts } from "../hooks/useProducts"
 import { useFilterStore } from "../store/filterStore"
 import ProductFilterPagination from "./ProductFilterPagination"
@@ -12,9 +12,12 @@ import ProductActiveFilters from "./ProductActiveFilters"
 export default function ProductFilterList({
     fixedCategorySlug,
     basePath = "/urunler/filtre",
+    initialProducts,
 }: {
     fixedCategorySlug?: string
     basePath?: string
+    // Server'da (RSC/ISR) çekilen filtresiz ilk sayfa; yalnız default görünümde kullanılır.
+    initialProducts?: ProductListPayload | null
 }) {
     const t = useTranslations("public.productFilter")
     const { category, search, attributes, page, limit } = useFilterStore()
@@ -41,7 +44,14 @@ export default function ProductFilterList({
         }
     })
 
-    const { data, isLoading, isFetching } = useProducts(params)
+    // initialData YALNIZ filtresiz varsayılan görünüme uygulanmalı; aksi halde filtre/sayfa
+    // değişince yeni query key'e yanlışlıkla filtresiz veri seed edilir.
+    const hasAttributeFilters = Object.values(attributes).some((values) => values.length > 0)
+    const isDefaultView = page === 1 && !search.trim() && !hasAttributeFilters
+
+    const { data, isLoading, isFetching } = useProducts(params, {
+        initialData: isDefaultView ? initialProducts ?? undefined : undefined,
+    })
 
     if (isLoading) return <ProductGridSkeleton />
 
