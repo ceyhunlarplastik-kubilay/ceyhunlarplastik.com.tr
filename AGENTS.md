@@ -446,6 +446,27 @@ For filter/search/sort/pagination interactions that trigger client-side refetchi
 - avoid layout shift and keep surrounding filters, headers, and context stable
 - reuse existing shadcn/ui, Tailwind, and motion/react patterns before adding packages
 
+**Established refetch-feedback pattern (reuse it, do not reinvent):**
+1. **First load** (`isLoading`, no content yet) → a skeleton that matches the final layout
+   (`ProductGridSkeleton`, `CustomerPortalProductGridSkeleton`).
+2. **Background refetch** (`isFetching` with previous data) → keep the old content on screen and
+   put a **section-local** overlay on top of the list container:
+   `features/public/products/components/ProductListLoadingOverlay.tsx` (public) /
+   `CustomerPortalProductsLoadingOverlay` (portal). Requirements: `relative` wrapper +
+   `absolute inset-0` overlay, `pointer-events-none`, `role="status"` + `aria-live="polite"`,
+   `aria-busy` on the wrapper, `<AnimatePresence>` for enter/exit, and `useReducedMotion()`.
+   Pair it with `placeholderData: (prev) => prev` on the query so content never blanks out.
+3. **Control-side feedback** → the control that triggered it also reflects pending state
+   (e.g. `ProductFilterSidebar`'s `isPending` spinner + "filtering/ready" line).
+4. **Never** use a page-level `fixed` progress bar for a section-level refetch — that slot
+   belongs to route navigation (`NavigationProgress`), and two bars in the same place collide.
+5. Keep active-filter chips visible in the empty state so the user can undo the filter that
+   produced zero results.
+
+**Route navigation** (clicking a link, not refetching in place) is a different concern:
+`loading.tsx` per route for the skeleton, `template.tsx` for the transition animation, and the
+global `NavigationProgress` indicator for immediate click feedback above the navbar/dropdown.
+
 ### Animations
 Use `motion/react` sparingly and intentionally:
 - feedback for refresh/loading

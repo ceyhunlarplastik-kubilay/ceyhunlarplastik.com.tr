@@ -508,15 +508,31 @@ hiçbir şey olmadı" hissi devam ediyordu.
 - Akış artık: tıklama → gösterge (anında, her yerden görünür) → `loading.tsx` iskeleti →
   yeni sayfa → `template.tsx` ile yumuşak giriş.
 
-**ÖLÇÜLDÜ — kalan en büyük payload fırsatı (yapılmadı, onay bekliyor):**
+**UYGULANDI — industrial filtreler lazy (2026-07-25):**
 Kategori sayfasındaki slim attributes payload'unun **%98.8'i (726KB / 920 value)** varsayılan
-olarak **KAPALI** bir popover (`ProductFilterPopoverSelect`) içindeki industrial filtreler
-(sector+production_group+usage_area). Görünür ürün filtreleri yalnız **9KB**.
-Öneri (P9 deseni, ana sayfadaki `usage-areas` BFF'iyle aynı): industrial değerleri BFF route
-handler + `useQuery({enabled})` ile lazy çek → RSC navigation payload ~1MB'den ~250KB'ye iner
-ve React Query cache'i sayesinde kategoriler arası geçişlerde tekrar inmez.
-**Risk:** `ProductFilterSidebar` paylaşılan (`/urunler/filtre` de kullanıyor, orada industrial
-filtreler BİRİNCİL) → ayrı dilim + regresyon testi gerektirir.
+olarak **KAPALI** bir popover (`ProductFilterPopoverSelect`) içindeki industrial filtrelerdi
+(sector+production_group+usage_area). Görünür ürün filtreleri yalnız 9KB.
+- **P9 deseni** (ana sayfadaki `usage-areas` BFF'iyle aynı): yeni
+  `getIndustrialFilterAttributes` server fn + `app/api/product-filters/industrial/route.ts`
+  (full cache'i yeniden kullanır, `s-maxage=60`) + `useIndustrialFilterAttributes(enabled)` hook.
+- `ProductFilterSidebar`'a **opt-in** `lazyIndustrialAttributes` prop'u eklendi; yalnız
+  kategori sayfası gönderiyor. **`/urunler/filtre` GÖNDERMEZ** (orada industrial filtreler
+  birincil) → grep'le doğrulandı, tam attributes ile çalışmaya devam eder.
+- `slimCategoryFilterAttributes`'a `{ excludeIndustrial }` seçeneği eklendi.
+- **Ekstra kazanç:** sidebar attribute değerlerinde `assets` KULLANMIYOR (assets yalnız
+  kategori önizlemesinde) → lazy yanıt yalnız `id/name/slug/parentValueId` taşır.
+
+**Ölçüm:** SSR attributes payload **741KB → 13KB (%98.3)**. Lazy BFF yanıtı **147KB**
+(726KB değil — assets/timestamps atıldı), CDN-cache'li ve React Query ile kategoriler arası
+paylaşımlı → kritik yolun dışında, tekrar inmez.
+
+**Doğrulama:** frontend typecheck ✅ · lint ✅ 0 error (116) · `next build` → Compiled
+successfully ✅ · frontend 16/16 ✅ · core 149/149 ✅ · i18n 832=832 ✅.
+**Kalan (kullanıcıda):** kubi'de kategori sayfasında endüstriyel kullanım popover'ının
+değerleri yüklediği; REGRESYON: `/urunler/filtre` endüstriyel filtrelerinin eskisi gibi
+çalıştığı elle test.
+**Olası devam:** lazy fetch şu an mount'ta tetikleniyor (görünürse). Popover açılışına
+bağlamak 147KB'yi de ilk yükten çıkarır ama `ProductFilterPopoverSelect`'e wiring gerektirir.
 
 ## Ürün liste payload'ı — kart DTO'su (2026-07-25)
 
@@ -568,6 +584,162 @@ core 149/149 ✅ · functions 8/8 ✅ · frontend 16/16 ✅.
 **Kalan (kullanıcıda):** kubi'de kategori sayfası kartları (görsel + attribute rozetleri) +
 filtre uygulama; REGRESYON: müşteri portalı "Tüm Ürünler", admin özel fiyatlar / atanmış
 varyantlar ekranları (bunlar `view` göndermez, tam yanıt almalı).
+
+## Public filtre deneyimi — müşteri paneli mantığına hizalama (2026-07-25)
+
+**İstek:** Public ürün listeleme sayfaları, müşteri panelindeki (`CustomerPortalAllProductsPageClient`)
+`ProductFilterSidebar` mantığını kullansın. Panel dokunulmadı (yalnız referans alındı).
+
+**Rol ayrımı netleşti:**
+- `urun-kategori/[slug]` → kategori sabit; **ürün filtreleri gösterilir**, endüstriyel
+  taksonomi (sector/production_group/usage_area) **gizlenir**.
+- `urunler/filtre` (Sektörel Ürünler) → **yalnız endüstriyel taksonomi**; kategori seçici ve
+  kategori-kapsamlı ürün filtreleri gösterilmez.
+
+**Uygulandı:**
+- Kategori sayfası panelin prop kombinasyonunu kullanıyor: `showProductFiltersOnlyWhenCategorySelected`
+  + `hideIndustrialFiltersWhenCategorySelected` + `attributeSelectorVariant="popover"` +
+  `showProductSearch` + `showSelectedCategoryPreview` (hepsi zaten var olan prop'lar).
+- Sidebar'a yeni **opt-in** `showOnlyIndustrialFilters` prop'u → `/urunler/filtre` bu modda.
+- **Layout (her iki public sayfa):** `grid-cols-12` + `col-span-3/9` → `lg:grid-cols-[320px_minmax(0,1fr)]`
+  (panelin yerleşimi). **Gerçek bug düzeldi:** eski yapıda responsive kırılım yoktu, sidebar
+  MOBİLDE %25 genişliğe sıkışıyordu; artık lg altında alt alta yığılıyor.
+- **i18n:** sidebar'daki hardcoded "Urun Arama" / "Aramayi temizle" (public'te artık görünür
+  hale geldiği için) `public.productFilter.productSearchLabel` + `clearSearch` anahtarlarına
+  taşındı (tr/en, 834=834).
+- `ProductCategoryFilterRail` public'te KULLANILMADI (istenmedi).
+
+**Performansla kesişim:** kategori sayfasında endüstriyel filtreler artık gizli olduğu için
+`useIndustrialFilterAttributes` `enabled` koşulu sağlanmıyor → 147KB lazy fetch o sayfada hiç
+tetiklenmiyor. Server tarafındaki `excludeIndustrial: true` yine gerekli (aksi halde
+render edilmeyen 726KB SSR payload'una serialize olurdu).
+
+**Doğrulama:** typecheck ✅ · lint ✅ 0 error (116) · `next build` → Compiled successfully ✅ ·
+frontend 16/16 ✅ · i18n 834=834 ✅ · müşteri paneli dosyalarına dokunulmadı (git ile doğrulandı) ✅.
+**Kalan (kullanıcıda):** kubi'de iki public sayfanın filtre davranışı + mobil yerleşim;
+REGRESYON: müşteri paneli "Tüm Ürünler" eskisi gibi çalışmalı.
+
+## i18n bug — EN sayfalarda filtre/arama TR'ye düşüyordu (2026-07-25)
+
+**Belirti:** `/en/urunler/filtre`'de arama veya usage_area seçimi kullanıcıyı TR sayfaya
+yönlendiriyordu; `/en/urun-kategori/[slug]`'de arama ve filtre seçimi **404** veriyordu.
+
+**Kök neden:** Public filtre bileşenleri locale-aware olmayan `next/navigation` `useRouter`'ını
+kullanıyordu. `router.replace("/urun-kategori/{slug}?...")` `/en` önekini DÜŞÜRÜYOR:
+- `/urunler/filtre` → TR sayfası (sonuçlar TR locale ile geliyor)
+- kategori sayfasında EN slug + TR route → `getCategoryBySlug(enSlug, "tr")` = null → `notFound()` → **404**
+
+**Düzeltildi** — dört bileşende `useRouter` → `@/i18n/navigation`:
+`ProductFilterSidebar`, `ProductActiveFilters`, `ProductFilterPagination`, `ProductAttributeBadges`.
+(`useSearchParams` next/navigation'da kaldı; next-intl karşılığı yok ve okuma amaçlı.)
+
+**Panel regresyon riski YOK (kanıtlandı):** aynı bileşenler `(panels)` altında da kullanılıyor
+(müşteri portalı, admin atanmış varyantlar). `i18n/request.ts` panel route'larında locale'i
+`routing.defaultLocale` = **tr**'ye düşürüyor ve `localePrefix: "as-needed"` TR'de ön ek
+EKLEMİYOR → panel yolları birebir aynı üretiliyor.
+
+**Doğrulama:** typecheck ✅ (next-intl router API uyumlu) · lint ✅ 0 error (116) ·
+`next build` → Compiled successfully ✅ · frontend 16/16 ✅.
+**Kalan (kullanıcıda):** `/en/urunler/filtre` arama + sektörel seçim, `/en/urun-kategori/[slug]`
+arama + filtre + sayfalama; REGRESYON: müşteri portalı "Tüm Ürünler" ve admin atanmış
+varyantlar ekranlarında filtre/sayfalama URL'leri değişmemeli.
+
+## i18n bug #2 — EN sayfada attribute filtresi hiç ürün bulamıyordu (2026-07-25)
+
+**Belirti:** EN sayfada bir ürün özelliği seçilince "ürün yok" deniyordu, oysa ürünler var
+(`/en/urun-kategori/...?profile_type=pipe-profile`). Router düzeltmesinden SONRA da sürdü.
+
+**Kök neden:** `ProductAttributeValue.slug` VARSAYILAN locale (TR) değerini tutar; EN slug'lar
+`ProductAttributeValueTranslation.slug`'ta yaşar. `productRepository.listProducts` içindeki
+`buildAttributeWhere` ise **yalnız temel satırın `slug`'ına** bakıyordu (7 yerde:
+sector×3, production_group×2, usage_area×1, generic×1). UI EN slug gönderdiği için eşleşme sıfır.
+Ürün ARAMASI zaten çeviriye bakıyordu (`translations.some`) — bu yüzden arama çalışıp filtre çalışmıyordu.
+Kategori slug'ı da locale-aware çözülüyordu (`categoryRepository.getCategoryBySlug` →
+`CategoryTranslation`), bu yüzden sayfa açılıyor ama filtre boş dönüyordu.
+
+**Canlı API ile kanıtlandı (düzeltme öncesi):**
+| Sorgu | Sonuç |
+|---|---|
+| `locale=tr`, TR slug `boru-profil` | **33 ürün** |
+| `locale=en`, EN slug `pipe-profile` | **0 ürün** ← bug |
+| `locale=en`, filtresiz | 76 ürün |
+| `locale=en` ama TR slug `boru-profil` zorlanınca | **33 ürün** ← veri var, eşleşme yanlıştı |
+
+**Düzeltildi:** `products/repository.ts` içine `valueSlugMatch(slugs)` helper'ı — slug'ı hem
+temel satırda hem `translations` üzerinde (`locale: { in: searchableLocales }`) arar.
+7 eşleşme noktasının tamamı bunu kullanıyor. Repository'nin mevcut `searchableLocales`
+deseni ([locale, DEFAULT] / [DEFAULT]) yeniden kullanıldı → cross-locale slug çakışması yok.
+
+**Doğrulama:** `typecheck:backend` ✅ (Prisma iç içe `OR` spread'ini kabul etti) ·
+core 149/149 ✅ (`products/repository.test.ts` dahil) · functions 8/8 ✅ · frontend typecheck ✅ ·
+lint 0 error ✅.
+**Kalan (kullanıcıda):** kubi'de EN sayfada ürün filtresi + sektörel filtreler; REGRESYON:
+TR sayfada aynı filtreler eskisi gibi çalışmalı (TR slug'lar temel satırda eşleşmeye devam eder).
+
+## Sayfalama — pencereli (windowed) hale getirildi (2026-07-25)
+
+**Sorun:** `ProductFilterPagination` TÜM sayfaları yan yana basıyordu
+(`Array.from({ length: totalPages })`). Katalog büyüdükçe onlarca buton.
+
+**Uygulandı:**
+- Saf mantık `features/public/products/utils/getPaginationItems.ts`'e alındı (repo'nun
+  `utils/` konvansiyonu; test edilebilir). Desen: `1 … 4 [5] 6 … 20` — ilk/son her zaman,
+  mevcut sayfa ± 1 komşu, boşluklarda "…". "…" yalnız gerçekten atlanan sayfa varsa çıkar
+  (tek sayfa atlanacaksa numaranın kendisi gösterilir).
+- Bileşen yeniden yazıldı: `<nav aria-label>`, prev/next `aria-label`li ikon butonlar,
+  aktif sayfada `aria-current="page"`, `tabular-nums` hizalama, `isPending` sırasında
+  butonlar disabled. **Mobilde** numaralar gizlenir, yerine kompakt "Sayfa X / Y" gösterilir.
+- **i18n:** `paginationLabel`, `previousPage`, `nextPage`, `goToPage`, `pageOf` (tr/en, 839=839).
+  Önceki hal metinsiz/erişilebilirlik etiketsizdi.
+- Aynı sayfaya tıklamada gereksiz navigasyon yapılmaz (`if (target === page) return`).
+
+**Kenar durumlar doğrulandı** (geçici script ile, sonra silindi): `total<=7` kısaltma yok;
+başta `1 2 3 4 5 … 20`; ortada `1 … 9 10 11 … 20`; sonda `1 … 16 17 18 19 20`; `total=1` → null.
+
+**Kapsam:** bileşen paylaşılan — public katalog, müşteri portalı "Tüm Ürünler" ve admin
+atanmış varyantlar ekranlarının üçü de bu iyileştirmeden yararlanır (i18n namespace
+panellerde de erişilebilir; oralarda locale TR-sabit).
+
+**Doğrulama:** typecheck ✅ · lint ✅ 0 error (116) · `next build` → Compiled successfully ✅ ·
+frontend 16/16 ✅ · i18n 839=839 ✅.
+
+## Refetch geri bildirimi standardı (2026-07-25)
+
+**İstek:** public filtre/arama sayfalarında yeniden veri çekilirken kullanıcıya süreç
+gösterilsin; bu bir STANDART haline gelsin ve dokümante edilsin.
+
+**Tespit edilen sorunlar:**
+1. `ProductFilterList` refetch sırasında sayfa-seviyesi `fixed top-0 w-full h-1` bar
+   gösteriyordu → hem bölüm-yerel değildi (AGENTS.md kuralına aykırı) hem de yeni global
+   `NavigationProgress` çubuğuyla **aynı konumda çakışıyordu**.
+2. "Sonuç yok" durumu ERKEN return ediyordu → 0 sonuç veren filtre ekranda görünmüyordu
+   (kullanıcı hangi filtreyi kaldıracağını göremiyor) ve o durumda hiç geri bildirim yoktu.
+
+**Uygulandı:**
+- Yeni `features/public/products/components/ProductListLoadingOverlay.tsx`: liste kabına
+  `absolute inset-0` bölüm-yerel overlay; `pointer-events-none`, `role="status"`,
+  `aria-live="polite"`, `AnimatePresence` giriş/çıkış, `useReducedMotion`. Önceki içerik
+  altında görünür kalır (`placeholderData: (prev) => prev` zaten vardı).
+- `ProductFilterList`: `fixed` bar kaldırıldı, sarmalayıcıya `relative` + `aria-busy`,
+  aktif filtre çipleri boş durumda da gösteriliyor.
+- i18n `public.productFilter.updatingResults` (tr/en, 840=840).
+
+**Standart haline getirildi (dokümantasyon):**
+- **AGENTS.md** → mevcut "filter/search/sort/pagination" kuralına somut 5 maddelik
+  "Established refetch-feedback pattern" eklendi (bileşen adlarıyla) + rota navigasyonunun
+  AYRI bir konu olduğu (`loading.tsx` / `template.tsx` / `NavigationProgress`) yazıldı.
+- **page-performance skill** → yeni `P10 — Bekleme HİSSİNİ düzelt` deseni: üç olayın üç ayrı
+  mekanizması ve "bölüm refetch'i için sayfa-seviyesi fixed bar kullanma" tuzağı.
+
+**Performans regresyon kontrolü (kullanıcı sorusu):** iki sayfadaki tüm iyileştirmeler
+grep'le tek tek doğrulandı — ISR `revalidate=60`, Suspense, `getCategoryProducts` SSR +
+`initialProducts`, `isDefaultView` guard, `excludeIndustrial`, `lazyIndustrialAttributes`,
+`view=card`, `slimProductCards`, backend `toProductCardDTO`, `valueSlugMatch` (8 nokta).
+Hepsi YERİNDE; bu dilimde yalnız görsel geri bildirim katmanı değişti.
+
+**Doğrulama:** typecheck ✅ · lint ✅ 0 error (116) · `next build` → Compiled successfully ✅
+(ilk denemede Turbopack'te geçici bir Rust panic'i oluştu, tekrar çalıştırınca geçti — kod
+kaynaklı değil) · frontend 16/16 ✅ · i18n 840=840 ✅.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

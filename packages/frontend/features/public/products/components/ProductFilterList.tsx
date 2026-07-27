@@ -5,9 +5,11 @@ import { ProductCard } from "@/components/navigation/ProductCard"
 import type { Product, ProductListPayload } from "@/features/public/products/types"
 import { useProducts } from "../hooks/useProducts"
 import { useFilterStore } from "../store/filterStore"
+import { AnimatePresence } from "motion/react"
 import ProductFilterPagination from "./ProductFilterPagination"
 import ProductGridSkeleton from "./ProductGridSkeleton"
 import ProductActiveFilters from "./ProductActiveFilters"
+import { ProductListLoadingOverlay } from "./ProductListLoadingOverlay"
 
 export default function ProductFilterList({
     fixedCategorySlug,
@@ -57,29 +59,40 @@ export default function ProductFilterList({
         initialData: isDefaultView ? initialProducts ?? undefined : undefined,
     })
 
+    // İlk yükte içerik henüz yok → iskelet. Sonraki filtre/arama/sayfalama isteklerinde
+    // TanStack `placeholderData: (prev) => prev` sayesinde eski liste ekranda kalır ve
+    // üstüne yerel overlay biner (bkz. ProductListLoadingOverlay).
     if (isLoading) return <ProductGridSkeleton />
 
     const products = data?.data ?? []
     const meta = data?.meta
-
-    if (!products.length) {
-        return (
-            <div className="rounded-3xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-16 text-center">
-                <p className="text-lg font-semibold text-neutral-900">
-                    {t("noResultsTitle")}
-                </p>
-                <p className="mt-2 text-sm text-neutral-500">
-                    {t("noResultsSubtitle")}
-                </p>
-            </div>
-        )
-    }
+    const isEmpty = products.length === 0
 
     return (
-        <div className="space-y-6">
+        <div className="relative space-y-6" aria-busy={isFetching}>
 
-            {/* ACTIVE FILTERS */}
+            {/* Yerel yükleme geri bildirimi — tam sayfa spinner YOK (AGENTS.md kuralı).
+                Eski `fixed top-0` çubuğu kaldırıldı: hem bölüm-yerel değildi hem de
+                global navigasyon göstergesiyle (NavigationProgress) aynı yerde çakışıyordu. */}
+            <AnimatePresence>
+                {isFetching ? <ProductListLoadingOverlay /> : null}
+            </AnimatePresence>
+
+            {/* ACTIVE FILTERS — sonuç boş olsa DA gösterilir ki kullanıcı 0 sonuç üreten
+                filtreyi görüp kaldırabilsin (önceden boş durumda erken return ediliyordu). */}
             <ProductActiveFilters basePath={basePath} />
+
+            {isEmpty ? (
+                <div className="rounded-3xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-16 text-center">
+                    <p className="text-lg font-semibold text-neutral-900">
+                        {t("noResultsTitle")}
+                    </p>
+                    <p className="mt-2 text-sm text-neutral-500">
+                        {t("noResultsSubtitle")}
+                    </p>
+                </div>
+            ) : (
+                <>
 
             {/* HEADER */}
             <div className="flex items-center justify-between rounded-2xl border px-4 py-3">
@@ -92,11 +105,6 @@ export default function ProductFilterList({
                     </p>
                 </div>
             </div>
-
-            {/* LOADING BAR */}
-            {isFetching && (
-                <div className="fixed top-0 left-0 w-full h-1 bg-brand animate-pulse z-50" />
-            )}
 
             {/* GRID */}
             <ul className="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -127,6 +135,8 @@ export default function ProductFilterList({
                     totalPages={meta.totalPages}
                     basePath={basePath}
                 />
+            )}
+                </>
             )}
         </div>
     )

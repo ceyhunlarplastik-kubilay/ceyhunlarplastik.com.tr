@@ -373,6 +373,29 @@ export const productRepository = (): IPrismaProductRepository => {
                 : []
         }
 
+        /**
+         * Attribute value slug'ını locale-aware eşleştirir.
+         *
+         * `ProductAttributeValue.slug` VARSAYILAN locale (TR) değerini tutar; EN slug'lar
+         * `ProductAttributeValueTranslation.slug`'ta yaşar. Filtreler UI'daki locale'in
+         * slug'ıyla geldiği için yalnız temel satıra bakmak EN sayfalarda hiçbir ürün
+         * bulunamamasına yol açıyordu (ör. `profile_type=pipe-profile`).
+         * Kategori slug'ı zaten aynı mantıkla çözülüyor (categoryRepository.getCategoryBySlug).
+         */
+        const valueSlugMatch = (slugs: string[]) => ({
+            OR: [
+                { slug: { in: slugs } },
+                {
+                    translations: {
+                        some: {
+                            locale: { in: searchableLocales },
+                            slug: { in: slugs },
+                        },
+                    },
+                },
+            ],
+        })
+
         const buildAttributeWhere = (attrCode: string, rawValue: unknown): Prisma.ProductWhereInput | null => {
             const values = buildFilterValues(rawValue)
 
@@ -386,7 +409,7 @@ export const productRepository = (): IPrismaProductRepository => {
                                 {
                                     sectorValue: {
                                         attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.sector },
-                                        slug: { in: values },
+                                        ...valueSlugMatch(values),
                                     },
                                 },
                                 {
@@ -394,7 +417,7 @@ export const productRepository = (): IPrismaProductRepository => {
                                         attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
                                         parentValue: {
                                             attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.sector },
-                                            slug: { in: values },
+                                            ...valueSlugMatch(values),
                                         },
                                     },
                                 },
@@ -405,7 +428,7 @@ export const productRepository = (): IPrismaProductRepository => {
                                             attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
                                             parentValue: {
                                                 attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.sector },
-                                                slug: { in: values },
+                                                ...valueSlugMatch(values),
                                             },
                                         },
                                     },
@@ -424,7 +447,7 @@ export const productRepository = (): IPrismaProductRepository => {
                                 {
                                     productionGroupValue: {
                                         attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
-                                        slug: { in: values },
+                                        ...valueSlugMatch(values),
                                     },
                                 },
                                 {
@@ -432,7 +455,7 @@ export const productRepository = (): IPrismaProductRepository => {
                                         attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.usageArea },
                                         parentValue: {
                                             attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.productionGroup },
-                                            slug: { in: values },
+                                            ...valueSlugMatch(values),
                                         },
                                     },
                                 },
@@ -448,7 +471,7 @@ export const productRepository = (): IPrismaProductRepository => {
                         some: {
                             usageAreaValue: {
                                 attribute: { code: INDUSTRIAL_ATTRIBUTE_CODES.usageArea },
-                                slug: { in: values },
+                                ...valueSlugMatch(values),
                             },
                         },
                     },
@@ -461,9 +484,7 @@ export const productRepository = (): IPrismaProductRepository => {
                         attribute: {
                             code: attrCode,
                         },
-                        slug: {
-                            in: values,
-                        },
+                        ...valueSlugMatch(values),
                     },
                 },
             }

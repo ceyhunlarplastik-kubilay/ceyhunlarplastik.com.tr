@@ -58,24 +58,37 @@ export default async function Page({
                 breadcrumbs={breadcrumbs}
             />
 
-            {/* FILTER + PRODUCTS */}
-            <section className="mx-auto max-w-7xl px-6 py-12 grid grid-cols-12 gap-8">
+            {/* FILTER + PRODUCTS — kategori sayfası ve müşteri paneliyle aynı yerleşim:
+                sabit 320px filtre kolonu + esnek içerik, lg altında alt alta yığılır. */}
+            <section className="mx-auto max-w-7xl px-6 py-12">
+                <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8">
 
-                {/* LEFT FILTER */}
-                <aside className="col-span-3">
-                    <ProductFilterSidebar
-                        categories={categories}
-                        attributes={attributes}
-                    />
-                </aside>
+                    {/* LEFT FILTER — Sektörel Ürünler: yalnız endüstriyel taksonomi */}
+                    <aside className="min-w-0">
+                        <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-neutral-100" />}>
+                            <ProductFilterSidebar
+                                categories={categories}
+                                attributes={attributes}
+                                // Bu sayfanın işi sektör → üretim grubu → kullanım alanı
+                                // seçimi. Kategori-kapsamlı ürün filtreleri ve kategori
+                                // seçici burada gösterilmez; onlar kategori sayfasının işi.
+                                hideCategoryFilter
+                                showOnlyIndustrialFilters
+                                showProductSearch
+                                attributeSelectorVariant="popover"
+                                basePath="/urunler/filtre"
+                            />
+                        </Suspense>
+                    </aside>
 
-                {/* RIGHT PRODUCTS */}
-                <section className="col-span-9">
-                    <Suspense fallback={<ProductGridSkeleton />}>
-                        <ProductFilterList />
-                    </Suspense>
-                </section>
+                    {/* RIGHT PRODUCTS */}
+                    <div className="min-w-0">
+                        <Suspense fallback={<ProductGridSkeleton />}>
+                            <ProductFilterList />
+                        </Suspense>
+                    </div>
 
+                </div>
             </section>
 
         </main>

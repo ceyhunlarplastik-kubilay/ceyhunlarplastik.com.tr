@@ -87,9 +87,12 @@ export default async function CategoryPage(
 
     // KN-2: sidebar'a full attributes (1.28MB) yerine slim payload geç (translations atılır,
     // non-industrial value'lar kategorinin allowedValueIds'ine göre ön-filtrelenir).
+    // excludeIndustrial: endüstriyel filtreler (920 değer ≈ 726KB, slim payload'un %98.8'i)
+    // varsayılan kapalı popover'da duruyor → SSR'dan çıkarılıp client'ta lazy çekilir.
     const filterAttributes = slimCategoryFilterAttributes(
         attributes,
         category.allowedAttributeValueIds,
+        { excludeIndustrial: true },
     )
 
     return (
@@ -105,30 +108,46 @@ export default async function CategoryPage(
                 ]}
             />
 
-            <section className="mx-auto max-w-7xl px-6 py-12 grid grid-cols-12 gap-8">
-                <aside className="col-span-3">
-                    {/* KN-1: useSearchParams kullanan filtre bileşenleri Suspense'e sarılır;
-                        aksi halde sayfa static'ten düşüyor (no-store) ve CDN'de cache'lenmiyordu. */}
-                    <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-neutral-100" />}>
-                        <ProductFilterSidebar
-                            categories={[category]}
-                            attributes={filterAttributes}
-                            hideCategoryFilter
-                            fixedCategorySlug={category.slug}
-                            basePath={`/urun-kategori/${category.slug}`}
-                        />
-                    </Suspense>
-                </aside>
+            {/* Layout: müşteri panelindeki (CustomerPortalAllProductsPageClient) yerleşimin
+                aynısı — sabit 320px filtre kolonu + esnek içerik. Eski `grid-cols-12` +
+                `col-span-3` responsive kırılım taşımadığı için sidebar mobilde %25'e
+                sıkışıyordu; artık lg altında alt alta yığılır. */}
+            <section className="mx-auto max-w-7xl px-6 py-12">
+                <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8">
+                    <aside className="min-w-0">
+                        {/* KN-1: useSearchParams kullanan filtre bileşenleri Suspense'e sarılır;
+                            aksi halde sayfa static'ten düşüyor (no-store) ve CDN'de cache'lenmiyordu. */}
+                        <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-neutral-100" />}>
+                            <ProductFilterSidebar
+                                categories={[category]}
+                                attributes={filterAttributes}
+                                hideCategoryFilter
+                                lazyIndustrialAttributes
+                                fixedCategorySlug={category.slug}
+                                basePath={`/urun-kategori/${category.slug}`}
+                                // Müşteri paneliyle aynı mantık: kategori sabit olduğu için
+                                // ürün filtreleri gösterilir, endüstriyel taksonomi (sector/
+                                // production_group/usage_area) gizlenir — o seçim
+                                // /urunler/filtre sayfasının işi.
+                                showSelectedCategoryPreview
+                                showProductSearch
+                                attributeSelectorVariant="popover"
+                                showProductFiltersOnlyWhenCategorySelected
+                                hideIndustrialFiltersWhenCategorySelected
+                            />
+                        </Suspense>
+                    </aside>
 
-                <section className="col-span-9">
-                    <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-neutral-100" />}>
-                        <ProductFilterList
-                            fixedCategorySlug={category.slug}
-                            basePath={`/urun-kategori/${category.slug}`}
-                            initialProducts={initialProducts}
-                        />
-                    </Suspense>
-                </section>
+                    <div className="min-w-0">
+                        <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-neutral-100" />}>
+                            <ProductFilterList
+                                fixedCategorySlug={category.slug}
+                                basePath={`/urun-kategori/${category.slug}`}
+                                initialProducts={initialProducts}
+                            />
+                        </Suspense>
+                    </div>
+                </div>
             </section>
 
         </main>

@@ -569,7 +569,15 @@
             "perPage": "Sayfa başına {limit}",
             "selectPlaceholder": "{label} seç",
             "searchByLabel": "{label} ara...",
-            "notFound": "Bulunamadı"
+            "notFound": "Bulunamadı",
+            "productSearchLabel": "Ürün Arama",
+            "clearSearch": "Aramayı temizle",
+            "paginationLabel": "Sayfalama",
+            "previousPage": "Önceki sayfa",
+            "nextPage": "Sonraki sayfa",
+            "goToPage": "Sayfa {page}",
+            "pageOf": "Sayfa {page} / {totalPages}",
+            "updatingResults": "Sonuçlar güncelleniyor"
         },
         "productDetail": {
             "metaDescription": "{name} ürününü inceleyin.",

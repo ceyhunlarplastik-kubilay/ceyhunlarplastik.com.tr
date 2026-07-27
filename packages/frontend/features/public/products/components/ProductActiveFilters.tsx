@@ -1,6 +1,8 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
+// Locale-aware router (EN sayfalarda /en öneki korunur; TR'de değişiklik yok).
+import { useRouter } from "@/i18n/navigation"
 import { Badge } from "@/components/ui/badge"
 import { X } from "lucide-react"
 

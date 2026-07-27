@@ -569,7 +569,15 @@
             "perPage": "Per page {limit}",
             "selectPlaceholder": "Select {label}",
             "searchByLabel": "Search {label}...",
-            "notFound": "Not found"
+            "notFound": "Not found",
+            "productSearchLabel": "Product Search",
+            "clearSearch": "Clear search",
+            "paginationLabel": "Pagination",
+            "previousPage": "Previous page",
+            "nextPage": "Next page",
+            "goToPage": "Page {page}",
+            "pageOf": "Page {page} of {totalPages}",
+            "updatingResults": "Updating results"
         },
         "productDetail": {
             "metaDescription": "Explore the {name} product.",

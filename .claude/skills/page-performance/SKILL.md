@@ -192,6 +192,22 @@ MB-sınıfı yanıta `refetchOnMount: "always"` / `refetchOnWindowFocus: true` v
 global default'lar (staleTime 60sn, focus kapalı) doğrudur. Yeni hook yazarken
 agresif ayarları eski hook'tan kopyalama.
 
+**P10 — Bekleme HİSSİNİ düzelt (ölçüm iyiyken bile gerekir):**
+Payload/TTFB düzeldiği hâlde "yavaş" deniyorsa sorun genelde **geri bildirim yokluğudur**.
+Üç ayrı olay, üç ayrı mekanizma — karıştırma:
+- **Rota navigasyonu** (linke tıklama): `loading.tsx` (rota iskeleti) + `template.tsx`
+  (geçiş animasyonu) + global `NavigationProgress` (tıklama anında, navbar/dropdown'ın
+  ÜSTÜNDE). `template.tsx` yeni sayfa MOUNT olunca çalışır — bekleme sırasında DEĞİL;
+  `loading.tsx` iskeleti içerik alanındadır, tam-ekran dropdown açıkken görünmez.
+- **Yerinde refetch** (filtre/arama/sayfalama): önceki içeriği ekranda tut
+  (`placeholderData: (prev) => prev`) + liste kabına `absolute inset-0` **bölüm-yerel**
+  overlay (`ProductListLoadingOverlay`). `pointer-events-none`, `role="status"`,
+  `aria-live="polite"`, sarmalayıcıda `aria-busy`, `AnimatePresence`, `useReducedMotion`.
+- **Tetikleyici kontrol**: filtreyi tetikleyen kontrol de pending göstersin (sidebar spinner).
+**Tuzak:** bölüm-seviyesi refetch için sayfa-seviyesi `fixed top-0` progress bar KULLANMA —
+o slot rota navigasyonuna aittir; iki bar aynı yerde çakışır (bu repoda yaşandı).
+Detay ve bileşen adları: AGENTS.md → "Established refetch-feedback pattern".
+
 **P6 — Bundle: ağır kütüphaneyi ihtiyaç anına ertele:**
 Statik import edilen ağır lib (harita, pdf, mqtt) her route'u şişirir. Hook içindeyse
 type-only import + effect içinde `await import(...)` (`cancelled` bayrağıyla).

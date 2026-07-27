@@ -17,13 +17,21 @@ const INDUSTRIAL_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage
 export function slimCategoryFilterAttributes(
     attributes: ProductAttribute[],
     allowedAttributeValueIds: string[] | undefined,
+    options: { excludeIndustrial?: boolean } = {},
 ): ProductAttribute[] {
     const allowed =
         allowedAttributeValueIds && allowedAttributeValueIds.length > 0
             ? new Set(allowedAttributeValueIds)
             : null;
 
-    return attributes.map((attribute) => {
+    // excludeIndustrial: bu 920 değer (payload'un %98.8'i, 726KB) sidebar'da varsayılan
+    // KAPALI bir popover'da duruyor → SSR payload'undan çıkarılıp client'ta lazy çekilir
+    // (bkz. useIndustrialFilterAttributes + /api/product-filters/industrial).
+    const source = options.excludeIndustrial
+        ? attributes.filter((attribute) => !INDUSTRIAL_ATTRIBUTE_CODES.has(attribute.code))
+        : attributes;
+
+    return source.map((attribute) => {
         const isIndustrial = INDUSTRIAL_ATTRIBUTE_CODES.has(attribute.code);
 
         const values = (attribute.values ?? [])

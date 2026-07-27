@@ -3,7 +3,8 @@ import { useState } from "react"
 import { motion } from "motion/react"
 import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
-import { useRouter } from "next/navigation"
+// Locale-aware router: /urunler/filtre'ye giderken EN'de /en öneki korunur.
+import { useRouter } from "@/i18n/navigation"
 
 type ProductAttributeValue = {
     id: string

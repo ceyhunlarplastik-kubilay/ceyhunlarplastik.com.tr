@@ -2,7 +2,12 @@
 
 import Image from "next/image"
 import { useMemo, useTransition, useEffect, useCallback, useDeferredValue, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
+// Locale-aware router: [locale] ağacında EN sayfalar /en önekiyle yaşıyor. Düz
+// next/navigation router'ı bu öneki düşürüp EN filtrelemeyi TR sayfasına (ve EN slug'la
+// 404'e) götürüyordu. Panellerde locale TR-sabit + localePrefix "as-needed" olduğu için
+// bu router orada da aynı yolu üretir (davranış değişmez).
+import { useRouter } from "@/i18n/navigation"
 import { useTranslations } from "next-intl"
 import { motion } from "motion/react"
 import { Box, Loader2, Search, Sparkles, X } from "lucide-react"
@@ -14,6 +19,7 @@ import { Label } from "@/components/ui/label"
 
 import { useFilterStore } from "@/features/public/products/store/filterStore"
 import { ProductFilterPopoverSelect } from "@/features/public/products/components/ProductFilterPopoverSelect"
+import { useIndustrialFilterAttributes } from "@/features/public/productAttributes/hooks/useIndustrialFilterAttributes"
 
 type Category = {
     id: string
@@ -55,8 +61,21 @@ type Props = {
     productSearchPlaceholder?: string
     showProductFiltersOnlyWhenCategorySelected?: boolean
     hideIndustrialFiltersWhenCategorySelected?: boolean
+    /**
+     * true: yalnız endüstriyel kullanım filtreleri (sector/production_group/usage_area)
+     * gösterilir; kategori-kapsamlı ürün filtreleri hiç render edilmez.
+     * `/urunler/filtre` (Sektörel Ürünler) bu modda çalışır.
+     */
+    showOnlyIndustrialFilters?: boolean
     customerUsageAreaSlugs?: string[]
     customerUsageAreaFilterPending?: boolean
+    /**
+     * true: endüstriyel kullanım filtreleri (sector/production_group/usage_area) prop'la
+     * gelmez, client'ta lazy çekilir. Kategori sayfasında bu 920 değer sayfanın attributes
+     * payload'unun %98.8'iydi (726KB) ve varsayılan KAPALI bir popover'ın içindeydi.
+     * `/urunler/filtre` bu bayrağı GÖNDERMEZ — orada endüstriyel filtreler birincil.
+     */
+    lazyIndustrialAttributes?: boolean
 }
 
 const INDUSTRIAL_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"] as const
@@ -65,10 +84,14 @@ const INDUSTRIAL_ATTRIBUTE_CODE_SET = new Set<string>(INDUSTRIAL_ATTRIBUTE_CODES
 function ProductSidebarSearchControl({
     committedSearch,
     placeholder,
+    label,
+    clearLabel,
     onCommit,
 }: {
     committedSearch: string
     placeholder: string
+    label: string
+    clearLabel: string
     onCommit: (value: string) => void
 }) {
     const [draftSearch, setDraftSearch] = useState(committedSearch)
@@ -88,7 +111,7 @@ function ProductSidebarSearchControl({
     return (
         <section className="space-y-2">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
-                Urun Arama
+                {label}
             </div>
             <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
@@ -103,7 +126,7 @@ function ProductSidebarSearchControl({
                         type="button"
                         onClick={() => setDraftSearch("")}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-700"
-                        aria-label="Aramayi temizle"
+                        aria-label={clearLabel}
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -126,8 +149,10 @@ export default function ProductFilterSidebar({
     productSearchPlaceholder,
     showProductFiltersOnlyWhenCategorySelected = false,
     hideIndustrialFiltersWhenCategorySelected = false,
+    showOnlyIndustrialFilters = false,
     customerUsageAreaSlugs = [],
     customerUsageAreaFilterPending = false,
+    lazyIndustrialAttributes = false,
 }: Props) {
     const t = useTranslations("public.productFilter")
     const searchPlaceholder = productSearchPlaceholder ?? t("searchPlaceholder")
@@ -175,6 +200,8 @@ export default function ProductFilterSidebar({
     )
 
     const productFilterAttributes = useMemo(() => {
+        // Sektörel Ürünler modu: yalnız endüstriyel taksonomi ile filtrelenir.
+        if (showOnlyIndustrialFilters) return []
         if (showProductFiltersOnlyWhenCategorySelected && !scopedCategorySlug) return []
 
         const nonIndustrialAttributes = attributes.filter((attribute) => !INDUSTRIAL_ATTRIBUTE_CODE_SET.has(attribute.code))
@@ -198,15 +225,25 @@ export default function ProductFilterSidebar({
         }
 
         return scopedAttributes.filter((attribute) => !hiddenAttributeCodesSet.has(attribute.code))
-    }, [attributes, scopedAllowedValueIds, scopedCategorySlug, hiddenAttributeCodesSet, showProductFiltersOnlyWhenCategorySelected])
+    }, [attributes, scopedAllowedValueIds, scopedCategorySlug, hiddenAttributeCodesSet, showProductFiltersOnlyWhenCategorySelected, showOnlyIndustrialFilters])
+
+    // Endüstriyel filtreler gösterilecek mi? (lazy fetch'i yalnız gerekiyorsa tetiklemek için)
+    const industrialFiltersVisible = !(hideIndustrialFiltersWhenCategorySelected && scopedCategorySlug)
+
+    // lazyIndustrialAttributes: bu 920 değer prop'la (SSR payload'unda) gelmez, burada çekilir.
+    const { data: lazyIndustrialData } = useIndustrialFilterAttributes(
+        lazyIndustrialAttributes && industrialFiltersVisible,
+    )
 
     const industrialUsageAttributes = useMemo(() => {
-        if (hideIndustrialFiltersWhenCategorySelected && scopedCategorySlug) return []
+        if (!industrialFiltersVisible) return []
+
+        const source = lazyIndustrialAttributes ? (lazyIndustrialData ?? []) : attributes
 
         return INDUSTRIAL_ATTRIBUTE_CODES
-            .map((code) => attributes.find((attribute) => attribute.code === code))
+            .map((code) => source.find((attribute) => attribute.code === code))
             .filter((attribute): attribute is Attribute => Boolean(attribute && (attribute.values?.length ?? 0) > 0))
-    }, [attributes, hideIndustrialFiltersWhenCategorySelected, scopedCategorySlug])
+    }, [attributes, industrialFiltersVisible, lazyIndustrialAttributes, lazyIndustrialData])
 
     const filterableAttributes = useMemo(
         () => [...productFilterAttributes, ...industrialUsageAttributes],
@@ -532,6 +569,8 @@ export default function ProductFilterSidebar({
                             key={search}
                             committedSearch={search}
                             placeholder={searchPlaceholder}
+                            label={t("productSearchLabel")}
+                            clearLabel={t("clearSearch")}
                             onCommit={(nextSearch) => {
                                 setSearch(nextSearch)
                                 pushStateToUrl(fixedCategorySlug ?? category, useFilterStore.getState().attributes, nextSearch)

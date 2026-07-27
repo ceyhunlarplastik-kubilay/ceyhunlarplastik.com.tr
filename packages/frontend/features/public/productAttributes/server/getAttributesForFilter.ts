@@ -112,3 +112,42 @@ export const getUsageAreaValues = cache(async (locale = "tr"): Promise<ProductAt
     const usageArea = full.find((attribute) => attribute.code === "usage_area");
     return toSlimValues(usageArea?.values);
 });
+
+const INDUSTRIAL_FILTER_CODES = ["sector", "production_group", "usage_area"] as const
+
+export type IndustrialFilterAttribute = {
+    id: string
+    code: string
+    name: string
+    values: { id: string; name: string; slug: string; parentValueId?: string | null }[]
+}
+
+/**
+ * ProductFilterSidebar'ın "endüstriyel kullanım" bölümü için slim attribute listesi.
+ *
+ * NEDEN: Bu üç code (sector/production_group/usage_area) 920 değer taşıyor ve kategori
+ * sayfasında slim edilmiş attributes payload'unun **%98.8'i (726KB)** bunlardan geliyordu —
+ * üstelik varsayılan olarak KAPALI bir popover'ın içinde. Sidebar bu değerlerden yalnız
+ * id/name/slug/parentValueId okuyor (assets yalnız kategori önizlemesinde kullanılıyor),
+ * bu yüzden lazy yanıt çok daha küçük.
+ *
+ * Full (cache'li) sonucu yeniden kullanır → ilave upstream fetch yok.
+ */
+export const getIndustrialFilterAttributes = cache(async (locale = "tr"): Promise<IndustrialFilterAttribute[]> => {
+    const full = await getAttributesForFilter(locale);
+
+    return INDUSTRIAL_FILTER_CODES
+        .map((code) => full.find((attribute) => attribute.code === code))
+        .filter((attribute): attribute is ProductAttribute => Boolean(attribute))
+        .map((attribute) => ({
+            id: attribute.id,
+            code: attribute.code,
+            name: attribute.name,
+            values: (attribute.values ?? []).map((value) => ({
+                id: value.id,
+                name: value.name,
+                slug: value.slug,
+                parentValueId: value.parentValueId ?? null,
+            })),
+        }));
+});
