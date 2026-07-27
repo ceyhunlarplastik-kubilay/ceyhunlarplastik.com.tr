@@ -465,6 +465,59 @@ react-hook-form + zod + resolvers) navbar üzerinden HER public sayfada kapalıy
 `ProductAssistantModal` de eager. Tetikleyici butonu statik bırakıp dialog içeriğini `next/dynamic`'e
 almak gerçek kazanç sağlar ama component split gerektirir → ayrı dilim.
 
+## Sayfa geçişi UX + navigasyon algılanan hızı (2026-07-25)
+
+**Belirti:** Ana sayfadan bir kategoriye tıklayınca "sayfa geç yükleniyor" hissi.
+
+**Ölçüm (canlı, henüz ESKİ kod deploy'da):** normal yükleme TTFB 0.5-1.7s / HTML 1.29MB;
+`cache-control: no-store` + `x-cache: Miss` (ISR düzeltmesi henüz deploy edilmedi).
+**Link tıklaması = RSC navigation payload: ~1.0 MB** (her tıklamada yeniden iniyor).
+
+**Kök neden (algılanan yavaşlık):** public ağaçta **hiç `loading.tsx` yoktu**. App Router,
+RSC yanıtı gelene kadar kullanıcıyı ESKİ sayfada hiçbir geri bildirim vermeden bekletir →
+tıklama "hiçbir şey olmadı" hissi verir; 400ms bile bozuk gibi hissettirir.
+
+**Uygulandı:**
+- `app/[locale]/(public)/urun-kategori/[slug]/loading.tsx` — gerçek layout'a birebir oturan
+  iskelet (PageHero yükseklikleri + `max-w-7xl px-6 py-12 grid-cols-12 gap-8` + 3/9 kolon +
+  12'li ürün grid'i) → tıklama anında görünür, içerik gelince layout shift YOK.
+- `app/[locale]/(public)/loading.tsx` — diğer tüm public rotalar için genel iskelet.
+- `app/[locale]/(public)/template.tsx` — **sayfa geçiş animasyonu** (motion/react, opacity+8px
+  y, 0.25s, `useReducedMotion` destekli). `template.tsx` her navigasyonda remount olduğu için
+  App Router'da geçiş animasyonunun idiomatik yeri; Navbar/Footer layout'ta kaldığından
+  yeniden animasyona girmez. `(auth)` altındaki mevcut template deseni takip edildi.
+  Not: App Router template'i AnimatePresence ile sarılmadığı için `exit` çalışmaz — eklenmedi.
+  Süre bilerek kısa (0.25s): uzunu, sayfa hazırken gecikme hissi yaratır.
+
+**Doğrulama:** typecheck ✅ · lint ✅ 0 error (116) · `next build` → Compiled successfully.
+
+**Eksik kalan parça — global navigasyon göstergesi (eklendi):**
+`template.tsx` yeni sayfa MOUNT olduğunda çalışır (bekleme BİTTİKTEN sonra), `loading.tsx`
+iskeleti ise yalnız içerik alanında çıkar. Kullanıcı kategoriyi navbar'ın **tam-ekran
+mega-dropdown'ından** seçtiği için iskelet dropdown'ın ARKASINDA kalıyordu → "tıkladım,
+hiçbir şey olmadı" hissi devam ediyordu.
+- Yeni `components/navigation/NavigationProgress.tsx` + `(public)/layout.tsx`'e bağlandı:
+  tıklama anında üstte ince ilerleme çubuğu + "Sayfa yükleniyor" rozeti, **z-[60]** ile
+  navbar (z-50) ve dropdown'ın ÜSTÜNDE. AGENTS.md gereği tam ekranı bloklayan spinner YOK.
+- i18n: `chrome.navigationProgress.label` (tr/en, 832=832 dengeli).
+- Teknik notlar: (a) `useSearchParams()` KULLANILMADI — layout'ta olduğu için tüm public
+  ağacı dynamic'e düşürürdü (bu oturumda öğrenilen tuzak); `usePathname` static'i bozmaz.
+  (b) Gösterge durumu `navFrom === pathname` ile **türetildi**; effect içinde senkron
+  setState cascading render'a yol açıyor ve lint error veriyordu. (c) Navigasyon iptal
+  edilirse takılı kalmasın diye 10sn güvenlik zamanlayıcısı.
+- Akış artık: tıklama → gösterge (anında, her yerden görünür) → `loading.tsx` iskeleti →
+  yeni sayfa → `template.tsx` ile yumuşak giriş.
+
+**ÖLÇÜLDÜ — kalan en büyük payload fırsatı (yapılmadı, onay bekliyor):**
+Kategori sayfasındaki slim attributes payload'unun **%98.8'i (726KB / 920 value)** varsayılan
+olarak **KAPALI** bir popover (`ProductFilterPopoverSelect`) içindeki industrial filtreler
+(sector+production_group+usage_area). Görünür ürün filtreleri yalnız **9KB**.
+Öneri (P9 deseni, ana sayfadaki `usage-areas` BFF'iyle aynı): industrial değerleri BFF route
+handler + `useQuery({enabled})` ile lazy çek → RSC navigation payload ~1MB'den ~250KB'ye iner
+ve React Query cache'i sayesinde kategoriler arası geçişlerde tekrar inmez.
+**Risk:** `ProductFilterSidebar` paylaşılan (`/urunler/filtre` de kullanıyor, orada industrial
+filtreler BİRİNCİL) → ayrı dilim + regresyon testi gerektirir.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -144,6 +144,9 @@
             "sectoralProductsLink": "Sektörel Ürünler",
             "address": "Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir",
             "copyright": "Copyright © 2026 Ceyhunlar – Tüm hakları saklıdır."
+        },
+        "navigationProgress": {
+            "label": "Sayfa yükleniyor"
         }
     },
     "shared": {
