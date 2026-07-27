@@ -25,6 +25,10 @@ export default function ProductFilterList({
     const params: Record<string, string | number> = {
         page,
         limit,
+        // Katalog kartı DTO'su: filtre sonrası client fetch'i de slim yanıt alır
+        // (tam yanıt 113KB → ~19KB / 20 ürün). Portal/admin yüzeyleri bu paramı
+        // GÖNDERMEZ; onlar product.category okuduğu için tam yanıtta kalır.
+        view: "card",
     }
 
     if (fixedCategorySlug) {

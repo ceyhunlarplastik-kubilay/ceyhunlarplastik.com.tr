@@ -30,6 +30,8 @@ export type IListProductsEvent =
             category?: string
             locale?: string
             attributeValueIds?: string
+            /** "card": katalog kartı DTO'su (slim yanıt). Bkz. listProductsHandler. */
+            view?: string
         }
     >
 

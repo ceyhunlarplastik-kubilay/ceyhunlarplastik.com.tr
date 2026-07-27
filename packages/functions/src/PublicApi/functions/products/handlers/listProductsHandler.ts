@@ -15,6 +15,49 @@ import {
 
 const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt"] as const
 
+/**
+ * Kart görünümü DTO'su (`?view=card`).
+ *
+ * Ölçüm (20 ürün, profil-tapalari): tam yanıt 113KB — dağılım attributeValues %49.6,
+ * category %27.5, assets %7.9, translations %5.1. Katalog kartı ise yalnız
+ * `name, code, slug`, PRIMARY/IMAGE asset url'i ve attributeValue'ların
+ * `id/name/attribute.code/attribute.name` alanlarını gösteriyor → ~19KB yeter (%83 az).
+ *
+ * NEDEN OPT-IN: aynı endpoint'i müşteri portalı ve admin özel-fiyat/varyant ekranları da
+ * kullanıyor ve onlar `product.category`'yi okuyor. Koşulsuz daraltma o yüzeyleri bozardı.
+ *
+ * NEDEN BURADA (repository include'unda değil): `mapProductWithAssets` lokalizasyon ve
+ * sector/production_group hiyerarşisini türetmek için translations + derin parentValue
+ * zincirini KULLANIYOR. Include daraltılırsa yerelleştirme bozulur; bu yüzden veri
+ * map'lendikten SONRA yanıttan atılır.
+ */
+function toProductCardDTO(product: any) {
+    return {
+        id: product.id,
+        code: product.code,
+        name: product.name,
+        slug: product.slug,
+        categoryId: product.categoryId,
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+        assets: (product.assets ?? [])
+            .filter((asset: any) => asset?.role === "PRIMARY" || asset?.type === "IMAGE")
+            .map((asset: any) => ({
+                id: asset.id,
+                role: asset.role,
+                type: asset.type,
+                url: asset.url,
+            })),
+        attributeValues: (product.attributeValues ?? []).map((value: any) => ({
+            id: value.id,
+            name: value.name,
+            attribute: value.attribute
+                ? { code: value.attribute.code, name: value.attribute.name }
+                : undefined,
+        })),
+    }
+}
+
 export const listProductsHandler =
     ({ productRepository, categoryRepository }: IProductDependencies) =>
         async (event: IListProductsEvent) => {
@@ -69,6 +112,9 @@ export const listProductsHandler =
                         "category",
                         "attributeValueIds",
                         "locale",
+                        // "view" bilinen bir parametredir; burada dışlanmazsa attribute
+                        // filtresi sanılır ve sorgu sonucunu bozar.
+                        "view",
                     ].includes(key)
             )
 
@@ -114,10 +160,13 @@ export const listProductsHandler =
                     attributeValueIds
                 }, { view: "card" })
 
+                const mapped = result.data.map((product) => mapProductWithAssets(product, locale))
+
                 return apiResponseDTO({
                     statusCode: 200,
                     payload: {
-                        data: result.data.map((product) => mapProductWithAssets(product, locale)),
+                        // `?view=card`: katalog kartının kullanmadığı alanlar yanıttan atılır.
+                        data: query.view === "card" ? mapped.map(toProductCardDTO) : mapped,
                         meta: result.meta,
                     },
                 })

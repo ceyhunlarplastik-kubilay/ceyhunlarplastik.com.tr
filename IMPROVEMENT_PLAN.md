@@ -518,6 +518,57 @@ ve React Query cache'i sayesinde kategoriler arası geçişlerde tekrar inmez.
 **Risk:** `ProductFilterSidebar` paylaşılan (`/urunler/filtre` de kullanıyor, orada industrial
 filtreler BİRİNCİL) → ayrı dilim + regresyon testi gerektirir.
 
+## Ürün liste payload'ı — kart DTO'su (2026-07-25)
+
+**Soru:** kategori sayfasında ürünler listelenirken gelen veri ne kadar gerekli?
+
+**Ölçüm (`/products?category=profil-tapalari&page=1&limit=20`, 113KB / 20 ürün):**
+
+| Alan | Boyut | Pay | ProductCard kullanıyor mu? |
+|---|---|---|---|
+| attributeValues | 55.9KB | %49.6 | Yalnız `id,name,attribute.code/name` (ilk 4'ü) |
+| category | 31.0KB | %27.5 | **Hayır** — zaten kategori sayfasındayız, 20 kez tekrar |
+| assets | 9.0KB | %7.9 | Yalnız `role/type/url` |
+| translations | 5.8KB | %5.1 | **Hayır** (API zaten locale çözüyor) |
+
+**Kök neden:** `attributeValuesInclude` 3 seviye ÖZYİNELEMELİ (attribute + translations +
+parentValue → tekrar attribute + translations + parentValue…). Ayrıca `listCardInclude`
+her ürüne tam `category` ekliyor.
+**Sayfalama sorunu YOK:** `meta.total=76` iken yalnız 20 ürün geliyor; sorun ürün sayısı
+değil, ürün başına 5.6KB şişkinlik.
+
+**Uygulandı (iki dilim):**
+1. **Frontend slim** — `features/public/products/utils/slimProductCards.ts`, `getCategoryProducts`
+   içinde kullanılır. `Product`'ın ZORUNLU alanları (categoryId/createdAt/updatedAt ≈1.7KB)
+   korunur, ağır opsiyoneller atılır → dönüş tipi `Product[]` kalır, `useProducts`'ın diğer
+   6 tüketicisi etkilenmez. SSR/RSC payload'ını backend deploy'undan bağımsız küçültür.
+2. **Backend kart DTO'su (`?view=card`)** — `listProductsHandler.toProductCardDTO`.
+   - **OPT-IN olmak ZORUNDA:** aynı public endpoint'i müşteri portalı + admin özel-fiyat/varyant
+     ekranları da kullanıyor ve **3'ü `product.category` okuyor** (grep'le doğrulandı) →
+     koşulsuz daraltma onları bozardı. `view=card` yalnız `getCategoryProducts` ve
+     `ProductFilterList`'ten gönderilir.
+   - **Repository include'u DEĞİŞTİRİLMEDİ:** `mapProductWithAssets` lokalizasyon ve
+     sector/production_group hiyerarşisi için translations + derin parentValue zincirini
+     kullanıyor. Daraltma map'ten SONRA yanıt seviyesinde yapılır.
+   - **Tuzak (yakalandı):** `view` parametresi attribute-filtre dışlama listesine eklendi;
+     eklenmeseydi attribute filtresi sanılıp sorgu sonucunu bozacaktı.
+   - **Validator:** `productSchema` `category/categoryId/timestamps`'i, `assetSchema` `key/mimeType`'ı,
+     `attributeValueSchema` `attributeId/displayOrder/isActive`'i ZORUNLU tutuyordu → liste route'una
+     `productListItemSchema` + `listAssetSchema` + `listAttributeValueSchema` (her iki shape'i kabul eder).
+     Tekil ürün route'ları KATI `productSchema`'da kaldı.
+   - **AJV kanıtı (varsayılmadı):** geçici repo-kökü tsx script'i ile `ajv/dist/2020` →
+     `card DTO: GEÇTİ ✓`, `TAM yanıt (regresyon): GEÇTİ ✓`. İlk denemede `assetSchema.key`
+     zorunluluğunu yakaladı ve şema düzeltildi; script silindi.
+
+**Kazanç:** 113KB → **~19-21KB / 20 ürün (~%83)**, ürün başına 5.6KB → 0.9KB. Hem ilk yük
+(SSR/RSC) hem filtre sonrası client fetch'i kapsar.
+
+**Doğrulama:** `typecheck:backend` ✅ · frontend typecheck ✅ · lint ✅ 0 error (116) ·
+core 149/149 ✅ · functions 8/8 ✅ · frontend 16/16 ✅.
+**Kalan (kullanıcıda):** kubi'de kategori sayfası kartları (görsel + attribute rozetleri) +
+filtre uygulama; REGRESYON: müşteri portalı "Tüm Ürünler", admin özel fiyatlar / atanmış
+varyantlar ekranları (bunlar `view` göndermez, tam yanıt almalı).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

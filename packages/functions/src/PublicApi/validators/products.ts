@@ -185,13 +185,60 @@ export const slugValidator = validatorWrapper(
 )
 
 // Response Validators
+
+/**
+ * Liste yanıtı iki shape döndürebilir:
+ *  - varsayılan: tam `productSchema`
+ *  - `?view=card`: katalog kartı DTO'su (category/translations vb. atılır — bkz.
+ *    listProductsHandler.toProductCardDTO; ölçüm 113KB → ~19KB)
+ * Bu yüzden liste öğesinde kart görünümünde bulunmayan alanlar opsiyonel işaretlenir.
+ * Tekil ürün route'ları (`productResponseValidator`) KATI `productSchema`'yı kullanmaya devam eder.
+ */
+// Kart DTO'sunda asset yalnız id/type/role/url taşır; tam yanıtta key/mimeType/timestamps de gelir.
+const listAssetSchema = z.object({
+    id: z.uuid(),
+    type: assetTypeEnum,
+    role: assetRoleEnum,
+    url: z.string(),
+    key: z.string().optional(),
+    mimeType: z.string().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+}).loose()
+
+// Kart DTO'sunda attributeValue yalnız id/name/attribute{code,name} taşır.
+const listAttributeValueSchema = z.object({
+    id: z.uuid(),
+    name: z.string(),
+    attribute: z.object({
+        code: z.string(),
+        name: z.string(),
+    }).loose().optional(),
+    slug: z.string().optional(),
+    attributeId: z.uuid().optional(),
+    parentValueId: z.uuid().nullable().optional(),
+    displayOrder: z.number().optional(),
+    isActive: z.boolean().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+}).loose()
+
+const productListItemSchema = productSchema.extend({
+    category: categorySchema.optional(),
+    categoryId: z.uuid().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+    assets: z.array(listAssetSchema),
+    attributeValues: z.array(listAttributeValueSchema),
+})
+
 export const listProductsResponseValidator = z.toJSONSchema(
     z.object({
         statusCode: z.number(),
         body: z.object({
             statusCode: z.number(),
             payload: z.object({
-                data: z.array(productSchema),
+                data: z.array(productListItemSchema),
                 meta: z.object({
                     page: z.number(),
                     limit: z.number(),

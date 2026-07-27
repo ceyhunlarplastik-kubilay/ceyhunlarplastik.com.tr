@@ -1,5 +1,6 @@
 import { publicServerClient } from "@/lib/http/serverClient";
 import type { ListProductsResponse, ProductListPayload } from "@/features/public/products/types";
+import { slimProductCards } from "@/features/public/products/utils/slimProductCards";
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
 
@@ -15,9 +16,16 @@ async function fetchCategoryProducts(
 ): Promise<ProductListPayload | null> {
     try {
         const res = await publicServerClient().get<ListProductsResponse>("/products", {
-            params: { category: slug, page: DEFAULT_PAGE, limit: DEFAULT_LIMIT, locale },
+            // view=card: backend kart DTO'su döner (category/translations vb. gelmez).
+            params: { category: slug, page: DEFAULT_PAGE, limit: DEFAULT_LIMIT, locale, view: "card" },
         });
-        return res.data.payload;
+
+        const payload = res.data.payload;
+        // Kart listesi için gereksiz alanları at → RSC/HTML payload'ı ~%81 küçülür.
+        return {
+            ...payload,
+            data: slimProductCards(payload.data ?? []),
+        };
     } catch (error: any) {
         console.error("getCategoryProducts error:", {
             slug,
