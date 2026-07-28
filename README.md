@@ -295,6 +295,126 @@ prod_prisma npx prisma studio --browser none
 ```
 ---
 
+## Disaster Recovery — Production RDS (P2.4)
+
+This runbook exists so that "what do we do if the prod DB is lost or corrupted?"
+has a written answer before it happens. **An untested backup is not a backup** —
+Step 6 (the drill) is what turns this from theory into a known-good procedure.
+
+### What protection exists today
+
+Configured in `infra/db.ts` (`sst.aws.Postgres` defaults + P2.4-B transforms):
+
+| Mechanism | Value | Protects against |
+|---|---|---|
+| Automated backups + PITR | `backupRetentionPeriod: 7` | Restore to any point in the **last 7 days** |
+| Storage encryption | `storageEncrypted: true` | Data at rest |
+| Deletion protection | `deletionProtection: true` (P2.4-B) | Accidental delete via console/CLI/API |
+| Final snapshot on delete | `skipFinalSnapshot: false` (P2.4-B) | Last-resort snapshot if the instance is ever deleted |
+| Pulumi protect | stage `protect: ["prod"]` | `sst remove` / `pulumi destroy` |
+
+> Multi-AZ is **off** (`multiAz: false`) — a deliberate cost decision, not an
+> oversight. Multi-AZ gives automatic failover on **infrastructure** failure; it
+> does **not** protect against bad migrations, accidental `DELETE`, or data
+> corruption (those replicate instantly to the standby). Only backups/PITR guard
+> those. See IMPROVEMENT_PLAN.md P2.4 for the cost/benefit decision.
+
+### Recovery objectives (⚠️ confirm these with the business)
+
+These are **proposed defaults** for a B2B catalog + portal, not yet ratified:
+
+- **RPO (max acceptable data loss):** ~5 minutes (PITR granularity). Automated
+  backups already meet this within the 7-day window.
+- **RTO (max acceptable downtime):** ~4 hours for full instance loss (manual
+  restore + reconnect). Multi-AZ would cut infra-failure RTO to minutes but does
+  nothing for the data-loss cases above.
+
+If the business needs a tighter RTO (e.g. an SLA, high order volume), revisit
+Multi-AZ (P2.4-C) — it is reversible and can be enabled later.
+
+### Step 1 — Manual snapshot before any risky operation
+
+Always take an on-demand snapshot before a migration you are unsure about, a bulk
+data change, or a major deploy. Automated backups continue in parallel; this is a
+named, retained checkpoint you control.
+
+```bash
+export AWS_PROFILE=ceyhunlar-prod
+# Find the instance id (SST names it ceyhunlarweb-prod-mypostgres...):
+aws rds describe-db-instances --region eu-central-1 \
+  --query "DBInstances[?contains(DBInstanceIdentifier,'mypostgres')].DBInstanceIdentifier" --output text
+
+aws rds create-db-snapshot --region eu-central-1 \
+  --db-instance-identifier <instance-id> \
+  --db-snapshot-identifier "pre-change-$(date +%Y%m%d-%H%M)"
+```
+
+### Step 2 — Choose the recovery type
+
+- **Bad data / accidental delete, instance healthy:** restore to a **new,
+  temporary** instance (PITR to just before the mistake), extract the needed
+  rows, and apply them back through the tunnel. The live instance keeps serving.
+- **Full instance loss / corruption:** restore a replacement instance from PITR
+  or a snapshot, then cut the app over to it (Step 4).
+
+### Step 3 — Restore (creates a NEW instance with a NEW endpoint)
+
+Point-in-time (within the 7-day window):
+
+```bash
+aws rds restore-db-instance-to-point-in-time --region eu-central-1 \
+  --source-db-instance-identifier <instance-id> \
+  --target-db-instance-identifier ceyhunlarweb-prod-restore-$(date +%Y%m%d-%H%M) \
+  --restore-time 2026-07-25T14:30:00Z \
+  --db-subnet-group-name <same-subnet-group> \
+  --no-multi-az
+```
+
+Or from a specific snapshot: `aws rds restore-db-instance-from-db-snapshot`.
+
+> The restored instance is **standalone** — it has no RDS Proxy, is not in the
+> SST stack, and gets a brand-new endpoint. This is expected.
+
+### Step 4 — Reconnect the app (the project-specific critical step)
+
+The app never talks to the instance directly — it goes through **RDS Proxy**, and
+prod's `DIRECT_URL` is built from `DIRECT_RDS_HOST` (`infra/db.ts`). After a
+restore you must re-point both:
+
+1. **RDS Proxy target** → the new instance. In the AWS console: RDS → Proxies →
+   the ceyhunlarweb proxy → Target groups → deregister old, register the restored
+   instance. (Same master password, since PITR/snapshot preserves it.)
+2. **`DIRECT_RDS_HOST`** (used for migrations that bypass the proxy) → the new
+   instance endpoint, if the old one is gone.
+
+> ⚠️ **Open item the drill must resolve:** making the **SST stack itself** adopt a
+> restored instance (so future `sst deploy` manages it) is not yet a proven
+> procedure — it likely needs a `transform.instance` import or Pulumi state
+> surgery. Until proven, treat a full restore as: recover data first (proxy
+> re-point above gets the app running), then reconcile SST state as a separate,
+> unhurried step. **Document the exact commands here once the drill establishes them.**
+
+### Step 5 — Verify before declaring recovery complete
+
+```bash
+# Row counts on critical tables + migration state (uses the prod_prisma helper
+# from "Production RDS" above, pointed at the restored instance):
+prod_prisma npx prisma migrate status
+# Spot-check: Customer, Product, ProductVariant, Order row counts vs expectations.
+```
+
+### Step 6 — DRILL (do this at least once; record the result)
+
+Restore is only real once it has been rehearsed. Run a PITR restore to a
+**temporary** instance (a few hours of instance cost), walk Steps 3–5, then delete
+the temp instance. Record below so the real RTO is known, not guessed:
+
+| Date | Restore type | Wall-clock time (actual RTO) | Notes / gotchas | By |
+|---|---|---|---|---|
+| _pending — first drill not yet run_ | | | | |
+
+---
+
 ## Tearing Down a Stage
 
 ```bash

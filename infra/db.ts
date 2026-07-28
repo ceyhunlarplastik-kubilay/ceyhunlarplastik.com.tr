@@ -40,20 +40,22 @@ const prodRds = isProd
     // RDS Proxy protects the small prod database from serverless connection spikes.
     proxy: true,
     password: rdsPassword!.value,
-    /*   transform: {
-        subnetGroup: (_args, opts) => {
-          if (isProd) opts.retainOnDelete = true;
-        },
-        parameterGroup: (_args, opts) => {
-          if (isProd) opts.retainOnDelete = true;
-        },
-        instance: (_args, opts) => {
-          if (isProd) {
-            opts.protect = true;
-            opts.import = "ceyhunlarweb-prod-mypostgresinstance-zfwoarbk";
-          }
-        },
-      }, */
+    // multiAz: false → tek AZ. Otomatik yedek + PITR zaten var (SST default
+    // backupRetentionPeriod: 7). P2.4-B iki UCUZ (maliyet=0) sertleştirme ekler:
+    transform: {
+      instance: (args) => {
+        // (1) RDS-native silme koruması. Stage-level `protect: true` yalnız
+        // Pulumi/sst remove'u durdurur; konsol/CLI/API'den elle silmeyi DURDURMAZ.
+        // deletionProtection o boşluğu kapatır.
+        args.deletionProtection = true;
+        // (2) Silme olursa (önce deletionProtection kapatılmalı) son yedek alınsın.
+        // skipFinalSnapshot=false, finalSnapshotIdentifier'ı ZORUNLU kılar; sabit
+        // ad diff churn'ü önler (yalnız gerçek silmede kullanılır — o an hesapta
+        // aynı adlı snapshot varsa silme sırasında yeniden adlandırılır).
+        args.skipFinalSnapshot = false;
+        args.finalSnapshotIdentifier = "ceyhunlarweb-prod-mypostgres-final";
+      },
+    },
   })
   : undefined;
 
