@@ -33,6 +33,9 @@ export interface ICreateProductBody {
     attributeValueIds?: string[]
     industrialUsages?: ProductIndustrialUsageInput[]
     translations?: ProductTranslationInput[]
+    // YouTube watch URL'leri — normalizasyon/doğrulama normalizeProductVideoUrls'te
+    assemblyVideoUrl?: string | null
+    promoVideoUrl?: string | null
 }
 
 export type ICreateProductEvent = IAPIGatewayProxyEventWithUserGeneric<ICreateProductBody>

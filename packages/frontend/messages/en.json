@@ -597,6 +597,7 @@
                 "technicalDrawing": "Technical Drawing",
                 "model3d": "3D Model",
                 "assemblyVideo": "Assembly Video",
+                "promoVideo": "Product Video",
                 "certificate": "Raw Material Certificate"
             },
             "usage": {
@@ -617,7 +618,8 @@
                 "sectionSubtitle": "Sample usage matches by sector, production group, and application area.",
                 "accordionTitle": "Industrial Areas of Application",
                 "accordionSubtitle": "Sectors, production groups, and industrial areas where the product is used.",
-                "reviewDetails": "View Details"
+                "reviewDetails": "View Details",
+                "showAllRows": "Show all ({count} rows)"
             },
             "zoomImage": {
                 "trigger": "Zoom",
@@ -651,12 +653,19 @@
                     "description": "You can complete the application faster by watching the installation and assembly steps in the video. Contact us for your special assembly needs.",
                     "open": "Open Assembly Video"
                 },
+                "promoVideo": {
+                    "badge": "Product Video",
+                    "title": "Product Overview Video",
+                    "description": "Watch the video to see the overall design, application scenarios and key features of the product. Contact us for more details.",
+                    "open": "Open Product Video"
+                },
                 "model3d": {
                     "badge": "3D Model",
                     "title": "3D Model",
                     "description": "You can evaluate the form details more realistically by examining the product's 3D model. Contact our team for your CAD/technical needs.",
                     "open": "Open 3D Model"
-                }
+                },
+                "videoPlay": "Play video"
             },
             "media": {
                 "animationTitle": "Product Animation",

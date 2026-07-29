@@ -197,6 +197,9 @@ export function mapProductWithAssets(
         name: localized.name,
         slug: localized.slug,
         description: localized.description,
+        // YouTube linkleri locale'den bağımsız: video her dilde ortak.
+        assemblyVideoUrl: product.assemblyVideoUrl ?? null,
+        promoVideoUrl: product.promoVideoUrl ?? null,
         locale: localized.locale,
         resolvedLocale: localized.resolvedLocale,
         translationMissing: localized.translationMissing,

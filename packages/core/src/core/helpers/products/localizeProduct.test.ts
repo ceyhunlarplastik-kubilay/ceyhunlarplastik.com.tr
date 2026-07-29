@@ -16,6 +16,8 @@ function makeProduct(translations: Array<{
         name: "Türkçe Ürün",
         slug: "turkce-urun",
         description: "Türkçe açıklama",
+        assemblyVideoUrl: null,
+        promoVideoUrl: null,
         categoryId: "category-1",
         createdAt: now,
         updatedAt: now,

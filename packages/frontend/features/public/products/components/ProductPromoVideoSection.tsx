@@ -1,13 +1,13 @@
 "use client"
 
-import { Clapperboard } from "lucide-react"
+import { Video } from "lucide-react"
 import { useTranslations } from "next-intl"
 import ProductVideoFeatureSection from "@/features/public/products/components/ProductVideoFeatureSection"
 
 type Props = {
     product: {
         name: string
-        assemblyVideoUrl?: string | null
+        promoVideoUrl?: string | null
     }
     compact?: boolean
     showTitle?: boolean
@@ -16,7 +16,7 @@ type Props = {
     videoOnly?: boolean
 }
 
-export default function ProductAssemblyVideoSection({
+export default function ProductPromoVideoSection({
     product,
     compact = false,
     showTitle = true,
@@ -29,12 +29,12 @@ export default function ProductAssemblyVideoSection({
     return (
         <ProductVideoFeatureSection
             productName={product.name}
-            videoUrl={product.assemblyVideoUrl}
-            badgeIcon={<Clapperboard size={14} />}
-            badgeLabel={t("assets.assemblyVideo.badge")}
-            title={t("assets.assemblyVideo.title")}
-            description={t("assets.assemblyVideo.description")}
-            openButtonLabel={t("assets.assemblyVideo.open")}
+            videoUrl={product.promoVideoUrl}
+            badgeIcon={<Video size={14} />}
+            badgeLabel={t("assets.promoVideo.badge")}
+            title={t("assets.promoVideo.title")}
+            description={t("assets.promoVideo.description")}
+            openButtonLabel={t("assets.promoVideo.open")}
             requestInfoLabel={t("assetSection.requestInfo")}
             offerImageAlt={t("assetSection.offerImageAlt")}
             playLabel={t("assets.videoPlay")}

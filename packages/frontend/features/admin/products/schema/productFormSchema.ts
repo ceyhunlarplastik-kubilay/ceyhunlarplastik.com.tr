@@ -1,4 +1,16 @@
 import { z } from "zod"
+import { extractYoutubeVideoId } from "@core/helpers/products/youtubeVideo"
+
+// Backend de aynı parser'ı kullanır (normalizeProductVideoUrls); buradaki kontrol
+// kullanıcıya form üzerinde anında geri bildirim vermek içindir.
+const productVideoUrlFormSchema = z
+    .string()
+    .trim()
+    .max(512)
+    .optional()
+    .refine((value) => !value || extractYoutubeVideoId(value) !== null, {
+        message: "Geçerli bir YouTube video linki girin",
+    })
 
 export const productIndustrialUsageFormSchema = z.object({
     id: z.uuid().nullable().optional(),
@@ -27,6 +39,8 @@ export const productFormSchema = z.object({
     code: z.string().min(1, "Kod zorunlu"),
     description: z.string().max(500).optional(),
     categoryId: z.uuid().min(1, "Kategori seçmelisiniz"),
+    assemblyVideoUrl: productVideoUrlFormSchema,
+    promoVideoUrl: productVideoUrlFormSchema,
     attributeValueIds: z.array(z.uuid()).optional(),
     industrialUsages: z.array(productIndustrialUsageFormSchema).optional(),
     translations: z.array(productTranslationFormSchema).optional(),

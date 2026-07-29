@@ -86,6 +86,11 @@ const productAssetUploadPurposeEnum = z.enum([
     "INDUSTRIAL_USAGE_IMAGE",
 ])
 
+// Burada yalnız kaba şekil doğrulanır; "gerçekten YouTube linki mi" kontrolü ve
+// kanonik forma indirgeme handler'daki normalizeProductVideoUrls'te yapılır.
+// `null` = alanı temizle, `undefined`/yok = alana dokunma.
+const productVideoUrlSchema = z.string().max(512).nullable().optional()
+
 export const createProductValidator = validatorWrapper(
     z.object({
         body: z.object({
@@ -100,6 +105,8 @@ export const createProductValidator = validatorWrapper(
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
             translations: z.array(productTranslationInputSchema).max(10).optional(),
+            assemblyVideoUrl: productVideoUrlSchema,
+            promoVideoUrl: productVideoUrlSchema,
         }),
     }),
     {
@@ -125,6 +132,8 @@ export const updateProductValidator = validatorWrapper(
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
             translations: z.array(productTranslationInputSchema).max(10).optional(),
+            assemblyVideoUrl: productVideoUrlSchema,
+            promoVideoUrl: productVideoUrlSchema,
         }),
     }),
     {
@@ -193,16 +202,7 @@ export const createProductAssetUploadValidator = validatorWrapper(
     z.object({
         body: z.object({
             productSlug: z.string(),
-            assetRole: z.enum([
-                "PRIMARY",
-                "ANIMATION",
-                "GALLERY",
-                "DOCUMENT",
-                "TECHNICAL_DRAWING",
-                "MODEL_3D",
-                "ASSEMBLY_VIDEO",
-                "CERTIFICATE",
-            ]).optional(),
+            assetRole: assetRoleEnum.optional(),
             fileName: z.string(),
             contentType: z.string(),
             purpose: productAssetUploadPurposeEnum.optional(),

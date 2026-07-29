@@ -13,6 +13,9 @@ import { PaperclipIcon } from "@/components/ui/paperclip-icon"
 import { SettingsIcon } from "@/components/ui/settings-icon"
 import { FolderOpenIcon } from "@/components/ui/folder-open-icon"
 import { PlayIcon } from "@/components/ui/play-icon"
+// Tanıtım videosu için AnimateIcons setinde karşılık yok; düz lucide ikonu da
+// aynı `size` sözleşmesini karşılıyor ve dıştaki motion.div zaten animasyonu veriyor.
+import { Clapperboard as ClapperboardIcon } from "lucide-react"
 /* import { LayoutGridIcon } from "@/components/ui/layout-grid-icon" */
 // import { BadgeCentIcon } from "@/components/ui/badge-cent-icon"
 
@@ -32,6 +35,7 @@ export default function ProductQuickNav({ className }: Props) {
         { icon: FolderOpenIcon, label: t("technicalDrawing"), target: "product-technical-drawing", href: "#product-technical-drawing" },
         { icon: BoxIcon, label: t("model3d"), target: "product-3d-model", href: "#product-3d-model" },
         { icon: PlayIcon, label: t("assemblyVideo"), target: "product-assembly-video", href: "#product-assembly-video" },
+        { icon: ClapperboardIcon, label: t("promoVideo"), target: "product-promo-video", href: "#product-promo-video" },
         { icon: PaperclipIcon, label: t("certificate"), target: "product-certificate", href: "#product-certificate" },
     ]
 

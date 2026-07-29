@@ -194,6 +194,12 @@ model Product {
 
   description String? @db.Text
 
+  // Ürün videoları YouTube'da barındırılır (S3 asset'i değil): kanonik watch URL'i
+  // saklanır, gömme/thumbnail adresleri buradan türetilir.
+  // bkz. core/helpers/products/youtubeVideo.ts
+  assemblyVideoUrl String? // montaj videosu
+  promoVideoUrl    String? // ürün tanıtım videosu
+
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
@@ -1335,6 +1341,8 @@ enum AssetType {
   CERTIFICATE
 }
 
+// ASSEMBLY_VIDEO kaldırıldı: montaj videosu artık S3 asset'i değil,
+// Product.assemblyVideoUrl üzerinde tutulan bir YouTube linki.
 enum AssetRole {
   PRIMARY
   ANIMATION
@@ -1342,7 +1350,6 @@ enum AssetRole {
   DOCUMENT
   TECHNICAL_DRAWING
   MODEL_3D
-  ASSEMBLY_VIDEO
   CERTIFICATE
 }
 

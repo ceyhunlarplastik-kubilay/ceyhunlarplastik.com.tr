@@ -40,6 +40,7 @@ import { Badge } from "@/components/ui/badge"
 import { useCreateProduct } from "@/features/admin/products/hooks/useCreateProduct"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
 import { ProductIndustrialUsageEditor } from "@/features/admin/products/components/ProductIndustrialUsageEditor"
+import { ProductVideoLinksCard } from "@/features/admin/products/components/ProductVideoLinksCard"
 import { presignProductAsset } from "@/features/admin/products/api/presignProductAsset"
 import { productFormSchema, ProductFormValues } from "../schema/productFormSchema"
 import type { Product } from "@/features/public/products/types"
@@ -436,6 +437,8 @@ export function CreateProductDialog({
                                     )}
                                 />
                             </div>
+
+                            <ProductVideoLinksCard control={form.control} />
 
                             <Controller
                                 name="industrialUsages"

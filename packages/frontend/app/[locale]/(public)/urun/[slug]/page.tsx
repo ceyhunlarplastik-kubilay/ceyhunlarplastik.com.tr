@@ -12,6 +12,7 @@ import ProductMediaRow from "@/features/public/products/components/ProductMediaR
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import Product3DModelSection from "@/features/public/products/components/Product3DModelSection"
 import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
+import ProductPromoVideoSection from "@/features/public/products/components/ProductPromoVideoSection"
 import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
 import { groupVariantMeasurements } from "@/features/public/products/utils/groupVariantMeasurements"
@@ -108,11 +109,14 @@ export default async function ProductPage({ params }: PageProps) {
                 ]}
             />
 
-            <section className="mx-auto w-full max-w-[96rem] px-4 py-5 lg:px-5">
+            <section className="mx-auto w-full max-w-384 px-4 py-5 lg:px-5">
 
                 {/* PRODUCT HERO */}
                 <div id="product-hero">
-                    <ProductHero product={product} />
+                    <ProductHero
+                        product={product}
+                        showAssemblyVideoInline
+                    />
                 </div>
 
                 {/* MEDIA ROW */}
@@ -122,7 +126,7 @@ export default async function ProductPage({ params }: PageProps) {
 
             </section>
 
-            <section className="mx-auto w-full max-w-[96rem] px-4 pb-20 lg:px-5">
+            <section className="mx-auto w-full max-w-384 px-4 pb-20 lg:px-5">
 
                 <div id="product-variants">
                     <ProductVariantTable
@@ -137,12 +141,15 @@ export default async function ProductPage({ params }: PageProps) {
                         }
                     />
                 </div>
-                <ProductUsageAreasTable product={product} />
+                <ProductUsageAreasTable product={product} collapsible/>
                 <div id="product-3d-model">
                     <Product3DModelSection product={product} />
                 </div>
                 <div id="product-assembly-video">
                     <ProductAssemblyVideoSection product={product} />
+                </div>
+                <div id="product-promo-video">
+                    <ProductPromoVideoSection product={product} />
                 </div>
                 <div id="product-certificate">
                     <ProductCertificateSection product={product} />

@@ -139,7 +139,7 @@ function MarqueeItem({
     return (
         <Link
             href={item.href}
-            className="group relative block w-56 h-40 overflow-hidden rounded-xl shadow-2xl border border-white/10 hover:border-brand/50 transition-all duration-500 flex-shrink-0"
+            className="group relative block w-56 h-40 overflow-hidden rounded-xl shadow-2xl border border-white/10 hover:border-brand/50 transition-all duration-500 shrink-0"
         >
             {/* Kart sabit 224px (w-56); sizes olmadan Next 100vw varsayıp srcset'ten
                 en büyük adayı seçiyordu. Marquee children'ı iki kez render ettiği için

@@ -14,6 +14,7 @@ import {
     buildProductTranslationCreateInputs,
     normalizeProductTranslations,
 } from "@/core/helpers/products/productTranslations"
+import { normalizeProductVideoUrls } from "@/core/helpers/products/productVideos"
 
 function isAttributeValueAllowedWithParents(
     allowedIds: Set<string>,
@@ -41,7 +42,7 @@ function isAttributeValueAllowedWithParents(
 
 export const createProductHandler = ({ productRepository, categoryRepository, assetRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
     return async (event: ICreateProductEvent) => {
-        const { code, name, description, categoryId, attributeValueIds, industrialUsages, translations, assetType, assetRole, assetKey, mimeType } = event.body;
+        const { code, name, description, categoryId, attributeValueIds, industrialUsages, translations, assemblyVideoUrl, promoVideoUrl, assetType, assetRole, assetKey, mimeType } = event.body;
 
         try {
             const category = await categoryRepository.getCategory(categoryId)
@@ -56,6 +57,7 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
                 productAttributeValueRepository,
                 industrialUsages,
             )
+            const normalizedVideoUrls = normalizeProductVideoUrls({ assemblyVideoUrl, promoVideoUrl })
 
             const allowedAttributeValueIds = (category as any).allowedAttributeValueIds as string[] | undefined
             if (attributeValueIds?.length && allowedAttributeValueIds && allowedAttributeValueIds.length > 0) {
@@ -85,6 +87,8 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
                 name,
                 description,
                 slug,
+                assemblyVideoUrl: normalizedVideoUrls.assemblyVideoUrl,
+                promoVideoUrl: normalizedVideoUrls.promoVideoUrl,
                 category: { connect: { id: categoryId } },
                 translations: {
                     create: buildProductTranslationCreateInputs(normalizedTranslations.translations),

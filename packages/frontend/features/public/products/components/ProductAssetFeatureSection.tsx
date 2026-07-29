@@ -13,7 +13,8 @@ type Asset = {
 type Props = {
     productName: string
     assets?: Asset[]
-    role: string
+    /** `media` ile harici medya verildiğinde gerekmez. */
+    role?: string
     badgeIcon?: ReactNode
     badgeLabel: string
     title: string
@@ -31,6 +32,14 @@ type Props = {
     descriptionClassName?: string
     imageMinHeightPx?: number
     mediaOnly?: boolean
+    /**
+     * S3 asset'i yerine dışarıdan gelen medya (ör. YouTube facade player).
+     * `hasMedia` false ise mevcut "fallback görsel + Teklif Al" akışı korunur.
+     */
+    media?: ReactNode
+    hasMedia?: boolean
+    /** "Aç" butonunun hedefi; verilmezse asset URL'i kullanılır. */
+    openHref?: string
 }
 
 export default function ProductAssetFeatureSection({
@@ -53,9 +62,13 @@ export default function ProductAssetFeatureSection({
     descriptionClassName,
     imageMinHeightPx,
     mediaOnly = false,
+    media,
+    hasMedia = false,
+    openHref,
 }: Props) {
-    const asset = assets?.find((item) => item.role === role)
-    const hasAsset = Boolean(asset?.url)
+    const asset = role ? assets?.find((item) => item.role === role) : undefined
+    const externalMediaMode = media !== undefined
+    const hasAsset = externalMediaMode ? hasMedia : Boolean(asset?.url)
     const previewSrc = asset?.url ?? fallbackImageSrc
     const isPdf = asset?.mimeType === "application/pdf"
     const isVideo = asset?.mimeType?.startsWith("video/")
@@ -66,7 +79,9 @@ export default function ProductAssetFeatureSection({
             <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
                 <div className={compact ? "grid grid-cols-1" : "grid grid-cols-1 lg:grid-cols-[1.15fr_1fr]"}>
                     <div className="relative bg-neutral-50" style={{ minHeight: imageMinHeight }}>
-                        {hasAsset && isVideo ? (
+                        {externalMediaMode && hasMedia ? (
+                            media
+                        ) : hasAsset && isVideo ? (
                             <video
                                 src={previewSrc}
                                 controls
@@ -127,7 +142,7 @@ export default function ProductAssetFeatureSection({
                             <div className={`${compact ? "mt-4" : "mt-6"} flex flex-wrap gap-3`}>
                                 {hasAsset && (
                                     <Link
-                                        href={previewSrc}
+                                        href={openHref ?? previewSrc}
                                         target="_blank"
                                         rel="noreferrer"
                                         className={`inline-flex items-center justify-center rounded-xl bg-[var(--color-brand)] ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-white transition-opacity hover:opacity-90`}

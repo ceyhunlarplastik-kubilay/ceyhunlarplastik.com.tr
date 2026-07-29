@@ -597,6 +597,7 @@
                 "technicalDrawing": "Teknik Çizim",
                 "model3d": "3D Model",
                 "assemblyVideo": "Montaj Videosu",
+                "promoVideo": "Tanıtım Videosu",
                 "certificate": "Hammadde Sertifikası"
             },
             "usage": {
@@ -617,7 +618,8 @@
                 "sectionSubtitle": "Sektör, üretim grubu ve kullanım alanı bazında örnek kullanım eşleşmeleri.",
                 "accordionTitle": "Kullanıldığı Endüstriyel Alanlar",
                 "accordionSubtitle": "Ürünün kullanıldığı sektör, üretim grubu ve endüstriyel alanlar.",
-                "reviewDetails": "Detayları İncele"
+                "reviewDetails": "Detayları İncele",
+                "showAllRows": "Tümünü göster ({count} satır)"
             },
             "zoomImage": {
                 "trigger": "Büyüt",
@@ -651,12 +653,19 @@
                     "description": "Kurulum ve montaj adımlarını videodan izleyerek uygulamayı daha hızlı tamamlayabilirsiniz. Özel montaj ihtiyaçlarınız için bizimle iletişime geçebilirsiniz.",
                     "open": "Montaj Videosunu Aç"
                 },
+                "promoVideo": {
+                    "badge": "Tanıtım Videosu",
+                    "title": "Ürün Tanıtım Videosu",
+                    "description": "Ürünün genel yapısını, kullanım senaryolarını ve öne çıkan özelliklerini videodan izleyebilirsiniz. Detaylı bilgi için bizimle iletişime geçebilirsiniz.",
+                    "open": "Tanıtım Videosunu Aç"
+                },
                 "model3d": {
                     "badge": "3D Model",
                     "title": "3D Model",
                     "description": "Ürünün 3D modelini inceleyerek form detaylarını daha gerçekçi şekilde değerlendirebilirsiniz. CAD/teknik ihtiyaçlarınız için ekibimizle iletişime geçebilirsiniz.",
                     "open": "3D Modeli Aç"
-                }
+                },
+                "videoPlay": "Videoyu oynat"
             },
             "media": {
                 "animationTitle": "Ürün Animasyonu",

@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation"
-import Product3DModelSection from "@/features/public/products/components/Product3DModelSection"
-import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
+
 import ProductHero from "@/features/public/products/components/ProductHero"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
+import Product3DModelSection from "@/features/public/products/components/Product3DModelSection"
+import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
+import ProductPromoVideoSection from "@/features/public/products/components/ProductPromoVideoSection"
+import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
 import { groupVariantMeasurements } from "@/features/public/products/utils/groupVariantMeasurements"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory"
@@ -43,7 +46,6 @@ export default async function CustomerPortalProductDetailPage({
                 <ProductHero
                     product={product}
                     showAssemblyVideoInline
-                    assemblyVideoAutoPlay
                 />
             </div>
 
@@ -67,6 +69,12 @@ export default async function CustomerPortalProductDetailPage({
 
             <div id="product-3d-model">
                 <Product3DModelSection product={product} />
+            </div>
+            <div id="product-assembly-video">
+                <ProductAssemblyVideoSection product={product} />
+            </div>
+            <div id="product-promo-video">
+                <ProductPromoVideoSection product={product} />
             </div>
             <div id="product-certificate">
                 <ProductCertificateSection product={product} />

@@ -12,6 +12,8 @@ export const assetTypeEnum = z.enum([
     "CERTIFICATE",
 ]);
 
+// Prisma AssetRole ile eşleşir. ASSEMBLY_VIDEO burada YOK: montaj videosu artık
+// S3 asset'i değil, Product.assemblyVideoUrl üzerindeki YouTube linki.
 export const assetRoleEnum = z.enum([
     "PRIMARY",
     "ANIMATION",
@@ -19,7 +21,6 @@ export const assetRoleEnum = z.enum([
     "DOCUMENT",
     "TECHNICAL_DRAWING",
     "MODEL_3D",
-    "ASSEMBLY_VIDEO",
     "CERTIFICATE",
 ])
 
@@ -112,6 +113,8 @@ export const productSchema = z.object({
     name: z.string(),
     slug: z.string(),
     description: z.string().nullable().optional(),
+    assemblyVideoUrl: z.string().nullable().optional(),
+    promoVideoUrl: z.string().nullable().optional(),
     locale: localeSchema.optional(),
     resolvedLocale: z.string().optional(),
     translationMissing: z.boolean().optional(),

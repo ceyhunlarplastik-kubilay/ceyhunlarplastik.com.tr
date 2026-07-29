@@ -45,9 +45,6 @@ function getFolderByRole(role: string) {
         case "MODEL_3D":
             return "3d-models"
 
-        case "ASSEMBLY_VIDEO":
-            return "assembly-videos"
-
         case "CERTIFICATE":
             return "certificates"
 

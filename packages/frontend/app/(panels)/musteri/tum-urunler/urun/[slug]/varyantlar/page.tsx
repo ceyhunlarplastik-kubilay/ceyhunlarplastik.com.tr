@@ -107,7 +107,6 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                             <ProductAssemblyVideoSection
                                 product={product}
                                 videoOnly
-                                autoPlayVideo
                                 imageMinHeightPx={220}
                             />
 

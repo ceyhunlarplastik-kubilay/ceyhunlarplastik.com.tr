@@ -44,6 +44,7 @@ import { useProduct } from "@/features/admin/products/hooks/useProduct"
 import { ProductAssetManager } from "@/features/admin/products/components/asset/ProductAssetManager"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
 import { ProductIndustrialUsageEditor } from "@/features/admin/products/components/ProductIndustrialUsageEditor"
+import { ProductVideoLinksCard } from "@/features/admin/products/components/ProductVideoLinksCard"
 import { productFormSchema, ProductFormValues } from "../schema/productFormSchema"
 
 import type { Product } from "@/features/public/products/types"
@@ -122,6 +123,8 @@ function EditProductForm({ product, categories, onUpdated }: EditProductFormProp
             code: product.code,
             description: product.description ?? "",
             categoryId: product.categoryId,
+            assemblyVideoUrl: product.assemblyVideoUrl ?? "",
+            promoVideoUrl: product.promoVideoUrl ?? "",
             attributeValueIds: product.attributeValues
                 ?.filter((value) => !PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES.includes(value.attribute?.code ?? ""))
                 .map((v) => v.id) ?? [],
@@ -315,6 +318,10 @@ function EditProductForm({ product, categories, onUpdated }: EditProductFormProp
                                 product={product}
                                 refetchProduct={async () => location.reload()}
                             />
+                        </div>
+
+                        <div className="col-span-12">
+                            <ProductVideoLinksCard control={form.control} />
                         </div>
 
                         <div className="col-span-12">

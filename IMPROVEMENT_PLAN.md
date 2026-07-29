@@ -744,6 +744,71 @@ Hepsi YERİNDE; bu dilimde yalnız görsel geri bildirim katmanı değişti.
 (ilk denemede Turbopack'te geçici bir Rust panic'i oluştu, tekrar çalıştırınca geçti — kod
 kaynaklı değil) · frontend 16/16 ✅ · i18n 840=840 ✅.
 
+## Ürün videoları YouTube'a taşındı + tanıtım videosu eklendi (2026-07-29)
+
+**İstek:** montaj videosu S3 yerine YouTube'dan gelsin; ayrıca ikinci bir video türü
+(ürün tanıtım videosu) eklensin.
+
+**Neden:** `AssetRole.ASSEMBLY_VIDEO` bir S3 asset'iydi — presign TTL'i 60 sn, multipart
+yok, boyut sınırı yok, üstüne CloudFront/S3 video trafiği maliyeti. Prod'da hiç
+`ASSEMBLY_VIDEO` satırı yoktu, dolayısıyla enum değerini düşürmek güvenli.
+
+**Karar:** video linkleri `Product` üzerinde iki kolon (`assemblyVideoUrl`, `promoVideoUrl`).
+Alternatifler (Asset.key'e URL yazmak / ayrı `ProductVideo` tablosu) elendi: S3/presign
+akışına hiç dokunmayan en sade çözüm bu. Ürün başına birer video.
+
+**Uygulandı:**
+- **Şema:** `Product.assemblyVideoUrl` + `Product.promoVideoUrl` (String?), `AssetRole`
+  enum'ından `ASSEMBLY_VIDEO` kaldırıldı.
+- **Core:** yeni `helpers/products/youtubeVideo.ts` — bilinçli olarak IMPORTSUZ, çünkü
+  frontend de `@core/*` alias'ıyla aynı dosyayı kullanıyor. watch / youtu.be / embed /
+  shorts / live / nocookie formatlarını çözer, `t`/`list`/`si` kuyruklarını atar,
+  kanonik watch URL'i + `youtube-nocookie` embed + `i.ytimg.com` hqdefault thumbnail üretir.
+  Yeni `helpers/products/productVideos.ts` API sınırındaki normalizasyonu yapar
+  (`normalizeProductIndustrialUsages` deseni; geçersiz linkte 400).
+- **Backend:** create/update handler normalize edilmiş değerleri yazar. Update'te video
+  alanları `productData` rest'inden AYRI destructure edildi — aksi hâlde ham string
+  doğrulanmadan Prisma'ya sızıyordu. 5 validator dosyasındaki elle kopyalanmış assetRole
+  listelerinden `ASSEMBLY_VIDEO` temizlendi; `createProductAssetUploadValidator`'daki
+  duplike inline 8-değerli dizi silinip zaten import edilen `assetRoleEnum`'a bağlandı.
+  `presign.ts` `getFolderByRole`'den `assembly-videos` klasörü kaldırıldı.
+- **Public UI:** yeni `ProductYoutubeEmbed` **facade player** — ilk render'da yalnız kapak
+  görseli + oynat butonu; iframe ancak tıklayınca mount edilir (gömülü YouTube ~1MB player
+  JS indiriyor). Kapak düz `<img>` ile basılıyor → `next.config.ts` `remotePatterns`'e
+  `i.ytimg.com` eklemek gerekmedi ve bilinen Next 16.2.6 image-optimizer regresyonuna hiç
+  dokunulmadı. Ortak gövde `ProductVideoFeatureSection`, iki ince sarmalayıcı
+  (`ProductAssemblyVideoSection` yeniden yazıldı, `ProductPromoVideoSection` yeni).
+  `ProductAssetFeatureSection`'a `media`/`hasMedia`/`openHref` prop'ları eklendi — video
+  yokken mevcut "fallback görsel + Teklif Al CTA" akışı aynen korunuyor.
+- **Davranış değişikliği:** `autoPlayVideo` prop'u kaldırıldı (ProductHero'daki
+  `assemblyVideoAutoPlay` dahil). Facade zaten tıklamada `autoplay=1` ile açıyor;
+  YouTube sayfa yükünde sesli otomatik oynatmayı zaten engelliyor.
+- **Admin:** yeni `ProductVideoLinksCard` (iki input + thumbnail önizleme) hem
+  Create hem Edit dialog'unda kullanılıyor; form şeması aynı parser'la refine ediyor,
+  boş input backend'e `null` gidiyor (alanı temizler).
+- **i18n:** `public.productDetail.quickNav.promoVideo`, `assets.promoVideo.*`,
+  `assets.videoPlay` (tr/en, 846=846). QuickNav'a tanıtım videosu maddesi eklendi.
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (118 warning;
++2'si yeni bileşenlerdeki bilinçli `<img>` kullanımı) · core 174/174 ✅ (25'i yeni
+`youtubeVideo.test.ts`) · functions 8/8 ✅ · frontend 16/16 ✅ · i18n 846=846 ✅.
+
+**Kullanıcıda bekleyen:** kubi'de `prisma migrate dev --name product_youtube_videos`.
+Enum değeri düşürme Postgres'te tipi yeniden yaratmayı gerektiriyor; `Asset` tablosunda
+`ASSEMBLY_VIDEO` satırı varsa `USING` cast'i patlar → migration öncesi
+`SELECT count(*) FROM "Asset" WHERE role='ASSEMBLY_VIDEO';` kontrol edilmeli.
+
+**Kapsam dışı bırakıldı (ayrı iş):**
+- **S3 orphan temizliği** — endüstriyel kullanım görseli değiştirilince/kaldırılınca eski
+  dosya S3'te kalıyor; `updateProductHandler`'da `deleteS3Objects` çağrısı yok, temizlik
+  yalnız `industrialUsageAssignments` toplu atama yolunda var. Locale başına görsel
+  gelince (bkz. Dilim B) bu risk ikiye katlanıyor.
+- **Video linklerinin locale'e göre değişmesi** — şu an tüm dillerde ortak.
+  `ProductTranslation`'a override eklenebilir.
+- **Ölü dosyalar** — `features/admin/products/api/deleteProductAsset.ts` ve
+  `hooks/useDeleteProductAsset.ts` (0 byte), `ProductAssetsUploader.tsx` (hiçbir yerden
+  import edilmiyor).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

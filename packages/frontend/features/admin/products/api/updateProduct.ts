@@ -24,6 +24,13 @@ type Params = {
     attributeValueIds?: string[]
     industrialUsages?: ProductIndustrialUsageFormValues[]
     translations?: ProductTranslationFormValues[]
+    assemblyVideoUrl?: string | null
+    promoVideoUrl?: string | null
+}
+
+// Boş input = "alanı temizle" → backend null görmeli, "" değil.
+function serializeVideoUrl(value?: string | null) {
+    return value?.trim() ? value.trim() : null
 }
 
 function serializeIndustrialUsages(industrialUsages?: ProductIndustrialUsageFormValues[]) {
@@ -49,6 +56,8 @@ export async function updateProduct({
     attributeValueIds,
     industrialUsages,
     translations,
+    assemblyVideoUrl,
+    promoVideoUrl,
 }: Params): Promise<Product> {
     const res = await adminApiClient.put<UpdateProductResponse>(
         `/products/${id}`,
@@ -64,6 +73,8 @@ export async function updateProduct({
             attributeValueIds,
             industrialUsages: serializeIndustrialUsages(industrialUsages),
             translations: serializeTranslations(translations),
+            assemblyVideoUrl: serializeVideoUrl(assemblyVideoUrl),
+            promoVideoUrl: serializeVideoUrl(promoVideoUrl),
         }
     )
     return res.data.payload.product

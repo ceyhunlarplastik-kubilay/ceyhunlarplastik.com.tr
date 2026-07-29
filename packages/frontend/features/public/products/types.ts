@@ -7,6 +7,9 @@ export type Product = {
     name: string;
     slug: string;
     description?: string | null;
+    // YouTube watch URL'leri (S3 asset'i değil) — bkz. core/helpers/products/youtubeVideo
+    assemblyVideoUrl?: string | null;
+    promoVideoUrl?: string | null;
     locale?: string;
     resolvedLocale?: string;
     translationMissing?: boolean;

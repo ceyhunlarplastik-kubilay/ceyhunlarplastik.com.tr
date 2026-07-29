@@ -78,7 +78,7 @@ export function NavbarClient({
 
                 {/* MAIN NAVBAR */}
                 {/* <div className="bg-background/70 backdrop-blur-sm shadow-sm"> */}
-                <div className="bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 border-b border-neutral-200/60 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+                <div className="bg-white/80 backdrop-blur-xl supports-backdrop-filter:bg-white/60 border-b border-neutral-200/60 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
                     <NavigationHeader
                         isVisible={isVisible}
                         rightActions={
