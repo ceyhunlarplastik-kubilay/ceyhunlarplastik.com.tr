@@ -5,6 +5,7 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateProductDependencies, ICreateProductEvent } from "@/functions/AdminApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 import {
+    assertAttributeValuesAllowedForCategory,
     assertNoIndustrialAttributeValues,
     buildProductIndustrialUsageCreateInputs,
     normalizeProductIndustrialUsages,
@@ -16,31 +17,8 @@ import {
 } from "@/core/helpers/products/productTranslations"
 import { normalizeProductVideoUrls } from "@/core/helpers/products/productVideos"
 
-function isAttributeValueAllowedWithParents(
-    allowedIds: Set<string>,
-    value: {
-        id: string
-        parentValueId?: string | null
-        parentValue?: {
-            id: string
-            parentValueId?: string | null
-            parentValue?: {
-                id: string
-                parentValueId?: string | null
-            } | null
-        } | null
-    } | null
-) {
-    if (!value?.id) return false
-    if (allowedIds.has(value.id)) return true
-    if (value.parentValueId && allowedIds.has(value.parentValueId)) return true
-    if (value.parentValue?.id && allowedIds.has(value.parentValue.id)) return true
-    if (value.parentValue?.parentValueId && allowedIds.has(value.parentValue.parentValueId)) return true
-    if (value.parentValue?.parentValue?.id && allowedIds.has(value.parentValue.parentValue.id)) return true
-    return false
-}
-
-export const createProductHandler = ({ productRepository, categoryRepository, assetRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
+// assetRepository artık gerekmiyor: asset kaydı ürün create'ine nested edildi.
+export const createProductHandler = ({ productRepository, categoryRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
     return async (event: ICreateProductEvent) => {
         const { code, name, description, categoryId, attributeValueIds, industrialUsages, translations, assemblyVideoUrl, promoVideoUrl, assetType, assetRole, assetKey, mimeType } = event.body;
 
@@ -59,19 +37,11 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
             )
             const normalizedVideoUrls = normalizeProductVideoUrls({ assemblyVideoUrl, promoVideoUrl })
 
-            const allowedAttributeValueIds = (category as any).allowedAttributeValueIds as string[] | undefined
-            if (attributeValueIds?.length && allowedAttributeValueIds && allowedAttributeValueIds.length > 0) {
-                const allowedSet = new Set(allowedAttributeValueIds)
-                const valueDetails = await Promise.all(
-                    attributeValueIds.map((valueId) => productAttributeValueRepository.getValueById(valueId))
-                )
-                const invalidAttributeValueIds = attributeValueIds.filter((valueId, index) =>
-                    !isAttributeValueAllowedWithParents(allowedSet, valueDetails[index] as any)
-                )
-                if (invalidAttributeValueIds.length > 0) {
-                    throw new createError.BadRequest("Some selected attribute values are not allowed for this category")
-                }
-            }
+            await assertAttributeValuesAllowedForCategory(
+                productAttributeValueRepository,
+                attributeValueIds,
+                (category as any).allowedAttributeValueIds as string[] | undefined,
+            )
 
             const slug = slugify(name, { lower: true, strict: true, locale: "tr" })
             const normalizedTranslations = normalizeProductTranslations({
@@ -82,7 +52,7 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
                 requireTurkish: true,
             })
 
-            let product = await productRepository.createProduct({
+            const product = await productRepository.createProduct({
                 code,
                 name,
                 description,
@@ -104,24 +74,22 @@ export const createProductHandler = ({ productRepository, categoryRepository, as
                         create: buildProductIndustrialUsageCreateInputs(normalizedIndustrialUsages),
                     }
                     : undefined,
+                // ✅ Asset kaydı: dosya client tarafından S3'e yüklendi, burada
+                // yalnız DB kaydı açılıyor. Nested create sayesinde ürün dönüşü
+                // asset'i zaten içeriyor; ayrı bir createAsset + yeniden okuma
+                // (iki ekstra round-trip) gerekmiyor. `unsetProductPrimaryAssets`
+                // de gerekmiyor: yeni ürünün önceki bir PRIMARY asset'i olamaz.
+                assets: assetType && assetKey && mimeType
+                    ? {
+                        create: {
+                            key: assetKey,
+                            mimeType,
+                            type: assetType,
+                            role: assetRole ?? "GALLERY",
+                        },
+                    }
+                    : undefined,
             })
-
-            // ✅ Asset kaydı: client S3'e upload ettiyse sadece DB kaydı oluştur
-            if (assetType && assetKey && mimeType) {
-
-                if (assetRole === "PRIMARY") {
-                    await assetRepository.unsetProductPrimaryAssets(product.id)
-                }
-                await assetRepository.createAsset({
-                    key: assetKey,
-                    mimeType,
-                    type: assetType,
-                    role: assetRole ?? "GALLERY",
-                    product: { connect: { id: product.id } },
-                })
-
-                product = await productRepository.getProduct(product.id) as typeof product;
-            }
 
             return apiResponseDTO({
                 statusCode: 201,

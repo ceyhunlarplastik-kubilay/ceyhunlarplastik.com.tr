@@ -6,6 +6,8 @@ function createRepository(values: Record<string, ProductAttributeValueWithAttrib
     return {
         listValues: async () => [],
         getValueById: async (id: string) => values[id] ?? null,
+        // Bu senaryolarda kullanılmıyor; sözleşmeyi karşılamak için stub.
+        getValuesForValidation: async () => [],
         createValue: async () => {
             throw new Error("not implemented")
         },

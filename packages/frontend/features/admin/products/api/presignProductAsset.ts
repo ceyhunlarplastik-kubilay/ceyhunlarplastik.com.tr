@@ -10,6 +10,8 @@ type Params = {
     fileName: string
     contentType: string
     purpose?: ProductAssetUploadPurpose
+    /** INDUSTRIAL_USAGE_IMAGE için: görselin dili, S3 key'ine segment olarak girer. */
+    locale?: "tr" | "en"
 }
 
 export async function presignProductAsset({
@@ -18,6 +20,7 @@ export async function presignProductAsset({
     fileName,
     contentType,
     purpose,
+    locale,
 }: Params): Promise<PresignProductAssetResponse["payload"]> {
     const res = await adminApiClient.post<PresignProductAssetResponse>(
         "/products/assets/presign",
@@ -27,6 +30,7 @@ export async function presignProductAsset({
             fileName,
             contentType,
             purpose,
+            locale,
         }
     )
 

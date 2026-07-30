@@ -6,6 +6,7 @@ import { Factory, ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Field, FieldLabel } from "@/components/ui/field"
 import {
     Select,
     SelectContent,
@@ -16,7 +17,12 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { usePresignProductAsset } from "@/features/admin/products/hooks/usePresignProductAsset"
-import type { ProductIndustrialUsageFormValues } from "@/features/admin/products/schema/productFormSchema"
+import {
+    PRODUCT_FORM_DEFAULT_LOCALE,
+    PRODUCT_FORM_LOCALE_LABELS,
+    type ProductFormLocale,
+    type ProductIndustrialUsageFormValues,
+} from "@/features/admin/products/schema/productFormSchema"
 
 const NONE_VALUE = "__none__"
 const INDUSTRIAL_ATTRIBUTE_CODES = {
@@ -35,6 +41,8 @@ type Props = {
     productSlug: string
     value: ProductIndustrialUsageFormValues[]
     onChange: (value: ProductIndustrialUsageFormValues[]) => void
+    /** Dialog'un locale sekmesinden gelir; metin ve gorsel bu dile gore gosterilir. */
+    activeLocale: ProductFormLocale
 }
 
 function normalizeRows(rows: ProductIndustrialUsageFormValues[]) {
@@ -51,21 +59,49 @@ function normalizeRows(rows: ProductIndustrialUsageFormValues[]) {
     }))
 }
 
+type UploadSlot = { index: number; locale: ProductFormLocale }
+
+function getTranslation(row: ProductIndustrialUsageFormValues, locale: ProductFormLocale) {
+    return row.translations?.find((translation) => translation.locale === locale)
+}
+
+/**
+ * Aktif dilin metni/gorseli nerede yasiyor?
+ *  - varsayilan dil -> satirin kendi `usageFunction` / `imageKey` kolonlari
+ *  - hedef dil       -> `translations[locale]` girdisi
+ */
+function readLocaleContent(row: ProductIndustrialUsageFormValues, locale: ProductFormLocale) {
+    if (locale === PRODUCT_FORM_DEFAULT_LOCALE) {
+        return {
+            usageFunction: row.usageFunction ?? "",
+            imageKey: row.imageKey ?? null,
+            imageUrl: row.imageUrl ?? null,
+        }
+    }
+
+    const translation = getTranslation(row, locale)
+
+    return {
+        usageFunction: translation?.usageFunction ?? "",
+        imageKey: translation?.imageKey ?? null,
+        imageUrl: translation?.imageUrl ?? null,
+    }
+}
+
 function keepSelectedOption(options: AttributeValueOption[], allOptions: AttributeValueOption[], selectedId?: string | null) {
     if (!selectedId || options.some((item) => item.id === selectedId)) return options
     const selected = allOptions.find((item) => item.id === selectedId)
     return selected ? [selected, ...options] : options
 }
 
-export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: Props) {
+export function ProductIndustrialUsageEditor({ productSlug, value, onChange, activeLocale }: Props) {
     const { data: attributes, isLoading } = useAttributesForFilter()
     const presignMutation = usePresignProductAsset()
-    const [uploadingRowIndex, setUploadingRowIndex] = useState<number | null>(null)
+    const [uploadingSlot, setUploadingSlot] = useState<UploadSlot | null>(null)
     // Latest-ref deseni: updateRow/emit event handler'ları en güncel `value`
     // prop'unu bayat closure olmadan okusun diye render'da senkronlanır. Effect'e
     // taşımak ref'i bir commit geciktirir → art arda satır düzenlemelerinde veri
     // kaybı. Bu bilinçli, yaygın ve güvenli bir kullanım.
-    // eslint-disable-next-line react-hooks/refs
     const valueRef = useRef(value)
     // eslint-disable-next-line react-hooks/refs
     valueRef.current = value
@@ -111,7 +147,54 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
         emit(valueRef.current.filter((_, rowIndex) => rowIndex !== index))
     }
 
-    async function handleSelectImage(index: number, file?: File | null) {
+    /**
+     * Hedef dilin çeviri girdisini yamalar. Girdi ancak METİN VE GÖRSEL birlikte
+     * boşsa diziden düşürülür — yalnız metne bakmak görseli de silerdi. Diziden
+     * düşen locale backend'de o satırı sildirir.
+     */
+    function patchTranslation(
+        index: number,
+        locale: ProductFormLocale,
+        patch: { usageFunction?: string | null; imageKey?: string | null; imageUrl?: string | null },
+    ) {
+        const current = valueRef.current[index]
+        if (!current) return
+
+        const currentTranslations = current.translations ?? []
+        const currentEntry = currentTranslations.find((translation) => translation.locale === locale)
+        const otherTranslations = currentTranslations.filter((translation) => translation.locale !== locale)
+
+        const nextEntry = {
+            locale,
+            usageFunction: patch.usageFunction !== undefined
+                ? patch.usageFunction
+                : currentEntry?.usageFunction ?? null,
+            imageKey: patch.imageKey !== undefined ? patch.imageKey : currentEntry?.imageKey ?? null,
+            imageUrl: patch.imageUrl !== undefined ? patch.imageUrl : currentEntry?.imageUrl ?? null,
+        }
+
+        const isEmpty = !nextEntry.usageFunction?.trim() && !nextEntry.imageKey
+
+        updateRow(index, {
+            translations: isEmpty ? otherTranslations : [...otherTranslations, nextEntry],
+        })
+    }
+
+    /** Aktif dile göre doğru yere yazar: varsayılan dil satırın kolonlarına, diğerleri çeviriye. */
+    function writeLocaleContent(
+        index: number,
+        locale: ProductFormLocale,
+        patch: { usageFunction?: string | null; imageKey?: string | null; imageUrl?: string | null },
+    ) {
+        if (locale === PRODUCT_FORM_DEFAULT_LOCALE) {
+            updateRow(index, patch)
+            return
+        }
+
+        patchTranslation(index, locale, patch)
+    }
+
+    async function handleSelectImage(index: number, locale: ProductFormLocale, file?: File | null) {
         if (!file) return
 
         if (!file.type.startsWith("image/")) {
@@ -119,7 +202,7 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
             return
         }
 
-        setUploadingRowIndex(index)
+        setUploadingSlot({ index, locale })
 
         try {
             const presigned = await presignMutation.mutateAsync({
@@ -127,6 +210,7 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
                 fileName: file.name,
                 contentType: file.type,
                 purpose: "INDUSTRIAL_USAGE_IMAGE",
+                locale,
             })
 
             await axios.put(presigned.uploadUrl, file, {
@@ -135,83 +219,61 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
                 },
             })
 
-            updateRow(index, {
-                imageKey: presigned.key,
-                imageUrl: presigned.url,
-            })
+            writeLocaleContent(index, locale, { imageKey: presigned.key, imageUrl: presigned.url })
 
-            toast.success("Kullanım görseli yüklendi")
+            // Dosya S3'e gitti ama imageKey henüz yalnız form state'inde;
+            // DB'ye ancak ürün kaydedilince yazılıyor.
+            toast.success("Görsel yüklendi — kalıcı olması için ürünü kaydedin")
         } catch {
             toast.error("Kullanım görseli yüklenemedi")
         } finally {
-            setUploadingRowIndex(null)
+            setUploadingSlot(null)
         }
     }
 
-    function clearImage(index: number) {
-        updateRow(index, {
-            imageKey: null,
-            imageUrl: null,
-        })
+    function clearImage(index: number, locale: ProductFormLocale) {
+        writeLocaleContent(index, locale, { imageKey: null, imageUrl: null })
     }
 
-    function getEnglishUsageFunction(row: ProductIndustrialUsageFormValues) {
-        return row.translations?.find((translation) => translation.locale === "en")?.usageFunction ?? ""
-    }
-
-    function updateEnglishUsageFunction(index: number, usageFunction: string) {
-        const current = valueRef.current[index]
-        if (!current) return
-
-        const otherTranslations = (current.translations ?? []).filter(
-            (translation) => translation.locale !== "en",
-        )
-
-        updateRow(index, {
-            translations: usageFunction.trim()
-                ? [
-                    ...otherTranslations,
-                    {
-                        locale: "en",
-                        usageFunction,
-                    },
-                ]
-                : otherTranslations,
-        })
-    }
+    const isDefaultLocale = activeLocale === PRODUCT_FORM_DEFAULT_LOCALE
+    const localeLabel = PRODUCT_FORM_LOCALE_LABELS[activeLocale]
 
     return (
-        <section className="rounded-2xl border border-amber-200/70 bg-amber-50/40 p-5 shadow-sm">
+        <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                    <div className="rounded-2xl border border-amber-200 bg-white p-2 text-amber-700 shadow-sm">
+                    <div className="rounded-lg bg-brand/10 p-2 text-brand">
                         <Factory className="h-4 w-4" />
                     </div>
-                    <div>
-                        <div className="text-sm font-semibold text-neutral-900">Endüstriyel Kullanım Alanları</div>
-                        <p className="mt-1 max-w-2xl text-xs leading-5 text-neutral-600">
-                            Sektör, üretim grubu ve kullanım alanı artık kategori filtre attribute&apos;u değil; ürünün endüstriyel kullanım satırları olarak yönetilir.
+                    <div className="space-y-1">
+                        <h3 className="text-sm font-semibold tracking-tight text-neutral-900">
+                            Endüstriyel kullanım alanları
+                        </h3>
+                        <p className="max-w-prose text-xs leading-5 text-neutral-500">
+                            Sektör, üretim grubu ve kullanım alanı kategori filtre attribute&apos;u değil; ürünün
+                            kullanım satırları olarak yönetilir. Metin ve görsel{" "}
+                            <strong className="font-semibold text-neutral-700">{localeLabel}</strong> için düzenleniyor.
                         </p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="rounded-full border-amber-200 bg-white text-amber-800">
+                    <Badge variant="secondary" className="rounded-full tabular-nums">
                         {value.length} satır
                     </Badge>
-                    <Button type="button" size="sm" onClick={addRow} className="rounded-full">
+                    <Button type="button" size="sm" variant="outline" onClick={addRow}>
                         <Plus className="mr-1.5 h-4 w-4" />
-                        Satır Ekle
+                        Satır ekle
                     </Button>
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="rounded-2xl border border-dashed border-amber-200 bg-white/70 px-4 py-5 text-sm text-neutral-500">
+                <div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-4 py-5 text-sm text-neutral-500">
                     Endüstriyel taxonomy değerleri yükleniyor...
                 </div>
             ) : value.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-amber-200 bg-white/70 px-4 py-6 text-sm text-neutral-600">
+                <div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-4 py-6 text-sm text-neutral-600">
                     Henüz kullanım satırı eklenmedi. Ürün detayındaki endüstriyel kullanım tablosunu ve müşteri profil eşleşmesini beslemek için satır ekleyin.
                 </div>
             ) : (
@@ -225,9 +287,12 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
                             : usageAreaValues
                         const productionOptions = keepSelectedOption(visibleProductionGroups, productionGroupValues, row.productionGroupValueId)
                         const usageAreaOptions = keepSelectedOption(visibleUsageAreas, usageAreaValues, row.usageAreaValueId)
+                        const localeContent = readLocaleContent(row, activeLocale)
+                        const isUploadingThisRow =
+                            uploadingSlot?.index === index && uploadingSlot.locale === activeLocale
 
                         return (
-                            <div key={index} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                            <div key={index} className="rounded-lg border border-neutral-200 bg-neutral-50/60 p-4">
                                 <div className="mb-3 flex items-center justify-between gap-3">
                                     <div className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-400">
                                         Satır {index + 1}
@@ -309,80 +374,91 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange }: P
                                     </Select>
                                 </div>
 
-                                <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_260px]">
-                                    <Textarea
-                                        value={row.usageFunction ?? ""}
-                                        onChange={(event) => updateRow(index, { usageFunction: event.target.value })}
-                                        rows={5}
-                                        className="rounded-xl"
-                                        placeholder="Bu ürün bu kullanım alanında nasıl fayda sağlar? Örn. Çekyat gövdesine cıvata bağlantısı ile sabitlenerek sağlam taşıyıcı ayak görevi görür."
-                                    />
+                                <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(240px,300px)]">
+                                    <Field>
+                                        <FieldLabel className="text-xs">
+                                            Kullanım fonksiyonu · {localeLabel}
+                                        </FieldLabel>
+                                        <Textarea
+                                            value={localeContent.usageFunction}
+                                            onChange={(event) =>
+                                                writeLocaleContent(index, activeLocale, {
+                                                    usageFunction: event.target.value,
+                                                })
+                                            }
+                                            rows={6}
+                                            placeholder={
+                                                isDefaultLocale
+                                                    ? "Bu ürün bu kullanım alanında nasıl fayda sağlar? Örn. Çekyat gövdesine cıvata bağlantısı ile sabitlenerek sağlam taşıyıcı ayak görevi görür."
+                                                    : `${localeLabel} kullanım fonksiyonu — boş bırakılırsa Türkçe metin gösterilir.`
+                                            }
+                                        />
+                                    </Field>
 
-                                    <Textarea
-                                        value={getEnglishUsageFunction(row)}
-                                        onChange={(event) => updateEnglishUsageFunction(index, event.target.value)}
-                                        rows={5}
-                                        className="rounded-xl"
-                                        placeholder="English usage function"
-                                    />
+                                    <Field>
+                                        <FieldLabel className="text-xs">
+                                            Örnek görsel · {localeLabel}
+                                        </FieldLabel>
 
-                                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3">
-                                        <div className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
-                                            Örnek Görsel
-                                        </div>
-
-                                        {row.imageUrl ? (
-                                            <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+                                        {localeContent.imageUrl ? (
+                                            <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white">
                                                 <div className="aspect-[4/3] bg-neutral-100">
+                                                    {/* Next Image kullanılmaz: geçici presign URL'leri remotePatterns'e girmiyor. */}
                                                     <img
-                                                        src={row.imageUrl}
-                                                        alt={`${row.usageAreaValueId ?? "industrial-usage"} gorseli`}
+                                                        src={localeContent.imageUrl}
+                                                        alt={`Kullanım görseli (${activeLocale})`}
                                                         className="h-full w-full object-cover"
                                                     />
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-neutral-300 bg-white text-center text-xs leading-5 text-neutral-500">
-                                                Bu kullanım satırı için henüz görsel eklenmedi.
+                                            <div className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-neutral-300 bg-white px-3 text-center text-xs leading-4 text-neutral-500">
+                                                {isDefaultLocale
+                                                    ? "Bu satır için henüz görsel eklenmedi."
+                                                    : `${localeLabel} görseli yoksa Türkçe görsel kullanılır.`}
                                             </div>
                                         )}
 
-                                        <div className="mt-3 flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap items-center gap-1.5">
                                             <label className="cursor-pointer">
                                                 <input
                                                     type="file"
                                                     accept="image/*"
                                                     className="hidden"
-                                                    disabled={uploadingRowIndex !== null}
+                                                    disabled={uploadingSlot !== null}
                                                     onChange={(event) => {
-                                                        void handleSelectImage(index, event.target.files?.[0])
+                                                        void handleSelectImage(index, activeLocale, event.target.files?.[0])
                                                         event.currentTarget.value = ""
                                                     }}
                                                 />
-                                                <span className="inline-flex h-9 items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 text-xs font-medium text-neutral-700 transition hover:bg-neutral-100">
-                                                    {uploadingRowIndex === index ? (
-                                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                <span className="inline-flex h-8 items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-700 transition-colors duration-200 hover:bg-neutral-100">
+                                                    {isUploadingThisRow ? (
+                                                        <Loader2 className="h-3 w-3 animate-spin" />
                                                     ) : (
-                                                        <ImagePlus className="h-3.5 w-3.5" />
+                                                        <ImagePlus className="h-3 w-3" />
                                                     )}
-                                                    {row.imageKey ? "Görseli Değiştir" : "Görsel Yükle"}
+                                                    {localeContent.imageKey ? "Değiştir" : "Yükle"}
                                                 </span>
                                             </label>
 
-                                            {row.imageKey ? (
+                                            {localeContent.imageKey ? (
                                                 <Button
                                                     type="button"
                                                     size="sm"
-                                                    variant="outline"
-                                                    className="h-9 rounded-full px-3 text-xs"
-                                                    onClick={() => clearImage(index)}
+                                                    variant="ghost"
+                                                    className="h-8 px-2 text-xs text-neutral-500 hover:text-red-600"
+                                                    onClick={() => clearImage(index, activeLocale)}
                                                 >
-                                                    <X className="mr-1.5 h-3.5 w-3.5" />
-                                                    Görseli Kaldır
+                                                    <X className="mr-1 h-3 w-3" />
+                                                    Kaldır
                                                 </Button>
                                             ) : null}
                                         </div>
-                                    </div>
+
+                                        <p className="text-[11px] leading-4 text-neutral-500">
+                                            Görseller <strong className="font-semibold">ürün kaydedilene kadar</strong> kalıcı olmaz.
+                                        </p>
+                                    </Field>
                                 </div>
                             </div>
                         )

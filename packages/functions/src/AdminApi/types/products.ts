@@ -70,6 +70,8 @@ export interface ICreateProductAssetUploadBody {
     fileName: string
     contentType: string
     purpose?: "PRODUCT_ASSET" | "INDUSTRIAL_USAGE_IMAGE"
+    /** INDUSTRIAL_USAGE_IMAGE için: görselin hangi dile ait olduğu (key'e segment olarak girer). */
+    locale?: string
 }
 
 export type ICreateProductAssetUploadEvent =

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import slugify from "slugify"
 import { useForm, Controller, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -10,8 +10,9 @@ import { Loader2 } from "lucide-react"
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
-    DialogTitle
+    DialogTitle,
 } from "@/components/ui/dialog"
 
 import { Button } from "@/components/ui/button"
@@ -23,13 +24,6 @@ import {
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field"
-
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupText,
-    InputGroupTextarea,
-} from "@/components/ui/input-group"
 
 import {
     Select,
@@ -45,7 +39,20 @@ import { ProductAssetManager } from "@/features/admin/products/components/asset/
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
 import { ProductIndustrialUsageEditor } from "@/features/admin/products/components/ProductIndustrialUsageEditor"
 import { ProductVideoLinksCard } from "@/features/admin/products/components/ProductVideoLinksCard"
-import { productFormSchema, ProductFormValues } from "../schema/productFormSchema"
+import { buildProductUpdatePayload } from "@/features/admin/products/api/serializeProductPayload"
+import { ProductFormSection } from "@/features/admin/products/components/ProductFormSection"
+import { ProductLocaleSelect } from "@/features/admin/products/components/ProductLocaleSelect"
+import { ProductTranslatableFields } from "@/features/admin/products/components/ProductTranslatableFields"
+import {
+    PRODUCT_FORM_DEFAULT_LOCALE,
+    PRODUCT_FORM_LOCALES,
+    buildProductTranslationDefaults,
+    isProductFormLocale,
+    productFormSchema,
+    productTranslationIndex,
+    type ProductFormLocale,
+    type ProductFormValues,
+} from "../schema/productFormSchema"
 
 import type { Product } from "@/features/public/products/types"
 import type { Category } from "@/features/public/categories/types"
@@ -78,8 +85,11 @@ export function EditProductDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Ürün Düzenle</DialogTitle>
+                <DialogHeader className="space-y-1">
+                    <DialogTitle>Ürünü düzenle</DialogTitle>
+                    <DialogDescription>
+                        Dile bağlı alanlar seçili dile yazılır; kod, kategori ve medya tüm diller için ortaktır.
+                    </DialogDescription>
                 </DialogHeader>
 
                 {isError ? (
@@ -99,6 +109,7 @@ export function EditProductDialog({
                         product={fullProduct}
                         categories={categories}
                         onUpdated={onUpdated}
+                        refetchProduct={refetch}
                     />
                 )}
             </DialogContent>
@@ -110,11 +121,12 @@ type EditProductFormProps = {
     product: Product
     categories: Category[]
     onUpdated: (product: Product) => void
+    /** Asset yüklendikten sonra tam ürünü tazeler (eskiden location.reload() vardı). */
+    refetchProduct: () => Promise<unknown>
 }
 
-function EditProductForm({ product, categories, onUpdated }: EditProductFormProps) {
+function EditProductForm({ product, categories, onUpdated, refetchProduct }: EditProductFormProps) {
     const updateMutation = useUpdateProduct()
-    const englishTranslation = product.translations?.find((translation) => translation.locale === "en")
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -135,23 +147,28 @@ function EditProductForm({ product, categories, onUpdated }: EditProductFormProp
                 usageAreaValueId: usage.usageAreaValueId ?? null,
                 usageFunction: usage.usageFunction ?? "",
                 translations: usage.translations
-                    ?.filter((translation) => translation.locale === "tr" || translation.locale === "en")
+                    ?.filter((translation) => isProductFormLocale(translation.locale))
                     .map((translation) => ({
-                        locale: translation.locale as "tr" | "en",
+                        locale: translation.locale as ProductFormLocale,
                         usageFunction: translation.usageFunction,
+                        imageKey: translation.imageKey ?? null,
+                        imageUrl: translation.imageUrl ?? null,
                     })) ?? [],
                 imageKey: usage.imageKey ?? null,
                 imageUrl: usage.imageUrl ?? null,
                 displayOrder: usage.displayOrder ?? index,
             })) ?? [],
-            translations: [{
-                locale: "en",
-                name: englishTranslation?.name ?? "",
-                slug: englishTranslation?.slug ?? "",
-                description: englishTranslation?.description ?? "",
-            }],
+            translations: buildProductTranslationDefaults(product.translations),
         },
     })
+
+    // RHF `formState` bir Proxy: hangi alana abone olunacağını RENDER sırasındaki
+    // okumalardan çıkarıyor. `dirtyFields`'i yalnız onSubmit içinde okumak abonelik
+    // kurmaz ve alan boş kalır → istek 200 döner ama hiçbir şeyi değiştirmez.
+    // Bu yüzden burada, render gövdesinde okunuyor.
+    const { dirtyFields } = form.formState
+    const [activeLocale, setActiveLocale] = useState<ProductFormLocale>(PRODUCT_FORM_DEFAULT_LOCALE)
+    const watchedTranslations = useWatch({ control: form.control, name: "translations" })
 
     const selectedCategoryId = useWatch({ control: form.control, name: "categoryId" })
     const watchedName = useWatch({ control: form.control, name: "name" })
@@ -163,9 +180,13 @@ function EditProductForm({ product, categories, onUpdated }: EditProductFormProp
 
     async function onSubmit(data: ProductFormValues) {
         try {
+            // Yalnız değişen alanlar gönderilir; handler gönderilmeyen alan için
+            // hiç iş yapmıyor (çeviri upsert'i, industrialUsages normalizasyonu,
+            // attribute doğrulaması hepsi koşullu). Hiçbir alan kirli değilse
+            // buildProductUpdatePayload tüm veriyi döndürür — bkz. güvenlik ağı.
             const updated = await updateMutation.mutateAsync({
                 id: product.id,
-                ...data
+                ...buildProductUpdatePayload(data, dirtyFields),
             })
 
             toast.success("Ürün güncellendi")
@@ -175,169 +196,137 @@ function EditProductForm({ product, categories, onUpdated }: EditProductFormProp
         }
     }
 
+    const filledLocales = PRODUCT_FORM_LOCALES.filter((locale) => {
+        if (locale === PRODUCT_FORM_DEFAULT_LOCALE) return true
+        const translation = watchedTranslations?.[productTranslationIndex(locale)]
+        return Boolean(translation?.name?.trim())
+    })
+
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-12 gap-6">
-                        <div className="col-span-4">
-                            <FieldGroup>
-                                <Controller
-                                    name="name"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel>Ürün Adı</FieldLabel>
-                                            <Input {...field} />
-                                        </Field>
-                                    )}
-                                />
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Tek kolon: tüm bölüm başlıkları alt alta hizalanır. */}
+            <div className="space-y-4">
+                <ProductFormSection
+                    narrow
+                    title="Tanımlayıcılar"
+                    description="Koda ve kategoriye bağlı alanlar; dile göre değişmez."
+                >
+                    <FieldGroup>
+                        <Controller
+                            name="code"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel>Ürün kodu</FieldLabel>
+                                    <Input {...field} className="font-mono tabular-nums" />
+                                    {fieldState.error ? <FieldError errors={[fieldState.error]} /> : null}
+                                </Field>
+                            )}
+                        />
 
-                                <Controller
-                                    name="code"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel>Kod</FieldLabel>
-                                            <Input {...field} />
-                                        </Field>
-                                    )}
-                                />
+                        <Controller
+                            name="categoryId"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel>Kategori</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Kategori seç" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {categories.map((cat) => (
+                                                <SelectItem key={cat.id} value={cat.id}>
+                                                    <span className="font-mono tabular-nums text-xs text-neutral-500">
+                                                        {cat.code}
+                                                    </span>
+                                                    {" · "}
+                                                    {cat.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {fieldState.error ? <FieldError errors={[fieldState.error]} /> : null}
+                                </Field>
+                            )}
+                        />
+                    </FieldGroup>
+                </ProductFormSection>
 
-                                <Controller
-                                    name="categoryId"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel>Kategori</FieldLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Kategori seç" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {categories.map((cat) => (
-                                                        <SelectItem key={cat.id} value={cat.id}>
-                                                            {cat.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {fieldState.error && <FieldError errors={[fieldState.error]} />}
-                                        </Field>
-                                    )}
-                                />
+                <ProductFormSection
+                    narrow
+                    title="İçerik"
+                    description="Ad, slug ve açıklama seçili dile yazılır."
+                    actions={
+                        <ProductLocaleSelect
+                            value={activeLocale}
+                            onChange={setActiveLocale}
+                            filledLocales={filledLocales}
+                        />
+                    }
+                >
+                    <ProductTranslatableFields
+                        control={form.control}
+                        locale={activeLocale}
+                        slugPreview={productSlug}
+                    />
+                </ProductFormSection>
 
-                                <Controller
-                                    name="description"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <Field>
-                                            <FieldLabel>Açıklama</FieldLabel>
-                                            <InputGroup>
-                                                <InputGroupTextarea {...field} rows={4} className="min-h-[120px]" />
-                                                <InputGroupAddon align="block-end">
-                                                    <InputGroupText>{field.value?.length ?? 0}/500</InputGroupText>
-                                                </InputGroupAddon>
-                                            </InputGroup>
-                                        </Field>
-                                    )}
-                                />
+                <ProductVideoLinksCard control={form.control} />
 
-                                <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-                                    <div className="mb-4 space-y-1">
-                                        <div className="text-sm font-semibold text-neutral-900">İngilizce Çeviri</div>
-                                        <div className="text-xs text-neutral-500">Slug boş bırakılırsa İngilizce addan üretilir. EN ad boşsa mevcut çeviri korunur.</div>
-                                    </div>
+                <ProductFormSection
+                    title="Medya"
+                    description="Rolüne göre gruplanmış ürün dosyaları."
+                >
+                    <ProductAssetManager
+                        product={product}
+                        refetchProduct={async () => {
+                            await refetchProduct()
+                        }}
+                    />
+                </ProductFormSection>
 
-                                    <div className="space-y-4">
-                                        <Controller
-                                            name="translations.0.name"
-                                            control={form.control}
-                                            render={({ field }) => (
-                                                <Field>
-                                                    <FieldLabel>EN Ürün Adı</FieldLabel>
-                                                    <Input {...field} value={field.value ?? ""} />
-                                                </Field>
-                                            )}
-                                        />
-
-                                        <Controller
-                                            name="translations.0.slug"
-                                            control={form.control}
-                                            render={({ field }) => (
-                                                <Field>
-                                                    <FieldLabel>EN Slug</FieldLabel>
-                                                    <Input {...field} value={field.value ?? ""} />
-                                                </Field>
-                                            )}
-                                        />
-
-                                        <Controller
-                                            name="translations.0.description"
-                                            control={form.control}
-                                            render={({ field }) => (
-                                                <Field>
-                                                    <FieldLabel>EN Açıklama</FieldLabel>
-                                                    <InputGroup>
-                                                        <InputGroupTextarea
-                                                            {...field}
-                                                            value={field.value ?? ""}
-                                                            rows={4}
-                                                            className="min-h-[108px]"
-                                                        />
-                                                        <InputGroupAddon align="block-end">
-                                                            <InputGroupText>{field.value?.length ?? 0}/500</InputGroupText>
-                                                        </InputGroupAddon>
-                                                    </InputGroup>
-                                                </Field>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-
-                                <Controller
-                                    name="attributeValueIds"
-                                    control={form.control}
-                                    render={({ field }) => (
-                                        <ProductAttributeSelect
-                                            value={field.value ?? []}
-                                            onChange={field.onChange}
-                                            allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
-                                            singleSelectNonHierarchy
-                                            excludeAttributeCodes={PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES}
-                                        />
-                                    )}
-                                />
-
-                                <Button type="submit" disabled={updateMutation.isPending}>
-                                    {updateMutation.isPending ? "Kaydediliyor..." : "Kaydet"}
-                                </Button>
-                            </FieldGroup>
-                        </div>
-
-                        <div className="col-span-8">
-                            <ProductAssetManager
-                                product={product}
-                                refetchProduct={async () => location.reload()}
+                <ProductFormSection
+                    title="Attribute alanları"
+                    description="Kategoriye bağlı filtre attribute'ları. Sektör, üretim grubu ve kullanım alanı aşağıdaki bölümde yönetilir."
+                >
+                    <Controller
+                        name="attributeValueIds"
+                        control={form.control}
+                        render={({ field }) => (
+                            <ProductAttributeSelect
+                                value={field.value ?? []}
+                                onChange={field.onChange}
+                                allowedAttributeValueIds={selectedCategory?.allowedAttributeValueIds}
+                                singleSelectNonHierarchy
+                                excludeAttributeCodes={PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES}
                             />
-                        </div>
+                        )}
+                    />
+                </ProductFormSection>
+            </div>
 
-                        <div className="col-span-12">
-                            <ProductVideoLinksCard control={form.control} />
-                        </div>
+            <Controller
+                name="industrialUsages"
+                control={form.control}
+                render={({ field }) => (
+                    <ProductIndustrialUsageEditor
+                        productSlug={productSlug}
+                        value={field.value ?? []}
+                        onChange={field.onChange}
+                        activeLocale={activeLocale}
+                    />
+                )}
+            />
 
-                        <div className="col-span-12">
-                            <Controller
-                                name="industrialUsages"
-                                control={form.control}
-                                render={({ field }) => (
-                                    <ProductIndustrialUsageEditor
-                                        productSlug={productSlug}
-                                        value={field.value ?? []}
-                                        onChange={field.onChange}
-                                    />
-                                )}
-                            />
-                        </div>
-                    </div>
+            <div className="sticky bottom-0 -mx-6 flex items-center justify-end gap-3 border-t border-neutral-200 bg-white/95 px-6 py-3 backdrop-blur">
+                <p className="mr-auto text-xs text-neutral-500">
+                    Yüklenen görseller ve video linkleri yalnız kaydettikten sonra kalıcı olur.
+                </p>
+                <Button type="submit" disabled={updateMutation.isPending}>
+                    {updateMutation.isPending ? "Kaydediliyor..." : "Kaydet"}
+                </Button>
+            </div>
         </form>
     )
 }

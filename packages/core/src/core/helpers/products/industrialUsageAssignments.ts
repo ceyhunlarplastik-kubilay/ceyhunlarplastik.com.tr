@@ -321,12 +321,18 @@ export async function patchIndustrialUsageAssignmentProducts({
             select: {
                 id: true,
                 imageKey: true,
+                // Locale'e özgü görseller çeviri satırlarında yaşıyor; yalnız base
+                // imageKey toplanırsa atama kaldırıldığında EN görselleri S3'te
+                // öksüz kalır (satırlar cascade ile silinse bile).
+                translations: {
+                    select: { imageKey: true },
+                },
             },
         })
         : []
 
     const imageKeysToDelete = rowsToRemove
-        .map((row) => row.imageKey)
+        .flatMap((row) => [row.imageKey, ...row.translations.map((translation) => translation.imageKey)])
         .filter((key): key is string => Boolean(key))
 
     if (imageKeysToDelete.length > 0) {

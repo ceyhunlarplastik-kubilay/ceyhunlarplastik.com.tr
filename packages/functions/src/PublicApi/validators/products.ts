@@ -85,10 +85,14 @@ export const industrialUsageSchema = z.object({
     translations: z.array(z.object({
         id: z.uuid(),
         locale: z.string(),
-        usageFunction: z.string(),
+        // Yalnız görseli çevrilen satırlarda metin null olabilir.
+        usageFunction: z.string().nullable().optional(),
+        imageKey: z.string().nullable().optional(),
+        imageUrl: z.string().nullable().optional(),
         createdAt: z.string(),
         updatedAt: z.string(),
     })).optional(),
+    // Çözümlenmiş görsel: istenen locale'in görseli, yoksa varsayılan (TR).
     imageKey: z.string().nullable().optional(),
     imageUrl: z.string().nullable().optional(),
     displayOrder: z.number(),

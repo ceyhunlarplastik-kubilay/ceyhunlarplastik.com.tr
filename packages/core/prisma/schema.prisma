@@ -339,6 +339,8 @@ model ProductIndustrialUsage {
   usageAreaValue   ProductAttributeValue? @relation("ProductIndustrialUsageArea", fields: [usageAreaValueId], references: [id], onDelete: SetNull)
 
   usageFunction String? @db.Text
+  // Varsayılan (TR) görsel. Locale'e özgü görsel
+  // ProductIndustrialUsageTranslation.imageKey'de tutulur; o yoksa buraya düşülür.
   imageKey      String?
   displayOrder  Int     @default(0)
 
@@ -354,10 +356,13 @@ model ProductIndustrialUsage {
 }
 
 model ProductIndustrialUsageTranslation {
-  id                       String @id @default(uuid())
+  id                       String  @id @default(uuid())
   productIndustrialUsageId String
-  locale                   String @db.VarChar(16)
-  usageFunction            String @db.Text
+  locale                   String  @db.VarChar(16)
+  // Nullable: görselde yazı olduğu için yalnız görseli çevrilen (metni ortak
+  // kalan) satırlar mümkün olmalı.
+  usageFunction            String? @db.Text
+  imageKey                 String?
 
   productIndustrialUsage ProductIndustrialUsage @relation(fields: [productIndustrialUsageId], references: [id], onDelete: Cascade)
 

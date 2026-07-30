@@ -809,6 +809,182 @@ Enum değeri düşürme Postgres'te tipi yeniden yaratmayı gerektiriyor; `Asset
   `hooks/useDeleteProductAsset.ts` (0 byte), `ProductAssetsUploader.tsx` (hiçbir yerden
   import edilmiyor).
 
+## Endüstriyel kullanım görsellerinde çoklu dil (2026-07-29)
+
+**İstek:** kullanım görsellerinin İÇİNDE yazı var; EN sayfada TR yazılı görsel çıkıyordu.
+Görsel de metin gibi dile göre değişebilmeli.
+
+**Karar:** `ProductIndustrialUsageTranslation.imageKey` (yeni) + `usageFunction` nullable'a
+çekildi. `ProductIndustrialUsage.imageKey` **varsayılan/TR görseli** olarak kaldı; locale
+override'ı yoksa ona düşülür. Veri migration'ı yok, mevcut görseller olduğu gibi çalışıyor.
+Alternatifler (ayrı `ProductIndustrialUsageImage` tablosu / tüm görselleri translation'a
+taşıyıp base kolonu kaldırmak) elendi: bu seçenek repo'nun `*Translation` konvansiyonuyla
+birebir uyumlu ve migration riski taşımıyor.
+
+**Invariant:** TR çeviri satırında `imageKey` HİÇBİR ZAMAN yazılmaz (normalize bunu
+zorluyor). Bu sayede admin'in locale'siz `GET /products/{id}` çağrısında çözümlenen görsel
+her zaman base kolonun değeridir; form onu "varsayılan görsel" olarak okuyabiliyor.
+
+**Uygulandı:**
+- `localizeProductIndustrialUsage`: `imageKey = requestedTranslation?.imageKey ?? usage.imageKey`.
+- `productIndustrialUsages`: translation input/normalized tipleri `imageKey` taşıyor; hedef
+  locale satırı **metin VEYA görsel** doluysa korunuyor. "TR metni olmadan hedef metin olamaz"
+  kuralı yalnız METNE uygulanıyor — EN görseli bağımsız yüklenebiliyor.
+- `mapIndustrialUsage`: `imageKey`/`imageUrl` çözümlenmiş değerden; `translations[]`
+  girdilerine `imageKey` + `imageUrl` eklendi (admin formunun EN önizlemesi için).
+- `presign`: opsiyonel `locale` → key `products/<slug>/industrial-usages/<locale>/<uuid>.<ext>`.
+  Locale verilmezse eski şablon korunuyor, mevcut key'ler etkilenmiyor.
+- Admin editör: görsel kartı "Varsayılan (TR)" / "İngilizce (EN)" iki slota bölündü;
+  yükleme durumu artık satır değil **slot** bazlı (`uploadingSlot`).
+- `ProductUsageAreasTable` **değişmedi** — `usage.imageUrl` zaten locale-çözümlü geliyor.
+
+**Yol boyunca düzeltilen iki hata:**
+1. **EN çeviri temizlenemiyordu.** `deleteMany` yalnız `locale: DEFAULT_LOCALE` için
+   çalışıyordu; admin EN metnini boşaltınca DB'deki EN satırı kalıyor ve public EN sayfa eski
+   metni göstermeye devam ediyordu. Artık payload'da karşılığı kalmayan HER locale siliniyor.
+   Frontend tarafında da EN girdisi ancak metin ve görsel BİRLİKTE boşsa düşürülüyor —
+   eskiden yalnız metne bakılıyordu, bu yeni yapıda EN görselini de silerdi.
+2. **`translationMissing` yanlış hesaplanıyordu.** `usageFunction` nullable olunca "çeviri
+   satırı var" artık "metin çevrilmiş" demek değil; yalnız görseli çevrilen satır metni
+   çevrilmiş gösteriyordu. Çözümleme satırın varlığına değil metnin kendisine bakıyor,
+   `resolvedLocale` de metnin geldiği locale'i yansıtıyor.
+
+**Kapsam dışı olan S3 temizliğine tek istisna:** toplu atama yolundaki (`industrialUsageAssignments`)
+MEVCUT temizlik yalnız base `imageKey`'i topluyordu; locale görselleri gelince atama
+kaldırıldığında EN görselleri öksüz kalacaktı. Var olan bir temizliği bozmamak için çeviri
+`imageKey`'leri de toplanacak şekilde genişletildi. Ürün editöründeki genel orphan sorunu
+hâlâ ayrı bir iş (aşağıda).
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (120 warning;
++2'si iki API modülündeki "destructure ile alan atma" kalıbı, mevcut `imageUrl` uyarısıyla
+aynı) · core 183/183 ✅ (localize'a 5, normalize/write'a 4 yeni test) · functions 8/8 ✅ ·
+frontend 16/16 ✅.
+
+**Kullanıcıda bekleyen:** kubi'de migration
+(`ProductIndustrialUsageTranslation`: `imageKey` ekle + `usageFunction` NOT NULL kaldır).
+Tamamen additive, veri taşıma yok.
+
+## Ürün yazma yolu performansı (2026-07-30)
+
+**İstek:** `PUT /products/{id}` çok uzun sürüyor; iş kuralları aynı kalarak hızlansın.
+Sadece `assemblyVideoUrl` değişiyorsa yalnız o alan güncellenmeli.
+
+**Teşhis (koddan):** handler ne değiştiğine bakmadan neredeyse hep aynı işi yapıyordu.
+
+| Adım | Eski maliyet |
+|---|---|
+| Ön okuma | `getProduct` = `baseInclude` (kategori+çevirileri, assets, ürün çevirileri, attributeValues'un parent zinciri + çevirileri, tüm industrialUsages + çevirileri + 3 attribute value'su) |
+| Ürün çevirileri | **Koşulsuz** upsert — video-only istek bile TR/EN satırlarını yazıyordu |
+| industrialUsages doğrulaması | **N+1, sıralı**: satır başına 3 `getValueById`, `for...of` içinde `await` (100 satır → 300 ardışık sorgu) |
+| allowedAttributeValueIds | ID başına 1 `getValueById` |
+| Asset eklendiyse | update'ten sonra 2 ayrı yazma + ürünü baştan okuyan 3. ağır sorgu |
+
+**Uygulandı (iş kuralları ve hata mesajları birebir korunarak):**
+- **Toplu doğrulama.** Yeni `getValuesForValidation(ids)` repository metodu: tek sorgu,
+  doğrulamaya yeten slim select (`getValueById`'nin derin include'u bu iş için gereksizdi).
+  `normalizeProductIndustrialUsages` tüm satırların taxonomy ID'lerini önce toplayıp tek
+  sorguda çekiyor, doğrulamayı bellekte yapıyor. Satır ve alan sırası korunduğu için
+  ilk-hata davranışı değişmedi (test ile sabitlendi).
+- **Kopya kod tekilleştirildi.** `isAttributeValueAllowedWithParents` create ve update
+  handler'larında birebir iki kopyaydı → core'da `assertAttributeValuesAllowedForCategory`.
+  O da tek toplu sorgudan besleniyor.
+- **Koşullu çeviri yazımı.** Ürün çevirileri artık yalnız `translations`, `name` veya
+  `description` geldiğinde normalize edilip upsert ediliyor.
+- **Slim ön okuma.** Yeni `getProductForUpdate(id)`: yalnız birkaç skalar alan, kategorinin
+  `code` + `allowedAttributeValueIds`'i ve mevcut usage ID'leri.
+- **Asset lifecycle nested edildi** (hem create hem update). Eskiden update'ten sonra
+  `unsetProductPrimaryAssets` + `createAsset` + tam yeniden okuma vardı; artık tek nested
+  write. Yan fayda: asset kaydı ürün güncellemesiyle **aynı transaction'da** — eskiden update
+  commit edildikten sonra asset yazımı patlayabiliyordu. Create'te `unsetProductPrimaryAssets`
+  tamamen kalktı (yeni ürünün önceki PRIMARY asset'i olamaz).
+- **Frontend yalnız kirli alanları gönderiyor.** `pickDirtyProductFields` RHF'in
+  `dirtyFields`'ini kullanıyor. Handler'ın koşullu hâliyle birleşince video-only bir
+  düzenleme çeviriye, industrialUsages'a ve attribute doğrulamasına hiç girmiyor.
+
+**Ayrı endpoint eklenmedi.** `PATCH /products/{id}/videos` gibi route'lar auth/validator/
+response şemasını çoğaltır ve `infra/AdminApi.ts`'e yüzey ekler; dirty-only gövde + koşullu
+handler aynı sonucu tek endpoint'le veriyor. Toplu doğrulama industrialUsages'ı da
+ucuzlattığı için ona ayrı endpoint açmanın marjinal faydası kalmadı.
+
+**Bu iş sırasında bulunan CİDDİ hata (Dilim A'dan geliyordu, prod'a çıkmıştı):**
+`serializeVideoUrl(undefined)` `null` döndürüyordu ve `updateProduct` gövdesine video
+alanlarını HER ZAMAN koyuyordu. `AssetUploader` (`ProductAssetManager` → asset yükleme)
+`updateProduct`'ı video alanları olmadan çağırıyor → gövdeye `assemblyVideoUrl: null` +
+`promoVideoUrl: null` giriyor → **bir ürüne asset yüklemek iki YouTube linkini de siliyordu.**
+Artık `undefined` dönüyor, `JSON.stringify` anahtarı atıyor, backend kolona dokunmuyor.
+Regresyon testi eklendi.
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (118 warning) ·
+core 188/188 ✅ (5 yeni: toplu sorgu sayımı, hata sırası, allowlist) · functions 8/8 ✅ ·
+frontend 25/25 ✅ (9'u yeni `serializeProductPayload.test.ts`).
+
+**Dirty-only gönderimde yakalanan hata (kubi'de tespit edildi, düzeltildi):**
+`dirtyFields` yalnızca `onSubmit` callback'i içinde okunuyordu. RHF'in `formState`'i bir
+**Proxy**'dir ve hangi alana abone olunacağını RENDER sırasındaki okumalardan çıkarır;
+callback içindeki okuma abonelik kurmadığı için `dirtyFields` hiç dolmuyordu → gövde boş
+gidiyor, istek 200 dönüyor, hiçbir şey değişmiyordu. `dirtyFields` artık render gövdesinde
+okunuyor. Ayrıca **güvenlik ağı** eklendi: `buildProductUpdatePayload` hiçbir alan kirli
+görünmüyorsa TÜM veriyi gönderiyor — kullanıcının düzenlemesini sessizce yutmak,
+optimizasyonu kaçırmaktan çok daha kötü. İkisi de test altında.
+
+**Yan çıktılar:** `serializeIndustrialUsages`/`serializeTranslations`/`serializeVideoUrl`
+`createProduct.ts` + `updateProduct.ts` içinde birebir kopyaydı → ortak
+`api/serializeProductPayload.ts`. Frontend'in `vitest.config.ts`'i yoktu, bu yüzden
+`@/…`/`@core/…` import eden hiçbir modül teste sokulamıyordu → minimal config eklendi.
+
+## Ürün dialog'ları — tasarım + locale-ölçeklenir çeviri alanları (2026-07-30)
+
+**İstek:** `CreateProductDialog` / `EditProductDialog` görsel olarak iyileştirilsin. Ek not:
+çeviri alanları 10 dile çıkıldığında dialog kalabalıklaşmasın, varsayılan Türkçe gelsin.
+
+**Denetim bulguları:** üç ayrı yüzey rengi (nötr + EN kartı için `bg-blue-50/60` + endüstriyel
+kullanım için `bg-amber-50/40`), rastgele border-radius (iç kartlar dış kaptan daha yuvarlak),
+bölüm hiyerarşisi yok (aynı ağırlıkta düz kart yığını, `<div>` çorbası), kod/sayı alanlarında
+tabular numerals yok, `EditProductDialog`'da `DialogDescription` eksik, Title Case başlıklar.
+
+**Locale ölçeklenmesi — asıl yapısal değişiklik:**
+- `productFormSchema.ts` artık çeviri yüzeyinin TEK kaynağı: `PRODUCT_FORM_LOCALES`,
+  `PRODUCT_FORM_DEFAULT_LOCALE`, `PRODUCT_FORM_TARGET_LOCALES`, `PRODUCT_FORM_LOCALE_LABELS`,
+  `productTranslationIndex`, `buildProductTranslationDefaults`, `isProductFormLocale`.
+  Zod enum'ları da buradan besleniyor. Yeni dil eklemek: burada bir kod (+ backend'de
+  `AdminApi/validators/products.ts` ve `core/i18n/locales.ts`). Arayüzde başka hiçbir yer
+  değişmiyor.
+- Yan yana TR/EN alanları kaldırıldı. Tek `ProductLocaleTabs` seçici (varsayılan **Türkçe**)
+  hem ürün ad/slug/açıklamasını hem endüstriyel kullanım metin+görselini sürüyor. Hedef
+  dillerde içerik olup olmadığı sekmedeki noktadan görünüyor.
+- `ProductTranslatableFields`: varsayılan dil ürünün kendi kolonlarını düzenler (slug addan
+  türediği için salt-okunur gösterilir), hedef diller `translations.<index>` altına yazar ve
+  slug'ı elle düzenleyebilir.
+- `ProductIndustrialUsageEditor` dile-genel hâle geldi: `activeLocale` prop'u, EN'e özel
+  `patchEnglishTranslation`/`getEnglishTranslation` yerine `patchTranslation` +
+  `writeLocaleContent` + `readLocaleContent`. Satır başına iki textarea + iki görsel slotu
+  yerine aktif dilin tek metni ve tek görseli.
+- `translations` default'u artık elle `[{locale:"en"}]` değil; `buildProductTranslationDefaults`
+  hedef dil sırasında her dil için bir girdi üretiyor. RHF yolları
+  (`translations.<index>.name`) bu SABİT sıraya bağlı — test altında.
+
+**Tasarım:**
+- Ortak `ProductFormSection` kabuğu: tek nötr yüzey, `<section>` + `<h3>` semantiği, başlık
+  hizasında `actions` slotu (locale sekmeleri / sayaç / "Akıllı seçim" badge'i).
+- Mavi ve amber yüzeyler kaldırıldı; vurgu yalnız marka rengiyle ve yalnız ikon/gösterge
+  seviyesinde. Radius hiyerarşisi düzeltildi (kap `rounded-xl`, iç öğeler `rounded-lg`).
+- Kod ve kategori kodu `font-mono tabular-nums`; karakter sayaçları `tabular-nums`.
+- İki dialog aynı iki-kolon ritmini paylaşıyor; alt tarafta yapışkan (sticky) aksiyon çubuğu
+  ve "yüklenenler kaydedilene kadar kalıcı olmaz" hatırlatması.
+- Başlıklar sentence case'e çekildi, `DialogDescription` eklendi.
+
+**Yan fayda:** `EditProductDialog` asset yüklemesinden sonra `location.reload()` yapıyordu
+(tam sayfa yenileme). Artık `useProduct` query'sinin `refetch`'i aşağı geçiriliyor.
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (117 warning —
+baseline 118'in altında; kalanlar bilinçli `<img>` kullanımları) · core 188/188 ✅ ·
+functions 8/8 ✅ · frontend 31/31 ✅ (6'sı yeni `productFormSchema.test.ts`: locale seti,
+indeks sabitliği, default üretimi).
+
+**Görsel doğrulama KULLANICIDA:** admin route'ları giriş gerektiriyor ve parola girmiyorum;
+render edilmiş dialog'lar gözle kontrol edilmedi. Derleme/lint/test yeşil ama yerleşimin
+gerçekte nasıl göründüğü doğrulanmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

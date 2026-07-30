@@ -6,6 +6,11 @@ import type {
     ProductIndustrialUsageFormValues,
     ProductTranslationFormValues,
 } from "@/features/admin/products/schema/productFormSchema"
+import {
+    serializeIndustrialUsages,
+    serializeTranslations,
+    serializeVideoUrl,
+} from "@/features/admin/products/api/serializeProductPayload"
 
 import type { CreateProductResponse } from "./types"
 
@@ -23,21 +28,6 @@ type Params = {
     translations?: ProductTranslationFormValues[]
     assemblyVideoUrl?: string | null
     promoVideoUrl?: string | null
-}
-
-// Boş input = "alanı temizle" → backend null görmeli, "" değil.
-function serializeVideoUrl(value?: string | null) {
-    return value?.trim() ? value.trim() : null
-}
-
-function serializeIndustrialUsages(industrialUsages?: ProductIndustrialUsageFormValues[]) {
-    return industrialUsages?.map(({ imageUrl, ...row }) => row)
-}
-
-function serializeTranslations(translations?: ProductTranslationFormValues[]) {
-    return translations?.filter((translation) =>
-        translation.locale === "tr" || Boolean(translation.name?.trim())
-    )
 }
 
 export async function createProduct({

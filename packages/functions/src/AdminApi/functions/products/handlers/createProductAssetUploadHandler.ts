@@ -10,7 +10,7 @@ import type { ICreateProductAssetUploadEvent } from "@/functions/AdminApi/types/
 export const createProductAssetUploadHandler = () => {
     return async (event: ICreateProductAssetUploadEvent) => {
 
-        const { productSlug, assetRole, fileName, contentType, purpose = "PRODUCT_ASSET" } = event.body
+        const { productSlug, assetRole, fileName, contentType, purpose = "PRODUCT_ASSET", locale } = event.body
 
         if (!productSlug || !fileName || !contentType) {
             throw new createError.BadRequest("Missing required fields")
@@ -21,6 +21,7 @@ export const createProductAssetUploadHandler = () => {
                 productSlug,
                 fileName,
                 contentType,
+                locale,
             })
             : await generateProductAssetUpload({
                 productSlug,

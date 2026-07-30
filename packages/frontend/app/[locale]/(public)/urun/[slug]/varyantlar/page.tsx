@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
+import { redirect } from "@/i18n/navigation"
 import type { Metadata } from "next"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
@@ -75,6 +76,21 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
 
     const product = await getProductBySlug(slug, locale)
     if (!product) notFound()
+
+    // Ürün başka bir dilin slug'ıyla açılmış olabilir (dil değiştirici slug'ı
+    // çevirmiyor). Backend bu durumda ürünü yine buluyor; burada bu locale'in
+    // kanonik slug'ına yönlendirerek aynı içeriğin iki URL'de yayınlanmasını
+    // engelliyoruz. Seçili ölçü query'si korunur.
+    const canonicalSlug = product.alternateSlugs?.[locale] ?? product.slug
+    if (canonicalSlug !== slug) {
+        redirect({
+            href: {
+                pathname: `/urun/${canonicalSlug}/varyantlar`,
+                ...(measurementKey ? { query: { m: measurementKey } } : {}),
+            },
+            locale,
+        })
+    }
 
     const [tb, t, variantTable] = await Promise.all([
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),

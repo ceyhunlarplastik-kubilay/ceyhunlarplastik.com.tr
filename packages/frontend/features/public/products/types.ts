@@ -50,10 +50,14 @@ export type ProductIndustrialUsage = {
     translations?: Array<{
         id: string;
         locale: string;
-        usageFunction: string;
+        // Yalnız görseli çevrilen satırlarda metin null olabilir.
+        usageFunction?: string | null;
+        imageKey?: string | null;
+        imageUrl?: string | null;
         createdAt: string;
         updatedAt: string;
     }>;
+    // İstenen locale'e göre çözümlenmiş görsel; locale override'ı yoksa varsayılan.
     imageKey?: string | null;
     imageUrl?: string | null;
     displayOrder?: number;

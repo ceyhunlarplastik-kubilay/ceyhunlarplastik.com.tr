@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+import { redirect } from "@/i18n/navigation"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { PageHero } from "@/components/sections/PageHero"
@@ -87,6 +88,14 @@ export default async function ProductPage({ params }: PageProps) {
     ])
 
     if (!product) notFound()
+
+    // Ürün başka bir dilin slug'ıyla açılmış olabilir (dil değiştirici slug'ı
+    // çevirmiyor). Backend ürünü yine buluyor; burada bu locale'in kanonik
+    // slug'ına yönlendirerek aynı içeriğin iki URL'de yayınlanmasını engelliyoruz.
+    const canonicalSlug = product.alternateSlugs?.[locale] ?? product.slug
+    if (canonicalSlug !== slug) {
+        redirect({ href: `/urun/${canonicalSlug}`, locale })
+    }
 
     const [variantTable, productsByCategory] = await Promise.all([
         getProductVariantTable(product.id, { locale }),

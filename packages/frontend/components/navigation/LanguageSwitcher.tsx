@@ -91,7 +91,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             >
                 <SelectValue />
             </SelectTrigger>
-            <SelectContent align="end" className="min-w-[9rem]">
+            <SelectContent align="end" className="min-w-36">
                 {routing.locales.map((code) => {
                     const option = getLanguageOption(code);
 

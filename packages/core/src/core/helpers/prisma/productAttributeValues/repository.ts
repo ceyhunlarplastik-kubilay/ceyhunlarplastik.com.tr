@@ -63,9 +63,32 @@ export type ProductAttributeValueDeleteBlockers = {
     productIndustrialUsages: number
 }
 
+/**
+ * Doğrulama için gereken minimum alanlar. `getValueById`'nin derin include'u
+ * (çeviriler + 3 seviye parent + assets) bu iş için gereksiz; attribute value
+ * seçimi doğrulanırken yalnız aktiflik, attribute kodu ve parent zinciri okunur.
+ */
+export type ProductAttributeValueValidationRow = {
+    id: string
+    isActive: boolean
+    parentValueId: string | null
+    attribute: { id: string; code: string; isActive: boolean }
+    parentValue: {
+        id: string
+        parentValueId: string | null
+        parentValue: { id: string; parentValueId: string | null } | null
+    } | null
+}
+
 export interface IPrismaProductAttributeValueRepository {
     listValues(attributeId: string, locale?: SupportedLocale): Promise<any[]>
     getValueById(id: string, locale?: SupportedLocale): Promise<any | null>
+    /**
+     * Birden çok ID'yi TEK sorguda, doğrulamaya yeten slim şekilde çeker.
+     * Eskiden çağıranlar ID başına `getValueById` çağırıyordu; endüstriyel
+     * kullanım satırı başına 3 sorgu demekti (100 satır → 300 ardışık sorgu).
+     */
+    getValuesForValidation(ids: string[]): Promise<ProductAttributeValueValidationRow[]>
     getDeleteBlockers(id: string): Promise<ProductAttributeValueDeleteBlockers>
     createValue(data: Prisma.ProductAttributeValueCreateInput): Promise<any>
     updateValue(id: string, data: Prisma.ProductAttributeValueUpdateInput): Promise<any>
@@ -176,6 +199,29 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
         })
 
         return value ? localizeValue(value, locale) : null
+    }
+
+    const getValuesForValidation = async (
+        ids: string[],
+    ): Promise<ProductAttributeValueValidationRow[]> => {
+        if (ids.length === 0) return []
+
+        return prisma.productAttributeValue.findMany({
+            where: { id: { in: ids } },
+            select: {
+                id: true,
+                isActive: true,
+                parentValueId: true,
+                attribute: { select: { id: true, code: true, isActive: true } },
+                parentValue: {
+                    select: {
+                        id: true,
+                        parentValueId: true,
+                        parentValue: { select: { id: true, parentValueId: true } },
+                    },
+                },
+            },
+        })
     }
 
     const getDeleteBlockers = async (id: string): Promise<ProductAttributeValueDeleteBlockers> => {
@@ -290,6 +336,7 @@ export const productAttributeValueRepository = (): IPrismaProductAttributeValueR
     return {
         listValues,
         getValueById,
+        getValuesForValidation,
         getDeleteBlockers,
         createValue,
         updateValue,

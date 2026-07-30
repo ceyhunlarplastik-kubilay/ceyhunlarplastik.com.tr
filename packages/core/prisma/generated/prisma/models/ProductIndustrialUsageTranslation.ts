@@ -29,6 +29,7 @@ export type ProductIndustrialUsageTranslationMinAggregateOutputType = {
   productIndustrialUsageId: string | null
   locale: string | null
   usageFunction: string | null
+  imageKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type ProductIndustrialUsageTranslationMaxAggregateOutputType = {
   productIndustrialUsageId: string | null
   locale: string | null
   usageFunction: string | null
+  imageKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type ProductIndustrialUsageTranslationCountAggregateOutputType = {
   productIndustrialUsageId: number
   locale: number
   usageFunction: number
+  imageKey: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type ProductIndustrialUsageTranslationMinAggregateInputType = {
   productIndustrialUsageId?: true
   locale?: true
   usageFunction?: true
+  imageKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +71,7 @@ export type ProductIndustrialUsageTranslationMaxAggregateInputType = {
   productIndustrialUsageId?: true
   locale?: true
   usageFunction?: true
+  imageKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +81,7 @@ export type ProductIndustrialUsageTranslationCountAggregateInputType = {
   productIndustrialUsageId?: true
   locale?: true
   usageFunction?: true
+  imageKey?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -157,7 +163,8 @@ export type ProductIndustrialUsageTranslationGroupByOutputType = {
   id: string
   productIndustrialUsageId: string
   locale: string
-  usageFunction: string
+  usageFunction: string | null
+  imageKey: string | null
   createdAt: Date
   updatedAt: Date
   _count: ProductIndustrialUsageTranslationCountAggregateOutputType | null
@@ -187,7 +194,8 @@ export type ProductIndustrialUsageTranslationWhereInput = {
   id?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
   productIndustrialUsageId?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
   locale?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
-  usageFunction?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
+  usageFunction?: Prisma.StringNullableFilter<"ProductIndustrialUsageTranslation"> | string | null
+  imageKey?: Prisma.StringNullableFilter<"ProductIndustrialUsageTranslation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductIndustrialUsageTranslation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductIndustrialUsageTranslation"> | Date | string
   productIndustrialUsage?: Prisma.XOR<Prisma.ProductIndustrialUsageScalarRelationFilter, Prisma.ProductIndustrialUsageWhereInput>
@@ -197,7 +205,8 @@ export type ProductIndustrialUsageTranslationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   productIndustrialUsageId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
-  usageFunction?: Prisma.SortOrder
+  usageFunction?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   productIndustrialUsage?: Prisma.ProductIndustrialUsageOrderByWithRelationInput
@@ -211,7 +220,8 @@ export type ProductIndustrialUsageTranslationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ProductIndustrialUsageTranslationWhereInput | Prisma.ProductIndustrialUsageTranslationWhereInput[]
   productIndustrialUsageId?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
   locale?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
-  usageFunction?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
+  usageFunction?: Prisma.StringNullableFilter<"ProductIndustrialUsageTranslation"> | string | null
+  imageKey?: Prisma.StringNullableFilter<"ProductIndustrialUsageTranslation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductIndustrialUsageTranslation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductIndustrialUsageTranslation"> | Date | string
   productIndustrialUsage?: Prisma.XOR<Prisma.ProductIndustrialUsageScalarRelationFilter, Prisma.ProductIndustrialUsageWhereInput>
@@ -221,7 +231,8 @@ export type ProductIndustrialUsageTranslationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   productIndustrialUsageId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
-  usageFunction?: Prisma.SortOrder
+  usageFunction?: Prisma.SortOrderInput | Prisma.SortOrder
+  imageKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductIndustrialUsageTranslationCountOrderByAggregateInput
@@ -236,7 +247,8 @@ export type ProductIndustrialUsageTranslationScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | string
   productIndustrialUsageId?: Prisma.StringWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | string
   locale?: Prisma.StringWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | string
-  usageFunction?: Prisma.StringWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | string
+  usageFunction?: Prisma.StringNullableWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | string | null
+  imageKey?: Prisma.StringNullableWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductIndustrialUsageTranslation"> | Date | string
 }
@@ -244,7 +256,8 @@ export type ProductIndustrialUsageTranslationScalarWhereWithAggregatesInput = {
 export type ProductIndustrialUsageTranslationCreateInput = {
   id?: string
   locale: string
-  usageFunction: string
+  usageFunction?: string | null
+  imageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   productIndustrialUsage: Prisma.ProductIndustrialUsageCreateNestedOneWithoutTranslationsInput
@@ -254,7 +267,8 @@ export type ProductIndustrialUsageTranslationUncheckedCreateInput = {
   id?: string
   productIndustrialUsageId: string
   locale: string
-  usageFunction: string
+  usageFunction?: string | null
+  imageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -262,7 +276,8 @@ export type ProductIndustrialUsageTranslationUncheckedCreateInput = {
 export type ProductIndustrialUsageTranslationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   locale?: Prisma.StringFieldUpdateOperationsInput | string
-  usageFunction?: Prisma.StringFieldUpdateOperationsInput | string
+  usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productIndustrialUsage?: Prisma.ProductIndustrialUsageUpdateOneRequiredWithoutTranslationsNestedInput
@@ -272,7 +287,8 @@ export type ProductIndustrialUsageTranslationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productIndustrialUsageId?: Prisma.StringFieldUpdateOperationsInput | string
   locale?: Prisma.StringFieldUpdateOperationsInput | string
-  usageFunction?: Prisma.StringFieldUpdateOperationsInput | string
+  usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -281,7 +297,8 @@ export type ProductIndustrialUsageTranslationCreateManyInput = {
   id?: string
   productIndustrialUsageId: string
   locale: string
-  usageFunction: string
+  usageFunction?: string | null
+  imageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -289,7 +306,8 @@ export type ProductIndustrialUsageTranslationCreateManyInput = {
 export type ProductIndustrialUsageTranslationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   locale?: Prisma.StringFieldUpdateOperationsInput | string
-  usageFunction?: Prisma.StringFieldUpdateOperationsInput | string
+  usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -298,7 +316,8 @@ export type ProductIndustrialUsageTranslationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productIndustrialUsageId?: Prisma.StringFieldUpdateOperationsInput | string
   locale?: Prisma.StringFieldUpdateOperationsInput | string
-  usageFunction?: Prisma.StringFieldUpdateOperationsInput | string
+  usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -323,6 +342,7 @@ export type ProductIndustrialUsageTranslationCountOrderByAggregateInput = {
   productIndustrialUsageId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
   usageFunction?: Prisma.SortOrder
+  imageKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -332,6 +352,7 @@ export type ProductIndustrialUsageTranslationMaxOrderByAggregateInput = {
   productIndustrialUsageId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
   usageFunction?: Prisma.SortOrder
+  imageKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -341,6 +362,7 @@ export type ProductIndustrialUsageTranslationMinOrderByAggregateInput = {
   productIndustrialUsageId?: Prisma.SortOrder
   locale?: Prisma.SortOrder
   usageFunction?: Prisma.SortOrder
+  imageKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -390,7 +412,8 @@ export type ProductIndustrialUsageTranslationUncheckedUpdateManyWithoutProductIn
 export type ProductIndustrialUsageTranslationCreateWithoutProductIndustrialUsageInput = {
   id?: string
   locale: string
-  usageFunction: string
+  usageFunction?: string | null
+  imageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -398,7 +421,8 @@ export type ProductIndustrialUsageTranslationCreateWithoutProductIndustrialUsage
 export type ProductIndustrialUsageTranslationUncheckedCreateWithoutProductIndustrialUsageInput = {
   id?: string
   locale: string
-  usageFunction: string
+  usageFunction?: string | null
+  imageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -436,7 +460,8 @@ export type ProductIndustrialUsageTranslationScalarWhereInput = {
   id?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
   productIndustrialUsageId?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
   locale?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
-  usageFunction?: Prisma.StringFilter<"ProductIndustrialUsageTranslation"> | string
+  usageFunction?: Prisma.StringNullableFilter<"ProductIndustrialUsageTranslation"> | string | null
+  imageKey?: Prisma.StringNullableFilter<"ProductIndustrialUsageTranslation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductIndustrialUsageTranslation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductIndustrialUsageTranslation"> | Date | string
 }
@@ -444,7 +469,8 @@ export type ProductIndustrialUsageTranslationScalarWhereInput = {
 export type ProductIndustrialUsageTranslationCreateManyProductIndustrialUsageInput = {
   id?: string
   locale: string
-  usageFunction: string
+  usageFunction?: string | null
+  imageKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -452,7 +478,8 @@ export type ProductIndustrialUsageTranslationCreateManyProductIndustrialUsageInp
 export type ProductIndustrialUsageTranslationUpdateWithoutProductIndustrialUsageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   locale?: Prisma.StringFieldUpdateOperationsInput | string
-  usageFunction?: Prisma.StringFieldUpdateOperationsInput | string
+  usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -460,7 +487,8 @@ export type ProductIndustrialUsageTranslationUpdateWithoutProductIndustrialUsage
 export type ProductIndustrialUsageTranslationUncheckedUpdateWithoutProductIndustrialUsageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   locale?: Prisma.StringFieldUpdateOperationsInput | string
-  usageFunction?: Prisma.StringFieldUpdateOperationsInput | string
+  usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -468,7 +496,8 @@ export type ProductIndustrialUsageTranslationUncheckedUpdateWithoutProductIndust
 export type ProductIndustrialUsageTranslationUncheckedUpdateManyWithoutProductIndustrialUsageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   locale?: Prisma.StringFieldUpdateOperationsInput | string
-  usageFunction?: Prisma.StringFieldUpdateOperationsInput | string
+  usageFunction?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -480,6 +509,7 @@ export type ProductIndustrialUsageTranslationSelect<ExtArgs extends runtime.Type
   productIndustrialUsageId?: boolean
   locale?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   productIndustrialUsage?: boolean | Prisma.ProductIndustrialUsageDefaultArgs<ExtArgs>
@@ -490,6 +520,7 @@ export type ProductIndustrialUsageTranslationSelectCreateManyAndReturn<ExtArgs e
   productIndustrialUsageId?: boolean
   locale?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   productIndustrialUsage?: boolean | Prisma.ProductIndustrialUsageDefaultArgs<ExtArgs>
@@ -500,6 +531,7 @@ export type ProductIndustrialUsageTranslationSelectUpdateManyAndReturn<ExtArgs e
   productIndustrialUsageId?: boolean
   locale?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   productIndustrialUsage?: boolean | Prisma.ProductIndustrialUsageDefaultArgs<ExtArgs>
@@ -510,11 +542,12 @@ export type ProductIndustrialUsageTranslationSelectScalar = {
   productIndustrialUsageId?: boolean
   locale?: boolean
   usageFunction?: boolean
+  imageKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductIndustrialUsageTranslationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productIndustrialUsageId" | "locale" | "usageFunction" | "createdAt" | "updatedAt", ExtArgs["result"]["productIndustrialUsageTranslation"]>
+export type ProductIndustrialUsageTranslationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productIndustrialUsageId" | "locale" | "usageFunction" | "imageKey" | "createdAt" | "updatedAt", ExtArgs["result"]["productIndustrialUsageTranslation"]>
 export type ProductIndustrialUsageTranslationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productIndustrialUsage?: boolean | Prisma.ProductIndustrialUsageDefaultArgs<ExtArgs>
 }
@@ -534,7 +567,8 @@ export type $ProductIndustrialUsageTranslationPayload<ExtArgs extends runtime.Ty
     id: string
     productIndustrialUsageId: string
     locale: string
-    usageFunction: string
+    usageFunction: string | null
+    imageKey: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productIndustrialUsageTranslation"]>
@@ -965,6 +999,7 @@ export interface ProductIndustrialUsageTranslationFieldRefs {
   readonly productIndustrialUsageId: Prisma.FieldRef<"ProductIndustrialUsageTranslation", 'String'>
   readonly locale: Prisma.FieldRef<"ProductIndustrialUsageTranslation", 'String'>
   readonly usageFunction: Prisma.FieldRef<"ProductIndustrialUsageTranslation", 'String'>
+  readonly imageKey: Prisma.FieldRef<"ProductIndustrialUsageTranslation", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProductIndustrialUsageTranslation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductIndustrialUsageTranslation", 'DateTime'>
 }

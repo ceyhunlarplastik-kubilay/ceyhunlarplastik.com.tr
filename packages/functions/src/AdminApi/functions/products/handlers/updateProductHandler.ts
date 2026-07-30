@@ -5,6 +5,7 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { ICreateProductDependencies, IUpdateProductEvent } from "@/functions/AdminApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
 import {
+    assertAttributeValuesAllowedForCategory,
     assertNoIndustrialAttributeValues,
     buildProductIndustrialUsageCreateInputs,
     buildProductIndustrialUsageUpdateInput,
@@ -17,31 +18,8 @@ import {
 } from "@/core/helpers/products/productTranslations"
 import { normalizeProductVideoUrls } from "@/core/helpers/products/productVideos"
 
-function isAttributeValueAllowedWithParents(
-    allowedIds: Set<string>,
-    value: {
-        id: string
-        parentValueId?: string | null
-        parentValue?: {
-            id: string
-            parentValueId?: string | null
-            parentValue?: {
-                id: string
-                parentValueId?: string | null
-            } | null
-        } | null
-    } | null
-) {
-    if (!value?.id) return false
-    if (allowedIds.has(value.id)) return true
-    if (value.parentValueId && allowedIds.has(value.parentValueId)) return true
-    if (value.parentValue?.id && allowedIds.has(value.parentValue.id)) return true
-    if (value.parentValue?.parentValueId && allowedIds.has(value.parentValue.parentValueId)) return true
-    if (value.parentValue?.parentValue?.id && allowedIds.has(value.parentValue.parentValue.id)) return true
-    return false
-}
-
-export const updateProductHandler = ({ productRepository, categoryRepository, assetRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
+// assetRepository artık gerekmiyor: asset lifecycle ürün update'ine nested edildi.
+export const updateProductHandler = ({ productRepository, categoryRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
     return async (event: IUpdateProductEvent) => {
 
         const { id } = event.pathParameters;
@@ -54,7 +32,9 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
 
         try {
 
-            const existing = await productRepository.getProduct(id);
+            // Slim okuma: bu handler yalnız birkaç skalar alan, kategorinin code +
+            // allowedAttributeValueIds'i ve mevcut usage ID'lerini kullanıyor.
+            const existing = await productRepository.getProductForUpdate(id);
             if (!existing) throw new createError.NotFound("Product not found");
 
             // Validation: Ensure product code starts with category code
@@ -112,13 +92,23 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
             const nextDescription = descriptionWasProvided
                 ? productData.description ?? null
                 : existing.description ?? null
-            const normalizedProductTranslations = normalizeProductTranslations({
-                legacyName: nextName,
-                legacySlug: nextSlug,
-                legacyDescription: nextDescription,
-                translations,
-                requireTurkish: true,
-            })
+
+            // Çeviriler yalnızca çeviriyi ETKİLEYEN bir alan geldiğinde yazılır.
+            // Eskiden koşulsuzdu: sadece assemblyVideoUrl gönderen bir istek bile
+            // TR/EN ProductTranslation satırlarını boşuna upsert ediyordu.
+            const shouldWriteTranslations =
+                translations !== undefined ||
+                productData.name !== undefined ||
+                descriptionWasProvided
+            const normalizedProductTranslations = shouldWriteTranslations
+                ? normalizeProductTranslations({
+                    legacyName: nextName,
+                    legacySlug: nextSlug,
+                    legacyDescription: nextDescription,
+                    translations,
+                    requireTurkish: true,
+                })
+                : undefined
 
             await assertNoIndustrialAttributeValues(productAttributeValueRepository, attributeValueIds)
             const normalizedIndustrialUsages = industrialUsages !== undefined
@@ -140,22 +130,13 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
             // Gönderilmeyen alan `undefined` kalır → Prisma o kolona dokunmaz.
             const normalizedVideoUrls = normalizeProductVideoUrls({ assemblyVideoUrl, promoVideoUrl })
 
-            const allowedAttributeValueIds = (targetCategory as any).allowedAttributeValueIds as string[] | undefined
-            if (attributeValueIds !== undefined && allowedAttributeValueIds && allowedAttributeValueIds.length > 0) {
-                const allowedSet = new Set(allowedAttributeValueIds)
-                const valueDetails = await Promise.all(
-                    attributeValueIds.map((valueId) => productAttributeValueRepository.getValueById(valueId))
-                )
-                const invalidAttributeValueIds = attributeValueIds.filter((valueId, index) =>
-                    !isAttributeValueAllowedWithParents(allowedSet, valueDetails[index] as any)
-                )
-                if (invalidAttributeValueIds.length > 0) {
-                    throw new createError.BadRequest("Some selected attribute values are not allowed for this category")
-                }
-            }
+            await assertAttributeValuesAllowedForCategory(
+                productAttributeValueRepository,
+                attributeValueIds,
+                (targetCategory as any).allowedAttributeValueIds as string[] | undefined,
+            )
 
-            // 🔧 product update (asset alanları burada YOK)
-            let updated = await productRepository.updateProduct(id, {
+            const updated = await productRepository.updateProduct(id, {
 
                 ...productData,
 
@@ -170,12 +151,14 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
                     slug: nextSlug,
                 }),
 
-                translations: {
-                    upsert: buildProductTranslationUpserts(
-                        id,
-                        normalizedProductTranslations.translations,
-                    ),
-                },
+                ...(normalizedProductTranslations && {
+                    translations: {
+                        upsert: buildProductTranslationUpserts(
+                            id,
+                            normalizedProductTranslations.translations,
+                        ),
+                    },
+                }),
 
                 ...(attributeValueIds !== undefined && {
                     attributeValues: {
@@ -203,25 +186,31 @@ export const updateProductHandler = ({ productRepository, categoryRepository, as
                         }),
                     },
                 }),
+
+                // Asset lifecycle: dosya client tarafından S3'e yüklendi, burada
+                // yalnız DB kaydı açılıyor. Eskiden update'ten SONRA iki ayrı
+                // yazma (unsetProductPrimaryAssets + createAsset) ve ardından
+                // ürünü baştan okuyan üçüncü bir ağır sorgu vardı. Nested hâli
+                // aynı etkiyi tek transaction'da veriyor ve dönüş asset'i zaten
+                // içerdiği için yeniden okuma gerekmiyor.
+                ...(assetType && assetKey && mimeType && {
+                    assets: {
+                        // Yeni PRIMARY geliyorsa mevcut PRIMARY'ler GALLERY'ye düşer.
+                        ...(assetRole === "PRIMARY" && {
+                            updateMany: {
+                                where: { role: "PRIMARY" as const },
+                                data: { role: "GALLERY" as const },
+                            },
+                        }),
+                        create: {
+                            key: assetKey,
+                            mimeType,
+                            type: assetType,
+                            role: assetRole ?? "GALLERY",
+                        },
+                    },
+                }),
             })
-
-            // 🔥 asset lifecycle
-            if (assetType && assetKey && mimeType) {
-
-                if (assetRole === "PRIMARY") {
-                    await assetRepository.unsetProductPrimaryAssets(id)
-                }
-
-                await assetRepository.createAsset({
-                    key: assetKey,
-                    mimeType,
-                    type: assetType,
-                    role: assetRole ?? "GALLERY",
-                    product: { connect: { id } },
-                })
-
-                updated = await productRepository.getProduct(id) as typeof updated;
-            }
 
             return apiResponseDTO({
                 statusCode: 200,

@@ -4,7 +4,16 @@ import { localizeProductIndustrialUsage } from "./localizeProductIndustrialUsage
 
 const now = new Date("2026-07-24T00:00:00.000Z")
 
-function makeUsage(translations: Array<{ locale: string; usageFunction: string }> = []) {
+type TranslationSeed = {
+    locale: string
+    usageFunction?: string | null
+    imageKey?: string | null
+}
+
+function makeUsage(
+    translations: TranslationSeed[] = [],
+    overrides: { usageFunction?: string | null; imageKey?: string | null } = {},
+) {
     return {
         id: "usage-1",
         productId: "product-1",
@@ -16,11 +25,13 @@ function makeUsage(translations: Array<{ locale: string; usageFunction: string }
         displayOrder: 0,
         createdAt: now,
         updatedAt: now,
+        ...overrides,
         translations: translations.map((translation) => ({
             id: `${translation.locale}-translation`,
             productIndustrialUsageId: "usage-1",
             locale: translation.locale,
-            usageFunction: translation.usageFunction,
+            usageFunction: translation.usageFunction ?? null,
+            imageKey: translation.imageKey ?? null,
             createdAt: now,
             updatedAt: now,
         })),
@@ -57,5 +68,75 @@ describe("localizeProductIndustrialUsage", () => {
 
         expect(localized.usageFunction).toBeNull()
         expect(localized.translationMissing).toBe(false)
+    })
+
+    describe("locale-specific image", () => {
+        it("prefers the requested locale image over the default one", () => {
+            const localized = localizeProductIndustrialUsage(
+                makeUsage(
+                    [
+                        { locale: "tr", usageFunction: "Türkçe açıklama" },
+                        { locale: "en", usageFunction: "English explanation", imageKey: "en/usage.png" },
+                    ],
+                    { imageKey: "default/usage.png" },
+                ),
+                "en",
+            )
+
+            expect(localized.imageKey).toBe("en/usage.png")
+        })
+
+        it("falls back to the default image when the locale has none", () => {
+            const localized = localizeProductIndustrialUsage(
+                makeUsage(
+                    [
+                        { locale: "tr", usageFunction: "Türkçe açıklama" },
+                        { locale: "en", usageFunction: "English explanation" },
+                    ],
+                    { imageKey: "default/usage.png" },
+                ),
+                "en",
+            )
+
+            expect(localized.imageKey).toBe("default/usage.png")
+        })
+
+        it("resolves an image-only translation row even without translated text", () => {
+            const localized = localizeProductIndustrialUsage(
+                makeUsage(
+                    [
+                        { locale: "tr", usageFunction: "Türkçe açıklama" },
+                        { locale: "en", imageKey: "en/usage.png" },
+                    ],
+                    { imageKey: "default/usage.png" },
+                ),
+                "en",
+            )
+
+            expect(localized.imageKey).toBe("en/usage.png")
+            // Metin çevirisi yok → TR metnine düşer ve eksik olarak işaretlenir.
+            expect(localized.usageFunction).toBe("Türkçe açıklama")
+            expect(localized.translationMissing).toBe(true)
+        })
+
+        it("returns null when neither the locale nor the default has an image", () => {
+            const localized = localizeProductIndustrialUsage(makeUsage([
+                { locale: "tr", usageFunction: "Türkçe açıklama" },
+            ]), "en")
+
+            expect(localized.imageKey).toBeNull()
+        })
+
+        it("uses the default image for the default locale", () => {
+            const localized = localizeProductIndustrialUsage(
+                makeUsage(
+                    [{ locale: "tr", usageFunction: "Türkçe açıklama" }],
+                    { imageKey: "default/usage.png" },
+                ),
+                "tr",
+            )
+
+            expect(localized.imageKey).toBe("default/usage.png")
+        })
     })
 })

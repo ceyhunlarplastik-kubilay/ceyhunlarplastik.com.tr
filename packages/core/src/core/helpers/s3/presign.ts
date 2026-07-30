@@ -143,15 +143,23 @@ export async function generateProductIndustrialUsageImageUpload({
     productSlug,
     fileName,
     contentType,
+    locale,
 }: {
     productSlug: string
     fileName: string
     contentType: string
+    /**
+     * Kullanım görselleri dile göre değişebilir (görselin içinde yazı var).
+     * Verildiğinde key'e bir locale segmenti eklenir; verilmezse eski şablon
+     * korunur, böylece mevcut key'ler etkilenmez.
+     */
+    locale?: string
 }) {
     const safeName = sanitizeFileName(fileName)
     const ext = safeName.includes(".") ? safeName.split(".").pop() : undefined
     const uuid = randomUUID()
-    const key = `products/${productSlug}/industrial-usages/${uuid}${ext ? `.${ext}` : ""}`
+    const localeSegment = locale ? `${sanitizeFileName(locale)}/` : ""
+    const key = `products/${productSlug}/industrial-usages/${localeSegment}${uuid}${ext ? `.${ext}` : ""}`
 
     const cmd = new PutObjectCommand({
         Bucket: process.env.BUCKET_NAME!,

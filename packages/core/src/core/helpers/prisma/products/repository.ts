@@ -189,6 +189,7 @@ const productIndustrialUsageTranslationsSelect = {
         id: true,
         locale: true,
         usageFunction: true,
+        imageKey: true,
         createdAt: true,
         updatedAt: true,
     },
@@ -279,6 +280,27 @@ export type ProductListItem = Prisma.ProductGetPayload<{ include: typeof listCar
 
 export type ProductListView = "card" | "full"
 
+const productForUpdateSelect = {
+    id: true,
+    code: true,
+    name: true,
+    slug: true,
+    description: true,
+    categoryId: true,
+    category: {
+        select: {
+            id: true,
+            code: true,
+            allowedAttributeValueIds: true,
+        },
+    },
+    industrialUsages: {
+        select: { id: true },
+    },
+} satisfies Prisma.ProductSelect
+
+export type ProductForUpdate = Prisma.ProductGetPayload<{ select: typeof productForUpdateSelect }>
+
 export interface IPrismaProductRepository {
     listProducts(
         query: IPaginationQuery & { categoryId?: string; category?: string; locale?: SupportedLocale },
@@ -293,6 +315,14 @@ export interface IPrismaProductRepository {
         }
     }>
     getProduct(id: string): Promise<ProductWithRelations>
+    /**
+     * Update handler'ının doğrulama için ihtiyaç duyduğu MİNİMUM okuma.
+     * `getProduct` baseInclude ile geliyor (kategori+çevirileri, assets, ürün
+     * çevirileri, attributeValues'un parent zinciri ve çevirileri, tüm
+     * industrialUsages + çevirileri + 3 attribute value'su); update yolu bunların
+     * yalnız birkaç skalar alanını ve mevcut usage ID'lerini kullanıyor.
+     */
+    getProductForUpdate(id: string): Promise<ProductForUpdate | null>
     getProductBySlug(slug: string, locale?: SupportedLocale): Promise<ProductWithRelations>
     createProduct(data: Prisma.ProductCreateInput): Promise<ProductWithRelations>
     updateProduct(id: string, data: Prisma.ProductUpdateInput): Promise<ProductWithRelations>
@@ -578,6 +608,12 @@ export const productRepository = (): IPrismaProductRepository => {
             include: baseInclude
         })
 
+    const getProductForUpdate = (id: string) =>
+        prisma.product.findUnique({
+            where: { id },
+            select: productForUpdateSelect,
+        })
+
     const getProductBySlug = async (
         slug: string,
         locale: SupportedLocale = DEFAULT_LOCALE,
@@ -604,6 +640,27 @@ export const productRepository = (): IPrismaProductRepository => {
             const fallbackTranslation = await findTranslation(DEFAULT_LOCALE)
             if (fallbackTranslation) return fallbackTranslation.product
         }
+
+        // Slug BAŞKA bir dilin çevirisine ait olabilir. En yaygın yol: dil
+        // değiştirici ürün sayfasında mevcut slug'ı koruyor, yani EN sayfasından
+        // TR'ye geçmek /urun/<en-slug> üretiyor.
+        //
+        // Eskiden çözümleme asimetrikti: yalnız varsayılan-dil-DIŞI istekler TR'ye
+        // düşüyordu. TR isteği hiçbir çapraz-dil denemesi yapmadan legacy
+        // Product.slug kolonuna bakıyordu — o kolon TR slug'ını tuttuğu için
+        // /urun/<en-slug> 404 veriyordu.
+        //
+        // Ürün burada bulunur; sayfa bu locale'in kanonik slug'ına yönlendirir,
+        // böylece aynı içerik iki URL'de yayınlanmaz.
+        const anyLocaleTranslation = await prisma.productTranslation.findFirst({
+            where: { slug },
+            include: {
+                product: {
+                    include: baseInclude,
+                },
+            },
+        })
+        if (anyLocaleTranslation) return anyLocaleTranslation.product
 
         return prisma.product.findUniqueOrThrow({
             where: { slug },
@@ -633,6 +690,7 @@ export const productRepository = (): IPrismaProductRepository => {
     return {
         listProducts,
         getProduct,
+        getProductForUpdate,
         getProductBySlug,
         createProduct,
         updateProduct,

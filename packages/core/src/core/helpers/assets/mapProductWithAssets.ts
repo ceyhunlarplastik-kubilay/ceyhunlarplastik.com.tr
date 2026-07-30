@@ -169,9 +169,15 @@ function mapIndustrialUsage(usage: any, locale: SupportedLocale) {
         locale: localized.locale,
         resolvedLocale: localized.resolvedLocale,
         translationMissing: localized.translationMissing,
-        translations: localized.translations,
-        imageKey: usage.imageKey ?? null,
-        imageUrl: usage.imageKey ? buildAssetUrl(usage.imageKey) : null,
+        // Çeviri satırları admin formunu besler (EN görsel önizlemesi); public
+        // taraf yalnız çözümlenmiş imageKey/imageUrl'i okur.
+        translations: localized.translations.map((translation) => ({
+            ...translation,
+            imageUrl: translation.imageKey ? buildAssetUrl(translation.imageKey) : null,
+        })),
+        // localized.imageKey = istenen locale'in görseli, yoksa varsayılan (TR).
+        imageKey: localized.imageKey,
+        imageUrl: localized.imageKey ? buildAssetUrl(localized.imageKey) : null,
         displayOrder: usage.displayOrder ?? 0,
         createdAt: usage.createdAt,
         updatedAt: usage.updatedAt,

@@ -315,6 +315,7 @@ export const ProductIndustrialUsageTranslationScalarFieldEnum = {
   productIndustrialUsageId: 'productIndustrialUsageId',
   locale: 'locale',
   usageFunction: 'usageFunction',
+  imageKey: 'imageKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
