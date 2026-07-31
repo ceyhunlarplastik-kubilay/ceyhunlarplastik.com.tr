@@ -4,6 +4,7 @@ import type { ReactNode } from "react"
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 import { AdminLocaleSelect } from "./AdminLocaleSelect"
 import {
     ADMIN_DEFAULT_LOCALE,
@@ -28,6 +29,13 @@ type Props = {
     defaultLocaleField: ReactNode
     targetPlaceholder?: string
     disabled?: boolean
+    /**
+     * `card` (varsayılan): çerçeveli kutu — dialog'larda alanı görsel olarak gruplar.
+     * `plain`: çerçevesiz — komşuları çıplak input olan DAR satır-içi ızgaralarda
+     * (ör. değer ekleme araç çubuğu) kutu hem daha uzun durup hizayı bozuyor hem de
+     * gereksiz ağırlık katıyor.
+     */
+    variant?: "card" | "plain"
 }
 
 /**
@@ -51,11 +59,13 @@ export function AdminTranslatedNameSection({
     defaultLocaleField,
     targetPlaceholder,
     disabled,
+    variant = "card",
 }: Props) {
     const isDefaultLocale = activeLocale === ADMIN_DEFAULT_LOCALE
     const index = adminTranslationIndex(activeLocale)
     const localeLabel = adminLocaleLabel(activeLocale)
     const current = index >= 0 ? translations[index] : undefined
+    const isPlain = variant === "plain"
 
     function updateName(name: string) {
         if (index < 0) return
@@ -67,22 +77,37 @@ export function AdminTranslatedNameSection({
     }
 
     return (
-        <div className="space-y-3 rounded-lg border border-neutral-200 bg-neutral-50/60 p-3">
-            <div className="flex items-center justify-between gap-3">
-                <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                    {entityLabel}
+        <div
+            className={cn(
+                "min-w-0",
+                isPlain
+                    ? "space-y-1.5"
+                    : "space-y-3 rounded-lg border border-neutral-200 bg-neutral-50/60 p-3",
+            )}
+        >
+            <div className="flex items-center justify-between gap-2">
+                <span
+                    className={cn(
+                        "truncate font-semibold uppercase tracking-wide",
+                        isPlain
+                            ? "text-[11px] text-neutral-400"
+                            : "text-xs text-neutral-500",
+                    )}
+                >
+                    {isPlain ? "Çeviri dili" : entityLabel}
                 </span>
                 <AdminLocaleSelect
                     value={activeLocale}
                     onChange={onActiveLocaleChange}
                     filledLocales={filledTranslationLocales(translations)}
+                    className={isPlain ? "h-7 min-w-28 px-2 text-[11px]" : undefined}
                 />
             </div>
 
             {isDefaultLocale ? (
                 defaultLocaleField
             ) : (
-                <div className="space-y-2">
+                <div className={isPlain ? "space-y-1" : "space-y-2"}>
                     <div className="space-y-1.5">
                         <Label htmlFor={`translated-name-${activeLocale}`}>
                             {localeLabel} {entityLabel.toLocaleLowerCase("tr-TR")}
@@ -96,9 +121,15 @@ export function AdminTranslatedNameSection({
                             disabled={disabled}
                         />
                     </div>
-                    <p className="text-xs leading-5 text-neutral-500">
-                        Boş bırakılırsa {localeLabel} çevirisi oluşturulmaz, o dilde Türkçe içerik
-                        gösterilir. Dolu bir alanı silip kaydederseniz çeviri kaldırılır.
+                    <p
+                        className={cn(
+                            "text-neutral-500",
+                            isPlain ? "text-[11px] leading-4" : "text-xs leading-5",
+                        )}
+                    >
+                        {isPlain
+                            ? `Boş bırakılırsa ${localeLabel} çevirisi oluşturulmaz.`
+                            : `Boş bırakılırsa ${localeLabel} çevirisi oluşturulmaz, o dilde Türkçe içerik gösterilir. Dolu bir alanı silip kaydederseniz çeviri kaldırılır.`}
                     </p>
                 </div>
             )}

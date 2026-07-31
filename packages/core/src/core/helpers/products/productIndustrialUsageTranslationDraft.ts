@@ -1,13 +1,16 @@
 import { z } from "zod"
 
+import { getDeepLTargetLanguage } from "@/core/i18n/deeplLanguages"
+import type { TargetLocale } from "@/core/i18n/locales"
 import {
     TRANSLATION_DRAFT_SCHEMA_VERSION,
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    assertDraftTargetLanguageMatches,
     createTranslationSourceFingerprint,
+    translationDraftHeaderShape,
 } from "@/core/i18n/translationDraft"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEEPL_TARGET_LANGUAGE = "en-GB" as const
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
 
 const sourceSchema = z.object({
     usageFunction: z.string().min(1),
@@ -26,18 +29,12 @@ const entrySchema = z.object({
 }).strict()
 
 const draftSchema = z.object({
-    schemaVersion: z.literal(TRANSLATION_DRAFT_SCHEMA_VERSION),
-    provider: z.literal("deepl"),
+    ...translationDraftHeaderShape,
     entity: z.literal("productIndustrialUsage"),
-    sourceLocale: z.literal(SOURCE_LOCALE),
-    targetLocale: z.literal(TARGET_LOCALE),
-    deeplTargetLanguage: z.literal(DEEPL_TARGET_LANGUAGE),
-    generatedAt: z.string().min(1),
-    glossaryId: z.string().trim().min(1).nullable(),
-    estimatedCharacters: z.number().int().nonnegative(),
-    billedCharacters: z.number().int().nonnegative(),
     entries: z.array(entrySchema),
 }).strict().superRefine((draft, context) => {
+    assertDraftTargetLanguageMatches(draft, context)
+
     const usageIds = new Set<string>()
 
     for (const [index, entry] of draft.entries.entries()) {
@@ -68,7 +65,7 @@ export type ProductIndustrialUsageTranslationState = {
 
 export type ProductIndustrialUsageTranslationWrite = {
     productIndustrialUsageId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     usageFunction: string
 }
 
@@ -119,6 +116,7 @@ export function parseProductIndustrialUsageTranslationDraft(input: unknown) {
 export function createProductIndustrialUsageTranslationDraft({
     candidates,
     translatedUsageFunctions,
+    targetLocale,
     generatedAt = new Date(),
     glossaryId,
     estimatedCharacters,
@@ -131,6 +129,7 @@ export function createProductIndustrialUsageTranslationDraft({
         sourceUsageFunction: string
     }>
     translatedUsageFunctions: string[]
+    targetLocale: TargetLocale
     generatedAt?: Date
     glossaryId?: string
     estimatedCharacters: number
@@ -147,8 +146,8 @@ export function createProductIndustrialUsageTranslationDraft({
         provider: "deepl",
         entity: "productIndustrialUsage",
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
-        deeplTargetLanguage: DEEPL_TARGET_LANGUAGE,
+        targetLocale,
+        deeplTargetLanguage: getDeepLTargetLanguage(targetLocale),
         generatedAt: generatedAt.toISOString(),
         glossaryId: glossaryId?.trim() || null,
         estimatedCharacters,
@@ -234,7 +233,7 @@ export function buildProductIndustrialUsageTranslationWrites({
 
         writes.push({
             productIndustrialUsageId: usage.id,
-            locale: TARGET_LOCALE,
+            locale: draft.targetLocale,
             usageFunction,
         })
     }

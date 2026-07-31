@@ -1,14 +1,17 @@
 import { z } from "zod"
 
+import { getDeepLTargetLanguage } from "@/core/i18n/deeplLanguages"
+import type { TargetLocale } from "@/core/i18n/locales"
 import {
     TRANSLATION_DRAFT_SCHEMA_VERSION,
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    assertDraftTargetLanguageMatches,
     createTranslationSourceFingerprint,
+    translationDraftHeaderShape,
 } from "@/core/i18n/translationDraft"
 import { normalizeProductAttributeValueTranslations } from "./productAttributeTranslations"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEEPL_TARGET_LANGUAGE = "en-GB" as const
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
 
 const sourceSchema = z.object({
     name: z.string().min(2),
@@ -38,21 +41,15 @@ const valueEntrySchema = z.object({
 }).strict()
 
 const productTaxonomyTranslationDraftSchema = z.object({
-    schemaVersion: z.literal(TRANSLATION_DRAFT_SCHEMA_VERSION),
-    provider: z.literal("deepl"),
+    ...translationDraftHeaderShape,
     entity: z.literal("productTaxonomy"),
-    sourceLocale: z.literal(SOURCE_LOCALE),
-    targetLocale: z.literal(TARGET_LOCALE),
-    deeplTargetLanguage: z.literal(DEEPL_TARGET_LANGUAGE),
-    generatedAt: z.string().min(1),
-    glossaryId: z.string().trim().min(1).nullable(),
-    estimatedCharacters: z.number().int().nonnegative(),
-    billedCharacters: z.number().int().nonnegative(),
     entries: z.array(z.discriminatedUnion("entity", [
         attributeEntrySchema,
         valueEntrySchema,
     ])),
 }).strict().superRefine((draft, context) => {
+    assertDraftTargetLanguageMatches(draft, context)
+
     const attributeIds = new Set<string>()
     const valueIds = new Set<string>()
 
@@ -107,14 +104,14 @@ export type ProductAttributeValueTranslationState = {
 
 export type ProductAttributeTranslationWrite = {
     productAttributeId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     name: string
 }
 
 export type ProductAttributeValueTranslationWrite = {
     productAttributeValueId: string
     attributeId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     name: string
     slug: string
 }
@@ -122,7 +119,7 @@ export type ProductAttributeValueTranslationWrite = {
 export type ProductTaxonomyTranslationDraftStore = {
     loadAttributes(attributeIds: string[]): Promise<ProductAttributeTranslationState[]>
     loadValues(valueIds: string[]): Promise<ProductAttributeValueTranslationState[]>
-    findValueSlugOwners(locale: typeof TARGET_LOCALE, slugs: Array<{
+    findValueSlugOwners(locale: TargetLocale, slugs: Array<{
         attributeId: string
         slug: string
     }>): Promise<Array<{
@@ -178,6 +175,7 @@ export function parseProductTaxonomyTranslationDraft(input: unknown) {
 export function createProductTaxonomyTranslationDraft({
     candidates,
     translatedNames,
+    targetLocale,
     generatedAt = new Date(),
     glossaryId,
     estimatedCharacters,
@@ -199,6 +197,7 @@ export function createProductTaxonomyTranslationDraft({
         }
     >
     translatedNames: string[]
+    targetLocale: TargetLocale
     generatedAt?: Date
     glossaryId?: string
     estimatedCharacters: number
@@ -215,8 +214,8 @@ export function createProductTaxonomyTranslationDraft({
         provider: "deepl",
         entity: "productTaxonomy",
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
-        deeplTargetLanguage: DEEPL_TARGET_LANGUAGE,
+        targetLocale,
+        deeplTargetLanguage: getDeepLTargetLanguage(targetLocale),
         generatedAt: generatedAt.toISOString(),
         glossaryId: glossaryId?.trim() || null,
         estimatedCharacters,
@@ -247,7 +246,7 @@ export function createProductTaxonomyTranslationDraft({
 
             const normalized = normalizeProductAttributeValueTranslations({
                 translations: [{
-                    locale: TARGET_LOCALE,
+                    locale: targetLocale,
                     name: translatedName,
                 }],
             }).translations[0]
@@ -336,7 +335,7 @@ export function buildProductTaxonomyTranslationWrites({
 
             writes.attributes.push({
                 productAttributeId: attribute.id,
-                locale: TARGET_LOCALE,
+                locale: draft.targetLocale,
                 name,
             })
             continue
@@ -383,7 +382,7 @@ export function buildProductTaxonomyTranslationWrites({
         try {
             const normalized = normalizeProductAttributeValueTranslations({
                 translations: [{
-                    locale: TARGET_LOCALE,
+                    locale: draft.targetLocale,
                     name: entry.target.name,
                     slug: entry.target.slug,
                 }],
@@ -402,7 +401,7 @@ export function buildProductTaxonomyTranslationWrites({
             writes.values.push({
                 productAttributeValueId: value.id,
                 attributeId: value.attributeId,
-                locale: TARGET_LOCALE,
+                locale: draft.targetLocale,
                 name: normalized.name,
                 slug: normalized.slug,
             })

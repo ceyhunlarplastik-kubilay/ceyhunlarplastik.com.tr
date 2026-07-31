@@ -225,6 +225,7 @@ export function CategoryCreateForm({ onCreated }: Props) {
                                                 translations={field.value}
                                                 onTranslationsChange={field.onChange}
                                                 targetPlaceholder="Bakelite Handles"
+                                                variant="plain"
                                                 defaultLocaleField={
                                                     <ControllerField
                                                         control={form.control}

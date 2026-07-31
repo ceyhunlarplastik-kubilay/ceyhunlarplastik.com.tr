@@ -1,0 +1,1279 @@
+{
+    "common": {
+        "siteName": "Ceyhunlar Plastik"
+    },
+    "chrome": {
+        "nav": {
+            "corporate": "コーポレート",
+            "categories": "カテゴリー",
+            "sectoralProducts": "業界別製品",
+            "services": "サービス",
+            "catalogs": "カタログ",
+            "contact": "お問い合わせ",
+            "logoAlt": "Ceyhunlar Plastik",
+            "corporateItems": {
+                "about": {
+                    "title": "会社概要",
+                    "description": "当社の沿革、ビジョン、ミッションについてご覧ください。"
+                },
+                "sustainability": {
+                    "title": "サステナビリティ",
+                    "description": "当社の環境に配慮した製造プロセスと持続可能性に関する方針。"
+                },
+                "hr": {
+                    "title": "人事",
+                    "description": "採用情報と当社の従業員価値観。"
+                },
+                "feedback": {
+                    "title": "ご提案・ご意見",
+                    "description": "ご意見やご提案がございましたら、ぜひお聞かせください。"
+                }
+            },
+            "serviceItems": {
+                "rnd": {
+                    "title": "研究開発およびプロトタイピング",
+                    "description": "お客様のニーズに合わせたプラスチック製品の設計。"
+                },
+                "printing3d": {
+                    "title": "3Dプリントとスキャン",
+                    "description": "法人のお客様向けの特別価格。"
+                },
+                "machining": {
+                    "title": "切削加工",
+                    "description": "迅速かつ安全な配送サービス。"
+                },
+                "massProduction": {
+                    "title": "量産",
+                    "description": "プロジェクトベースの技術コンサルティングサービス。"
+                }
+            }
+        },
+        "mobileMenu": {
+            "title": "メニュー",
+            "closeAria": "メニューを閉じる"
+        },
+        "cart": {
+            "goToCart": "カートへ進む",
+            "goToCartAria": "リクエストカートへ進む"
+        },
+        "languageSwitcher": {
+            "ariaLabel": "言語の選択"
+        },
+        "dialogs": {
+            "common": {
+                "submit": "送信",
+                "submitting": "送信中...",
+                "sentSuccess": "送信に成功しました",
+                "sentError": "エラーが発生しました"
+            },
+            "productRequest": {
+                "trigger": "製品のお問い合わせ",
+                "title": "製品のお問い合わせ",
+                "description": "ご希望の製品情報をお知らせください。弊社からご連絡いたします。",
+                "fields": {
+                    "companyName": "会社名",
+                    "fullName": "氏名",
+                    "phone": "電話番号（例：+90 (532) 123-4567）",
+                    "email": "メールアドレス",
+                    "product": "ご要望の製品"
+                },
+                "validation": {
+                    "companyNameRequired": "会社名は必須です",
+                    "fullNameMin": "氏名は2文字以上である必要があります",
+                    "phoneInvalid": "電話番号が無効です",
+                    "emailInvalid": "有効なメールアドレスを入力してください",
+                    "productRequired": "ご希望の製品名をご記入ください"
+                }
+            },
+            "catalogRequest": {
+                "trigger": "カタログを請求する",
+                "title": "カタログを請求する",
+                "description": "カタログのご請求をお送りください。メールにてお送りいたします。",
+                "fields": {
+                    "companyName": "会社名",
+                    "fullName": "氏名",
+                    "phone": "電話番号（例：+90 (532) 123-4567）",
+                    "address": "住所"
+                },
+                "validation": {
+                    "companyNameRequired": "会社名は必須です",
+                    "fullNameMin": "氏名は2文字以上である必要があります",
+                    "phoneInvalid": "電話番号が無効です",
+                    "addressMin": "住所は10文字以上である必要があります"
+                }
+            },
+            "mail": {
+                "trigger": "メールを送信",
+                "title": "メールを送信",
+                "description": "メッセージをお送りください。できるだけ早くご連絡いたします。",
+                "submit": "メッセージを送信",
+                "fields": {
+                    "fullName": "氏名",
+                    "phone": "電話番号（例：+90 (532) 123-4567）",
+                    "email": "メールアドレス",
+                    "message": "メッセージの詳細については、こちらにご記入ください"
+                },
+                "validation": {
+                    "fullNameMin": "氏名は2文字以上である必要があります",
+                    "phoneInvalid": "電話番号が無効です",
+                    "emailInvalid": "有効なメールアドレスを入力してください",
+                    "messageMin": "メッセージは10文字以上である必要があります"
+                }
+            }
+        },
+        "footer": {
+            "logoAlt": "Ceyhunlar",
+            "description": "当社の原則を貫き、ここまで歩んできた今、高品質な生産、技術への投資、そして先見性のある考え方を基に、今後も皆様にサービスを提供できることに大きな喜びを感じています。",
+            "corporateTitle": "コーポレート",
+            "servicesTitle": "サービス",
+            "productsTitle": "製品",
+            "contactTitle": "お問い合わせ",
+            "aboutLink": "会社概要",
+            "productionGroupsLink": "生産グループ",
+            "hrLink": "人事",
+            "sustainabilityLink": "サステナビリティ",
+            "contactLink": "お問い合わせ",
+            "rndLink": "研究開発および試作",
+            "printing3dLink": "3Dプリントとスキャン",
+            "machiningLink": "切削加工",
+            "massProductionLink": "量産",
+            "sectoralProductsLink": "業界別製品",
+            "address": "Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir",
+            "copyright": "Copyright © 2026 Ceyhunlar – すべての権利を留保します。"
+        },
+        "navigationProgress": {
+            "label": "ページを読み込み中"
+        }
+    },
+    "shared": {
+        "breadcrumbs": {
+            "home": "トップページ",
+            "services": "サービス"
+        },
+        "productCard": {
+            "navigationPending": "製品の詳細が表示されます"
+        },
+        "enviroment": {
+            "word1": "自然",
+            "word2": "DOSTU",
+            "word3": "製造",
+            "subtitle": "当社は、生産量の<highlight>80％以上</highlight>を再生可能エネルギーで賄っています。",
+            "paragraph": "環境、社会、そして未来に対する私たちの配慮と責任に基づき、環境に優しい生産モデルを採用し、持続可能な世界と明るい未来の実現に向けて取り組んでいます。"
+        }
+    },
+    "auth": {
+        "shell": {
+            "secureAccess": "安全なアクセスフロー"
+        },
+        "errors": {
+            "Configuration": {
+                "title": "認証設定に誤りがあります",
+                "description": "システム設定で問題が発生しました。技術チームまでご連絡ください。"
+            },
+            "AccessDenied": {
+                "title": "アクセス権限がありません",
+                "description": "この作業エリアへのアクセス権限がありません、またはアクセスポリシーによりアクセスが制限されています。"
+            },
+            "Verification": {
+                "title": "確認リンクが無効です",
+                "description": "確認リンクの有効期限が切れているか、そのリンクは以前に使用された可能性があります。"
+            },
+            "OAuthSignin": {
+                "title": "導入フローを開始できませんでした",
+                "description": "Cognitoのセッション開始時にエラーが発生しました。ページを更新して、もう一度お試しください。"
+            },
+            "OAuthCallback": {
+                "title": "入力への応答を処理できませんでした",
+                "description": "IDプロバイダーからの応答を完了できませんでした。もう一度お試しください。"
+            },
+            "Callback": {
+                "title": "本人確認が完了できませんでした",
+                "description": "ログイン中に予期せぬエラーが発生しました。"
+            },
+            "SessionRequired": {
+                "title": "ログインが必要です",
+                "description": "このページを表示するには、まずログインする必要があります。"
+            },
+            "INVALID_CREDENTIALS": {
+                "title": "入力情報に誤りがあります",
+                "description": "メールアドレスとパスワードを確認の上、もう一度お試しください。"
+            },
+            "USER_NOT_CONFIRMED": {
+                "title": "アカウントは未認証です",
+                "description": "続行するには、アカウントの確認が必要です。確認コード画面に進むことができます。"
+            },
+            "CODE_MISMATCH": {
+                "title": "コードを確認できませんでした",
+                "description": "入力された認証コードは有効ではありません。コードを確認して、もう一度お試しください。"
+            },
+            "EXPIRED_CODE": {
+                "title": "コードの有効期限が切れました",
+                "description": "認証コードの有効期限が切れているようです。新しいコードをリクエストして、もう一度お試しください。"
+            },
+            "USERNAME_EXISTS": {
+                "title": "このメールアドレスはすでに登録されています",
+                "description": "このアドレスには既存のアカウントがあります。ログインするか、パスワード再設定の手順をご利用ください。"
+            },
+            "TOO_MANY_REQUESTS": {
+                "title": "何度も試行錯誤が行われました",
+                "description": "短時間のうちに多数のアクセスがありました。数分後に再度お試しください。"
+            },
+            "UNSUPPORTED_CHALLENGE": {
+                "title": "追加の確認が必要です",
+                "description": "このアカウントでは、初期バージョンではサポートされていないセキュリティ手順が必要です。技術チームにご連絡ください。"
+            },
+            "WEAK_PASSWORD": {
+                "title": "パスワードの強度が不十分です",
+                "description": "より強力なパスワードを設定して、もう一度お試しください。"
+            },
+            "PASSWORD_RESET_REQUIRED": {
+                "title": "パスワードのリセットが必要です",
+                "description": "このアカウントについては、まずパスワードのリセット手続きを完了する必要があります。"
+            },
+            "INVALID_PARAMETER": {
+                "title": "送信された情報は無効です",
+                "description": "フォームの入力項目を確認してから、再度お試しください。"
+            },
+            "AUTH_SERVICE_UNAVAILABLE": {
+                "title": "IDサービスに接続できません",
+                "description": "現在、ログインシステムに一時的にアクセスできません。数分後に再度お試しください。"
+            },
+            "RefreshTokenError": {
+                "title": "セッションを更新できませんでした",
+                "description": "セッションが切断された可能性があります。再度ログインしてください。"
+            },
+            "UNKNOWN_AUTH_ERROR": {
+                "title": "本人確認手続きが完了できませんでした",
+                "description": "予期せぬ問題が発生しました。もう一度お試しください。"
+            },
+            "Default": {
+                "title": "ログイン処理を完了できませんでした",
+                "description": "認証中に予期せぬ問題が発生しました。もう一度お試しください。"
+            }
+        },
+        "signIn": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "title": "管理パネルにログインしてください",
+            "sideTitle": "アクセス制御、シングルセッション体験",
+            "badge": "中央認証",
+            "badgeDescription": "ログイン、登録、パスワードリセットのフローは、アプリケーション内で管理されます。",
+            "targetLabel": "現在の目標：",
+            "emailLabel": "Eメール",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "passwordLabel": "パスワード",
+            "passwordPlaceholder": "パスワードを入力してください",
+            "submit": "ログイン",
+            "submitting": "ログイン中...",
+            "forgotPassword": "パスワードを忘れた",
+            "verifyAccount": "アカウントを確認する",
+            "createAccount": "新規アカウントを作成",
+            "goHome": "トップページへ",
+            "notices": {
+                "confirmed": {
+                    "title": "アカウントが確認されました",
+                    "description": "これで、メールアドレスとパスワードを使ってログインできます。"
+                },
+                "passwordReset": {
+                    "title": "パスワードが更新されました",
+                    "description": "新しいパスワードでログインできます。"
+                }
+            }
+        },
+        "signUp": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "title": "新規アカウントを作成する",
+            "sideTitle": "社内チームおよびビジネスパートナー向けの管理された登録",
+            "firstNameLabel": "名称",
+            "firstNamePlaceholder": "お名前",
+            "lastNameLabel": "姓",
+            "lastNamePlaceholder": "ご氏名",
+            "emailLabel": "Eメール",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "passwordLabel": "パスワード",
+            "passwordPlaceholder": "8文字以上",
+            "confirmPasswordLabel": "パスワードの再入力",
+            "confirmPasswordPlaceholder": "パスワードを再入力してください",
+            "submit": "アカウントを作成",
+            "submitting": "登録中...",
+            "codeSentToast": "確認コードがメールアドレスに送信されました。",
+            "signInLink": "ログインしてください",
+            "goHome": "トップページへ"
+        },
+        "forgotPassword": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "パスワードをリセットする",
+            "shellSideTitle": "管理されたパスワード再設定フロー",
+            "infoTitle": "パスワードのリセット",
+            "infoDescription": "アカウントに登録されているメールアドレスを入力してください。新しいパスワードを設定できるよう、確認コードをお送りします。AWS Cognitoのパスワードリセットコードの有効期限は1時間です。",
+            "emailLabel": "Eメール",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "submit": "リセットコードを送信",
+            "submitting": "コードを送信中...",
+            "codeSentToast": "パスワードリセットコードが送信されました。",
+            "backToSignIn": "トップ画面に戻る",
+            "createAccount": "新規アカウントを作成"
+        },
+        "resetPassword": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "新しいパスワードを設定してください",
+            "shellSideTitle": "ワンタイム認証でパスワードをリセットしてください",
+            "infoTitle": "新しいパスワードを設定してください",
+            "infoDescription": "メールで届いたコードを使用して、新しいパスワードを設定してください。AWS Cognitoのパスワードリセットコードの有効期限は1時間です。",
+            "emailLabel": "Eメール",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "認証コード",
+            "codeDescription": "コードの有効期間は1時間です。",
+            "newPasswordLabel": "新しいパスワード",
+            "newPasswordPlaceholder": "8文字以上",
+            "confirmPasswordLabel": "新しいパスワードの再入力",
+            "confirmPasswordPlaceholder": "パスワードを再入力してください",
+            "submit": "パスワードを更新",
+            "submitting": "パスワードを更新中...",
+            "successToast": "パスワードが更新されました。新しいパスワードでログインできます。",
+            "resendCode": "コードを再リクエスト",
+            "backToSignIn": "トップ画面に戻る"
+        },
+        "confirmSignUp": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "アカウントを確認してください",
+            "shellSideTitle": "最初のステップを検証して完了させてください",
+            "infoTitle": "アカウントを確認してください",
+            "infoDescription": "メールアドレスに送信された認証コードを入力してください。コードが届かない場合は、新しいコードをリクエストできます。AWS Cognitoの認証コードの有効期限は24時間です。",
+            "emailLabel": "Eメール",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "認証コード",
+            "codeDescription": "コードはメール本文に記載されており、24時間有効です。",
+            "submit": "アカウントを確認する",
+            "submitting": "検証中...",
+            "resend": "コードを再送信",
+            "resending": "送信中...",
+            "successToast": "アカウントが確認されました。管理者の承認を待っています。",
+            "resendToast": "新しい認証コードが送信されました。",
+            "emailRequiredError": "コードを送信するには、メールアドレスが必要です。",
+            "backToSignIn": "トップ画面に戻る",
+            "editEmail": "メールを編集する"
+        },
+        "awaiting": {
+            "eyebrow": "Ceyhunlar",
+            "shellTitle": "承認待ち",
+            "shellSideTitle": "アカウントが作成されました",
+            "infoTitle": "アカウントが作成されました",
+            "infoDescription": "承認待ちです。管理者がアカウントを確認し、適切な役割を割り当てた後、アクセスが可能になります。ステータス：審査中。",
+            "emailNotice": "通知は <strong>{email}</strong> 宛てに送信されます。",
+            "backToSignIn": "トップ画面に戻る",
+            "goHome": "トップページへ"
+        },
+        "unauthorized": {
+            "eyebrow": "アクセス制御",
+            "shellTitle": "権限不足",
+            "shellSideTitle": "正しいパネルへの誘導",
+            "infoTitle": "この領域に対する権限がありません",
+            "infoDescription": "該当ページを表示するための権限がありません。適切なワークスペースまたはトップページに戻ることができます。",
+            "requestedAreaLabel": "対象領域：",
+            "unknown": "不明",
+            "goToPanel": "該当するパネルへ移動",
+            "goHome": "トップページに戻る"
+        },
+        "signOut": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "セッションを終了する",
+            "shellSideTitle": "安全な排出フロー",
+            "description": "ログアウトすると、アプリケーションのセッションがクリアされるほか、Cognitoのリフレッシュトークン（存在する場合）も無効化されます。その後、セキュアなログイン画面に戻ります。",
+            "submit": "ログアウト",
+            "cancel": "キャンセル"
+        },
+        "errorPage": {
+            "eyebrow": "Ceyhunlar Plastik",
+            "shellTitle": "認証エラー",
+            "shellSideTitle": "エラーが発生した場合でも、制御された体験を提供してください",
+            "backToSignIn": "トップページに戻る",
+            "goHome": "トップページへ"
+        },
+        "validation": {
+            "signIn": {
+                "emailInvalid": "有効なメールアドレスを入力してください。",
+                "passwordRequired": "パスワードを入力してください。"
+            },
+            "signUp": {
+                "firstNameMin": "名前は2文字以上にしてください。",
+                "lastNameMin": "姓は2文字以上である必要があります。",
+                "emailInvalid": "有効なメールアドレスを入力してください。",
+                "passwordMin": "パスワードは8文字以上である必要があります。",
+                "confirmPasswordRequired": "パスワードの再入力を行ってください。",
+                "passwordsMismatch": "パスワードが一致しません。"
+            },
+            "forgotPassword": {
+                "emailInvalid": "有効なメールアドレスを入力してください。"
+            },
+            "resetPassword": {
+                "emailInvalid": "有効なメールアドレスを入力してください。",
+                "codeMin": "確認コードを入力してください。",
+                "passwordMin": "パスワードは8文字以上である必要があります。",
+                "confirmPasswordRequired": "パスワードの再入力を行ってください。",
+                "passwordsMismatch": "パスワードが一致しません。"
+            },
+            "confirmSignUp": {
+                "emailInvalid": "有効なメールアドレスを入力してください。",
+                "codeMin": "確認コードを入力してください。"
+            }
+        }
+    },
+    "home": {
+        "hero": {
+            "words": [
+                "研究開発および試作",
+                "3Dプリントとスキャン",
+                "切削加工",
+                "量産"
+            ],
+            "titleSuffix": "プラスチックソリューション",
+            "subtitle": "試作から量産に至るまでの全プロセスをワンストップで管理するCeyhunlar Plastikは、プラスチック、ゴム、ベークライト製品において、高い品質、エンジニアリング力、そして幅広い製品ラインナップにより、お客様の産業ニーズに信頼できるソリューションを提供します。",
+            "ctaProducts": "当社の製品をご覧ください",
+            "ctaQuote": "お見積りをご依頼ください",
+            "imageAlt": "プラスチック製造"
+        },
+        "about": {
+            "brand": "Ceyhunlar",
+            "subtitle": "プロジェクトから量産へ",
+            "lead": "Ceyhunlar Plastik Sanayi ve Ticaret Ltd. Şti.として、お客様のプロジェクトのあらゆる段階において、お力になります。",
+            "body1": "プラスチック、ゴム、金属、ベークライト製品に関するプロジェクトにおいて、草案から始まり、研究開発を経て、量産に至るまで、費用対効果を重視した当社のビジネスモデルにより、お客様ごとに最適なソリューションをご提供いたします。",
+            "body2": "お客様のプロジェクトを最終製品へと導くために、3Dモデリング、モデル解析、サンプルおよびプロトタイプの製作、生産解析、成形、量産プレス加工といったサービスをワンストップで提供しています。",
+            "body3": "新製品開発のご要望については、当社の研究開発サービスをご利用いただけます。また、特注製品のご注文についてはお見積もりをご依頼いただけます。35,000点以上の製品を掲載したカタログをご覧いただくことも可能です。さらに、販売代理店をご希望の場合は、当社までお問い合わせください。",
+            "infoTitle": "200名以上の専門家からなる当社のチームで",
+            "infoDescription": "当社のチームの知識と専門性が、提供するソリューションの品質と信頼性を保証します。",
+            "infoCtaPrimary": "会社概要",
+            "infoCtaSecondary": "お問い合わせ"
+        },
+        "services": {
+            "brand": "Ceyhunlar",
+            "subtitle": "プロジェクトから量産へ",
+            "cards": [
+                {
+                    "title": "研究開発および試作",
+                    "description": "お客様のプロジェクトは、試作および量産に先立ち、当社の最先端の設計・解析技術を用いて開発されます。"
+                },
+                {
+                    "title": "3Dプリントとスキャン",
+                    "description": "研究開発プロセスが完了したプロジェクトについては、必要に応じてスキャンを行い、CADモデリングを実施した上で、3Dプリントによる試作を行います。"
+                },
+                {
+                    "title": "切削加工",
+                    "description": "研究開発、分析、試作が完了した製品の量産に向けて、当社の金型製造部門にて金型の準備を行います。"
+                },
+                {
+                    "title": "量産用金属",
+                    "description": "金属量産用金型で成形された部品は、当社のプレス加工部門において、高精度で金属量産プロセスに組み込まれています。"
+                },
+                {
+                    "title": "量産プラスチック",
+                    "description": "量産用金型が完成したプラスチック部品は、射出成形、ブロー成形、押出成形の各手法を用いて量産されます。"
+                },
+                {
+                    "title": "量産用ゴム",
+                    "description": "量産用金型が完成したゴム部品の、当社の油圧プレス部門における量産。"
+                },
+                {
+                    "title": "量産用ベークライト",
+                    "description": "量産用金型が完成したベークライト部品の、当社のベークライト射出成形部門における量産。"
+                }
+            ]
+        },
+        "products": {
+            "title": "当社の製品",
+            "subtitle": "幅広い製品ラインナップと高い生産能力を活かし、あらゆる業界に特化したソリューションを提供しています。"
+        },
+        "quality": {
+            "title": "当社の品質方針",
+            "body": "ISO規格に準拠した製造プロセス、継続的改善のアプローチ、および完全なトレーサビリティの原則により、品質を保証しています。",
+            "highlights": [
+                {
+                    "title": "短納期",
+                    "description": "ベストセラー商品は在庫ありで迅速にお届けします。"
+                },
+                {
+                    "title": "認証済み製品",
+                    "description": "認証取得済みの製造プロセスを通じて、すべての製品に自信を持っています。"
+                },
+                {
+                    "title": "サンプルのお申し込み",
+                    "description": "ご購入前に、テスト用のサンプルをご請求ください。"
+                },
+                {
+                    "title": "テクニカルサポート",
+                    "description": "プロジェクトのあらゆる段階で専門家のサポートを提供します。"
+                }
+            ]
+        },
+        "process": {
+            "brand": "Ceyhunlar",
+            "title": "「プロジェクトから量産へ」とは？",
+            "block1Title": "貴社のプラスチック、ゴム、金属、ベークライト製品のプロジェクトについては；",
+            "block1Body": "草案から始まり、研究開発を経て、量産で完結する、費用対効果を基本原則とする当社のビジネスモデルを通じて、皆様にサービスを提供しております。",
+            "block2Title": "お客様のプロジェクトが最終製品として完成するために；",
+            "block2Body": "3Dモデリング、モデル解析、試作品のプロトタイピング、生産解析、成形、量産を通じて、お客様のプロジェクトを最終的な成果へと導きます。",
+            "features": [
+                {
+                    "title": "研究開発および設計",
+                    "description": "革新的な研究開発プロセスと独自のデザインアプローチ。"
+                },
+                {
+                    "title": "高品質な製造",
+                    "description": "「エラーゼロ」の原則に基づき、エンドツーエンドの品質管理を実施してください。"
+                },
+                {
+                    "title": "認証済み製品",
+                    "description": "すべての製品は、認証を受けた製造体制によって支えられています。"
+                },
+                {
+                    "title": "顧客満足度",
+                    "description": "各段階において、透明性のあるコミュニケーションと専門家のサポートを提供します。"
+                }
+            ],
+            "ctaBanner": "ご提案ください。一緒に決定し、私たちが製造します。",
+            "form": {
+                "title": "お問い合わせ",
+                "subtitle": "フォームにご記入ください。当社の専門チームが、できるだけ早くご連絡いたします。",
+                "fullName": "氏名",
+                "phone": "電話番号（例：+90 (532) 123-4567）",
+                "email": "メールアドレス",
+                "submit": "送信",
+                "submitting": "送信中...",
+                "toastLoading": "送信中...",
+                "toastSuccess": "メッセージは正常に送信されました！",
+                "toastError": "送信中にエラーが発生しました！"
+            },
+            "validation": {
+                "fullNameMin": "氏名は2文字以上である必要があります",
+                "phoneInvalid": "電話番号が無効です",
+                "emailInvalid": "有効なメールアドレスを入力してください"
+            }
+        },
+        "assistant": {
+            "title": "製品アシスタント",
+            "steps": [
+                "ウェルカムメッセージ",
+                "業界",
+                "生産グループと用途"
+            ],
+            "noImage": "画像はありません",
+            "welcome": {
+                "greeting": "こんにちは",
+                "question": "お客様のニーズに最適な製品を見つけるお手伝いをさせていただきませんか？",
+                "start": "はい、始めましょう",
+                "decline": "今のところ結構です、自分で確認します"
+            },
+            "sector": {
+                "title": "事業分野を選択してください",
+                "hint": "翻訳は1つの選択肢のみを行ってください。"
+            },
+            "usage": {
+                "title": "製造グループと用途を選択してください",
+                "hint": "各製造グループをクリックすると、関連する用途ページに素早く移動できます。",
+                "searchPlaceholder": "用途を検索...",
+                "noResults": "結果が見つかりませんでした。"
+            },
+            "nav": {
+                "back": "戻る",
+                "continue": "続行",
+                "listProducts": "製品一覧"
+            }
+        },
+        "toasts": {
+            "accessDenied": "このページへのアクセス権限がありません。"
+        }
+    },
+    "public": {
+        "sustainability": {
+            "meta": {
+                "title": "サステナビリティ",
+                "description": "Ceyhunlar Plastikの持続可能な生産と環境に配慮した取り組み。"
+            },
+            "intro": {
+                "heroTitle": "持続可能な生産",
+                "heroBody": "持続可能な生産とは、世界の資源を持続可能性の限界の範囲内で利用することを基本とし、自然環境への被害を最小限に抑える方法を模索し、未来を保障する生産形態です。 今日では、すべての消費者と同様に、すべての生産者も持続可能な取り組みを行う必要があります。Ceyhunlar Plastikとして、私たちは自らの責務を果たし、クリーンな世界のためにクリーンな一歩を踏み出しています。",
+                "imageAlt": "自然と持続可能性",
+                "protectTitle": "天然資源を <highlight>地球を守ります。</highlight>",
+                "protectBody": "私たちが掲げる「自然と環境への意識を持って行動する」という使命のもと、長年にわたり蓄積された知識と経験を世界のプラスチック業界で活用することを目指し、自国と自然の両方を考慮した、ダイナミックで革新的なソリューションを開発しています。",
+                "certAlt": "認証 {number}"
+            },
+            "impact": {
+                "title": "再生可能なプラスチック",
+                "body1": "プラスチックは多くの消費財の構成要素であり、製造業の生産高および最終製品の大部分を占めています。しかし、すべてのプラスチックが同じというわけではありません。つまり、すべてのプラスチックが同じ方法で廃棄・リサイクルできるわけではないということです。",
+                "body2": "Ceyhunlar Plastikでは、リサイクルに適した製品を製造しています。自然への配慮の一環として、生産現場では再生可能エネルギーの利用に細心の注意を払っています。",
+                "imageAlt": "サステナビリティ",
+                "items": {
+                    "recycling": "リサイクル",
+                    "zeroWaste": "ゼロ・ウェイスト",
+                    "sustainableProduction": "持続可能な生産",
+                    "respectNature": "自然への敬意"
+                }
+            },
+            "energy": {
+                "title": "私たちのエネルギーは <highlight>太陽から！</highlight>",
+                "body": "当社は、持続可能なエネルギーソリューションを通じて、将来のエネルギー需要に向けた重要な一歩を踏み出しています。太陽エネルギーは、自然が私たちに与えてくれる、クリーンで再生可能、かつ無限の資源です。私たちもこの貴重な資源を活用し、エネルギー需要を満たしています。",
+                "imageAlt": "太陽光発電",
+                "imageAlt2": "ソーラーパネルの詳細",
+                "imageAlt3": "エネルギー生産"
+            }
+        },
+        "products": {
+            "meta": {
+                "title": "製品カテゴリー",
+                "description": "Ceyhunlar Plastikの製品カテゴリーをご覧ください。ベークライト製ハンドル、プラスチック製品など、さまざまな商品を取り揃えています。"
+            },
+            "heroTitle": "製品カテゴリー",
+            "breadcrumbSelf": "製品カテゴリー",
+            "empty": "製品カテゴリが見つかりませんでした。"
+        },
+        "materials": {
+            "meta": {
+                "title": "原材料の認証書",
+                "description": "Ceyhunlar Plastikの原材料証明書をご確認の上、PDF形式でダウンロードしてください。"
+            },
+            "heroTitle": "原材料の認証書",
+            "breadcrumbSelf": "原材料の認証書",
+            "empty": "現在、原材料の認証書は掲載されていません。",
+            "certificateSuffix": "認証 {number}",
+            "download": "ダウンロード"
+        },
+        "cart": {
+            "meta": {
+                "title": "リクエストバスケット",
+                "description": "選択した製品バリエーションの注文カゴです。"
+            },
+            "heroTitle": "リクエストバスケット",
+            "breadcrumbSelf": "リクエストバスケット",
+            "title": "リクエストバスケット",
+            "subtitle": "選択したバリエーションがここに一覧表示されます。連絡先情報を入力して、リクエストを送信してください。",
+            "itemsLabel": "カート内の商品",
+            "itemCount": "{count} 製品",
+            "emptyText": "カートは空です。",
+            "emptyLink": "製品をご覧ください",
+            "codeLabel": "コード：",
+            "variantLabel": "バリエーション：",
+            "quantityLabel": "数量：",
+            "removeAria": "商品をカートから削除する",
+            "formTitle": "お問い合わせフォーム",
+            "formSubtitle": "フォームに必要事項を入力し、ご依頼をお送りください。",
+            "fields": {
+                "name": "氏名",
+                "email": "Eメール",
+                "phone": "電話番号（任意）",
+                "message": "補足（任意）"
+            },
+            "submit": "リクエストを送信",
+            "submitting": "送信中..."
+        },
+        "productFilter": {
+            "pageTitle": "業界別製品",
+            "filteringTitle": "{name} フィルタリング",
+            "filteringLabel": "フィルタリング",
+            "productCategories": "製品カテゴリー",
+            "categoryMetaDescription": "{name} 製品グループをご覧ください。",
+            "categoryOgDescription": "{name} 製品グループ",
+            "searchPlaceholder": "製品コードまたは製品名を検索",
+            "selectedCategory": "選択したカテゴリ",
+            "categoriesTitle": "カテゴリー",
+            "codePrefix": "コード",
+            "productFiltersTitle": "製品フィルター",
+            "productFiltersDesc": "カテゴリーに応じたモデル、リンク、プロフィール、素材などのフィルター。",
+            "industrialTitle": "産業用途",
+            "industrialDesc": "業種、製造グループ、および用途は、製品の「industrial usage」の行からフィルタリングされます。",
+            "relevantToMe": "私に関連する商品を絞り込む",
+            "filtering": "フィルタリング中...",
+            "ready": "準備完了",
+            "noResultsTitle": "結果が見つかりませんでした",
+            "noResultsSubtitle": "フィルターの数を減らすよう努めてください",
+            "countFound": "{count}件の製品が見つかりました",
+            "perPage": "1ページあたり{limit}",
+            "selectPlaceholder": "{label} を選択",
+            "searchByLabel": "{label} を検索...",
+            "notFound": "見つかりませんでした",
+            "productSearchLabel": "製品検索",
+            "clearSearch": "検索をクリア",
+            "paginationLabel": "ページネーション",
+            "previousPage": "前のページ",
+            "nextPage": "次のページ",
+            "goToPage": "ページ {page}",
+            "pageOf": "ページ {page} / {totalPages}",
+            "updatingResults": "結果が更新されています"
+        },
+        "productDetail": {
+            "metaDescription": "{name} 製品をご覧ください。",
+            "ogDescription": "{name} 製品詳細ページ",
+            "breadcrumbProducts": "製品",
+            "categoryFallback": "カテゴリなし",
+            "imageNotFound": "画像が見つかりませんでした",
+            "imageDialogTitle": "製品画像",
+            "catalogCode": "カタログコード：{code}",
+            "descriptionFallback": "製品説明はまだ追加されていません。",
+            "attributeFallback": "特徴",
+            "showLess": "表示を少なくする",
+            "showMore": "+{count} 以上",
+            "quickNav": {
+                "dimensions": "サイズとオプション",
+                "industrialAreas": "利用されている産業分野",
+                "technicalDrawing": "技術図面",
+                "model3d": "3Dモデル",
+                "assemblyVideo": "組み立て動画",
+                "promoVideo": "紹介動画",
+                "certificate": "原材料証明書"
+            },
+            "usage": {
+                "readMore": "続きを読む",
+                "emptyTitle": "産業用途での利用が想定されています",
+                "emptyDesc": "この製品モデルに関する産業用途の情報は現在作成中です。詳細については、弊社チームまでお問い合わせください。",
+                "colSector": "業界",
+                "colProductionGroup": "生産グループ",
+                "colIndustrialProduct": "使用されている工業製品",
+                "colSampleImage": "サンプル画像",
+                "colUsageFunction": "使用機能",
+                "imageAlt": "{name}の画像",
+                "zoom": "拡大",
+                "imageDialogTitle": "{name} 使用例画像",
+                "openToZoom": "拡大するには開く",
+                "imageMissing": "画像は添付されていません",
+                "sectionTitle": "当社の製品モデルが採用されている産業分野",
+                "sectionSubtitle": "業界、製造グループ、および用途別の使用例の一致例。",
+                "accordionTitle": "利用されている産業分野",
+                "accordionSubtitle": "製品が使用される業界、製造グループ、および産業分野。",
+                "reviewDetails": "詳細を確認する",
+                "showAllRows": "すべて表示（{count}行）"
+            },
+            "zoomImage": {
+                "trigger": "拡大",
+                "dialogTitle": "画像の確認",
+                "close": "画像を非表示にする"
+            },
+            "similar": {
+                "title": "類似製品",
+                "subtitle": "同じカテゴリーの他の製品もご覧ください。"
+            },
+            "assetSection": {
+                "requestInfo": "詳細情報の請求",
+                "offerImageAlt": "提案用画像"
+            },
+            "assets": {
+                "certificate": {
+                    "badge": "認証",
+                    "title": "認証",
+                    "description": "こちらのページから、製品に関する品質および適合証明書をご覧いただけます。詳細な書類のご要望がございましたら、弊社チームが対応いたします。",
+                    "open": "認証を開く"
+                },
+                "technicalDrawing": {
+                    "badge": "技術図面",
+                    "title": "技術図面",
+                    "description": "製品の技術図面にて、寸法や形状の詳細をご確認いただけます。より詳細な技術資料や特別なご要望につきましては、弊社チームまでお問い合わせください。",
+                    "open": "技術図面を開く"
+                },
+                "assemblyVideo": {
+                    "badge": "組み立て動画",
+                    "title": "組み立て動画",
+                    "description": "設置および組み立ての手順を動画で確認することで、作業をより迅速に完了することができます。特別な組み立てに関するご要望がございましたら、弊社までお問い合わせください。",
+                    "open": "組み立て動画を開く"
+                },
+                "promoVideo": {
+                    "badge": "紹介動画",
+                    "title": "製品紹介動画",
+                    "description": "製品の全体的な構造、使用シーン、および主な特徴については、動画でご覧いただけます。詳細については、弊社までお問い合わせください。",
+                    "open": "紹介動画を開く"
+                },
+                "model3d": {
+                    "badge": "3Dモデル",
+                    "title": "3Dモデル",
+                    "description": "製品の3Dモデルを確認することで、形状の詳細をよりリアルに評価することができます。CADや技術的なご要望については、弊社チームまでお問い合わせください。",
+                    "open": "3Dモデルを開く"
+                },
+                "videoPlay": "動画を再生"
+            },
+            "media": {
+                "animationTitle": "製品アニメーション",
+                "technicalTitle": "技術図面",
+                "videoTitle": "製品動画",
+                "notFound": "コンテンツが見つかりませんでした",
+                "technicalAlt": "技術図面"
+            },
+            "assetsGallery": {
+                "imageMissing": "製品画像が見つかりませんでした",
+                "technicalDrawings": "技術図面",
+                "productImages": "製品画像",
+                "technicalAlt": "技術図面"
+            }
+        },
+        "productVariant": {
+            "pageTitle": "{name} - バリエーションの詳細",
+            "metaDescription": "{name}のバリエーションの詳細をご確認ください。",
+            "breadcrumbProducts": "製品",
+            "categoryFallback": "カテゴリなし",
+            "breadcrumbVariant": "バリエーションの詳細",
+            "imageNotFound": "画像が見つかりませんでした",
+            "productCode": "製品コード：{code}",
+            "table": {
+                "empty": "寸法に関する情報は見つかりませんでした。",
+                "loadError": "バリエーション情報を読み込めませんでした。ページを更新してください。",
+                "srNavigating": "選択したバリエーションの詳細ページが開きます。",
+                "srReady": "バリエーション表は準備済みです。",
+                "title": "サイズとオプション",
+                "descFocus": "寸法は単数形に統一されています。見出しにあるヘルプアイコンから同じ説明動画を開くことができ、表を寸法マトリックスのように確認することができます。",
+                "descDefault": "サイズは単数形に統一されています。サイズを選択すると、そのサイズに対応する色や原材料の選択肢が表示されます。",
+                "navigatingLabel": "{label}が開きます",
+                "navigatingGeneric": "バリエーションが表示されます",
+                "optionsTitle": "サイズオプション",
+                "colColor": "色",
+                "colMaterial": "原材料",
+                "colSupplier": "サプライヤー",
+                "colCode": "コード",
+                "colDetail": "詳細",
+                "colorCount": "{count} 色",
+                "materialCount": "{count} H.M.",
+                "supplierCount": "{count} 件。",
+                "codeCount": "{count} コード",
+                "showVariantsAria": "{label}のバリエーションを表示",
+                "opening": "読み込み中...",
+                "showVariants": "バリエーションを表示",
+                "openInAdmin": "管理画面で開く",
+                "selectedDetailsTitle": "選択したサイズの詳細",
+                "helpVideo": "説明動画",
+                "codesTitle": "現在のバリアントコード",
+                "codesEmpty": "このサイズに対応するバリアントコードが見つかりませんでした。",
+                "colorsTitle": "カラーオプション",
+                "colorsEmpty": "この項目に関する色情報は見つかりませんでした。",
+                "materialsTitle": "原材料の選択肢",
+                "materialsEmpty": "この規格に関する原材料情報は見つかりませんでした。"
+            },
+            "help": {
+                "videoAria": "{code}の仕様に関する動画を開く",
+                "dialogTitle": "寸法説明動画",
+                "videoTitle": "{code} 測定動画"
+            },
+            "details": {
+                "selectedMeasurement": "選択したサイズ",
+                "noSelection": "有効な寸法が選択されませんでした。",
+                "drawingMissing": "技術図面は見つかりませんでした。",
+                "variantsTitle": "バリエーション",
+                "introCategory": "{category}カテゴリの{product}製品モデルをご覧になっています。選択したサイズに適したバリエーションを、以下で比較することができます。",
+                "intro": "{product}の製品モデルをご覧になっています。選択したサイズに適したバリエーションを、以下で比較することができます。",
+                "empty": "このサイズに対応するバリエーションが見つかりませんでした。",
+                "fullCode": "フルコード",
+                "version": "バージョン",
+                "color": "色",
+                "material": "原材料"
+            },
+            "actions": {
+                "whatsappMessage": "こんにちは。御社の製品について情報を得たいのですが。\n製品名：{name}\n製品リンク：{url}",
+                "addedToCart": "バリエーションがカートに追加されました。",
+                "whatsappAria": "WhatsAppで即座に見積もりを取得",
+                "whatsapp": "お見積りはこちら",
+                "addToCartAria": "商品をカートに追加",
+                "addToCart": "カートに追加"
+            },
+            "overlay": {
+                "opening": "バリエーションが表示されます",
+                "preparing": "バリエーションの詳細は現在作成中です",
+                "openingLabel": "{label} サイズに対応するバリエーションが表示されます。",
+                "openingGeneric": "選択したサイズに対応するバリエーションが表示されます。"
+            }
+        },
+        "customerLead": {
+            "title": "サンプル請求フォーム",
+            "steps": {
+                "welcome": "ウェルカムメッセージ",
+                "sector": "業界",
+                "productionGroup": "生産グループ",
+                "usageArea": "用途",
+                "contact": "お問い合わせ"
+            },
+            "welcomeTitle": "こんにちは",
+            "welcomeBody1": "Ceyhunlar Plastikが開発したこのプラットフォームを通じて、お客様の業界に特化した製品をワンストップで入手し、ニーズに最適なソリューションを詳細に検討し、サンプル依頼を簡単に作成できることを目指しています。",
+            "welcomeBody2": "私たちの目的は、意思決定プロセスを迅速化し、信頼性が高く、ユーザー中心の体験を提供することです。",
+            "imageMissing": "画像はありません",
+            "sectorTitle": "事業分野を選択してください",
+            "sectorSubtitle": "翻訳は1つの選択肢のみを行ってください。",
+            "productionGroupTitle": "2. 製造グループを選択してください",
+            "usageAreaTitle": "3. 用途を選択してください（複数選択可）",
+            "usageSearchPlaceholder": "用途を検索...",
+            "noResults": "結果が見つかりませんでした。",
+            "contactTitle": "4. 連絡先情報を入力してください",
+            "companyPlaceholder": "会社名（任意）",
+            "fullNamePlaceholder": "氏名 *",
+            "phonePlaceholder": "電話番号 *",
+            "emailPlaceholder": "Eメール *",
+            "notePlaceholder": "お問い合わせ／サンプルのご請求",
+            "later": "後ほど",
+            "start": "それでは始めましょう",
+            "back": "戻る",
+            "next": "続行",
+            "submitting": "保存中...",
+            "submit": "情報を送信",
+            "successToast": "情報は保存されました。できるだけ早くご連絡いたします。",
+            "errorToast": "登録中にエラーが発生しました",
+            "validation": {
+                "sectorRequired": "業界を選択してください",
+                "productionGroupRequired": "製造グループを選択してください",
+                "companyMax": "会社名は最大120文字までとします。",
+                "fullNameRequired": "氏名（姓・名）の入力は必須です",
+                "phoneRequired": "電話番号の記載は必須です",
+                "emailInvalid": "有効なメールアドレスを入力してください",
+                "noteMax": "注：最大1000文字までとします。"
+            }
+        },
+        "catalog": {
+            "meta": {
+                "title": "カタログ",
+                "description": "Ceyhunlar Plastikの製品カタログをご覧になり、PDF形式でダウンロードしてください。"
+            },
+            "heroTitle": "カタログ",
+            "breadcrumbSelf": "カタログ",
+            "download": "ダウンロード"
+        },
+        "massProduction": {
+            "meta": {
+                "title": "量産",
+                "description": "Ceyhunlar Plastikの量産品：板金、プラスチック射出成形、ゴム、ベークライト。"
+            },
+            "heroTitle": "量産",
+            "sectionLabel": "量産",
+            "tabs": {
+                "metal": "板金",
+                "plastic": "プラスチック射出成形",
+                "rubber": "ゴム",
+                "bakelite": "ベークライト"
+            },
+            "metal": {
+                "intro": "「板金」とは、一般的に金属のシートやプレートを指す用語です。金属産業においては、通常、鋼、アルミニウム、銅などの素材で作られた金属シートを指します。 これらの金属板は、さまざまな厚さや特性を持つことがあり、産業用途、建設業界、自動車産業、造船業、その他多くの分野で使用されています。",
+                "imageAlt": "板金量産",
+                "items": [
+                    {
+                        "title": "素材：",
+                        "text": "板金は、通常、鋼、アルミニウム、銅、ステンレス鋼などの金属材料で作られています。材料の選択は、用途、耐久性、コストなどの一連の基準によって異なります。"
+                    },
+                    {
+                        "title": "製造プロセス：",
+                        "text": "板金は、金属板を圧延やプレス加工などの様々な製造工程を経て、所望の厚さや形状に成形することで製造されます。金属板は、圧延機やプレス設備を用いて成形されます。"
+                    },
+                    {
+                        "title": "用途：",
+                        "text": "板金は、多くの産業や分野で幅広く利用されています。例えば、建設業界では屋根材、自動車産業では車体部品、白物家電の製造ではカバーパネルなど、さまざまな分野で使用されています。"
+                    },
+                    {
+                        "title": "さまざまな厚さとサイズ：",
+                        "text": "板金は、さまざまな厚さやサイズで入手可能です。つまり、特定の用途の要件に合わせて選択できるということです。"
+                    },
+                    {
+                        "title": "耐食性とコーティング：",
+                        "text": "ステンレス鋼板などの一部の素材は、耐久性を高めるために耐食性を備えています。また、場合によっては特殊なコーティング処理が施されることもあります。"
+                    },
+                    {
+                        "title": "サステナビリティ：",
+                        "text": "金属のリサイクルは、板金の持続可能性を高めることができます。リサイクル可能な金属を使用することで、環境への影響を低減し、天然資源をより効率的に活用することができます。"
+                    }
+                ],
+                "summaryTitle": "産業における板金の利用",
+                "summaryQuote": "「板金は、耐久性、強度、成形性といった利点から、多くの産業で広く採用されている素材です。この素材の用途は、技術の進歩に伴い、絶えず進化を続けています。」",
+                "summaryBody": "金型設計とは、一般的に金属やプラスチックなどの素材を用いた製品の量産に使用される金型やマトリックスの設計プロセスを指します。この設計プロセスは、あらかじめ定められた製品を特定の形状、寸法、素材で製造できるようにするために実施されます。",
+                "designItems": [
+                    "ニーズ分析：最初のステップは、製造する部品のニーズと要件について分析を行うことです。これには、部品の寸法、材質、耐久性、その他の特性が含まれます。",
+                    "デザインコンセプト：ニーズ分析に基づき、さまざまなデザインコンセプトが策定されます。これらのコンセプトには、製品の形状、寸法、素材、製造プロセスなどの要素が含まれます。",
+                    "CAD（コンピュータ支援設計）モデリング：選定された設計コンセプトは、CADソフトウェアを使用してデジタルモデリングされます。このステップでは、製品の3次元設計が作成されます。",
+                    "解析と最適化：CADモデルを用いて解析を行い、設計の耐久性、流体特性、温度分布などの要因を検証します。必要に応じて、設計の最適化を行います。"
+                ],
+                "moldItems": [
+                    "詳細設計：選定された設計に基づき、詳細な検討が行われます。この段階では、部品の細部、公差、組み付け箇所、および材料選定が決定されます。",
+                    "製造プロセスの決定：金型設計には、製造プロセスの決定が含まれます。これには、使用する材料、金型製造プロセス、および金型製造に必要な設備などの要素が含まれます。",
+                    "プロトタイプの製造とテスト：設計に基づいてプロトタイプが製造され、テストされます。これは、実際の使用環境において設計がどのように機能するかを評価するために重要です。",
+                    "金型製造：プロトタイプの試験を経て、承認された設計に基づいて金型の製造が行われます。これは通常、CNC（コンピュータ数値制御）機械や放電加工などの高精度な製造方法を用いて行われます。"
+                ],
+                "closing": "金型設計は、工業生産プロセスにおいて極めて重要な役割を果たしており、製品の品質、コスト、生産速度に大きな影響を与えます。優れた金型設計は、製品のより効率的な生産と販売を可能にします。"
+            },
+            "plastic": {
+                "imageAlt": "プラスチック射出成形の量産",
+                "paragraphs": [
+                    "プラスチック射出成形は、量産において最も広く使用されている手法の一つです。溶融したプラスチックを高圧で金型に射出することで行われるこのプロセスは、迅速かつ再現性が高く、コスト効率に優れた生産を実現します。",
+                    "高精度で製造された部品は、自動車、白物家電、電子機器、医療、包装など、多くの業界で使用されています。",
+                    "金型設計の多様性により、非常に複雑な形状の製品を製造することが可能であり、同時に数千個の部品を量産することができます。",
+                    "耐久性、柔軟性、低コストという利点により、プラスチック射出成形は、産業界において欠かせない製造方法となっています。"
+                ]
+            },
+            "rubber": {
+                "imageAlt": "ゴム製品の量産",
+                "paragraphs": [
+                    "量産工程において、油圧プレスは特にゴム製品の製造に使用されます。ゴムは弾力性と耐久性に優れた素材であり、自動車、電子機器、医療、建設などのさまざまな産業で広く使用されています。",
+                    "油圧プレスは、ゴム製品の量産において効果的かつ効率的な方法を提供します。このプロセスは、ゴムパッキン、パッキンプロファイル、ゴム部品、および類似製品の製造において広く利用されています。"
+                ]
+            },
+            "bakelite": {
+                "imageAlt": "ベークライトの量産",
+                "paragraphs": [
+                    "ベークライトは、耐熱性および耐薬品性に優れた硬質の熱硬化性プラスチックです。電気絶縁性という特性から、電気・電子産業で広く使用されています。また、台所用品、電話機の筐体、および各種産業用機器にも好んで採用されています。",
+                    "成形によって容易に所望の形状に加工できるベークライトは、高温下でも機械的強度を維持します。これらの特性により、長寿命で信頼性が高く、コスト効率に優れた材料として、産業界で重要な位置を占めています。",
+                    "今日、現代的なプラスチックが登場しているにもかかわらず、ベークライトは依然として一部の特殊な用途で好んで使用され続けています。"
+                ]
+            }
+        },
+        "suggestion": {
+            "meta": {
+                "title": "ご提案・ご意見",
+                "description": "Ceyhunlar Plastik ご意見・苦情フォーム。ご意見をお聞かせください。"
+            },
+            "heroTitle": "ご提案・ご意見",
+            "heroSubtitle": "より良いサービスを提供するため、皆様からのフィードバックは私たちにとって非常に重要です。このフォームを通じて、当社に関するご意見、ご提案、および苦情をお寄せください。",
+            "form": {
+                "fields": {
+                    "fullName": "氏名",
+                    "email": "Eメール",
+                    "phone": "+90 (532) 123-4567",
+                    "message": "メッセージ"
+                },
+                "typeLabel": "通知の種類",
+                "typeSuggestion": "提案",
+                "typeComplaint": "苦情",
+                "consent": "プライバシーポリシーを読み、同意します。",
+                "submit": "送信",
+                "submitting": "送信中..."
+            },
+            "validation": {
+                "fullNameMin": "氏名は2文字以上である必要があります",
+                "emailInvalid": "有効なメールアドレスを入力してください",
+                "phoneInvalid": "電話番号が無効です",
+                "typeRequired": "通知の種類を選択してください",
+                "messageMin": "メッセージは10文字以上である必要があります",
+                "consentRequired": "プライバシーポリシーに同意する必要があります"
+            }
+        },
+        "contact": {
+            "meta": {
+                "title": "お問い合わせ",
+                "description": "Ceyhunlar Plastikにお問い合わせください。住所、電話番号、メールアドレス、アクセス情報。"
+            },
+            "infoTitle": "お問い合わせ",
+            "infoBody": "カタログのご請求、製品のお問い合わせ、在庫状況、ニーズの把握、認証情報の照会、特注生産、量産、出荷状況、輸入規制、通関手続きなど、あらゆるご質問について、お気軽にお問い合わせください。",
+            "addressLine1": "4308通り 4A番地 アヤディン地区",
+            "addressLine2": "カラバグラー、イズミル / トルコ",
+            "directionsCta": "道順を確認する",
+            "formTitle": "お問い合わせフォーム",
+            "formSubtitle1": "フォームにご記入の上、ぜひお問い合わせください。",
+            "formSubtitle2": "当社の専門チームが、まもなくご連絡いたします。",
+            "form": {
+                "fullName": "氏名",
+                "email": "Eメール",
+                "phone": "電話番号",
+                "message": "メッセージ",
+                "consent": "プライバシーポリシーを読み、同意します。",
+                "submit": "送信"
+            },
+            "routes": {
+                "sectionTitle": "アクセス情報",
+                "sectionSubtitle": "イズミルの中心部に位置する当社の施設へは、アクセスが非常に便利です。",
+                "air": {
+                    "title": "航空会社",
+                    "text": "アドナン・メンデレス空港からタクシーまたはレンタカーで、車で約20分の距離にあります。"
+                },
+                "road": {
+                    "title": "陸上輸送",
+                    "text": "イズミル・オトガルからカラバグラー方面行きの公共交通機関、または環状道路を経由して簡単にアクセスできます。"
+                },
+                "rail": {
+                    "title": "鉄道",
+                    "text": "IZBAN郊外線の「Semt Garajı」駅からは、当社の施設までごく短時間でアクセスできます。"
+                }
+            }
+        },
+        "machining": {
+            "meta": {
+                "title": "切削加工",
+                "description": "Ceyhunlar Plastikの切削加工サービス：旋盤加工、フライス加工、穴あけ加工、研削加工。"
+            },
+            "heroTitle": "切削加工",
+            "serviceLabel": "サービス",
+            "introTitle": "切削加工とは何ですか？",
+            "introBody": "切削加工は、金属やその他の材料の加工に使用される製造手法です。この手法は、一般的に金属部品の成形や加工に使用され、金属の切りくずを生成します。切削加工には様々なサブプロセスが含まれており、通常、旋削、フライス加工、穴あけ、研削などの工程を網羅しています。",
+            "imageAlt": "切削加工",
+            "items": [
+                {
+                    "title": "旋削：",
+                    "text": "旋削加工とは、回転するスピンドル上の旋盤で材料を回転させ、切削工具によって材料に形状を形成する加工方法です。この方法は、一般的に円筒形の部品の製造に使用されます。"
+                },
+                {
+                    "title": "フライス加工：",
+                    "text": "フライス加工とは、回転する切削工具が、所定の形状を形成するために、材料が固定された工作台上で移動する加工方法です。この方法は、平らな面、溝、および複雑な形状の製造に広く用いられています。"
+                },
+                {
+                    "title": "ドリル：",
+                    "text": "穴あけ加工は、材料に穴を開けるために使用されます。穴あけ加工では、通常、回転するドリルビットを使用して材料に穴を開けます。"
+                },
+                {
+                    "title": "校正：",
+                    "text": "研削は、材料の表面を平滑化、研磨、または特定の公差の範囲内で成形するために使用されます。研削工程は、一般的に精密部品の製造や表面品質の向上において重要な役割を果たします。"
+                }
+            ]
+        },
+        "printing3d": {
+            "meta": {
+                "title": "3Dプリントとスキャン",
+                "description": "Ceyhunlar Plastikの3Dプリントおよびスキャンサービス：ラピッドプロトタイピングおよび積層造形。"
+            },
+            "heroTitle": "3Dプリントとスキャン",
+            "introTitle": "3Dプリント",
+            "introBody": "3Dプリントは、3次元オブジェクトを層ごとに構築する製造技術です。この技術は、コンピュータ支援設計（CAD）ソフトウェアを使用して作成されたデジタルモデルを、物理的なオブジェクトに変換するために使用されます。 3Dプリントは、「積層造形」や「ラピッドプロトタイピング」としても知られています。",
+            "imageAlt1": "3Dプリンター",
+            "imageAlt2": "プロトタイピング",
+            "items": [
+                {
+                    "title": "動作原理：",
+                    "text": "3Dプリントは、素材を層ごとに積み重ねてオブジェクトを形成する技術です。これらの層は、デジタル設計ファイルから取得した情報に基づいて作成されます。"
+                },
+                {
+                    "title": "素材：",
+                    "text": "3Dプリントに使用される材料は多岐にわたります。プラスチック、金属、セラミック、樹脂、さらには生体材料など、さまざまな材料が使用可能です。材料の選択は、オブジェクトの使用目的や設計要件によって異なります。"
+                },
+                {
+                    "title": "適用分野：",
+                    "text": "3Dプリントは、プロトタイプ開発、製造、医療、教育、建設、ファッション、およびその他多くの産業分野で利用されています。特に、特殊で複雑な部品の迅速な製造やプロトタイピング、ならびにパーソナライズされた製品の製造において広く活用されています。"
+                },
+                {
+                    "title": "迅速なプロトタイピング：",
+                    "text": "3Dプリントにより、設計を迅速に物理的なプロトタイプへと変換することが可能になります。これにより、製品開発プロセスを加速させ、コストを削減することができます。"
+                },
+                {
+                    "title": "サステナビリティ：",
+                    "text": "3Dプリントは、材料の無駄を最小限に抑える可能性を秘めています。従来の製造方法とは異なり、必要な材料のみを使用することを可能にします。"
+                }
+            ],
+            "closing": "研究開発（R&D）およびプロトタイプ開発プロセスは、組織の持続可能性を確保し、競争優位性を獲得し、顧客のニーズにより的確に対応するために重要な手段です。綿密に計画された研究開発と効果的なプロトタイプ開発プロセスは、企業の成長と成功に貢献することができます。"
+        },
+        "arge": {
+            "meta": {
+                "title": "研究開発および試作",
+                "description": "Ceyhunlar Plastikの研究開発およびプロトタイピングプロセス：イノベーション、製品開発、迅速なプロトタイピング。"
+            },
+            "heroTitle": "研究開発および試作",
+            "block1Title": "研究開発およびプロトタイプ開発プロセス",
+            "block1Body": "研究開発（R&D）およびプロトタイプ開発は、組織や企業のイノベーションと進歩のプロセスにおいて極めて重要な役割を果たします。これらのプロセスは、新製品、サービス、または業務プロセスの創出、改善、および検証のために活用されます。",
+            "imageAlt1": "研究開発",
+            "imageAlt2": "プロトタイピング",
+            "imageAlt3": "計画",
+            "block2Title": "ARGE（研究開発）",
+            "block2Items": [
+                "革新と進歩：研究開発（R&D）とは、新しいアイデアや技術の発見と開発を意味します。これは、企業が競争優位性を維持するために不可欠です。",
+                "製品およびプロセスの開発：研究開発（R&D）活動は、既存の製品や業務プロセスを改善し、より効率的なものにするために実施されます。これにより、製品の品質を向上させ、生産プロセスを最適化することができます。",
+                "市場分析：研究開発（R&D）において、市場動向や顧客のニーズを把握するために活用できます。これにより、将来の需要に見合った製品やサービスの開発に役立てることができます。",
+                "技術的競争力：研究開発（R&D）活動は、技術的な競争優位性を確保するために活用できます。革新的な技術やソリューションは、同社が業界におけるリーダーシップを維持し続ける一助となります。"
+            ],
+            "block3Title": "生産前の計画",
+            "block3Items": [
+                "物理的な製品またはプロセスのモデリング：プロトタイプ開発には、アイデアやコンセプトの物理的なモデルを作成することが含まれます。これは、設計上の欠陥を特定し、改善を行うために重要です。",
+                "テストとフィードバック：プロトタイプは、実環境下でテストすることができます。これは、製品やプロセスの性能を評価し、顧客からのフィードバックを収集するために使用されます。",
+                "コストと時間の節約：プロトタイプ開発段階は、最終製品やプロセスにおけるコストのかかるミスを未然に防ぎ、時間の節約に役立ちます。後の段階で修正が困難なミスを早期に発見することが可能です。",
+                "イノベーションの促進：プロトタイプは、社内のイノベーション文化を促進します。創造的なアイデアを具体的な形で表現することを可能にし、チームメンバーが自身の貢献を確認できるようにします。"
+            ],
+            "closing": "研究開発（R&D）およびプロトタイプ開発プロセスは、組織の持続可能性を確保し、競争優位性を獲得し、顧客のニーズにより適切に対応するために重要な手段です。綿密に計画された研究開発と効果的なプロトタイプ開発プロセスは、企業の成長と成功に貢献することができます。"
+        },
+        "hr": {
+            "meta": {
+                "title": "人事",
+                "description": "Ceyhunlar Plastikの一員になりませんか。人事応募フォームから履歴書をご送付ください。",
+                "ogDescription": "Ceyhunlar Plastikの一員になりませんか。履歴書をお送りください。",
+                "ogImageAlt": "Ceyhunlar Plastik 人事部",
+                "structuredDataName": "人事",
+                "structuredDataDescription": "Ceyhunlar Plastik 人事採用ページ。",
+                "keywords": [
+                    "Ceyhunlar Plastik",
+                    "人事",
+                    "求人応募",
+                    "採用情報",
+                    "プラスチック業界"
+                ]
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar Plastik 人事部",
+                "title": "人事",
+                "subtitle": "能力を尊重し、共に創造するチームの一員になりましょう。",
+                "cta": "応募を送信",
+                "cards": {
+                    "team": {
+                        "title": "強力なチーム",
+                        "text": "経験豊富で協力的なチーム文化"
+                    },
+                    "safe": {
+                        "title": "安全な作業",
+                        "text": "長期的かつ信頼性の高いビジネス環境"
+                    },
+                    "career": {
+                        "title": "キャリア開発",
+                        "text": "自己成長の機会"
+                    }
+                }
+            },
+            "form": {
+                "title": "人事応募フォーム",
+                "subtitle": "必要事項を入力し、履歴書を添付してください。折り返しご連絡いたします。",
+                "fields": {
+                    "fullName": "氏名",
+                    "email": "メールアドレス",
+                    "phone": "+90 (532) 123-4567",
+                    "address": "住所",
+                    "education": "学歴",
+                    "department": "お問い合わせ先部署",
+                    "message": "ご自身やご応募について触れてください"
+                },
+                "cvLabel": "履歴書をアップロード（PDF・最大5MB）",
+                "submit": "申請を送信",
+                "submitting": "送信中..."
+            },
+            "validation": {
+                "fullNameMin": "氏名は2文字以上である必要があります",
+                "emailInvalid": "有効なメールアドレスを入力してください",
+                "phoneInvalid": "電話番号が無効です",
+                "addressMin": "住所は5文字以上である必要があります",
+                "educationMin": "教育情報の文字数は5文字以上にしてください",
+                "departmentMin": "部署名は5文字以上にしてください",
+                "messageMin": "メッセージは20文字以上にしてください",
+                "cvType": "PDFファイルのみ受け付けます",
+                "cvSize": "ファイルサイズは最大5MBまでとします。"
+            }
+        },
+        "about": {
+            "meta": {
+                "title": "会社概要",
+                "description": "Ceyhunlar Plastikに関する詳細情報。2001年より、生産、品質、信頼を追求しています。",
+                "ogDescription": "Ceyhunlar Plastikに関する情報をご覧ください。",
+                "ogImageAlt": "Ceyhunlar Plastik"
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar Plastik 会社概要",
+                "title": "特注生産<br></br><highlight>信頼できるビジネスパートナー</highlight>",
+                "description": "2001年以来、当社の強固な生産インフラと革新的なアプローチにより、最高品質基準でお客様のニーズにお応えしています。",
+                "videoDialogTitle": "紹介動画",
+                "videoIframeTitle": "Ceyhunlar Tanıtım",
+                "videoCta": "紹介動画"
+            },
+            "content": {
+                "title": "会社概要",
+                "intro": "Ceyhunlar Plastik Sanayiiは、イズミルで創業し、現在では世界規模でサービスを提供する有力なメーカーとしての地位を確立しました。",
+                "reach": "850社以上の代理店と12,000社を超える顧客を擁し、トルコをはじめとする40カ国以上で事業を展開しています。当社の製品は、家具、自動車、医療、防衛産業、建設、その他多くの業界で使用されています。",
+                "capabilities": "当社の高度な製造技術と絶えず拡大する製品ラインナップにより、お客様のニーズに迅速かつ高品質で信頼性の高いソリューションを提供しています。",
+                "rnd": "研究開発への投資、環境に配慮した生産方針、そして高い品質基準により、当社は業界において引き続き差別化を図り続けています。",
+                "mission": "私たちの目的は、顧客満足度を最高水準に保ちながら、持続可能で革新的なソリューションを生み出すことです。",
+                "productionImageAlt": "Ceyhunlar プラスチック製造"
+            },
+            "categories": {
+                "title": "当社の製品グループ",
+                "searchPlaceholder": "カテゴリーを検索...",
+                "noResults": "結果が見つかりませんでした"
+            },
+            "details": {
+                "developmentImageAlt": "生産",
+                "devIntro": "サービス提供を開始した当初から、技術の進歩や業界のトレンドを注視し、発展を続けてきました。そして、今後もその姿勢を貫いていきます。",
+                "devInitiatives": "この方針に基づき、現代のビジネスニーズに応えるための取り組みも行いました。",
+                "devRnd3d": "お客様のニーズに最も的確にお応えできるよう、研究開発への投資を拡大しました。この過程において、研究開発活動では3D技術も活用しました。2018年には、研究開発および3D部門を立ち上げて稼働させました。",
+                "devEndToEnd": "また、3Dプリント、設計、成形、量産、組立、梱包、出荷の全プロセスを自社内で一貫して行う企業として、お客様のニーズに応えることに成功しました。",
+                "devClosing": "Ceyhunlar Plastikとして、お客様のアイデアを形にします。",
+                "mottoImageAlt": "モットー",
+                "mottoTitle": "プラスチックに関するあらゆるニーズにおいて、<highlight>業界をリードする</highlight>ソリューションパートナー！",
+                "mottoQuote": "「高い品質と信頼の基準をもって…」",
+                "mottoBody1": "企業の心臓部であり魂となるのは、創造性と革新性です。しかし、不屈の精神と仕事への愛情がなければ、成功を収めることはできません。",
+                "mottoBody2": "Ceyhunlar Plastikとして創業当初から、私たちは仕事に対する情熱を粘り強く貫き続けています。"
+            }
+        }
+    }
+}

@@ -19,11 +19,16 @@ import {
     assertDeepLQuotaAvailable,
     estimateTranslationCharacters,
 } from "../src/core/i18n/deeplTranslator"
+import type { TargetLocale } from "../src/core/i18n/locales"
+import {
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    buildTranslationDraftPath,
+    parseTargetLocaleOption,
+} from "../src/core/i18n/translationDraft"
 import { PrismaClient } from "./generated/prisma/client"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEFAULT_DRAFT_PATH = ".translation-drafts/category-tr-en.json"
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
+const DRAFT_ENTITY = "category"
 const CATEGORY_TRANSLATION_CONTEXT = [
     "Bu metinler endüstriyel plastik ürünleri, makine parçaları ve mobilya",
     "aksesuarları için kısa e-ticaret kategori adlarıdır. Teknik terimleri",
@@ -34,6 +39,7 @@ type CliMode = "plan" | "generate" | "apply"
 
 type CliOptions = {
     mode: CliMode
+    targetLocale: TargetLocale
     applyPath?: string
     outputPath: string
     limit?: number
@@ -61,6 +67,7 @@ function parseCliOptions(): CliOptions {
             plan: { type: "boolean" },
             generate: { type: "boolean" },
             apply: { type: "string" },
+            "target-locale": { type: "string" },
             output: { type: "string" },
             limit: { type: "string" },
             "category-code": { type: "string" },
@@ -85,10 +92,13 @@ function parseCliOptions(): CliOptions {
         throw new Error("--limit and --category-code cannot be used with --apply")
     }
 
+    const targetLocale = parseTargetLocaleOption(values["target-locale"])
+
     return {
         mode,
+        targetLocale,
         applyPath: values.apply,
-        outputPath: values.output ?? DEFAULT_DRAFT_PATH,
+        outputPath: values.output ?? buildTranslationDraftPath(DRAFT_ENTITY, targetLocale),
         limit,
         categoryCode,
         showHelp: values.help ?? false,
@@ -97,7 +107,7 @@ function parseCliOptions(): CliOptions {
 
 function printHelp() {
     console.log([
-        "Generate and apply reviewed English CategoryTranslation drafts with DeepL.",
+        "Generate and apply reviewed CategoryTranslation drafts with DeepL (any target locale).",
         "",
         "Usage:",
         "  npm --workspace packages/core run translate:category-translations",
@@ -109,7 +119,8 @@ function printHelp() {
         "  --plan                 Show candidates without calling DeepL or writing the database (default)",
         "  --generate             Call DeepL and create a review draft without writing the database",
         "  --apply <path>          Validate and atomically apply a reviewed draft without calling DeepL",
-        "  --output <path>         Draft output path (default: .translation-drafts/category-tr-en.json)",
+        "  --target-locale <code> Target locale (default: en); one of the supported locales",
+        "  --output <path>         Draft output path (default: .translation-drafts/<entity>-tr-<locale>.json)",
         "  --limit <number>        Limit categories during plan/generate",
         "  --category-code <code> Select one category during plan/generate",
         "  -h, --help              Show this help",
@@ -119,7 +130,7 @@ function printHelp() {
         "  DEEPL_API_KEY is required only for --generate.",
         "  DEEPL_GLOSSARY_ID is optional for --generate.",
         "",
-        "Existing EN translations are never overwritten.",
+        "Existing target-locale translations are never overwritten.",
     ].join("\n"))
 }
 
@@ -133,7 +144,7 @@ function getConnectionString() {
 
 async function loadTranslationCandidates(
     prisma: PrismaClient,
-    options: Pick<CliOptions, "limit" | "categoryCode">,
+    options: Pick<CliOptions, "targetLocale" | "limit" | "categoryCode">,
 ) {
     const categories = await prisma.category.findMany({
         where: options.categoryCode ? { code: options.categoryCode } : undefined,
@@ -142,7 +153,7 @@ async function loadTranslationCandidates(
             code: true,
             translations: {
                 where: {
-                    locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] },
+                    locale: { in: [SOURCE_LOCALE, options.targetLocale] },
                 },
                 select: {
                     locale: true,
@@ -163,11 +174,11 @@ async function loadTranslationCandidates(
         !category.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = categories.filter((category) =>
-        category.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        category.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = categories.flatMap((category) => {
         const source = category.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = category.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = category.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -183,7 +194,7 @@ async function loadTranslationCandidates(
 
     console.log(JSON.stringify({
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         categories: categories.length,
         missingSource: missingSource.length,
         existingTarget: existingTarget.length,
@@ -226,7 +237,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     const translations = await translator.translateTexts({
         texts: candidates.map(({ sourceName }) => sourceName),
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         context: CATEGORY_TRANSLATION_CONTEXT,
     })
     const billedCharacters = translations.reduce(
@@ -234,6 +245,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
         0,
     )
     const draft = createCategoryTranslationDraft({
+        targetLocale: options.targetLocale,
         categories: candidates,
         translatedNames: translations.map(({ text }) => text),
         glossaryId,
@@ -267,7 +279,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     console.log("No database records were written.")
 }
 
-function createDraftStore(prisma: PrismaClient): CategoryTranslationDraftStore {
+function createDraftStore(prisma: PrismaClient, targetLocale: TargetLocale): CategoryTranslationDraftStore {
     return {
         loadCategories: (categoryIds) => prisma.category.findMany({
             where: { id: { in: categoryIds } },
@@ -276,7 +288,7 @@ function createDraftStore(prisma: PrismaClient): CategoryTranslationDraftStore {
                 code: true,
                 translations: {
                     where: {
-                        locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] },
+                        locale: { in: [SOURCE_LOCALE, targetLocale] },
                     },
                     select: {
                         locale: true,
@@ -310,7 +322,7 @@ function createDraftStore(prisma: PrismaClient): CategoryTranslationDraftStore {
                     code: true,
                     translations: {
                         where: {
-                            locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] },
+                            locale: { in: [SOURCE_LOCALE, targetLocale] },
                         },
                         select: {
                             locale: true,
@@ -404,7 +416,7 @@ async function applyDraft(prisma: PrismaClient, draftPath: string | undefined) {
 
     const result = await applyCategoryTranslationDraft({
         draft,
-        store: createDraftStore(prisma),
+        store: createDraftStore(prisma, draft.targetLocale),
     })
 
     console.table(result.writes.map((write) => ({

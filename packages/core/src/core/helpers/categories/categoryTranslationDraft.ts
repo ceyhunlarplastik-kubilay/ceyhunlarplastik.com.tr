@@ -1,26 +1,21 @@
 import { z } from "zod"
 
 import { normalizeCategoryTranslations } from "./categoryTranslations"
+import { getDeepLTargetLanguage } from "../../i18n/deeplLanguages"
+import type { TargetLocale } from "../../i18n/locales"
 import {
     TRANSLATION_DRAFT_SCHEMA_VERSION,
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    assertDraftTargetLanguageMatches,
     createTranslationSourceFingerprint,
+    translationDraftHeaderShape,
 } from "../../i18n/translationDraft"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEEPL_TARGET_LANGUAGE = "en-GB" as const
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
 
 const categoryTranslationDraftSchema = z.object({
-    schemaVersion: z.literal(TRANSLATION_DRAFT_SCHEMA_VERSION),
-    provider: z.literal("deepl"),
+    ...translationDraftHeaderShape,
     entity: z.literal("category"),
-    sourceLocale: z.literal(SOURCE_LOCALE),
-    targetLocale: z.literal(TARGET_LOCALE),
-    deeplTargetLanguage: z.literal(DEEPL_TARGET_LANGUAGE),
-    generatedAt: z.string().min(1),
-    glossaryId: z.string().trim().min(1).nullable(),
-    estimatedCharacters: z.number().int().nonnegative(),
-    billedCharacters: z.number().int().nonnegative(),
     entries: z.array(z.object({
         categoryId: z.string().min(1),
         categoryCode: z.number().int(),
@@ -34,6 +29,8 @@ const categoryTranslationDraftSchema = z.object({
         }).strict(),
     }).strict()),
 }).strict().superRefine((draft, context) => {
+    assertDraftTargetLanguageMatches(draft, context)
+
     const categoryIds = new Set<string>()
     const categoryCodes = new Set<number>()
 
@@ -72,14 +69,14 @@ export type CategoryTranslationState = {
 
 export type CategoryTranslationWrite = {
     categoryId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     name: string
     slug: string
 }
 
 export type CategoryTranslationDraftStore = {
     loadCategories(categoryIds: string[]): Promise<CategoryTranslationState[]>
-    findSlugOwners(locale: typeof TARGET_LOCALE, slugs: string[]): Promise<Array<{
+    findSlugOwners(locale: TargetLocale, slugs: string[]): Promise<Array<{
         categoryId: string
         slug: string
     }>>
@@ -118,6 +115,7 @@ export function parseCategoryTranslationDraft(input: unknown) {
 export function createCategoryTranslationDraft({
     categories,
     translatedNames,
+    targetLocale,
     generatedAt = new Date(),
     glossaryId,
     estimatedCharacters,
@@ -125,6 +123,7 @@ export function createCategoryTranslationDraft({
 }: {
     categories: Array<{ id: string; code: number; sourceName: string }>
     translatedNames: string[]
+    targetLocale: TargetLocale
     generatedAt?: Date
     glossaryId?: string
     estimatedCharacters: number
@@ -141,8 +140,8 @@ export function createCategoryTranslationDraft({
         provider: "deepl",
         entity: "category",
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
-        deeplTargetLanguage: DEEPL_TARGET_LANGUAGE,
+        targetLocale,
+        deeplTargetLanguage: getDeepLTargetLanguage(targetLocale),
         generatedAt: generatedAt.toISOString(),
         glossaryId: glossaryId?.trim() || null,
         estimatedCharacters,
@@ -150,7 +149,7 @@ export function createCategoryTranslationDraft({
         entries: categories.map((category, index) => {
             const normalized = normalizeCategoryTranslations({
                 translations: [{
-                    locale: TARGET_LOCALE,
+                    locale: targetLocale,
                     name: translatedNames[index],
                 }],
             }).translations[0]
@@ -214,7 +213,7 @@ export function buildCategoryTranslationWrites(
         try {
             const normalized = normalizeCategoryTranslations({
                 translations: [{
-                    locale: TARGET_LOCALE,
+                    locale: draft.targetLocale,
                     name: entry.target.name,
                     slug: entry.target.slug,
                 }],
@@ -231,7 +230,7 @@ export function buildCategoryTranslationWrites(
             slugOwners.set(normalized.slug, String(entry.categoryCode))
             writes.push({
                 categoryId: category.id,
-                locale: TARGET_LOCALE,
+                locale: draft.targetLocale,
                 name: normalized.name,
                 slug: normalized.slug,
             })

@@ -188,6 +188,7 @@ export function ProductAttributeValueCreatePanel({
                                     onTranslationsChange={field.onChange}
                                     targetPlaceholder="English label"
                                     disabled={isPending}
+                                    variant="plain"
                                     defaultLocaleField={
                                         <FormField
                                             control={form.control}

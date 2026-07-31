@@ -18,11 +18,16 @@ import {
     assertDeepLQuotaAvailable,
     estimateTranslationCharacters,
 } from "../src/core/i18n/deeplTranslator"
+import type { TargetLocale } from "../src/core/i18n/locales"
+import {
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    buildTranslationDraftPath,
+    parseTargetLocaleOption,
+} from "../src/core/i18n/translationDraft"
 import { PrismaClient } from "./generated/prisma/client"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEFAULT_DRAFT_PATH = ".translation-drafts/product-industrial-usages-tr-en.json"
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
+const DRAFT_ENTITY = "product-industrial-usages"
 const CONTEXT = [
     "Bu metinler endüstriyel plastik ürün detay sayfalarında kullanım alanı",
     "açıklaması olarak gösterilir. Teknik anlamı koruyarak doğal ve profesyonel",
@@ -33,6 +38,7 @@ type CliMode = "plan" | "generate" | "apply"
 
 type CliOptions = {
     mode: CliMode
+    targetLocale: TargetLocale
     applyPath?: string
     outputPath: string
     limit?: number
@@ -68,6 +74,7 @@ function parseCliOptions(): CliOptions {
             plan: { type: "boolean" },
             generate: { type: "boolean" },
             apply: { type: "string" },
+            "target-locale": { type: "string" },
             output: { type: "string" },
             limit: { type: "string" },
             "product-id": { type: "string" },
@@ -94,10 +101,13 @@ function parseCliOptions(): CliOptions {
         throw new Error("--limit, --product-id, and --product-code cannot be used with --apply")
     }
 
+    const targetLocale = parseTargetLocaleOption(values["target-locale"])
+
     return {
         mode,
+        targetLocale,
         applyPath: values.apply,
-        outputPath: values.output ?? DEFAULT_DRAFT_PATH,
+        outputPath: values.output ?? buildTranslationDraftPath(DRAFT_ENTITY, targetLocale),
         limit,
         productId,
         productCode,
@@ -119,7 +129,8 @@ function printHelp() {
         "  --plan                 Show candidates without calling DeepL or writing the database (default)",
         "  --generate             Call DeepL and create a review draft without writing the database",
         "  --apply <path>          Validate and atomically apply a reviewed draft without calling DeepL",
-        "  --output <path>         Draft output path (default: .translation-drafts/product-industrial-usages-tr-en.json)",
+        "  --target-locale <code> Target locale (default: en); one of the supported locales",
+        "  --output <path>         Draft output path (default: .translation-drafts/<entity>-tr-<locale>.json)",
         "  --limit <number>        Limit rows during plan/generate",
         "  --product-id <id>       Restrict rows during plan/generate",
         "  --product-code <code>   Restrict rows during plan/generate",
@@ -130,7 +141,7 @@ function printHelp() {
         "  DEEPL_API_KEY is required only for --generate.",
         "  DEEPL_GLOSSARY_ID is optional for --generate.",
         "",
-        "Existing EN translations are never overwritten.",
+        "Existing target-locale translations are never overwritten.",
     ].join("\n"))
 }
 
@@ -159,7 +170,7 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
                 },
             },
             translations: {
-                where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                where: { locale: { in: [SOURCE_LOCALE, options.targetLocale] } },
                 select: {
                     locale: true,
                     usageFunction: true,
@@ -177,11 +188,11 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
         !usage.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = nonEmptyUsages.filter((usage) =>
-        usage.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        usage.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = nonEmptyUsages.flatMap<TranslationCandidate>((usage) => {
         const source = usage.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = usage.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = usage.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -198,7 +209,7 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
 
     console.log(JSON.stringify({
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         usages: nonEmptyUsages.length,
         ignoredEmpty: usages.length - nonEmptyUsages.length,
         missingSource: missingSource.length,
@@ -250,7 +261,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     const translations = await translator.translateTexts({
         texts: candidates.map(({ sourceUsageFunction }) => sourceUsageFunction),
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         context: CONTEXT,
     })
     const billedCharacters = translations.reduce(
@@ -258,6 +269,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
         0,
     )
     const draft = createProductIndustrialUsageTranslationDraft({
+        targetLocale: options.targetLocale,
         candidates,
         translatedUsageFunctions: translations.map(({ text }) => text),
         glossaryId,
@@ -289,7 +301,7 @@ async function applyDraft(prisma: PrismaClient, applyPath: string | undefined) {
                         },
                     },
                     translations: {
-                        where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                        where: { locale: { in: [SOURCE_LOCALE, draft.targetLocale] } },
                         select: {
                             locale: true,
                             usageFunction: true,

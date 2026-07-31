@@ -122,6 +122,7 @@ export function ProductAttributeValueEditForm({
                                 translations={field.value}
                                 onTranslationsChange={field.onChange}
                                 targetPlaceholder="English label"
+                                variant="plain"
                                 disabled={isPending}
                                 defaultLocaleField={
                                     <FormField

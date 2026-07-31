@@ -31,6 +31,7 @@ function createDraft(
     }],
 ) {
     return createProductTranslationDraft({
+        targetLocale: "en",
         products,
         translatedProducts,
         generatedAt: new Date("2026-07-25T00:00:00.000Z"),

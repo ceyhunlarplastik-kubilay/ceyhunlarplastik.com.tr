@@ -19,11 +19,16 @@ import {
     assertDeepLQuotaAvailable,
     estimateTranslationCharacters,
 } from "../src/core/i18n/deeplTranslator"
+import type { TargetLocale } from "../src/core/i18n/locales"
+import {
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    buildTranslationDraftPath,
+    parseTargetLocaleOption,
+} from "../src/core/i18n/translationDraft"
 import { PrismaClient } from "./generated/prisma/client"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEFAULT_DRAFT_PATH = ".translation-drafts/product-taxonomy-tr-en.json"
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
+const DRAFT_ENTITY = "product-taxonomy"
 const PRODUCT_TAXONOMY_TRANSLATION_CONTEXT = [
     "Bu metinler endüstriyel plastik ürünleri için kısa ürün filtresi, teknik",
     "özellik ve taksonomi değerleridir. Teknik terimleri koruyarak kısa ve",
@@ -35,6 +40,7 @@ type EntityFilter = "all" | "attributes" | "values"
 
 type CliOptions = {
     mode: CliMode
+    targetLocale: TargetLocale
     entity: EntityFilter
     applyPath?: string
     outputPath: string
@@ -84,6 +90,7 @@ function parseCliOptions(): CliOptions {
             plan: { type: "boolean" },
             generate: { type: "boolean" },
             apply: { type: "string" },
+            "target-locale": { type: "string" },
             output: { type: "string" },
             entity: { type: "string" },
             limit: { type: "string" },
@@ -109,11 +116,14 @@ function parseCliOptions(): CliOptions {
         throw new Error("--limit, --entity, and --attribute-code cannot be used with --apply")
     }
 
+    const targetLocale = parseTargetLocaleOption(values["target-locale"])
+
     return {
         mode,
+        targetLocale,
         entity: parseEntityFilter(values.entity),
         applyPath: values.apply,
-        outputPath: values.output ?? DEFAULT_DRAFT_PATH,
+        outputPath: values.output ?? buildTranslationDraftPath(DRAFT_ENTITY, targetLocale),
         limit,
         attributeCode,
         showHelp: values.help ?? false,
@@ -134,7 +144,8 @@ function printHelp() {
         "  --plan                 Show candidates without calling DeepL or writing the database (default)",
         "  --generate             Call DeepL and create a review draft without writing the database",
         "  --apply <path>          Validate and atomically apply a reviewed draft without calling DeepL",
-        "  --output <path>         Draft output path (default: .translation-drafts/product-taxonomy-tr-en.json)",
+        "  --target-locale <code> Target locale (default: en); one of the supported locales",
+        "  --output <path>         Draft output path (default: .translation-drafts/<entity>-tr-<locale>.json)",
         "  --entity <name>         all, attributes, or values (default: all)",
         "  --limit <number>        Limit rows during plan/generate",
         "  --attribute-code <code> Restrict values during plan/generate",
@@ -145,7 +156,7 @@ function printHelp() {
         "  DEEPL_API_KEY is required only for --generate.",
         "  DEEPL_GLOSSARY_ID is optional for --generate.",
         "",
-        "Existing EN translations are never overwritten.",
+        "Existing target-locale translations are never overwritten.",
     ].join("\n"))
 }
 
@@ -159,14 +170,14 @@ function getConnectionString() {
 
 async function loadAttributeCandidates(
     prisma: PrismaClient,
-    options: Pick<CliOptions, "limit">,
+    options: Pick<CliOptions, "targetLocale" | "limit">,
 ) {
     const attributes = await prisma.productAttribute.findMany({
         select: {
             id: true,
             code: true,
             translations: {
-                where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                where: { locale: { in: [SOURCE_LOCALE, options.targetLocale] } },
                 select: {
                     locale: true,
                     name: true,
@@ -180,11 +191,11 @@ async function loadAttributeCandidates(
         !attribute.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = attributes.filter((attribute) =>
-        attribute.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        attribute.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = attributes.flatMap<TranslationCandidate>((attribute) => {
         const source = attribute.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = attribute.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = attribute.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -206,7 +217,7 @@ async function loadAttributeCandidates(
 
 async function loadValueCandidates(
     prisma: PrismaClient,
-    options: Pick<CliOptions, "limit" | "attributeCode">,
+    options: Pick<CliOptions, "targetLocale" | "limit" | "attributeCode">,
 ) {
     const values = await prisma.productAttributeValue.findMany({
         where: options.attributeCode ? { attribute: { code: options.attributeCode } } : undefined,
@@ -219,7 +230,7 @@ async function loadValueCandidates(
                 },
             },
             translations: {
-                where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                where: { locale: { in: [SOURCE_LOCALE, options.targetLocale] } },
                 select: {
                     locale: true,
                     name: true,
@@ -237,11 +248,11 @@ async function loadValueCandidates(
         !value.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = values.filter((value) =>
-        value.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        value.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = values.flatMap<TranslationCandidate>((value) => {
         const source = value.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = value.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = value.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -278,7 +289,7 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
 
     console.log(JSON.stringify({
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         entity: options.entity,
         attributes: attributeResult.total,
         values: valueResult.total,
@@ -342,7 +353,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     const translations = await translator.translateTexts({
         texts: candidates.map(({ sourceName }) => sourceName),
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         context: PRODUCT_TAXONOMY_TRANSLATION_CONTEXT,
     })
     const billedCharacters = translations.reduce(
@@ -350,6 +361,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
         0,
     )
     const draft = createProductTaxonomyTranslationDraft({
+        targetLocale: options.targetLocale,
         candidates,
         translatedNames: translations.map(({ text }) => text),
         glossaryId,
@@ -386,7 +398,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     console.log("No database records were written.")
 }
 
-function createDraftStore(prisma: PrismaClient): ProductTaxonomyTranslationDraftStore {
+function createDraftStore(prisma: PrismaClient, targetLocale: TargetLocale): ProductTaxonomyTranslationDraftStore {
     const loadAttributes = (attributeIds: string[]) => attributeIds.length === 0
         ? Promise.resolve([])
         : prisma.productAttribute.findMany({
@@ -395,7 +407,7 @@ function createDraftStore(prisma: PrismaClient): ProductTaxonomyTranslationDraft
                 id: true,
                 code: true,
                 translations: {
-                    where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                    where: { locale: { in: [SOURCE_LOCALE, targetLocale] } },
                     select: {
                         locale: true,
                         name: true,
@@ -416,7 +428,7 @@ function createDraftStore(prisma: PrismaClient): ProductTaxonomyTranslationDraft
                     },
                 },
                 translations: {
-                    where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                    where: { locale: { in: [SOURCE_LOCALE, targetLocale] } },
                     select: {
                         locale: true,
                         name: true,
@@ -538,7 +550,7 @@ async function applyDraft(prisma: PrismaClient, draftPath: string | undefined) {
 
     const result = await applyProductTaxonomyTranslationDraft({
         draft,
-        store: createDraftStore(prisma),
+        store: createDraftStore(prisma, draft.targetLocale),
     })
 
     console.table([

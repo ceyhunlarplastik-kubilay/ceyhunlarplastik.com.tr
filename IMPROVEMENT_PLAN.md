@@ -1152,6 +1152,16 @@ yalnız `/admin` altındaydı, yani içerik editörü çevirilerini hiç giremiy
 hook'u sıfırlamayı React'in önerdiği "prop değişiminde render sırasında state düzelt"
 desenine taşıdı.
 
+**Aynı oturumda yakalanan düzen regresyonu.** İlk geçişte ortak bölümün tek bir görünümü
+vardı: çerçeveli/dolgulu kutu. Bu, dialog'larda doğru ama iki yerde bozuyordu —
+(a) `ProductAttributeValueCreatePanel`'in tek satırlık araç çubuğunda kutu, komşu çıplak
+input'lardan daha uzun durup hizayı kaydırıyordu; (b) varyant dialog'undaki satır içi
+ölçü tipi formunda `grid-cols-3`'ün orta hücresine sıkışıyordu. Ayrıca Kategori
+formlarında zaten renkli bir panelin içine girdiği için kutu-içinde-kutu oluyordu.
+Bileşene `variant: "card" | "plain"` eklendi; ölçü tipi ızgarası `grid-cols-2`'ye
+(Kod + Birim) indirilip ad bölümü kendi tam genişlik satırına alındı. 12 kullanımın
+5'i `plain`, 7'si `card`.
+
 **Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (117 warning) ·
 core 214/214 ✅ (209 → +5: sözlük çeviri yazımı) · functions 14/14 ✅ ·
 frontend 56/56 ✅ (44 → +12: `nameTranslations` 10, kategori payload 2).
@@ -1162,6 +1172,124 @@ dialog kapatılıp açıldığında değer geri gelmeli; Renk/Ham Madde/Ölçü 
 
 **Sırada:** E4 (çeviri araçları çoklu hedefe açılır: 5 draft helper + 5 CLI + `messages/*.json`
 çeviri CLI'ı).
+
+## 14 dil — Dilim E4: çeviri araçları çoklu hedefe açıldı (2026-07-31)
+
+**Taslak sözleşmesi sürüm 2.** Beş `*TranslationDraft.ts` üç katmanda tek hedefe çiviliydi
+(`const TARGET_LOCALE = "en"` → `z.literal(TARGET_LOCALE)` → write tiplerinde
+`typeof TARGET_LOCALE`). Artık ortak bir başlık var: `translationDraftHeaderShape`
+(`@/core/i18n/translationDraft`) — sürüm/kaynak dil/hedef dil sözleşmesi tek yerde,
+entity dosyaları yalnız kendi `entity` ayracını ve `entries`'ini tanımlıyor.
+`TRANSLATION_DRAFT_SCHEMA_VERSION` 2'ye çıktı; **sürüm 1 taslakları bilinçli olarak
+reddediliyor** (eski bir taslağın hedef dilini "en" varsaymak yanlış dile yazma riski).
+
+**Yeni tutarlılık kuralı:** `deeplTargetLanguage` ile `targetLocale` ayrı alanlar olduğu
+için elle düzenlenmiş bir taslakta ayrışabiliyorlardı (`targetLocale: "de"` +
+`deeplTargetLanguage: "en-GB"` → hangi dile yazıldığı belirsiz kayıt).
+`assertDraftTargetLanguageMatches` bunu şema düzeyinde kapatıyor.
+
+**5 CLI'ya `--target-locale`.** Taslak yolu artık hedefe göre türüyor
+(`.translation-drafts/<entity>-tr-<locale>.json`) — aynı entity'nin 13 hedefi aynı anda
+incelemede bekleyebilir ve mevcut `flag: "wx"` koruması ancak yollar farklıysa iş görür.
+`tr` hedef olarak reddediliyor (kaynak dil kendi üstüne yazamaz).
+
+**DeepL.** Dil haritaları `deeplLanguages.ts`'e taşındı — hem `deeplTranslator` hem
+`translationDraft` kullanıyor, aynı dosyada kalsalardı iki modül birbirini import ederdi.
+Retry/backoff eklendi (4 deneme, 1s→2s→4s): 13 hedef dilde istek hacmi ~13× artıyor ve tek
+bir 429 bütün taslak üretimini, o ana kadar harcanan karakter kotasıyla birlikte çöpe
+atardı. **Yalnız geçici görünen hatalar** tekrarlanıyor; 400 gibi kalıcı hatalarda beklemek
+zaman kaybı olurdu.
+
+**Yeni: `messages/*.json` çeviri CLI'ı** (`packages/core/scripts/translate-messages.ts`,
+`npm run translate:messages -w @ceyhunlarweb/core`). Saf mantık
+`core/i18n/messageCatalog.ts`'te ve testli. DB CLI'larından farkı, metinlerin ICU ve
+rich-text taşıması: doğrulama YAZMANIN ÖNKOŞULU, çünkü bozuk bir yer tutucu ancak o sayfa
+render edilirken runtime'da patlıyor. Üç kural — ICU ayrıştırılabilirliği, argüman adlarının
+korunması, etiketlerin korunması — artı dizi uzunluğu. ICU YAPISI eşitliği aranmıyor:
+TR `{count} ürün` → DE `{count, plural, ...}` meşru.
+
+Ek korumalar: mevcut (boş olmayan) anahtar asla yeniden gönderilmiyor/ezilmiyor (elle
+düzeltilmiş çeviriyi makine çevirisiyle ezmek en pahalı hata olurdu) ve taslak üretildikten
+sonra kaynak metin değiştiyse uygulama reddediliyor.
+
+`@formatjs/icu-messageformat-parser` core'a açık devDependency olarak eklendi (daha önce
+yalnız frontend'in next-intl'i üzerinden hoisting ile çözülüyordu). Lockfile'da tek satır.
+
+**Uçtan uca doğrulandı (gerçekten çalıştırıldı, DeepL'e dokunmadan):**
+- 5 CLI `--help` çalışıyor; `--target-locale xx` ve `--target-locale tr` reddediliyor.
+- `translate:messages --plan --target-locale de` → 762 anahtar / 813 DeepL metni
+  (diziler eleman eleman) / **32.599 karakter**. 12 yeni dil ≈ 391k karakter.
+- `--plan --target-locale en` → 0 eksik (EN kataloğu tam).
+- Bozuk taslak (`{count}` düşmüş + `<highlight>` düşmüş) → **ikisi de yakalandı, hiçbir şey
+  yazılmadı**, exit 1.
+- Geçerli taslak → iç içe yapı doğru kurularak yazıldı; ikinci kez uygulandığında
+  `skippedAlreadyTranslated: 3`; kaynak metni değiştirilmiş taslak reddedildi.
+- Kısmi `de.json` varken frontend katalog testi geçti (E2'nin "katalog kısmi olabilir"
+  tasarımı doğrulandı). Test kataloğu sonrasında silindi.
+
+### İlk gerçek `--generate` denemesinde çıkan iki hata (aynı gün düzeltildi)
+
+**1. Nesne dizileri yaprak sanıldı — DeepL 400, para gitti, taslak yazılmadı.**
+`flattenCatalog` her diziyi "metin dizisi" varsayıyordu, ama katalogda
+`home.services.cards = [{title, description}]` gibi **nesne dizileri** de var. 30 nesne
+olduğu gibi `texts`'e sızdı; ilk batch'ler faturalandı, sonraki batch
+`texts parameter must be a non-empty string` aldı ve çıktı üretilmedi.
+
+Model düzeltildi: **yaprak her zaman METİNDİR**, diziler ve nesneler yalnızca
+kapsayıcıdır ve içlerine inilir. Yol gösterimi indeks taşıyor
+(`home.services.cards[0].title`), `setAtPath` sayısal segmentte dizi üretiyor.
+Anahtar sayısı 762 → **843**, karakter 32.599 → **37.380** (eksik sayılan yapraklar
+artık görünüyor). Kaynağı boş olan anahtarlar da atlanıyor.
+
+Maliyet güvenliği için `createDeepLRequestBatches` artık **tek ağ isteği atılmadan önce**
+her metnin dolu bir string olduğunu doğruluyor (`assertTranslatableTexts`) — bu sınıf hata
+bir daha yarım faturaya dönüşemez. Koruma altı CLI'ın hepsini kapsıyor.
+
+**2. Yarım dizi = içerik kaybı.** Yeni indeksli model dizinin bir kısmını yazmayı mümkün
+kıldı; ama `mergeMessages` dizileri ELEMAN BAZINDA değil **bütün olarak** değiştiriyor.
+Yani 7 hizmet kartının 1'i çevrilmiş bir `de.json`, Almanca sayfada 7 yerine **1 kart**
+gösterirdi — eksik anahtarın Türkçe'ye düşmesi gibi zararsız değil, içerik kaybı.
+`findIncompleteArrays` eklendi; `--apply` yarım dizi bırakacak bir taslağı reddediyor.
+Doğrulandı: yalnız `cards[0]` taşıyan taslak
+`home.services.cards: 12 missing` ile reddedildi, dosya yazılmadı.
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (117 warning) ·
+core **257/257** ✅ (214 → +43: messageCatalog 24, translationDraft 11, DeepL 8) ·
+functions 14/14 ✅ · frontend 56/56 ✅.
+
+### 13 dilin katalogları üretildi (2026-07-31)
+
+`messages/` altında artık 14 katalog var; hepsinde **843 anahtarın tamamı dolu**
+(`--plan` her dil için `missingKeys: 0`). Frontend katalog testi 14 dil × 4 kontrol ile
+geçiyor (61 → **105 test**): fazladan anahtar yok, ICU ayrıştırılabiliyor, argüman ve
+etiket adları korunmuş, dizi uzunlukları eşit.
+
+**Doğrulama kapısı bir kez gerçekten devreye girdi.** Hintçe'de DeepL
+`<br></br>` etiketini `</br>`'ye çevirmişti (açılış etiketi düşmüş):
+
+```
+public.about.hero.title: translation is not valid ICU (UNMATCHED_CLOSING_TAG)
+```
+
+Uygulansaydı Hintçe "Hakkımızda" sayfası runtime'da patlardı. Taslakta düzeltilip yeniden
+uygulandı. Kalan 13 dilde etiket/yer tutucu bozulması çıkmadı.
+
+**Bilinen kalite sorunu (insan gözden geçirmesi bekliyor).** Uzun cümleler iyi çevrilmiş
+ama **kısa, bağlamsız menü etiketleri** zayıf — DeepL'e tek kelimelik bir etiketin ne
+olduğunu anlatan bağlam yok. En belirgin örnek Almanca `chrome.nav.corporate`:
+"Kurumsal" → **"Unternehmens-"** (kelime değil, önek parçası; doğrusu "Unternehmen").
+Ayrıca `{count} Produkte` gibi çeviriler çoğul yapısını taşımıyor ("1 Produkte").
+`chrome.nav.*` altındaki ~20 kısa etiket her dilde elle gözden geçirilmeli.
+
+**Araçta düzeltilen bir hata:** `--apply` var olmayan bir dosyayı
+"Draft is not valid JSON" diye raporluyordu — okuma ve JSON ayrıştırma aynı `catch`
+içindeydi. Artık ENOENT ayrı raporlanıyor ve mesaj göreli yolun neye göre çözüldüğünü
+yazıyor (script npm workspace ile `packages/core` içinden çalışıyor, bu tam olarak
+kafa karıştıran noktaydı).
+
+**Sırada:** dil açma dalgaları. Kataloglar hazır ama `routing.locales` hâlâ `["tr","en"]` —
+**hiçbir yeni dil canlıda değil.** Her dalga: kısa etiketleri elle düzelt →
+`routing.locales`'a ekle → deploy. Dalga sırası ve ek işler yukarıdaki tabloda.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

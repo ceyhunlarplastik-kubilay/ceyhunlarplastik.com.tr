@@ -1925,7 +1925,7 @@ export function CreateVariantDialog({
                                 Yeni ölçü tipi oluştur
                             </div>
 
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
                                     <Label className="text-xs text-neutral-500">Kod</Label>
                                     <select
@@ -1960,32 +1960,6 @@ export function CreateVariantDialog({
                                     </select>
                                 </div>
 
-                                <Controller
-                                    name="translations"
-                                    control={measurementTypeForm.control}
-                                    render={({ field }) => (
-                                        <AdminTranslatedNameSection
-                                            entityLabel="Ölçü tipi adı"
-                                            activeLocale={measurementTypeCreateLocale}
-                                            onActiveLocaleChange={setMeasurementTypeCreateLocale}
-                                            translations={field.value}
-                                            onTranslationsChange={field.onChange}
-                                            targetPlaceholder="örn. Diameter"
-                                            defaultLocaleField={
-                                                <div className="space-y-1">
-                                                    <Label className="text-xs text-neutral-500">
-                                                        Türkçe ölçü tipi adı
-                                                    </Label>
-                                                    <Input
-                                                        placeholder="örn. Çap"
-                                                        {...measurementTypeForm.register("name")}
-                                                    />
-                                                </div>
-                                            }
-                                        />
-                                    )}
-                                />
-
                                 <div className="space-y-1">
                                     <Label className="text-xs text-neutral-500">Birim</Label>
                                     <Input
@@ -1995,6 +1969,32 @@ export function CreateVariantDialog({
                                 </div>
                             </div>
 
+                            <Controller
+                                name="translations"
+                                control={measurementTypeForm.control}
+                                render={({ field }) => (
+                                    <AdminTranslatedNameSection
+                                        entityLabel="Ölçü tipi adı"
+                                        activeLocale={measurementTypeCreateLocale}
+                                        onActiveLocaleChange={setMeasurementTypeCreateLocale}
+                                        translations={field.value}
+                                        onTranslationsChange={field.onChange}
+                                        targetPlaceholder="örn. Diameter"
+                                        variant="plain"
+                                        defaultLocaleField={
+                                            <div className="space-y-1">
+                                                <Label className="text-xs text-neutral-500">
+                                                    Türkçe ölçü tipi adı
+                                                </Label>
+                                                <Input
+                                                    placeholder="örn. Çap"
+                                                    {...measurementTypeForm.register("name")}
+                                                />
+                                            </div>
+                                        }
+                                    />
+                                )}
+                            />
                             {(measurementTypeForm.formState.errors.name ||
                                 measurementTypeForm.formState.errors.baseUnit) && (
                                     <div className="space-y-1">

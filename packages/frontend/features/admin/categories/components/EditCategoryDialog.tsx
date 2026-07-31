@@ -228,6 +228,7 @@ export function EditCategoryDialog({
                                         translations={field.value}
                                         onTranslationsChange={field.onChange}
                                         targetPlaceholder="örn. Bakelite Handles"
+                                        variant="plain"
                                         defaultLocaleField={
                                             <div className="space-y-2">
                                                 <div className="text-xs text-neutral-500">

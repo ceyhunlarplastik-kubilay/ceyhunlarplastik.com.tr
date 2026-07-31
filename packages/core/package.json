@@ -15,7 +15,8 @@
     "translate:product-industrial-usage-translations": "tsx prisma/translate-product-industrial-usage-translations.ts",
     "backfill:product-translations": "tsx prisma/backfill-product-translations.ts",
     "translate:product-translations": "tsx prisma/translate-product-translations.ts",
-    "seed:geo": "tsx prisma/seed-geo.ts"
+    "seed:geo": "tsx prisma/seed-geo.ts",
+    "translate:messages": "tsx scripts/translate-messages.ts"
   },
   "exports": {
     "./*": [
@@ -53,6 +54,7 @@
     "sst": "*"
   },
   "devDependencies": {
+    "@formatjs/icu-messageformat-parser": "^3.5.12",
     "@types/aws-lambda": "^8.10.160",
     "@types/http-errors": "^2.0.5",
     "ajv-cmd": "^0.8.1",

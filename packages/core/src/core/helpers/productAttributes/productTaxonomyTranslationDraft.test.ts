@@ -10,6 +10,7 @@ import {
 
 function createValueDraft(translatedNames = ["Furniture", "Furniture"]) {
     return createProductTaxonomyTranslationDraft({
+        targetLocale: "en",
         candidates: [
             {
                 entity: "productAttributeValue",
@@ -59,6 +60,7 @@ describe("product taxonomy translation drafts", () => {
 
     it("rejects an apply when an existing target slug owner is found", async () => {
         const draft = createProductTaxonomyTranslationDraft({
+            targetLocale: "en",
             candidates: [{
                 entity: "productAttributeValue",
                 productAttributeValueId: "value-1",

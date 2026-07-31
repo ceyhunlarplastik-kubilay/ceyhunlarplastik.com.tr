@@ -1,26 +1,21 @@
 import { z } from "zod"
 
+import { getDeepLTargetLanguage } from "@/core/i18n/deeplLanguages"
+import type { TargetLocale } from "@/core/i18n/locales"
 import {
     TRANSLATION_DRAFT_SCHEMA_VERSION,
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    assertDraftTargetLanguageMatches,
     createTranslationSourceFingerprint,
+    translationDraftHeaderShape,
 } from "@/core/i18n/translationDraft"
 import { normalizeProductTranslations } from "@/core/helpers/products/productTranslations"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEEPL_TARGET_LANGUAGE = "en-GB" as const
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
 
 const productTranslationDraftSchema = z.object({
-    schemaVersion: z.literal(TRANSLATION_DRAFT_SCHEMA_VERSION),
-    provider: z.literal("deepl"),
+    ...translationDraftHeaderShape,
     entity: z.literal("product"),
-    sourceLocale: z.literal(SOURCE_LOCALE),
-    targetLocale: z.literal(TARGET_LOCALE),
-    deeplTargetLanguage: z.literal(DEEPL_TARGET_LANGUAGE),
-    generatedAt: z.string().min(1),
-    glossaryId: z.string().trim().min(1).nullable(),
-    estimatedCharacters: z.number().int().nonnegative(),
-    billedCharacters: z.number().int().nonnegative(),
     entries: z.array(z.object({
         productId: z.string().min(1),
         productCode: z.string().min(1),
@@ -37,6 +32,8 @@ const productTranslationDraftSchema = z.object({
         }).strict(),
     }).strict()),
 }).strict().superRefine((draft, context) => {
+    assertDraftTargetLanguageMatches(draft, context)
+
     const productIds = new Set<string>()
     const productCodes = new Set<string>()
 
@@ -76,7 +73,7 @@ export type ProductTranslationState = {
 
 export type ProductTranslationWrite = {
     productId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     name: string
     slug: string
     description: string | null
@@ -84,7 +81,7 @@ export type ProductTranslationWrite = {
 
 export type ProductTranslationDraftStore = {
     loadProducts(productIds: string[]): Promise<ProductTranslationState[]>
-    findSlugOwners(locale: typeof TARGET_LOCALE, slugs: string[]): Promise<Array<{
+    findSlugOwners(locale: TargetLocale, slugs: string[]): Promise<Array<{
         productId: string
         slug: string
     }>>
@@ -137,6 +134,7 @@ export function parseProductTranslationDraft(input: unknown) {
 export function createProductTranslationDraft({
     products,
     translatedProducts,
+    targetLocale,
     generatedAt = new Date(),
     glossaryId,
     estimatedCharacters,
@@ -153,6 +151,7 @@ export function createProductTranslationDraft({
         name: string
         description: string | null
     }>
+    targetLocale: TargetLocale
     generatedAt?: Date
     glossaryId?: string
     estimatedCharacters: number
@@ -169,8 +168,8 @@ export function createProductTranslationDraft({
         provider: "deepl",
         entity: "product",
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
-        deeplTargetLanguage: DEEPL_TARGET_LANGUAGE,
+        targetLocale,
+        deeplTargetLanguage: getDeepLTargetLanguage(targetLocale),
         generatedAt: generatedAt.toISOString(),
         glossaryId: glossaryId?.trim() || null,
         estimatedCharacters,
@@ -178,7 +177,7 @@ export function createProductTranslationDraft({
         entries: products.map((product, index) => {
             const normalized = normalizeProductTranslations({
                 translations: [{
-                    locale: TARGET_LOCALE,
+                    locale: targetLocale,
                     name: translatedProducts[index].name,
                     description: translatedProducts[index].description,
                 }],
@@ -259,7 +258,7 @@ export function buildProductTranslationWrites(
         try {
             const normalized = normalizeProductTranslations({
                 translations: [{
-                    locale: TARGET_LOCALE,
+                    locale: draft.targetLocale,
                     name: entry.target.name,
                     slug: entry.target.slug,
                     description: entry.target.description,
@@ -277,7 +276,7 @@ export function buildProductTranslationWrites(
             slugOwners.set(normalized.slug, entry.productCode)
             writes.push({
                 productId: product.id,
-                locale: TARGET_LOCALE,
+                locale: draft.targetLocale,
                 name: normalized.name,
                 slug: normalized.slug,
                 description: normalized.description,

@@ -53,14 +53,29 @@ describe("loadMessages", () => {
         expect(buildFallbackChain("de")).toEqual(["tr", "en", "de"])
     })
 
-    it("bilinmeyen dilde bile zincir sayesinde boş dönmez", async () => {
-        // Kataloğu olmayan bir dil: import başarısız olur ve zincir tr/en ile dolar.
+    it("kataloğu OLMAYAN dilde bile zincir sayesinde boş dönmez", async () => {
         // Dil dalgalarında bir dil, çevirisi tamamlanmadan da render edilebilsin diye.
-        const messages = (await loadMessages("de")) as MessageTree
+        // Katalog yok → import başarısız olur, zincir tr+en ile dolar ve en sonda `en`
+        // durduğu için İngilizce görünür.
+        //
+        // Örnek locale BİLİNÇLİ olarak var olmayan bir kod: bu test önce `de`
+        // kullanıyordu ve Almanca kataloğu üretilir üretilmez kırıldı. Testin amacı
+        // "katalogsuz dil" davranışını sabitlemek, o yüzden hiçbir zaman katalog
+        // kazanmayacak bir kodla doğrulanıyor.
+        const messages = (await loadMessages("xx")) as MessageTree
         const chrome = messages.chrome as MessageTree
 
-        // Katalog yok → zincir tr+en ile dolar, en sonda en olduğu için İngilizce görünür.
         expect((chrome.nav as MessageTree).corporate).toBe("Corporate")
+    })
+
+    it("kataloğu OLAN dil zinciri ezer", async () => {
+        // Almanca kataloğu üretildikten sonraki gerçek davranış.
+        const messages = (await loadMessages("de")) as MessageTree
+        const chrome = messages.chrome as MessageTree
+        const corporate = (chrome.nav as MessageTree).corporate
+
+        expect(corporate).not.toBe("Corporate")
+        expect(corporate).not.toBe("Kurumsal")
     })
 
     it("istenen dil, İngilizce'yi ve Türkçe'yi ezer", async () => {

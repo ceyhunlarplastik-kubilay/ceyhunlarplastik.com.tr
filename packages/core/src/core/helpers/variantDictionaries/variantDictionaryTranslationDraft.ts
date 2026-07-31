@@ -1,13 +1,16 @@
 import { z } from "zod"
 
+import { getDeepLTargetLanguage } from "@/core/i18n/deeplLanguages"
+import type { TargetLocale } from "@/core/i18n/locales"
 import {
     TRANSLATION_DRAFT_SCHEMA_VERSION,
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    assertDraftTargetLanguageMatches,
     createTranslationSourceFingerprint,
+    translationDraftHeaderShape,
 } from "@/core/i18n/translationDraft"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEEPL_TARGET_LANGUAGE = "en-GB" as const
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
 
 const sourceSchema = z.object({
     name: z.string().min(1),
@@ -44,22 +47,16 @@ const colorEntrySchema = z.object({
 }).strict()
 
 const variantDictionaryTranslationDraftSchema = z.object({
-    schemaVersion: z.literal(TRANSLATION_DRAFT_SCHEMA_VERSION),
-    provider: z.literal("deepl"),
+    ...translationDraftHeaderShape,
     entity: z.literal("variantDictionary"),
-    sourceLocale: z.literal(SOURCE_LOCALE),
-    targetLocale: z.literal(TARGET_LOCALE),
-    deeplTargetLanguage: z.literal(DEEPL_TARGET_LANGUAGE),
-    generatedAt: z.string().min(1),
-    glossaryId: z.string().trim().min(1).nullable(),
-    estimatedCharacters: z.number().int().nonnegative(),
-    billedCharacters: z.number().int().nonnegative(),
     entries: z.array(z.discriminatedUnion("entity", [
         measurementTypeEntrySchema,
         materialEntrySchema,
         colorEntrySchema,
     ])),
 }).strict().superRefine((draft, context) => {
+    assertDraftTargetLanguageMatches(draft, context)
+
     const keys = new Set<string>()
 
     for (const [index, entry] of draft.entries.entries()) {
@@ -123,19 +120,19 @@ export type ColorTranslationState = TranslationState & {
 
 export type MeasurementTypeTranslationWrite = {
     measurementTypeId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     name: string
 }
 
 export type MaterialTranslationWrite = {
     materialId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     name: string
 }
 
 export type ColorTranslationWrite = {
     colorId: string
-    locale: typeof TARGET_LOCALE
+    locale: TargetLocale
     name: string
 }
 
@@ -204,6 +201,7 @@ export function parseVariantDictionaryTranslationDraft(input: unknown) {
 export function createVariantDictionaryTranslationDraft({
     candidates,
     translatedNames,
+    targetLocale,
     generatedAt = new Date(),
     glossaryId,
     estimatedCharacters,
@@ -211,6 +209,7 @@ export function createVariantDictionaryTranslationDraft({
 }: {
     candidates: VariantDictionaryTranslationCandidate[]
     translatedNames: string[]
+    targetLocale: TargetLocale
     generatedAt?: Date
     glossaryId?: string
     estimatedCharacters: number
@@ -227,8 +226,8 @@ export function createVariantDictionaryTranslationDraft({
         provider: "deepl",
         entity: "variantDictionary",
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
-        deeplTargetLanguage: DEEPL_TARGET_LANGUAGE,
+        targetLocale,
+        deeplTargetLanguage: getDeepLTargetLanguage(targetLocale),
         generatedAt: generatedAt.toISOString(),
         glossaryId: glossaryId?.trim() || null,
         estimatedCharacters,
@@ -310,6 +309,7 @@ export function buildVariantDictionaryTranslationWrites({
             }
 
             const write = validateEntry({
+            targetLocale: draft.targetLocale,
                 entityLabel: `MeasurementType ${entry.code}`,
                 entityId: measurementType.id,
                 sourceName: entry.source.name,
@@ -321,7 +321,7 @@ export function buildVariantDictionaryTranslationWrites({
             if (write) {
                 writes.measurementTypes.push({
                     measurementTypeId: measurementType.id,
-                    locale: TARGET_LOCALE,
+                    locale: draft.targetLocale,
                     name: write.name,
                 })
             }
@@ -339,6 +339,7 @@ export function buildVariantDictionaryTranslationWrites({
             }
 
             const write = validateEntry({
+            targetLocale: draft.targetLocale,
                 entityLabel: `Material ${entry.code ?? entry.materialId}`,
                 entityId: material.id,
                 sourceName: entry.source.name,
@@ -350,7 +351,7 @@ export function buildVariantDictionaryTranslationWrites({
             if (write) {
                 writes.materials.push({
                     materialId: material.id,
-                    locale: TARGET_LOCALE,
+                    locale: draft.targetLocale,
                     name: write.name,
                 })
             }
@@ -367,6 +368,7 @@ export function buildVariantDictionaryTranslationWrites({
         }
 
         const write = validateEntry({
+            targetLocale: draft.targetLocale,
             entityLabel: `Color ${entry.system} ${entry.code}`,
             entityId: color.id,
             sourceName: entry.source.name,
@@ -378,7 +380,7 @@ export function buildVariantDictionaryTranslationWrites({
         if (write) {
             writes.colors.push({
                 colorId: color.id,
-                locale: TARGET_LOCALE,
+                locale: draft.targetLocale,
                 name: write.name,
             })
         }
@@ -397,6 +399,7 @@ function validateEntry({
     sourceName,
     sourceFingerprint: expectedFingerprint,
     targetName,
+    targetLocale,
     translations,
     errors,
 }: {
@@ -405,18 +408,19 @@ function validateEntry({
     sourceName: string
     sourceFingerprint: string
     targetName: string
+    targetLocale: TargetLocale
     translations: Array<{ locale: string; name: string }>
     errors: string[]
 }) {
     const source = translations.find(({ locale }) => locale === SOURCE_LOCALE)
-    const target = translations.find(({ locale }) => locale === TARGET_LOCALE)
+    const target = translations.find(({ locale }) => locale === targetLocale)
 
     if (!source) {
         errors.push(`${entityLabel} has no ${SOURCE_LOCALE} translation`)
         return null
     }
     if (target) {
-        errors.push(`${entityLabel} already has an ${TARGET_LOCALE} translation`)
+        errors.push(`${entityLabel} already has an ${targetLocale} translation`)
         return null
     }
 

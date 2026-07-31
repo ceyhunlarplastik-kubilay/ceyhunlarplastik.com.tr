@@ -10,6 +10,7 @@ import {
 
 function createMeasurementTypeDraft(translatedNames = ["Outside Diameter"]) {
     return createVariantDictionaryTranslationDraft({
+        targetLocale: "en",
         candidates: [{
             entity: "measurementType",
             measurementTypeId: "measurement-type-1",
@@ -26,6 +27,7 @@ function createMeasurementTypeDraft(translatedNames = ["Outside Diameter"]) {
 describe("variant dictionary translation drafts", () => {
     it("builds slugless writes for missing EN translations", () => {
         const draft = createVariantDictionaryTranslationDraft({
+            targetLocale: "en",
             candidates: [
                 {
                     entity: "measurementType",

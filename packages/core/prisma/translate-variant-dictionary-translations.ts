@@ -20,11 +20,16 @@ import {
     assertDeepLQuotaAvailable,
     estimateTranslationCharacters,
 } from "../src/core/i18n/deeplTranslator"
+import type { TargetLocale } from "../src/core/i18n/locales"
+import {
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    buildTranslationDraftPath,
+    parseTargetLocaleOption,
+} from "../src/core/i18n/translationDraft"
 import { PrismaClient } from "./generated/prisma/client"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEFAULT_DRAFT_PATH = ".translation-drafts/variant-dictionaries-tr-en.json"
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
+const DRAFT_ENTITY = "variant-dictionaries"
 const VARIANT_DICTIONARY_TRANSLATION_CONTEXT = [
     "Bu metinler endüstriyel plastik ürün varyant tablolarında kullanılan kısa",
     "ölçü, malzeme ve renk sözlük etiketleridir. Teknik terimleri, RAL/PANTONE",
@@ -36,6 +41,7 @@ type EntityFilter = "all" | "measurement-types" | "materials" | "colors"
 
 type CliOptions = {
     mode: CliMode
+    targetLocale: TargetLocale
     entity: EntityFilter
     applyPath?: string
     outputPath: string
@@ -76,6 +82,7 @@ function parseCliOptions(): CliOptions {
             plan: { type: "boolean" },
             generate: { type: "boolean" },
             apply: { type: "string" },
+            "target-locale": { type: "string" },
             output: { type: "string" },
             entity: { type: "string" },
             limit: { type: "string" },
@@ -99,11 +106,14 @@ function parseCliOptions(): CliOptions {
         throw new Error("--limit and --entity cannot be used with --apply")
     }
 
+    const targetLocale = parseTargetLocaleOption(values["target-locale"])
+
     return {
         mode,
+        targetLocale,
         entity: parseEntityFilter(values.entity),
         applyPath: values.apply,
-        outputPath: values.output ?? DEFAULT_DRAFT_PATH,
+        outputPath: values.output ?? buildTranslationDraftPath(DRAFT_ENTITY, targetLocale),
         limit,
         showHelp: values.help ?? false,
     }
@@ -123,7 +133,8 @@ function printHelp() {
         "  --plan          Show candidates without calling DeepL or writing the database (default)",
         "  --generate      Call DeepL and create a review draft without writing the database",
         "  --apply <path>   Validate and atomically apply a reviewed draft without calling DeepL",
-        "  --output <path>  Draft output path (default: .translation-drafts/variant-dictionaries-tr-en.json)",
+        "  --target-locale <code> Target locale (default: en); one of the supported locales",
+        "  --output <path>  Draft output path (default: .translation-drafts/<entity>-tr-<locale>.json)",
         "  --entity <name>  all, measurement-types, materials, or colors (default: all)",
         "  --limit <number> Limit rows during plan/generate",
         "  -h, --help       Show this help",
@@ -133,7 +144,7 @@ function printHelp() {
         "  DEEPL_API_KEY is required only for --generate.",
         "  DEEPL_GLOSSARY_ID is optional for --generate.",
         "",
-        "Existing EN translations are never overwritten.",
+        "Existing target-locale translations are never overwritten.",
     ].join("\n"))
 }
 
@@ -145,13 +156,13 @@ function getConnectionString() {
     return connectionString
 }
 
-async function loadMeasurementTypeCandidates(prisma: PrismaClient, options: Pick<CliOptions, "limit">) {
+async function loadMeasurementTypeCandidates(prisma: PrismaClient, options: Pick<CliOptions, "targetLocale" | "limit">) {
     const measurementTypes = await prisma.measurementType.findMany({
         select: {
             id: true,
             code: true,
             translations: {
-                where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                where: { locale: { in: [SOURCE_LOCALE, options.targetLocale] } },
                 select: { locale: true, name: true },
             },
         },
@@ -165,11 +176,11 @@ async function loadMeasurementTypeCandidates(prisma: PrismaClient, options: Pick
         !measurementType.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = measurementTypes.filter((measurementType) =>
-        measurementType.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        measurementType.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = measurementTypes.flatMap<VariantDictionaryTranslationCandidate>((measurementType) => {
         const source = measurementType.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = measurementType.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = measurementType.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -189,13 +200,13 @@ async function loadMeasurementTypeCandidates(prisma: PrismaClient, options: Pick
     }
 }
 
-async function loadMaterialCandidates(prisma: PrismaClient, options: Pick<CliOptions, "limit">) {
+async function loadMaterialCandidates(prisma: PrismaClient, options: Pick<CliOptions, "targetLocale" | "limit">) {
     const materials = await prisma.material.findMany({
         select: {
             id: true,
             code: true,
             translations: {
-                where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                where: { locale: { in: [SOURCE_LOCALE, options.targetLocale] } },
                 select: { locale: true, name: true },
             },
         },
@@ -209,11 +220,11 @@ async function loadMaterialCandidates(prisma: PrismaClient, options: Pick<CliOpt
         !material.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = materials.filter((material) =>
-        material.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        material.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = materials.flatMap<VariantDictionaryTranslationCandidate>((material) => {
         const source = material.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = material.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = material.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -233,14 +244,14 @@ async function loadMaterialCandidates(prisma: PrismaClient, options: Pick<CliOpt
     }
 }
 
-async function loadColorCandidates(prisma: PrismaClient, options: Pick<CliOptions, "limit">) {
+async function loadColorCandidates(prisma: PrismaClient, options: Pick<CliOptions, "targetLocale" | "limit">) {
     const colors = await prisma.color.findMany({
         select: {
             id: true,
             system: true,
             code: true,
             translations: {
-                where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                where: { locale: { in: [SOURCE_LOCALE, options.targetLocale] } },
                 select: { locale: true, name: true },
             },
         },
@@ -254,11 +265,11 @@ async function loadColorCandidates(prisma: PrismaClient, options: Pick<CliOption
         !color.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = colors.filter((color) =>
-        color.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        color.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = colors.flatMap<VariantDictionaryTranslationCandidate>((color) => {
         const source = color.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = color.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = color.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -302,7 +313,7 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
 
     console.log(JSON.stringify({
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         entity: options.entity,
         measurementTypes: measurementTypeResult.total,
         materials: materialResult.total,
@@ -380,7 +391,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     const translations = await translator.translateTexts({
         texts: candidates.map(({ sourceName }) => sourceName),
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         context: VARIANT_DICTIONARY_TRANSLATION_CONTEXT,
     })
     const billedCharacters = translations.reduce(
@@ -388,6 +399,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
         0,
     )
     const draft = createVariantDictionaryTranslationDraft({
+        targetLocale: options.targetLocale,
         candidates,
         translatedNames: translations.map(({ text }) => text),
         glossaryId,
@@ -425,7 +437,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     console.log("No database records were written.")
 }
 
-function createDraftStore(prisma: PrismaClient): VariantDictionaryTranslationDraftStore {
+function createDraftStore(prisma: PrismaClient, targetLocale: TargetLocale): VariantDictionaryTranslationDraftStore {
     const loadMeasurementTypes = (ids: string[]) => ids.length === 0
         ? Promise.resolve([])
         : prisma.measurementType.findMany({
@@ -434,7 +446,7 @@ function createDraftStore(prisma: PrismaClient): VariantDictionaryTranslationDra
                 id: true,
                 code: true,
                 translations: {
-                    where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                    where: { locale: { in: [SOURCE_LOCALE, targetLocale] } },
                     select: { locale: true, name: true },
                 },
             },
@@ -447,7 +459,7 @@ function createDraftStore(prisma: PrismaClient): VariantDictionaryTranslationDra
                 id: true,
                 code: true,
                 translations: {
-                    where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                    where: { locale: { in: [SOURCE_LOCALE, targetLocale] } },
                     select: { locale: true, name: true },
                 },
             },
@@ -461,7 +473,7 @@ function createDraftStore(prisma: PrismaClient): VariantDictionaryTranslationDra
                 system: true,
                 code: true,
                 translations: {
-                    where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                    where: { locale: { in: [SOURCE_LOCALE, targetLocale] } },
                     select: { locale: true, name: true },
                 },
             },
@@ -547,7 +559,7 @@ async function applyDraft(prisma: PrismaClient, draftPath: string | undefined) {
 
     const result = await applyVariantDictionaryTranslationDraft({
         draft,
-        store: createDraftStore(prisma),
+        store: createDraftStore(prisma, draft.targetLocale),
     })
 
     console.table([

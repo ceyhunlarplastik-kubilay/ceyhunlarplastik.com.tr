@@ -1,68 +1,49 @@
-import {
-    DeepLClient,
-    type SourceLanguageCode,
-    type TargetLanguageCode,
-} from "deepl-node"
+import { DeepLClient } from "deepl-node"
 
+import {
+    getDeepLSourceLanguage,
+    getDeepLTargetLanguage,
+    supportsGlossary,
+} from "./deeplLanguages"
 import type { SupportedLocale } from "./locales"
 import { countUnicodeCharacters } from "./translationDraft"
 
 export const DEEPL_MAX_TEXTS_PER_REQUEST = 50
 export const DEEPL_SAFE_REQUEST_BYTES = 120 * 1024
 
-const SOURCE_LANGUAGE_BY_LOCALE: Record<SupportedLocale, SourceLanguageCode> = {
-    tr: "tr",
-    en: "en",
-    de: "de",
-    fr: "fr",
-    es: "es",
-    it: "it",
-    pt: "pt",
-    pl: "pl",
-    ru: "ru",
-    ar: "ar",
-    ko: "ko",
-    ja: "ja",
-    zh: "zh",
-    hi: "hi",
-}
-
 /**
- * Hedef tarafta DeepL bazı diller için BÖLGE İSTER; bölgesiz kod gönderilirse
- * uyarı üretir veya reddeder. Seçilen varyantlar:
- *  - en-GB (mevcut davranış korundu)
- *  - pt-BR (Brezilya pazarı; pt-PT'ye geçilecekse burası tek nokta)
- *  - zh-HANS (basitleştirilmiş; geleneksel için zh-HANT)
- *  - es (bölgesiz kabul ediliyor; Latin Amerika için es-419)
+ * Geçici hatalarda yeniden deneme. 13 hedef dile açıldığımızda istek hacmi
+ * ~13× artıyor; tek bir 429 bütün taslak üretimini (ve o ana kadar harcanan
+ * karakter kotasını) çöpe atardı. Yalnız GEÇİCİ görünen hatalar tekrarlanır —
+ * kota yetersizliği veya geçersiz dil kodu tekrarlanırsa boşuna beklenir.
  */
-const TARGET_LANGUAGE_BY_LOCALE: Record<SupportedLocale, TargetLanguageCode> = {
-    tr: "tr",
-    en: "en-GB",
-    de: "de",
-    fr: "fr",
-    es: "es",
-    it: "it",
-    pt: "pt-BR",
-    pl: "pl",
-    ru: "ru",
-    ar: "ar",
-    ko: "ko",
-    ja: "ja",
-    zh: "zh-HANS",
-    hi: "hi",
+export const DEEPL_MAX_ATTEMPTS = 4
+export const DEEPL_RETRY_BASE_DELAY_MS = 1_000
+
+const RETRYABLE_MESSAGE_PATTERNS = [
+    /\b429\b/,
+    /too many requests/i,
+    /rate limit/i,
+    /\b5\d{2}\b/,
+    /temporarily unavailable/i,
+    /timeout/i,
+    /ETIMEDOUT/i,
+    /ECONNRESET/i,
+    /EAI_AGAIN/i,
+    /socket hang up/i,
+]
+
+export function isRetryableDeepLError(error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    return RETRYABLE_MESSAGE_PATTERNS.some((pattern) => pattern.test(message))
 }
 
-/**
- * DeepL glossary'leri dil çiftine bağlıdır ve glossary dil listesi çeviri dil
- * listesinden DAR. Hintçe glossary desteklenmiyor; glossaryId koşulsuz
- * gönderilirse DeepL isteği reddeder.
- * bkz. deepl-node `SourceGlossaryLanguageCode`
- */
-const LOCALES_WITHOUT_GLOSSARY_SUPPORT = new Set<SupportedLocale>(["hi"])
-
-export function supportsGlossary(locale: SupportedLocale) {
-    return !LOCALES_WITHOUT_GLOSSARY_SUPPORT.has(locale)
+/** Üstel geri çekilme: 1s, 2s, 4s … (deneme sırası 1'den başlar). */
+export function deepLRetryDelayMs(attempt: number) {
+    return DEEPL_RETRY_BASE_DELAY_MS * 2 ** (attempt - 1)
 }
+
+export { supportsGlossary }
 
 export type DeepLUsage = {
     count: number
@@ -86,7 +67,32 @@ function estimateRequestBytes(texts: string[], context?: string) {
     }))
 }
 
+/**
+ * Toplu isteğe girmeden ÖNCE her metnin dolu bir string olduğunu doğrular.
+ *
+ * NEDEN ÖNCEDEN: batch'ler sırayla gönderiliyor ve DeepL geçersiz bir metni
+ * ancak o batch'e gelince reddediyor. Bir kez, mesaj kataloğunda nesne dizisi
+ * yaprak sanıldığı için 30 nesne texts'e sızdı; ilk batch'ler faturalandı,
+ * sonraki batch 400 aldı ve taslak hiç yazılmadı — para gitti, çıktı yok.
+ * Girdi doğrulaması tek bir ağ isteği atılmadan yapılır.
+ */
+export function assertTranslatableTexts(texts: unknown[]) {
+    const invalid = texts.flatMap((text, index) =>
+        typeof text === "string" && text.trim() !== "" ? [] : [index],
+    )
+
+    if (invalid.length > 0) {
+        const preview = invalid.slice(0, 10).join(", ")
+        const suffix = invalid.length > 10 ? `, … (+${invalid.length - 10})` : ""
+        throw new DeepLTranslationError(
+            `${invalid.length} texts are empty or not strings; DeepL rejects them. Indexes: ${preview}${suffix}`,
+        )
+    }
+}
+
 export function createDeepLRequestBatches(texts: string[], context?: string) {
+    assertTranslatableTexts(texts)
+
     const batches: string[][] = []
     let current: string[] = []
 
@@ -129,15 +135,23 @@ export class DeepLTranslator {
     private readonly apiKey: string
     private readonly client: DeepLClient
     private readonly glossaryId?: string
+    private readonly maxAttempts: number
+    private readonly sleep: (ms: number) => Promise<void>
 
     constructor({
         apiKey,
         glossaryId,
         client,
+        maxAttempts = DEEPL_MAX_ATTEMPTS,
+        sleep,
     }: {
         apiKey: string
         glossaryId?: string
         client?: DeepLClient
+        /** Testlerde 1'e çekilerek retry kapatılabilir. */
+        maxAttempts?: number
+        /** Testlerin gerçekten beklememesi için enjekte edilebilir. */
+        sleep?: (ms: number) => Promise<void>
     }) {
         const normalizedApiKey = apiKey.trim()
         if (!normalizedApiKey) {
@@ -147,6 +161,8 @@ export class DeepLTranslator {
         this.apiKey = normalizedApiKey
         this.glossaryId = glossaryId?.trim() || undefined
         this.client = client ?? new DeepLClient(normalizedApiKey)
+        this.maxAttempts = Math.max(1, maxAttempts)
+        this.sleep = sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)))
     }
 
     async getUsage(): Promise<DeepLUsage> {
@@ -186,8 +202,8 @@ export class DeepLTranslator {
         for (const batch of batches) {
             const results = await this.runSafely(() => this.client.translateText(
                 batch,
-                SOURCE_LANGUAGE_BY_LOCALE[sourceLocale],
-                TARGET_LANGUAGE_BY_LOCALE[targetLocale],
+                getDeepLSourceLanguage(sourceLocale),
+                getDeepLTargetLanguage(targetLocale),
                 {
                     context,
                     glossary,
@@ -212,14 +228,25 @@ export class DeepLTranslator {
     }
 
     private async runSafely<T>(operation: () => Promise<T>): Promise<T> {
-        try {
-            return await operation()
-        } catch (error) {
-            if (error instanceof DeepLTranslationError) throw error
+        let lastError: unknown
 
-            const message = error instanceof Error ? error.message : "Unknown DeepL error"
-            const redactedMessage = message.split(this.apiKey).join("[redacted]")
-            throw new DeepLTranslationError(`DeepL request failed: ${redactedMessage}`)
+        for (let attempt = 1; attempt <= this.maxAttempts; attempt += 1) {
+            try {
+                return await operation()
+            } catch (error) {
+                // Kendi doğrulama hatalarımız (kota, tutarsız yanıt) tekrarlanmaz.
+                if (error instanceof DeepLTranslationError) throw error
+
+                lastError = error
+                const canRetry = attempt < this.maxAttempts && isRetryableDeepLError(error)
+                if (!canRetry) break
+
+                await this.sleep(deepLRetryDelayMs(attempt))
+            }
         }
+
+        const message = lastError instanceof Error ? lastError.message : "Unknown DeepL error"
+        const redactedMessage = message.split(this.apiKey).join("[redacted]")
+        throw new DeepLTranslationError(`DeepL request failed: ${redactedMessage}`)
     }
 }

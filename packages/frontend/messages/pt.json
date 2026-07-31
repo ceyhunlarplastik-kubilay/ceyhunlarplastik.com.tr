@@ -1,0 +1,1279 @@
+{
+    "common": {
+        "siteName": "Ceyhunlar Plástico"
+    },
+    "chrome": {
+        "nav": {
+            "corporate": "Corporativo",
+            "categories": "Categorias",
+            "sectoralProducts": "Produtos Setoriais",
+            "services": "Serviços",
+            "catalogs": "Catálogos",
+            "contact": "Contato",
+            "logoAlt": "Ceyhunlar Plástico",
+            "corporateItems": {
+                "about": {
+                    "title": "Sobre nós",
+                    "description": "Conheça a história, a visão e a missão da nossa empresa."
+                },
+                "sustainability": {
+                    "title": "Sustentabilidade",
+                    "description": "Nossos processos de produção ecologicamente corretos e nossas políticas de sustentabilidade."
+                },
+                "hr": {
+                    "title": "Recursos Humanos",
+                    "description": "Oportunidades de carreira e nossos valores para os funcionários."
+                },
+                "feedback": {
+                    "title": "Sugestões e Reclamações",
+                    "description": "Compartilhe suas opiniões e sugestões conosco."
+                }
+            },
+            "serviceItems": {
+                "rnd": {
+                    "title": "P&D e Prototipagem",
+                    "description": "Projeto de produtos plásticos sob medida para suas necessidades."
+                },
+                "printing3d": {
+                    "title": "Impressão e Digitalização 3D",
+                    "description": "Preços especiais para nossos clientes corporativos."
+                },
+                "machining": {
+                    "title": "Fabricação por Usinagem",
+                    "description": "Serviços de entrega rápidos e seguros."
+                },
+                "massProduction": {
+                    "title": "Produção em Série",
+                    "description": "Serviços de consultoria técnica por projeto."
+                }
+            }
+        },
+        "mobileMenu": {
+            "title": "Menu",
+            "closeAria": "Fechar o menu"
+        },
+        "cart": {
+            "goToCart": "Ir para o carrinho",
+            "goToCartAria": "Ir para a cesta de pedidos"
+        },
+        "languageSwitcher": {
+            "ariaLabel": "Seleção do idioma"
+        },
+        "dialogs": {
+            "common": {
+                "submit": "Enviar",
+                "submitting": "Enviando...",
+                "sentSuccess": "Enviado com sucesso",
+                "sentError": "Ocorreu um erro"
+            },
+            "productRequest": {
+                "trigger": "Solicitar produto",
+                "title": "Solicitar produto",
+                "description": "Envie as informações sobre o produto que você deseja, e entraremos em contato com você.",
+                "fields": {
+                    "companyName": "Nome da empresa",
+                    "fullName": "Nome Sobrenome",
+                    "phone": "Telefone (ex.: +90 (532) 123-4567)",
+                    "email": "Seu endereço de e-mail",
+                    "product": "Produto solicitado"
+                },
+                "validation": {
+                    "companyNameRequired": "O nome da empresa é obrigatório",
+                    "fullNameMin": "O nome e o sobrenome devem ter pelo menos 2 caracteres",
+                    "phoneInvalid": "O número de telefone está inválido",
+                    "emailInvalid": "Insira um endereço de e-mail válido",
+                    "productRequired": "Escreva o produto solicitado"
+                }
+            },
+            "catalogRequest": {
+                "trigger": "Solicitar catálogo",
+                "title": "Solicitar catálogo",
+                "description": "Envie sua solicitação de catálogo, e nós o enviaremos por e-mail.",
+                "fields": {
+                    "companyName": "Nome da empresa",
+                    "fullName": "Nome Sobrenome",
+                    "phone": "Telefone (ex.: +90 (532) 123-4567)",
+                    "address": "Endereço"
+                },
+                "validation": {
+                    "companyNameRequired": "O nome da empresa é obrigatório",
+                    "fullNameMin": "O nome e o sobrenome devem ter pelo menos 2 caracteres",
+                    "phoneInvalid": "O número de telefone está inválido",
+                    "addressMin": "O endereço deve ter pelo menos 10 caracteres"
+                }
+            },
+            "mail": {
+                "trigger": "Enviar e-mail",
+                "title": "Enviar e-mail",
+                "description": "Envie sua mensagem e entraremos em contato o mais rápido possível.",
+                "submit": "Enviar mensagem",
+                "fields": {
+                    "fullName": "Nome Sobrenome",
+                    "phone": "Telefone (ex.: +90 (532) 123-4567)",
+                    "email": "Seu endereço de e-mail",
+                    "message": "Você pode escrever sua mensagem de forma detalhada"
+                },
+                "validation": {
+                    "fullNameMin": "O nome e o sobrenome devem ter pelo menos 2 caracteres",
+                    "phoneInvalid": "O número de telefone está inválido",
+                    "emailInvalid": "Insira um endereço de e-mail válido",
+                    "messageMin": "A mensagem deve ter pelo menos 10 caracteres"
+                }
+            }
+        },
+        "footer": {
+            "logoAlt": "Ceyhunlar",
+            "description": "Chegamos a este ponto sem abrir mão de nossos princípios; com produção de qualidade, investimentos em tecnologia e uma visão de futuro aberta, estamos entusiasmados em continuar a atendê-los também no futuro.",
+            "corporateTitle": "Corporativo",
+            "servicesTitle": "Serviços",
+            "productsTitle": "Produtos",
+            "contactTitle": "Entre em contato",
+            "aboutLink": "Sobre nós",
+            "productionGroupsLink": "Grupos de Produção",
+            "hrLink": "Recursos Humanos",
+            "sustainabilityLink": "Sustentabilidade",
+            "contactLink": "Contato",
+            "rndLink": "P&D e Prototipagem",
+            "printing3dLink": "Impressão e Digitalização 3D",
+            "machiningLink": "Fabricação por Usinagem",
+            "massProductionLink": "Produção em Série",
+            "sectoralProductsLink": "Produtos Setoriais",
+            "address": "Aydın Mah. Rua 4308, nº 4, 35130 Karabağlar / İzmir",
+            "copyright": "Copyright © 2026 Ceyhunlar – Todos os direitos reservados."
+        },
+        "navigationProgress": {
+            "label": "Página sendo carregada"
+        }
+    },
+    "shared": {
+        "breadcrumbs": {
+            "home": "Página Inicial",
+            "services": "Serviços"
+        },
+        "productCard": {
+            "navigationPending": "Detalhes do produto sendo exibidos"
+        },
+        "enviroment": {
+            "word1": "NATUREZA",
+            "word2": "AMIGÁVEL",
+            "word3": "PRODUÇÃO",
+            "subtitle": "Nossa empresa realiza <highlight>mais de 80%</highlight> de sua produção utilizando energia renovável.",
+            "paragraph": "À luz de nossa sensibilidade e responsabilidade para com o meio ambiente, a sociedade e o futuro, adotamos um modelo de produção ecologicamente correto; trabalhamos por um mundo sustentável e um futuro melhor."
+        }
+    },
+    "auth": {
+        "shell": {
+            "secureAccess": "Fluxo de acesso seguro"
+        },
+        "errors": {
+            "Configuration": {
+                "title": "A configuração de autenticação está incorreta",
+                "description": "Ocorreu um problema na configuração do sistema. Entre em contato com a equipe técnica."
+            },
+            "AccessDenied": {
+                "title": "Não foi concedida permissão de acesso",
+                "description": "Você não possui permissão para acessar esta área de trabalho ou sua política de acesso bloqueou o acesso."
+            },
+            "Verification": {
+                "title": "O link de verificação está inválido",
+                "description": "O link de verificação pode ter expirado ou já ter sido usado anteriormente."
+            },
+            "OAuthSignin": {
+                "title": "Não foi possível iniciar o fluxo de entrada",
+                "description": "Ocorreu um erro ao iniciar a sessão do Cognito. Atualize a página e tente novamente."
+            },
+            "OAuthCallback": {
+                "title": "A resposta de entrada não pôde ser processada",
+                "description": "Não foi possível concluir a resposta do provedor de identidade. Tente novamente."
+            },
+            "Callback": {
+                "title": "A verificação de identidade não pôde ser concluída",
+                "description": "Ocorreu um erro inesperado durante o processo de login."
+            },
+            "SessionRequired": {
+                "title": "É necessário estar conectado",
+                "description": "Para visualizar esta página, você precisa primeiro fazer login."
+            },
+            "INVALID_CREDENTIALS": {
+                "title": "As informações de entrada estão incorretas",
+                "description": "Verifique seu endereço de e-mail e sua senha e tente novamente."
+            },
+            "USER_NOT_CONFIRMED": {
+                "title": "Conta não verificada",
+                "description": "Para continuar, é necessário verificar sua conta. Você pode avançar para a tela do código de verificação."
+            },
+            "CODE_MISMATCH": {
+                "title": "O código não pôde ser verificado",
+                "description": "O código de verificação inserido não é válido. Verifique o código e tente novamente."
+            },
+            "EXPIRED_CODE": {
+                "title": "O código expirou",
+                "description": "Parece que o código de verificação expirou. Solicite um novo código e tente novamente."
+            },
+            "USERNAME_EXISTS": {
+                "title": "Este e-mail já está registrado",
+                "description": "Existe uma conta ativa para este endereço. Você pode fazer login ou usar o processo de redefinição de senha."
+            },
+            "TOO_MANY_REQUESTS": {
+                "title": "Foram feitas muitas tentativas",
+                "description": "Foram enviadas muitas solicitações em um curto espaço de tempo. Tente novamente em alguns minutos."
+            },
+            "UNSUPPORTED_CHALLENGE": {
+                "title": "É necessária uma verificação adicional",
+                "description": "É necessária uma medida de segurança não suportada na primeira versão desta conta. Entre em contato com a equipe técnica."
+            },
+            "WEAK_PASSWORD": {
+                "title": "A senha não é forte o suficiente",
+                "description": "Escolha uma senha mais forte e tente novamente."
+            },
+            "PASSWORD_RESET_REQUIRED": {
+                "title": "É necessário redefinir a senha",
+                "description": "Para esta conta, você precisa primeiro concluir o processo de redefinição de senha."
+            },
+            "INVALID_PARAMETER": {
+                "title": "As informações enviadas são inválidas",
+                "description": "Verifique os campos do formulário e tente novamente."
+            },
+            "AUTH_SERVICE_UNAVAILABLE": {
+                "title": "Não é possível acessar o serviço de identificação",
+                "description": "A infraestrutura de acesso está temporariamente indisponível. Por favor, tente novamente daqui a alguns minutos."
+            },
+            "RefreshTokenError": {
+                "title": "Não foi possível renovar a sessão",
+                "description": "Sua sessão pode ter expirado. Por favor, faça login novamente."
+            },
+            "UNKNOWN_AUTH_ERROR": {
+                "title": "O processo de verificação de identidade não pôde ser concluído",
+                "description": "Ocorreu um problema inesperado. Por favor, tente novamente."
+            },
+            "Default": {
+                "title": "O processo de login não pôde ser concluído",
+                "description": "Ocorreu um problema inesperado durante a autenticação. Por favor, tente novamente."
+            }
+        },
+        "signIn": {
+            "eyebrow": "Ceyhunlar Plástico",
+            "title": "Faça login no painel de administração",
+            "sideTitle": "Acesso controlado, experiência de sessão única",
+            "badge": "Autenticação Centralizada",
+            "badgeDescription": "Os fluxos de login, cadastro e redefinição de senha são gerenciados dentro do aplicativo.",
+            "targetLabel": "Objetivo atual:",
+            "emailLabel": "E-mail",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "passwordLabel": "Senha",
+            "passwordPlaceholder": "Digite sua senha",
+            "submit": "Fazer login",
+            "submitting": "Fazendo login...",
+            "forgotPassword": "Esqueci minha senha",
+            "verifyAccount": "Confirmar minha conta",
+            "createAccount": "Criar uma nova conta",
+            "goHome": "Ir para a página inicial",
+            "notices": {
+                "confirmed": {
+                    "title": "Sua conta foi confirmada",
+                    "description": "Agora você pode fazer login com seu endereço de e-mail e sua senha."
+                },
+                "passwordReset": {
+                    "title": "Sua senha foi atualizada",
+                    "description": "Você pode fazer login com sua nova senha."
+                }
+            }
+        },
+        "signUp": {
+            "eyebrow": "Ceyhunlar Plástico",
+            "title": "Crie uma nova conta",
+            "sideTitle": "Registro controlado para equipes internas e parceiros de negócios",
+            "firstNameLabel": "Nome",
+            "firstNamePlaceholder": "Seu nome",
+            "lastNameLabel": "Sobrenome",
+            "lastNamePlaceholder": "Seu sobrenome",
+            "emailLabel": "E-mail",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "passwordLabel": "Senha",
+            "passwordPlaceholder": "Pelo menos 8 caracteres",
+            "confirmPasswordLabel": "Confirmação da senha",
+            "confirmPasswordPlaceholder": "Digite a senha novamente",
+            "submit": "Criar conta",
+            "submitting": "Registro sendo criado...",
+            "codeSentToast": "O código de verificação foi enviado para o seu endereço de e-mail.",
+            "signInLink": "Faça login",
+            "goHome": "Ir para a página inicial"
+        },
+        "forgotPassword": {
+            "eyebrow": "Ceyhunlar Plástico",
+            "shellTitle": "Redefina sua senha",
+            "shellSideTitle": "Fluxo controlado de redefinição de senha",
+            "infoTitle": "Redefinição de senha",
+            "infoDescription": "Insira o endereço de e-mail vinculado à sua conta. Enviaremos um código de verificação para que você defina uma nova senha. Os códigos de redefinição de senha do AWS Cognito são válidos por 1 hora.",
+            "emailLabel": "E-mail",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "submit": "Enviar código de redefinição",
+            "submitting": "Enviando o código...",
+            "codeSentToast": "O código para redefinir a senha foi enviado.",
+            "backToSignIn": "Voltar à tela inicial",
+            "createAccount": "Criar uma nova conta"
+        },
+        "resetPassword": {
+            "eyebrow": "Ceyhunlar Plástico",
+            "shellTitle": "Crie sua nova senha",
+            "shellSideTitle": "Redefina sua senha com a verificação de uso único",
+            "infoTitle": "Defina uma nova senha",
+            "infoDescription": "Defina sua nova senha usando o código recebido por e-mail. Os códigos de redefinição de senha do AWS Cognito são válidos por 1 hora.",
+            "emailLabel": "E-mail",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "Código de verificação",
+            "codeDescription": "O código é válido por 1 hora.",
+            "newPasswordLabel": "Nova senha",
+            "newPasswordPlaceholder": "Pelo menos 8 caracteres",
+            "confirmPasswordLabel": "Confirmação da nova senha",
+            "confirmPasswordPlaceholder": "Digite a senha novamente",
+            "submit": "Atualizar a senha",
+            "submitting": "Senha sendo atualizada...",
+            "successToast": "Sua senha foi atualizada. Você pode fazer login com sua nova senha.",
+            "resendCode": "Solicitar o código novamente",
+            "backToSignIn": "Voltar à tela inicial"
+        },
+        "confirmSignUp": {
+            "eyebrow": "Ceyhunlar Plástico",
+            "shellTitle": "Confirme sua conta",
+            "shellSideTitle": "Conclua a primeira etapa com a verificação",
+            "infoTitle": "Confirme sua conta",
+            "infoDescription": "Digite o código de verificação recebido em seu e-mail. Caso o código não tenha chegado, você pode solicitar um novo. Os códigos de verificação do AWS Cognito são válidos por 24 horas.",
+            "emailLabel": "E-mail",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "Código de verificação",
+            "codeDescription": "O código consta na mensagem do e-mail e é válido por 24 horas.",
+            "submit": "Confirmar conta",
+            "submitting": "Verificando...",
+            "resend": "Reenviar o código",
+            "resending": "Enviando...",
+            "successToast": "Sua conta foi confirmada. Aguardando aprovação do administrador.",
+            "resendToast": "Um novo código de verificação foi enviado.",
+            "emailRequiredError": "É necessário um endereço de e-mail para enviar o código.",
+            "backToSignIn": "Voltar à tela inicial",
+            "editEmail": "Editar e-mail"
+        },
+        "awaiting": {
+            "eyebrow": "Ceyhunlar",
+            "shellTitle": "Aguarda aprovação",
+            "shellSideTitle": "Sua conta foi criada",
+            "infoTitle": "Sua conta foi criada",
+            "infoDescription": "Aguarda-se a autorização. Você poderá acessar o site depois que um administrador analisar sua conta e atribuir a função adequada. Status: Em análise.",
+            "emailNotice": "As notificações serão enviadas para o endereço <strong>{email}</strong>.",
+            "backToSignIn": "Voltar à tela inicial",
+            "goHome": "Ir para a página inicial"
+        },
+        "unauthorized": {
+            "eyebrow": "Controle de Acesso",
+            "shellTitle": "Autorização insuficiente",
+            "shellSideTitle": "Redirecionamento para o painel correto",
+            "infoTitle": "Você não possui permissão para acessar esta área",
+            "infoDescription": "Você não possui a permissão necessária para visualizar a página em questão. Você pode retornar à área de trabalho apropriada ou à página inicial.",
+            "requestedAreaLabel": "Campo solicitado:",
+            "unknown": "Desconhecido",
+            "goToPanel": "Ir para o painel correspondente",
+            "goHome": "Voltar à Página Inicial"
+        },
+        "signOut": {
+            "eyebrow": "Ceyhunlar Plástico",
+            "shellTitle": "Sair da sessão",
+            "shellSideTitle": "Fluxo de saída seguro",
+            "description": "Ao sair, tanto sua sessão no aplicativo será encerrada quanto seu token de atualização do Cognito, se houver, será revogado. Em seguida, você retornará à tela de login seguro.",
+            "submit": "Sair da sessão",
+            "cancel": "Cancelar"
+        },
+        "errorPage": {
+            "eyebrow": "Ceyhunlar Plástico",
+            "shellTitle": "Erro de autenticação",
+            "shellSideTitle": "Experiência controlada mesmo em caso de erro",
+            "backToSignIn": "Voltar à página inicial",
+            "goHome": "Ir para a Página Inicial"
+        },
+        "validation": {
+            "signIn": {
+                "emailInvalid": "Insira um endereço de e-mail válido.",
+                "passwordRequired": "Digite sua senha."
+            },
+            "signUp": {
+                "firstNameMin": "O nome deve ter pelo menos 2 caracteres.",
+                "lastNameMin": "O sobrenome deve ter pelo menos 2 caracteres.",
+                "emailInvalid": "Insira um endereço de e-mail válido.",
+                "passwordMin": "A senha deve ter pelo menos 8 caracteres.",
+                "confirmPasswordRequired": "Digite a repetição da senha.",
+                "passwordsMismatch": "As senhas não coincidem."
+            },
+            "forgotPassword": {
+                "emailInvalid": "Insira um endereço de e-mail válido."
+            },
+            "resetPassword": {
+                "emailInvalid": "Insira um endereço de e-mail válido.",
+                "codeMin": "Digite o código de verificação.",
+                "passwordMin": "A senha deve ter pelo menos 8 caracteres.",
+                "confirmPasswordRequired": "Digite a senha novamente.",
+                "passwordsMismatch": "As senhas não coincidem."
+            },
+            "confirmSignUp": {
+                "emailInvalid": "Insira um endereço de e-mail válido.",
+                "codeMin": "Digite o código de verificação."
+            }
+        }
+    },
+    "home": {
+        "hero": {
+            "words": [
+                "P&D e Prototipagem",
+                "Impressão e Digitalização 3D",
+                "Fabricação por Usinagem",
+                "Produção em Série"
+            ],
+            "titleSuffix": "Soluções em Plástico",
+            "subtitle": "A Ceyhunlar Plastik, que gerencia todos os processos — desde a prototipagem até a produção em série — sob o mesmo teto, oferece soluções confiáveis para suas necessidades industriais com alta qualidade, capacidade de engenharia e uma ampla gama de produtos em plástico, borracha e baquelite.",
+            "ctaProducts": "Conheça nossos produtos",
+            "ctaQuote": "Solicite uma cotação",
+            "imageAlt": "Produção de plástico"
+        },
+        "about": {
+            "brand": "Ceyhunlar",
+            "subtitle": "Do projeto à produção em série",
+            "lead": "Como Ceyhunlar Plastik Sanayi ve Ticaret Ltd. Şti., estamos ao seu lado em cada etapa do seu projeto.",
+            "body1": "Em seus projetos de produtos de plástico, borracha, metal e baquelite, criamos soluções personalizadas para você com nosso modelo de negócios focado na relação custo-benefício, que começa com o esboço, evolui com a pesquisa e desenvolvimento e culmina na produção em série.",
+            "body2": "Para que seus projetos cheguem ao produto final: oferecemos, sob o mesmo teto, serviços de modelagem 3D, análise de modelos, produção de amostras e protótipos, análise de produção, moldagem e impressão para produção em série.",
+            "body3": "Para suas solicitações de desenvolvimento de novos produtos, você pode aproveitar nossos serviços de P&D; para pedidos de produtos personalizados, pode solicitar uma cotação; pode consultar nossos catálogos, que apresentam mais de 35.000 produtos; e pode entrar em contato conosco para se tornar nosso revendedor.",
+            "infoTitle": "Com nossa equipe de mais de 200 profissionais especializados",
+            "infoDescription": "O conhecimento e a competência de nossa equipe garantem a qualidade e a confiabilidade das soluções que oferecemos.",
+            "infoCtaPrimary": "Sobre nós",
+            "infoCtaSecondary": "Contato"
+        },
+        "services": {
+            "brand": "Ceyhunlar",
+            "subtitle": "Do projeto à produção em série",
+            "cards": [
+                {
+                    "title": "P&D e Prototipagem",
+                    "description": "Antes da produção de amostras e da produção em série do seu projeto, garantimos seu desenvolvimento por meio de nossas tecnologias avançadas de desenho e análise."
+                },
+                {
+                    "title": "Impressão e Digitalização 3D",
+                    "description": "Seus projetos cujo processo de P&D foi concluído são digitalizados, quando necessário, para a modelagem em CAD e prototipados por impressão 3D."
+                },
+                {
+                    "title": "Fabricação por Usinagem",
+                    "description": "Preparação de moldes em nosso departamento de Moldes para a produção em série de seus produtos cujas etapas de P&D, análise e prototipagem foram concluídas."
+                },
+                {
+                    "title": "Produção em Série de Metal",
+                    "description": "As peças concluídas nos moldes de produção em série de metal são incorporadas ao processo de produção em série de metal com alta precisão em nossa seção de prensagem."
+                },
+                {
+                    "title": "Plástico de Produção em Série",
+                    "description": "As peças plásticas cujos moldes de produção em série foram concluídos são submetidas à produção em série por meio dos métodos de injeção, sopro e extrusão."
+                },
+                {
+                    "title": "Produção em Série de Borracha",
+                    "description": "Produção em série de peças de borracha, cujos moldes de fabricação em série já foram concluídos, em nossa seção de prensas hidráulicas."
+                },
+                {
+                    "title": "Produção em Série de Bakelite",
+                    "description": "A produção em série das peças de baquelite, cujos moldes de fabricação em série já foram concluídos, é realizada em nosso departamento de injeção de baquelite."
+                }
+            ]
+        },
+        "products": {
+            "title": "Nossos produtos",
+            "subtitle": "Com nossa ampla gama de produtos e nossa elevada capacidade de produção, oferecemos soluções específicas para cada setor."
+        },
+        "quality": {
+            "title": "Nossa Política de Qualidade",
+            "body": "Garantimos a qualidade por meio de processos de produção em conformidade com as normas ISO, uma abordagem de melhoria contínua e os princípios de rastreabilidade total.",
+            "highlights": [
+                {
+                    "title": "Entrega Rápida",
+                    "description": "Entrega rápida dos produtos mais vendidos, diretamente do estoque."
+                },
+                {
+                    "title": "Produto Certificado",
+                    "description": "Com nossa produção certificada, garantimos a qualidade de cada produto."
+                },
+                {
+                    "title": "Solicitação de Amostra",
+                    "description": "Solicite uma amostra para testar antes de comprar."
+                },
+                {
+                    "title": "Suporte Técnico",
+                    "description": "Suporte especializado em todas as etapas do seu projeto."
+                }
+            ]
+        },
+        "process": {
+            "brand": "Ceyhunlar",
+            "title": "O que é “Do Projeto à Produção em Série”?",
+            "block1Title": "Para os projetos de seus produtos de plástico, borracha, metal e baquelite;",
+            "block1Body": "Oferecemos nossos serviços com base em nosso modelo de negócios, que se fundamenta na relação custo-benefício, começando pelo projeto, passando pela pesquisa e desenvolvimento e culminando na produção em série.",
+            "block2Title": "Para que seus projetos cheguem ao produto final;",
+            "block2Body": "Levamos seus projetos até o resultado final por meio de modelagem 3D, análise de modelos, prototipagem de amostras de produtos, análise de produção, moldagem e produção em série.",
+            "features": [
+                {
+                    "title": "P&D e Design",
+                    "description": "Processos inovadores de P&D e abordagem de design original."
+                },
+                {
+                    "title": "Produção de alta qualidade",
+                    "description": "Controle de qualidade de ponta a ponta, seguindo o princípio de zero erros."
+                },
+                {
+                    "title": "Produto Certificado",
+                    "description": "Cada produto é respaldado por um conceito de produção certificada."
+                },
+                {
+                    "title": "Satisfação do Cliente",
+                    "description": "Comunicação transparente e suporte especializado em todas as etapas."
+                }
+            ],
+            "ctaBanner": "Você pensa, decidimos juntos, nós produzimos.",
+            "form": {
+                "title": "Entre em contato conosco",
+                "subtitle": "Preencha o formulário para que nossa equipe especializada entre em contato com você o mais rápido possível.",
+                "fullName": "Nome Sobrenome",
+                "phone": "Telefone (ex.: +90 (532) 123-4567)",
+                "email": "Endereço de e-mail",
+                "submit": "Enviar",
+                "submitting": "Enviando...",
+                "toastLoading": "Enviando...",
+                "toastSuccess": "Sua mensagem foi enviada com sucesso!",
+                "toastError": "Ocorreu um erro durante o envio!"
+            },
+            "validation": {
+                "fullNameMin": "O nome e o sobrenome devem ter pelo menos 2 caracteres",
+                "phoneInvalid": "O número de telefone está inválido",
+                "emailInvalid": "Insira um endereço de e-mail válido"
+            }
+        },
+        "assistant": {
+            "title": "Assistente de Produtos",
+            "steps": [
+                "Página de boas-vindas",
+                "Setor",
+                "Grupo de Produção e Área de Aplicação"
+            ],
+            "noImage": "Sem imagem",
+            "welcome": {
+                "greeting": "Olá",
+                "question": "Gostariam que eu os orientasse para encontrar o produto mais adequado às suas necessidades?",
+                "start": "Sim, vamos começar",
+                "decline": "Por enquanto, não, eu mesmo dou uma olhada"
+            },
+            "sector": {
+                "title": "Selecione o seu setor de atividade",
+                "hint": "Faça uma única escolha."
+            },
+            "usage": {
+                "title": "Selecione seu grupo de produção e sua área de aplicação",
+                "hint": "Ao clicar nos grupos de produção, você pode acessar rapidamente as áreas de aplicação correspondentes.",
+                "searchPlaceholder": "Pesquisar área de aplicação...",
+                "noResults": "Nenhum resultado encontrado."
+            },
+            "nav": {
+                "back": "Voltar",
+                "continue": "Continuar",
+                "listProducts": "Listar produtos"
+            }
+        },
+        "toasts": {
+            "accessDenied": "Você não tem permissão para acessar esta página."
+        }
+    },
+    "public": {
+        "sustainability": {
+            "meta": {
+                "title": "Sustentabilidade",
+                "description": "A Ceyhunlar Plastik adota uma abordagem de produção sustentável e ecologicamente correta."
+            },
+            "intro": {
+                "heroTitle": "Produção Sustentável",
+                "heroBody": "A produção sustentável é uma forma de produção que se baseia no uso dos recursos mundiais dentro dos limites da sustentabilidade e busca maneiras de minimizar os danos causados à vida natural, garantindo assim o futuro. Hoje, assim como todos os consumidores, todos os produtores também precisam adotar medidas sustentáveis. Nós, da Ceyhunlar Plastik, estamos fazendo nossa parte e dando passos positivos em prol de um mundo mais limpo.",
+                "imageAlt": "Natureza e sustentabilidade",
+                "protectTitle": "Nossos Recursos Naturais <highlight>Protegemos nosso planeta.</highlight>",
+                "protectBody": "Com a missão de agir de acordo com a consciência ambiental e ecológica que assumimos, e com o objetivo de aplicar o conhecimento e a experiência adquiridos ao longo dos anos no setor mundial de plásticos, desenvolvemos soluções dinâmicas e inovadoras que levam em consideração tanto o nosso país quanto a natureza.",
+                "certAlt": "Certificado {number}"
+            },
+            "impact": {
+                "title": "Plástico Reciclável",
+                "body1": "O plástico é um componente de muitos produtos de consumo e constitui a maior parte da produção e dos produtos finais da indústria manufatureira. No entanto, nem todos os plásticos são iguais, o que significa que nem todos podem ser descartados e reciclados da mesma forma.",
+                "body2": "Como Ceyhunlar Plastik, produzimos produtos adequados para reciclagem. No âmbito do respeito à natureza, nos preocupamos em utilizar fontes de energia renováveis em nossa área de produção.",
+                "imageAlt": "Sustentabilidade",
+                "items": {
+                    "recycling": "Reciclagem",
+                    "zeroWaste": "Desperdício Zero",
+                    "sustainableProduction": "Produção Sustentável",
+                    "respectNature": "Respeito à Natureza"
+                }
+            },
+            "energy": {
+                "title": "Nossa energia vem <highlight>do sol!</highlight>",
+                "body": "Nossa empresa está dando um passo importante para atender às necessidades energéticas do futuro por meio de soluções de energia sustentável. A energia solar é uma fonte limpa, renovável e ilimitada que a natureza nos oferece. Nós também atendemos às nossas necessidades energéticas utilizando essa valiosa fonte.",
+                "imageAlt": "Produção de energia solar",
+                "imageAlt2": "Detalhes do painel solar",
+                "imageAlt3": "Produção de energia"
+            }
+        },
+        "products": {
+            "meta": {
+                "title": "Categorias de Produtos",
+                "description": "Conheça as categorias de produtos da Ceyhunlar Plastik. Alças de baquelite, produtos plásticos e muito mais."
+            },
+            "heroTitle": "Categorias de Produtos",
+            "breadcrumbSelf": "Categorias de Produtos",
+            "empty": "Não foi encontrada a categoria do produto."
+        },
+        "materials": {
+            "meta": {
+                "title": "Certificados de Matéria-prima",
+                "description": "Confira os certificados de matéria-prima da Ceyhunlar Plastik e baixe-os em PDF."
+            },
+            "heroTitle": "Certificados de Matéria-Prima",
+            "breadcrumbSelf": "Certificados de Matéria-prima",
+            "empty": "Não há certificado de matéria-prima publicado.",
+            "certificateSuffix": "Certificado {number}",
+            "download": "Baixar"
+        },
+        "cart": {
+            "meta": {
+                "title": "Cesta de Solicitações",
+                "description": "Sua cesta de pedidos com as variantes de produto selecionadas."
+            },
+            "heroTitle": "Cesta de Solicitações",
+            "breadcrumbSelf": "Cesta de Solicitações",
+            "title": "Cesta de Solicitações",
+            "subtitle": "As variantes selecionadas são listadas aqui. Você pode preencher seus dados de contato e enviar a solicitação.",
+            "itemsLabel": "Produtos no carrinho",
+            "itemCount": "{count} produto",
+            "emptyText": "Seu carrinho está vazio.",
+            "emptyLink": "Conheça os produtos",
+            "codeLabel": "Código:",
+            "variantLabel": "Variante:",
+            "quantityLabel": "Quantidade:",
+            "removeAria": "Remover o produto do carrinho",
+            "formTitle": "Formulário de Solicitação",
+            "formSubtitle": "Preencha o formulário e envie sua solicitação.",
+            "fields": {
+                "name": "Nome Sobrenome",
+                "email": "E-mail",
+                "phone": "Telefone (opcional)",
+                "message": "Nota adicional (opcional)"
+            },
+            "submit": "Enviar solicitação",
+            "submitting": "Enviando..."
+        },
+        "productFilter": {
+            "pageTitle": "Produtos Setoriais",
+            "filteringTitle": "Filtragem por {name}",
+            "filteringLabel": "Filtragem",
+            "productCategories": "Categorias de Produtos",
+            "categoryMetaDescription": "Conheça o grupo de produtos {name}.",
+            "categoryOgDescription": "Grupo de produtos {name}",
+            "searchPlaceholder": "Pesquisar código ou nome do produto",
+            "selectedCategory": "Categoria selecionada",
+            "categoriesTitle": "Categorias",
+            "codePrefix": "Código",
+            "productFiltersTitle": "Filtros de produtos",
+            "productFiltersDesc": "Filtros relacionados a categoria, como modelo, link, perfil, material e similares.",
+            "industrialTitle": "Uso industrial",
+            "industrialDesc": "O setor, o grupo de produção e a área de uso são filtrados a partir das linhas de “uso industrial” do produto.",
+            "relevantToMe": "Filtrar produtos relacionados a mim",
+            "filtering": "Filtrando...",
+            "ready": "Pronto",
+            "noResultsTitle": "Nenhum resultado encontrado",
+            "noResultsSubtitle": "Tente reduzir o uso de filtros",
+            "countFound": "{count} produto(s) encontrado(s)",
+            "perPage": "{limit} por página",
+            "selectPlaceholder": "{label} selecionar",
+            "searchByLabel": "{label} pesquisar...",
+            "notFound": "Não encontrado",
+            "productSearchLabel": "Pesquisa de Produtos",
+            "clearSearch": "Limpar a pesquisa",
+            "paginationLabel": "Paginação",
+            "previousPage": "Página anterior",
+            "nextPage": "Próxima página",
+            "goToPage": "Página {page}",
+            "pageOf": "Página {page} / {totalPages}",
+            "updatingResults": "Os resultados estão sendo atualizados"
+        },
+        "productDetail": {
+            "metaDescription": "Conheça o produto {name}.",
+            "ogDescription": "Página de detalhes do produto {name}",
+            "breadcrumbProducts": "Produtos",
+            "categoryFallback": "Sem categoria",
+            "imageNotFound": "Imagem não encontrada",
+            "imageDialogTitle": "Imagem do produto",
+            "catalogCode": "Código do catálogo: {code}",
+            "descriptionFallback": "A descrição do produto ainda não foi adicionada.",
+            "attributeFallback": "Característica",
+            "showLess": "Mostrar menos",
+            "showMore": "+{count} mais",
+            "quickNav": {
+                "dimensions": "Medidas e Opções",
+                "industrialAreas": "Áreas industriais de aplicação",
+                "technicalDrawing": "Desenho Técnico",
+                "model3d": "Modelo 3D",
+                "assemblyVideo": "Vídeo de montagem",
+                "promoVideo": "Vídeo promocional",
+                "certificate": "Certificado de Matéria-prima"
+            },
+            "usage": {
+                "readMore": "Leia mais",
+                "emptyTitle": "Prevê-se uso no setor industrial",
+                "emptyDesc": "Estamos preparando informações sobre as aplicações industriais deste modelo de produto. Para obter informações detalhadas, entre em contato com nossa equipe.",
+                "colSector": "Setor",
+                "colProductionGroup": "Grupo de Produção",
+                "colIndustrialProduct": "Produto industrial em que é utilizado",
+                "colSampleImage": "Imagem de exemplo",
+                "colUsageFunction": "Função de uso",
+                "imageAlt": "Imagem {name}",
+                "zoom": "Ampliar",
+                "imageDialogTitle": "Imagem de exemplo de uso de {name}",
+                "openToZoom": "Clique para ampliar",
+                "imageMissing": "Nenhuma imagem foi anexada",
+                "sectionTitle": "Setores industriais em que nosso modelo de produto é utilizado",
+                "sectionSubtitle": "Exemplos de correspondências de uso com base no setor, grupo de produção e área de aplicação.",
+                "accordionTitle": "Áreas industriais de aplicação",
+                "accordionSubtitle": "Setor em que o produto é utilizado, grupo de produção e áreas industriais.",
+                "reviewDetails": "Veja os detalhes",
+                "showAllRows": "Mostrar tudo ({count} linhas)"
+            },
+            "zoomImage": {
+                "trigger": "Ampliar",
+                "dialogTitle": "Análise visual",
+                "close": "Ocultar a imagem"
+            },
+            "similar": {
+                "title": "Produtos semelhantes",
+                "subtitle": "Confira outros produtos da mesma categoria."
+            },
+            "assetSection": {
+                "requestInfo": "Solicitar informações detalhadas",
+                "offerImageAlt": "Imagem da proposta"
+            },
+            "assets": {
+                "certificate": {
+                    "badge": "Certificado",
+                    "title": "Certificado",
+                    "description": "Você pode visualizar os certificados de qualidade e conformidade do produto nesta seção. Caso deseje solicitar documentos detalhados, nossa equipe estará à disposição para ajudá-lo.",
+                    "open": "Abrir o certificado"
+                },
+                "technicalDrawing": {
+                    "badge": "Desenho Técnico",
+                    "title": "Desenho Técnico",
+                    "description": "Você pode examinar as medidas e os detalhes da forma no desenho técnico do produto. Para obter documentação técnica mais abrangente e atender a solicitações específicas, entre em contato com nossa equipe.",
+                    "open": "Abrir desenho técnico"
+                },
+                "assemblyVideo": {
+                    "badge": "Vídeo de montagem",
+                    "title": "Vídeo de montagem",
+                    "description": "Você pode concluir a instalação e a montagem mais rapidamente assistindo ao vídeo. Entre em contato conosco para necessidades específicas de montagem.",
+                    "open": "Abrir o vídeo de montagem"
+                },
+                "promoVideo": {
+                    "badge": "Vídeo promocional",
+                    "title": "Vídeo de apresentação do produto",
+                    "description": "Você pode conferir a estrutura geral do produto, os cenários de uso e as principais características no vídeo. Para obter informações mais detalhadas, entre em contato conosco.",
+                    "open": "Assista ao vídeo promocional"
+                },
+                "model3d": {
+                    "badge": "Modelo 3D",
+                    "title": "Modelo 3D",
+                    "description": "Ao examinar o modelo 3D do produto, você poderá avaliar os detalhes do formato de maneira mais realista. Entre em contato com nossa equipe para suas necessidades de CAD/técnicas.",
+                    "open": "Abrir modelo 3D"
+                },
+                "videoPlay": "Reproduzir o vídeo"
+            },
+            "media": {
+                "animationTitle": "Animação do produto",
+                "technicalTitle": "Desenho Técnico",
+                "videoTitle": "Vídeo do produto",
+                "notFound": "Conteúdo não encontrado",
+                "technicalAlt": "Desenho técnico"
+            },
+            "assetsGallery": {
+                "imageMissing": "Não foi encontrada imagem do produto",
+                "technicalDrawings": "Desenhos técnicos",
+                "productImages": "Imagens dos produtos",
+                "technicalAlt": "Desenho técnico"
+            }
+        },
+        "productVariant": {
+            "pageTitle": "{name} - Detalhes da variante",
+            "metaDescription": "Analise os detalhes da variante {name}.",
+            "breadcrumbProducts": "Produtos",
+            "categoryFallback": "Sem categoria",
+            "breadcrumbVariant": "Detalhes da variante",
+            "imageNotFound": "Imagem não encontrada",
+            "productCode": "Código do produto: {code}",
+            "table": {
+                "empty": "Não foi encontrada informação sobre medidas.",
+                "loadError": "Não foi possível carregar as informações da variante. Atualize a página, por favor.",
+                "srNavigating": "A página de detalhes da variante selecionada está sendo aberta.",
+                "srReady": "A tabela de variantes está pronta.",
+                "title": "Medidas e Opções",
+                "descFocus": "As medidas estão no singular. Você pode acessar o mesmo vídeo explicativo clicando no ícone de ajuda nos títulos e examinar a tabela como se fosse uma matriz de medidas.",
+                "descDefault": "As medidas estão individualizadas. Ao selecionar uma medida, você poderá ver as opções de cor e matéria-prima correspondentes a essa medida.",
+                "navigatingLabel": "{label} está sendo exibido",
+                "navigatingGeneric": "Variantes sendo exibidas",
+                "optionsTitle": "Opções de medidas",
+                "colColor": "Cor",
+                "colMaterial": "Matéria-prima",
+                "colSupplier": "Fornecedor",
+                "colCode": "Código",
+                "colDetail": "Detalhes",
+                "colorCount": "{count} Cor",
+                "materialCount": "{count} H.M.",
+                "supplierCount": "{count} Ted.",
+                "codeCount": "{count} Código",
+                "showVariantsAria": "Mostrar as variantes de {label}",
+                "opening": "Carregando...",
+                "showVariants": "Mostrar variantes",
+                "openInAdmin": "Abrir no painel de administração",
+                "selectedDetailsTitle": "Detalhes da medida selecionada",
+                "helpVideo": "Vídeo explicativo",
+                "codesTitle": "Códigos de variantes atuais",
+                "codesEmpty": "Não foi encontrado código de variante para esta medida.",
+                "colorsTitle": "Opções de cores",
+                "colorsEmpty": "Não foi encontrada informação sobre a cor para esta medida.",
+                "materialsTitle": "Opções de Matéria-prima",
+                "materialsEmpty": "Não foi encontrada informação sobre a matéria-prima para esta medida."
+            },
+            "help": {
+                "videoAria": "Assista ao vídeo sobre a medida {code}",
+                "dialogTitle": "Vídeo explicativo sobre medidas",
+                "videoTitle": "Vídeo de demonstração do {code}"
+            },
+            "details": {
+                "selectedMeasurement": "Medida selecionada",
+                "noSelection": "Não foi encontrada uma opção de medida válida.",
+                "drawingMissing": "Não foi encontrado nenhum desenho técnico.",
+                "variantsTitle": "Variantes",
+                "introCategory": "Você está analisando o modelo de produto {product} da categoria {category}. Abaixo, você pode comparar as variantes adequadas ao tamanho selecionado.",
+                "intro": "Você está analisando o modelo de produto {product}. Abaixo, você pode comparar as variantes adequadas ao tamanho selecionado.",
+                "empty": "Não foi encontrada nenhuma variante para esta medida.",
+                "fullCode": "Código completo",
+                "version": "Versão",
+                "color": "Cor",
+                "material": "Matéria-prima"
+            },
+            "actions": {
+                "whatsappMessage": "Olá. Gostaria de obter informações sobre o seu produto.\nNome do produto: {name}\nLink do produto: {url}",
+                "addedToCart": "A variante foi adicionada ao carrinho de pedidos.",
+                "whatsappAria": "Peça um orçamento rápido pelo WhatsApp",
+                "whatsapp": "Obtenha um orçamento rápido",
+                "addToCartAria": "Adicione o produto ao carrinho",
+                "addToCart": "Adicionar ao carrinho"
+            },
+            "overlay": {
+                "opening": "Variantes sendo exibidas",
+                "preparing": "Os detalhes das variantes estão sendo preparados",
+                "openingLabel": "As variantes do tamanho {label} estão sendo exibidas.",
+                "openingGeneric": "As variantes correspondentes à medida selecionada são exibidas."
+            }
+        },
+        "customerLead": {
+            "title": "Formulário de Solicitação de Amostra",
+            "steps": {
+                "welcome": "Página de boas-vindas",
+                "sector": "Setor",
+                "productionGroup": "Grupo de Produção",
+                "usageArea": "Área de Aplicação",
+                "contact": "Contato"
+            },
+            "welcomeTitle": "Olá",
+            "welcomeBody1": "Com esta plataforma desenvolvida pela Ceyhunlar Plastik, nosso objetivo é permitir que você tenha acesso a produtos específicos para o seu setor a partir de um único ponto, analise detalhadamente as soluções mais adequadas às suas necessidades e crie solicitações de amostras de maneira prática.",
+            "welcomeBody2": "Nosso objetivo é oferecer uma experiência confiável e centrada no usuário, que agilize seus processos de tomada de decisão.",
+            "imageMissing": "Sem imagem",
+            "sectorTitle": "Selecione o seu setor de atividade",
+            "sectorSubtitle": "Faça uma única escolha.",
+            "productionGroupTitle": "2. Selecione seu grupo de produção",
+            "usageAreaTitle": "3. Selecione suas áreas de aplicação (pode haver mais de uma)",
+            "usageSearchPlaceholder": "Pesquisar área de aplicação...",
+            "noResults": "Nenhum resultado encontrado.",
+            "contactTitle": "4. Preencha seus dados de contato",
+            "companyPlaceholder": "Nome da empresa (opcional)",
+            "fullNamePlaceholder": "Nome Sobrenome *",
+            "phonePlaceholder": "Telefone *",
+            "emailPlaceholder": "E-mail *",
+            "notePlaceholder": "Sua nota / Solicitação de amostra",
+            "later": "Mais tarde",
+            "start": "Vamos começar",
+            "back": "Voltar",
+            "next": "Continuar",
+            "submitting": "Salvando...",
+            "submit": "Enviar informações",
+            "successToast": "Suas informações foram registradas. Entraremos em contato o mais rápido possível.",
+            "errorToast": "Ocorreu um erro durante o registro",
+            "validation": {
+                "sectorRequired": "Por favor, selecione o setor",
+                "productionGroupRequired": "Por favor, selecione o grupo de produção",
+                "companyMax": "O nome da empresa pode ter no máximo 120 caracteres",
+                "fullNameRequired": "Nome e sobrenome são obrigatórios",
+                "phoneRequired": "O número de telefone é obrigatório",
+                "emailInvalid": "Insira um e-mail válido",
+                "noteMax": "Nota: o texto não pode ter mais de 1.000 caracteres"
+            }
+        },
+        "catalog": {
+            "meta": {
+                "title": "Catálogos",
+                "description": "Confira os catálogos de produtos da Ceyhunlar Plastik e baixe-os em PDF."
+            },
+            "heroTitle": "Catálogos",
+            "breadcrumbSelf": "Catálogos",
+            "download": "Baixar"
+        },
+        "massProduction": {
+            "meta": {
+                "title": "Produção em Série",
+                "description": "Produção em série da Ceyhunlar Plastik: chapas metálicas, injeção de plástico, borracha e baquelite."
+            },
+            "heroTitle": "Produção em Série",
+            "sectionLabel": "Produção em Série",
+            "tabs": {
+                "metal": "Chapa Metálica",
+                "plastic": "Injeção de Plástico",
+                "rubber": "Borracha",
+                "bakelite": "Bakalite"
+            },
+            "metal": {
+                "intro": "“Chapa metálica” é um termo que geralmente se refere a chapas ou placas de metal. Na indústria metalúrgica, geralmente se refere a chapas metálicas feitas de materiais como aço, alumínio ou cobre. Essas chapas metálicas podem ter diversas espessuras e características e são utilizadas em aplicações industriais, no setor de construção civil, na indústria automotiva, na construção naval e em muitos outros setores.",
+                "imageAlt": "Produção em Série de Chapas Metálicas",
+                "items": [
+                    {
+                        "title": "Materiais:",
+                        "text": "A chapa metálica é geralmente fabricada com materiais como aço, alumínio, cobre e aço inoxidável. A escolha do material pode variar de acordo com uma série de critérios, como aplicação, durabilidade e custo."
+                    },
+                    {
+                        "title": "Processo de Produção:",
+                        "text": "A chapa metálica é produzida por meio de diversos processos de fabricação, como laminação ou prensagem, que conferem às placas de metal a espessura e o formato desejados. As placas de metal são moldadas por meio de máquinas de laminação ou equipamentos de prensagem."
+                    },
+                    {
+                        "title": "Áreas de aplicação:",
+                        "text": "A chapa metálica tem ampla aplicação em diversos setores e indústrias. Por exemplo, é utilizada em diversas áreas, como coberturas de telhado no setor de construção civil, peças da carroceria de veículos na indústria automotiva e painéis de revestimento na produção de eletrodomésticos."
+                    },
+                    {
+                        "title": "Várias espessuras e tamanhos:",
+                        "text": "A chapa metálica está disponível em uma ampla variedade de espessuras e dimensões. Isso significa que ela pode ser selecionada de acordo com as necessidades específicas de cada aplicação."
+                    },
+                    {
+                        "title": "Aço Inoxidável e Revestimento:",
+                        "text": "Alguns tipos de chapas de aço, como as de aço inoxidável, possuem propriedades de resistência à corrosão para aumentar sua durabilidade. Além disso, em alguns casos, podem ser submetidos a processos de revestimento especiais."
+                    },
+                    {
+                        "title": "Sustentabilidade:",
+                        "text": "A reciclagem de metal pode aumentar a sustentabilidade da chapa metálica. O uso de metal reciclável pode reduzir os impactos ambientais e permitir um uso mais eficiente dos recursos naturais."
+                    }
+                ],
+                "summaryTitle": "O uso de chapas metálicas na indústria",
+                "summaryQuote": "“A chapa metálica é um material amplamente utilizado em diversos setores devido às suas vantagens, como durabilidade, resistência e maleabilidade. O uso desse material evolui constantemente, acompanhando os avanços tecnológicos.”",
+                "summaryBody": "O projeto de moldes refere-se ao processo de concepção de moldes ou matrizes, geralmente utilizados na produção em série de produtos a partir de materiais como metal ou plástico. Esse processo de projeto é realizado com o objetivo de garantir que um produto previamente definido seja produzido com uma forma, dimensão e material específicos.",
+                "designItems": [
+                    "Análise de Necessidades: O primeiro passo é realizar uma análise das necessidades e requisitos da peça a ser produzida. Isso inclui as dimensões, o material, a resistência e outras características da peça.",
+                    "Conceitos de Design: Com base na análise de necessidades, são desenvolvidos diferentes conceitos de design. Esses conceitos incluem fatores como a forma, as dimensões, o material e o processo de produção do produto.",
+                    "Modelagem CAD (Projeto Assistido por Computador): Os conceitos de projeto selecionados são modelados digitalmente por meio de um software CAD. Essa etapa envolve a criação de um projeto tridimensional do produto.",
+                    "Análise e Otimização: São realizadas análises no modelo CAD e examinados fatores como a resistência do projeto, a fluidez e a distribuição de temperatura. Se necessário, é realizada a otimização do projeto."
+                ],
+                "moldItems": [
+                    "Projeto Detalhado: É realizado um trabalho detalhado sobre o projeto selecionado. Nesta etapa, cada detalhe da peça, as tolerâncias, os pontos de montagem e a escolha do material são definidos.",
+                    "Definição do Processo de Produção: O projeto do molde envolve a definição do processo de produção. Isso inclui fatores como o material a ser utilizado, o processo de fabricação do molde e os equipamentos necessários para a produção do molde.",
+                    "Produção e Teste de Protótipos: Um protótipo do projeto é produzido e testado. Isso é importante para avaliar o desempenho do projeto em condições reais.",
+                    "Fabricação de Moldes: Após os testes de protótipos, a fabricação dos moldes é realizada de acordo com o projeto aprovado. Isso geralmente é feito utilizando métodos de produção de alta precisão, como máquinas CNC (Controle Numérico Computadorizado) ou processos de descarga elétrica."
+                ],
+                "closing": "O projeto de moldes desempenha um papel fundamental nos processos de produção industrial e tem grande influência na qualidade, no custo e na velocidade de produção dos produtos. Um bom projeto de moldes permite que os produtos sejam produzidos e comercializados de forma mais eficaz."
+            },
+            "plastic": {
+                "imageAlt": "Produção em Série de Injeção de Plástico",
+                "paragraphs": [
+                    "A injeção de plástico é um dos métodos mais utilizados na produção em série. Esse processo, realizado pela injeção de plástico derretido em um molde sob alta pressão, proporciona uma produção rápida, repetível e economicamente eficiente.",
+                    "As peças produzidas com alta precisão são utilizadas em diversos setores, como automotivo, eletrodomésticos, eletrônicos, médico e de embalagens.",
+                    "Graças à variedade no design dos moldes, é possível produzir formas muito complexas e, ao mesmo tempo, fabricar milhares de peças em série.",
+                    "Graças às vantagens de durabilidade, flexibilidade e baixo custo, a injeção de plástico é um método de fabricação indispensável na indústria."
+                ]
+            },
+            "rubber": {
+                "imageAlt": "Produção em Série de Borracha",
+                "paragraphs": [
+                    "No processo de fabricação em série, as prensas hidráulicas são utilizadas especialmente na produção de produtos de borracha. A borracha é um material elástico e resistente, amplamente utilizado em diversos setores, especialmente nos setores automotivo, eletrônico, médico e de construção civil.",
+                    "As prensas hidráulicas oferecem um método eficaz e eficiente para a produção em série de produtos de borracha. Esse processo é amplamente utilizado na fabricação de vedações de borracha, perfis de vedação, peças de borracha e produtos similares."
+                ]
+            },
+            "bakelite": {
+                "imageAlt": "Produção em Série de Bakelite",
+                "paragraphs": [
+                    "O bakelite é um plástico termofixo rígido, resistente ao calor e a produtos químicos. Devido à sua propriedade de isolamento elétrico, é amplamente utilizado na indústria elétrica e eletrônica. Além disso, é preferido em utensílios de cozinha, corpos de telefones e diversos equipamentos industriais.",
+                    "O baquelite, que pode ser facilmente moldado na forma desejada, mantém sua resistência mecânica mesmo em altas temperaturas. Graças a essas características, ocupa um lugar importante na indústria como um material durável, confiável e economicamente eficiente.",
+                    "Apesar do surgimento dos plásticos modernos nos dias de hoje, o baquelite continua sendo preferido em algumas aplicações específicas."
+                ]
+            }
+        },
+        "suggestion": {
+            "meta": {
+                "title": "Sugestões e Reclamações",
+                "description": "Formulário de sugestões e reclamações da Ceyhunlar Plastik. Compartilhe suas opiniões conosco."
+            },
+            "heroTitle": "Sugestões e Reclamações",
+            "heroSubtitle": "Para que possamos oferecer um serviço melhor a vocês, seus comentários são de grande importância para nós. Por meio deste formulário, vocês podem enviar suas opiniões, sugestões e reclamações sobre nossa empresa.",
+            "form": {
+                "fields": {
+                    "fullName": "Nome Sobrenome",
+                    "email": "E-mail",
+                    "phone": "+90 (532) 123-4567",
+                    "message": "Sua mensagem"
+                },
+                "typeLabel": "Tipo de notificação",
+                "typeSuggestion": "Sugestão",
+                "typeComplaint": "Reclamação",
+                "consent": "Li e aceito a Política de Privacidade.",
+                "submit": "Enviar",
+                "submitting": "Enviando..."
+            },
+            "validation": {
+                "fullNameMin": "O nome e o sobrenome devem ter pelo menos 2 caracteres",
+                "emailInvalid": "Insira um endereço de e-mail válido",
+                "phoneInvalid": "O número de telefone está inválido",
+                "typeRequired": "Selecione o tipo de notificação",
+                "messageMin": "A mensagem deve ter pelo menos 10 caracteres",
+                "consentRequired": "Você deve aceitar a política de privacidade"
+            }
+        },
+        "contact": {
+            "meta": {
+                "title": "Contato",
+                "description": "Entre em contato com a Ceyhunlar Plastik. Endereço, telefone, e-mail e informações de acesso."
+            },
+            "infoTitle": "Entre em contato conosco",
+            "infoBody": "Para qualquer tipo de dúvida — seja sobre solicitação de catálogo, solicitação de produtos, situação de estoque, análise de necessidades, consulta de certificados, produção sob encomenda, produção em série, situação de remessa, legislação de importação, processos alfandegários etc. —, entre em contato conosco.",
+            "addressLine1": "Rua 4308, nº 4A, Bairro Aydın",
+            "addressLine2": "Karabağlar, Izmir / TURQUIA",
+            "directionsCta": "Obter direções",
+            "formTitle": "Formulário de contato",
+            "formSubtitle1": "Preencha o formulário para iniciar uma interação conosco.",
+            "formSubtitle2": "Nossa equipe de especialistas entrará em contato com você em breve.",
+            "form": {
+                "fullName": "Nome Sobrenome",
+                "email": "E-mail",
+                "phone": "Telefone",
+                "message": "Sua mensagem",
+                "consent": "Li e aceito a Política de Privacidade.",
+                "submit": "Enviar"
+            },
+            "routes": {
+                "sectionTitle": "Informações de acesso",
+                "sectionSubtitle": "O acesso às nossas instalações, localizadas no coração de Izmir, é bastante fácil.",
+                "air": {
+                    "title": "Companhia Aérea",
+                    "text": "Fica a cerca de 20 minutos de carro do Aeroporto Adnan Menderes, seja de táxi ou de carro alugado."
+                },
+                "road": {
+                    "title": "Rodoviário",
+                    "text": "Fácil acesso por meio de meios de transporte público partindo do Terminal Rodoviário de İzmir em direção a Karabağlar ou pela via expressa."
+                },
+                "rail": {
+                    "title": "Ferrovia",
+                    "text": "Você pode chegar às nossas instalações em muito pouco tempo pela linha suburbana da IZBAN, descendo na estação Semt Garajı."
+                }
+            }
+        },
+        "machining": {
+            "meta": {
+                "title": "Fabricação por Usinagem",
+                "description": "Serviços de usinagem da Ceyhunlar Plastik: torneamento, fresagem, perfuração e retificação."
+            },
+            "heroTitle": "Fabricação por Usinagem",
+            "serviceLabel": "Serviços",
+            "introTitle": "O que é a fabricação por usinagem?",
+            "introBody": "A usinagem é um método de produção utilizado no processamento de metais e outros materiais. Esse método é geralmente empregado para moldar e usinar peças metálicas e gera limalhas de metal. A usinagem envolve diversos subprocessos e geralmente abrange operações como torneamento, fresagem, perfuração e retificação.",
+            "imageAlt": "Fabricação por Usinagem",
+            "items": [
+                {
+                    "title": "Torneamento:",
+                    "text": "O processo de torneamento consiste em fazer girar um material em um torno, sobre um eixo rotativo, permitindo que uma ferramenta de corte modele o material. Esse método é geralmente utilizado na produção de peças cilíndricas."
+                },
+                {
+                    "title": "Fresagem:",
+                    "text": "A fresagem consiste no movimento de uma ferramenta de corte rotativa sobre um material, fixada em uma bancada, a fim de criar a forma desejada. Esse método é amplamente utilizado na produção de superfícies planas, ranhuras e formas complexas."
+                },
+                {
+                    "title": "Perfuração:",
+                    "text": "A perfuração é utilizada para abrir orifícios no material. Nesse processo, geralmente se utiliza uma broca giratória para abrir orifícios no material."
+                },
+                {
+                    "title": "Revisão:",
+                    "text": "O polimento é utilizado para alisar, dar brilho ou moldar a superfície do material dentro de uma determinada tolerância. O processo de polimento geralmente desempenha um papel importante na produção de peças de precisão e na melhoria da qualidade da superfície."
+                }
+            ]
+        },
+        "printing3d": {
+            "meta": {
+                "title": "Impressão e Digitalização 3D",
+                "description": "Ceyhunlar Plastik: serviços de impressão e digitalização 3D; prototipagem rápida e manufatura aditiva."
+            },
+            "heroTitle": "Impressão e Digitalização 3D",
+            "introTitle": "Impressão 3D",
+            "introBody": "A impressão 3D é uma tecnologia de produção na qual objetos tridimensionais são construídos camada por camada. Essa tecnologia é utilizada para transformar modelos digitais, criados com software de desenho assistido por computador (CAD), em objetos físicos. A impressão 3D também é conhecida como “fabricação por camadas” ou “prototipagem rápida”.",
+            "imageAlt1": "Impressora 3D",
+            "imageAlt2": "Prototipagem",
+            "items": [
+                {
+                    "title": "Princípio de funcionamento:",
+                    "text": "A impressão 3D permite a montagem de um objeto por meio da sobreposição de camadas de material. Essas camadas são criadas a partir de informações extraídas de um arquivo de projeto digital."
+                },
+                {
+                    "title": "Materiais:",
+                    "text": "Os materiais utilizados na impressão 3D abrangem uma ampla variedade. Podem ser utilizados diversos materiais, como plástico, metal, cerâmica, resina e até mesmo materiais biológicos. A escolha do material depende da finalidade de uso do objeto e dos requisitos de design."
+                },
+                {
+                    "title": "Áreas de aplicação:",
+                    "text": "É utilizado em impressão 3D, desenvolvimento de protótipos, produção, medicina, educação, construção civil, moda e uma série de outros setores industriais. É especialmente popular para a produção rápida e a prototipagem de peças especiais e complexas, bem como para a fabricação de produtos personalizados."
+                },
+                {
+                    "title": "Prototipagem Rápida:",
+                    "text": "A impressão 3D permite transformar rapidamente projetos em protótipos físicos. Isso pode acelerar o processo de desenvolvimento de produtos e reduzir custos."
+                },
+                {
+                    "title": "Sustentabilidade:",
+                    "text": "A impressão 3D tem o potencial de minimizar o desperdício de material. Ao contrário dos métodos tradicionais de produção, ela permite que apenas o material necessário seja utilizado."
+                }
+            ],
+            "closing": "Os processos de P&D e desenvolvimento de protótipos são ferramentas importantes para garantir a sustentabilidade de uma organização, obter vantagem competitiva e responder melhor às necessidades dos clientes. Processos de P&D bem planejados e de desenvolvimento de protótipos eficazes podem contribuir para o crescimento e o sucesso de uma empresa."
+        },
+        "arge": {
+            "meta": {
+                "title": "P&D e Prototipagem",
+                "description": "Processos de P&D e prototipagem da Ceyhunlar Plastik: inovação, desenvolvimento de produtos e prototipagem rápida."
+            },
+            "heroTitle": "P&D e Prototipagem",
+            "block1Title": "Processos de P&D e Desenvolvimento de Protótipos",
+            "block1Body": "P&D (Pesquisa e Desenvolvimento) e o desenvolvimento de protótipos desempenham um papel fundamental no processo de inovação e avanço de uma organização ou empresa. Esses processos são utilizados para criar, aprimorar e testar novos produtos, serviços ou processos de negócios.",
+            "imageAlt1": "P&D",
+            "imageAlt2": "Prototipagem",
+            "imageAlt3": "Planejamento",
+            "block2Title": "P&D (Pesquisa e Desenvolvimento)",
+            "block2Items": [
+                "Inovação e Progresso: P&D significa a descoberta e o desenvolvimento de novas ideias e tecnologias. Isso é fundamental para que a empresa possa manter sua vantagem competitiva.",
+                "Desenvolvimento de Produtos e Processos: As atividades de P&D podem ser realizadas para aprimorar os produtos ou processos de trabalho existentes e torná-los mais eficientes. Isso pode aumentar a qualidade dos produtos e otimizar os processos de produção.",
+                "Análise de Mercado: A P&D pode ser utilizada para compreender as tendências de mercado e as necessidades dos clientes. Isso pode ajudar no desenvolvimento de produtos e serviços adequados às demandas futuras.",
+                "Competitividade Tecnológica: As atividades de P&D podem ser utilizadas para garantir uma vantagem competitiva tecnológica. Tecnologias e soluções inovadoras podem ajudar a empresa a manter sua liderança no setor."
+            ],
+            "block3Title": "Planejamento Pré-Produção",
+            "block3Items": [
+                "Modelagem de Produtos Físicos ou Processos: O desenvolvimento de protótipos envolve a criação de um modelo físico de uma ideia ou conceito. Isso é importante para identificar erros de projeto e realizar melhorias.",
+                "Teste e Feedback: Os protótipos podem ser testados em condições reais. Isso é utilizado para avaliar o desempenho do produto ou do processo e coletar o feedback dos clientes.",
+                "Economia de Custos e Tempo: A fase de desenvolvimento de protótipos pode ajudar a evitar erros dispendiosos no produto ou processo final e proporcionar economia de tempo. É possível detectar antecipadamente erros que seriam difíceis de corrigir em fases posteriores.",
+                "Incentivo à inovação: Os protótipos estimulam a cultura de inovação dentro da empresa. Eles permitem que ideias criativas sejam expressas de forma concreta e possibilitam que os membros da equipe vejam suas contribuições."
+            ],
+            "closing": "Os processos de P&D e desenvolvimento de protótipos são ferramentas importantes para garantir a sustentabilidade de uma organização, obter vantagem competitiva e responder melhor às necessidades dos clientes. Processos de P&D bem planejados e de desenvolvimento de protótipos eficazes podem contribuir para o crescimento e o sucesso de uma empresa."
+        },
+        "hr": {
+            "meta": {
+                "title": "Recursos Humanos",
+                "description": "Junte-se à família Ceyhunlar Plastik. Envie seu currículo por meio do formulário de candidatura do Departamento de Recursos Humanos.",
+                "ogDescription": "Junte-se à família Ceyhunlar Plastik. Envie seu currículo.",
+                "ogImageAlt": "Ceyhunlar Plástico – Recursos Humanos",
+                "structuredDataName": "Recursos Humanos",
+                "structuredDataDescription": "Página de inscrição para Recursos Humanos da Ceyhunlar Plastik.",
+                "keywords": [
+                    "Ceyhunlar Plástico",
+                    "Recursos Humanos",
+                    "Candidatura a Vaga de Trabalho",
+                    "Carreira",
+                    "Setor de Plásticos"
+                ]
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar Plástico – Recursos Humanos",
+                "title": "Recursos Humanos",
+                "subtitle": "Faça parte de uma equipe que valoriza o seu talento e que trabalha em conjunto.",
+                "cta": "Envie sua candidatura",
+                "cards": {
+                    "team": {
+                        "title": "Equipe Forte",
+                        "text": "Cultura de equipe experiente e solidária"
+                    },
+                    "safe": {
+                        "title": "Trabalho Seguro",
+                        "text": "Um ambiente de negócios confiável e de longo prazo"
+                    },
+                    "career": {
+                        "title": "Desenvolvimento de Carreira",
+                        "text": "Oportunidades para você se desenvolver"
+                    }
+                }
+            },
+            "form": {
+                "title": "Formulário de Candidatura para Recursos Humanos",
+                "subtitle": "Preencha seus dados, anexe seu currículo e entraremos em contato com você.",
+                "fields": {
+                    "fullName": "Nome Sobrenome",
+                    "email": "Seu endereço de e-mail",
+                    "phone": "+90 (532) 123-4567",
+                    "address": "Endereço",
+                    "education": "Nível de escolaridade",
+                    "department": "Departamento de Referência",
+                    "message": "Fale sobre você e sobre sua candidatura"
+                },
+                "cvLabel": "Carregar currículo (PDF · máx. 5 MB)",
+                "submit": "Enviar a inscrição",
+                "submitting": "Enviando..."
+            },
+            "validation": {
+                "fullNameMin": "O nome e o sobrenome devem ter pelo menos 2 caracteres",
+                "emailInvalid": "Insira um endereço de e-mail válido",
+                "phoneInvalid": "O número de telefone está inválido",
+                "addressMin": "O endereço deve ter pelo menos 5 caracteres",
+                "educationMin": "A informação sobre formação deve ter no mínimo 5 caracteres",
+                "departmentMin": "As informações sobre o departamento devem ter no mínimo 5 caracteres",
+                "messageMin": "A mensagem deve ter pelo menos 20 caracteres",
+                "cvType": "Só são aceitos arquivos PDF",
+                "cvSize": "O tamanho do arquivo não pode ultrapassar 5 MB"
+            }
+        },
+        "about": {
+            "meta": {
+                "title": "Sobre nós",
+                "description": "Informações detalhadas sobre a Ceyhunlar Plastik. Produção, qualidade e confiança desde 2001.",
+                "ogDescription": "Saiba mais sobre a Ceyhunlar Plastik.",
+                "ogImageAlt": "Ceyhunlar Plástico"
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar Plástico – Sobre Nós",
+                "title": "Produção Personalizada<br></br><highlight>Seu Parceiro de Confiança</highlight>",
+                "description": "Desde 2001, com nossa sólida infraestrutura de produção e nossa abordagem inovadora, atendemos às necessidades de nossos clientes com os mais altos padrões de qualidade.",
+                "videoDialogTitle": "Vídeo promocional",
+                "videoIframeTitle": "Ceyhunlar Publicidade",
+                "videoCta": "Vídeo promocional"
+            },
+            "content": {
+                "title": "Sobre nós",
+                "intro": "Como Ceyhunlar Plastik Sanayii, lançamos nossas bases em Izmir e, hoje, alcançamos a posição de um fabricante sólido que atende clientes em todo o mundo.",
+                "reach": "Com mais de 850 revendedores e mais de 12.000 clientes, atuamos em mais de 40 países, principalmente na Turquia. Nossos produtos são utilizados nos setores de móveis, automotivo, médico, de defesa, de construção civil e em muitos outros.",
+                "capabilities": "Graças às nossas tecnologias avançadas de produção e à nossa linha de produtos em constante expansão, oferecemos soluções rápidas, de alta qualidade e confiáveis para atender às necessidades de nossos clientes.",
+                "rnd": "Com nossos investimentos em P&D, nossa abordagem de produção ambientalmente responsável e nossos elevados padrões de qualidade, continuamos a nos destacar no setor.",
+                "mission": "Nosso objetivo é produzir soluções sustentáveis e inovadoras, mantendo a satisfação do cliente no mais alto nível.",
+                "productionImageAlt": "Ceyhunlar Produção de Plástico"
+            },
+            "categories": {
+                "title": "Nossos Grupos de Produtos",
+                "searchPlaceholder": "Pesquisar por categoria...",
+                "noResults": "Nenhum resultado encontrado"
+            },
+            "details": {
+                "developmentImageAlt": "Produção",
+                "devIntro": "Desde o dia em que começamos a prestar nossos serviços, acompanhamos de perto a evolução da tecnologia e as tendências do setor, dando continuidade ao nosso desenvolvimento, e continuamos a fazê-lo.",
+                "devInitiatives": "Nesse sentido, também tomamos iniciativas com o objetivo de atender às necessidades do comércio atual.",
+                "devRnd3d": "Para atender às necessidades dos clientes da maneira mais adequada, aumentamos nossos investimentos em P&D. Nesse processo, também utilizamos a tecnologia 3D em nossos trabalhos de P&D. Em 2018, colocamos em operação nossa unidade de P&D e 3D.",
+                "devEndToEnd": "Além disso, como uma empresa que integra todos os processos — desde impressão 3D, planejamento, moldagem, produção em série, montagem, embalagem e remessa —, conseguimos atender às necessidades de nossos clientes.",
+                "devClosing": "Na Ceyhunlar Plastik, transformamos suas ideias em realidade.",
+                "mottoImageAlt": "Lema",
+                "mottoTitle": "Seu <highlight>parceiro líder</highlight> em soluções para suas necessidades de plástico!",
+                "mottoQuote": "“Com padrões de alta qualidade e confiança…”",
+                "mottoBody1": "O coração e a alma de uma empresa são a criatividade e a inovação. No entanto, sem determinação e amor pelo trabalho, não é possível alcançar o sucesso.",
+                "mottoBody2": "Desde o primeiro dia em que iniciamos nossa jornada como Ceyhunlar Plastik, coroamos nossa paixão pelo trabalho com determinação."
+            }
+        }
+    }
+}

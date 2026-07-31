@@ -1,0 +1,1279 @@
+{
+    "common": {
+        "siteName": "Ceyhunlar 塑料"
+    },
+    "chrome": {
+        "nav": {
+            "corporate": "企业",
+            "categories": "分类",
+            "sectoralProducts": "行业产品",
+            "services": "服务",
+            "catalogs": "产品目录",
+            "contact": "联系我们",
+            "logoAlt": "Ceyhunlar 塑料",
+            "corporateItems": {
+                "about": {
+                    "title": "关于我们",
+                    "description": "了解有关本公司历史、愿景和使命的信息。"
+                },
+                "sustainability": {
+                    "title": "可持续发展",
+                    "description": "我们的环保生产流程和可持续发展政策。"
+                },
+                "hr": {
+                    "title": "人力资源",
+                    "description": "职业机会与我们的员工价值观。"
+                },
+                "feedback": {
+                    "title": "建议与投诉",
+                    "description": "欢迎与我们分享您的意见和建议。"
+                }
+            },
+            "serviceItems": {
+                "rnd": {
+                    "title": "研发与原型制作",
+                    "description": "根据您的需求定制塑料产品设计。"
+                },
+                "printing3d": {
+                    "title": "3D打印与扫描",
+                    "description": "为我们的企业客户提供专属价格。"
+                },
+                "machining": {
+                    "title": "切削加工",
+                    "description": "快速且安全的配送服务。"
+                },
+                "massProduction": {
+                    "title": "批量生产",
+                    "description": "基于项目的技术咨询服务。"
+                }
+            }
+        },
+        "mobileMenu": {
+            "title": "菜单",
+            "closeAria": "关闭菜单"
+        },
+        "cart": {
+            "goToCart": "前往购物车",
+            "goToCartAria": "前往需求篮"
+        },
+        "languageSwitcher": {
+            "ariaLabel": "语言选择"
+        },
+        "dialogs": {
+            "common": {
+                "submit": "发送",
+                "submitting": "正在发送...",
+                "sentSuccess": "已成功提交",
+                "sentError": "发生了一个错误"
+            },
+            "productRequest": {
+                "trigger": "索取产品",
+                "title": "索取产品",
+                "description": "请提供您所需的产品信息，我们将与您联系。",
+                "fields": {
+                    "companyName": "公司名称",
+                    "fullName": "姓名",
+                    "phone": "电话号码（例如：+90 (532) 123-4567）",
+                    "email": "您的电子邮箱地址",
+                    "product": "所需产品"
+                },
+                "validation": {
+                    "companyNameRequired": "公司名称必须保留",
+                    "fullNameMin": "姓名至少应包含2个字符",
+                    "phoneInvalid": "电话号码无效",
+                    "emailInvalid": "请输入有效的电子邮件地址",
+                    "productRequired": "请填写所需产品"
+                }
+            },
+            "catalogRequest": {
+                "trigger": "索取产品目录",
+                "title": "索取产品目录",
+                "description": "请提交产品目录申请，我们将通过电子邮件发送给您。",
+                "fields": {
+                    "companyName": "公司名称",
+                    "fullName": "姓名",
+                    "phone": "电话号码（例如：+90 (532) 123-4567）",
+                    "address": "地址"
+                },
+                "validation": {
+                    "companyNameRequired": "公司名称必须保留",
+                    "fullNameMin": "姓名至少应包含2个字符",
+                    "phoneInvalid": "电话号码无效",
+                    "addressMin": "地址长度必须至少为10个字符"
+                }
+            },
+            "mail": {
+                "trigger": "发送邮件",
+                "title": "发送邮件",
+                "description": "请留下您的信息，我们将尽快与您联系。",
+                "submit": "发送消息",
+                "fields": {
+                    "fullName": "姓名",
+                    "phone": "电话号码（例如：+90 (532) 123-4567）",
+                    "email": "您的电子邮箱地址",
+                    "message": "您可以详细撰写您的信息"
+                },
+                "validation": {
+                    "fullNameMin": "姓名至少应包含2个字符",
+                    "phoneInvalid": "电话号码无效",
+                    "emailInvalid": "请输入有效的电子邮件地址",
+                    "messageMin": "消息长度必须至少为10个字符"
+                }
+            }
+        },
+        "footer": {
+            "logoAlt": "Ceyhunlar",
+            "description": "在恪守原则的基础上，我们已走到今天这一步；凭借优质的生产、技术投资以及开阔的视野，我们满怀激情，期待在未来继续为您服务。",
+            "corporateTitle": "企业",
+            "servicesTitle": "服务",
+            "productsTitle": "产品",
+            "contactTitle": "联系我们",
+            "aboutLink": "关于我们",
+            "productionGroupsLink": "生产组",
+            "hrLink": "人力资源",
+            "sustainabilityLink": "可持续发展",
+            "contactLink": "联系我们",
+            "rndLink": "研发与原型制作",
+            "printing3dLink": "3D打印与扫描",
+            "machiningLink": "切削加工",
+            "massProductionLink": "批量生产",
+            "sectoralProductsLink": "行业产品",
+            "address": "Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / 伊兹密尔",
+            "copyright": "版权所有 © 2026 Ceyhunlar – 保留所有权利。"
+        },
+        "navigationProgress": {
+            "label": "页面正在加载"
+        }
+    },
+    "shared": {
+        "breadcrumbs": {
+            "home": "首页",
+            "services": "服务"
+        },
+        "productCard": {
+            "navigationPending": "正在展开产品详情"
+        },
+        "enviroment": {
+            "word1": "自然",
+            "word2": "DOSTU",
+            "word3": "生产",
+            "subtitle": "本公司<highlight>超过80%</highlight>的生产均由可再生能源提供。",
+            "paragraph": "基于我们对环境、社会和未来的关切与责任，我们采用环保的生产模式；为建设一个可持续发展的世界和美好的未来而努力。"
+        }
+    },
+    "auth": {
+        "shell": {
+            "secureAccess": "安全访问流程"
+        },
+        "errors": {
+            "Configuration": {
+                "title": "身份验证配置有误",
+                "description": "系统配置出现问题。请联系技术团队。"
+            },
+            "AccessDenied": {
+                "title": "未获访问权限",
+                "description": "您没有此工作区域的访问权限，或者您的访问策略阻止了访问。"
+            },
+            "Verification": {
+                "title": "验证链接无效",
+                "description": "验证链接可能已过期，或者该链接此前已被使用过。"
+            },
+            "OAuthSignin": {
+                "title": "无法启动输入流",
+                "description": "启动 Cognito 会话时发生错误。请刷新页面并重试。"
+            },
+            "OAuthCallback": {
+                "title": "无法处理输入响应",
+                "description": "无法完成来自身份验证提供商的响应。请重试。"
+            },
+            "Callback": {
+                "title": "身份验证未完成",
+                "description": "登录过程中发生了一个意外错误。"
+            },
+            "SessionRequired": {
+                "title": "需登录",
+                "description": "要查看此页面，您需要先登录。"
+            },
+            "INVALID_CREDENTIALS": {
+                "title": "输入信息有误",
+                "description": "请检查您的电子邮件地址和密码，然后重试。"
+            },
+            "USER_NOT_CONFIRMED": {
+                "title": "账户未验证",
+                "description": "您需要验证您的账户才能继续。您可以跳转至验证码页面。"
+            },
+            "CODE_MISMATCH": {
+                "title": "无法验证代码",
+                "description": "您输入的验证码无效。请检查验证码并重试。"
+            },
+            "EXPIRED_CODE": {
+                "title": "代码已过期",
+                "description": "验证码似乎已过期。请请求新验证码后重试。"
+            },
+            "USERNAME_EXISTS": {
+                "title": "该电子邮件地址已注册",
+                "description": "该地址已有账户。您可以登录，或使用密码重置流程。"
+            },
+            "TOO_MANY_REQUESTS": {
+                "title": "已经进行了多次尝试",
+                "description": "短时间内收到了大量请求。请几分钟后再试。"
+            },
+            "UNSUPPORTED_CHALLENGE": {
+                "title": "需要额外核对",
+                "description": "该账户需要执行一个在初始版本中不支持的安全步骤。请联系技术团队。"
+            },
+            "WEAK_PASSWORD": {
+                "title": "密码强度不足",
+                "description": "请选择一个更强壮的密码，然后重试。"
+            },
+            "PASSWORD_RESET_REQUIRED": {
+                "title": "需要重置密码",
+                "description": "您需要先完成该账户的密码重置操作。"
+            },
+            "INVALID_PARAMETER": {
+                "title": "发送的信息无效",
+                "description": "请检查表单字段并重新尝试。"
+            },
+            "AUTH_SERVICE_UNAVAILABLE": {
+                "title": "无法访问身份验证服务",
+                "description": "目前暂时无法访问登录系统。请稍后几分钟再试。"
+            },
+            "RefreshTokenError": {
+                "title": "无法刷新会话",
+                "description": "您的会话可能已过期。请重新登录。"
+            },
+            "UNKNOWN_AUTH_ERROR": {
+                "title": "身份验证过程未能完成",
+                "description": "出现意外问题。请重试。"
+            },
+            "Default": {
+                "title": "登录操作未能完成",
+                "description": "身份验证过程中出现意外问题。请重试。"
+            }
+        },
+        "signIn": {
+            "eyebrow": "Ceyhunlar 塑料",
+            "title": "登录管理面板",
+            "sideTitle": "受控访问，单会话体验",
+            "badge": "集中式身份验证",
+            "badgeDescription": "登录、注册和密码重置流程由应用程序内部管理。",
+            "targetLabel": "当前目标：",
+            "emailLabel": "电子邮件",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "passwordLabel": "密码",
+            "passwordPlaceholder": "请输入您的密码",
+            "submit": "登录",
+            "submitting": "正在登录...",
+            "forgotPassword": "忘记密码",
+            "verifyAccount": "验证我的账户",
+            "createAccount": "创建新账户",
+            "goHome": "返回首页",
+            "notices": {
+                "confirmed": {
+                    "title": "您的账户已通过验证",
+                    "description": "现在您可以使用您的电子邮件地址和密码登录了。"
+                },
+                "passwordReset": {
+                    "title": "您的密码已更新",
+                    "description": "您可以使用新密码登录。"
+                }
+            }
+        },
+        "signUp": {
+            "eyebrow": "Ceyhunlar 塑料",
+            "title": "创建新账户",
+            "sideTitle": "面向内部团队和业务合作伙伴的受控注册",
+            "firstNameLabel": "名称",
+            "firstNamePlaceholder": "您的姓名",
+            "lastNameLabel": "姓氏",
+            "lastNamePlaceholder": "您的姓氏",
+            "emailLabel": "电子邮件",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "passwordLabel": "密码",
+            "passwordPlaceholder": "至少8个字符",
+            "confirmPasswordLabel": "密码确认",
+            "confirmPasswordPlaceholder": "请重新输入密码",
+            "submit": "创建账户",
+            "submitting": "正在创建账户...",
+            "codeSentToast": "验证码已发送至您的电子邮箱。",
+            "signInLink": "登录",
+            "goHome": "返回首页"
+        },
+        "forgotPassword": {
+            "eyebrow": "Ceyhunlar 塑料",
+            "shellTitle": "重置密码",
+            "shellSideTitle": "受控密码重置流程",
+            "infoTitle": "密码重置",
+            "infoDescription": "请输入您账户关联的电子邮件地址。我们将向您发送验证码，以便您设置新密码。AWS Cognito 密码重置码的有效期为 1 小时。",
+            "emailLabel": "电子邮件",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "submit": "发送重置代码",
+            "submitting": "正在发送代码...",
+            "codeSentToast": "密码重置代码已发送。",
+            "backToSignIn": "返回登录页面",
+            "createAccount": "创建新账户"
+        },
+        "resetPassword": {
+            "eyebrow": "Ceyhunlar 塑料",
+            "shellTitle": "设置新密码",
+            "shellSideTitle": "使用一次性验证码重置密码",
+            "infoTitle": "设置新密码",
+            "infoDescription": "请使用发送到您邮箱的验证码设置新密码。AWS Cognito 密码重置验证码的有效期为 1 小时。",
+            "emailLabel": "电子邮件",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "验证码",
+            "codeDescription": "该代码的有效期为1小时。",
+            "newPasswordLabel": "新密码",
+            "newPasswordPlaceholder": "至少8个字符",
+            "confirmPasswordLabel": "新密码确认",
+            "confirmPasswordPlaceholder": "请重新输入密码",
+            "submit": "更新密码",
+            "submitting": "密码正在更新中...",
+            "successToast": "您的密码已更新。您可以使用新密码登录。",
+            "resendCode": "重新请求代码",
+            "backToSignIn": "返回登录页面"
+        },
+        "confirmSignUp": {
+            "eyebrow": "Ceyhunlar 塑料",
+            "shellTitle": "请验证您的账户",
+            "shellSideTitle": "请通过验证完成第一步",
+            "infoTitle": "请验证您的账户",
+            "infoDescription": "请输入发送到您电子邮箱的验证码。如果未收到验证码，您可以申请新的验证码。AWS Cognito 验证码的有效期为 24 小时。",
+            "emailLabel": "电子邮件",
+            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "codeLabel": "验证码",
+            "codeDescription": "验证码包含在电子邮件中，有效期为24小时。",
+            "submit": "验证账户",
+            "submitting": "正在验证中...",
+            "resend": "重新提交代码",
+            "resending": "正在发送...",
+            "successToast": "您的账户已通过验证。正在等待管理员批准。",
+            "resendToast": "已发送新的验证码。",
+            "emailRequiredError": "需提供电子邮箱地址才能发送代码。",
+            "backToSignIn": "返回登录页面",
+            "editEmail": "编辑电子邮件"
+        },
+        "awaiting": {
+            "eyebrow": "Ceyhunlar",
+            "shellTitle": "待授权",
+            "shellSideTitle": "您的账户已创建",
+            "infoTitle": "您的账户已创建",
+            "infoDescription": "正在等待授权。待管理员审核您的账户并分配相应角色后，您即可获得访问权限。状态：正在审核中。",
+            "emailNotice": "通知将发送至 <strong>{email}</strong> 邮箱。",
+            "backToSignIn": "返回登录页面",
+            "goHome": "返回首页"
+        },
+        "unauthorized": {
+            "eyebrow": "访问控制",
+            "shellTitle": "权限不足",
+            "shellSideTitle": "正确引导至相应面板",
+            "infoTitle": "您无权访问此区域",
+            "infoDescription": "您没有查看该页面的必要权限。您可以返回相应的工作区域或主页。",
+            "requestedAreaLabel": "所需语言：",
+            "unknown": "未知",
+            "goToPanel": "前往相应面板",
+            "goHome": "返回首页"
+        },
+        "signOut": {
+            "eyebrow": "Ceyhunlar 塑料",
+            "shellTitle": "退出登录",
+            "shellSideTitle": "安全输出流",
+            "description": "当您退出时，不仅会清除您的应用会话，还会撤销您的 Cognito 刷新令牌（如有）。随后，您将返回安全登录界面。",
+            "submit": "退出登录",
+            "cancel": "放弃"
+        },
+        "errorPage": {
+            "eyebrow": "Ceyhunlar 塑料",
+            "shellTitle": "身份验证错误",
+            "shellSideTitle": "出现错误时也应保持受控的用户体验",
+            "backToSignIn": "返回首页",
+            "goHome": "返回首页"
+        },
+        "validation": {
+            "signIn": {
+                "emailInvalid": "请输入一个有效的电子邮件地址。",
+                "passwordRequired": "请输入您的密码。"
+            },
+            "signUp": {
+                "firstNameMin": "名称长度至少为2个字符。",
+                "lastNameMin": "姓氏至少应包含2个字符。",
+                "emailInvalid": "请输入一个有效的电子邮件地址。",
+                "passwordMin": "密码必须至少包含8个字符。",
+                "confirmPasswordRequired": "请输入密码确认。",
+                "passwordsMismatch": "密码不匹配。"
+            },
+            "forgotPassword": {
+                "emailInvalid": "请输入一个有效的电子邮件地址。"
+            },
+            "resetPassword": {
+                "emailInvalid": "请输入一个有效的电子邮件地址。",
+                "codeMin": "请输入验证码。",
+                "passwordMin": "密码必须至少包含8个字符。",
+                "confirmPasswordRequired": "请输入密码确认。",
+                "passwordsMismatch": "密码不匹配。"
+            },
+            "confirmSignUp": {
+                "emailInvalid": "请输入一个有效的电子邮件地址。",
+                "codeMin": "请输入验证码。"
+            }
+        }
+    },
+    "home": {
+        "hero": {
+            "words": [
+                "研发与原型制作",
+                "3D打印与扫描",
+                "切削加工",
+                "批量生产"
+            ],
+            "titleSuffix": "塑料解决方案",
+            "subtitle": "Ceyhunlar Plastik将从原型设计到批量生产的所有流程集中管理于同一平台；凭借在塑料、橡胶和胶木产品领域的高品质、强大的工程实力以及广泛的产品线，为您提供值得信赖的工业解决方案。",
+            "ctaProducts": "浏览我们的产品",
+            "ctaQuote": "获取报价",
+            "imageAlt": "塑料生产"
+        },
+        "about": {
+            "brand": "Ceyhunlar",
+            "subtitle": "从项目到批量生产",
+            "lead": "作为Ceyhunlar塑料工业与贸易有限公司，我们将全程陪伴您的项目每一步。",
+            "body1": "在您的塑料、橡胶、金属和胶木产品项目中，我们凭借以效益/成本为导向的商业模式——从草图设计起步，经研发推进，最终实现批量生产——为您量身打造专属解决方案。",
+            "body2": "为了让您的项目最终落地：我们提供一站式服务，涵盖3D建模、模型分析、样品与原型制作、生产分析、模具制造及批量生产打印服务。",
+            "body3": "您可以利用我们的研发服务来满足新产品开发需求，针对定制产品获取报价，浏览展示我们35,000余种产品的产品目录，或联系我们成为我们的经销商。",
+            "infoTitle": "凭借我们200多名专业员工的力量",
+            "infoDescription": "我们团队的专业知识和能力，确保了我们所提供解决方案的质量和可靠性。",
+            "infoCtaPrimary": "关于我们",
+            "infoCtaSecondary": "联系我们"
+        },
+        "services": {
+            "brand": "Ceyhunlar",
+            "subtitle": "从项目到批量生产",
+            "cards": [
+                {
+                    "title": "研发与原型制作",
+                    "description": "在您的项目进入样品和批量生产阶段之前，我们将利用先进的绘图和分析技术确保其顺利开发。"
+                },
+                {
+                    "title": "3D打印与扫描",
+                    "description": "研发流程已完成的项目，将在必要时进行扫描以生成CAD模型，并通过3D打印制作原型。"
+                },
+                {
+                    "title": "切削加工",
+                    "description": "为了将已完成研发、分析和原型制作的产品投入批量生产，我们的模具车间将负责模具的制作。"
+                },
+                {
+                    "title": "批量生产金属",
+                    "description": "金属批量生产模具加工完成的零件，将在我们的冲压车间以高精度投入金属批量生产流程。"
+                },
+                {
+                    "title": "批量生产塑料",
+                    "description": "使用已完成的批量生产模具制成的塑料零件，将通过注塑、吹塑和挤出等工艺投入批量生产。"
+                },
+                {
+                    "title": "批量生产橡胶",
+                    "description": "在我们的液压压机车间，对已完成批量生产模具的橡胶部件进行批量生产。"
+                },
+                {
+                    "title": "批量生产 Bakalit",
+                    "description": "在我们的 bakelite 注塑部门，对已完成批量生产模具的 bakelite 部件进行批量生产。"
+                }
+            ]
+        },
+        "products": {
+            "title": "我们的产品",
+            "subtitle": "凭借广泛的产品线和强大的生产能力，我们为各行业提供定制化解决方案。"
+        },
+        "quality": {
+            "title": "我们的质量方针",
+            "body": "我们通过符合ISO标准的生产流程、持续改进的方法以及完全可追溯的原则，确保产品质量。",
+            "highlights": [
+                {
+                    "title": "快速交付",
+                    "description": "畅销产品可从库存快速发货。"
+                },
+                {
+                    "title": "认证产品",
+                    "description": "我们通过认证生产，对每件产品都提供质量保障。"
+                },
+                {
+                    "title": "样品申请",
+                    "description": "购买前请索取样品进行测试。"
+                },
+                {
+                    "title": "技术支持",
+                    "description": "在项目的每个阶段都提供专家支持。"
+                }
+            ]
+        },
+        "process": {
+            "brand": "Ceyhunlar",
+            "title": "从项目到批量生产是什么？",
+            "block1Title": "针对贵公司的塑料、橡胶、金属和胶木产品项目；",
+            "block1Body": "我们凭借基于效益/成本基本原则的商业模式——从草案开始，经由研发阶段，最终以批量生产收尾——为您提供服务。",
+            "block2Title": "为了让您的项目最终成为成品；",
+            "block2Body": "通过3D建模、模型分析、样品原型制作、生产分析、模具制造和批量生产，我们将您的项目推向最终成果。",
+            "features": [
+                {
+                    "title": "研发与设计",
+                    "description": "创新的研发流程和独具匠心的设计理念。"
+                },
+                {
+                    "title": "优质生产",
+                    "description": "遵循“零错误”原则，进行端到端质量控制。"
+                },
+                {
+                    "title": "认证产品",
+                    "description": "每款产品均以认证生产理念为后盾。"
+                },
+                {
+                    "title": "客户满意度",
+                    "description": "每个阶段都保持透明沟通并提供专业支持。"
+                }
+            ],
+            "ctaBanner": "您来构思，我们共同决策，由我们来生产。",
+            "form": {
+                "title": "联系我们",
+                "subtitle": "请填写表格，我们的专家团队将尽快与您联系。",
+                "fullName": "姓名",
+                "phone": "电话号码（例如：+90 (532) 123-4567）",
+                "email": "电子邮箱地址",
+                "submit": "发送",
+                "submitting": "正在发送...",
+                "toastLoading": "正在发送...",
+                "toastSuccess": "您的消息已成功发送！",
+                "toastError": "提交时发生错误！"
+            },
+            "validation": {
+                "fullNameMin": "姓名至少应包含2个字符",
+                "phoneInvalid": "电话号码无效",
+                "emailInvalid": "请输入有效的电子邮件地址"
+            }
+        },
+        "assistant": {
+            "title": "产品助手",
+            "steps": [
+                "欢迎",
+                "行业",
+                "生产组与应用领域"
+            ],
+            "noImage": "无图片",
+            "welcome": {
+                "greeting": "您好",
+                "question": "您需要我为您提供指导，帮助您找到最适合您需求的产品吗？",
+                "start": "好的，我们开始吧",
+                "decline": "暂时不用，我自己处理"
+            },
+            "sector": {
+                "title": "请选择您的业务领域",
+                "hint": "请仅选择一种翻译。"
+            },
+            "usage": {
+                "title": "请选择您的生产组和应用领域",
+                "hint": "点击各生产组，即可快速跳转至相关应用领域。",
+                "searchPlaceholder": "搜索应用领域...",
+                "noResults": "未找到结果。"
+            },
+            "nav": {
+                "back": "返回",
+                "continue": "继续",
+                "listProducts": "列出产品"
+            }
+        },
+        "toasts": {
+            "accessDenied": "您无权访问此页面。"
+        }
+    },
+    "public": {
+        "sustainability": {
+            "meta": {
+                "title": "可持续发展",
+                "description": "Ceyhunlar Plastik 秉持可持续生产和环保理念。"
+            },
+            "intro": {
+                "heroTitle": "可持续生产",
+                "heroBody": "可持续生产是一种以在世界资源可持续性限度内利用资源为基础，致力于寻找将对自然生态的损害降至最低、从而保障未来的生产模式。 如今，不仅所有消费者，所有生产者也都必须采取可持续的行动。作为Ceyhunlar塑料公司，我们正在尽自己的一份力量，为一个清洁的世界迈出清洁的步伐。",
+                "imageAlt": "自然与可持续发展",
+                "protectTitle": "保护我们的自然资源 <highlight>保护我们的地球。</highlight>",
+                "protectBody": "秉承我们肩负的保护自然与环境意识的使命，旨在将多年积累的知识与经验应用于全球塑料行业，我们正致力于开发既兼顾国家利益又关爱自然的动态且创新的解决方案。",
+                "certAlt": "证书 {number}"
+            },
+            "impact": {
+                "title": "可回收塑料",
+                "body1": "塑料是许多消费品的组成部分，构成了制造业的大部分产出和最终产品。然而，并非所有塑料都相同，这意味着它们不能以相同的方式进行处置和回收。",
+                "body2": "作为Ceyhunlar Plastik，我们生产可回收利用的产品。在尊重自然的原则下，我们在生产过程中致力于使用可再生能源。",
+                "imageAlt": "可持续发展",
+                "items": {
+                    "recycling": "回收利用",
+                    "zeroWaste": "零废弃物",
+                    "sustainableProduction": "可持续生产",
+                    "respectNature": "尊重自然"
+                }
+            },
+            "energy": {
+                "title": "我们的能源来自<highlight>太阳！</highlight>",
+                "body": "本公司正通过可持续能源解决方案，为满足未来的能源需求迈出重要一步。太阳能是自然赋予我们的清洁、可再生且取之不尽的能源。我们也利用这一宝贵资源来满足我们的能源需求。",
+                "imageAlt": "太阳能发电",
+                "imageAlt2": "太阳能电池板详情",
+                "imageAlt3": "能源生产"
+            }
+        },
+        "products": {
+            "meta": {
+                "title": "产品类别",
+                "description": "浏览Ceyhunlar塑料的产品类别。包括 Bakalit 手柄、塑料制品等。"
+            },
+            "heroTitle": "产品类别",
+            "breadcrumbSelf": "产品类别",
+            "empty": "未找到该产品类别。"
+        },
+        "materials": {
+            "meta": {
+                "title": "原材料证书",
+                "description": "请查阅Ceyhunlar塑料的原材料证书并下载PDF版本。"
+            },
+            "heroTitle": "原材料证书",
+            "breadcrumbSelf": "原材料证书",
+            "empty": "发布时未提供原材料证书。",
+            "certificateSuffix": "证书 {number}",
+            "download": "下载"
+        },
+        "cart": {
+            "meta": {
+                "title": "需求篮",
+                "description": "您的选定产品变体的询价单。"
+            },
+            "heroTitle": "需求清单",
+            "breadcrumbSelf": "需求篮",
+            "title": "需求篮",
+            "subtitle": "您选择的选项将在此处列出。请填写您的联系方式并提交请求。",
+            "itemsLabel": "购物车中的商品",
+            "itemCount": "{count} 款产品",
+            "emptyText": "您的购物车为空。",
+            "emptyLink": "浏览产品",
+            "codeLabel": "代码：",
+            "variantLabel": "变体：",
+            "quantityLabel": "数量：",
+            "removeAria": "将商品从购物车中移除",
+            "formTitle": "需求表单",
+            "formSubtitle": "请填写表格并提交您的请求。",
+            "fields": {
+                "name": "姓名",
+                "email": "电子邮件",
+                "phone": "电话（可选）",
+                "message": "补充说明（可选）"
+            },
+            "submit": "提交请求",
+            "submitting": "正在发送..."
+        },
+        "productFilter": {
+            "pageTitle": "行业产品",
+            "filteringTitle": "{name} 筛选",
+            "filteringLabel": "筛选",
+            "productCategories": "产品类别",
+            "categoryMetaDescription": "浏览 {name} 产品系列。",
+            "categoryOgDescription": "{name} 产品系列",
+            "searchPlaceholder": "搜索产品代码或名称",
+            "selectedCategory": "所选类别",
+            "categoriesTitle": "分类",
+            "codePrefix": "代码",
+            "productFiltersTitle": "产品筛选器",
+            "productFiltersDesc": "基于类别的型号、链接、简介、材料等筛选条件。",
+            "industrialTitle": "工业用途",
+            "industrialDesc": "行业、生产组和应用领域将根据产品“工业用途”行中的信息进行筛选。",
+            "relevantToMe": "筛选与我相关的产品",
+            "filtering": "正在过滤中...",
+            "ready": "完成",
+            "noResultsTitle": "未找到结果",
+            "noResultsSubtitle": "请尽量减少过滤器数量",
+            "countFound": "找到 {count} 件产品",
+            "perPage": "每页 {limit}",
+            "selectPlaceholder": "{label} 选择",
+            "searchByLabel": "{label} 搜索...",
+            "notFound": "未找到",
+            "productSearchLabel": "产品搜索",
+            "clearSearch": "清除搜索",
+            "paginationLabel": "分页",
+            "previousPage": "上一页",
+            "nextPage": "下一页",
+            "goToPage": "页面 {page}",
+            "pageOf": "第 {page} 页 / {totalPages} 页",
+            "updatingResults": "结果正在更新中"
+        },
+        "productDetail": {
+            "metaDescription": "了解 {name} 产品。",
+            "ogDescription": "{name} 产品详情页",
+            "breadcrumbProducts": "产品",
+            "categoryFallback": "无分类",
+            "imageNotFound": "未找到图片",
+            "imageDialogTitle": "产品图片",
+            "catalogCode": "产品目录代码：{code}",
+            "descriptionFallback": "产品说明尚未添加。",
+            "attributeFallback": "特性",
+            "showLess": "显示更少",
+            "showMore": "+{count} 更多",
+            "quickNav": {
+                "dimensions": "尺寸与选项",
+                "industrialAreas": "应用领域",
+                "technicalDrawing": "技术图纸",
+                "model3d": "3D模型",
+                "assemblyVideo": "安装视频",
+                "promoVideo": "宣传视频",
+                "certificate": "原材料证书"
+            },
+            "usage": {
+                "readMore": "阅读全文",
+                "emptyTitle": "预计应用于工业领域",
+                "emptyDesc": "关于该产品型号的工业应用领域信息正在准备中。如需详细信息，请与我们的团队联系。",
+                "colSector": "行业",
+                "colProductionGroup": "生产组",
+                "colIndustrialProduct": "所涉及的工业产品",
+                "colSampleImage": "示例图片",
+                "colUsageFunction": "使用功能",
+                "imageAlt": "{name} 图片",
+                "zoom": "放大",
+                "imageDialogTitle": "{name} 示例使用图示",
+                "openToZoom": "点击放大",
+                "imageMissing": "未添加图片",
+                "sectionTitle": "我们的产品型号所应用的工业领域",
+                "sectionSubtitle": "按行业、生产组和应用领域分类的示例用法对应关系。",
+                "accordionTitle": "应用领域",
+                "accordionSubtitle": "产品所应用的行业、生产组别及工业领域。",
+                "reviewDetails": "查看详情",
+                "showAllRows": "显示全部（{count} 行）"
+            },
+            "zoomImage": {
+                "trigger": "放大",
+                "dialogTitle": "视觉审查",
+                "close": "关闭图片"
+            },
+            "similar": {
+                "title": "类似产品",
+                "subtitle": "浏览同一类别的其他产品。"
+            },
+            "assetSection": {
+                "requestInfo": "索取详细信息",
+                "offerImageAlt": "报价图"
+            },
+            "assets": {
+                "certificate": {
+                    "badge": "证书",
+                    "title": "证书",
+                    "description": "您可以在此处查看产品的质量和符合性证书。如需详细文件，我们的团队将为您提供协助。",
+                    "open": "查看证书"
+                },
+                "technicalDrawing": {
+                    "badge": "技术图纸",
+                    "title": "技术图纸",
+                    "description": "您可以在产品技术图纸上查看尺寸和形状的详细信息。如需更全面的技术文档或有特殊需求，请联系我们的团队。",
+                    "open": "打开技术图纸"
+                },
+                "assemblyVideo": {
+                    "badge": "安装视频",
+                    "title": "安装视频",
+                    "description": "您可以通过观看视频中的安装和组装步骤，更快地完成操作。如有特殊的安装需求，请与我们联系。",
+                    "open": "打开安装视频"
+                },
+                "promoVideo": {
+                    "badge": "宣传视频",
+                    "title": "产品介绍视频",
+                    "description": "您可以通过视频了解产品的整体结构、使用场景及突出特点。如需详细信息，欢迎联系我们。",
+                    "open": "播放宣传视频"
+                },
+                "model3d": {
+                    "badge": "3D模型",
+                    "title": "3D模型",
+                    "description": "通过查看产品的3D模型，您可以更真实地评估其形状细节。如有CAD/技术方面的需求，欢迎联系我们的团队。",
+                    "open": "打开3D模型"
+                },
+                "videoPlay": "播放视频"
+            },
+            "media": {
+                "animationTitle": "产品动画",
+                "technicalTitle": "技术图纸",
+                "videoTitle": "产品视频",
+                "notFound": "未找到内容",
+                "technicalAlt": "技术图纸"
+            },
+            "assetsGallery": {
+                "imageMissing": "未找到产品图片",
+                "technicalDrawings": "技术图纸",
+                "productImages": "产品图片",
+                "technicalAlt": "技术图纸"
+            }
+        },
+        "productVariant": {
+            "pageTitle": "{name} - 型号详情",
+            "metaDescription": "请查看 {name} 的变体详情。",
+            "breadcrumbProducts": "产品",
+            "categoryFallback": "无分类",
+            "breadcrumbVariant": "变体详情",
+            "imageNotFound": "未找到图片",
+            "productCode": "产品代码：{code}",
+            "table": {
+                "empty": "未找到尺寸信息。",
+                "loadError": "无法加载变体信息。请刷新页面。",
+                "srNavigating": "正在打开所选变体的详情页面。",
+                "srReady": "变体表已准备就绪。",
+                "title": "尺寸与选项",
+                "descFocus": "尺寸单位已统一。点击标题中的帮助图标可打开相应的说明视频，您还可以像查看尺寸矩阵一样浏览该表格。",
+                "descDefault": "尺寸已进行单一化处理。选择某一尺寸后，即可查看该尺寸对应的颜色和原材料选项。",
+                "navigatingLabel": "{label} 正在展开",
+                "navigatingGeneric": "变体正在展开",
+                "optionsTitle": "尺寸选项",
+                "colColor": "颜色",
+                "colMaterial": "原材料",
+                "colSupplier": "供应商",
+                "colCode": "代码",
+                "colDetail": "详情",
+                "colorCount": "{count} 颜色",
+                "materialCount": "{count} H.M.",
+                "supplierCount": "{count} 注。",
+                "codeCount": "{count} 代码",
+                "showVariantsAria": "显示 {label} 的变体",
+                "opening": "正在加载...",
+                "showVariants": "显示变体",
+                "openInAdmin": "在管理后台打开",
+                "selectedDetailsTitle": "所选尺寸详情",
+                "helpVideo": "说明视频",
+                "codesTitle": "现有变体代码",
+                "codesEmpty": "未找到此规格的变体代码。",
+                "colorsTitle": "颜色选项",
+                "colorsEmpty": "未找到该尺寸的颜色信息。",
+                "materialsTitle": "原材料选项",
+                "materialsEmpty": "未能找到该规格的原材料信息。"
+            },
+            "help": {
+                "videoAria": "点击观看关于{code}规格的视频",
+                "dialogTitle": "尺寸说明视频",
+                "videoTitle": "{code} 测量视频"
+            },
+            "details": {
+                "selectedMeasurement": "所选尺寸",
+                "noSelection": "未找到有效的尺寸选项。",
+                "drawingMissing": "未找到技术图纸。",
+                "variantsTitle": "变体",
+                "introCategory": "您正在查看{category}类别的{product}产品型号。您可以在下方对比符合您所选尺寸的各款产品。",
+                "intro": "您正在查看 {product} 产品型号。您可以在下方对比符合您所选尺寸的各款型号。",
+                "empty": "未找到此规格的变体。",
+                "fullCode": "完整代码",
+                "version": "版本",
+                "color": "颜色",
+                "material": "原材料"
+            },
+            "actions": {
+                "whatsappMessage": "您好。我想了解有关贵公司产品的信息。\n产品名称：{name}\n产品链接：{url}",
+                "addedToCart": "该变体已添加到购物车中。",
+                "whatsappAria": "通过 WhatsApp 快速获取报价",
+                "whatsapp": "快速获取报价",
+                "addToCartAria": "将产品加入购物车",
+                "addToCart": "加入购物车"
+            },
+            "overlay": {
+                "opening": "变体正在展开",
+                "preparing": "变体详情正在准备中",
+                "openingLabel": "{label} 规格的变体正在展开。",
+                "openingGeneric": "正在显示所选尺寸的变体。"
+            }
+        },
+        "customerLead": {
+            "title": "样品申请表",
+            "steps": {
+                "welcome": "欢迎",
+                "sector": "行业",
+                "productionGroup": "生产组",
+                "usageArea": "应用领域",
+                "contact": "联系我们"
+            },
+            "welcomeTitle": "您好",
+            "welcomeBody1": "作为Ceyhunlar Plastik，我们开发了这一平台，旨在让您能够一站式获取您所在行业的专属产品，详细了解最符合您需求的解决方案，并便捷地提交样品申请。",
+            "welcomeBody2": "我们的目标是为您提供一种能够加快决策流程、值得信赖且以用户为中心的体验。",
+            "imageMissing": "无图片",
+            "sectorTitle": "请选择您的业务领域",
+            "sectorSubtitle": "请仅选择一种翻译。",
+            "productionGroupTitle": "2. 请选择您的生产组",
+            "usageAreaTitle": "3. 请选择您的应用领域（可多选）",
+            "usageSearchPlaceholder": "搜索应用领域...",
+            "noResults": "未找到结果。",
+            "contactTitle": "4. 请填写您的联系方式",
+            "companyPlaceholder": "公司名称（可选）",
+            "fullNamePlaceholder": "姓名 *",
+            "phonePlaceholder": "电话 *",
+            "emailPlaceholder": "电子邮件 *",
+            "notePlaceholder": "您的留言 / 样品申请",
+            "later": "稍后",
+            "start": "让我们开始吧",
+            "back": "返回",
+            "next": "继续",
+            "submitting": "正在保存...",
+            "submit": "提交信息",
+            "successToast": "您的信息已保存。我们将尽快与您联系。",
+            "errorToast": "注册时发生错误",
+            "validation": {
+                "sectorRequired": "请选择行业",
+                "productionGroupRequired": "请选择生产组",
+                "companyMax": "公司名称最长不得超过120个字符",
+                "fullNameRequired": "姓名必填",
+                "phoneRequired": "电话号码为必填项",
+                "emailInvalid": "请输入有效的电子邮件地址",
+                "noteMax": "注：译文最多不得超过1000个字符"
+            }
+        },
+        "catalog": {
+            "meta": {
+                "title": "产品目录",
+                "description": "浏览Ceyhunlar塑料的产品目录并下载PDF版本。"
+            },
+            "heroTitle": "产品目录",
+            "breadcrumbSelf": "产品目录",
+            "download": "下载"
+        },
+        "massProduction": {
+            "meta": {
+                "title": "批量生产",
+                "description": "Ceyhunlar塑料批量生产：金属板材、塑料注塑、橡胶和胶木。"
+            },
+            "heroTitle": "批量生产",
+            "sectionLabel": "批量生产",
+            "tabs": {
+                "metal": "金属板",
+                "plastic": "塑料注塑",
+                "rubber": "橡胶",
+                "bakelite": "Bakalit"
+            },
+            "metal": {
+                "intro": "“金属板”通常是指金属薄板或板材。在金属行业中，通常指由钢、铝或铜等材料制成的金属薄板。 这些金属板材可具有各种厚度和特性，广泛应用于工业、建筑、汽车制造、造船以及许多其他领域。",
+                "imageAlt": "薄板金属批量生产",
+                "items": [
+                    {
+                        "title": "材料：",
+                        "text": "金属板材通常由钢、铝、铜、不锈钢等金属材料制成。材料的选择可能因应用场景、耐用性及成本等因素而有所不同。"
+                    },
+                    {
+                        "title": "生产流程：",
+                        "text": "金属板是通过轧制或冲压等各种生产工艺，将金属板材加工成所需厚度和形状而制成的。金属板材通过轧机或冲压设备进行成形。"
+                    },
+                    {
+                        "title": "应用领域：",
+                        "text": "金属板材在许多行业和领域都有广泛的应用。例如，在建筑行业用于屋顶覆层，在汽车工业中用于车身部件，在家电生产中用于覆面板等众多领域。"
+                    },
+                    {
+                        "title": "各种厚度和尺寸：",
+                        "text": "金属板可提供多种厚度和尺寸。这意味着可以根据具体的应用需求进行选择。"
+                    },
+                    {
+                        "title": "不锈钢与涂层：",
+                        "text": "某些类型（如不锈钢板）具有防锈特性，以提高其耐用性。此外，在某些情况下，它们可能会经过特殊的涂层处理。"
+                    },
+                    {
+                        "title": "可持续发展：",
+                        "text": "金属回收可以提高金属板材的可持续性。使用可回收金属可以减少对环境的影响，并更高效地利用自然资源。"
+                    }
+                ],
+                "summaryTitle": "金属板材在工业中的应用",
+                "summaryQuote": "“金属板因其耐用性、强度和可成形性等优势，是许多行业广泛采用的材料。随着技术的发展，该材料的应用也在不断演变。”",
+                "summaryBody": "模具设计通常指用于金属或塑料等材料产品批量生产的模具或模腔的设计过程。该设计过程旨在确保预先确定的产品能够以特定的形状、尺寸和材料进行生产。",
+                "designItems": [
+                    "需求分析：第一步是对待生产的零件的需求和要求进行分析。这包括零件的尺寸、材质、耐用性及其他特性。",
+                    "设计理念：基于需求分析，制定不同的设计理念。这些理念涵盖产品的形状、尺寸、材质及生产流程等因素。",
+                    "CAD（计算机辅助设计）建模：选定的设计方案将通过CAD软件进行数字化建模。此步骤包括创建产品的三维设计。",
+                    "分析与优化：在CAD模型上进行分析，并考察设计的强度、流体特性、温度分布等因素。如有必要，将对设计进行优化。"
+                ],
+                "moldItems": [
+                    "详细设计：对选定的设计进行详细研究。在此步骤中，将确定零件的每个细节、公差、装配点和材料选择。",
+                    "生产工艺的确定：模具设计包括确定生产工艺。这涉及将使用何种材料、模具生产工艺以及模具生产所需的设备等因素。",
+                    "原型制作与测试：制作设计原型并进行测试。这对于评估设计在真实环境中的表现至关重要。",
+                    "模具制造：原型测试完成后，将根据经批准的设计进行模具制造。这通常采用高精度生产方法，例如数控（CNC）机床或电火花加工工艺。"
+                ],
+                "closing": "模具设计在工业生产过程中起着至关重要的作用，对产品的质量、成本和生产速度有着重大影响。优秀的模具设计能够使产品更高效地生产和销售。"
+            },
+            "plastic": {
+                "imageAlt": "塑料注塑批量生产",
+                "paragraphs": [
+                    "注塑成型是批量生产中最常用的方法之一。该工艺通过将熔融塑料以高压注入模具来实现，能够提供快速、可重复且成本效益高的生产。",
+                    "这些高精度制造的零部件广泛应用于汽车、家电、电子、医疗和包装等众多行业。",
+                    "得益于模具设计的多样性，不仅能够生产出非常复杂的形状，还能同时批量生产数千个零件。",
+                    "凭借其耐用性、柔韧性和低成本等优势，注塑成型已成为工业领域中不可或缺的制造工艺。"
+                ]
+            },
+            "rubber": {
+                "imageAlt": "橡胶系列生产",
+                "paragraphs": [
+                    "在批量生产过程中，液压机主要用于橡胶制品的生产。橡胶是一种具有弹性和耐用性的材料，广泛应用于多个行业，特别是汽车、电子、医疗和建筑等领域。",
+                    "液压机为橡胶产品的批量生产提供了一种高效且经济的方法。该工艺广泛应用于橡胶密封圈、密封条、橡胶部件及类似产品的生产。"
+                ]
+            },
+            "bakelite": {
+                "imageAlt": "Bakalit 批量生产",
+                "paragraphs": [
+                    " Bakelite 是一种耐热、耐化学腐蚀的硬质热固性塑料。由于其具有电绝缘特性，因此在电气和电子行业中得到广泛应用。此外，它也是厨房用具、手机外壳及各类工业设备的首选材料。",
+                    "酚醛树脂可通过成型工艺轻松制成所需形状，即使在高温下也能保持其机械强度。凭借这些特性，它作为一种经久耐用、可靠且成本效益高的材料，在工业领域占据着重要地位。",
+                    "尽管如今现代塑料已应运而生，但 bakelite 在某些特殊应用中仍被广泛采用。"
+                ]
+            }
+        },
+        "suggestion": {
+            "meta": {
+                "title": "建议与投诉",
+                "description": "Ceyhunlar塑料建议与投诉表。请与我们分享您的意见。"
+            },
+            "heroTitle": "建议与投诉",
+            "heroSubtitle": "为了向您提供更好的服务，您的反馈对我们至关重要。您可以通过此表单提交关于我们公司的意见、建议和投诉。",
+            "form": {
+                "fields": {
+                    "fullName": "姓名",
+                    "email": "电子邮件",
+                    "phone": "+90 (532) 123-4567",
+                    "message": "您的信息"
+                },
+                "typeLabel": "通知类型",
+                "typeSuggestion": "建议",
+                "typeComplaint": "投诉",
+                "consent": "我已阅读并接受《隐私政策》。",
+                "submit": "发送",
+                "submitting": "正在发送..."
+            },
+            "validation": {
+                "fullNameMin": "姓名至少应包含2个字符",
+                "emailInvalid": "请输入有效的电子邮件地址",
+                "phoneInvalid": "电话号码无效",
+                "typeRequired": "请选择通知类型",
+                "messageMin": "消息长度必须至少为10个字符",
+                "consentRequired": "您必须接受隐私政策"
+            }
+        },
+        "contact": {
+            "meta": {
+                "title": "联系我们",
+                "description": "请联系Ceyhunlar塑料公司。地址、电话、电子邮箱及交通信息。"
+            },
+            "infoTitle": "联系我们",
+            "infoBody": "无论您有关于产品目录索取、产品咨询、库存状况、需求评估、证书查询、定制生产、批量生产、发货状态、进口法规、海关流程等任何疑问，均可随时与我们联系。",
+            "addressLine1": "4308街 4A号 阿伊丁区",
+            "addressLine2": "伊兹密尔卡拉巴格勒 / 土耳其",
+            "directionsCta": "获取路线指引",
+            "formTitle": "联系表单",
+            "formSubtitle1": "请填写表单，与我们建立联系。",
+            "formSubtitle2": "我们的专家团队将在短时间内与您联系。",
+            "form": {
+                "fullName": "姓名",
+                "email": "电子邮件",
+                "phone": "电话",
+                "message": "您的信息",
+                "consent": "我已阅读并接受《隐私政策》。",
+                "submit": "发送"
+            },
+            "routes": {
+                "sectionTitle": "交通信息",
+                "sectionSubtitle": "我们位于伊兹密尔市中心的工厂交通十分便利。",
+                "air": {
+                    "title": "航空公司",
+                    "text": "从阿德南·曼德雷斯机场乘坐出租车或租车前往，车程约20分钟。"
+                },
+                "road": {
+                    "title": "公路",
+                    "text": "从伊兹密尔长途汽车站乘坐开往卡拉巴格勒方向的公共交通工具，或经由环城公路均可轻松抵达。"
+                },
+                "rail": {
+                    "title": "铁路",
+                    "text": "乘坐İZBAN郊区线，在Semt Garajı站下车，即可在极短时间内抵达我们的工厂。"
+                }
+            }
+        },
+        "machining": {
+            "meta": {
+                "title": "切削加工",
+                "description": "Ceyhunlar 塑料切削加工服务：车削、铣削、钻孔和磨削。"
+            },
+            "heroTitle": "切削加工",
+            "serviceLabel": "服务",
+            "introTitle": "什么是切削加工？",
+            "introBody": "切削加工是一种用于金属及其他材料加工的生产方法。该方法通常用于金属零件的成形和加工，并会产生金属切屑。切削加工包含多种子工艺，通常涵盖车削、铣削、钻孔、磨削等工序。",
+            "imageAlt": "切削加工",
+            "items": [
+                {
+                    "title": "车削：",
+                    "text": "车削加工是指将材料放置在车床的旋转主轴上，通过旋转使切削刀具在材料上形成特定形状。该方法通常用于生产圆柱形零件。"
+                },
+                {
+                    "title": "铣削：",
+                    "text": "铣削是指在固定于工作台上的材料上，旋转的切削刀具移动以形成所需形状的过程。该方法广泛应用于平坦表面、凹槽和复杂形状的加工。"
+                },
+                {
+                    "title": "注：",
+                    "text": "钻孔工艺用于在材料上钻孔。在钻孔过程中，通常使用旋转的钻头在材料上钻出孔洞。"
+                },
+                {
+                    "title": "翻译：",
+                    "text": "磨削用于修整材料表面、抛光或在特定公差范围内进行成形。磨削工艺通常在精密零件的生产和表面质量的改善中发挥着重要作用。"
+                }
+            ]
+        },
+        "printing3d": {
+            "meta": {
+                "title": "3D打印与扫描",
+                "description": "Ceyhunlar Plastik 3D打印和扫描服务；快速原型制作和增材制造。"
+            },
+            "heroTitle": "3D打印与扫描",
+            "introTitle": "3D打印",
+            "introBody": "3D打印是一种通过逐层构建三维物体来实现制造的生产技术。该技术用于将使用计算机辅助设计（CAD）软件创建的数字模型转化为实体对象。 3D打印也被称为“分层制造”或“快速原型制作”。",
+            "imageAlt1": "3D打印机",
+            "imageAlt2": "原型设计",
+            "items": [
+                {
+                    "title": "工作原理：",
+                    "text": "3D打印通过将材料逐层堆叠来制造物体。这些层是根据数字设计文件中的信息构建而成的。"
+                },
+                {
+                    "title": "材料：",
+                    "text": "3D打印所用的材料种类繁多。可以使用塑料、金属、陶瓷、树脂，甚至生物材料等不同材料。材料的选择取决于物体的用途和设计要求。"
+                },
+                {
+                    "title": "应用领域：",
+                    "text": "该技术广泛应用于3D打印、原型开发、生产、医疗、教育、建筑、时尚以及其他一系列工业领域。特别是，它在特殊和复杂零件的快速制造与原型制作，以及个性化产品的生产方面广受欢迎。"
+                },
+                {
+                    "title": "快速原型制作：",
+                    "text": "3D打印能够将设计快速转化为实体原型。这可以加快产品开发进程并降低成本。"
+                },
+                {
+                    "title": "可持续发展：",
+                    "text": "3D打印具有最大限度减少材料浪费的潜力。与传统生产方法不同，它能够仅使用必要的材料。"
+                }
+            ],
+            "closing": "研发和原型开发流程是确保组织可持续发展、获得竞争优势以及更好地响应客户需求的重要手段。规划周密的研发和高效的原型开发流程，有助于推动公司的发展并取得成功。"
+        },
+        "arge": {
+            "meta": {
+                "title": "研发与原型制作",
+                "description": "Ceyhunlar塑料的研发与原型制作流程：创新、产品开发和快速原型制作。"
+            },
+            "heroTitle": "研发与原型制作",
+            "block1Title": "研发与原型开发流程",
+            "block1Body": "研发（R&D）和原型开发在组织或企业的创新与进步过程中发挥着关键作用。这些流程用于创造、改进和测试新产品、新服务或新业务流程。",
+            "imageAlt1": "研发",
+            "imageAlt2": "原型设计",
+            "imageAlt3": "规划",
+            "block2Title": "ARGE（研究与开发）",
+            "block2Items": [
+                "创新与进步：研发（R&D）是指对新理念和新技术进行探索与开发。这对公司保持竞争优势至关重要。",
+                "产品与流程开发：研发活动旨在改进现有产品或业务流程，使其更加高效。这可以提高产品质量，并优化生产流程。",
+                "市场分析：可用于研发，以了解市场趋势和客户需求。这有助于开发符合未来需求的产品和服务。",
+                "技术竞争：研发活动可用于获得技术竞争优势。创新的技术和解决方案有助于公司保持在行业中的领先地位。"
+            ],
+            "block3Title": "生产前规划",
+            "block3Items": [
+                "实体产品或工艺建模：原型开发包括构建一个想法或概念的实体模型。这对发现设计缺陷并进行改进至关重要。",
+                "测试与反馈：原型可在真实环境中进行测试。这用于评估产品或流程的性能，并收集客户反馈。",
+                "节省成本和时间：原型开发阶段有助于防止最终产品或工艺中出现代价高昂的错误，并节省时间。可以及早发现那些在后期阶段难以纠正的错误。",
+                "创新激励：原型设计有助于在公司内部营造创新文化。它使创意能够以具体形式呈现，并让团队成员看到自己的贡献。"
+            ],
+            "closing": "研发和原型开发流程是确保组织可持续发展、获得竞争优势以及更好地响应客户需求的重要手段。规划周密的研发和高效的原型开发流程，有助于推动公司的发展并取得成功。"
+        },
+        "hr": {
+            "meta": {
+                "title": "人力资源",
+                "description": "加入Ceyhunlar塑料大家庭。请通过人力资源申请表提交您的简历。",
+                "ogDescription": "加入Ceyhunlar塑料大家庭。请发送您的简历。",
+                "ogImageAlt": "Ceyhunlar塑料人力资源部",
+                "structuredDataName": "人力资源",
+                "structuredDataDescription": "Ceyhunlar塑料人力资源申请页面。",
+                "keywords": [
+                    "Ceyhunlar 塑料",
+                    "人力资源",
+                    "职位申请",
+                    "职业",
+                    "塑料行业"
+                ]
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar塑料人力资源部",
+                "title": "人力资源",
+                "subtitle": "加入这个重视才能、共同创造的团队吧。",
+                "cta": "提交申请",
+                "cards": {
+                    "team": {
+                        "title": "强大的团队",
+                        "text": "经验丰富且充满支持性的团队文化"
+                    },
+                    "safe": {
+                        "title": "安全作业",
+                        "text": "长期且可靠的商业环境"
+                    },
+                    "career": {
+                        "title": "职业发展",
+                        "text": "可供你提升自我的机会"
+                    }
+                }
+            },
+            "form": {
+                "title": "人力资源申请表",
+                "subtitle": "请填写您的信息，附上简历，我们将与您联系。",
+                "fields": {
+                    "fullName": "姓名",
+                    "email": "您的电子邮箱地址",
+                    "phone": "+90 (532) 123-4567",
+                    "address": "地址",
+                    "education": "教育背景",
+                    "department": "申请部门",
+                    "message": "请简要介绍您本人及您的申请情况"
+                },
+                "cvLabel": "上传简历（PDF · 最大5MB）",
+                "submit": "提交申请",
+                "submitting": "正在发送..."
+            },
+            "validation": {
+                "fullNameMin": "姓名至少应包含2个字符",
+                "emailInvalid": "请输入有效的电子邮件地址",
+                "phoneInvalid": "电话号码无效",
+                "addressMin": "地址长度必须至少为5个字符",
+                "educationMin": "教育背景信息至少应包含5个字符",
+                "departmentMin": "部门信息长度应不少于5个字符",
+                "messageMin": "消息长度必须至少为20个字符",
+                "cvType": "仅接受PDF文件",
+                "cvSize": "文件大小不得超过5MB"
+            }
+        },
+        "about": {
+            "meta": {
+                "title": "关于我们",
+                "description": "关于Ceyhunlar塑料的详细信息。自2001年以来，始终致力于生产、质量与信誉。",
+                "ogDescription": "了解有关Ceyhunlar Plastik的信息。",
+                "ogImageAlt": "Ceyhunlar 塑料"
+            },
+            "hero": {
+                "imageAlt": "Ceyhunlar 塑料 关于我们",
+                "title": "定制生产<br></br><highlight>您值得信赖的合作伙伴</highlight>",
+                "description": "自2001年以来，凭借强大的生产基础设施和创新理念，我们始终以最高质量标准满足客户的需求。",
+                "videoDialogTitle": "宣传视频",
+                "videoIframeTitle": "Ceyhunlar 宣传",
+                "videoCta": "宣传视频"
+            },
+            "content": {
+                "title": "关于我们",
+                "intro": "作为Ceyhunlar塑料工业公司，我们最初在伊兹密尔奠定了基础，如今已发展成为一家服务范围覆盖全球的实力雄厚的制造商。",
+                "reach": "我们拥有850多家经销商和12,000余名客户，业务遍及以土耳其为首的40多个国家。我们的产品广泛应用于家具、汽车、医疗、国防工业、建筑等众多领域。",
+                "capabilities": "凭借先进的生产技术和不断扩大的产品线，我们能够为客户提供快速、优质且可靠的解决方案。",
+                "rnd": "凭借我们的研发投入、注重环保的生产理念以及高品质标准，我们持续在行业中脱颖而出。",
+                "mission": "我们的目标是：在将客户满意度保持在最高水平的同时，提供可持续且创新的解决方案。",
+                "productionImageAlt": "Ceyhunlar 塑料生产"
+            },
+            "categories": {
+                "title": "我们的产品系列",
+                "searchPlaceholder": "搜索分类...",
+                "noResults": "未找到结果"
+            },
+            "details": {
+                "developmentImageAlt": "生产",
+                "devIntro": "自开始提供服务之日起，我们便密切关注技术发展和行业趋势，以此推动自身发展，并将继续坚持这一做法。",
+                "devInitiatives": "为此，我们也采取了相关举措，以满足当今商业的需求。",
+                "devRnd3d": "为了更准确地满足客户需求，我们增加了研发投入。在此过程中，我们在研发工作中也运用了3D技术。2018年，我们正式成立了研发和3D部门。",
+                "devEndToEnd": "此外，作为一家集3D打印、规划、模具制造、批量生产、组装、包装和运输等全流程于一体的企业，我们成功满足了客户的需求。",
+                "devClosing": "作为Ceyhunlar Plastik，我们将您的构想变为现实。",
+                "mottoImageAlt": "座右铭",
+                "mottoTitle": "满足您塑料需求的<highlight>领先</highlight>解决方案合作伙伴！",
+                "mottoQuote": "“以高品质和可信赖的标准……”",
+                "mottoBody1": "一家公司的核心与灵魂在于创造力和创新。然而，如果没有毅力和对工作的热爱，就不可能取得成功。",
+                "mottoBody2": "自Ceyhunlar Plastik创立之初，我们就始终以坚定的决心将对事业的热情化为现实。"
+            }
+        }
+    }
+}

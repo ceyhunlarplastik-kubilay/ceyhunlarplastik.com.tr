@@ -18,11 +18,16 @@ import {
     assertDeepLQuotaAvailable,
     estimateTranslationCharacters,
 } from "../src/core/i18n/deeplTranslator"
+import type { TargetLocale } from "../src/core/i18n/locales"
+import {
+    TRANSLATION_DRAFT_SOURCE_LOCALE,
+    buildTranslationDraftPath,
+    parseTargetLocaleOption,
+} from "../src/core/i18n/translationDraft"
 import { PrismaClient } from "./generated/prisma/client"
 
-const SOURCE_LOCALE = "tr" as const
-const TARGET_LOCALE = "en" as const
-const DEFAULT_DRAFT_PATH = ".translation-drafts/products-tr-en.json"
+const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
+const DRAFT_ENTITY = "products"
 const CONTEXT = [
     "Bu metinler endüstriyel plastik ürün detay ve katalog sayfalarında",
     "görünen ürün adı ve açıklamalarıdır. Ürün kodlarını, teknik terimleri",
@@ -33,6 +38,7 @@ type CliMode = "plan" | "generate" | "apply"
 
 type CliOptions = {
     mode: CliMode
+    targetLocale: TargetLocale
     applyPath?: string
     outputPath: string
     limit?: number
@@ -71,6 +77,7 @@ function parseCliOptions(): CliOptions {
             plan: { type: "boolean" },
             generate: { type: "boolean" },
             apply: { type: "string" },
+            "target-locale": { type: "string" },
             output: { type: "string" },
             limit: { type: "string" },
             "product-id": { type: "string" },
@@ -101,10 +108,13 @@ function parseCliOptions(): CliOptions {
         throw new Error("--limit, --product-id, --product-code, --category-id, and --category-code cannot be used with --apply")
     }
 
+    const targetLocale = parseTargetLocaleOption(values["target-locale"])
+
     return {
         mode,
+        targetLocale,
         applyPath: values.apply,
-        outputPath: values.output ?? DEFAULT_DRAFT_PATH,
+        outputPath: values.output ?? buildTranslationDraftPath(DRAFT_ENTITY, targetLocale),
         limit,
         productId,
         productCode,
@@ -116,7 +126,7 @@ function parseCliOptions(): CliOptions {
 
 function printHelp() {
     console.log([
-        "Generate and apply reviewed English ProductTranslation drafts with DeepL.",
+        "Generate and apply reviewed ProductTranslation drafts with DeepL (any target locale).",
         "",
         "Usage:",
         "  npm --workspace packages/core run translate:product-translations",
@@ -128,7 +138,8 @@ function printHelp() {
         "  --plan                  Show candidates without calling DeepL or writing the database (default)",
         "  --generate              Call DeepL and create a review draft without writing the database",
         "  --apply <path>           Validate and atomically apply a reviewed draft without calling DeepL",
-        "  --output <path>          Draft output path (default: .translation-drafts/products-tr-en.json)",
+        "  --target-locale <code> Target locale (default: en); one of the supported locales",
+        "  --output <path>          Draft output path (default: .translation-drafts/<entity>-tr-<locale>.json)",
         "  --limit <number>         Limit products during plan/generate",
         "  --product-id <id>        Restrict products during plan/generate",
         "  --product-code <code>    Restrict products during plan/generate",
@@ -141,7 +152,7 @@ function printHelp() {
         "  DEEPL_API_KEY is required only for --generate.",
         "  DEEPL_GLOSSARY_ID is optional for --generate.",
         "",
-        "Existing EN translations are never overwritten.",
+        "Existing target-locale translations are never overwritten.",
     ].join("\n"))
 }
 
@@ -165,7 +176,7 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
             id: true,
             code: true,
             translations: {
-                where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                where: { locale: { in: [SOURCE_LOCALE, options.targetLocale] } },
                 select: {
                     locale: true,
                     name: true,
@@ -186,11 +197,11 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
         !product.translations.some(({ locale }) => locale === SOURCE_LOCALE),
     )
     const existingTarget = products.filter((product) =>
-        product.translations.some(({ locale }) => locale === TARGET_LOCALE),
+        product.translations.some(({ locale }) => locale === options.targetLocale),
     )
     const candidates = products.flatMap<TranslationCandidate>((product) => {
         const source = product.translations.find(({ locale }) => locale === SOURCE_LOCALE)
-        const target = product.translations.find(({ locale }) => locale === TARGET_LOCALE)
+        const target = product.translations.find(({ locale }) => locale === options.targetLocale)
 
         return source && !target
             ? [{
@@ -210,7 +221,7 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
 
     console.log(JSON.stringify({
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         products: products.length,
         missingSource: missingSource.length,
         existingTarget: existingTarget.length,
@@ -265,7 +276,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
     const translations = await translator.translateTexts({
         texts,
         sourceLocale: SOURCE_LOCALE,
-        targetLocale: TARGET_LOCALE,
+        targetLocale: options.targetLocale,
         context: CONTEXT,
     })
     const billedCharacters = translations.reduce(
@@ -285,6 +296,7 @@ async function generateDraft(prisma: PrismaClient, options: CliOptions) {
         return { name, description }
     })
     const draft = createProductTranslationDraft({
+        targetLocale: options.targetLocale,
         products: candidates,
         translatedProducts,
         glossaryId,
@@ -331,7 +343,7 @@ async function applyDraft(prisma: PrismaClient, applyPath: string | undefined) {
                     id: true,
                     code: true,
                     translations: {
-                        where: { locale: { in: [SOURCE_LOCALE, TARGET_LOCALE] } },
+                        where: { locale: { in: [SOURCE_LOCALE, draft.targetLocale] } },
                         select: {
                             locale: true,
                             name: true,
@@ -404,6 +416,9 @@ async function main() {
 }
 
 main().catch((error) => {
-    console.error(error)
+    // Kullanım hatalarında (ör. geçersiz --target-locale) yığın izi değil, tek
+    // satırlık mesaj basılır — diğer dört CLI ile aynı davranış.
+    const message = error instanceof Error ? error.message : "Unknown product translation error"
+    console.error(message)
     process.exitCode = 1
 })

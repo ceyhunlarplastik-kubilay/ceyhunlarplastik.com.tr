@@ -16,6 +16,7 @@ describe("productIndustrialUsageTranslationDraft", () => {
 
     it("builds writes for reviewed drafts when source fingerprint is current", () => {
         const draft = createProductIndustrialUsageTranslationDraft({
+            targetLocale: "en",
             candidates: [candidate],
             translatedUsageFunctions: ["English usage explanation"],
             estimatedCharacters: 24,
@@ -42,6 +43,7 @@ describe("productIndustrialUsageTranslationDraft", () => {
 
     it("rejects stale source fingerprints", () => {
         const draft = createProductIndustrialUsageTranslationDraft({
+            targetLocale: "en",
             candidates: [candidate],
             translatedUsageFunctions: ["English usage explanation"],
             estimatedCharacters: 24,
@@ -64,6 +66,7 @@ describe("productIndustrialUsageTranslationDraft", () => {
 
     it("does not create writes over existing target translations", () => {
         const draft = createProductIndustrialUsageTranslationDraft({
+            targetLocale: "en",
             candidates: [candidate],
             translatedUsageFunctions: ["English usage explanation"],
             estimatedCharacters: 24,
