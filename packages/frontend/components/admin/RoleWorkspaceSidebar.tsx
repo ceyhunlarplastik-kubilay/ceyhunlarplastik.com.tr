@@ -9,9 +9,12 @@ import {
     Building2,
     ChevronLeft,
     ClipboardList,
+    Layers3,
     MapPinned,
     Menu,
     Package,
+    Palette,
+    Ruler,
     Settings,
     ShieldCheck,
     Truck,
@@ -24,7 +27,7 @@ import { cn } from "@/lib/utils"
 type NavItem = {
     href: string
     label: string
-    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package" | "settings"
+    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package" | "settings" | "palette" | "layers" | "ruler"
     match?: "exact" | "prefix"
 }
 
@@ -38,6 +41,9 @@ const iconMap = {
     map: MapPinned,
     package: Package,
     settings: Settings,
+    palette: Palette,
+    layers: Layers3,
+    ruler: Ruler,
 } as const
 
 type Props = {

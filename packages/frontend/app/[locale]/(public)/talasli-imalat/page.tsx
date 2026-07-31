@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { MachiningContent } from "@/features/public/machining/components/MachiningContent";
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -13,17 +15,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/talasli-imalat" : "/en/talasli-imalat",
-            languages: {
-                tr: "/talasli-imalat",
-                en: "/en/talasli-imalat",
-                "x-default": "/talasli-imalat",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/talasli-imalat"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     };
 }

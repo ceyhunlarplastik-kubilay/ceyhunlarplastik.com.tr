@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { localeSchema } from "@/core/helpers/validation/localeSchema"
 
-const localeSchema = z.enum(["tr", "en"])
 
 const assetTypeEnum = z.enum([
     "IMAGE",

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 import { PageHero } from "@/components/sections/PageHero"
 import InquiryCartPageClient from "@/features/public/cart/components/InquiryCartPageClient"
+import { buildStaticAlternates } from "@/i18n/alternates";
 
 type PageProps = {
     params: Promise<{ locale: string }>
@@ -14,14 +15,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/sepet" : "/en/sepet",
-            languages: {
-                tr: "/sepet",
-                en: "/en/sepet",
-                "x-default": "/sepet",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/sepet"),
         // Sepet indekslenmesin (kişisel/geçici içerik)
         robots: { index: false, follow: false },
     }

@@ -1,4 +1,5 @@
 import type { Asset } from "@/features/public/assets/types"
+import type { SupportedLocale } from "@core/i18n/locales"
 
 export type CategoryTranslation = {
     id: string
@@ -14,7 +15,7 @@ export type Category = {
     code: number
     name: string
     slug: string
-    locale: "tr" | "en"
+    locale: SupportedLocale
     resolvedLocale: string
     translationMissing: boolean
     alternateSlugs: Record<string, string>

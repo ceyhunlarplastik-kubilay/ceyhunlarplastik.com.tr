@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -25,6 +25,16 @@ import { CategoryAssetManager } from "./CategoryAssetManager";
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect";
 import { useUpdateCategory } from "@/features/admin/categories/hooks/useUpdateCategory";
 import { buildCategoryTranslationUpdatePayload } from "@/features/admin/categories/utils/buildCategoryTranslationUpdatePayload";
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection";
+import {
+    ADMIN_DEFAULT_LOCALE,
+    adminLocaleLabel,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales";
+import {
+    buildNameTranslationDefaults,
+    nameTranslationFormSchema,
+} from "@/features/admin/shared/translations/nameTranslations";
 
 import type { Category } from "@/features/public/categories/types";
 import { normalizeCategory } from "@/features/public/categories/normalizeCategory";
@@ -43,7 +53,7 @@ const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "
 
 const schema = z.object({
     name: z.string().min(2, "Kategori adı gerekli"),
-    englishName: z.string().max(100, "İngilizce kategori adı en fazla 100 karakter olabilir"),
+    translations: z.array(nameTranslationFormSchema),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -64,9 +74,7 @@ export function EditCategoryDialog({
     const [savedAllowedAttributeValueIds, setSavedAllowedAttributeValueIds] = useState<string[]>(
         initialCategory.allowedAttributeValueIds ?? []
     );
-    const englishTranslation = category.translations.find(
-        (translation) => translation.locale === "en",
-    )
+    const [activeLocale, setActiveLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE);
 
     const authHeader = useMemo(() => {
         if (!session?.idToken) return null;
@@ -77,9 +85,15 @@ export function EditCategoryDialog({
         resolver: zodResolver(schema),
         defaultValues: {
             name: category.name,
-            englishName: englishTranslation?.name ?? "",
+            translations: buildNameTranslationDefaults(category.translations),
         },
     });
+
+    // RHF'in formState'i bir Proxy: abonelik yalnız RENDER sırasında okunan
+    // alanlar için kurulur. `dirtyFields`'ı sadece submit callback'i içinde
+    // okursak boş gelir ve hiçbir şey gönderilmez — ürün formunda pahalıya
+    // öğrenilen ders.
+    const { dirtyFields, isDirty } = form.formState;
 
     const refetchCategory = useCallback(async () => {
         if (!authHeader) return;
@@ -96,9 +110,7 @@ export function EditCategoryDialog({
             onUpdated(updated);
             form.reset({
                 name: updated.name,
-                englishName: updated.translations.find(
-                    (translation: Category["translations"][number]) => translation.locale === "en",
-                )?.name ?? "",
+                translations: buildNameTranslationDefaults(updated.translations),
             });
             const updatedAllowedAttributeValueIds = updated.allowedAttributeValueIds ?? []
             setAllowedAttributeValueIds(updatedAllowedAttributeValueIds);
@@ -118,22 +130,19 @@ export function EditCategoryDialog({
     }, [allowedAttributeValueIds, savedAllowedAttributeValueIds])
 
     const saveTranslations = async (data: FormValues) => {
-        const { dirtyFields } = form.formState
-        if (!dirtyFields.name && !dirtyFields.englishName) return
+        const payload = buildCategoryTranslationUpdatePayload({
+            name: data.name,
+            nameChanged: Boolean(dirtyFields.name),
+            translations: data.translations,
+            existingTranslations: category.translations,
+        })
+
+        // Değişen hiçbir şey yoksa istek atma: aynı dialog'daki attribute
+        // kaydetmesini de tetikleyecek gereksiz bir yazma olurdu.
+        if (Object.keys(payload).length === 0) return
 
         try {
             setSaving(true);
-            const hasEnglishTranslation = category.translations.some(
-                (translation) => translation.locale === "en",
-            )
-            const payload = buildCategoryTranslationUpdatePayload({
-                name: data.name,
-                englishName: data.englishName,
-                nameChanged: Boolean(dirtyFields.name),
-                englishNameChanged: Boolean(dirtyFields.englishName),
-                hasEnglishTranslation,
-            })
-
             const updated = await updateCategoryMutation.mutateAsync({
                 id: category.id,
                 ...payload,
@@ -143,9 +152,7 @@ export function EditCategoryDialog({
             onUpdated(updated);
             form.reset({
                 name: updated.name,
-                englishName: updated.translations.find(
-                    (translation: Category["translations"][number]) => translation.locale === "en",
-                )?.name ?? "",
+                translations: buildNameTranslationDefaults(updated.translations),
             });
 
             toast.success("Kategori çevirileri güncellendi");
@@ -210,41 +217,39 @@ export function EditCategoryDialog({
                                 Kategori Bilgileri
                             </h3>
 
-                            <div className="space-y-2">
+                            <Controller
+                                name="translations"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <AdminTranslatedNameSection
+                                        entityLabel="Kategori adı"
+                                        activeLocale={activeLocale}
+                                        onActiveLocaleChange={setActiveLocale}
+                                        translations={field.value}
+                                        onTranslationsChange={field.onChange}
+                                        targetPlaceholder="örn. Bakelite Handles"
+                                        defaultLocaleField={
+                                            <div className="space-y-2">
+                                                <div className="text-xs text-neutral-500">
+                                                    Türkçe kategori adı
+                                                </div>
 
-                                <div className="text-xs text-neutral-500">
-                                    Kategori Adı (TR)
-                                </div>
+                                                <Input {...form.register("name")} />
 
-                                <Input
-                                    {...form.register("name")}
-                                />
-
-                                {form.formState.errors.name && (
-                                    <p className="text-xs text-red-500">
-                                        {form.formState.errors.name.message}
-                                    </p>
+                                                {form.formState.errors.name && (
+                                                    <p className="text-xs text-red-500">
+                                                        {form.formState.errors.name.message}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        }
+                                    />
                                 )}
-
-                            </div>
-
-                            <div className="space-y-2">
-                                <div className="text-xs text-neutral-500">
-                                    Kategori Adı (EN)
-                                </div>
-
-                                <Input {...form.register("englishName")} />
-
-                                {form.formState.errors.englishName && (
-                                    <p className="text-xs text-red-500">
-                                        {form.formState.errors.englishName.message}
-                                    </p>
-                                )}
-                            </div>
+                            />
 
                             <Button
                                 type="submit"
-                                disabled={saving || !form.formState.isDirty}
+                                disabled={saving || !isDirty}
                                 className="w-full"
                             >
                                 {saving ? "Kaydediliyor..." : "Çevirileri Kaydet"}
@@ -260,9 +265,12 @@ export function EditCategoryDialog({
                                     Slug: <b>{category.slug}</b>
                                 </div>
 
-                                <div>
-                                    EN Slug: <b>{category.alternateSlugs.en ?? "Eksik"}</b>
-                                </div>
+                                {activeLocale !== ADMIN_DEFAULT_LOCALE && (
+                                    <div>
+                                        {adminLocaleLabel(activeLocale)} slug:{" "}
+                                        <b>{category.alternateSlugs[activeLocale] ?? "Eksik"}</b>
+                                    </div>
+                                )}
 
                                 <div>
                                     Created: {new Date(category.createdAt).toLocaleDateString()}

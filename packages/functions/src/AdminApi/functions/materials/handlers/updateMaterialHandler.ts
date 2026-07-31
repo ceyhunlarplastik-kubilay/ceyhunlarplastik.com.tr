@@ -3,8 +3,9 @@ import { AssetRole, AssetType, Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { mapMaterialWithAssets } from "@/core/helpers/assets/mapMaterialWithAssets"
 import { IMaterialDependencies, IUpdateMaterialEvent } from "@/functions/AdminApi/types/materials"
-import { DEFAULT_LOCALE } from "@/core/i18n/locales"
 import {
+    assertNoTranslationLocaleConflict,
+    buildVariantDictionaryTranslationWrites,
     normalizeVariantDictionaryTranslations,
     VariantDictionaryTranslationInputError,
 } from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
@@ -22,45 +23,25 @@ export const updateMaterialHandler = ({ materialRepository, assetRepository }: I
                 name,
                 code,
                 translations,
+                removeTranslationLocales,
                 assetKey,
                 assetType,
                 assetRole,
                 mimeType,
             } = body
+
+            assertNoTranslationLocaleConflict(translations, removeTranslationLocales)
+
             const normalized = normalizeVariantDictionaryTranslations({
                 legacyName: name,
                 translations,
             })
             const translationWrites: Prisma.MaterialUpdateInput["translations"] =
-                normalized.turkish || normalized.createOnlyTranslations.length > 0
-                    ? {
-                        ...(normalized.turkish && {
-                            upsert: {
-                                where: {
-                                    materialId_locale: {
-                                        materialId: id,
-                                        locale: DEFAULT_LOCALE,
-                                    },
-                                },
-                                create: normalized.turkish,
-                                update: {
-                                    name: normalized.turkish.name,
-                                },
-                            },
-                        }),
-                        ...(normalized.createOnlyTranslations.length > 0 && {
-                            connectOrCreate: normalized.createOnlyTranslations.map((translation) => ({
-                                where: {
-                                    materialId_locale: {
-                                        materialId: id,
-                                        locale: translation.locale,
-                                    },
-                                },
-                                create: translation,
-                            })),
-                        }),
-                    }
-                    : undefined
+                buildVariantDictionaryTranslationWrites({
+                    translations: normalized.translations,
+                    removeLocales: removeTranslationLocales,
+                    buildWhere: (locale) => ({ materialId_locale: { materialId: id, locale } }),
+                })
 
             const updated = await materialRepository.updateMaterial(id, {
                 ...(normalized.turkish && { name: normalized.turkish.name }),

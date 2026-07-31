@@ -36,7 +36,7 @@ import { ProductAttributeSelect } from "@/features/admin/productAttributes/compo
 import { ProductIndustrialUsageEditor } from "@/features/admin/products/components/ProductIndustrialUsageEditor"
 import { ProductVideoLinksCard } from "@/features/admin/products/components/ProductVideoLinksCard"
 import { ProductFormSection } from "@/features/admin/products/components/ProductFormSection"
-import { ProductLocaleSelect } from "@/features/admin/products/components/ProductLocaleSelect"
+import { AdminLocaleSelect } from "@/features/admin/shared/translations/AdminLocaleSelect"
 import { ProductTranslatableFields } from "@/features/admin/products/components/ProductTranslatableFields"
 import { presignProductAsset } from "@/features/admin/products/api/presignProductAsset"
 import {
@@ -253,7 +253,7 @@ export function CreateProductDialog({
                             title="İçerik"
                             description="Ad, slug ve açıklama seçili dile yazılır."
                             actions={
-                                <ProductLocaleSelect
+                                <AdminLocaleSelect
                                     value={activeLocale}
                                     onChange={setActiveLocale}
                                     filledLocales={filledLocales}

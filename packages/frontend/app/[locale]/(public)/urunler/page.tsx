@@ -4,6 +4,8 @@ import { getCategories } from "@/features/public/categories/server/getCategories
 
 import { PageHero } from "@/components/sections/PageHero"
 import { CategoryCard } from "@/components/navigation/CategoryCard"
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>
@@ -16,17 +18,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/urunler" : "/en/urunler",
-            languages: {
-                tr: "/urunler",
-                en: "/en/urunler",
-                "x-default": "/urunler",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/urunler"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     }
 }

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { getLocaleMetadata } from "@/i18n/localeMetadata";
 import { cn } from "@/lib/utils";
 import { fetchCategoryBySlug } from "@/features/public/categories/api/fetchCategories";
 import {
@@ -15,24 +16,16 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-const languageOptions = {
-    tr: {
-        flag: "🇹🇷",
-        shortLabelKey: "tr",
-        fullLabelKey: "trFull",
-    },
-    en: {
-        flag: "🇬🇧",
-        shortLabelKey: "en",
-        fullLabelKey: "enFull",
-    },
-} as const;
-
-type LanguageCode = keyof typeof languageOptions;
-
-function getLanguageOption(code: string) {
-    return languageOptions[code as LanguageCode] ?? languageOptions.tr;
-}
+/**
+ * Etiketler `LOCALE_METADATA`'dan gelir ve ANA DİLDEDİR (endonym): "Deutsch"
+ * her dilde "Deutsch"tur. Eskiden her dil için katalogda iki anahtar vardı
+ * (`tr`/`trFull`); 14 dilde bu, katalog başına 28 anahtar demek olurdu ve
+ * çevirmenin "English"i Türkçeye çevirmesi gibi anlamsız bir iş çıkarırdı.
+ *
+ * NOT: dil sayısı arttıkça düz `Select` uzayacak. Aranabilir listeye
+ * (Command + Popover, ikisi de repoda mevcut) geçiş, dil dalgalarında liste
+ * gerçekten uzadığında yapılmalı.
+ */
 
 /**
  * Dil değiştirici. Mevcut yolu koruyarak locale değiştirir:
@@ -49,7 +42,9 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     const params = useParams();
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
-    const selectedLocale = locale in languageOptions ? locale : routing.defaultLocale;
+    const selectedLocale = (routing.locales as readonly string[]).includes(locale)
+        ? locale
+        : routing.defaultLocale;
 
     function switchTo(nextLocale: string) {
         if (nextLocale === locale || isPending) return;
@@ -93,21 +88,21 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             </SelectTrigger>
             <SelectContent align="end" className="min-w-36">
                 {routing.locales.map((code) => {
-                    const option = getLanguageOption(code);
+                    const meta = getLocaleMetadata(code);
 
                     return (
                         <SelectItem
                             key={code}
                             value={code}
-                            title={t(option.fullLabelKey)}
+                            title={meta.label}
                             className="text-sm"
                         >
                             <span className="text-base leading-none" aria-hidden="true">
-                                {option.flag}
+                                {meta.flag}
                             </span>
-                            <span>{t(option.fullLabelKey)}</span>
-                            <span className="text-xs text-neutral-500">
-                                {t(option.shortLabelKey)}
+                            <span>{meta.label}</span>
+                            <span className="font-mono text-xs uppercase text-neutral-500">
+                                {code}
                             </span>
                         </SelectItem>
                     );

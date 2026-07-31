@@ -19,10 +19,10 @@ import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks
 import { usePresignProductAsset } from "@/features/admin/products/hooks/usePresignProductAsset"
 import {
     PRODUCT_FORM_DEFAULT_LOCALE,
-    PRODUCT_FORM_LOCALE_LABELS,
     type ProductFormLocale,
     type ProductIndustrialUsageFormValues,
 } from "@/features/admin/products/schema/productFormSchema"
+import { adminLocaleLabel } from "@/features/admin/shared/translations/adminLocales"
 
 const NONE_VALUE = "__none__"
 const INDUSTRIAL_ATTRIBUTE_CODES = {
@@ -236,7 +236,7 @@ export function ProductIndustrialUsageEditor({ productSlug, value, onChange, act
     }
 
     const isDefaultLocale = activeLocale === PRODUCT_FORM_DEFAULT_LOCALE
-    const localeLabel = PRODUCT_FORM_LOCALE_LABELS[activeLocale]
+    const localeLabel = adminLocaleLabel(activeLocale)
 
     return (
         <section className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">

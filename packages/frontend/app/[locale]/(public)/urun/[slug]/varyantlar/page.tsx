@@ -11,6 +11,8 @@ import ProductTechnicalDrawingSection from "@/features/public/products/component
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
 import { buildMeasurementKey } from "@/features/public/products/utils/measurement"
+import { getOgLocale } from "@/i18n/localeMetadata";
+import { buildAlternates } from "@/i18n/alternates";
 
 type PageProps = {
     params: Promise<{ locale: string; slug: string }>
@@ -27,25 +29,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!product) return {}
 
-    const turkishSlug = product.alternateSlugs?.tr ?? product.slug
-    const englishSlug = product.translationMissing
-        ? undefined
-        : product.alternateSlugs?.en
-    const canonicalSlug = locale === "tr"
-        ? turkishSlug
-        : englishSlug ?? product.slug
-    const canonicalPath = locale === "tr"
-        ? `/urun/${canonicalSlug}/varyantlar`
-        : `/en/urun/${canonicalSlug}/varyantlar`
-    const turkishUrl = `/urun/${turkishSlug}/varyantlar`
-    const englishUrl = englishSlug
-        ? `/en/urun/${englishSlug}/varyantlar`
-        : undefined
-    const languages = {
-        tr: turkishUrl,
-        "x-default": turkishUrl,
-        ...(englishUrl ? { en: englishUrl } : {}),
-    }
+    const alternates = buildAlternates({
+        locale,
+        pathFor: (candidate) => {
+            const localeSlug = product.alternateSlugs?.[candidate]
+            if (!localeSlug) return null
+            return `/urun/${localeSlug}/varyantlar`
+        },
+    })
 
     return {
         title: t("pageTitle", { name: product.name }),
@@ -54,15 +45,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             title: t("pageTitle", { name: product.name }),
             description: t("metaDescription", { name: product.name }),
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
         robots: locale !== "tr" && product.translationMissing
             ? { index: false, follow: true }
             : undefined,
-        alternates: {
-            canonical: canonicalPath,
-            languages,
-        },
+        alternates,
     }
 }
 

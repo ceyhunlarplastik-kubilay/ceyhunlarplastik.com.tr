@@ -1,8 +1,9 @@
+import type { SupportedLocale } from "@core/i18n/locales"
 export type ProductAttributeValue = {
     id: string
     name: string
     slug: string
-    locale?: "tr" | "en"
+    locale?: SupportedLocale
     resolvedLocale?: string
     translationMissing?: boolean
     alternateSlugs?: Record<string, string>
@@ -34,7 +35,7 @@ export type ProductAttribute = {
     id: string
     code: string
     name: string
-    locale?: "tr" | "en"
+    locale?: SupportedLocale
     resolvedLocale?: string
     translationMissing?: boolean
     translations?: {

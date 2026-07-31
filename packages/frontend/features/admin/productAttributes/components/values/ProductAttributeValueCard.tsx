@@ -12,6 +12,7 @@ import { LinkedProductionGroupsPanel } from "@/features/admin/productAttributes/
 import { ProductAttributeValueAssetActions } from "@/features/admin/productAttributes/components/values/ProductAttributeValueAssetActions"
 import { ProductAttributeValueEditForm } from "@/features/admin/productAttributes/components/values/ProductAttributeValueEditForm"
 import type { ProductAttributeValue } from "@/features/admin/productAttributes/types"
+import type { NameTranslationFormValues } from "@/features/admin/shared/translations/nameTranslations"
 
 type Asset = NonNullable<ProductAttributeValue["assets"]>[number]
 
@@ -33,7 +34,7 @@ type Props = {
     onUpdateValue: (input: {
         id: string
         name: string
-        englishName?: string
+        translations?: NameTranslationFormValues[]
         parentValueId?: string
     }) => Promise<void>
     onRequestDeleteValue: (value: ProductAttributeValue) => void

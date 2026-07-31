@@ -1,10 +1,12 @@
 import { z } from "zod"
 
+import { nameTranslationFormSchema } from "@/features/admin/shared/translations/nameTranslations"
+
 export const productAttributeMetadataSchema = z.object({
     name: z.string()
         .trim()
         .min(2, "Özellik adı en az 2 karakter olmalıdır."),
-    englishName: z.string().trim().optional(),
+    translations: z.array(nameTranslationFormSchema),
     code: z.string()
         .trim()
         .min(2, "Kod en az 2 karakter olmalıdır.")

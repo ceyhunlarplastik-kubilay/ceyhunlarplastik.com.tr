@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
@@ -21,6 +21,15 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import {
+    ADMIN_DEFAULT_LOCALE,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales"
+import {
+    buildNameTranslationDefaults,
+    buildNameTranslationsPayload,
+} from "@/features/admin/shared/translations/nameTranslations"
 import {
     updateProductAttribute,
     type UpdateProductAttributeInput,
@@ -38,18 +47,18 @@ type Props = {
     attribute: ProductAttribute
 }
 
-const metadataFormFields = ["name", "englishName", "code", "displayOrder", "isCustomerAssignable"] as const
+const metadataFormFields = ["name", "translations", "code", "displayOrder", "isCustomerAssignable"] as const
 
 export function EditProductAttributeMetadataCard({ attribute }: Props) {
     const queryClient = useQueryClient()
     const isSystemCustomerAttribute = isSystemCustomerAttributeCode(attribute.code)
-    const englishTranslation = attribute.translations?.find((translation) => translation.locale === "en")
+    const [activeLocale, setActiveLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
 
     const form = useForm<ProductAttributeMetadataFormValues>({
         resolver: zodResolver(productAttributeMetadataSchema),
         defaultValues: {
             name: attribute.name,
-            englishName: englishTranslation?.name ?? "",
+            translations: buildNameTranslationDefaults(attribute.translations),
             code: attribute.code,
             displayOrder: attribute.displayOrder,
             isCustomerAssignable: isSystemCustomerAttribute || Boolean(attribute.isCustomerAssignable),
@@ -60,22 +69,33 @@ export function EditProductAttributeMetadataCard({ attribute }: Props) {
     useEffect(() => {
         form.reset({
             name: attribute.name,
-            englishName: englishTranslation?.name ?? "",
+            translations: buildNameTranslationDefaults(attribute.translations),
             code: attribute.code,
             displayOrder: attribute.displayOrder,
             isCustomerAssignable: isSystemCustomerAttribute || Boolean(attribute.isCustomerAssignable),
         })
-    }, [attribute, englishTranslation?.name, form, isSystemCustomerAttribute])
+    }, [attribute, form, isSystemCustomerAttribute])
 
     const mutation = useMutation({
-        mutationFn: async (
-            values: ProductAttributeMetadataFormValues &
-                Pick<UpdateProductAttributeInput, "translations" | "removeTranslationLocales">
-        ) => {
-            const { englishName: _englishName, ...payload } = values
+        // Form değerleri ile API payload'u BİLEREK ayrı: formdaki `translations`
+        // her hedef dil için bir satır taşır (çoğu boş), API'ye giden ise yalnız
+        // değişenlerin diff'idir. İkisini tek tipe sıkıştırmak boş çevirileri de
+        // gönderirdi.
+        mutationFn: async ({
+            values,
+            translationPayload,
+        }: {
+            values: ProductAttributeMetadataFormValues
+            translationPayload: Pick<
+                UpdateProductAttributeInput,
+                "translations" | "removeTranslationLocales"
+            >
+        }) => {
+            const { translations: _formTranslations, ...payload } = values
 
             return updateProductAttribute(attribute.id, {
                 ...payload,
+                ...translationPayload,
                 code: isSystemCustomerAttribute ? attribute.code : payload.code,
                 isCustomerAssignable: isSystemCustomerAttribute ? true : payload.isCustomerAssignable,
             })
@@ -84,7 +104,7 @@ export function EditProductAttributeMetadataCard({ attribute }: Props) {
             toast.success("Özellik ayarları güncellendi.")
             form.reset({
                 name: updatedAttribute.name,
-                englishName: updatedAttribute.translations?.find((translation) => translation.locale === "en")?.name ?? "",
+                translations: buildNameTranslationDefaults(updatedAttribute.translations),
                 code: updatedAttribute.code,
                 displayOrder: updatedAttribute.displayOrder,
                 isCustomerAssignable: isSystemCustomerAttributeCode(updatedAttribute.code) ||
@@ -112,16 +132,12 @@ export function EditProductAttributeMetadataCard({ attribute }: Props) {
             return
         }
 
-        const englishName = values.englishName?.trim() ?? ""
-
         mutation.mutate({
-            ...values,
-            englishName,
-            ...(englishName
-                ? { translations: [{ locale: "en", name: englishName }] }
-                : englishTranslation
-                    ? { removeTranslationLocales: ["en"] }
-                    : {}),
+            values,
+            translationPayload: buildNameTranslationsPayload({
+                translations: values.translations,
+                existing: attribute.translations,
+            }),
         })
     }
 
@@ -156,34 +172,38 @@ export function EditProductAttributeMetadataCard({ attribute }: Props) {
                     <div className="grid gap-4 md:grid-cols-2">
                         <FormField
                             control={form.control}
-                            name="name"
+                            name="translations"
                             render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Özellik adı</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} placeholder="Örn. Sektör" />
-                                    </FormControl>
+                                <FormItem className="md:col-span-2">
+                                    <AdminTranslatedNameSection
+                                        entityLabel="Özellik adı"
+                                        activeLocale={activeLocale}
+                                        onActiveLocaleChange={setActiveLocale}
+                                        translations={field.value}
+                                        onTranslationsChange={field.onChange}
+                                        targetPlaceholder="Ex. Sector"
+                                        disabled={mutation.isPending}
+                                        defaultLocaleField={
+                                            <FormField
+                                                control={form.control}
+                                                name="name"
+                                                render={({ field: nameField }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Türkçe özellik adı</FormLabel>
+                                                        <FormControl>
+                                                            <Input {...nameField} placeholder="Örn. Sektör" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        }
+                                    />
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
-                            name="englishName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>İngilizce ad</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} placeholder="Ex. Sector" disabled={mutation.isPending} />
-                                    </FormControl>
-                                    <FormDescription>
-                                        Boş bırakılırsa İngilizce çeviri kaydı kaldırılır.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
 
                         <FormField
                             control={form.control}

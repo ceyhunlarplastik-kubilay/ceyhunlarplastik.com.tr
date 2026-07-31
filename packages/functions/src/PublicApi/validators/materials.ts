@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { assetRoleEnum, assetSchema, assetTypeEnum } from "@/functions/PublicApi/validators/products"
+import { localeSchema } from "@/core/helpers/validation/localeSchema"
 
-const localeSchema = z.enum(["tr", "en"])
 
 export const idValidator = validatorWrapper(
     z.object({

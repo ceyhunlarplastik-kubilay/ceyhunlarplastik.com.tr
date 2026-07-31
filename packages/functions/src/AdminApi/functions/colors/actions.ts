@@ -24,6 +24,10 @@ import type {
     IUpdateColorEvent
 } from "@/functions/AdminApi/types/colors"
 
+// Renk sözlüğü içerik girişinin parçası: Kategori/Ürün ile aynı şekilde
+// content_editor de yönetebilir (owner rol hiyerarşisiyle zaten geçiyor).
+const colorManagerGroups = ["admin", "content_editor"]
+
 export const createColor = lambdaHandler(
     async (event) => {
         const deps: IColorDependencies = {
@@ -35,7 +39,7 @@ export const createColor = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: colorManagerGroups },
         requestValidator: createColorValidator,
         responseValidator: colorResponseValidator,
     }
@@ -52,7 +56,7 @@ export const listColors = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: colorManagerGroups },
         responseValidator: listColorResponseValidator,
     }
 )
@@ -68,7 +72,7 @@ export const getColor = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: colorManagerGroups },
         requestValidator: getColorValidator,
         responseValidator: colorResponseValidator,
     }
@@ -85,7 +89,7 @@ export const deleteColor = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: colorManagerGroups },
         requestValidator: deleteColorValidator,
         responseValidator: colorResponseValidator,
     }
@@ -101,7 +105,7 @@ export const updateColor = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: colorManagerGroups },
         requestValidator: updateColorValidator,
         responseValidator: colorResponseValidator,
     }

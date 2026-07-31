@@ -31,6 +31,15 @@ import {
     type ProductAttributeValueCreateFormValues,
 } from "@/features/admin/productAttributes/schema/productAttributeValueForms"
 import type { ProductAttributeValue } from "@/features/admin/productAttributes/types"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import {
+    ADMIN_DEFAULT_LOCALE,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales"
+import {
+    buildNameTranslationDefaults,
+    type NameTranslationFormValues,
+} from "@/features/admin/shared/translations/nameTranslations"
 
 type Props = {
     attributeId: string
@@ -41,7 +50,7 @@ type Props = {
     isPending: boolean
     onCreate: (input: {
         name: string
-        englishName?: string
+        translations?: NameTranslationFormValues[]
         parentValueId?: string
         file?: File | null
     }) => Promise<void>
@@ -58,12 +67,13 @@ export function ProductAttributeValueCreatePanel({
 }: Props) {
     const imageInputId = `new-attribute-value-image-${attributeId}`
     const [imageInputResetKey, setImageInputResetKey] = useState(0)
+    const [activeLocale, setActiveLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
 
     const form = useForm<ProductAttributeValueCreateFormValues>({
         resolver: zodResolver(productAttributeValueCreateSchema),
         defaultValues: {
             name: "",
-            englishName: "",
+            translations: buildNameTranslationDefaults(),
             parentValueId: "",
             imageFile: null,
         },
@@ -121,12 +131,18 @@ export function ProductAttributeValueCreatePanel({
         try {
             await onCreate({
                 name: values.name.trim(),
-                englishName: values.englishName?.trim(),
+                translations: values.translations,
                 ...(parentAttributeCode && { parentValueId: values.parentValueId }),
                 file: values.imageFile ?? null,
             })
 
-            form.reset()
+            form.reset({
+                name: "",
+                translations: buildNameTranslationDefaults(),
+                parentValueId: "",
+                imageFile: null,
+            })
+            setActiveLocale(ADMIN_DEFAULT_LOCALE)
             setImageInputResetKey((current) => current + 1)
         } catch {
             // Mutation toast and field-safe API handling live in the manager hook.
@@ -161,35 +177,37 @@ export function ProductAttributeValueCreatePanel({
                 >
                     <FormField
                         control={form.control}
-                        name="name"
+                        name="translations"
                         render={({ field }) => (
                             <FormItem className="min-w-0">
-                                <FormLabel>Yeni değer</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        {...field}
-                                        placeholder={`${currentLabel} adı yazın`}
-                                        disabled={isPending}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="englishName"
-                        render={({ field }) => (
-                            <FormItem className="min-w-0">
-                                <FormLabel>İngilizce değer</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        {...field}
-                                        placeholder="English label"
-                                        disabled={isPending}
-                                    />
-                                </FormControl>
+                                <AdminTranslatedNameSection
+                                    entityLabel="Yeni değer"
+                                    activeLocale={activeLocale}
+                                    onActiveLocaleChange={setActiveLocale}
+                                    translations={field.value}
+                                    onTranslationsChange={field.onChange}
+                                    targetPlaceholder="English label"
+                                    disabled={isPending}
+                                    defaultLocaleField={
+                                        <FormField
+                                            control={form.control}
+                                            name="name"
+                                            render={({ field: nameField }) => (
+                                                <FormItem className="min-w-0">
+                                                    <FormLabel>Türkçe değer adı</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...nameField}
+                                                            placeholder={`${currentLabel} adı yazın`}
+                                                            disabled={isPending}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    }
+                                />
                                 <FormMessage />
                             </FormItem>
                         )}

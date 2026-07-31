@@ -1,10 +1,14 @@
-import slugify from "slugify"
 
 import {
     DEFAULT_LOCALE,
     isSupportedLocale,
     type SupportedLocale,
 } from "@/core/i18n/locales"
+import {
+    buildTranslationSlug,
+    isTranslationNameTooShort,
+    TRANSLATION_NAME_MIN_LENGTH,
+} from "@/core/i18n/translationSlug"
 
 export type ProductTranslationInput = {
     locale: string
@@ -21,14 +25,6 @@ export type NormalizedProductTranslation = {
 }
 
 export class ProductTranslationInputError extends Error {}
-
-function buildSlug(value: string, locale: SupportedLocale) {
-    return slugify(value, {
-        lower: true,
-        strict: true,
-        locale,
-    })
-}
 
 function normalizeDescription(value: string | null | undefined) {
     const normalized = value?.trim()
@@ -97,19 +93,15 @@ export function normalizeProductTranslations({
             continue
         }
 
-        const slugSource = translation.slug?.trim() || name
-        const slug = buildSlug(slugSource, translation.locale)
+        if (isTranslationNameTooShort(name)) {
+            throw new ProductTranslationInputError(
+                `${translation.locale} translation name must be at least ${TRANSLATION_NAME_MIN_LENGTH} character(s)`,
+            )
+        }
 
-        if (name.length < 2) {
-            throw new ProductTranslationInputError(
-                `${translation.locale} translation name must be at least 2 characters`,
-            )
-        }
-        if (!slug) {
-            throw new ProductTranslationInputError(
-                `${translation.locale} translation slug could not be generated`,
-            )
-        }
+        // Slug ASCII dışı yazı sistemlerinde boş çıkabilir (ko/ja/zh/hi);
+        // ikinci geçişte varsayılan dilin slug'ına düşülür.
+        const slug = buildTranslationSlug(translation.slug?.trim() || name, translation.locale)
 
         normalized.push({
             locale: translation.locale,
@@ -117,6 +109,25 @@ export function normalizeProductTranslations({
             slug,
             description: normalizeDescription(translation.description),
         })
+    }
+
+    // İkinci geçiş: slug üretilemeyen diller varsayılan dilin slug'ına düşer.
+    // `@@unique([locale, slug])` locale başına olduğu için aynı slug'ın başka bir
+    // dilin satırında tekrarı çakışma yaratmaz.
+    const defaultLocaleSlug = normalized.find(
+        (translation) => translation.locale === DEFAULT_LOCALE,
+    )?.slug
+
+    for (const translation of normalized) {
+        if (translation.slug) continue
+
+        if (!defaultLocaleSlug) {
+            throw new ProductTranslationInputError(
+                `${translation.locale} translation slug could not be generated`,
+            )
+        }
+
+        translation.slug = defaultLocaleSlug
     }
 
     const sorted = normalized.sort((left, right) => {

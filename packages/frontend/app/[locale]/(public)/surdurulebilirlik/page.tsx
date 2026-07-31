@@ -4,6 +4,8 @@ import { Enviroment } from "@/components/home/Enviroment";
 import { SustainabilityIntro } from "@/features/public/sustainability/components/SustainabilityIntro";
 import { SustainabilityImpact } from "@/features/public/sustainability/components/SustainabilityImpact";
 import { SustainabilityEnergy } from "@/features/public/sustainability/components/SustainabilityEnergy";
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -16,17 +18,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/surdurulebilirlik" : "/en/surdurulebilirlik",
-            languages: {
-                tr: "/surdurulebilirlik",
-                en: "/en/surdurulebilirlik",
-                "x-default": "/surdurulebilirlik",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/surdurulebilirlik"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     };
 }

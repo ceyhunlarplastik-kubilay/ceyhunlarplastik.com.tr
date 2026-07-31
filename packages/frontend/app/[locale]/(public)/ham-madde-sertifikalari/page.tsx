@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { PageHero } from "@/components/sections/PageHero"
 import { MaterialCertificateCard } from "@/features/public/materials/components/MaterialCertificateCard"
 import { getMaterials } from "@/features/public/materials/server/getMaterials"
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>
@@ -15,17 +17,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/ham-madde-sertifikalari" : "/en/ham-madde-sertifikalari",
-            languages: {
-                tr: "/ham-madde-sertifikalari",
-                en: "/en/ham-madde-sertifikalari",
-                "x-default": "/ham-madde-sertifikalari",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/ham-madde-sertifikalari"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     }
 }

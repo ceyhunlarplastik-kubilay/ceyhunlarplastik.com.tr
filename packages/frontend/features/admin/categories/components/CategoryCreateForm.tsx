@@ -1,10 +1,16 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import slugify from "slugify"
 import axios from "axios"
 import type { ReactNode } from "react"
-import { Controller, useForm, useWatch, type ControllerRenderProps } from "react-hook-form"
+import {
+    Controller,
+    useForm,
+    useWatch,
+    type Control,
+    type ControllerRenderProps,
+    type FieldPath,
+} from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, UploadCloud } from "lucide-react"
@@ -37,6 +43,19 @@ import {
     FieldLabel,
 } from "@/components/ui/field"
 import { ProductAttributeSelect } from "@/features/admin/productAttributes/components/ProductAttributeSelect"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import {
+    ADMIN_DEFAULT_LOCALE,
+    adminLocaleLabel,
+    adminTranslationIndex,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales"
+import {
+    buildNameTranslationDefaults,
+    buildNameTranslationsPayload,
+    nameTranslationFormSchema,
+} from "@/features/admin/shared/translations/nameTranslations"
+import { buildTranslationSlug } from "@core/i18n/translationSlug"
 
 type Props = {
     onCreated?: (category: Category) => void
@@ -47,7 +66,7 @@ const PRODUCT_FILTER_EXCLUDED_ATTRIBUTE_CODES = ["sector", "production_group", "
 const schema = z.object({
     code: z.number().int().positive("Kod pozitif olmalı"),
     name: z.string().min(2, "Kategori adı gerekli"),
-    englishName: z.string().max(100, "İngilizce kategori adı en fazla 100 karakter olabilir"),
+    translations: z.array(nameTranslationFormSchema),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -73,6 +92,7 @@ export function CategoryCreateForm({ onCreated }: Props) {
     const [assetRole, setAssetRole] = useState<AssetRole>("PRIMARY")
     const [uploadProgress, setUploadProgress] = useState(0)
     const [allowedAttributeValueIds, setAllowedAttributeValueIds] = useState<string[]>([])
+    const [activeLocale, setActiveLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
 
     const accept = useMemo(() => getAcceptByType(assetType), [assetType])
 
@@ -81,22 +101,27 @@ export function CategoryCreateForm({ onCreated }: Props) {
         defaultValues: {
             code: undefined,
             name: "",
-            englishName: "",
+            translations: buildNameTranslationDefaults(),
         },
     })
 
     const watchedName = useWatch({ control: form.control, name: "name" })
-    const watchedEnglishName = useWatch({ control: form.control, name: "englishName" })
+    const watchedTranslations = useWatch({ control: form.control, name: "translations" })
     const slugPreview = useMemo(
-        () => (watchedName ? slugify(watchedName, { lower: true, strict: true, locale: "tr" }) : "kategori-slug"),
+        () => (watchedName ? buildTranslationSlug(watchedName, ADMIN_DEFAULT_LOCALE) : "kategori-slug"),
         [watchedName]
     )
-    const englishSlugPreview = useMemo(
-        () => (watchedEnglishName
-            ? slugify(watchedEnglishName, { lower: true, strict: true, locale: "en" })
-            : "english-category-slug"),
-        [watchedEnglishName],
-    )
+    // Aktif hedef dilin slug önizlemesi. Backend ile AYNI helper kullanılıyor,
+    // böylece ko/ja/zh/hi gibi slug türetilemeyen dillerde önizleme de boş çıkar
+    // ve kullanıcı gerçekte ne olacağını görür (backend TR slug'ına düşer).
+    const targetSlugPreview = useMemo(() => {
+        if (activeLocale === ADMIN_DEFAULT_LOCALE) return null
+
+        const name = watchedTranslations?.[adminTranslationIndex(activeLocale)]?.name?.trim()
+        if (!name) return null
+
+        return buildTranslationSlug(name, activeLocale) || slugPreview
+    }, [activeLocale, slugPreview, watchedTranslations])
 
     async function onSubmit(values: FormValues) {
         try {
@@ -126,9 +151,9 @@ export function CategoryCreateForm({ onCreated }: Props) {
             const category = await createMutation.mutateAsync({
                 code: values.code,
                 name: values.name,
-                translations: values.englishName.trim()
-                    ? [{ locale: "en", name: values.englishName.trim() }]
-                    : undefined,
+                translations: buildNameTranslationsPayload({
+                    translations: values.translations,
+                }).translations,
                 allowedAttributeValueIds,
                 assetType,
                 assetRole,
@@ -137,7 +162,12 @@ export function CategoryCreateForm({ onCreated }: Props) {
             })
 
             onCreated?.(category)
-            form.reset({ code: undefined, name: "", englishName: "" })
+            form.reset({
+                code: undefined,
+                name: "",
+                translations: buildNameTranslationDefaults(),
+            })
+            setActiveLocale(ADMIN_DEFAULT_LOCALE)
             setAllowedAttributeValueIds([])
             setFile(null)
             setUploadProgress(0)
@@ -184,29 +214,44 @@ export function CategoryCreateForm({ onCreated }: Props) {
                                         )}
                                     />
 
-                                    <ControllerField
+                                    <Controller
+                                        name="translations"
                                         control={form.control}
-                                        name="name"
-                                        label="Kategori Adı (TR)"
                                         render={({ field }) => (
-                                            <Input {...field} placeholder="Bakalit Tutamaklar" />
-                                        )}
-                                    />
-
-                                    <ControllerField
-                                        control={form.control}
-                                        name="englishName"
-                                        label="Kategori Adı (EN)"
-                                        render={({ field }) => (
-                                            <Input {...field} placeholder="Bakelite Handles" />
+                                            <AdminTranslatedNameSection
+                                                entityLabel="Kategori adı"
+                                                activeLocale={activeLocale}
+                                                onActiveLocaleChange={setActiveLocale}
+                                                translations={field.value}
+                                                onTranslationsChange={field.onChange}
+                                                targetPlaceholder="Bakelite Handles"
+                                                defaultLocaleField={
+                                                    <ControllerField
+                                                        control={form.control}
+                                                        name="name"
+                                                        label="Türkçe kategori adı"
+                                                        render={({ field: nameField }) => (
+                                                            <Input
+                                                                {...nameField}
+                                                                placeholder="Bakalit Tutamaklar"
+                                                            />
+                                                        )}
+                                                    />
+                                                }
+                                            />
                                         )}
                                     />
 
                                     <Field>
                                         <FieldLabel>Slug Önizlemesi</FieldLabel>
                                         <div className="space-y-1 rounded-xl border border-dashed border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-600">
-                                            <div>TR: /{slugPreview}</div>
-                                            <div>EN: /en/urun-kategori/{englishSlugPreview}</div>
+                                            <div>Türkçe: /urun-kategori/{slugPreview}</div>
+                                            {targetSlugPreview ? (
+                                                <div>
+                                                    {adminLocaleLabel(activeLocale)}: /{activeLocale}
+                                                    /urun-kategori/{targetSlugPreview}
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </Field>
                                 </FieldGroup>
@@ -306,14 +351,21 @@ export function CategoryCreateForm({ onCreated }: Props) {
     )
 }
 
-type ControllerFieldProps = {
-    control: ReturnType<typeof useForm<FormValues>>["control"]
-    name: keyof FormValues
+// Alan adına göre GENERIC: aksi hâlde `field.value` tüm alanların birleşimi
+// olur ve `translations` dizisi eklendiğinde <Input value> tipi patlar.
+type ControllerFieldProps<TName extends FieldPath<FormValues>> = {
+    control: Control<FormValues>
+    name: TName
     label: string
-    render: (props: { field: ControllerRenderProps<FormValues, keyof FormValues> }) => ReactNode
+    render: (props: { field: ControllerRenderProps<FormValues, TName> }) => ReactNode
 }
 
-function ControllerField({ control, name, label, render }: ControllerFieldProps) {
+function ControllerField<TName extends FieldPath<FormValues>>({
+    control,
+    name,
+    label,
+    render,
+}: ControllerFieldProps<TName>) {
     return (
         <Controller
             name={name}

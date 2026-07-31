@@ -1,12 +1,11 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { localeSchema, targetLocaleSchema, REMOVABLE_TRANSLATION_LOCALES_MAX, TRANSLATIONS_ARRAY_MAX } from "@/core/helpers/validation/localeSchema"
 
 const productAttributeCodeSchema = z.string().min(2).max(100).regex(
     /^[a-z][a-z0-9_]*$/,
     "Code must be lower snake_case"
 )
-const localeSchema = z.enum(["tr", "en"])
-const removableTranslationLocaleSchema = z.literal("en")
 const productAttributeTranslationInputSchema = z.object({
     locale: localeSchema,
     name: z.string().min(2).max(100),
@@ -32,7 +31,7 @@ export const createProductAttributeValidator = validatorWrapper(
         body: z.object({
             code: productAttributeCodeSchema,
             name: z.string().min(2).max(100),
-            translations: z.array(productAttributeTranslationInputSchema).max(10).optional(),
+            translations: z.array(productAttributeTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             displayOrder: z.number().optional(),
             isCustomerAssignable: z.boolean().optional(),
         }),
@@ -73,8 +72,8 @@ export const updateProductAttributeValidator = validatorWrapper(
         body: z.object({
             code: productAttributeCodeSchema.optional(),
             name: z.string().min(2).max(100).optional(),
-            translations: z.array(productAttributeTranslationInputSchema).max(10).optional(),
-            removeTranslationLocales: z.array(removableTranslationLocaleSchema).max(1).optional(),
+            translations: z.array(productAttributeTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
+            removeTranslationLocales: z.array(targetLocaleSchema).max(REMOVABLE_TRANSLATION_LOCALES_MAX).optional(),
             displayOrder: z.number().optional(),
             isCustomerAssignable: z.boolean().optional(),
         }),

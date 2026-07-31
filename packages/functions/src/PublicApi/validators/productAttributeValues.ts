@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { assetTypeEnum, assetRoleEnum } from "@/functions/PublicApi/validators/products"
+import { localeSchema } from "@/core/helpers/validation/localeSchema"
 
-const localeSchema = z.enum(["tr", "en"])
 
 // Response Validators
 // PublicApi list, repository çıktısını ham döndürüyor (AdminApi'den farklı olarak

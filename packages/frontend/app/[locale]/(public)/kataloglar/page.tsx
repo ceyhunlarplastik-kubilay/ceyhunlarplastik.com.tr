@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { CatalogCard } from "@/features/public/catalogs/components/CatalogCard"
 import { getCategories } from "@/features/public/categories/server/getCategories"
 import { PageHero } from "@/components/sections/PageHero"
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>
@@ -15,17 +17,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/kataloglar" : "/en/kataloglar",
-            languages: {
-                tr: "/kataloglar",
-                en: "/en/kataloglar",
-                "x-default": "/kataloglar",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/kataloglar"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     }
 }

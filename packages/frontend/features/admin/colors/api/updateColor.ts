@@ -1,8 +1,9 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { ColorResponse, ColorSystem } from "./types"
+import type { SupportedLocale, TargetLocale } from "@core/i18n/locales"
 
 type TranslationInput = {
-    locale: "tr" | "en"
+    locale: SupportedLocale
     name: string
 }
 
@@ -14,6 +15,7 @@ export type UpdateColorParams = {
     hex?: string
     isActive?: boolean
     translations?: TranslationInput[]
+    removeTranslationLocales?: TargetLocale[]
 }
 
 export async function updateColor(params: UpdateColorParams) {

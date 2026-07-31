@@ -29,13 +29,17 @@ import {
     listMaterialResponseValidator,
 } from "@/functions/AdminApi/validators/materials"
 
+// Ham madde sözlüğü içerik girişinin parçası: Kategori/Ürün ile aynı şekilde
+// content_editor de yönetebilir (owner rol hiyerarşisiyle zaten geçiyor).
+const materialManagerGroups = ["admin", "content_editor"]
+
 export const listMaterials = lambdaHandler(
     async (event) =>
         listMaterialsHandler({
             materialRepository: materialRepository(),
         })(event as IListMaterialsEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: materialManagerGroups },
         responseValidator: listMaterialResponseValidator,
     }
 )
@@ -46,7 +50,7 @@ export const getMaterial = lambdaHandler(
             materialRepository: materialRepository(),
         })(event as IGetMaterialEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: materialManagerGroups },
         requestValidator: idValidator,
         responseValidator: materialResponseValidator,
     }
@@ -58,7 +62,7 @@ export const createMaterial = lambdaHandler(
             materialRepository: materialRepository(),
         })(event as ICreateMaterialEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: materialManagerGroups },
         requestValidator: createMaterialValidator,
         responseValidator: materialResponseValidator,
     }
@@ -71,7 +75,7 @@ export const updateMaterial = lambdaHandler(
             assetRepository: assetRepository(),
         })(event as IUpdateMaterialEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: materialManagerGroups },
         requestValidator: updateMaterialValidator,
         responseValidator: materialResponseValidator,
     }
@@ -83,7 +87,7 @@ export const deleteMaterial = lambdaHandler(
             materialRepository: materialRepository(),
         })(event as IDeleteMaterialEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: materialManagerGroups },
         requestValidator: idValidator,
         responseValidator: materialResponseValidator,
     }
@@ -95,7 +99,7 @@ export const createMaterialAssetUpload = lambdaHandler(
             materialRepository: materialRepository(),
         })(event as ICreateMaterialAssetUploadEvent),
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: materialManagerGroups },
         requestValidator: createMaterialAssetUploadValidator,
     }
 )

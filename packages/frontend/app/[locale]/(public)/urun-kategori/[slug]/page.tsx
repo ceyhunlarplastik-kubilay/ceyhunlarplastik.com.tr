@@ -9,6 +9,8 @@ import { slimCategoryFilterAttributes } from "@/features/public/productAttribute
 import { PageHero } from "@/components/sections/PageHero";
 import ProductFilterSidebar from "@/features/public/products/components/ProductFilterSidebar";
 import ProductFilterList from "@/features/public/products/components/ProductFilterList";
+import { getOgLocale } from "@/i18n/localeMetadata";
+import { buildAlternates } from "@/i18n/alternates";
 
 export const revalidate = 60; // ISR
 
@@ -27,16 +29,14 @@ export async function generateMetadata(
 
     if (!category) return {}
 
-    const trSlug = category.alternateSlugs.tr ?? category.slug
-    const enSlug = category.alternateSlugs.en
-    const canonicalPath = locale === "tr"
-        ? `/urun-kategori/${trSlug}`
-        : `/en/urun-kategori/${enSlug ?? category.slug}`
-    const languages = {
-        tr: `/urun-kategori/${trSlug}`,
-        "x-default": `/urun-kategori/${trSlug}`,
-        ...(enSlug ? { en: `/en/urun-kategori/${enSlug}` } : {}),
-    }
+    const alternates = buildAlternates({
+        locale,
+        pathFor: (candidate) => {
+            const localeSlug = category.alternateSlugs?.[candidate]
+            if (!localeSlug) return null
+            return `/urun-kategori/${localeSlug}`
+        },
+    })
 
     return {
         // Root layout template "| Ceyhunlar Plastik" ekler
@@ -46,12 +46,9 @@ export async function generateMetadata(
             title: category.name,
             description: t("categoryOgDescription", { name: category.name }),
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
-        alternates: {
-            canonical: canonicalPath,
-            languages,
-        },
+        alternates,
         ...(category.translationMissing && {
             robots: { index: false, follow: true },
         }),

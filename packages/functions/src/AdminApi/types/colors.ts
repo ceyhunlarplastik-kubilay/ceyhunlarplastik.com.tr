@@ -1,6 +1,7 @@
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaColorRepository } from "@/core/helpers/prisma/colors/repository"
 import type { VariantDictionaryTranslationInput } from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
+import type { TargetLocale } from "@/core/i18n/locales"
 
 export type IGetColorEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
@@ -39,9 +40,14 @@ export type IListColorsEvent =
 
 export type IDeleteColorEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
+export interface IUpdateColorBody extends Partial<ICreateColorBody> {
+    /** Silinecek çeviri satırları — varsayılan dil kaydın kendi kolonunda, silinemez. */
+    removeTranslationLocales?: TargetLocale[]
+}
+
 export type IUpdateColorEvent =
     IAPIGatewayProxyEventWithUserGeneric<
-        Partial<ICreateColorBody>,
+        IUpdateColorBody,
         { id: string }
     >
 

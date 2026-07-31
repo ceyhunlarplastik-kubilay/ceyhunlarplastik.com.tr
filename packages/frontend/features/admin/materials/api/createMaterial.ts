@@ -1,8 +1,9 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { MaterialResponse } from "./types"
+import type { SupportedLocale } from "@core/i18n/locales"
 
 type TranslationInput = {
-    locale: "tr" | "en"
+    locale: SupportedLocale
     name: string
 }
 

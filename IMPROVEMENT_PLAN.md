@@ -985,6 +985,184 @@ indeks sabitliği, default üretimi).
 render edilmiş dialog'lar gözle kontrol edilmedi. Derleme/lint/test yeşil ama yerleşimin
 gerçekte nasıl göründüğü doğrulanmalı.
 
+## 14 dil — Dilim E1: core locale seti + backend doğrulama (2026-07-30)
+
+**Bağlam:** site tr+en sunuyor; 12 dil daha eklenecek (ar, ko, fr, es, zh, ru, de, hi, pt, ja, it, pl).
+Strateji: **altyapı önce, diller dalga dalga**. Bu dilim hiçbir dili canlıya almaz —
+`routing.locales` `["tr","en"]` olarak kaldı.
+
+**Uygulandı:**
+- `core/i18n/locales.ts` → 14 kod + `TARGET_LOCALES`. `SupportedLocale` tipi her yere yayıldığı
+  için `tsc` eksik `Record<SupportedLocale,…>`'ları kendiliğinden yakaladı (yalnız iki DeepL
+  haritası çıktı — tasarım gereği iyi bir güvenlik ağı).
+- `deeplTranslator.ts` iki dil haritası 14 girdiye çıktı. Bölgesel varyantlar: `en-GB` (korundu),
+  `pt-BR`, `zh-HANS`, `es`. **Glossary koşullu hâle geldi:** DeepL glossary dil listesi çeviri
+  listesinden dar ve `hi` içermiyor; `glossaryId` koşulsuz gönderildiği için Hintçe çağrısı
+  reddedilecekti (`supportsGlossary`).
+- **Yeni** `core/helpers/validation/localeSchema.ts` — `localeSchema`, `targetLocaleSchema`,
+  `TRANSLATIONS_ARRAY_MAX`, `REMOVABLE_TRANSLATION_LOCALES_MAX`. 16 validator dosyasındaki
+  kopya `z.enum(["tr","en"])` tanımları buna bağlandı; repoda hardcoded locale enum'u kalmadı.
+- **15 site** `.max(10)` → `TRANSLATIONS_ARRAY_MAX`. Bu sabit, 10'dan fazla dilde her tam-payload
+  admin kaydını 400'e düşürüyordu. (`customers.ts:359` çeviri değil, müşteri adresi sınırı —
+  dokunulmadı.)
+- **3 site** `removeTranslationLocales: z.literal("en")` + `.max(1)` → `targetLocaleSchema` +
+  dil sayısına bağlı sınır. Eskiden yalnız EN çevirisi ve tek seferde bir tane silinebiliyordu.
+
+**Slug — asıl blokaj çözüldü.** `slugify(..., { strict: true })` ASCII dışı yazı sistemlerini
+eliyor; ampirik olarak doğrulandı: **ko / ja / zh / hi boş string üretiyor** (ru ve ar'ın
+charmap'i var, sorunsuz). Boş slug `slug could not be generated` ile reddedildiği için bu dört
+dilde içerik **hiç kaydedilemiyordu**. Ayrıca `name.length < 2` kontrolü `赤` gibi geçerli tek
+karakterli CJK adlarını reddediyordu.
+- **Yeni** `core/i18n/translationSlug.ts`: üç normalizer'daki birebir kopya `buildSlug` tek yere
+  çıktı; `TRANSLATION_NAME_MIN_LENGTH` 1'e indi (Unicode kod noktası sayılıyor).
+- Üç normalizer (ürün / kategori / attribute) **iki geçişli** hâle geldi: önce tüm slug'lar
+  denenir, sonra üretilemeyenler **varsayılan dilin slug'ına** düşer. `@@unique([locale, slug])`
+  locale başına olduğu için aynı slug'ın başka bir dilin satırında tekrarı çakışma yaratmaz;
+  repository zaten istenen-locale → varsayılan → legacy sırasıyla çözümlüyor.
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (117 warning) ·
+core 209/209 ✅ (19 yeni: slugify'ın dil bazında gerçek davranışını sabitleyen testler +
+fallback senaryoları) · functions 14/14 ✅ (6 yeni: paylaşılan şemalar ve validator'ların 14 dili
+kabul ettiği) · frontend 31/31 ✅. Migration gerekmiyor — `locale` kolonları `VarChar(16)`.
+
+**Sırada:** E2 (frontend altyapı: mesaj fallback zinciri, `dir`, alternates helper, sitemap).
+
+## 14 dil — Dilim E2: frontend altyapı (2026-07-31)
+
+Bu dilim de yeni dil YAYINLAMAZ; `routing.locales` `["tr","en"]` kaldı.
+
+**Mesaj fallback zinciri — kısmi katalogların anahtarı.** `i18n/request.ts` tek katalog dosyası
+import ediyordu. Yeni `i18n/loadMessages.ts` zinciri kuruyor: **tr → en → istenen dil** (sonraki
+öncekini ezer). Eksik anahtar artık runtime hatası değil; İngilizce'ye, o da yoksa Türkçe'ye
+düşüyor. 847 anahtarın 12 dilde eksiksiz hazır olmasını beklemek dil açmayı tümüyle bloke
+ederdi — zincir sayesinde bir dil çevirisi ilerledikçe kademeli açılabilir. Diziler eleman
+bazında DEĞİL bütün olarak override edilir (yarı çevrilmiş liste anlamsız olur).
+
+**Tek dil metadata kaynağı.** Yeni `i18n/localeMetadata.ts`: etiket (ana dilde/endonym),
+bayrak, yazı yönü, `og:locale`. `LanguageSwitcher`'daki hardcoded `languageOptions` haritası
+kaldırıldı. Etiketler endonym olduğu için katalogdaki per-dil anahtarlar (`tr`/`trFull`/…)
+gereksizleşti ve silindi — 14 dilde bu, katalog başına 28 anahtar ve "English"i Türkçeye
+çevirmek gibi anlamsız bir iş demekti.
+
+**`buildAlternates` helper'ı.** Aynı iki-dil ternary'si **16 `generateMetadata`** ve
+`sitemap.ts` içinde kopyalanmıştı. Hepsi tek helper'a bağlandı; `og:locale` de
+`getOgLocale`'den geliyor. Slug taşıyan üç sayfa (ürün, ürün varyantları, kategori)
+`pathFor(locale)` ile her dilin kendi slug'ını veriyor, o dile çevrilmemişse hreflang'e hiç
+yazılmıyor.
+
+**`sitemap.ts`** `routing.locales` üzerinde dönüyor (tr/en hardcoded değil), statik girişlere
+eksik olan `x-default` eklendi. Kod içine not düşüldü: dil sayısı arttıkça hem üretim maliyeti
+(dil başına tam katalog crawl'ı) hem boyut büyüyor; 50.000 URL sınırına yaklaşıldığında sitemap
+index'e bölünmeli.
+
+**`<html dir>`** eklendi (`ar` → `rtl`). RTL DÜZEN denetimi (fiziksel Tailwind sınıflarının
+logical'a çevrilmesi) Arapça'nın açıldığı dalgaya bırakıldı.
+
+**Yol boyunca düzelen iki hata:**
+- `normalizeCategory.ts` `requestedLocale === "en" ? "en" : "tr"` ile bilinmeyen her dili
+  sessizce TR'ye düşürüyordu; `translationMissing` hep `false` çıkıyor ve o dillerde `noindex`
+  hiç uygulanmıyordu. Artık `getSupportedLocale` kullanıyor.
+- `getAttributesForFilter.ts` `Intl.Collator(locale === "en" ? "en" : "tr")` ile EN dışındaki
+  her dili TR collation'ına düşürüyordu.
+
+**Katalog doğrulama testi (yeni).** 14 dilde elle göz kontrolü mümkün değil. Fallback zinciri
+sayesinde EKSİK anahtar artık hata olmadığı için "anahtar sayıları eşit" kuralı yerine şunlar
+doğrulanıyor: fazladan anahtar yok · her mesaj ICU olarak ayrıştırılabiliyor (gerçek
+`@formatjs/icu-messageformat-parser` ile) · argüman adları ve tag'ler korunuyor · diziler aynı
+uzunlukta · EN katalog TAM (zincirdeki ikinci yedek). **ICU yapısı eşitliği aranmıyor**: TR'de
+`{count} ürün`, EN'de `{count, plural, …}` meşrudur.
+Test, kataloğu beş ayrı şekilde bozarak doğrulandı — beşini de hangi anahtarın nesi bozuk
+diyerek yakaladı.
+
+**Plandan iki bilinçli sapma:**
+1. **`LanguageSwitcher` aranabilir listeye çevrilmedi.** `routing.locales` hâlâ 2 dil; her public
+   sayfada bulunan çalışan bir `Select`'i Command/Popover'a çevirmenin şu an faydası yok, riski
+   var. Hardcoding kaldırıldı (asıl gereksinim); UX değişikliği liste gerçekten uzadığı dalgaya
+   bırakıldı — kod içine not düşüldü.
+2. **Font subset'leri genişletilmedi.** `ru` için `cyrillic` eklemek, yayında olmayan bir dil
+   için HER ziyaretçiye ekstra font baytı indirtir. Kiril/CJK/Arapça fontları ilgili dilin
+   açıldığı dalgada eklenecek.
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (117 warning) ·
+core 209/209 ✅ · functions 14/14 ✅ · frontend 43/43 ✅ (31 → +12: katalog doğrulama 6,
+fallback zinciri 6).
+
+**E2'de yapılıp aynı oturumda yakalanan regresyon:** ilk fallback zinciri tekrarları İLK
+görülene göre eliyordu. `tr` istendiğinde zincir `["tr","en","tr"]` oluyor, sondaki `tr`
+"zaten var" diye atılıyor ve geriye `["tr","en"]` kalıyordu → **site Türkçe seçiliyken
+İngilizce açılıyordu.** Zincirde son eleman kazandığı için istenen dil her zaman sonda
+olmalı; tekrarlar artık SON görülene göre eleniyor ve varsayılan dil istendiğinde zincir
+tek elemanlı.
+
+Asıl ders testteydi: `expect(messages).toHaveProperty("common.siteName")` diyordum, o anahtar
+iki katalogda da bulunduğu için hata görünmüyordu — **yapı doğrulamak değer doğrulamanın
+yerini tutmuyor.** Test artık gerçek Türkçe değeri (`"Kurumsal"`) ve zincir sırasını
+doğruluyor; hatalı hâl geri getirilerek ikisinin de yakaladığı teyit edildi.
+
+**Sırada:** E3 (paylaşılan admin çeviri editörü, 8 entity).
+
+## 14 dil — Dilim E3: paylaşılan admin çeviri editörü (2026-07-31)
+
+**Ne yapıldı.** Ürün formundaki dil-seçici deseni `features/admin/shared/translations/`
+altına taşındı ve 8 admin formu tek-alanlı `englishName` deseninden bu editöre geçti:
+Kategori (oluştur + düzenle), Renk, Ham Madde, Ölçü Tipi, Ürün Özelliği (oluştur +
+metadata), Özellik Değeri (oluştur + düzenle). Varyant dialog'undaki üç satır-içi sözlük
+oluşturma formu da (renk / malzeme / ölçü tipi) aynı editörü kullanıyor — daha önce hiç
+çeviri gönderemiyorlardı.
+
+Yeni modül: `adminLocales.ts` (dil listesi `@core/i18n/locales`'ten, etiketler TÜRKÇE —
+admin paneli bilinçli TR-only, veri girişi yapan kişi "Korece" arıyor, "한국어" değil),
+`AdminLocaleSelect.tsx`, `AdminTranslatedNameSection.tsx`, `nameTranslations.ts` (şema +
+payload diff'i), `useActiveTranslationLocale.ts`.
+
+**Yol boyunca düzelen GERÇEK hatalar (14 dil olmasa da hataydılar):**
+
+1. **Mevcut çeviri güncellenemiyordu.** Renk / Ham Madde / Ölçü Tipi update handler'ları
+   hedef diller için `connectOrCreate` kullanıyordu: satır zaten varsa hiçbir şey
+   yazılmıyordu. Formlar da bu yüzden ad bir kez girilince input'u `disabled` yapıyordu —
+   **arayüz backend'in eksiğini gizliyordu.** Üçü de ortak core helper'a
+   (`buildVariantDictionaryTranslationWrites`) bağlandı, artık `upsert`.
+2. **Çeviri silinemiyordu.** Bu üç API'de `removeTranslationLocales` hiç yoktu; validator,
+   event tipi ve handler'a eklendi. Boşaltılan bir ad artık gerçekten siliniyor.
+3. **`updateColorHandler`'da ölü catch.** Çeviri normalizasyonu `try` bloğunun DIŞINDAydı,
+   dolayısıyla `VariantDictionaryTranslationInputError` → 400 dönüşümü hiç çalışmıyordu;
+   desteklenmeyen locale 500 veriyordu. Normalizasyon try içine alındı.
+4. **Tek-dil varsayımlı yardımcılar.** `buildCategoryTranslationUpdatePayload` ve
+   `useProductAttributeValuesManager` yalnız EN biliyordu; ikisi de paylaşılan
+   `buildNameTranslationsPayload`'a bağlandı (aynı kaydetmede birden çok dil güncellenip
+   silinebiliyor, değişmeyene dokunulmuyor).
+5. **`serializeProductPayload.ts` hardcoded `"tr"`** → `PRODUCT_FORM_DEFAULT_LOCALE`.
+6. **14 API tip dosyasında `locale: "tr" | "en"`** → `SupportedLocale`; `"en"[]` biçimindeki
+   removable locale tipleri → yeni `TargetLocale`.
+7. **`ProductAttributeValueCard`/`Grid` prop tipleri `englishName` diyordu** ama runtime'da
+   `translations` akıyordu (opsiyonel alanlar yüzünden tsc yakalamıyordu) — tipler düzeltildi.
+
+**`TargetLocale` tipi (yeni).** `DEFAULT_LOCALE` artık literal (`"tr" as const`), böylece
+`TargetLocale = Exclude<SupportedLocale, "tr">` türetilebiliyor. Bu tip, "bu locale
+kaldırılabilir mi?" sorusunu derleme zamanına taşıdı ve **üç yerdeki `!== DEFAULT_LOCALE`
+filtresinin ölü kod olduğunu tsc kendisi gösterdi** (validator zaten `"tr"`yi reddediyordu).
+
+**veri-girisi erişimi.** Renk / Ham Madde / Ölçü Tipi sayfaları `/veri-girisi` altına
+eklendi ve üç `actions.ts`'te `["admin"]` → `["admin", "content_editor"]` yapıldı
+(Kategori'nin mevcut deseniyle aynı; `owner` rol hiyerarşisinden geçiyor). Bu üç sözlük
+yalnız `/admin` altındaydı, yani içerik editörü çevirilerini hiç giremiyordu.
+
+**Bir lint hatası ders oldu:** `useEffect` içinde `setActiveLocale` çağırmak
+`react-hooks` kuralını (cascading render) ihlal ediyordu. `useActiveTranslationLocale`
+hook'u sıfırlamayı React'in önerdiği "prop değişiminde render sırasında state düzelt"
+desenine taşıdı.
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (117 warning) ·
+core 214/214 ✅ (209 → +5: sözlük çeviri yazımı) · functions 14/14 ✅ ·
+frontend 56/56 ✅ (44 → +12: `nameTranslations` 10, kategori payload 2).
+
+**kubi'de doğrulanacak:** her formda ikinci bir dil seçilip ad girilmeli, kaydedilmeli,
+dialog kapatılıp açıldığında değer geri gelmeli; Renk/Ham Madde/Ölçü Tipi'nde mevcut bir
+çeviri **düzenlenebilmeli ve boşaltılarak silinebilmeli** (E3'ün asıl hata düzeltmesi).
+
+**Sırada:** E4 (çeviri araçları çoklu hedefe açılır: 5 draft helper + 5 CLI + `messages/*.json`
+çeviri CLI'ı).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

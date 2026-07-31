@@ -9,36 +9,33 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import {
-    PRODUCT_FORM_DEFAULT_LOCALE,
-    PRODUCT_FORM_LOCALES,
-    PRODUCT_FORM_LOCALE_FLAGS,
-    PRODUCT_FORM_LOCALE_LABELS,
-    type ProductFormLocale,
-} from "@/features/admin/products/schema/productFormSchema"
+    ADMIN_DEFAULT_LOCALE,
+    ADMIN_LOCALES,
+    adminLocaleFlag,
+    adminLocaleLabel,
+    type AdminLocale,
+} from "./adminLocales"
 
 type Props = {
-    value: ProductFormLocale
-    onChange: (locale: ProductFormLocale) => void
+    value: AdminLocale
+    onChange: (locale: AdminLocale) => void
     /** İçeriği olan diller: seçenekte küçük bir gösterge çıkar. */
-    filledLocales?: ProductFormLocale[]
+    filledLocales?: readonly string[]
     className?: string
 }
 
 /**
- * Çeviri alanları için dil seçici.
+ * Çeviri alanları için dil seçici — tüm admin formlarının ortak parçası.
  *
- * NEDEN SELECT: her dilin alanlarını yan yana basmak iki dilde bile kalabalıktı
- * ve dil sayısı arttıkça form okunamaz hâle geliyordu. Alanlar tek bir aktif
- * dile göre gösteriliyor; varsayılan Türkçe. Görsel dil, sitedeki
- * `components/navigation/LanguageSwitcher` ile hizalı (bayrak + select) —
- * segmented sekme yerine select, 10 dilde de aynı yeri kaplıyor.
- *
- * Diller PRODUCT_FORM_LOCALES'ten türediği için yeni dil eklemek bu bileşeni
- * değiştirmiyor.
+ * NEDEN SELECT: her dilin alanlarını yan yana basmak iki dilde bile kalabalıktı;
+ * 14 dilde form okunamaz olurdu. Alanlar tek bir aktif dile göre gösterilir ve
+ * varsayılan Türkçe gelir. Görsel dil sitedeki `LanguageSwitcher` ile hizalı
+ * (bayrak + select) — segmented sekmenin aksine dil sayısından bağımsız olarak
+ * aynı yeri kaplıyor.
  */
-export function ProductLocaleSelect({ value, onChange, filledLocales = [], className }: Props) {
+export function AdminLocaleSelect({ value, onChange, filledLocales = [], className }: Props) {
     return (
-        <Select value={value} onValueChange={(next) => onChange(next as ProductFormLocale)}>
+        <Select value={value} onValueChange={(next) => onChange(next as AdminLocale)}>
             <SelectTrigger
                 size="sm"
                 aria-label="Çeviri dili"
@@ -50,17 +47,17 @@ export function ProductLocaleSelect({ value, onChange, filledLocales = [], class
                 <SelectValue />
             </SelectTrigger>
 
-            <SelectContent align="end" className="min-w-44">
-                {PRODUCT_FORM_LOCALES.map((locale) => {
-                    const isTargetLocale = locale !== PRODUCT_FORM_DEFAULT_LOCALE
+            <SelectContent align="end" className="max-h-72 min-w-44">
+                {ADMIN_LOCALES.map((locale) => {
+                    const isTargetLocale = locale !== ADMIN_DEFAULT_LOCALE
                     const isFilled = filledLocales.includes(locale)
 
                     return (
                         <SelectItem key={locale} value={locale} className="text-sm">
                             <span className="text-base leading-none" aria-hidden="true">
-                                {PRODUCT_FORM_LOCALE_FLAGS[locale]}
+                                {adminLocaleFlag(locale)}
                             </span>
-                            <span>{PRODUCT_FORM_LOCALE_LABELS[locale]}</span>
+                            <span>{adminLocaleLabel(locale)}</span>
                             <span className="font-mono text-[10px] uppercase tracking-wider text-neutral-400">
                                 {locale}
                             </span>

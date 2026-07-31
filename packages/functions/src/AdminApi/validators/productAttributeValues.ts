@@ -1,9 +1,8 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { assetTypeEnum, assetRoleEnum } from "@/functions/PublicApi/validators/products"
+import { localeSchema, targetLocaleSchema, REMOVABLE_TRANSLATION_LOCALES_MAX, TRANSLATIONS_ARRAY_MAX } from "@/core/helpers/validation/localeSchema"
 
-const localeSchema = z.enum(["tr", "en"])
-const removableTranslationLocaleSchema = z.literal("en")
 const productAttributeValueTranslationInputSchema = z.object({
     locale: localeSchema,
     name: z.string().min(2).max(100),
@@ -14,7 +13,7 @@ export const createProductAttributeValueValidator = validatorWrapper(
     z.object({
         body: z.object({
             name: z.string().min(1),
-            translations: z.array(productAttributeValueTranslationInputSchema).max(10).optional(),
+            translations: z.array(productAttributeValueTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             attributeId: z.uuid(),
             displayOrder: z.number().optional(),
             parentValueId: z.uuid().nullable().optional(),
@@ -37,8 +36,8 @@ export const updateProductAttributeValueValidator = validatorWrapper(
         }),
         body: z.object({
             name: z.string().optional(),
-            translations: z.array(productAttributeValueTranslationInputSchema).max(10).optional(),
-            removeTranslationLocales: z.array(removableTranslationLocaleSchema).max(1).optional(),
+            translations: z.array(productAttributeValueTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
+            removeTranslationLocales: z.array(targetLocaleSchema).max(REMOVABLE_TRANSLATION_LOCALES_MAX).optional(),
             displayOrder: z.number().optional(),
             parentValueId: z.uuid().nullable().optional(),
             assetType: assetTypeEnum.optional(),

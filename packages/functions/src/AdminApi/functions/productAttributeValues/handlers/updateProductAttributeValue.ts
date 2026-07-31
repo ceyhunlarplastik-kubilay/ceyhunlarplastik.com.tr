@@ -107,10 +107,10 @@ export const updateProductAttributeValueHandler = ({
                         })),
                     }),
                     ...(removeTranslationLocales?.length && {
+                        // TargetLocale varsayılan dili DIŞLAR: "tr" ne validator'dan
+                        // ne de tipten geçebilir, ayrıca filtrelemeye gerek yok.
                         deleteMany: {
-                            locale: {
-                                in: removeTranslationLocales.filter((locale) => locale !== DEFAULT_LOCALE),
-                            },
+                            locale: { in: removeTranslationLocales },
                         },
                     }),
                 }

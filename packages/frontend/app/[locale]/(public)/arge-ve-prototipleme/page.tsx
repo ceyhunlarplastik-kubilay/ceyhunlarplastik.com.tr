@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArgeContent } from "@/features/public/arge/components/ArgeContent";
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -13,17 +15,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/arge-ve-prototipleme" : "/en/arge-ve-prototipleme",
-            languages: {
-                tr: "/arge-ve-prototipleme",
-                en: "/en/arge-ve-prototipleme",
-                "x-default": "/arge-ve-prototipleme",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/arge-ve-prototipleme"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     };
 }

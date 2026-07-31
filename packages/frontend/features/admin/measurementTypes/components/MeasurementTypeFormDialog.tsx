@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
@@ -31,10 +31,18 @@ import {
     useCreateMeasurementType,
     useUpdateMeasurementType,
 } from "@/features/admin/measurementTypes/hooks/useMeasurementTypeMutations"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import { ADMIN_DEFAULT_LOCALE } from "@/features/admin/shared/translations/adminLocales"
+import { useActiveTranslationLocale } from "@/features/admin/shared/translations/useActiveTranslationLocale"
+import {
+    buildNameTranslationDefaults,
+    buildNameTranslationsPayload,
+    nameTranslationFormSchema,
+} from "@/features/admin/shared/translations/nameTranslations"
 
 const measurementTypeFormSchema = z.object({
     name: z.string().min(2, "Ölçü tipi adı en az 2 karakter olmalıdır"),
-    englishName: z.string().optional(),
+    translations: z.array(nameTranslationFormSchema),
     code: z.enum([
         "D",
         "D1",
@@ -67,10 +75,6 @@ type Props = {
     onOpenChange: (open: boolean) => void
 }
 
-function getEnglishTranslation(measurementType?: MeasurementType | null) {
-    return measurementType?.translations?.find((translation) => translation.locale === "en")
-}
-
 export function MeasurementTypeFormDialog({
     open,
     measurementType,
@@ -78,13 +82,13 @@ export function MeasurementTypeFormDialog({
 }: Props) {
     const createMeasurementTypeMutation = useCreateMeasurementType()
     const updateMeasurementTypeMutation = useUpdateMeasurementType()
-    const englishTranslation = getEnglishTranslation(measurementType)
+    const [activeLocale, setActiveLocale] = useActiveTranslationLocale(open)
 
     const form = useForm<MeasurementTypeFormValues>({
         resolver: zodResolver(measurementTypeFormSchema),
         defaultValues: {
             name: "",
-            englishName: "",
+            translations: buildNameTranslationDefaults(),
             code: "D",
             baseUnit: "mm",
             displayOrder: 0,
@@ -101,27 +105,23 @@ export function MeasurementTypeFormDialog({
 
         form.reset({
             name: measurementType?.name ?? "",
-            englishName: englishTranslation?.name ?? "",
+            translations: buildNameTranslationDefaults(measurementType?.translations),
             code: measurementType?.code ?? "D",
             baseUnit: measurementType?.baseUnit ?? "mm",
             displayOrder: measurementType?.displayOrder ?? 0,
         })
-    }, [englishTranslation?.name, form, measurementType, open])
+    }, [form, measurementType, open])
 
     const onSubmit = form.handleSubmit(async (values) => {
-        const englishName = values.englishName?.trim()
-        const translations = [
-            { locale: "tr" as const, name: values.name.trim() },
-            ...(!englishTranslation && englishName
-                ? [{ locale: "en" as const, name: englishName }]
-                : []),
-        ]
+        const translationPayload = buildNameTranslationsPayload({
+            translations: values.translations,
+            existing: measurementType?.translations,
+        })
         const payload = {
             name: values.name.trim(),
             code: values.code,
             baseUnit: values.baseUnit.trim(),
             displayOrder: values.displayOrder,
-            translations,
         }
 
         try {
@@ -129,9 +129,16 @@ export function MeasurementTypeFormDialog({
                 await updateMeasurementTypeMutation.mutateAsync({
                     id: measurementType.id,
                     ...payload,
+                    ...translationPayload,
                 })
             } else {
-                await createMeasurementTypeMutation.mutateAsync(payload)
+                await createMeasurementTypeMutation.mutateAsync({
+                    ...payload,
+                    translations: [
+                        { locale: ADMIN_DEFAULT_LOCALE, name: payload.name },
+                        ...(translationPayload.translations ?? []),
+                    ],
+                })
             }
 
             onOpenChange(false)
@@ -148,29 +155,35 @@ export function MeasurementTypeFormDialog({
                 </DialogHeader>
 
                 <form className="space-y-4" onSubmit={(event) => void onSubmit(event)}>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="measurement-type-name">Ad</Label>
-                            <Input
-                                id="measurement-type-name"
-                                placeholder="örn. Çap"
-                                {...form.register("name")}
+                    <Controller
+                        name="translations"
+                        control={form.control}
+                        render={({ field }) => (
+                            <AdminTranslatedNameSection
+                                entityLabel="Ölçü tipi adı"
+                                activeLocale={activeLocale}
+                                onActiveLocaleChange={setActiveLocale}
+                                translations={field.value}
+                                onTranslationsChange={field.onChange}
+                                targetPlaceholder="örn. Diameter"
+                                defaultLocaleField={
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="measurement-type-name">Türkçe ölçü tipi adı</Label>
+                                        <Input
+                                            id="measurement-type-name"
+                                            placeholder="örn. Çap"
+                                            {...form.register("name")}
+                                        />
+                                        {form.formState.errors.name ? (
+                                            <p className="text-xs text-red-500">
+                                                {form.formState.errors.name.message}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                }
                             />
-                            {form.formState.errors.name ? (
-                                <p className="text-xs text-red-500">{form.formState.errors.name.message}</p>
-                            ) : null}
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label htmlFor="measurement-type-english-name">İngilizce Ad</Label>
-                            <Input
-                                id="measurement-type-english-name"
-                                placeholder="örn. Diameter"
-                                disabled={Boolean(englishTranslation)}
-                                {...form.register("englishName")}
-                            />
-                        </div>
-                    </div>
+                        )}
+                    />
 
                     <div className="grid gap-4 sm:grid-cols-3">
                         <div className="space-y-1.5">

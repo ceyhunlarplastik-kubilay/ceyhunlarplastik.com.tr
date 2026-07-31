@@ -1,15 +1,16 @@
 import { adminApiClient } from "@/lib/http/client"
 import { normalizeCategory } from "@/features/public/categories/normalizeCategory"
+import type { SupportedLocale, TargetLocale } from "@core/i18n/locales"
 
 export type UpdateCategoryParams = {
     id: string
     name?: string
     translations?: Array<{
-        locale: "tr" | "en"
+        locale: SupportedLocale
         name: string
         slug?: string
     }>
-    removeTranslationLocales?: Array<"en">
+    removeTranslationLocales?: TargetLocale[]
     allowedAttributeValueIds?: string[]
     assetKey?: string
     assetRole?: string

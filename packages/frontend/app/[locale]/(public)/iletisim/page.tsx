@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ContactContent } from "@/features/public/contact/components/ContactContent";
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -13,17 +15,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/iletisim" : "/en/iletisim",
-            languages: {
-                tr: "/iletisim",
-                en: "/en/iletisim",
-                "x-default": "/iletisim",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/iletisim"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     };
 }

@@ -1,6 +1,7 @@
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import { IPrismaProductAttributeRepository } from "@/core/helpers/prisma/productAttributes/repository"
 import type { ProductAttributeTranslationInput } from "@/core/helpers/productAttributes/productAttributeTranslations"
+import type { TargetLocale } from "@/core/i18n/locales"
 
 export interface IProductAttributeDependencies {
     productAttributeRepository: IPrismaProductAttributeRepository
@@ -14,7 +15,7 @@ export interface ICreateProductAttributeBody {
     isCustomerAssignable?: boolean
 }
 
-export type RemovableProductAttributeTranslationLocale = "en"
+export type RemovableProductAttributeTranslationLocale = TargetLocale
 
 export type ICreateProductAttributeEvent =
     IAPIGatewayProxyEventWithUserGeneric<ICreateProductAttributeBody>

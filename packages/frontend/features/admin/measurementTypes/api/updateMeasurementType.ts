@@ -1,8 +1,9 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { MeasurementTypeCode, MeasurementTypeResponse } from "./types"
+import type { SupportedLocale, TargetLocale } from "@core/i18n/locales"
 
 type TranslationInput = {
-    locale: "tr" | "en"
+    locale: SupportedLocale
     name: string
 }
 
@@ -13,6 +14,7 @@ export type UpdateMeasurementTypeParams = {
     baseUnit?: string
     displayOrder?: number
     translations?: TranslationInput[]
+    removeTranslationLocales?: TargetLocale[]
 }
 
 export async function updateMeasurementType(params: UpdateMeasurementTypeParams) {

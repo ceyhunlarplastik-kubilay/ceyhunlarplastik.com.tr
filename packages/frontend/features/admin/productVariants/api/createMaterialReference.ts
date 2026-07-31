@@ -1,5 +1,6 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { MaterialReference } from "@/features/admin/productVariants/api/types";
+import type { SupportedLocale } from "@core/i18n/locales"
 
 type CreateMaterialResponse = {
     statusCode: number
@@ -12,7 +13,7 @@ type Params = {
     name: string
     code?: string
     translations?: Array<{
-        locale: "tr" | "en"
+        locale: SupportedLocale
         name: string
     }>
 }

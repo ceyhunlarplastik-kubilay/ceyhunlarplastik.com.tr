@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { localeSchema } from "@/core/helpers/validation/localeSchema"
 
 const z_hex = z.string().regex(/^#([0-9A-Fa-f]{6})$/)
-const localeSchema = z.enum(["tr", "en"])
 
 const colorSchema = z.object({
     id: z.uuid(),

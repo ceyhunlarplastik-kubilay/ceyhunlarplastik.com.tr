@@ -20,6 +20,8 @@ import { groupVariantMeasurements } from "@/features/public/products/utils/group
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 import { toSimilarProductItems } from "@/features/public/products/utils/similarProducts"
+import { getOgLocale } from "@/i18n/localeMetadata";
+import { buildAlternates } from "@/i18n/alternates";
 
 export const revalidate = 60
 
@@ -40,21 +42,15 @@ export async function generateMetadata(
 
     if (!product) return {}
 
-    const turkishSlug = product.alternateSlugs?.tr ?? product.slug
-    const englishSlug = product.translationMissing
-        ? undefined
-        : product.alternateSlugs?.en
-    const canonicalSlug = locale === "tr"
-        ? turkishSlug
-        : englishSlug ?? product.slug
-    const canonicalPath = locale === "tr" ? `/urun/${canonicalSlug}` : `/en/urun/${canonicalSlug}`
-    const turkishUrl = `/urun/${turkishSlug}`
-    const englishUrl = englishSlug ? `/en/urun/${englishSlug}` : undefined
-    const languages = {
-        tr: turkishUrl,
-        "x-default": turkishUrl,
-        ...(englishUrl ? { en: englishUrl } : {}),
-    }
+    // Her dilin kendi slug'ı; o dile çevrilmemişse hreflang'e hiç yazılmaz.
+    const alternates = buildAlternates({
+        locale,
+        pathFor: (candidate) => {
+            const localeSlug = product.alternateSlugs?.[candidate]
+            if (!localeSlug) return null
+            return `/urun/${localeSlug}`
+        },
+    })
 
     return {
         // Root layout template "| Ceyhunlar Plastik" ekler
@@ -64,15 +60,12 @@ export async function generateMetadata(
             title: product.name,
             description: t("ogDescription", { name: product.name }),
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
         robots: locale !== "tr" && product.translationMissing
             ? { index: false, follow: true }
             : undefined,
-        alternates: {
-            canonical: canonicalPath,
-            languages,
-        },
+        alternates,
     }
 }
 

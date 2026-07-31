@@ -4,6 +4,7 @@ import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository"
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository";
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 import type { CategoryTranslationInput } from "@/core/helpers/categories/categoryTranslations"
+import type { TargetLocale } from "@/core/i18n/locales"
 
 export interface ICreateCategoryBody {
     code: number
@@ -16,7 +17,7 @@ export interface ICreateCategoryBody {
     mimeType?: string
 }
 
-export type RemovableCategoryTranslationLocale = "en"
+export type RemovableCategoryTranslationLocale = TargetLocale
 
 export type ICreateCategoryEvent = IAPIGatewayProxyEventWithUser<ICreateCategoryBody>
 

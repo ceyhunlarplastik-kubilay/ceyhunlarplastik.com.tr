@@ -1,6 +1,7 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { AssetRole } from "@/features/public/assets/types"
 import type { PresignProductAssetResponse } from "./types"
+import type { SupportedLocale } from "@core/i18n/locales"
 
 export type ProductAssetUploadPurpose = "PRODUCT_ASSET" | "INDUSTRIAL_USAGE_IMAGE"
 
@@ -11,7 +12,7 @@ type Params = {
     contentType: string
     purpose?: ProductAssetUploadPurpose
     /** INDUSTRIAL_USAGE_IMAGE için: görselin dili, S3 key'ine segment olarak girer. */
-    locale?: "tr" | "en"
+    locale?: SupportedLocale
 }
 
 export async function presignProductAsset({

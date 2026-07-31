@@ -3,6 +3,7 @@ import { IPrismaMaterialRepository } from "@/core/helpers/prisma/materials/repos
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository"
 import { AssetRole, AssetType } from "@/prisma/generated/prisma/client"
 import type { VariantDictionaryTranslationInput } from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
+import type { TargetLocale } from "@/core/i18n/locales"
 
 export interface IMaterialDependencies {
     materialRepository: IPrismaMaterialRepository
@@ -16,6 +17,8 @@ export interface ICreateMaterialBody {
 }
 
 export interface IUpdateMaterialBody extends Partial<ICreateMaterialBody> {
+    /** Silinecek çeviri satırları — varsayılan dil kaydın kendi kolonunda, silinemez. */
+    removeTranslationLocales?: TargetLocale[]
     assetKey?: string
     assetRole?: AssetRole
     assetType?: AssetType

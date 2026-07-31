@@ -7,7 +7,6 @@ import {
     ProductAttributeTranslationInputError,
     normalizeProductAttributeTranslations,
 } from "@/core/helpers/productAttributes/productAttributeTranslations"
-import { DEFAULT_LOCALE } from "@/core/i18n/locales"
 
 export const updateProductAttributeHandler = ({ productAttributeRepository }: IProductAttributeDependencies) => {
     return async (event: IUpdateProductAttributeEvent) => {
@@ -67,10 +66,10 @@ export const updateProductAttributeHandler = ({ productAttributeRepository }: IP
                         })),
                     }),
                     ...(removeTranslationLocales?.length && {
+                        // TargetLocale varsayılan dili DIŞLAR: "tr" ne validator'dan
+                        // ne de tipten geçebilir, ayrıca filtrelemeye gerek yok.
                         deleteMany: {
-                            locale: {
-                                in: removeTranslationLocales.filter((locale) => locale !== DEFAULT_LOCALE),
-                            },
+                            locale: { in: removeTranslationLocales },
                         },
                     }),
                 }

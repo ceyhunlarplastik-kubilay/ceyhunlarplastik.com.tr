@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/input-group"
 import {
     PRODUCT_FORM_DEFAULT_LOCALE,
-    PRODUCT_FORM_LOCALE_LABELS,
     productTranslationIndex,
     type ProductFormLocale,
     type ProductFormValues,
 } from "@/features/admin/products/schema/productFormSchema"
+import { adminLocaleLabel } from "@/features/admin/shared/translations/adminLocales"
 
 type Props = {
     control: Control<ProductFormValues>
@@ -89,7 +89,7 @@ export function ProductTranslatableFields({ control, locale, slugPreview }: Prop
     }
 
     const index = productTranslationIndex(locale)
-    const localeLabel = PRODUCT_FORM_LOCALE_LABELS[locale]
+    const localeLabel = adminLocaleLabel(locale)
 
     return (
         <div className="space-y-4">

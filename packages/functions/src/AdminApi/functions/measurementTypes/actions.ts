@@ -24,6 +24,10 @@ import type {
     IUpdateMeasurementTypeEvent,
 } from "@/functions/AdminApi/types/measurementTypes"
 
+// Ölçü tipi sözlüğü içerik girişinin parçası: Kategori/Ürün ile aynı şekilde
+// content_editor de yönetebilir (owner rol hiyerarşisiyle zaten geçiyor).
+const measurementTypeManagerGroups = ["admin", "content_editor"]
+
 export const createMeasurementType = lambdaHandler(
     async (event) => {
         const deps: IMeasurementTypeDependencies = {
@@ -34,7 +38,7 @@ export const createMeasurementType = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: measurementTypeManagerGroups },
         requestValidator: createMeasurementTypeValidator,
         responseValidator: measurementTypeResponseValidator,
     }
@@ -50,7 +54,7 @@ export const getMeasurementType = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: measurementTypeManagerGroups },
         requestValidator: idValidator,
         responseValidator: measurementTypeResponseValidator,
     }
@@ -67,7 +71,7 @@ export const listMeasurementTypes = lambdaHandler(
             )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: measurementTypeManagerGroups },
         responseValidator: listMeasurementTypeResponseValidator,
     }
 )
@@ -82,7 +86,7 @@ export const deleteMeasurementType = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: measurementTypeManagerGroups },
         requestValidator: idValidator,
         responseValidator: measurementTypeResponseValidator,
     }
@@ -98,7 +102,7 @@ export const updateMeasurementType = lambdaHandler(
         )
     },
     {
-        auth: { requiredPermissionGroups: ["admin"] },
+        auth: { requiredPermissionGroups: measurementTypeManagerGroups },
         requestValidator: updateMeasurementTypeValidator,
         responseValidator: measurementTypeResponseValidator,
     }

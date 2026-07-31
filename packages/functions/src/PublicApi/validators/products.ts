@@ -1,8 +1,8 @@
 import { z } from "zod"
 import { categorySchema } from "@/functions/PublicApi/validators/categories";
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { localeSchema } from "@/core/helpers/validation/localeSchema"
 
-const localeSchema = z.enum(["tr", "en"])
 
 export const assetTypeEnum = z.enum([
     "IMAGE",

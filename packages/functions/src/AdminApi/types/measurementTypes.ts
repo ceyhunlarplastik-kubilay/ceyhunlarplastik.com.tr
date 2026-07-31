@@ -1,6 +1,7 @@
 import { IAPIGatewayProxyEventWithUserGeneric, IAPIGatewayPaginationQuery } from "@/core/helpers/utils/api/types"
 import { IPrismaMeasurementTypeRepository } from "@/core/helpers/prisma/measurementTypes/repository"
 import type { VariantDictionaryTranslationInput } from "@/core/helpers/variantDictionaries/variantDictionaryTranslations"
+import type { TargetLocale } from "@/core/i18n/locales"
 
 export interface IMeasurementTypeDependencies {
     measurementTypeRepository: IPrismaMeasurementTypeRepository
@@ -38,8 +39,13 @@ export type IListMeasurementTypesEvent = IAPIGatewayProxyEventWithUserGeneric<
 > */
 
 
+export interface IUpdateMeasurementTypeBody extends Partial<ICreateMeasurementTypeBody> {
+    /** Silinecek çeviri satırları — varsayılan dil kaydın kendi kolonunda, silinemez. */
+    removeTranslationLocales?: TargetLocale[]
+}
+
 export type IUpdateMeasurementTypeEvent = IAPIGatewayProxyEventWithUserGeneric<
-    Partial<ICreateMeasurementTypeBody>,
+    IUpdateMeasurementTypeBody,
     { id: string }
 >
 

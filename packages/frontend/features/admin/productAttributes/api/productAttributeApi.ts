@@ -1,5 +1,6 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { ProductAttribute } from "@/features/admin/productAttributes/types"
+import type { SupportedLocale, TargetLocale } from "@core/i18n/locales"
 
 export type UpdateProductAttributeInput = {
     name: string
@@ -7,10 +8,10 @@ export type UpdateProductAttributeInput = {
     displayOrder: number
     isCustomerAssignable: boolean
     translations?: Array<{
-        locale: "en"
+        locale: SupportedLocale
         name: string
     }>
-    removeTranslationLocales?: "en"[]
+    removeTranslationLocales?: TargetLocale[]
 }
 
 type UpdateProductAttributeResponse = {

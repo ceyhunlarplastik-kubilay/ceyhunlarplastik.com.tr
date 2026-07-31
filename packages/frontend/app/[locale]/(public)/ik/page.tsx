@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { HrHero, HrContactForm } from "@/features/public/hr";
 import { siteUrl } from "@/app/sharedMetadata";
+import { getOgLocale } from "@/i18n/localeMetadata";
+import { buildStaticAlternates, localePath } from "@/i18n/alternates";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -11,7 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: "public.hr.meta" });
 
-    const path = locale === "tr" ? "/ik" : "/en/ik";
+    const path = localePath(locale, "/ik");
     const structuredData = {
         "@context": "https://schema.org",
         "@type": "WebPage",
@@ -24,18 +26,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         title: t("title"),
         description: t("description"),
         keywords: t.raw("keywords") as string[],
-        alternates: {
-            canonical: path,
-            languages: {
-                tr: "/ik",
-                en: "/en/ik",
-                "x-default": "/ik",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/ik"),
         openGraph: {
             description: t("ogDescription"),
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
             images: [
                 {
                     url: "/logos/hr.jpg",

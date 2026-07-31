@@ -1,6 +1,6 @@
 import { z } from "zod"
+import { localeSchema } from "@/core/helpers/validation/localeSchema"
 
-const localeSchema = z.enum(["tr", "en"])
 const productAttributeTranslationSchema = z.object({
     id: z.uuid(),
     locale: z.string(),

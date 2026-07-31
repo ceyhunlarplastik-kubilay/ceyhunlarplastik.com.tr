@@ -2,6 +2,7 @@ import { z } from "zod"
 import { categorySchema } from "@/functions/AdminApi/validators/categories"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { assetTypeEnum, assetRoleEnum, productSchema } from "@/functions/PublicApi/validators/products"
+import { localeSchema, TRANSLATIONS_ARRAY_MAX } from "@/core/helpers/validation/localeSchema"
 
 /* const assetTypeEnum = z.enum([
     "IMAGE",
@@ -67,17 +68,17 @@ const productIndustrialUsageInputSchema = z.object({
     usageAreaValueId: z.uuid().nullable().optional(),
     usageFunction: z.string().max(2000).nullable().optional(),
     translations: z.array(z.object({
-        locale: z.enum(["tr", "en"]),
+        locale: localeSchema,
         usageFunction: z.string().max(2000).nullable().optional(),
         // Locale'e özgü kullanım görseli; yoksa satırın varsayılan imageKey'ine düşülür.
         imageKey: z.string().max(2048).nullable().optional(),
-    })).max(10).optional(),
+    })).max(TRANSLATIONS_ARRAY_MAX).optional(),
     imageKey: z.string().max(2048).nullable().optional(),
     displayOrder: z.number().int().min(0).nullable().optional(),
 })
 
 const productTranslationInputSchema = z.object({
-    locale: z.enum(["tr", "en"]),
+    locale: localeSchema,
     name: z.string().max(255).nullable().optional(),
     slug: z.string().max(255).nullable().optional(),
     description: z.string().max(2000).nullable().optional(),
@@ -106,7 +107,7 @@ export const createProductValidator = validatorWrapper(
             mimeType: z.string().optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
-            translations: z.array(productTranslationInputSchema).max(10).optional(),
+            translations: z.array(productTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             assemblyVideoUrl: productVideoUrlSchema,
             promoVideoUrl: productVideoUrlSchema,
         }),
@@ -133,7 +134,7 @@ export const updateProductValidator = validatorWrapper(
             mimeType: z.string().optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
-            translations: z.array(productTranslationInputSchema).max(10).optional(),
+            translations: z.array(productTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             assemblyVideoUrl: productVideoUrlSchema,
             promoVideoUrl: productVideoUrlSchema,
         }),
@@ -208,7 +209,7 @@ export const createProductAssetUploadValidator = validatorWrapper(
             fileName: z.string(),
             contentType: z.string(),
             purpose: productAssetUploadPurposeEnum.optional(),
-            locale: z.enum(["tr", "en"]).optional(),
+            locale: localeSchema.optional(),
         }).superRefine((body, ctx) => {
             const purpose = body.purpose ?? "PRODUCT_ASSET"
 

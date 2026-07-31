@@ -1,5 +1,6 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { ColorReference } from "@/features/admin/productVariants/api/types";
+import type { SupportedLocale } from "@core/i18n/locales"
 
 type CreateColorResponse = {
     statusCode: number
@@ -14,7 +15,7 @@ type Params = {
     code: string
     hex: string
     translations?: Array<{
-        locale: "tr" | "en"
+        locale: SupportedLocale
         name: string
     }>
 }

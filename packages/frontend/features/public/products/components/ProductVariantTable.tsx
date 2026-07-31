@@ -31,11 +31,12 @@ import {
 import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupVariantMeasurements"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import ProductVariantNavigationOverlay from "@/features/public/products/components/ProductVariantNavigationOverlay"
+import type { SupportedLocale } from "@core/i18n/locales"
 
 export type MeasurementTypeDetails = {
     id: string
     name: string
-    locale?: "tr" | "en"
+    locale?: SupportedLocale
     resolvedLocale?: string
     translationMissing?: boolean
     code: string
@@ -53,7 +54,7 @@ export type VariantMeasurement = {
 export type VariantColor = {
     id: string
     name: string
-    locale?: "tr" | "en"
+    locale?: SupportedLocale
     resolvedLocale?: string
     translationMissing?: boolean
     system?: string
@@ -64,7 +65,7 @@ export type VariantColor = {
 export type VariantMaterial = {
     id: string
     name: string
-    locale?: "tr" | "en"
+    locale?: SupportedLocale
     resolvedLocale?: string
     translationMissing?: boolean
     code?: string | null

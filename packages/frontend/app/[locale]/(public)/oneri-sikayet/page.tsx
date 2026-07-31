@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SuggestionForm } from "@/features/public/suggestion/components/SuggestionForm";
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -13,17 +15,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/oneri-sikayet" : "/en/oneri-sikayet",
-            languages: {
-                tr: "/oneri-sikayet",
-                en: "/en/oneri-sikayet",
-                "x-default": "/oneri-sikayet",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/oneri-sikayet"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     };
 }

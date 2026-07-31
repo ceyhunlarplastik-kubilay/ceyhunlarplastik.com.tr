@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
 import { Check, Loader2, X } from "lucide-react"
@@ -26,6 +27,15 @@ import {
     type ProductAttributeValueEditFormValues,
 } from "@/features/admin/productAttributes/schema/productAttributeValueForms"
 import type { ProductAttributeValue } from "@/features/admin/productAttributes/types"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import {
+    ADMIN_DEFAULT_LOCALE,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales"
+import {
+    buildNameTranslationDefaults,
+    type NameTranslationFormValues,
+} from "@/features/admin/shared/translations/nameTranslations"
 
 type Props = {
     value: ProductAttributeValue
@@ -37,7 +47,7 @@ type Props = {
     onSave: (input: {
         id: string
         name: string
-        englishName?: string
+        translations?: NameTranslationFormValues[]
         parentValueId?: string
     }) => Promise<void>
 }
@@ -51,11 +61,12 @@ export function ProductAttributeValueEditForm({
     onCancel,
     onSave,
 }: Props) {
+    const [activeLocale, setActiveLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
     const form = useForm<ProductAttributeValueEditFormValues>({
         resolver: zodResolver(productAttributeValueEditSchema),
         defaultValues: {
             name: value.name,
-            englishName: value.translations?.find((translation) => translation.locale === "en")?.name ?? "",
+            translations: buildNameTranslationDefaults(value.translations),
             parentValueId: value.parentValueId ?? "",
         },
         mode: "onChange",
@@ -78,7 +89,7 @@ export function ProductAttributeValueEditForm({
             await onSave({
                 id: value.id,
                 name: values.name.trim(),
-                englishName: values.englishName?.trim(),
+                translations: values.translations,
                 ...(parentAttributeCode && { parentValueId: values.parentValueId }),
             })
             onCancel()
@@ -101,27 +112,38 @@ export function ProductAttributeValueEditForm({
             >
                 <FormField
                     control={form.control}
-                    name="name"
+                    name="translations"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Değer adı</FormLabel>
-                            <FormControl>
-                                <Input {...field} autoFocus disabled={isPending} placeholder="Değer adı" />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="englishName"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>İngilizce değer</FormLabel>
-                            <FormControl>
-                                <Input {...field} disabled={isPending} placeholder="English label" />
-                            </FormControl>
+                            <AdminTranslatedNameSection
+                                entityLabel="Değer adı"
+                                activeLocale={activeLocale}
+                                onActiveLocaleChange={setActiveLocale}
+                                translations={field.value}
+                                onTranslationsChange={field.onChange}
+                                targetPlaceholder="English label"
+                                disabled={isPending}
+                                defaultLocaleField={
+                                    <FormField
+                                        control={form.control}
+                                        name="name"
+                                        render={({ field: nameField }) => (
+                                            <FormItem>
+                                                <FormLabel>Türkçe değer adı</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...nameField}
+                                                        autoFocus
+                                                        disabled={isPending}
+                                                        placeholder="Değer adı"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                }
+                            />
                             <FormMessage />
                         </FormItem>
                     )}

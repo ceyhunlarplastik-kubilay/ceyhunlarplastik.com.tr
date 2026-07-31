@@ -6,6 +6,7 @@ import {
     normalizeProductIndustrialUsages,
 } from "./productIndustrialUsages"
 import type { IPrismaProductAttributeValueRepository } from "../prisma/productAttributeValues/repository"
+import { SUPPORTED_LOCALES, TARGET_LOCALES } from "../../i18n/locales"
 
 function makeValue(id: string, code: string, options: { isActive?: boolean; attributeActive?: boolean } = {}) {
     return {
@@ -294,8 +295,9 @@ describe("productIndustrialUsages", () => {
             },
         ])
 
+        // TR metni korunduğu için yalnız TR satırı kalır; diğer tüm diller silinir.
         expect(buildProductIndustrialUsageUpdateInput(rows[0]).translations).toMatchObject({
-            deleteMany: { locale: { in: ["en"] } },
+            deleteMany: { locale: { in: TARGET_LOCALES } },
         })
     })
 
@@ -313,8 +315,9 @@ describe("productIndustrialUsages", () => {
             },
         ])
 
+        // Kaynak metin boşaltıldı → hiçbir dil korunmaz.
         expect(buildProductIndustrialUsageUpdateInput(rows[0]).translations).toMatchObject({
-            deleteMany: { locale: { in: ["tr", "en"] } },
+            deleteMany: { locale: { in: [...SUPPORTED_LOCALES] } },
         })
     })
 

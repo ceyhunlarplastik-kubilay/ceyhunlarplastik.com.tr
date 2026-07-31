@@ -1,6 +1,7 @@
 import { adminApiClient } from "@/lib/http/client"
 import { ATTRIBUTE_VALUE_IMAGE_MAX_SIZE_BYTES } from "@/features/admin/productAttributes/constants"
 import type { ProductAttributeValue } from "@/features/admin/productAttributes/types"
+import type { SupportedLocale, TargetLocale } from "@core/i18n/locales"
 
 export type AttributeWithValues = {
     id: string
@@ -12,7 +13,7 @@ export type AttributeWithValues = {
 export type CreateProductAttributeValueInput = {
     name: string
     translations?: Array<{
-        locale: "en"
+        locale: SupportedLocale
         name: string
     }>
     attributeId: string
@@ -22,10 +23,10 @@ export type CreateProductAttributeValueInput = {
 export type UpdateProductAttributeValueInput = {
     name?: string
     translations?: Array<{
-        locale: "en"
+        locale: SupportedLocale
         name: string
     }>
-    removeTranslationLocales?: "en"[]
+    removeTranslationLocales?: TargetLocale[]
     parentValueId?: string | null
     assetType?: "IMAGE"
     assetRole?: "PRIMARY"

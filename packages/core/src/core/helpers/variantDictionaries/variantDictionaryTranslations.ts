@@ -1,4 +1,9 @@
-import { DEFAULT_LOCALE, isSupportedLocale, type SupportedLocale } from "@/core/i18n/locales"
+import {
+    DEFAULT_LOCALE,
+    isSupportedLocale,
+    type SupportedLocale,
+    type TargetLocale,
+} from "@/core/i18n/locales"
 
 export class VariantDictionaryTranslationInputError extends Error {
     constructor(message: string) {
@@ -73,5 +78,72 @@ export function normalizeVariantDictionaryTranslations({
         createOnlyTranslations: [...byLocale.values()].filter(
             (translation) => translation.locale !== DEFAULT_LOCALE,
         ),
+    }
+}
+
+/**
+ * Aynı dil hem güncellenip hem silinemez.
+ *
+ * İkisi de gönderilirse Prisma'da sıra belirsizdir (upsert ve deleteMany aynı
+ * nested write içinde) — sonuç veritabanı sürümüne bağlı hâle gelir. Sessiz
+ * belirsizlik yerine açık 400 döndürmek için istek reddedilir.
+ */
+export function assertNoTranslationLocaleConflict(
+    translations: VariantDictionaryTranslationInput[] | undefined,
+    removeLocales: string[] | undefined,
+) {
+    if (!translations?.length || !removeLocales?.length) return
+
+    const removable = new Set(removeLocales)
+    const conflicting = translations
+        .map((translation) => translation.locale)
+        .filter((locale) => removable.has(locale))
+
+    if (conflicting.length > 0) {
+        throw new VariantDictionaryTranslationInputError(
+            `Cannot update and remove the same translation locale: ${conflicting.join(", ")}`,
+        )
+    }
+}
+
+/**
+ * Sözlük kayıtlarının (Renk / Malzeme / Ölçü Tipi) çeviri nested write'ı.
+ *
+ * Üç handler da bunu birebir kopyalıyordu ve üçü de hedef diller için
+ * `connectOrCreate` kullanıyordu: çeviri satırı VARSA hiçbir şey yazılmıyor,
+ * yani MEVCUT bir çeviri hiçbir zaman güncellenmiyordu. Admin formları da bu
+ * yüzden ada bir kez girildikten sonra input'u `disabled` yapıyordu — arayüz
+ * backend'in eksiğini gizliyordu. Burada `upsert` kullanılır, böylece hem
+ * varsayılan dil hem hedef diller düzeltilebilir.
+ *
+ * `buildWhere` her modelin kendi bileşik anahtarını kurar
+ * (`colorId_locale`, `materialId_locale`, `measurementTypeId_locale`).
+ */
+export function buildVariantDictionaryTranslationWrites<TWhere>({
+    translations,
+    removeLocales,
+    buildWhere,
+}: {
+    translations: NormalizedVariantDictionaryTranslation[]
+    removeLocales?: TargetLocale[]
+    buildWhere: (locale: SupportedLocale) => TWhere
+}) {
+    if (translations.length === 0 && !removeLocales?.length) return undefined
+
+    return {
+        ...(translations.length > 0 && {
+            upsert: translations.map((translation) => ({
+                where: buildWhere(translation.locale),
+                create: translation,
+                update: { name: translation.name },
+            })),
+        }),
+        // Varsayılan dil `TargetLocale`'in dışında: kaydın kendi kolonunda yaşar,
+        // buradan silinemez — ayrıca filtrelemeye gerek yok, tip zaten engelliyor.
+        ...(removeLocales?.length && {
+            deleteMany: {
+                locale: { in: removeLocales },
+            },
+        }),
     }
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { MassProductionContent } from "@/features/public/massProduction/components/MassProductionContent";
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -13,17 +15,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/seri-uretim" : "/en/seri-uretim",
-            languages: {
-                tr: "/seri-uretim",
-                en: "/en/seri-uretim",
-                "x-default": "/seri-uretim",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/seri-uretim"),
         openGraph: {
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
         },
     };
 }

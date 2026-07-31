@@ -2,7 +2,7 @@
 
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Upload } from "lucide-react"
@@ -23,10 +23,18 @@ import {
     usePresignMaterialAsset,
     useUpdateMaterial,
 } from "@/features/admin/materials/hooks/useMaterialMutations"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import { ADMIN_DEFAULT_LOCALE } from "@/features/admin/shared/translations/adminLocales"
+import { useActiveTranslationLocale } from "@/features/admin/shared/translations/useActiveTranslationLocale"
+import {
+    buildNameTranslationDefaults,
+    buildNameTranslationsPayload,
+    nameTranslationFormSchema,
+} from "@/features/admin/shared/translations/nameTranslations"
 
 const materialFormSchema = z.object({
     name: z.string().min(1, "Ham madde adı zorunludur"),
-    englishName: z.string().optional(),
+    translations: z.array(nameTranslationFormSchema),
     code: z.string().optional(),
 })
 
@@ -43,13 +51,13 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
     const createMaterialMutation = useCreateMaterial()
     const updateMaterialMutation = useUpdateMaterial()
     const presignMutation = usePresignMaterialAsset()
-    const englishTranslation = material?.translations?.find((translation) => translation.locale === "en")
+    const [activeLocale, setActiveLocale] = useActiveTranslationLocale(open)
 
     const form = useForm<MaterialFormValues>({
         resolver: zodResolver(materialFormSchema),
         defaultValues: {
             name: "",
-            englishName: "",
+            translations: buildNameTranslationDefaults(),
             code: "",
         },
     })
@@ -65,10 +73,10 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
 
         form.reset({
             name: material?.name ?? "",
-            englishName: englishTranslation?.name ?? "",
+            translations: buildNameTranslationDefaults(material?.translations),
             code: material?.code ?? "",
         })
-    }, [englishTranslation?.name, form, material, open])
+    }, [form, material, open])
 
     function handleOpenChange(nextOpen: boolean) {
         if (!nextOpen) setCertificateFile(null)
@@ -104,16 +112,13 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
     }
 
     const onSubmit = form.handleSubmit(async (values) => {
-        const englishName = values.englishName?.trim()
+        const translationPayload = buildNameTranslationsPayload({
+            translations: values.translations,
+            existing: material?.translations,
+        })
         const payload = {
             name: values.name.trim(),
             code: values.code?.trim() || undefined,
-            translations: [
-                { locale: "tr" as const, name: values.name.trim() },
-                ...(!englishTranslation && englishName
-                    ? [{ locale: "en" as const, name: englishName }]
-                    : []),
-            ],
         }
 
         try {
@@ -121,8 +126,15 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
                 ? await updateMaterialMutation.mutateAsync({
                     id: material.id,
                     ...payload,
+                    ...translationPayload,
                 })
-                : await createMaterialMutation.mutateAsync(payload)
+                : await createMaterialMutation.mutateAsync({
+                    ...payload,
+                    translations: [
+                        { locale: ADMIN_DEFAULT_LOCALE, name: payload.name },
+                        ...(translationPayload.translations ?? []),
+                    ],
+                })
 
             if (certificateFile) {
                 await uploadCertificate(saved.id, certificateFile)
@@ -142,27 +154,35 @@ export function MaterialFormDialog({ open, material, onOpenChange }: Props) {
                 </DialogHeader>
 
                 <form className="space-y-4" onSubmit={(event) => void onSubmit(event)}>
-                    <div className="space-y-1.5">
-                        <Label htmlFor="material-name">Ad</Label>
-                        <Input
-                            id="material-name"
-                            placeholder="örn. Polipropilen"
-                            {...form.register("name")}
-                        />
-                        {form.formState.errors.name ? (
-                            <p className="text-xs text-red-500">{form.formState.errors.name.message}</p>
-                        ) : null}
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <Label htmlFor="material-english-name">İngilizce Ad</Label>
-                        <Input
-                            id="material-english-name"
-                            placeholder="örn. Polypropylene"
-                            disabled={Boolean(englishTranslation)}
-                            {...form.register("englishName")}
-                        />
-                    </div>
+                    <Controller
+                        name="translations"
+                        control={form.control}
+                        render={({ field }) => (
+                            <AdminTranslatedNameSection
+                                entityLabel="Ham madde adı"
+                                activeLocale={activeLocale}
+                                onActiveLocaleChange={setActiveLocale}
+                                translations={field.value}
+                                onTranslationsChange={field.onChange}
+                                targetPlaceholder="örn. Polypropylene"
+                                defaultLocaleField={
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="material-name">Türkçe ham madde adı</Label>
+                                        <Input
+                                            id="material-name"
+                                            placeholder="örn. Polipropilen"
+                                            {...form.register("name")}
+                                        />
+                                        {form.formState.errors.name ? (
+                                            <p className="text-xs text-red-500">
+                                                {form.formState.errors.name.message}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                }
+                            />
+                        )}
+                    />
 
                     <div className="space-y-1.5">
                         <Label htmlFor="material-code">Kod</Label>

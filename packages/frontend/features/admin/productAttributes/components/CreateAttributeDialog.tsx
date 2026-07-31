@@ -14,6 +14,16 @@ import {
 } from "@/components/ui/dialog"
 
 import { adminApiClient } from "@/lib/http/client"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import {
+    ADMIN_DEFAULT_LOCALE,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales"
+import {
+    buildNameTranslationDefaults,
+    buildNameTranslationsPayload,
+    type NameTranslationFormValues,
+} from "@/features/admin/shared/translations/nameTranslations"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 
 export function CreateAttributeDialog({
@@ -27,7 +37,10 @@ export function CreateAttributeDialog({
     const queryClient = useQueryClient()
 
     const [name, setName] = useState("")
-    const [englishName, setEnglishName] = useState("")
+    const [translations, setTranslations] = useState<NameTranslationFormValues[]>(
+        buildNameTranslationDefaults(),
+    )
+    const [activeLocale, setActiveLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
     const [code, setCode] = useState("")
     const [isCustomerAssignable, setIsCustomerAssignable] = useState(false)
     const isSystemCustomerAttribute = ["sector", "production_group", "usage_area"].includes(code.trim())
@@ -37,15 +50,14 @@ export function CreateAttributeDialog({
             await adminApiClient.post("/product-attributes", {
                 name,
                 code,
-                ...(englishName.trim() && {
-                    translations: [{ locale: "en", name: englishName.trim() }],
-                }),
+                ...buildNameTranslationsPayload({ translations }),
                 isCustomerAssignable: isSystemCustomerAttribute ? true : isCustomerAssignable,
             })
         },
         onSuccess() {
             setName("")
-            setEnglishName("")
+            setTranslations(buildNameTranslationDefaults())
+            setActiveLocale(ADMIN_DEFAULT_LOCALE)
             setCode("")
             setIsCustomerAssignable(false)
             onOpenChange(false)
@@ -67,36 +79,34 @@ export function CreateAttributeDialog({
                 </DialogHeader>
 
                 <div className="space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="attribute-name">Özellik adı</Label>
-                            <Input
-                                id="attribute-name"
-                                placeholder="Örn. Sektör"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
+                    <AdminTranslatedNameSection
+                        entityLabel="Özellik adı"
+                        activeLocale={activeLocale}
+                        onActiveLocaleChange={setActiveLocale}
+                        translations={translations}
+                        onTranslationsChange={setTranslations}
+                        targetPlaceholder="Ex. Sector"
+                        defaultLocaleField={
+                            <div className="space-y-2">
+                                <Label htmlFor="attribute-name">Türkçe özellik adı</Label>
+                                <Input
+                                    id="attribute-name"
+                                    placeholder="Örn. Sektör"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                />
+                            </div>
+                        }
+                    />
 
-                        <div className="space-y-2">
-                            <Label htmlFor="attribute-english-name">İngilizce ad</Label>
-                            <Input
-                                id="attribute-english-name"
-                                placeholder="Ex. Sector"
-                                value={englishName}
-                                onChange={(e) => setEnglishName(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="attribute-code">Kod</Label>
-                            <Input
-                                id="attribute-code"
-                                placeholder="Örn. usage_area"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                            />
-                        </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="attribute-code">Kod</Label>
+                        <Input
+                            id="attribute-code"
+                            placeholder="Örn. usage_area"
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                        />
                     </div>
 
                     {isSystemCustomerAttribute ? (

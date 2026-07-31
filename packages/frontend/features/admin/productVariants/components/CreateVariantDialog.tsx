@@ -3,7 +3,7 @@
 import axios from "axios"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronDown, Loader2, Plus, Upload, X } from "lucide-react"
@@ -39,6 +39,16 @@ import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import { useCreateProductVariant } from "@/features/admin/productVariants/hooks/useCreateProductVariant"
 import { useUpdateProductVariant } from "@/features/admin/productVariants/hooks/useUpdateProductVariant"
 import { useCreateColorReference } from "@/features/admin/productVariants/hooks/useCreateColorReference"
+import { AdminTranslatedNameSection } from "@/features/admin/shared/translations/AdminTranslatedNameSection"
+import {
+    ADMIN_DEFAULT_LOCALE,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales"
+import {
+    buildNameTranslationDefaults,
+    buildNameTranslationsPayload,
+    nameTranslationFormSchema,
+} from "@/features/admin/shared/translations/nameTranslations"
 import { useCreateMaterialReference } from "@/features/admin/productVariants/hooks/useCreateMaterialReference"
 import { useCreateSupplierReference } from "@/features/admin/productVariants/hooks/useCreateSupplierReference"
 import { useCreateMeasurementTypeReference } from "@/features/admin/productVariants/hooks/useCreateMeasurementTypeReference"
@@ -108,17 +118,20 @@ const measurementTypeCreateSchema = z.object({
     ]),
     name: z.string().min(2, "Ölçü tipi adı gerekli"),
     baseUnit: z.string().min(1, "Birim gerekli"),
+    translations: z.array(nameTranslationFormSchema),
 })
 
 const colorCreateSchema = z.object({
     system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]),
     code: z.string().min(3, "Kod en az 3 karakter olmalı").max(20, "Kod en fazla 20 karakter olabilir"),
     name: z.string().min(2, "Renk adı gerekli"),
+    translations: z.array(nameTranslationFormSchema),
     hex: z.string().regex(/^#([0-9A-Fa-f]{6})$/, "Hex formatı #RRGGBB olmalı"),
 })
 
 const materialCreateSchema = z.object({
     name: z.string().min(1, "Malzeme adı gerekli"),
+    translations: z.array(nameTranslationFormSchema),
     code: z.string().optional(),
 })
 
@@ -684,12 +697,20 @@ export function CreateVariantDialog({
         defaultValues: getDefaultValues(variant),
     })
 
+    // Satır içi sözlük oluşturma formlarının aktif çeviri dili; her biri kendi
+    // dialog'unda yaşadığı için ayrı tutuluyor.
+    const [colorCreateLocale, setColorCreateLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
+    const [materialCreateLocale, setMaterialCreateLocale] = useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
+    const [measurementTypeCreateLocale, setMeasurementTypeCreateLocale] =
+        useState<AdminLocale>(ADMIN_DEFAULT_LOCALE)
+
     const measurementTypeForm = useForm<MeasurementTypeCreateValues>({
         resolver: zodResolver(measurementTypeCreateSchema),
         defaultValues: {
             code: "D",
             name: "",
             baseUnit: "mm",
+            translations: buildNameTranslationDefaults(),
         },
     })
 
@@ -699,6 +720,7 @@ export function CreateVariantDialog({
             system: "CUSTOM",
             code: "",
             name: "",
+            translations: buildNameTranslationDefaults(),
             hex: "#000000",
         },
     })
@@ -707,6 +729,7 @@ export function CreateVariantDialog({
         resolver: zodResolver(materialCreateSchema),
         defaultValues: {
             name: "",
+            translations: buildNameTranslationDefaults(),
             code: "",
         },
     })
@@ -914,7 +937,14 @@ export function CreateVariantDialog({
     const fullCodePreview = `${productCode ?? "ÜRÜN_KODU"}.${(supplierCode ?? "").toUpperCase()}.${(versionCode ?? "").toUpperCase()}.${variantIndex ?? ""}`
 
     const onCreateColor = colorCreateForm.handleSubmit(async (values) => {
-        const created = await createColorMutation.mutateAsync(values)
+        const { translations, ...colorValues } = values
+        const created = await createColorMutation.mutateAsync({
+            ...colorValues,
+            translations: [
+                { locale: ADMIN_DEFAULT_LOCALE, name: colorValues.name.trim() },
+                ...(buildNameTranslationsPayload({ translations }).translations ?? []),
+            ],
+        })
 
         setLocalReferences((prev) => ({
             ...prev,
@@ -927,8 +957,10 @@ export function CreateVariantDialog({
             system: "CUSTOM",
             code: "",
             name: "",
+            translations: buildNameTranslationDefaults(),
             hex: "#000000",
         })
+        setColorCreateLocale(ADMIN_DEFAULT_LOCALE)
         setColorCreateOpen(false)
     })
 
@@ -936,6 +968,10 @@ export function CreateVariantDialog({
         let created = await createMaterialMutation.mutateAsync({
             name: values.name,
             code: values.code || undefined,
+            translations: [
+                { locale: ADMIN_DEFAULT_LOCALE, name: values.name.trim() },
+                ...(buildNameTranslationsPayload({ translations: values.translations }).translations ?? []),
+            ],
         })
 
         if (materialCertificateFile) {
@@ -979,8 +1015,10 @@ export function CreateVariantDialog({
 
         materialCreateForm.reset({
             name: "",
+            translations: buildNameTranslationDefaults(),
             code: "",
         })
+        setMaterialCreateLocale(ADMIN_DEFAULT_LOCALE)
         setMaterialCertificateFile(null)
         setMaterialCreateOpen(false)
     })
@@ -1028,6 +1066,10 @@ export function CreateVariantDialog({
                 name: values.name,
                 baseUnit: values.baseUnit,
                 displayOrder: 0,
+                translations: [
+                    { locale: ADMIN_DEFAULT_LOCALE, name: values.name.trim() },
+                    ...(buildNameTranslationsPayload({ translations: values.translations }).translations ?? []),
+                ],
             })
 
             setLocalReferences((prev) => ({
@@ -1039,7 +1081,9 @@ export function CreateVariantDialog({
                 code: "D",
                 name: "",
                 baseUnit: "mm",
+                translations: buildNameTranslationDefaults(),
             })
+            setMeasurementTypeCreateLocale(ADMIN_DEFAULT_LOCALE)
 
             addMeasurementType(created)
         }
@@ -1916,13 +1960,31 @@ export function CreateVariantDialog({
                                     </select>
                                 </div>
 
-                                <div className="space-y-1">
-                                    <Label className="text-xs text-neutral-500">Ad</Label>
-                                    <Input
-                                        placeholder="örn. Çap"
-                                        {...measurementTypeForm.register("name")}
-                                    />
-                                </div>
+                                <Controller
+                                    name="translations"
+                                    control={measurementTypeForm.control}
+                                    render={({ field }) => (
+                                        <AdminTranslatedNameSection
+                                            entityLabel="Ölçü tipi adı"
+                                            activeLocale={measurementTypeCreateLocale}
+                                            onActiveLocaleChange={setMeasurementTypeCreateLocale}
+                                            translations={field.value}
+                                            onTranslationsChange={field.onChange}
+                                            targetPlaceholder="örn. Diameter"
+                                            defaultLocaleField={
+                                                <div className="space-y-1">
+                                                    <Label className="text-xs text-neutral-500">
+                                                        Türkçe ölçü tipi adı
+                                                    </Label>
+                                                    <Input
+                                                        placeholder="örn. Çap"
+                                                        {...measurementTypeForm.register("name")}
+                                                    />
+                                                </div>
+                                            }
+                                        />
+                                    )}
+                                />
 
                                 <div className="space-y-1">
                                     <Label className="text-xs text-neutral-500">Birim</Label>
@@ -2019,13 +2081,31 @@ export function CreateVariantDialog({
                             )}
                         </div>
 
-                        <div className="space-y-1">
-                            <Label className="text-xs text-neutral-500">Ad</Label>
-                            <Input placeholder="örn. Siyah" {...colorCreateForm.register("name")} />
-                            {colorCreateForm.formState.errors.name && (
-                                <p className="text-xs text-red-500">{colorCreateForm.formState.errors.name.message}</p>
+                        <Controller
+                            name="translations"
+                            control={colorCreateForm.control}
+                            render={({ field }) => (
+                                <AdminTranslatedNameSection
+                                    entityLabel="Renk adı"
+                                    activeLocale={colorCreateLocale}
+                                    onActiveLocaleChange={setColorCreateLocale}
+                                    translations={field.value}
+                                    onTranslationsChange={field.onChange}
+                                    targetPlaceholder="örn. Black"
+                                    defaultLocaleField={
+                                        <div className="space-y-1">
+                                            <Label className="text-xs text-neutral-500">Türkçe renk adı</Label>
+                                            <Input placeholder="örn. Siyah" {...colorCreateForm.register("name")} />
+                                            {colorCreateForm.formState.errors.name && (
+                                                <p className="text-xs text-red-500">
+                                                    {colorCreateForm.formState.errors.name.message}
+                                                </p>
+                                            )}
+                                        </div>
+                                    }
+                                />
                             )}
-                        </div>
+                        />
 
                         <div className="space-y-1">
                             <Label className="text-xs text-neutral-500">Hex</Label>
@@ -2061,13 +2141,31 @@ export function CreateVariantDialog({
                     </DialogHeader>
 
                     <form className="space-y-4" onSubmit={(e) => void onCreateMaterial(e)}>
-                        <div className="space-y-1">
-                            <Label className="text-xs text-neutral-500">Ad</Label>
-                            <Input placeholder="örn. Polipropilen" {...materialCreateForm.register("name")} />
-                            {materialCreateForm.formState.errors.name && (
-                                <p className="text-xs text-red-500">{materialCreateForm.formState.errors.name.message}</p>
+                        <Controller
+                            name="translations"
+                            control={materialCreateForm.control}
+                            render={({ field }) => (
+                                <AdminTranslatedNameSection
+                                    entityLabel="Malzeme adı"
+                                    activeLocale={materialCreateLocale}
+                                    onActiveLocaleChange={setMaterialCreateLocale}
+                                    translations={field.value}
+                                    onTranslationsChange={field.onChange}
+                                    targetPlaceholder="örn. Polypropylene"
+                                    defaultLocaleField={
+                                        <div className="space-y-1">
+                                            <Label className="text-xs text-neutral-500">Türkçe malzeme adı</Label>
+                                            <Input placeholder="örn. Polipropilen" {...materialCreateForm.register("name")} />
+                                            {materialCreateForm.formState.errors.name && (
+                                                <p className="text-xs text-red-500">
+                                                    {materialCreateForm.formState.errors.name.message}
+                                                </p>
+                                            )}
+                                        </div>
+                                    }
+                                />
                             )}
-                        </div>
+                        />
 
                         <div className="space-y-1">
                             <Label className="text-xs text-neutral-500">Kod (Opsiyonel)</Label>

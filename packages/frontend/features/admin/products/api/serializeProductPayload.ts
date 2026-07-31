@@ -1,3 +1,4 @@
+import { PRODUCT_FORM_DEFAULT_LOCALE } from "@/features/admin/products/schema/productFormSchema"
 import type {
     ProductFormValues,
     ProductIndustrialUsageFormValues,
@@ -21,10 +22,10 @@ export function serializeIndustrialUsages(industrialUsages?: ProductIndustrialUs
     }))
 }
 
-/** Boş bırakılmış hedef-dil çevirilerini göndermez; TR her zaman taşınır. */
+/** Boş bırakılmış hedef-dil çevirilerini göndermez; varsayılan dil her zaman taşınır. */
 export function serializeTranslations(translations?: ProductTranslationFormValues[]) {
     return translations?.filter((translation) =>
-        translation.locale === "tr" || Boolean(translation.name?.trim())
+        translation.locale === PRODUCT_FORM_DEFAULT_LOCALE || Boolean(translation.name?.trim())
     )
 }
 

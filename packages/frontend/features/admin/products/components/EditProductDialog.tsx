@@ -41,7 +41,7 @@ import { ProductIndustrialUsageEditor } from "@/features/admin/products/componen
 import { ProductVideoLinksCard } from "@/features/admin/products/components/ProductVideoLinksCard"
 import { buildProductUpdatePayload } from "@/features/admin/products/api/serializeProductPayload"
 import { ProductFormSection } from "@/features/admin/products/components/ProductFormSection"
-import { ProductLocaleSelect } from "@/features/admin/products/components/ProductLocaleSelect"
+import { AdminLocaleSelect } from "@/features/admin/shared/translations/AdminLocaleSelect"
 import { ProductTranslatableFields } from "@/features/admin/products/components/ProductTranslatableFields"
 import {
     PRODUCT_FORM_DEFAULT_LOCALE,
@@ -146,8 +146,19 @@ function EditProductForm({ product, categories, onUpdated, refetchProduct }: Edi
                 productionGroupValueId: usage.productionGroupValueId ?? null,
                 usageAreaValueId: usage.usageAreaValueId ?? null,
                 usageFunction: usage.usageFunction ?? "",
+                // Tanınmayan bir locale kodu forma alınamaz (şema `SUPPORTED_LOCALES`
+                // ile sınırlı) ve dizi kirlendiğinde tamamı gönderildiği için o satır
+                // sunucuda da SİLİNİR. Bu ancak desteklenen diller listesinden bir dil
+                // ÇIKARILIRSA olur; sessiz kalmamak için uyarı basılır.
                 translations: usage.translations
-                    ?.filter((translation) => isProductFormLocale(translation.locale))
+                    ?.filter((translation) => {
+                        if (isProductFormLocale(translation.locale)) return true
+
+                        console.warn(
+                            `Desteklenmeyen locale'li endüstriyel kullanım çevirisi forma alınmadı: ${translation.locale}. Kaydedilirse bu çeviri silinir.`,
+                        )
+                        return false
+                    })
                     .map((translation) => ({
                         locale: translation.locale as ProductFormLocale,
                         usageFunction: translation.usageFunction,
@@ -258,7 +269,7 @@ function EditProductForm({ product, categories, onUpdated, refetchProduct }: Edi
                     title="İçerik"
                     description="Ad, slug ve açıklama seçili dile yazılır."
                     actions={
-                        <ProductLocaleSelect
+                        <AdminLocaleSelect
                             value={activeLocale}
                             onChange={setActiveLocale}
                             filledLocales={filledLocales}

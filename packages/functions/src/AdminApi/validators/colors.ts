@@ -1,8 +1,13 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import {
+    localeSchema,
+    targetLocaleSchema,
+    REMOVABLE_TRANSLATION_LOCALES_MAX,
+    TRANSLATIONS_ARRAY_MAX,
+} from "@/core/helpers/validation/localeSchema"
 
 const z_hex = z.string().regex(/^#([0-9A-Fa-f]{6})$/)
-const localeSchema = z.enum(["tr", "en"])
 const dictionaryTranslationInputSchema = z.object({
     locale: localeSchema,
     name: z.string().min(1).max(100),
@@ -21,7 +26,7 @@ export const createColorValidator = validatorWrapper(
             system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]).optional(),
             code: z.string().min(3).max(20),
             name: z.string().min(2).max(100),
-            translations: z.array(dictionaryTranslationInputSchema).max(10).optional(),
+            translations: z.array(dictionaryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             hex: z_hex,
             rgbR: z.number().min(0).max(255).optional(),
             rgbG: z.number().min(0).max(255).optional(),
@@ -65,7 +70,8 @@ export const updateColorValidator = validatorWrapper(
             system: z.enum(["RAL", "PANTONE", "NCS", "CUSTOM"]).optional(),
             code: z.string().min(1).max(20).optional(),
             name: z.string().min(2).max(100).optional(),
-            translations: z.array(dictionaryTranslationInputSchema).max(10).optional(),
+            translations: z.array(dictionaryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
+            removeTranslationLocales: z.array(targetLocaleSchema).max(REMOVABLE_TRANSLATION_LOCALES_MAX).optional(),
             hex: z_hex.optional(),
             isActive: z.boolean().optional(),
         }),

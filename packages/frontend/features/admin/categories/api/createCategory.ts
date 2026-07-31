@@ -5,12 +5,13 @@ import { normalizeCategory } from "@/features/public/categories/normalizeCategor
 import type { AssetRole, AssetType } from "@/features/public/assets/types"
 
 import type { CreateCategoryResponse } from "./types"
+import type { SupportedLocale } from "@core/i18n/locales"
 
 type Params = {
     code: number
     name: string
     translations?: Array<{
-        locale: "tr" | "en"
+        locale: SupportedLocale
         name: string
         slug?: string
     }>

@@ -23,10 +23,14 @@ import {
 } from "@/features/admin/productAttributes/constants"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import type { ProductAttributeValue } from "@/features/admin/productAttributes/types"
+import {
+    buildNameTranslationsPayload,
+    type NameTranslationFormValues,
+} from "@/features/admin/shared/translations/nameTranslations"
 
 type CreateValueInput = {
     name: string
-    englishName?: string
+    translations?: NameTranslationFormValues[]
     parentValueId?: string
     file?: File | null
 }
@@ -34,7 +38,7 @@ type CreateValueInput = {
 type UpdateValueInput = {
     id: string
     name: string
-    englishName?: string
+    translations?: NameTranslationFormValues[]
     parentValueId?: string
 }
 
@@ -125,12 +129,10 @@ export function useProductAttributeValuesManager({ attributeId, attributeCode }:
     }
 
     const createMutation = useMutation({
-        mutationFn: async ({ name, englishName, parentValueId: parentId, file }: CreateValueInput) => {
+        mutationFn: async ({ name, translations, parentValueId: parentId, file }: CreateValueInput) => {
             const createdValue = await createProductAttributeValue({
                 name,
-                ...(englishName?.trim() && {
-                    translations: [{ locale: "en", name: englishName.trim() }],
-                }),
+                ...buildNameTranslationsPayload({ translations }),
                 attributeId,
                 ...(parentAttributeCode && { parentValueId: parentId }),
             })
@@ -163,19 +165,16 @@ export function useProductAttributeValuesManager({ attributeId, attributeCode }:
     })
 
     const updateMutation = useMutation({
-        mutationFn: async ({ id, name, englishName, parentValueId: parentId }: UpdateValueInput) => {
+        mutationFn: async ({ id, name, translations, parentValueId: parentId }: UpdateValueInput) => {
             setUpdatingValueId(id)
             const currentValue = values.find((value) => value.id === id)
-            const hasEnglishTranslation = currentValue?.translations?.some((translation) => translation.locale === "en")
-            const normalizedEnglishName = englishName?.trim() ?? ""
 
             await updateProductAttributeValue(id, {
                 name,
-                ...(normalizedEnglishName
-                    ? { translations: [{ locale: "en", name: normalizedEnglishName }] }
-                    : hasEnglishTranslation
-                        ? { removeTranslationLocales: ["en"] }
-                        : {}),
+                ...buildNameTranslationsPayload({
+                    translations,
+                    existing: currentValue?.translations,
+                }),
                 ...(parentAttributeCode && { parentValueId: parentId }),
             })
         },

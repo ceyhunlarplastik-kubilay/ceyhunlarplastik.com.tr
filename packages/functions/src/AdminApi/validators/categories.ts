@@ -1,8 +1,7 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import { localeSchema, targetLocaleSchema, REMOVABLE_TRANSLATION_LOCALES_MAX, TRANSLATIONS_ARRAY_MAX } from "@/core/helpers/validation/localeSchema"
 
-const localeSchema = z.enum(["tr", "en"])
-const removableTranslationLocaleSchema = z.literal("en")
 
 const categoryTranslationInputSchema = z.object({
     locale: localeSchema,
@@ -67,7 +66,7 @@ export const createCategoryValidator = validatorWrapper(
         body: z.object({
             code: z.coerce.number().int().positive(),
             name: z.string().min(2).max(100),
-            translations: z.array(categoryTranslationInputSchema).max(10).optional(),
+            translations: z.array(categoryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             allowedAttributeValueIds: z.array(z.uuid()).optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),
@@ -123,8 +122,8 @@ export const updateCategoryValidator = validatorWrapper(
         }),
         body: z.object({
             name: z.string().min(2).max(100).optional(),
-            translations: z.array(categoryTranslationInputSchema).max(10).optional(),
-            removeTranslationLocales: z.array(removableTranslationLocaleSchema).max(1).optional(),
+            translations: z.array(categoryTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
+            removeTranslationLocales: z.array(targetLocaleSchema).max(REMOVABLE_TRANSLATION_LOCALES_MAX).optional(),
             allowedAttributeValueIds: z.array(z.uuid()).optional(),
             assetType: assetTypeEnum.optional(),
             assetRole: assetRoleEnum.optional(),

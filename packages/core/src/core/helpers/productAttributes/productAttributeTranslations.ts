@@ -1,10 +1,14 @@
-import slugify from "slugify"
 
 import {
     DEFAULT_LOCALE,
     isSupportedLocale,
     type SupportedLocale,
 } from "@/core/i18n/locales"
+import {
+    buildTranslationSlug,
+    isTranslationNameTooShort,
+    TRANSLATION_NAME_MIN_LENGTH,
+} from "@/core/i18n/translationSlug"
 
 export type ProductAttributeTranslationInput = {
     locale: SupportedLocale
@@ -42,18 +46,10 @@ function normalizeByLocale<T extends { locale: SupportedLocale; name: string }>(
     return byLocale
 }
 
-function buildSlug(value: string, locale: SupportedLocale) {
-    return slugify(value, {
-        lower: true,
-        strict: true,
-        locale,
-    })
-}
-
 function assertName(name: string, locale: SupportedLocale) {
-    if (name.length < 2) {
+    if (isTranslationNameTooShort(name)) {
         throw new ProductAttributeTranslationInputError(
-            `${locale} translation name must be at least 2 characters`,
+            `${locale} translation name must be at least ${TRANSLATION_NAME_MIN_LENGTH} character(s)`,
         )
     }
 }
@@ -133,21 +129,35 @@ export function normalizeProductAttributeValueTranslations({
         throw new ProductAttributeTranslationInputError("A TR translation is required")
     }
 
-    const normalized = Array.from(byLocale.values()).map((translation) => {
+    // İki geçiş: ASCII dışı yazı sistemlerinde slugify boş döner (ko/ja/zh/hi),
+    // bu durumda varsayılan dilin slug'ına düşülür — bkz. translationSlug.ts.
+    const attempted = Array.from(byLocale.values()).map((translation) => {
         const name = translation.name.trim()
-        const slugSource = translation.slug?.trim() || name
-        const slug = buildSlug(slugSource, translation.locale)
-
         assertName(name, translation.locale)
-        if (!slug) {
-            throw new ProductAttributeTranslationInputError(
-                `${translation.locale} translation slug could not be generated`,
-            )
-        }
 
         return {
             locale: translation.locale,
             name,
+            slug: buildTranslationSlug(translation.slug?.trim() || name, translation.locale),
+        }
+    })
+
+    const defaultLocaleSlug = attempted.find(
+        (entry) => entry.locale === DEFAULT_LOCALE,
+    )?.slug
+
+    const normalized = attempted.map((entry) => {
+        const slug = entry.slug || defaultLocaleSlug
+
+        if (!slug) {
+            throw new ProductAttributeTranslationInputError(
+                `${entry.locale} translation slug could not be generated`,
+            )
+        }
+
+        return {
+            locale: entry.locale,
+            name: entry.name,
             slug,
         }
     })

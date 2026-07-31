@@ -34,7 +34,9 @@ const ALPHABETICAL_ATTRIBUTE_CODES = new Set([
 ])
 
 function sortValuesByName(values: NonNullable<ProductAttribute["values"]>, locale: string) {
-    const collator = new Intl.Collator(locale === "en" ? "en" : "tr", {
+    const collator = // Sıralama istenen dilin kurallarına göre yapılır; eskiden EN dışındaki
+    // her dil TR collation'ına düşüyordu.
+    new Intl.Collator(locale, {
         sensitivity: "base",
         numeric: true,
     })

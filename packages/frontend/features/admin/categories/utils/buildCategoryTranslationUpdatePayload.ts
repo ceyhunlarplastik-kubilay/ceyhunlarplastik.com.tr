@@ -1,3 +1,9 @@
+import {
+    buildNameTranslationsPayload,
+    type ExistingNameTranslation,
+    type NameTranslationFormValues,
+} from "@/features/admin/shared/translations/nameTranslations"
+
 import type { UpdateCategoryParams } from "../api/updateCategory"
 
 type TranslationUpdatePayload = Pick<
@@ -5,29 +11,34 @@ type TranslationUpdatePayload = Pick<
     "name" | "translations" | "removeTranslationLocales"
 >
 
+/**
+ * Kategori düzenleme formunun çeviri payload'u.
+ *
+ * Türkçe ad kategorinin kendi kolonu, diğer diller çeviri satırı — bu yüzden
+ * `name` ayrı taşınır ve yalnız DEĞİŞMİŞSE gönderilir. Aynı dialog'da izinli
+ * attribute değerleri için ayrı bir kaydet düğmesi var; ilgisiz alanları
+ * göndermek onları da yeniden yazardı.
+ *
+ * Çok dilli diff (`translations` + `removeTranslationLocales`) paylaşılan
+ * yardımcıdan gelir; burada yalnız kategoriye özgü `name` kuralı var.
+ */
 export function buildCategoryTranslationUpdatePayload({
     name,
-    englishName,
     nameChanged,
-    englishNameChanged,
-    hasEnglishTranslation,
+    translations,
+    existingTranslations,
 }: {
     name: string
-    englishName: string
     nameChanged: boolean
-    englishNameChanged: boolean
-    hasEnglishTranslation: boolean
+    translations: NameTranslationFormValues[]
+    existingTranslations?: ExistingNameTranslation[]
 }): TranslationUpdatePayload {
-    const payload: TranslationUpdatePayload = {}
-    const normalizedEnglishName = englishName.trim()
+    const payload: TranslationUpdatePayload = buildNameTranslationsPayload({
+        translations,
+        existing: existingTranslations,
+    })
 
     if (nameChanged) payload.name = name
-
-    if (englishNameChanged && normalizedEnglishName) {
-        payload.translations = [{ locale: "en", name: normalizedEnglishName }]
-    } else if (englishNameChanged && hasEnglishTranslation) {
-        payload.removeTranslationLocales = ["en"]
-    }
 
     return payload
 }

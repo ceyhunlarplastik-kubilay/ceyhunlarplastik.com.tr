@@ -13,11 +13,55 @@ export const DEEPL_SAFE_REQUEST_BYTES = 120 * 1024
 const SOURCE_LANGUAGE_BY_LOCALE: Record<SupportedLocale, SourceLanguageCode> = {
     tr: "tr",
     en: "en",
+    de: "de",
+    fr: "fr",
+    es: "es",
+    it: "it",
+    pt: "pt",
+    pl: "pl",
+    ru: "ru",
+    ar: "ar",
+    ko: "ko",
+    ja: "ja",
+    zh: "zh",
+    hi: "hi",
 }
 
+/**
+ * Hedef tarafta DeepL bazı diller için BÖLGE İSTER; bölgesiz kod gönderilirse
+ * uyarı üretir veya reddeder. Seçilen varyantlar:
+ *  - en-GB (mevcut davranış korundu)
+ *  - pt-BR (Brezilya pazarı; pt-PT'ye geçilecekse burası tek nokta)
+ *  - zh-HANS (basitleştirilmiş; geleneksel için zh-HANT)
+ *  - es (bölgesiz kabul ediliyor; Latin Amerika için es-419)
+ */
 const TARGET_LANGUAGE_BY_LOCALE: Record<SupportedLocale, TargetLanguageCode> = {
     tr: "tr",
     en: "en-GB",
+    de: "de",
+    fr: "fr",
+    es: "es",
+    it: "it",
+    pt: "pt-BR",
+    pl: "pl",
+    ru: "ru",
+    ar: "ar",
+    ko: "ko",
+    ja: "ja",
+    zh: "zh-HANS",
+    hi: "hi",
+}
+
+/**
+ * DeepL glossary'leri dil çiftine bağlıdır ve glossary dil listesi çeviri dil
+ * listesinden DAR. Hintçe glossary desteklenmiyor; glossaryId koşulsuz
+ * gönderilirse DeepL isteği reddeder.
+ * bkz. deepl-node `SourceGlossaryLanguageCode`
+ */
+const LOCALES_WITHOUT_GLOSSARY_SUPPORT = new Set<SupportedLocale>(["hi"])
+
+export function supportsGlossary(locale: SupportedLocale) {
+    return !LOCALES_WITHOUT_GLOSSARY_SUPPORT.has(locale)
 }
 
 export type DeepLUsage = {
@@ -135,6 +179,9 @@ export class DeepLTranslator {
 
         const batches = createDeepLRequestBatches(texts, context)
         const translations: DeepLTranslation[] = []
+        // Glossary dil çiftine bağlı; desteklenmeyen hedefte gönderilirse DeepL
+        // isteği reddeder (ör. Hintçe).
+        const glossary = supportsGlossary(targetLocale) ? this.glossaryId : undefined
 
         for (const batch of batches) {
             const results = await this.runSafely(() => this.client.translateText(
@@ -143,7 +190,7 @@ export class DeepLTranslator {
                 TARGET_LANGUAGE_BY_LOCALE[targetLocale],
                 {
                     context,
-                    glossary: this.glossaryId,
+                    glossary,
                     preserveFormatting: true,
                     splitSentences: "off",
                 },

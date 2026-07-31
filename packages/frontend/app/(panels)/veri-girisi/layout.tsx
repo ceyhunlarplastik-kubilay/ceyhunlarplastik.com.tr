@@ -28,6 +28,27 @@ const navItems = [
         icon: "settings" as const,
         match: "prefix" as const,
     },
+    // Varyant sözlükleri: adları ve çevirileri buradan girilir. Eskiden yalnız
+    // /admin altındaydılar, dolayısıyla içerik editörü bu üç sözlüğün çevirisini
+    // hiç giremiyordu.
+    {
+        href: "/veri-girisi/colors",
+        label: "Renkler",
+        icon: "palette" as const,
+        match: "prefix" as const,
+    },
+    {
+        href: "/veri-girisi/materials",
+        label: "Ham Maddeler",
+        icon: "layers" as const,
+        match: "prefix" as const,
+    },
+    {
+        href: "/veri-girisi/measurement-types",
+        label: "Ölçü Tipleri",
+        icon: "ruler" as const,
+        match: "prefix" as const,
+    },
 ]
 
 export default async function ContentEntryLayout({

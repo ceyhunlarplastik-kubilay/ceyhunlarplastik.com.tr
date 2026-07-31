@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { getLocaleDirection } from "@/i18n/localeMetadata";
 import { Providers } from "../providers";
 import { baseMetadata } from "../sharedMetadata";
 import { bodyFontClassName } from "../fonts";
@@ -31,7 +32,7 @@ export default async function LocaleLayout({
     setRequestLocale(locale);
 
     return (
-        <html lang={locale} suppressHydrationWarning>
+        <html lang={locale} dir={getLocaleDirection(locale)} suppressHydrationWarning>
             <body suppressHydrationWarning className={bodyFontClassName}>
                 <Providers>
                     <NextIntlClientProvider>{children}</NextIntlClientProvider>

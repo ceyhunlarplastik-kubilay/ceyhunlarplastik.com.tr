@@ -1,10 +1,12 @@
 import { z } from "zod"
 
+import { nameTranslationFormSchema } from "@/features/admin/shared/translations/nameTranslations"
+
 export const productAttributeValueCreateSchema = z.object({
     name: z.string()
         .trim()
         .min(2, "Değer adı en az 2 karakter olmalıdır."),
-    englishName: z.string().trim().optional(),
+    translations: z.array(nameTranslationFormSchema),
     parentValueId: z.string().optional(),
     imageFile: z.custom<File>().nullable().optional(),
 })
@@ -13,7 +15,7 @@ export const productAttributeValueEditSchema = z.object({
     name: z.string()
         .trim()
         .min(2, "Değer adı en az 2 karakter olmalıdır."),
-    englishName: z.string().trim().optional(),
+    translations: z.array(nameTranslationFormSchema),
     parentValueId: z.string().optional(),
 })
 

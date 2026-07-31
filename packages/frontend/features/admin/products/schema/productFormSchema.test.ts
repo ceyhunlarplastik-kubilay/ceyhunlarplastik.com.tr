@@ -25,8 +25,13 @@ describe("locale seti", () => {
     })
 
     it("desteklenmeyen locale kodunu ayırt eder", () => {
+        // `de` artık DESTEKLENEN bir dil (14 dil setiyle geldi); bu testin eski
+        // hâli onu "desteklenmiyor" sanıyordu. Gerçekten tanınmayan bir kodla
+        // doğrulanıyor.
         expect(isProductFormLocale("tr")).toBe(true)
-        expect(isProductFormLocale("de")).toBe(false)
+        expect(isProductFormLocale("de")).toBe(true)
+        expect(isProductFormLocale("xx")).toBe(false)
+        expect(isProductFormLocale("en-GB")).toBe(false)
     })
 })
 

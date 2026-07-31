@@ -4,6 +4,8 @@ import AboutHero from "@/features/public/about/components/AboutHero";
 import AboutContent from "@/features/public/about/components/AboutContent";
 import AboutCategories from "@/features/public/about/components/AboutCategories";
 import { AboutDetails } from "@/features/public/about/components/AboutDetails";
+import { buildStaticAlternates } from "@/i18n/alternates";
+import { getOgLocale } from "@/i18n/localeMetadata";
 
 type PageProps = {
     params: Promise<{ locale: string }>;
@@ -17,18 +19,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         // Root layout template'i "| Ceyhunlar Plastik" ekler; burada yalnız sayfa adı.
         title: t("title"),
         description: t("description"),
-        alternates: {
-            canonical: locale === "tr" ? "/hakkimizda" : "/en/hakkimizda",
-            languages: {
-                tr: "/hakkimizda",
-                en: "/en/hakkimizda",
-                "x-default": "/hakkimizda",
-            },
-        },
+        alternates: buildStaticAlternates(locale, "/hakkimizda"),
         openGraph: {
             description: t("ogDescription"),
             type: "website",
-            locale: locale === "tr" ? "tr_TR" : "en_US",
+            locale: getOgLocale(locale),
             // Not: eski koddaki `url: "/hakkimizda.jpg"` bir bug'dı (sayfa URL'i yerine
             // görsel path'i) — canonical/alternates bunu doğru şekilde karşılıyor.
             images: [

@@ -1,5 +1,6 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { MeasurementTypeReference } from "@/features/admin/productVariants/api/types";
+import type { SupportedLocale } from "@core/i18n/locales"
 
 type CreateMeasurementTypeResponse = {
     statusCode: number
@@ -34,7 +35,7 @@ type Params = {
     baseUnit: string
     displayOrder?: number
     translations?: Array<{
-        locale: "tr" | "en"
+        locale: SupportedLocale
         name: string
     }>
 }

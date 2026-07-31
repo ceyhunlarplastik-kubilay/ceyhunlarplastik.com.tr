@@ -4,6 +4,7 @@ import { IPrismaProductAttributeRepository } from "@/core/helpers/prisma/product
 import { IPrismaAssetRepository } from "@/core/helpers/prisma/assets/repository"
 import { AssetRole, AssetType } from "@/prisma/generated/prisma/client"
 import type { ProductAttributeValueTranslationInput } from "@/core/helpers/productAttributes/productAttributeTranslations"
+import type { TargetLocale } from "@/core/i18n/locales"
 
 export interface IProductAttributeValueDependencies {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
@@ -23,7 +24,7 @@ export interface ICreateProductAttributeValueBody {
     mimeType?: string
 }
 
-export type RemovableProductAttributeValueTranslationLocale = "en"
+export type RemovableProductAttributeValueTranslationLocale = TargetLocale
 
 export interface ICreateProductAttributeValueAssetUploadBody {
     productAttributeValueId: string

@@ -1,41 +1,30 @@
 import { z } from "zod"
 import { extractYoutubeVideoId } from "@core/helpers/products/youtubeVideo"
+import {
+    ADMIN_DEFAULT_LOCALE,
+    ADMIN_LOCALES,
+    ADMIN_TARGET_LOCALES,
+    adminTranslationIndex,
+    isAdminLocale,
+    type AdminLocale,
+} from "@/features/admin/shared/translations/adminLocales"
 
 /**
- * Admin formlarının çeviri yüzeyi için TEK kaynak.
+ * Ürün formunun çeviri yüzeyi — dil listesi paylaşılan admin modülünden,
+ * o da `@core/i18n/locales`'ten türer. Yeni bir dil eklemek yalnız core
+ * listesine bir kod eklemektir; buradaki hiçbir şey değişmez.
  *
- * Yeni bir dil eklemek: buraya bir kod ekle (+ backend'de
- * AdminApi/validators/products.ts ve core/i18n/locales.ts). Dialog'lar,
- * locale sekmeleri ve endüstriyel kullanım editörü bu listeden türediği için
- * arayüz tarafında başka hiçbir yeri değiştirmek gerekmez.
- *
- * `TARGET` = varsayılan dışındaki diller. Sırası SABİT olmalı: RHF
- * `translations.<index>.<field>` yollarıyla çalışıyor, index bu sıradan geliyor.
+ * Bu yeniden dışa aktarımlar, ürün dialog'larının çeviri bileşenleriyle
+ * uyumunu bozmadan tek kaynağa bağlanabilmesi için duruyor.
  */
-export const PRODUCT_FORM_LOCALES = ["tr", "en"] as const
-export type ProductFormLocale = (typeof PRODUCT_FORM_LOCALES)[number]
+export const PRODUCT_FORM_LOCALES = ADMIN_LOCALES
+export type ProductFormLocale = AdminLocale
 
-export const PRODUCT_FORM_DEFAULT_LOCALE: ProductFormLocale = "tr"
-
-export const PRODUCT_FORM_TARGET_LOCALES: ProductFormLocale[] = PRODUCT_FORM_LOCALES.filter(
-    (locale) => locale !== PRODUCT_FORM_DEFAULT_LOCALE,
-)
-
-export const PRODUCT_FORM_LOCALE_LABELS: Record<ProductFormLocale, string> = {
-    tr: "Türkçe",
-    en: "İngilizce",
-}
-
-/** Dil seçicideki bayraklar — LanguageSwitcher ile aynı görsel dil. */
-export const PRODUCT_FORM_LOCALE_FLAGS: Record<ProductFormLocale, string> = {
-    tr: "🇹🇷",
-    en: "🇬🇧",
-}
+export const PRODUCT_FORM_DEFAULT_LOCALE = ADMIN_DEFAULT_LOCALE
+export const PRODUCT_FORM_TARGET_LOCALES = ADMIN_TARGET_LOCALES
 
 /** Varsayılan dil dışındaki bir locale'in `translations` dizisindeki sabit indeksi. */
-export function productTranslationIndex(locale: ProductFormLocale) {
-    return PRODUCT_FORM_TARGET_LOCALES.indexOf(locale)
-}
+export const productTranslationIndex = adminTranslationIndex
 
 const productFormLocaleSchema = z.enum(PRODUCT_FORM_LOCALES)
 
@@ -119,8 +108,6 @@ export function buildProductTranslationDefaults(
 }
 
 /** Bir locale kodu admin formunun desteklediği diller arasında mı? */
-export function isProductFormLocale(value: string): value is ProductFormLocale {
-    return (PRODUCT_FORM_LOCALES as readonly string[]).includes(value)
-}
+export const isProductFormLocale = isAdminLocale
 export type ProductIndustrialUsageFormValues = z.infer<typeof productIndustrialUsageFormSchema>;
 export type ProductTranslationFormValues = z.infer<typeof productTranslationFormSchema>;

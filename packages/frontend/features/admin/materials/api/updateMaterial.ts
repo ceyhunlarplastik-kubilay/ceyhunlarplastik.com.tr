@@ -1,8 +1,9 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { MaterialResponse } from "./types"
+import type { SupportedLocale, TargetLocale } from "@core/i18n/locales"
 
 type TranslationInput = {
-    locale: "tr" | "en"
+    locale: SupportedLocale
     name: string
 }
 
@@ -11,6 +12,7 @@ export type UpdateMaterialParams = {
     name?: string
     code?: string
     translations?: TranslationInput[]
+    removeTranslationLocales?: TargetLocale[]
     assetKey?: string
     assetType?: "PDF"
     assetRole?: "CERTIFICATE"
