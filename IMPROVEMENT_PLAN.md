@@ -1463,18 +1463,18 @@ Yukarıdaki taramanın yan ürünü olarak işaretlenen üç dosya silindi — �
 | `components/Footer.tsx` | Canlı footer `components/home/Footer.tsx`; bu kopya `useCategories()` client hook'lu eski sürümdü (hydration hotfix'i canlı olana uygulanmıştı, bu kopya geride kalmıştı) |
 | `components/AuthButtons.tsx` | Hiçbir yerden import edilmiyor; TR metinleri hardcode, i18n'e hiç girmemiş |
 | `components/navigation/NavigationContactButton.tsx` | Hiçbir yerden import edilmiyor; canlı navbar `NavbarClient` üzerinden `MobileHamburgerButton`'ı kendisi kullanıyor |
+| `components/Navbar.tsx` | Canlı navbar `components/navigation/NavbarServer.tsx`; tek izi `(public)/layout.tsx:1`'deki yorum satırına alınmış import'tu — o satır da silindi |
 
-Yetim kalan bileşen oluşmadı: `MobileHamburgerButton`, `ProductRequestDialog`,
-`CatalogRequestDialog` ve `MailDialog` hâlâ `NavbarClient` / `home/Footer` /
-`TopBar` tarafından kullanılıyor.
+Yetim kalan bileşen oluşmadı: `MobileHamburgerButton`, `NavigationHeader`,
+`MobileMenu`, `NavigationGroup` hâlâ `NavbarClient`'tan; `ProductRequestDialog`,
+`CatalogRequestDialog` ve `MailDialog` hâlâ `home/Footer` / `TopBar`'dan
+kullanılıyor.
 
-**Doğrulama:** typecheck frontend ✅ · lint 0 error (**117 → 115** warning; iki
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (**117 → 114** warning; üç
 uyarı silinen dosyalardaydı) · frontend 119/119 ✅
 
-**Kalan ölü dosya — ayrı karar bekliyor:** `components/Navbar.tsx`. Canlı navbar
-`components/navigation/NavbarServer.tsx`; kök `Navbar.tsx`'in tek izi
-`(public)/layout.tsx:1`'deki yorum satırına alınmış import. Silinirse o yorum
-satırı da gitmeli. Bu oturumda kapsam dışı bırakıldı.
+Bu temizlikle kök `components/` altında ölü bileşen kalmadı; chrome bileşenleri
+tek yerde (`components/navigation/`) toplandı.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

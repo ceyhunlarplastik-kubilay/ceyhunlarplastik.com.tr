@@ -1,4 +1,3 @@
-// import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/home/Footer";
 import { Navbar } from "@/components/navigation/NavbarServer";
 import { NavigationProgress } from "@/components/navigation/NavigationProgress";
