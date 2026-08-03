@@ -50,6 +50,42 @@ export function resolveAlternatePath(
     return null;
 }
 
+/** Boş / yalnız işaretten ibaret değerleri "" yapar, değilse öneki garanti eder. */
+function normalizeFragment(value: string | undefined, prefix: "?" | "#"): string {
+    const trimmed = value?.trim();
+    if (!trimmed || trimmed === prefix) return "";
+    return trimmed.startsWith(prefix) ? trimmed : `${prefix}${trimmed}`;
+}
+
+/**
+ * Dil değiştirirken adres çubuğundaki sorguyu ve çapayı hedef yola taşır.
+ *
+ * hreflang etiketleri BİLEREK sorgusuz üretilir: canonical/alternate temiz URL
+ * olmalı, yoksa her ölçü veya filtre kombinasyonu ayrı bir alternate gibi
+ * görünür ve arama motoruna yanlış sinyal gider. Ama kullanıcı dil değiştirince
+ * seçimini kaybetmemeli — `/urun/<slug>/varyantlar?m=…` sayfasında EN'e geçmek
+ * seçili ölçüyü düşürüyor ve sayfa "hiç ölçü seçilmemiş" haline dönüyordu.
+ *
+ * Taşınan değerler dilden bağımsız (ölçü anahtarları ve filtreler UUID/kod
+ * taşır), o yüzden hedef dilde de aynen geçerlidir. Hedef yolun kendi sorgusu
+ * veya çapası varsa ona dokunulmaz: sunucunun yazdığı değer daha bilgilidir.
+ */
+export function withPreservedQuery(
+    path: string,
+    current: { search?: string; hash?: string },
+): string {
+    const hashIndex = path.indexOf("#");
+    const hashFromPath = hashIndex === -1 ? "" : path.slice(hashIndex);
+    const pathWithoutHash = hashIndex === -1 ? path : path.slice(0, hashIndex);
+
+    const search = pathWithoutHash.includes("?")
+        ? ""
+        : normalizeFragment(current.search, "?");
+    const hash = hashFromPath || normalizeFragment(current.hash, "#");
+
+    return `${pathWithoutHash}${search}${hash}`;
+}
+
 /** Belgedeki hreflang bağlantılarını okur. Tarayıcı dışında boş dizi döner. */
 export function readAlternateLinks(): AlternateLink[] {
     if (typeof document === "undefined") return [];

@@ -116,7 +116,7 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
 
             <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 space-y-6">
                 <div className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 lg:grid-cols-2 lg:gap-8">
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm">
+                    <div className="relative aspect-4/3 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm">
                         {primaryAsset?.url ? (
                             <Image
                                 src={primaryAsset.url}

@@ -1476,6 +1476,127 @@ uyarı silinen dosyalardaydı) · frontend 119/119 ✅
 Bu temizlikle kök `components/` altında ölü bileşen kalmadı; chrome bileşenleri
 tek yerde (`components/navigation/`) toplandı.
 
+### Dil değiştirici sorguyu düşürüyordu (2026-08-03)
+
+**Bulgu (kullanıcı raporu):** `/urun/<slug>/varyantlar?m=<ölçü-anahtarı>` sayfasında
+EN'e geçince `/en/urun/<en-slug>/varyantlar` açılıyor, `?m=` kayboluyordu — seçili
+ölçü sıfırlanıyor, kullanıcı listeye geri dönüyordu.
+
+**Kök neden ve neden "hreflang'e sorgu eklensin" YANLIŞ çözüm:** dil değiştirici
+hedefi sayfanın `<link rel="alternate" hreflang>` etiketlerinden okuyor (E2'de
+bilinçli tercih). O etiketler `buildAlternates` ile üretiliyor ve **sorgusuz
+olmaları gerekiyor**: canonical/alternate temiz URL olmalı, aksi halde her ölçü
+veya filtre kombinasyonu ayrı bir alternate gibi görünür ve arama motoruna yanlış
+sinyal gider. Yani eksik olan hreflang değil, değiştiricinin adres çubuğundaki
+sorguyu hedefe taşımamasıydı.
+
+**Çözüm:** `i18n/alternateLinks.ts`'e saf `withPreservedQuery(path, {search, hash})`
+eklendi (7 test). Hedef yolun kendi sorgusu/çapası varsa ona dokunmuyor — sunucunun
+yazdığı değer daha bilgili. Taşınan değerler dilden bağımsız (ölçü anahtarları ve
+filtreler UUID/kod taşır), o yüzden hedef dilde de aynen geçerli.
+
+**Sorgu `useSearchParams()` ile DEĞİL `window.location`'dan okunuyor:** bu hook
+`LanguageSwitcher`'ı içeren layout'u prerender'dan düşürür ve bütün public sayfalar
+client render'a kayardı (SSR/SEO kuralına aykırı). `switchTo` yalnız tıklamayla,
+yani hep tarayıcıda çalıştığı için `window.location` hem güvenli hem yeterli.
+
+**Yan bulgu — ölü `params` argümanı ve onu gizleyen `@ts-expect-error`:** fallback
+dalında `router.replace({pathname, params}, …)` çağrısı vardı ve `@ts-expect-error`
+ile susturuluyordu. Susturma kaldırılınca next-intl'in gerçek tipi göründü:
+`{ pathname: string; query?: QueryParams }` — **`params` hiç kabul edilmiyor.**
+next-intl bunu yalnız `routing`'de `pathnames` haritası varsa kullanır (o zaman
+`usePathname` şablon döndürür); bu projede öyle bir harita yok, `usePathname` zaten
+çözümlenmiş yolu veriyor. `params`, `useParams()` importu ve `@ts-expect-error`
+kaldırıldı; yerine `query` geçiyor, böylece fallback dalı da sorguyu koruyor.
+**Ders:** `@ts-expect-error` yalnız hatayı değil, tipin verdiği doğru API bilgisini
+de gizliyordu. `pathnames` ileride eklenirse burası yeniden gözden geçirilmeli
+(dosyaya not düşüldü).
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
+**126/126** ✅ (119 → +7 `withPreservedQuery`)
+
+**kubi'de doğrulanacak:** `/urun/<slug>/varyantlar?m=…` sayfasında EN'e geç →
+`/en/urun/<en-slug>/varyantlar?m=…` (aynı ölçü seçili kalmalı); sorgusuz bir sayfada
+dil değiştir → URL'de tek başına `?` belirmemeli; `#product-variants` çapasıyla
+açılmış ürün sayfasında dil değiştir → çapa korunmalı.
+
+## Dalga 2 AÇILDI: ru (2026-08-03)
+
+`routing.locales` artık 9 dil. İlk Latin-dışı alfabe. Deploy YAPILMADI.
+
+**Hazırlık kontrolleri (hepsi önceden yeşildi, ek iş çıkmadı):**
+
+| Kontrol | Sonuç |
+|---|---|
+| `messages/ru.json` tamlığı | 843/843 (tr/en ile eşit) — DeepL çalıştırmaya gerek yoktu |
+| Kiril font desteği | Geist, Geist Mono, Montserrat'ın üçü de `cyrillic` sunuyor (Next font-data'sından doğrulandı) |
+| Slug üretimi | ru transliterasyonla çalışıyor (`Бакелитовые ручки` → `bakelitovye-ruchki`); ko/ja/zh/hi'deki boş-slug sorunu ru'da yok |
+| `localeMetadata` | ru zaten tanımlıydı (Русский, 🇷🇺, ltr, `ru_RU`) |
+| `generateStaticParams` + `sitemap.ts` | ikisi de `routing.locales`'ten türüyor — dokunulmadı |
+
+**`cyrillic` subset'i üç fonta da eklendi.** `latin-ext`'teki mantığın aynısı:
+unicode-range sayesinde Latin alfabeli sayfa gezen ziyaretçi bu dosyaları HİÇ
+indirmez. Üçünde birden olması şart — biri eksik olsaydı Rusça metin o fontta
+sistem fontuna düşerdi. `cyrillic-ext` (Ukraynaca/Bulgarca ek karakterleri)
+bilerek eklenmedi: Rusça için gereksiz ve Geist ailesi zaten sunmuyor.
+
+### Kiril'in getirdiği YENİ denetim (Dalga 1'de mümkün değildi)
+
+Birebir sızıntı testi ru'da **10 kusur** buldu (Dalga 1'dekilerin aynısı: `DOSTU`,
+5× `ornek@`, `H.M.`, `Ted.`, `videoIframeTitle`, `productionImageAlt`).
+
+Ama ru Kiril olduğu için ikinci bir tarama yapılabildi: **Kiril metnin İÇİNDE
+kalmış Latin kelime.** Bu, birebir karşılaştırmaya takılmaz çünkü değer TR ile
+aynı değil — cümlenin geri kalanı düzgün çevrilmiş, içinde bir kelime İngilizce
+ya da Türkçe kalmış. Özel adlar (Ceyhunlar, resmi unvan, AWS/Cognito/ISO/CAD/3D,
+İZBAN, Semt Garajı) elenince **2 gerçek kusur** çıktı:
+
+| Anahtar | Şu andaki hata | Düzeltme |
+|---|---|---|
+| `public.productFilter.industrialDesc` | Rusça cümlenin içinde «industrial usage» İngilizce kalmış | «промышленное применение» |
+| `public.arge.block2Title` | `ARGE (…)` — Türkçe kısaltma, EN'de `R&D` | `НИОКР (исследования и разработки)` |
+
+**Ders:** birebir sızıntı kapısı gerekli ama yeterli değil; farklı alfabeli her
+dilde "hedef alfabe dışı kalıntı" taraması da yapılmalı. ar/ko/ja/zh/hi
+dalgalarında tekrarlanmalı — `routing.ts`'e not düşüldü.
+
+### Uygulanan Rusça değerler (13 değer)
+
+| Anahtar | Önce | Sonra |
+|---|---|---|
+| `shared.enviroment.word1` + `word2` | `ПРИРОДА` + `DOSTU` | `ДРУГ` + `ПРИРОДЫ` |
+| `auth.*.emailPlaceholder` (5 anahtar) | `ornek@ceyhunlar.com` | `primer@ceyhunlar.com` |
+| `…table.materialCount` | `{count} H.M.` | `{count} Мат.` |
+| `…table.supplierCount` | `{count} Ted.` | `{count} Пост.` |
+| `public.about.hero.videoIframeTitle` | `Ceyhunlar Tanıtım` | `Презентация Ceyhunlar` |
+| `public.about.content.productionImageAlt` | `Ceyhunlar Plastik Üretim` | `Ceyhunlar Plastik — производство` |
+| `public.productFilter.industrialDesc` | «industrial usage» | «промышленное применение» |
+| `public.arge.block2Title` | `ARGE (…)` | `НИОКР (…)` |
+| `public.contact.routes.rail.text` | `IZBAN` | `İZBAN` (resmi yazım, EN ile tutarlı) |
+
+`word2` tek başına çevrilebilir bir kelime olmadığı için `word1` de değişti:
+banner artık "ДРУГ ПРИРОДЫ" (doğanın dostu) okunuyor. Eskiden "ПРИРОДА DOSTU"du.
+
+**Native göz notu:** değerler makine çevirisi değil, elle seçildi; `НИОКР` ve
+`ДРУГ/ПРИРОДЫ` Rusça bilen biri tarafından teyit edilirse iyi olur. İkisi de
+tek satırlık düzeltme, yayını bloklamaz.
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
+**127/127** ✅ (126 → +1: sızıntı kapısı ru'yu kendiliğinden kapsamaya başladı,
+8 → 9 test)
+
+**kubi'de doğrulanacak:** `/ru` açılmalı; dil değiştirici 9 dil listelemeli;
+**Kiril harfler gövde metniyle aynı fontta görünmeli** (sistem fontuna düşerse
+subset eklenmemiş demektir); ana sayfada banner "ДРУГ ПРИРОДЫ" okunmalı;
+`/ru/urun/<slug>` ürün sayfasında ölçü tablosunda `Мат.` / `Пост.` görünmeli;
+`/ru/arge-ve-prototipleme` başlığı `НИОКР` olmalı.
+
+**Sıradaki aday:** "hedef alfabe dışı kalıntı" taramasını yorumdan çıkarıp
+`sourceLanguageLeakage.test.ts` yanına kalıcı bir kapıya çevirmek. Dalga 1'de
+birebir sızıntı için yapılan şeyin aynısı; yapılmazsa ar/ko/ja/zh/hi'de aynı
+sınıf kusur elle aranmak zorunda kalır. Özel-ad allowlist'i gerektirdiği için
+ayrı dilim olarak öneriliyor.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

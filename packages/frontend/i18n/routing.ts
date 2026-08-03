@@ -16,9 +16,15 @@ import { defineRouting } from "next-intl/routing";
  *
  * Dalga 1 (de/fr/es/it/pt/pl) 2026-07-31'de açıldı: hepsi Latin alfabesi,
  * `latin-ext` subset'i Lehçe için eklendi.
+ *
+ * Dalga 2 (ru) 2026-08-03'te açıldı: ilk Latin-dışı alfabe. `cyrillic` subset'i
+ * üç fonta da eklendi. Kiril'in getirdiği ek denetim: birebir sızıntı testi
+ * yakalayamadığı halde Kiril metnin İÇİNDE kalmış Latin kelime aranmalı
+ * («industrial usage» ve `ARGE` böyle bulundu). Aynı tarama ar/ko/ja/zh/hi
+ * dalgalarında da tekrarlanmalı.
  */
 export const routing = defineRouting({
-    locales: ["tr", "en", "de", "fr", "es", "it", "pt", "pl"],
+    locales: ["tr", "en", "de", "fr", "es", "it", "pt", "pl", "ru"],
     defaultLocale: "tr",
 
     // TR URL'ler prefixsiz kalır (/hakkimizda), EN /en altında yaşar (/en/hakkimizda).

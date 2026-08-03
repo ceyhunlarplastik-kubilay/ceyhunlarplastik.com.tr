@@ -2,12 +2,16 @@
 
 import { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useParams, useRouter as useNextRouter } from "next/navigation";
+import { useRouter as useNextRouter } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getLocaleMetadata } from "@/i18n/localeMetadata";
 import { cn } from "@/lib/utils";
-import { readAlternateLinks, resolveAlternatePath } from "@/i18n/alternateLinks";
+import {
+    readAlternateLinks,
+    resolveAlternatePath,
+    withPreservedQuery,
+} from "@/i18n/alternateLinks";
 import {
     Select,
     SelectContent,
@@ -32,14 +36,17 @@ import {
  * usePathname (i18n) locale-prefix'siz iç yolu döndürür, router.replace ise
  * hedef locale ile doğru URL'i kurar (TR prefixsiz, EN /en'li).
  *
- * Dinamik segmentli rotalarda ([slug] vb.) next-intl'in çözümlenmiş yolu
- * kullanabilmesi için `params` router.replace'e geçirilir.
+ * NOT: buraya eskiden `useParams()` sonucu da geçiriliyordu. next-intl bunu
+ * yalnız `routing`'de `pathnames` haritası tanımlıysa kullanır (o zaman
+ * usePathname şablonu döndürür ve segmentlerin doldurulması gerekir). Bu projede
+ * öyle bir harita yok; usePathname zaten çözümlenmiş yolu veriyor, `params` da
+ * tip dışıydı ve `@ts-expect-error` ile susturuluyordu. İkisi de kaldırıldı.
+ * `pathnames` ileride eklenirse burası yeniden gözden geçirilmeli.
  */
 export function LanguageSwitcher({ className }: { className?: string }) {
     const t = useTranslations("chrome.languageSwitcher");
     const locale = useLocale();
     const pathname = usePathname();
-    const params = useParams();
     const router = useRouter();
     const nextRouter = useNextRouter();
     const [isPending, startTransition] = useTransition();
@@ -51,6 +58,15 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         if (nextLocale === locale || isPending) return;
 
         startTransition(() => {
+            // Sorgu/çapa `useSearchParams()` yerine BİLEREK window.location'dan
+            // okunuyor: o hook bu bileşeni içeren layout'u prerender'dan düşürür
+            // ve tüm public sayfalar client render'a kayardı. Buranın kodu yalnız
+            // kullanıcı tıklamasıyla, yani hep tarayıcıda çalışır.
+            const { search, hash } =
+                typeof window === "undefined"
+                    ? { search: "", hash: "" }
+                    : window.location;
+
             // Slug'ı dile göre değişen rotalarda (ürün, kategori) doğru hedefi
             // yalnız sunucu bilir; `generateMetadata` bunu zaten hreflang olarak
             // head'e yazmış durumda. Eskiden burada kategoriye özel bir fetch
@@ -59,16 +75,22 @@ export function LanguageSwitcher({ className }: { className?: string }) {
             const alternatePath = resolveAlternatePath(readAlternateLinks(), nextLocale);
 
             if (alternatePath) {
+                // hreflang temiz URL taşır (sorgusuz); kullanıcının sayfadaki
+                // seçimi (ör. varyantlar sayfasındaki `?m=` ölçü anahtarı) adres
+                // çubuğundan taşınır, yoksa dil değiştirince seçim sıfırlanır.
+                //
                 // Yol zaten locale önekini içeriyor; next-intl router'ı ikinci kez
                 // ekler, o yüzden düz Next router'ı kullanılıyor.
-                nextRouter.replace(alternatePath);
+                nextRouter.replace(withPreservedQuery(alternatePath, { search, hash }));
                 return;
             }
 
             // Sayfanın o dilde karşılığı yoksa (hreflang yazılmamışsa) mevcut
-            // rotanın kendisi hedeflenir.
-            // @ts-expect-error -- next-intl kabul eder; params tipi rota-özel
-            router.replace({ pathname, params }, { locale: nextLocale });
+            // rotanın kendisi hedeflenir. Sorgu burada da korunur.
+            router.replace(
+                { pathname, query: Object.fromEntries(new URLSearchParams(search)) },
+                { locale: nextLocale }
+            );
         });
     }
 
