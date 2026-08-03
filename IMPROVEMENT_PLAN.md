@@ -1453,6 +1453,29 @@ bölümlerinde "talep et" `/de/iletisim`'e gitmeli; `/de` ana sayfasında Hakkı
 CTA'sı `/de/hakkimizda` olmalı; **panel regresyon kontrolü:** `/musteri/tum-urunler/urun/<slug>`
 "Varyantları göster" hâlâ prefixsiz `/musteri/...` açmalı.
 
+### Ölü kod temizliği (2026-08-03)
+
+Yukarıdaki taramanın yan ürünü olarak işaretlenen üç dosya silindi — üçü de
+2026-07-08 chrome i18n diliminden beri "ayrı temizlik işi" olarak bekliyordu:
+
+| Silinen | Neden ölü |
+|---|---|
+| `components/Footer.tsx` | Canlı footer `components/home/Footer.tsx`; bu kopya `useCategories()` client hook'lu eski sürümdü (hydration hotfix'i canlı olana uygulanmıştı, bu kopya geride kalmıştı) |
+| `components/AuthButtons.tsx` | Hiçbir yerden import edilmiyor; TR metinleri hardcode, i18n'e hiç girmemiş |
+| `components/navigation/NavigationContactButton.tsx` | Hiçbir yerden import edilmiyor; canlı navbar `NavbarClient` üzerinden `MobileHamburgerButton`'ı kendisi kullanıyor |
+
+Yetim kalan bileşen oluşmadı: `MobileHamburgerButton`, `ProductRequestDialog`,
+`CatalogRequestDialog` ve `MailDialog` hâlâ `NavbarClient` / `home/Footer` /
+`TopBar` tarafından kullanılıyor.
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (**117 → 115** warning; iki
+uyarı silinen dosyalardaydı) · frontend 119/119 ✅
+
+**Kalan ölü dosya — ayrı karar bekliyor:** `components/Navbar.tsx`. Canlı navbar
+`components/navigation/NavbarServer.tsx`; kök `Navbar.tsx`'in tek izi
+`(public)/layout.tsx:1`'deki yorum satırına alınmış import. Silinirse o yorum
+satırı da gitmeli. Bu oturumda kapsam dışı bırakıldı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
