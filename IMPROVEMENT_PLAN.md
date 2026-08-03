@@ -1291,6 +1291,80 @@ kafa karıştıran noktaydı).
 **hiçbir yeni dil canlıda değil.** Her dalga: kısa etiketleri elle düzelt →
 `routing.locales`'a ekle → deploy. Dalga sırası ve ek işler yukarıdaki tabloda.
 
+## Dalga 1 öncesi kalite denetimi — 4 kusur sınıfı (2026-07-31)
+
+843 anahtarın 524'ü "kısa etiket" (≤25 karakter) ve bunlar bağlamsız çevrildikleri için
+riskli. 13 dilde yapısal tarama (tire ile biten parça, TR ile birebir aynı, Türkçe harf
+kalmış, aşırı uzama) 124 şüpheli üretti; çoğu **yanlış alarm** (telefon/e-posta
+placeholder'ları bilinçli olarak aynı, Lehçe'de "Kod" gerçekten "Kod"). Elenince geriye
+**dört gerçek kusur sınıfı** kaldı:
+
+| # | Anahtar | Sorun | Etkilenen diller |
+|---|---|---|---|
+| 1 | `public.productVariant.table.supplierCount` | `{count} Ted.` **yanlış çevrilmiş**: de `Anmerkung.` (not), fr `Rem.` (remarque), zh `注。` (not), ko `건.`, ja `件。`, hi `टेड।` (Ted'in okunuşu) | 12'sinin tamamı |
+| 2 | `public.productVariant.table.materialCount` | `{count} H.M.` hiç çevrilmemiş (hi'de `एच.एम.` diye okunuşa dönmüş) | 12'sinin tamamı |
+| 3 | `shared.enviroment.word2` | `DOSTU` çevrilmemiş → banner "NATURE DOSTU", "ПРИРОДА DOSTU", "自然 DOSTU" okunuyor | fr, ru, ar, ko, ja, zh |
+| 4 | `public.about.hero.videoIframeTitle` | `Ceyhunlar Tanıtım` Türkçe kalmış (erişilebilirlik etiketi) | de, it, pl, ru, ja |
+
+**Kök neden ikiye ayrılıyor:**
+- (1) ve (2) **Türkçe kısaltma**: `H.M.` (Ham Madde), `Ted.` (Tedarikçi). Makine çevirisi
+  opak kısaltmayı çözemez; "Ted."i özel ad ya da başka bir kısaltma sanıp uydurur. İngilizce
+  katalog bunu insan eliyle `Mat.` / `Sup.` yapmış — yani çözüm dil başına elle karşılık.
+- (3) **bölünmüş ifade**: "DOĞA" ve "DOSTU" ayrı anahtarlar (animasyon için). Tek başına
+  "DOSTU" çevrilebilir bir kelime değil. Kaynak tasarımı sorunu ama EN'de zaten elle
+  çözülmüş (`NATURE` / `FRIENDLY`).
+
+**Türetilen kural:** kaynak katalogda kısaltma ve yarım ifade kullanmak, o anahtarı her
+yeni dilde elle düzeltme borcuna sokuyor. Yeni anahtar eklerken tam kelime tercih edilmeli.
+
+### Uygulanan düzeltme: Dalga 1 (de/fr/es/it/pt/pl) — 53 değer
+
+Karar: yalnız Dalga 1 dilleri elle düzeltildi (ilk canlıya çıkacaklar ve bu 6 dilde
+karşılıklardan emin olunabiliyor). ru/ar/ko/ja/zh/hi kendi dalgalarında, tercihen bir
+native göz ile ele alınacak.
+
+| Anahtar | de | fr | es | it | pt | pl |
+|---|---|---|---|---|---|---|
+| `…table.materialCount` | `Mat.` | `Mat.` | `Mat.` | `Mat.` | `Mat.` | `Mat.` |
+| `…table.supplierCount` | `Lief.` | `Fourn.` | `Prov.` | `Forn.` | `Forn.` | `Dost.` |
+| `…hero.videoIframeTitle` | Vorstellung | Présentation | Presentación | Presentazione | Apresentação | Prezentacja |
+| `auth.*.emailPlaceholder` (5 anahtar) | beispiel@ | exemple@ | ejemplo@ | esempio@ | exemplo@ | przyklad@ |
+| `chrome.nav.corporate` + footer | Unternehmen | — | — | — | — | — |
+| `shared.enviroment.word2` | — | AMIE | — | — | — | — |
+| `…tabs.bakelite` | — | — | — | Bachelite | — | — |
+| `…content.productionImageAlt` | — | — | — | — | — | Produkcja |
+
+`videoIframeTitle`'da fr/es/pt zaten Türkçe değildi ama anlam kaymıştı
+("Promotion"/"Promoción"/"Publicidade" = reklam); EN'deki "Introduction" niyetine göre
+düzeltildi.
+
+### Regresyon testi: `i18n/sourceLanguageLeakage.test.ts`
+
+Bir dilin kataloğunda Türkçe metnin **birebir** kalması, mevcut katalog testlerinin
+hiçbirine takılmıyordu: ICU geçerli, argümanlar yerinde, dizi uzunluğu doğru — ama
+kullanıcı "Ceyhunlar Tanıtım" görüyordu. Yeni test bu boşluğu kapatıyor.
+
+Tasarım kararları:
+- **Kapsam `routing.locales`** — yani yalnız SUNULAN diller. Yayına alınmamış bir dilin
+  kataloğu kısmi olabilir (fallback zinciri tasarım gereği). Ama dil `routing.locales`'a
+  eklendiği anda kontrol kendiliğinden devreye giriyor: **bir dil, kaynak dil sızıntısıyla
+  yayına giremez.**
+- **Marka farkındalığı**: "Ceyhunlar Plastik" her dilde aynı kalır, ama
+  "Ceyhunlar Plastik Üretim" kalmamalı. Marka token'ları çıkarılıp geriye harf kalıp
+  kalmadığına bakılıyor — 15 anahtarı elle listelemek yerine.
+- **İki gerekçeli liste**: `INTENTIONALLY_IDENTICAL` (adres, telefon biçimi, "3D Model")
+  ve `IDENTICAL_BY_COINCIDENCE` (Almanca "Menü", Lehçe "Kod"/"Adres"/"Telefon" gerçekten
+  aynı). Her girdi gerekçeli — bu liste "çeviri unutulmuş" ile "çevrilmemesi gereken"
+  arasındaki tek ayrım noktası.
+
+**Kapı doğrulandı:** `routing.locales` geçici olarak Dalga 1 ile genişletilip test
+çalıştırıldı; **it (`Bakalit` → `Bachelite`) ve pl (`…Üretim` → `…Produkcja`) sızıntıları
+yakalandı**, düzeltildi, sonra simülasyon geri alındı. `routing.locales` hâlâ
+`["tr","en"]`.
+
+**Doğrulama:** typecheck ✅ · lint 0 error (117 warning) · frontend **107/107** ✅
+(101 → +6: sızıntı kapısı) · core 257/257 ✅
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
