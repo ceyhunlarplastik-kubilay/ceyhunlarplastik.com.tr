@@ -157,6 +157,24 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
             }
         }
 
+        // Slug BAŞKA bir dilin çevirisine ait olabilir: dil değiştirici mevcut
+        // slug'ı koruduğunda /fr/urun-kategori/<de-slug> gibi adresler oluşuyor.
+        // Ürün tarafındaki `getProductBySlug` ile simetrik — orada eksikken
+        // /urun/<en-slug> 404 veriyordu. Kategori de burada bulunur ve sayfa bu
+        // locale'in kanonik slug'ına yönlendirir, böylece aynı içerik iki URL'de
+        // yayınlanmaz.
+        const anyLocaleTranslation = await prisma.categoryTranslation.findFirst({
+            where: { slug },
+            include: {
+                category: {
+                    include: categoryInclude,
+                },
+            },
+        })
+        if (anyLocaleTranslation) {
+            return localizeCategory(anyLocaleTranslation.category, locale)
+        }
+
         const legacyCategory = await prisma.category.findUniqueOrThrow({
             where: { slug },
             include: categoryInclude,

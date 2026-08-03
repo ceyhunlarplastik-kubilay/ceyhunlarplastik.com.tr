@@ -10,7 +10,7 @@ import { PageHero } from "@/components/sections/PageHero";
 import ProductFilterSidebar from "@/features/public/products/components/ProductFilterSidebar";
 import ProductFilterList from "@/features/public/products/components/ProductFilterList";
 import { getOgLocale } from "@/i18n/localeMetadata";
-import { buildAlternates } from "@/i18n/alternates";
+import { buildAlternates, localePath } from "@/i18n/alternates";
 
 export const revalidate = 60; // ISR
 
@@ -72,12 +72,12 @@ export default async function CategoryPage(
 
     if (!category) notFound()
 
+    // Başka bir dilin slug'ıyla gelindiyse bu dilin kanonik slug'ına yönlendir.
+    // Hedef `localePath` ile türetilir: eskiden "tr değilse /en" diye gömülüydü ve
+    // Dalga 1 açıldığında Almanca ziyaretçiyi İNGİLİZCEYE sürüyordu — üstelik 301
+    // olduğu için tarayıcıda kalıcı önbelleğe girerdi.
     if (category.slug !== slug) {
-        permanentRedirect(
-            locale === "tr"
-                ? `/urun-kategori/${category.slug}`
-                : `/en/urun-kategori/${category.slug}`,
-        )
+        permanentRedirect(localePath(locale, `/urun-kategori/${category.slug}`))
     }
 
     const tf = await getTranslations({ locale, namespace: "public.productFilter" })

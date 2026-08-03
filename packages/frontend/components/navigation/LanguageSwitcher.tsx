@@ -2,12 +2,12 @@
 
 import { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useRouter as useNextRouter } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getLocaleMetadata } from "@/i18n/localeMetadata";
 import { cn } from "@/lib/utils";
-import { fetchCategoryBySlug } from "@/features/public/categories/api/fetchCategories";
+import { readAlternateLinks, resolveAlternatePath } from "@/i18n/alternateLinks";
 import {
     Select,
     SelectContent,
@@ -41,6 +41,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     const pathname = usePathname();
     const params = useParams();
     const router = useRouter();
+    const nextRouter = useNextRouter();
     const [isPending, startTransition] = useTransition();
     const selectedLocale = (routing.locales as readonly string[]).includes(locale)
         ? locale
@@ -49,21 +50,23 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     function switchTo(nextLocale: string) {
         if (nextLocale === locale || isPending) return;
 
-        startTransition(async () => {
-            if (
-                pathname.startsWith("/urun-kategori/") &&
-                typeof params.slug === "string"
-            ) {
-                try {
-                    const category = await fetchCategoryBySlug(params.slug, locale);
-                    const targetSlug = category.alternateSlugs[nextLocale] ?? params.slug;
-                    router.replace(`/urun-kategori/${targetSlug}`, { locale: nextLocale });
-                    return;
-                } catch {
-                    // Genel locale geçişi aşağıdaki mevcut rota davranışına düşer.
-                }
+        startTransition(() => {
+            // Slug'ı dile göre değişen rotalarda (ürün, kategori) doğru hedefi
+            // yalnız sunucu bilir; `generateMetadata` bunu zaten hreflang olarak
+            // head'e yazmış durumda. Eskiden burada kategoriye özel bir fetch
+            // vardı — ürün sayfası kapsam dışıydı ve dil değiştirmek TR slug'ıyla
+            // yanlış adrese gidiyordu. Tek kaynak, bütün rotalar.
+            const alternatePath = resolveAlternatePath(readAlternateLinks(), nextLocale);
+
+            if (alternatePath) {
+                // Yol zaten locale önekini içeriyor; next-intl router'ı ikinci kez
+                // ekler, o yüzden düz Next router'ı kullanılıyor.
+                nextRouter.replace(alternatePath);
+                return;
             }
 
+            // Sayfanın o dilde karşılığı yoksa (hreflang yazılmamışsa) mevcut
+            // rotanın kendisi hedeflenir.
             // @ts-expect-error -- next-intl kabul eder; params tipi rota-özel
             router.replace({ pathname, params }, { locale: nextLocale });
         });
@@ -79,7 +82,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
                 size="sm"
                 aria-label={t("ariaLabel")}
                 className={cn(
-                    "h-8 rounded-full border-neutral-200 bg-white px-2.5 text-[11px] font-semibold text-neutral-700 shadow-none transition-colors hover:border-neutral-300 hover:bg-neutral-50 focus-visible:border-[var(--color-brand)] focus-visible:ring-[var(--color-brand)]/20",
+                    "h-8 rounded-full border-neutral-200 bg-white px-2.5 text-[11px] font-semibold text-neutral-700 shadow-none transition-colors hover:border-neutral-300 hover:bg-neutral-50 focus-visible:border-(--color-brand) focus-visible:ring-brand/20",
                     isPending && "opacity-60",
                     className
                 )}

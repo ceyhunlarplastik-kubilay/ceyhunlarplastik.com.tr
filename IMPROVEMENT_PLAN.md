@@ -1365,6 +1365,94 @@ yakalandı**, düzeltildi, sonra simülasyon geri alındı. `routing.locales` h�
 **Doğrulama:** typecheck ✅ · lint 0 error (117 warning) · frontend **107/107** ✅
 (101 → +6: sızıntı kapısı) · core 257/257 ✅
 
+## Dalga 1 AÇILDI: de/fr/es/it/pt/pl (2026-07-31)
+
+`routing.locales` artık 8 dil. Deploy YAPILMADI — değişiklik kodda, canlıya çıkışı
+kullanıcı yapacak.
+
+**`latin-ext` font subset'i eklendi.** Fontlar yalnız `latin` yüklüyordu; Lehçe
+(ł, ą, ę, ż, ś, ć) ve **zaten Türkçe** (ı, ğ, ş) bu aralığın dışında. Eksikken tarayıcı o
+harflerde sistem fontuna düşüyor ve kelime ortasında karakter değişiyor. Maliyeti yok
+sayılır: Google Fonts unicode-range kullandığı için ek dosya yalnız o harfler geçtiğinde
+iniyor. Bu, Dalga 1'den bağımsız olarak var olan bir Türkçe hatasıydı.
+
+**Sızıntı kapısı kendiliğinden genişledi:** `routing.locales`'a 6 dil eklenince test
+107 → 113'e çıktı ve altı dil de geçti — kapsamı yayın listesine bağlamanın amacı buydu.
+
+### Dil değiştiricide slug çözümü — planda "kapsam dışı" duran 404
+
+Plan bunu "`/urun/[slug]`'da dil değiştirince TR slug'ıyla 404" diye not etmişti. Kontrol
+edince **404'ün kendisi bu oturumda dolaylı olarak çözülmüş** olduğu görüldü: ürün ve
+varyantlar sayfaları `getProductBySlug`'ın çapraz-dil çözümü + kanonik yönlendirmesiyle
+kendini toparlıyor. Ama iki gerçek eksik kaldı ve ikisi de düzeltildi:
+
+1. **Kategori tarafı asimetrikti.** `getCategoryBySlug` yalnız `locale → tr → legacy`
+   deniyordu; başka bir dilin slug'ı gelirse `findUniqueOrThrow` patlıyordu. Ürün
+   tarafıyla simetrik çapraz-dil fallback'i eklendi.
+2. **Kategori yönlendirmesi iki dile gömülüydü** —
+   `locale === "tr" ? "/urun-kategori/…" : "/en/urun-kategori/…"`. Dalga 1 açıkken
+   **Almanca ziyaretçiyi İngilizceye** sürüyordu, üstelik `permanentRedirect` (301)
+   olduğu için tarayıcıda kalıcı önbelleğe girerdi. `localePath` ile türetiliyor.
+   E2'nin taraması `generateMetadata`'lara bakmıştı, yönlendirmeler gözden kaçmıştı;
+   kalan kod tarandı, başka gömülü önek yok.
+
+**Dil değiştirici tek kaynağa bağlandı.** Eskiden yalnız kategori için client-side fetch
+yapıyordu (ürün kapsam dışı). Artık sayfanın kendi `<link rel="alternate" hreflang>`
+etiketlerini okuyor — `generateMetadata` bunları zaten `buildAlternates` ile her sayfa
+için üretiyor. Sonuç: rota başına özel durum yok, ağ isteği yok, yeni slug'lı rotalar
+kendiliğinden doğru çalışıyor. Saf çözümleme `i18n/alternateLinks.ts`'te ve testli
+(jsdom yok, DOM okuma ince bir adaptör).
+
+**Doğrulama:** typecheck:backend ✅ · typecheck frontend ✅ · lint 0 error (117 warning) ·
+frontend **119/119** ✅ (107 → +6 alternateLinks, +6 sızıntı kapısının yeni dilleri) ·
+core 257/257 ✅ · functions 14/14 ✅
+
+**kubi'de doğrulanacak:** `/de`, `/fr`, `/pl` açılmalı; dil değiştirici 8 dil listelemeli;
+bir ÜRÜN sayfasında dil değiştirince o dilin slug'ına gidilmeli (yönlendirme olmadan);
+Lehçe sayfada `ł/ą/ę` harfleri gövde fontuyla aynı görünmeli; `/de/urun-kategori/<tr-slug>`
+Almanca kanonik slug'a 301 vermeli (İngilizceye DEĞİL).
+
+## Dalga 1 sonrası: locale prefix'i düşüren kalan `next/link`'ler (2026-08-03)
+
+**Bulgu (kullanıcı raporu):** `/de/urun/<slug>` sayfasındaki "Varyantları göster"
+butonu `/urun/<slug>/varyantlar?m=…`'a gidiyordu — `/de` öneki düşüyor, sayfa
+Türkçe açılıyordu.
+
+**Kök neden:** Buton `components/ui/button-shine.tsx` üzerinden render oluyor ve o
+dosya ham `next/link` kullanıyordu. Ham `next/link` mutlak path'i olduğu gibi
+bırakır; `localePrefix: "as-needed"` olduğu için sonuç varsayılan dile (tr) düşer.
+Hedef sayfanın kendisi sağlamdı (`varyantlar/page.tsx` zaten `@/i18n/navigation`
+`redirect`'i ve kanonik slug çözümünü yapıyor) — kırık olan yalnızca giden linkti.
+
+**Tarama:** `app/[locale]`, `features/public` ve `components` altındaki tüm
+`next/link` importları tarandı (15 dosya). Çoğu zararsız çıktı: dış URL'ler
+(`CatalogCard`, `MaterialCertificateCard`, `TopBar`), `#` çapaları (`ProductQuickNav`,
+`IconLink`), `[locale]` dışındaki panel path'leri (`AdminSidebar`,
+`RoleWorkspaceSidebar`, `ProductVariantTable`'daki `adminVariantsUrl` — bunlar
+localize EDİLMEMELİ, `/de/admin/...` 404 verirdi) ve ölü dosyalar
+(`components/Footer.tsx`, `components/AuthButtons.tsx`,
+`components/navigation/NavigationContactButton.tsx` — hiçbir yerden import
+edilmiyor). Gerçek hata 3 dosyadaydı:
+
+1. `components/ui/button-shine.tsx` → raporlanan buton. Bu bileşen hem `[locale]`
+   ağacında hem panellerde kullanılıyor; next-intl `Link`'e geçmek panelleri
+   bozmuyor çünkü `i18n/request.ts` panel route'larında locale'i tr'ye sabitliyor
+   ve `as-needed` tr'de prefix üretmiyor. Dosyaya bunu açıklayan yorum eklendi.
+2. `features/public/products/components/ProductAssetFeatureSection.tsx` →
+   `requestHref` (`/iletisim`). Yalnız public ürün bölümlerinden kullanılıyor;
+   S3 `openHref`'lerine next-intl dokunmaz.
+3. `components/ui/info-card.tsx` → ana sayfa `AboutSection` CTA'ları
+   (`/hakkimizda`, `/iletisim`).
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (117 warning) · frontend
+119/119 ✅
+
+**kubi'de doğrulanacak:** `/de/urun/<slug>` → "Varyantları göster" `/de/urun/…/varyantlar?m=…`
+açmalı (aynı kontrol fr/pl için de); ürün sayfasındaki teknik çizim/3D/sertifika
+bölümlerinde "talep et" `/de/iletisim`'e gitmeli; `/de` ana sayfasında Hakkımızda
+CTA'sı `/de/hakkimizda` olmalı; **panel regresyon kontrolü:** `/musteri/tum-urunler/urun/<slug>`
+"Varyantları göster" hâlâ prefixsiz `/musteri/...` açmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -1,8 +1,18 @@
 "use client"
 
-import Link from "next/link"
 import type { UrlObject } from "url"
+import { Link } from "@/i18n/navigation"
 import { Button } from "@/components/ui/button"
+
+/**
+ * next/link DEĞİL, @/i18n/navigation Link kullanılıyor: bu buton [locale]
+ * ağacındaki public sayfalarda da (ör. ProductVariantTable "Varyantları göster")
+ * kullanılıyor ve ham next/link mutlak path'i olduğu gibi bıraktığı için
+ * /de/urun/... sayfasından tıklandığında locale prefix'i düşüyordu.
+ * Panellerde ((panels) ağacı) locale i18n/request.ts tarafından tr'ye
+ * sabitlendiğinden ve localePrefix "as-needed" olduğundan panel path'leri
+ * prefixsiz kalmaya devam eder; dış URL'lere de next-intl dokunmaz.
+ */
 
 type Props = {
     href?: string | UrlObject
