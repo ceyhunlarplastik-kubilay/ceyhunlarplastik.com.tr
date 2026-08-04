@@ -153,7 +153,7 @@ export function FramerThumbnailCarousel({
                     style={{ x }}
                 >
                     {items.map((item) => (
-                        <div key={item.id} className="relative h-[310px] min-w-full shrink-0 basis-full overflow-hidden sm:h-[360px]">
+                        <div key={item.id} className="relative h-77.5 min-w-full shrink-0 basis-full overflow-hidden sm:h-90">
                             {imagePresentation === "square" ? (
                                 <div className="flex h-full min-w-0 flex-col items-center justify-center gap-6 bg-[radial-gradient(circle_at_top,rgba(214,179,93,0.18),transparent_28%),linear-gradient(160deg,#020617_0%,#111827_48%,#1e293b_100%)] px-5 py-6 text-center sm:px-8">
                                     <div className="relative aspect-square w-full max-w-[min(100%,28rem)] overflow-hidden rounded-[30px] border border-white/12 bg-white/5 p-3 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.65)] sm:max-w-[min(100%,32rem)] lg:max-w-[min(100%,28rem)]">
@@ -199,7 +199,7 @@ export function FramerThumbnailCarousel({
                                     ) : (
                                         <div className="h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(245,158,11,0.42),transparent_34%),linear-gradient(135deg,#0f172a_0%,#334155_56%,#d6b35d_130%)]" />
                                     )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/36 to-transparent" />
+                                    <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/36 to-transparent" />
                                     <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-6">
                                         <div className="flex flex-wrap items-center gap-2">
                                             {item.eyebrow ? (
@@ -257,11 +257,13 @@ function CarouselButton({
             onClick={onClick}
             className={cn(
                 "absolute top-1/2 z-10 size-10 -translate-y-1/2 rounded-full border border-white/20 bg-white/80 text-slate-900 shadow-lg backdrop-blur transition hover:bg-white",
-                side === "left" ? "left-4" : "right-4",
+                side === "left" ? "inset-s-4" : "inset-e-4",
                 disabled && "opacity-40",
             )}
         >
-            <Icon className="size-4" />
+            {/* Konum start/end ile aynalanıyor; ok da aynalanmalı, yoksa RTL'de
+                "önceki" butonu sağda durup sola işaret eder. */}
+            <Icon className="size-4 rtl:-scale-x-100" />
         </Button>
     )
 }

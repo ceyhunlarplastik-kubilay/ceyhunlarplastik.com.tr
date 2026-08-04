@@ -75,12 +75,12 @@ export default function Component() {
 
   return (
     <div className="bg-background border rounded-md shadow-sm overflow-hidden">
-      <div className="max-h-[400px] overflow-y-auto">
+      <div className="max-h-100 overflow-y-auto">
         <Table>
           {/* Fixed Header */}
           <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow>
-              <TableHead className="w-[40px]">
+              <TableHead className="w-10">
                 <Checkbox
                   checked={selected.length === users.length}
                   onCheckedChange={(checked) =>
@@ -92,8 +92,8 @@ export default function Component() {
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Balance</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="text-end">Balance</TableHead>
+              <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
 
@@ -115,7 +115,7 @@ export default function Component() {
                     {user.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">{user.balance}</TableCell>
+                <TableCell className="text-end">{user.balance}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -141,7 +141,7 @@ export default function Component() {
                   ? `${selected.length} selected`
                   : "No rows selected"}
               </TableCell>
-              <TableCell colSpan={2} className="text-right">
+              <TableCell colSpan={2} className="text-end">
                 Total: $2,500.00
               </TableCell>
             </TableRow>

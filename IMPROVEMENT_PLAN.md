@@ -1649,6 +1649,82 @@ işi ayrımı yapmak değil, adayı önüne getirmek.
 **Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
 **130/130** ✅ (127 → +3: yeni kapı)
 
+## Dalga 3 (ar) — keşif: ru'daki iki kolaylık burada YOK (2026-08-03)
+
+`ar` yayına açılmadan önce ölçülenler:
+
+| Konu | ru (Dalga 2) | ar |
+|---|---|---|
+| Katalog tamlığı | 843/843 | 843/843 ✅ |
+| Slug | transliterasyon ✅ | `mqabdh-albaklyt` ✅ |
+| `<html dir>` | ltr | `getLocaleDirection` zaten bağlı ✅ |
+| Font | mevcut 3 fonta `cyrillic` eklendi | ❌ **üçü de Arapça sunmuyor** |
+| Düzen | değişiklik yok | ❌ **194 fiziksel yön sınıfı, 0 mantıksal** |
+
+**Katalog beklenenden temiz: 9 gerçek kusur.** Yazı sistemi kapısı ar'da 16 değer
+gösterdi ama çoğu YANLIŞ ALARM — Arapça çevirmen "البحث والتطوير (R&D)" gibi
+*terim + parantez içinde Latin kısaltma* yazmış; bu doğru çeviri pratiği.
+`(refresh token)`, `(thermoset)`, `CNC` aynı şekilde → allowlist adayı.
+Gerçek kusurlar: `DOSTU`, `{count} H.M.`, `{count} Ted.`, 5× `ornek@`, ve
+`ARGE` (2 yerde — Türkçe kısaltma, Arapça metinde `R&D` olmalı).
+
+**Font için subset numarası işlemiyor.** Geist/Geist Mono/Montserrat'ta `arabic`
+yok. Plan: `Noto Sans Arabic`'i gövde font YIĞININA yedek olarak eklemek — Latin
+karakterler Geist'e, Arapça karakterler Noto'ya düşer; unicode-range sayesinde
+Arapça olmayan sayfada tek bayt inmez (`cyrillic`'teki mantığın aynısı).
+
+**Asıl iş RTL.** `dir="rtl"` tek başına düzeni çevirmez; fiziksel sınıflar
+(`ml-`, `pr-`, `left-`, `text-left`) aynalanmaz. Dört dilime bölündü:
+AR-1 `components/ui` + kapı · AR-2 chrome (navigation/home/sections) ·
+AR-3 `features/public` · AR-4 font + katalog + `routing.locales`'e `ar`.
+
+### AR-1 uygulandı: `components/ui` + RTL kapısı (2026-08-03)
+
+**17 dosyada 58 fiziksel kullanım mantıksala çevrildi** (`ml→ms`, `mr→me`,
+`pl→ps`, `pr→pe`, `text-left→text-start`, `left-N→start-N`, `border-l→border-s`).
+
+**Ham sayı yanıltıcıydı:** ilk tarama `components/ui`'de 82 eşleşme veriyordu ama
+24'ü `slide-in-from-right-52` gibi ANİMASYON yardımcısıydı. Bunlar düzen değil;
+Radix zaten `data-[motion=from-start]` gibi mantıksal bir seçiciyle doğru tarafa
+bağlıyor. Kapsam dışı bırakıldı.
+
+**Bilinçli fiziksel bırakılan iki yer** (kapının izin listesinde, gerekçeli):
+1. `dialog.tsx` / `alert-dialog.tsx` → `left-[50%]`. Ortalama; `-translate-x-[50%]`
+   ile eşleşiyor ve translate de fizikseldir. Yalnız birini çevirmek RTL'de
+   ortalamayı BOZAR — ikisi de fiziksel kaldığı sürece tutarlı.
+2. `navigation-menu.tsx` → `rounded-tl-sm`. 45° döndürülmüş baklava gösterge;
+   döndürme sonrası bu köşe görsel olarak ÜST uçtur, mantıksala çevrilirse RTL'de
+   yanlış köşe yuvarlanır.
+
+**Karusel oku ayrıca aynalandı.** Konumu `start-4`/`end-4` yapmak yetmiyordu:
+RTL'de "önceki" butonu sağa geçip hâlâ sola işaret ediyordu. İkona
+`rtl:-scale-x-100` eklendi. **Ders:** yön aynalaması iki parçalı — konum VE
+yönü olan ikon/görsel. Sonraki dilimlerde chevron/ok içeren her yerde bu ikinci
+parça ayrıca kontrol edilmeli.
+
+**Kapı: `components/logicalProperties.test.ts`.** ESLint eklentisi yerine test
+seçildi — repo'daki yerleşik desen bu (`sourceLanguageLeakage`, `scriptLeakage`),
+yeni bağımlılık istemiyor ve gerekçeler kodun içinde duruyor.
+- `SCANNED_DIRS` BİLİNÇLİ olarak dar başlıyor (`components/ui`). Temizlenmemiş
+  klasörü kapsama almak testi kırmızıya boğar ve kapıyı işlevsizleştirir; her
+  RTL dilimi bitince kendi klasörünü ekler.
+- İzin listesindeki her dosyanın gerçekten taranan kapsamda olduğu ayrıca
+  doğrulanıyor — dosya taşınırsa gerekçesi sessizce ölmesin.
+- **Kapı doğrulandı:** geçici bir sonda dosyasıyla beş ihlal biçimi de
+  (`ml-2`, `text-right`, `border-l`, `rounded-tl-md`, `left-4`) yakalandı.
+
+**LTR için risksiz:** mantıksal sınıflar LTR'de fiziksel karşılıklarıyla birebir
+aynı render eder; yayındaki 9 dil için davranışsal no-op.
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
+**132/132** ✅ (130 → +2: RTL kapısı)
+
+**kubi'de doğrulanacak (LTR regresyonu — ar henüz kapalı):** dropdown/select
+menülerinde ikon ve kısayol hizası bozulmamalı; dialog ortalanmış açılmalı ve
+kapatma butonu sağ üstte kalmalı; şifre alanındaki göz ikonu sağda kalmalı;
+tablo başlıkları ve `text-right` hücreler eskisi gibi hizalanmalı; ürün
+görseli karuselinde oklar sol/sağda kalmalı ve doğru yöne bakmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

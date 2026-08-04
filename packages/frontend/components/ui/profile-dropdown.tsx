@@ -70,7 +70,7 @@ export function ProfileDropdown({
                                 )}
                             </div>
 
-                            <div className="hidden min-w-0 text-left sm:block">
+                            <div className="hidden min-w-0 text-start sm:block">
                                 <div className="truncate text-sm font-medium leading-tight text-slate-900">
                                     {data.name}
                                 </div>
@@ -146,7 +146,7 @@ export function ProfileDropdown({
                                                 {item.label}
                                             </span>
                                         </div>
-                                        <div className="flex-shrink-0 ml-auto">
+                                        <div className="flex-shrink-0 ms-auto">
                                             {item.value && (
                                                 <span
                                                     className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium tracking-tight text-slate-600"

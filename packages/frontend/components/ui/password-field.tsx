@@ -71,10 +71,10 @@ export function PasswordField({
                     placeholder={placeholder}
                     disabled={disabled}
                     autoComplete={autoComplete}
-                    className="h-11 rounded-xl border-slate-200 bg-white pr-24"
+                    className="h-11 rounded-xl border-slate-200 bg-white pe-24"
                 />
 
-                <div className="absolute inset-y-0 right-2 flex items-center gap-1">
+                <div className="absolute inset-y-0 inset-e-2 flex items-center gap-1">
                     {showGenerate ? (
                         <Button
                             type="button"

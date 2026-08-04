@@ -74,7 +74,7 @@ export function FormInputWithIcon<TFieldValues extends FieldValues>(
                             <div className="relative">
                                 <Icon
                                     className={cn(
-                                        "pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5",
+                                        "pointer-events-none absolute inset-s-4 top-1/2 -translate-y-1/2 h-5 w-5",
                                         error ? "text-red-500" : "text-neutral-400"
                                     )}
                                 />
@@ -84,7 +84,7 @@ export function FormInputWithIcon<TFieldValues extends FieldValues>(
                                         {...field}
                                         rows={props.rows ?? 4}
                                         placeholder={placeholder}
-                                        className="pl-12 pr-4 py-3 rounded-xl border"
+                                        className="ps-12 pe-4 py-3 rounded-xl border"
                                     />
                                 ) : "mask" in props ? (
                                     <IMaskInput
@@ -94,10 +94,10 @@ export function FormInputWithIcon<TFieldValues extends FieldValues>(
                                         onAccept={(value) => field.onChange(value)}
                                         placeholder={placeholder ?? props.mask}
                                         className={cn(
-                                            "w-full pl-12 pr-4 py-3 rounded-xl border transition outline-none",
+                                            "w-full ps-12 pe-4 py-3 rounded-xl border transition outline-none",
                                             error
                                                 ? "border-red-500 focus:ring-2 focus:ring-red-500"
-                                                : "border-neutral-300 focus:ring-2 focus:ring-[var(--color-brand)] focus:border-[var(--color-brand)]"
+                                                : "border-neutral-300 focus:ring-2 focus:ring-(--color-brand) focus:border-(--color-brand)"
                                         )}
                                     />
                                 ) : (
@@ -105,7 +105,7 @@ export function FormInputWithIcon<TFieldValues extends FieldValues>(
                                         {...field}
                                         placeholder={placeholder}
                                         type={props.type ?? "text"}
-                                        className="pl-12 pr-4 py-3 rounded-xl border"
+                                        className="ps-12 pe-4 py-3 rounded-xl border"
                                     />
                                 )}
                             </div>
