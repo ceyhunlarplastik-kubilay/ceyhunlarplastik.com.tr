@@ -1,4 +1,13 @@
-import { Geist, Geist_Mono, Montserrat, Noto_Sans_Arabic } from "next/font/google";
+import {
+    Geist,
+    Geist_Mono,
+    Montserrat,
+    Noto_Sans_Arabic,
+    Noto_Sans_Devanagari,
+    Noto_Sans_JP,
+    Noto_Sans_KR,
+    Noto_Sans_SC,
+} from "next/font/google";
 
 // İki root layout ([locale] ve (panels)) aynı font setini paylaşır;
 // tek yerde tanımlı olması drift'i önler.
@@ -49,4 +58,37 @@ const notoSansArabic = Noto_Sans_Arabic({
     variable: "--font-arabic",
 });
 
-export const bodyFontClassName = `${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${notoSansArabic.variable} antialiased`;
+// Dalga 4 (ko/ja/zh/hi). İki noktada Arapça'dan ayrılıyor:
+//
+// 1. CJK ailelerinde `subsets` VERİLEMİYOR. Next'in font verisinde Noto Sans
+//    KR/JP/SC yalnız cyrillic/latin/latin-ext/vietnamese listeliyor; CJK yüzlerce
+//    unicode-range parçasına bölündüğü için subset olarak ifade edilmiyor.
+//    `preload: false` bunun için: parçalar önden yüklenmez, tarayıcı sayfada
+//    geçen karaktere göre yalnız gerekli parçayı ister.
+// 2. `--font-cjk` globals.css'te `:lang()` ile seçiliyor, düz yedek zincirine
+//    KONMUYOR. Sebep: ja ve zh AYNI Han kod noktalarını paylaşır ama bölgesel
+//    olarak farklı glif biçimleriyle yazılır. Düz zincirde hangisi önce gelirse
+//    diğerinin sayfaları yanlış biçimleri alırdı; kod noktası aynı olduğu için
+//    tarayıcı ayrım yapamaz. `<html lang>` zaten doğru ayarlı.
+//
+// Devanagari'nin gerçek bir subset'i var, Arapça gibi düz zincire giriyor.
+const notoSansKR = Noto_Sans_KR({ preload: false, variable: "--font-kr" });
+const notoSansJP = Noto_Sans_JP({ preload: false, variable: "--font-jp" });
+const notoSansSC = Noto_Sans_SC({ preload: false, variable: "--font-sc" });
+
+const notoSansDevanagari = Noto_Sans_Devanagari({
+    subsets: ["devanagari"],
+    variable: "--font-devanagari",
+});
+
+export const bodyFontClassName = [
+    geistSans.variable,
+    geistMono.variable,
+    montserrat.variable,
+    notoSansArabic.variable,
+    notoSansDevanagari.variable,
+    notoSansKR.variable,
+    notoSansJP.variable,
+    notoSansSC.variable,
+    "antialiased",
+].join(" ");

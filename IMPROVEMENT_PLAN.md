@@ -1915,6 +1915,59 @@ açarken `shared.enviroment` gibi çok parçalı öbekler elle okunmalı.**
 
 **Doğrulama:** typecheck ✅ · frontend 138/138 ✅
 
+## Dalga 4 (ko/ja/zh/hi) — keşif + CJK-1 uygulandı (2026-08-04)
+
+**Keşif: durum ru/ar'dan iyi.** Dört kataloğun hepsi 843/843 tam. Birebir
+sızıntı: ko 7 · ja 8 · zh 8 · hi 5. `enviroment` üçlüsünde `DOSTU` ko/ja/zh'de
+duruyor (öbek düzeltmesi gerekli), **hi'de zaten doğru**
+(`प्रकृति / मित्रवत / उत्पादन`).
+
+**Slug endişesi asılsız çıktı — düzeltme:** "ko/ja/zh/hi boş slug üretiyor,
+hreflang için ayrı karar gerekecek" diye not düşülmüştü. Kodda kontrol edilince
+E1'in bunu ZATEN çözdüğü görüldü: `productTranslations.ts`'teki ikinci geçiş
+slug üretilemeyen dilleri varsayılan dilin slug'ına düşürüyor
+(`@@unique([locale, slug])` locale başına olduğu için çakışma yok).
+`alternateSlugs` doluyor, hreflang ve canonical çalışıyor. Tek sonuç: bu dört
+dilin ürün URL'leri Türkçe slug taşır (`/ko/urun/105-serisi-…`) — çalışır,
+yalnız estetik bir tercih.
+
+### CJK-1: dört font ailesi
+
+Arapça'daki düz yedek zinciri burada **iki noktada yetmedi**:
+
+1. **CJK ailelerine `subsets` verilemiyor.** Next'in font verisinde Noto Sans
+   KR/JP/SC yalnız `cyrillic/latin/latin-ext/vietnamese` listeliyor; CJK yüzlerce
+   unicode-range parçasına bölündüğü için subset olarak ifade edilmiyor.
+   Çözüm `preload: false` — parçalar önden yüklenmez, tarayıcı sayfada geçen
+   karaktere göre yalnız gerekli parçayı ister. (Devanagari'nin gerçek subset'i
+   var, Arapça gibi düz zincire girdi.)
+
+2. **ja ve zh AYNI Han kod noktalarını paylaşır** ama bölgesel olarak farklı
+   glif biçimleriyle yazılır. Düz zincirde hangisi önce gelirse diğerinin
+   sayfaları yanlış biçimleri alırdı ve tarayıcı ayrım YAPAMAZ — kod noktası
+   aynı. Bu yüzden CJK ailesi `:lang()` ile seçiliyor:
+   `:root:lang(ja) { --font-cjk: var(--font-jp) }` vb. `<html lang>` zaten
+   `[locale]/layout.tsx` tarafından doğru ayarlanıyor.
+   `:root`'taki `sans-serif` varsayılanı ŞART: `--font-cjk` tanımsız kalsaydı
+   onu içeren `font-family` bildirimi tamamen geçersiz olurdu.
+
+**Ders:** yedek zinciri yalnız yazı sistemleri AYRIK kod noktaları kullandığında
+çalışır. Han gibi paylaşılan kod noktalarında dil bilgisi CSS'e taşınmalı.
+
+**Doğrulama:** `next build` → **Compiled successfully** (asıl kontrol buydu:
+next/font yapılandırmasını yalnız derleme denetler, typecheck yakalamaz;
+devamındaki SST links hatası bilinen ve ilgisiz) · derlenen CSS'te zincirin
+`--default-font-family` ve `.font-heading`'e geçtiği ve `:lang()` kurallarının
+çıktığı Tailwind CLI ile doğrulandı · typecheck ✅ · lint 0 error (114 warning)
+· frontend 138/138 ✅
+
+**kubi'de doğrulanacak:** bu dilim henüz hiçbir dili AÇMIYOR (routing.locales
+değişmedi), yani mevcut 10 dilde hiçbir şey değişmemeli — asıl kontrol bu.
+Font yüklemesinin gerçek sınavı CJK-2'de dilleri açınca yapılacak.
+
+**Sırada CJK-2:** 28 birebir sızıntı, ko/ja/zh'nin `enviroment` öbekleri,
+yazı sistemi kapısının allowlist'i ve `routing.locales`'e dört dil.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

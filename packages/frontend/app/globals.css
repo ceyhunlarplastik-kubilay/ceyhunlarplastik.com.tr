@@ -6,9 +6,10 @@
   @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    /* Arapça yedeği: Geist'te bulunmayan glifler Noto Sans Arabic'ten gelir.
-       Locale'e bağlı koşullu sınıf gerekmez; tarayıcı glif bazında seçer. */
-    --font-sans: var(--font-geist-sans), var(--font-arabic);
+    /* Latin dışı yedekler: Geist'te bulunmayan glifler sıradaki aileden gelir.
+       Tarayıcı glif bazında seçtiği için locale'e bağlı koşullu sınıf gerekmez.
+       CJK'yı --font-cjk taşıyor; o BİLEREK :lang() ile seçiliyor (aşağıya bak). */
+    --font-sans: var(--font-geist-sans), var(--font-arabic), var(--font-devanagari), var(--font-cjk);
     --font-mono: var(--font-geist-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -183,7 +184,27 @@
   }
 
   .font-heading {
-    font-family: var(--font-heading), var(--font-arabic);
+    font-family: var(--font-heading), var(--font-arabic), var(--font-devanagari), var(--font-cjk);
+  }
+
+  /* ja ve zh AYNI Han kod noktalarını paylaşır ama bölgesel olarak farklı glif
+     biçimleriyle yazılır. Düz yedek zincirinde hangisi önce gelirse diğerinin
+     sayfaları yanlış biçimleri alırdı — kod noktası aynı olduğu için tarayıcı
+     ayrım yapamaz. Bu yüzden CJK ailesi dile göre seçiliyor; <html lang> zaten
+     [locale]/layout.tsx tarafından doğru ayarlanıyor.
+     :root'taki sans-serif varsayılanı şart: --font-cjk tanımsız kalsaydı onu
+     içeren font-family bildirimi tamamen geçersiz olurdu. */
+  :root {
+    --font-cjk: sans-serif;
+  }
+  :root:lang(ko) {
+    --font-cjk: var(--font-kr);
+  }
+  :root:lang(ja) {
+    --font-cjk: var(--font-jp);
+  }
+  :root:lang(zh) {
+    --font-cjk: var(--font-sc);
   }
 
   /* @import "tailwindcss";
