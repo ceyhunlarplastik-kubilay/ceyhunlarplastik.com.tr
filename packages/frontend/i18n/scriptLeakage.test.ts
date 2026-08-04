@@ -78,6 +78,15 @@ const ALLOWED_LATIN: ReadonlyArray<readonly [text: string, reason: string]> = [
     ["Copyright", "Telif ibaresi — hukuki kalıp"],
     ["PDF", "Dosya biçimi adı"],
     ["WhatsApp", "Ürün adı"],
+
+    // Dalga 3 (ar). Arapça katalog "terim + parantez içinde Latin kısaltma"
+    // üslubunu kullanıyor: «البحث والتطوير (R&D)». Bu ÇEVİRİ KUSURU DEĞİL, yerleşik
+    // teknik yazım pratiği — kısaltma okurun tanıdığı biçimde bırakılıyor.
+    ["R&D", "Sektör kısaltması — Arapça metinde terimin yanında parantez içinde veriliyor"],
+    ["CNC", "Sektör kısaltması"],
+    ["thermoset", "Malzeme terimi — Arapça karşılığın yanında parantez içinde"],
+    ["refresh token", "Teknik terim — Arapça karşılığın yanında parantez içinde"],
+    ["4A", "Fiziksel adresteki kapı numarası"],
 ]
 
 const ALLOWED_SORTED = [...ALLOWED_LATIN]

@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Montserrat } from "next/font/google";
+import { Geist, Geist_Mono, Montserrat, Noto_Sans_Arabic } from "next/font/google";
 
 // İki root layout ([locale] ve (panels)) aynı font setini paylaşır;
 // tek yerde tanımlı olması drift'i önler.
@@ -33,4 +33,20 @@ const geistMono = Geist_Mono({
     subsets: ["latin", "latin-ext", "cyrillic"],
 });
 
-export const bodyFontClassName = `${geistSans.variable} ${geistMono.variable} ${montserrat.variable} antialiased`;
+// Arapça (Dalga 3) için AYRI BİR AİLE gerekti — ru'daki "subset ekle" hamlesi
+// burada işlemiyor: Geist, Geist Mono ve Montserrat'ın hiçbiri `arabic` sunmuyor
+// (Next font-data ile doğrulandı), eksik bırakılsaydı tüm Arapça metin sistem
+// fontuna düşerdi.
+//
+// Yalnız `arabic` subset'i alınıyor; Latin karakterleri Geist zaten karşılıyor,
+// Noto'nun Latin'ini de indirmek gereksiz bayt olurdu. Bağlanma biçimi
+// globals.css'te YEDEK olarak: `--font-sans: var(--font-geist-sans), var(--font-arabic)`.
+// Böylece tarayıcı Latin glifleri Geist'ten, Geist'te bulunmayan Arapça glifleri
+// Noto'dan alır — locale'e bağlı koşullu sınıf gerekmiyor ve Arapça olmayan
+// sayfada unicode-range sayesinde tek bayt inmez.
+const notoSansArabic = Noto_Sans_Arabic({
+    subsets: ["arabic"],
+    variable: "--font-arabic",
+});
+
+export const bodyFontClassName = `${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${notoSansArabic.variable} antialiased`;

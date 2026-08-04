@@ -1818,6 +1818,73 @@ sağa kaymalı; **oynat butonlarındaki üçgen daire içinde ortalı görünmel
 9 katalog düzeltmesi, yazı sistemi kapısının allowlist'ine `R&D`/`CNC`/
 `thermoset`/`refresh token` eklenmesi ve `routing.locales`'e `ar`.
 
+### AR-4 uygulandı — Dalga 3 AÇILDI: ar (2026-08-03)
+
+`routing.locales` artık 10 dil ve ilki RTL. Deploy YAPILMADI.
+
+**Arapça için ayrı font ailesi eklendi (`Noto Sans Arabic`).** ru'daki "subset
+ekle" hamlesi burada işlemedi: mevcut üç ailenin hiçbiri `arabic` sunmuyor.
+Bağlanma biçimi locale'e bağlı koşullu sınıf DEĞİL, **yedek zincir**:
+`--font-sans: var(--font-geist-sans), var(--font-arabic)` (ve `.font-heading`
+için aynısı). Tarayıcı glif bazında seçiyor — Latin karakterler Geist'ten,
+Geist'te bulunmayan Arapça glifler Noto'dan geliyor. Kazanç: hiçbir bileşene
+locale koşulu girmiyor ve unicode-range sayesinde Arapça olmayan sayfada tek
+bayt inmiyor. Noto'nun yalnız `arabic` subset'i alındı; Latin'i zaten Geist
+karşılıyor.
+
+**Dikkat — `globals.css`'te iki `@theme inline` bloğu var; 187-312 arası yorum
+içinde (ölü).** Değişiklik canlı bloğa yapıldı. Bu dosyaya dokunacak herkes
+önce hangi bloğun canlı olduğuna bakmalı.
+
+**11 katalog değeri düzeltildi:**
+
+| Anahtar | Önce | Sonra |
+|---|---|---|
+| `shared.enviroment.word1/2/3` | `الطبيعة` / `DOSTU` / `الإنتاج` | `إنتاج` / `صديق` / `للبيئة` |
+| `auth.*.emailPlaceholder` (5) | `ornek@` | `mithal@ceyhunlar.com` |
+| `…table.materialCount` | `{count} H.M.` | `{count} مادة` |
+| `…table.supplierCount` | `{count} Ted.` | `{count} مورّد` |
+| `public.arge.block2Title` | `ARGE (البحث والتطوير)` | `البحث والتطوير (R&D)` |
+| `public.arge.block2Items[0]` | `«ARGE»` | `«R&D»` |
+
+`enviroment` üçlüsü bütün olarak değişti: "DOĞA / DOSTU / ÜRETİM" yapısı
+Arapçaya kelime kelime oturmuyor; doğru öbek `إنتاج صديق للبيئة` (çevreye
+duyarlı üretim). Vurgulu orta satır TR'deki gibi "dostu" anlamındaki kelimeye
+düşüyor. **Ders:** bölünmüş ifadelerin (animasyon için parçalanmış başlıklar)
+her dilde parça sınırları değişebilir — anahtar anahtar çeviri yetmez.
+
+**Yazı sistemi kapısının allowlist'ine 5 giriş eklendi** (`R&D`, `CNC`,
+`thermoset`, `refresh token`, `4A`). Bunlar kusur DEĞİL: Arapça katalog
+"terim + parantez içinde Latin kısaltma" üslubunu kullanıyor
+(`البحث والتطوير (R&D)`) — yerleşik teknik yazım pratiği.
+
+**İki kapı da ar'ı kendiliğinden kapsamaya başladı:** sızıntı 9 → 10 test,
+yazı sistemi 3 → 4 test. Tasarımın amacı buydu.
+
+**RTL maliyeti bir kez ödendi.** AR-1..3'teki 194 sınıflık geçiş ve
+`logicalProperties` kapısı dile özel değil; yeni bir RTL dil (fa, he, ur)
+açılırsa yalnız katalog + font subset'i kontrolü gerekir. `routing.ts`'e not
+düşüldü.
+
+**Native göz notu:** Arapça karşılıklar elle seçildi. `إنتاج صديق للبيئة`
+öbeği ve `مادة`/`مورّد` kısaltmaları Arapça bilen biri tarafından teyit
+edilirse iyi olur; hiçbiri yayını bloklamaz.
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
+**138/138** ✅ (136 → +2: iki kapının ar testleri)
+
+**kubi'de doğrulanacak (ilk RTL dil — asıl sınav bu):**
+1. `/ar` açılmalı, dil değiştirici 10 dil listelemeli
+2. **Arapça harfler sistem fontuna düşmemeli** (font yedeği çalışıyor mu)
+3. **Sayfa sağdan sola akmalı**: navbar öğeleri, footer sütunları, metin hizaları
+4. Mobil menü **soldan** girip sola kapanmalı
+5. Buton okları ve sayfalama okları **sola** bakmalı
+6. Ürün filtre çubuğunda arama ikonu **sağda**, temizle butonu **solda**
+7. **Oynat butonlarındaki üçgen hâlâ sağa bakmalı ve daire içinde ortalı olmalı**
+   (bilinçli aynalanmayan tek öğe)
+8. Ana sayfada banner "إنتاج صديق للبيئة" okunmalı
+9. LTR dillerde (tr/en/de) hiçbir şey değişmemiş olmalı
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -22,9 +22,18 @@ import { defineRouting } from "next-intl/routing";
  * yakalayamadığı halde Kiril metnin İÇİNDE kalmış Latin kelime aranmalı
  * («industrial usage» ve `ARGE` böyle bulundu). Aynı tarama ar/ko/ja/zh/hi
  * dalgalarında da tekrarlanmalı.
+ *
+ * Dalga 3 (ar) 2026-08-03'te açıldı: ilk RTL dil. İki ek maliyet getirdi ve
+ * ikisi de sonraki RTL dillerinde TEKRARLANMAYACAK (bir kez ödendi):
+ *  - Arapça için AYRI font ailesi (`Noto Sans Arabic`) — mevcut ailelerin
+ *    hiçbiri `arabic` sunmuyordu, subset eklemek yetmedi.
+ *  - Public ağaçtaki 194 fiziksel yön sınıfının mantıksala geçirilmesi
+ *    (AR-1..3) ve `components/logicalProperties.test.ts` kapısı.
+ * Yeni bir RTL dil (ör. fa, he, ur) açılırsa yalnız katalog + font subset'i
+ * kontrolü gerekir; düzen tarafı hazır.
  */
 export const routing = defineRouting({
-    locales: ["tr", "en", "de", "fr", "es", "it", "pt", "pl", "ru"],
+    locales: ["tr", "en", "de", "fr", "es", "it", "pt", "pl", "ru", "ar"],
     defaultLocale: "tr",
 
     // TR URL'ler prefixsiz kalır (/hakkimizda), EN /en altında yaşar (/en/hakkimizda).
