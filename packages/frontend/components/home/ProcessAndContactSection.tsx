@@ -103,7 +103,7 @@ function FeatureCard({
             className="group relative rounded-2xl p-6 transition-all duration-300 hover:bg-brand/90"
         >
             {/* Accent line */}
-            <span className="absolute left-0 top-6 h-10 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-(--color-brand)" />
+            <span className="absolute inset-s-0 top-6 h-10 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-(--color-brand)" />
 
             <div className="flex gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 transition-colors group-hover:bg-white/20">
@@ -340,7 +340,7 @@ export function ProcessAndContactSection({
                                         ) : (
                                             <>
                                                 {tf("submit")}
-                                                <ArrowUpRight className="ml-2 h-4 w-4" />
+                                                <ArrowUpRight className="ms-2 h-4 w-4 rtl:-scale-x-100" />
                                             </>
                                         )}
                                     </Button>

@@ -34,10 +34,10 @@ export function PageHero({
         <header
             className="
         relative
-        h-[100px]
-        sm:h-[130px]
-        md:h-[160px]
-        lg:h-[180px]
+        h-25
+        sm:h-32.5
+        md:h-40
+        lg:h-45
         flex items-center justify-center
         overflow-hidden
       "
@@ -54,11 +54,11 @@ export function PageHero({
             />
 
             {/* Overlays */}
-            <div className="absolute inset-0 bg-[var(--color-brand)]/30 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-brand/30 mix-blend-multiply" />
             <div className="absolute inset-0 bg-black/60" />
 
             {/* Content */}
-            <div className="relative z-10 w-full max-w-7xl px-6 mx-auto flex flex-col items-center sm:items-start text-center sm:text-left text-white">
+            <div className="relative z-10 w-full max-w-7xl px-6 mx-auto flex flex-col items-center sm:items-start text-center sm:text-start text-white">
                 {/* Title */}
                 <motion.h1
                     initial={{ opacity: 0, x: -20 }}

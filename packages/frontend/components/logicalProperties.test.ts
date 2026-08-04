@@ -26,6 +26,9 @@ const frontendRoot = fileURLToPath(new URL("..", import.meta.url))
 /** Temizlenmiş ve artık korunan alanlar. AR-2/AR-3 buraya ekleme yapacak. */
 const SCANNED_DIRS = [
     "components/ui", // AR-1
+    "components/navigation", // AR-2
+    "components/home", // AR-2
+    "components/sections", // AR-2
 ]
 
 /**
@@ -44,6 +47,11 @@ const ALLOWED: ReadonlyArray<{ file: string; pattern: string; reason: string }> 
         file: "components/ui/alert-dialog.tsx",
         pattern: "left-[50%]",
         reason: "Ortalama — dialog.tsx ile aynı gerekçe.",
+    },
+    {
+        file: "components/navigation/NavigationProgress.tsx",
+        pattern: "left-1/2",
+        reason: "Ortalama — dialog.tsx ile aynı gerekçe (`-translate-x-1/2` ile eşleşiyor).",
     },
     {
         file: "components/ui/navigation-menu.tsx",

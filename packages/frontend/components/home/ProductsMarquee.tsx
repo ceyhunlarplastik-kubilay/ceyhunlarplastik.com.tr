@@ -154,7 +154,7 @@ function MarqueeItem({
             {/* Card Overlay */}
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent opacity-70 group-hover:opacity-90 transition-opacity" />
 
-            <div className="absolute bottom-0 left-0 right-0 p-3 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
+            <div className="absolute bottom-0 inset-x-0 p-3 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
                 {/* <p className="text-brand font-medium text-xs mb-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -translate-y-1 group-hover:translate-y-0">
           İncele
         </p> */}

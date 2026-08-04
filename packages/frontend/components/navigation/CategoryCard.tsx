@@ -60,7 +60,7 @@ export function CategoryCard({
 
             {/* TITLE */}
             <div className="text-sm font-medium text-center">
-                <span className="text-muted-foreground mr-1">{code}.</span>
+                <span className="text-muted-foreground me-1">{code}.</span>
                 {title}
             </div>
         </Link>

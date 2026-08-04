@@ -69,7 +69,7 @@ export function NavbarClient({
                 initial={{ y: 0 }}
                 animate={{ y: isVisible ? 0 : "-100%" }}
                 transition={{ duration: 0.35, ease: "easeInOut" }}
-                className="fixed top-0 left-0 right-0 z-50"
+                className="fixed top-0 inset-x-0 z-50"
                 ref={ref}
             >
 

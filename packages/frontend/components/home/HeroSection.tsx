@@ -45,7 +45,7 @@ export function HeroSection() {
             {/* Ambient brand warmth behind the asset. Very low opacity, single accent, not a neon glow. */}
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -top-1/4 right-0 h-[70%] w-1/2 rounded-full opacity-[0.07] blur-3xl"
+                className="pointer-events-none absolute -top-1/4 inset-e-0 h-[70%] w-1/2 rounded-full opacity-[0.07] blur-3xl"
                 style={{
                     background:
                         "radial-gradient(circle, var(--color-brand), transparent 70%)",
@@ -111,7 +111,10 @@ export function HeroSection() {
                                 >
                                     <Link href="/urunler">
                                         {t("ctaProducts")}
-                                        <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                        {/* Ok hem aynalanır hem hover itişi ters yöne alınır:
+                                            translate, scale'den önce uygulandığı için tek başına
+                                            aynalamak itişi düzeltmiyor. */}
+                                        <ArrowRight className="ms-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:-scale-x-100" />
                                     </Link>
                                 </Button>
 

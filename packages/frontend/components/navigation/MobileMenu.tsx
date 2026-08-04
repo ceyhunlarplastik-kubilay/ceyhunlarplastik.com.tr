@@ -25,7 +25,7 @@ export const MobileMenu = ({
     return (
         <div
             className={`
-          fixed inset-0 z-[999] 
+          fixed inset-0 z-999 
           backdrop-blur-md bg-black/30 
           transition-all duration-300 
           ${mobileOpen
@@ -38,10 +38,10 @@ export const MobileMenu = ({
             {/* DRAWER PANEL */}
             <div
                 className={`
-            absolute top-0 right-0 h-full w-[78%] max-w-sm 
-            bg-white shadow-xl rounded-l-2xl 
+            absolute top-0 inset-e-0 h-full w-[78%] max-w-sm 
+            bg-white shadow-xl rounded-s-2xl 
             transform transition-transform duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
-            ${mobileOpen ? "translate-x-0" : "translate-x-full"}
+            ${mobileOpen ? "translate-x-0" : "translate-x-full rtl:-translate-x-full"}
           `}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -92,7 +92,7 @@ export const MobileMenu = ({
                                 />
                             </svg>
                         </summary>
-                        <div className="ml-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
+                        <div className="ms-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
                             {categories.map((category) => (
                                 <Link
                                     key={category.id}
@@ -131,7 +131,7 @@ export const MobileMenu = ({
                                 />
                             </svg>
                         </summary>
-                        <div className="ml-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
+                        <div className="ms-3 mb-2 flex flex-col gap-2 text-base text-muted-foreground">
                             {serviceItems.map((item) => (
                                 <Link
                                     key={item.key}

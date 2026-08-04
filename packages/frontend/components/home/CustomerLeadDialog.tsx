@@ -245,11 +245,11 @@ export default function CustomerLeadDialog({
                 }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
             >
-                <span className="pointer-events-none absolute -inset-0.5 rounded-full bg-[var(--color-brand)]/20 blur-sm" />
+                <span className="pointer-events-none absolute -inset-0.5 rounded-full bg-brand/20 blur-sm" />
                 <ButtonShine
                     onClick={() => setOpen(true)}
                     className={cn(
-                        "relative z-10 h-10 rounded-full border border-[var(--color-brand)]/30 px-4 text-xs font-semibold md:text-sm",
+                        "relative z-10 h-10 rounded-full border border-brand/30 px-4 text-xs font-semibold md:text-sm",
                         buttonClassName
                     )}
                 >
@@ -267,7 +267,7 @@ export default function CustomerLeadDialog({
                 <DialogTitle className="sr-only">{t("title")}</DialogTitle>
 
                 <div className="flex h-full flex-col">
-                    <div className="bg-gradient-to-r from-[var(--color-brand)] to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
+                    <div className="bg-linear-to-r from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
@@ -320,7 +320,7 @@ export default function CustomerLeadDialog({
                                                 <motion.div
                                                     animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                                                     transition={{ duration: 2, repeat: Infinity }}
-                                                    className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-1.5 shadow-lg shadow-yellow-200"
+                                                    className="absolute -top-2 inset-e-2 bg-yellow-400 rounded-full p-1.5 shadow-lg shadow-yellow-200"
                                                 >
                                                     <Sparkles className="w-4 h-4 text-white" />
                                                 </motion.div>
@@ -356,7 +356,7 @@ export default function CustomerLeadDialog({
                                             <ScrollArea
                                                 type="always"
                                                 scrollHideDelay={0}
-                                                className="h-[390px] rounded-lg border border-neutral-200/70 p-2 pr-3"
+                                                className="h-97.5 rounded-lg border border-neutral-200/70 p-2 pe-3"
                                             >
                                                 <div className="grid grid-cols-2 gap-2 pb-2 md:grid-cols-3 lg:grid-cols-4">
                                                     {sectorValues.map((value) => (
@@ -379,13 +379,13 @@ export default function CustomerLeadDialog({
                                                                 })
                                                             }}
                                                             className={cn(
-                                                                "group overflow-hidden rounded-xl border text-left text-sm transition",
+                                                                "group overflow-hidden rounded-xl border text-start text-sm transition",
                                                                 selectedSectorId === value.id
-                                                                    ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)] shadow-sm"
+                                                                    ? "border-(--color-brand) bg-brand/10 text-(--color-brand) shadow-sm"
                                                                     : "border-neutral-200 hover:border-neutral-300 hover:shadow-sm"
                                                             )}
                                                         >
-                                                            <div className="relative aspect-[4/3] w-full bg-neutral-100">
+                                                            <div className="relative aspect-4/3 w-full bg-neutral-100">
                                                                 {getValueImageUrl(value) ? (
                                                                     <Image
                                                                         src={getValueImageUrl(value)!}
@@ -430,7 +430,7 @@ export default function CustomerLeadDialog({
                                             className="flex h-full min-h-0 flex-col gap-3 overflow-hidden"
                                         >
                                             <p className="text-sm font-medium">{t("productionGroupTitle")}</p>
-                                            <ScrollArea type="always" className="min-h-0 flex-1 rounded-lg border p-2 pr-3">
+                                            <ScrollArea type="always" className="min-h-0 flex-1 rounded-lg border p-2 pe-3">
                                                 <div className="grid grid-cols-1 gap-2 pb-2 sm:grid-cols-2">
                                                     {visibleProductionGroups.map((value) => (
                                                         <button
@@ -448,9 +448,9 @@ export default function CustomerLeadDialog({
                                                                 })
                                                             }}
                                                             className={cn(
-                                                                "rounded-lg border px-3 py-2 text-left text-sm transition",
+                                                                "rounded-lg border px-3 py-2 text-start text-sm transition",
                                                                 selectedProductionGroupId === value.id
-                                                                    ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)]"
+                                                                    ? "border-(--color-brand) bg-brand/10 text-(--color-brand)"
                                                                     : "border-neutral-200 hover:border-neutral-300"
                                                             )}
                                                         >
@@ -489,7 +489,7 @@ export default function CustomerLeadDialog({
                                                     />
                                                 </div>
 
-                                                <ScrollArea type="always" className="h-[320px] p-2 pr-3">
+                                                <ScrollArea type="always" className="h-80 p-2 pe-3">
                                                     {filteredUsageAreas.length === 0 ? (
                                                         <div className="py-8 text-center text-sm text-neutral-500">{t("noResults")}</div>
                                                     ) : (
@@ -506,7 +506,7 @@ export default function CustomerLeadDialog({
                                                                             toggleUsageArea(value.id)
                                                                         }
                                                                     }}
-                                                                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2 text-left text-sm hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)]/40"
+                                                                    className="flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2 text-start text-sm hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
                                                                 >
                                                                     <span>{value.name}</span>
                                                                     <span
@@ -514,7 +514,7 @@ export default function CustomerLeadDialog({
                                                                         className={cn(
                                                                             "inline-flex h-4 w-4 items-center justify-center rounded border transition",
                                                                             selectedUsageAreaIds.includes(value.id)
-                                                                                ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-white"
+                                                                                ? "border-(--color-brand) bg-(--color-brand) text-white"
                                                                                 : "border-neutral-300 bg-white"
                                                                         )}
                                                                     >
@@ -548,8 +548,8 @@ export default function CustomerLeadDialog({
                                                         <FormItem>
                                                             <FormControl>
                                                                 <div className="relative">
-                                                                    <Building2 className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder={t("companyPlaceholder")} className="pl-9" />
+                                                                    <Building2 className="pointer-events-none absolute inset-s-3 top-3.5 h-4 w-4 text-neutral-400" />
+                                                                    <Input {...field} placeholder={t("companyPlaceholder")} className="ps-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -564,8 +564,8 @@ export default function CustomerLeadDialog({
                                                         <FormItem>
                                                             <FormControl>
                                                                 <div className="relative">
-                                                                    <User2 className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder={t("fullNamePlaceholder")} className="pl-9" />
+                                                                    <User2 className="pointer-events-none absolute inset-s-3 top-3.5 h-4 w-4 text-neutral-400" />
+                                                                    <Input {...field} placeholder={t("fullNamePlaceholder")} className="ps-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -580,8 +580,8 @@ export default function CustomerLeadDialog({
                                                         <FormItem>
                                                             <FormControl>
                                                                 <div className="relative">
-                                                                    <Phone className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder={t("phonePlaceholder")} className="pl-9" />
+                                                                    <Phone className="pointer-events-none absolute inset-s-3 top-3.5 h-4 w-4 text-neutral-400" />
+                                                                    <Input {...field} placeholder={t("phonePlaceholder")} className="ps-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -596,8 +596,8 @@ export default function CustomerLeadDialog({
                                                         <FormItem>
                                                             <FormControl>
                                                                 <div className="relative">
-                                                                    <Mail className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
-                                                                    <Input {...field} placeholder={t("emailPlaceholder")} type="email" className="pl-9" />
+                                                                    <Mail className="pointer-events-none absolute inset-s-3 top-3.5 h-4 w-4 text-neutral-400" />
+                                                                    <Input {...field} placeholder={t("emailPlaceholder")} type="email" className="ps-9" />
                                                                 </div>
                                                             </FormControl>
                                                             <FormMessage />
@@ -613,12 +613,12 @@ export default function CustomerLeadDialog({
                                                     <FormItem>
                                                         <FormControl>
                                                             <div className="relative">
-                                                                <MessageSquare className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-neutral-400" />
+                                                                <MessageSquare className="pointer-events-none absolute inset-s-3 top-3.5 h-4 w-4 text-neutral-400" />
                                                                 <Textarea
                                                                     {...field}
                                                                     placeholder={t("notePlaceholder")}
                                                                     rows={5}
-                                                                    className="pl-9"
+                                                                    className="ps-9"
                                                                 />
                                                             </div>
                                                         </FormControl>
@@ -642,9 +642,9 @@ export default function CustomerLeadDialog({
                                         >
                                             {t("later")}
                                         </Button>
-                                        <Button type="button" onClick={nextStep} className="bg-[var(--color-brand)] text-white">
+                                        <Button type="button" onClick={nextStep} className="bg-(--color-brand) text-white">
                                             {t("start")}
-                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                            <ArrowRight className="ms-2 h-4 w-4 rtl:-scale-x-100" />
                                         </Button>
                                     </>
                                 ) : (
@@ -663,13 +663,13 @@ export default function CustomerLeadDialog({
                                                 type="button"
                                                 onClick={nextStep}
                                                 disabled={form.formState.isSubmitting}
-                                                className="bg-[var(--color-brand)] text-white"
+                                                className="bg-(--color-brand) text-white"
                                             >
                                                 {t("next")}
-                                                <ChevronRight className="ml-2 h-4 w-4" />
+                                                <ChevronRight className="ms-2 h-4 w-4 rtl:-scale-x-100" />
                                             </Button>
                                         ) : (
-                                            <Button type="submit" disabled={form.formState.isSubmitting} className="bg-[var(--color-brand)] text-white">
+                                            <Button type="submit" disabled={form.formState.isSubmitting} className="bg-(--color-brand) text-white">
                                                 {form.formState.isSubmitting ? (
                                                     <span className="inline-flex items-center gap-2">
                                                         <Spinner className="h-4 w-4" />
@@ -677,7 +677,7 @@ export default function CustomerLeadDialog({
                                                     </span>
                                                 ) : (
                                                     <>
-                                                        <Send className="mr-2 h-4 w-4" />
+                                                        <Send className="me-2 h-4 w-4 rtl:-scale-x-100" />
                                                         {t("submit")}
                                                     </>
                                                 )}

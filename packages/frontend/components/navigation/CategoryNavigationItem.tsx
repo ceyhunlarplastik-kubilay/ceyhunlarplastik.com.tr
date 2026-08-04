@@ -25,7 +25,7 @@ export function CategoryNavigationItem({
                 {t("categories")}
             </NavigationMenuTrigger>
 
-            <NavigationMenuContent className="fixed! left-0! right-0! w-screen! max-w-none! data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out">
+            <NavigationMenuContent className="fixed! inset-x-0! w-screen! max-w-none! data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out">
                 <div className="w-full bg-popover border-t shadow-lg py-6">
                     <div className="w-full px-6 md:px-8">
                         <ul className="grid gap-2 grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8">

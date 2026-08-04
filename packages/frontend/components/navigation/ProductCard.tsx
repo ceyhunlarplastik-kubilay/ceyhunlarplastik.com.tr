@@ -88,7 +88,7 @@ export function ProductCard({
             <div className="relative w-full aspect-square rounded-md overflow-hidden bg-white mb-2 flex items-center justify-center p-2 border border-neutral-100">
                 <Badge
                     className="
-                        absolute left-2 top-2 z-10
+                        absolute inset-s-2 top-2 z-10
                         inline-flex items-center gap-1
                         rounded-full border border-white/30
                         bg-black/70 px-2 py-0.5
@@ -134,7 +134,7 @@ export function ProductCard({
                             <div className="inline-flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand shadow-sm">
                                 <Loader2 className="h-4 w-4 animate-spin" />
                             </div>
-                            <span className="max-w-[11rem] text-[11px] font-medium leading-4 text-neutral-700">
+                            <span className="max-w-44 text-[11px] font-medium leading-4 text-neutral-700">
                                 {pendingLabel}
                             </span>
                         </motion.div>

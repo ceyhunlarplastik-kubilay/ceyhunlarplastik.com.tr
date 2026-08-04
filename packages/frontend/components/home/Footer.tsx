@@ -19,7 +19,7 @@ export function Footer({ categories }: { categories: Category[] }) {
         <footer className="bg-[#1f2428] text-white/80">
             {/* Top */}
             <div className="mx-auto max-w-7xl px-6 py-14">
-                <div className="grid gap-x-8 gap-y-12 lg:grid-cols-6 text-[13px] text-center lg:text-left">
+                <div className="grid gap-x-8 gap-y-12 lg:grid-cols-6 text-[13px] text-center lg:text-start">
                     {/* Logo & description */}
                     <div className="lg:col-span-2 flex flex-col items-center lg:items-start">
                         <Image
@@ -41,7 +41,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Facebook"
-                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-[var(--color-brand)] hover:text-white"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-(--color-brand) hover:text-white"
                             >
                                 <SiFacebook className="h-4 w-4" />
                             </ExternalLink>
@@ -50,7 +50,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="Instagram"
-                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-[var(--color-brand)] hover:text-white"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-(--color-brand) hover:text-white"
                             >
                                 <SiInstagram className="h-4 w-4" />
                             </ExternalLink>
@@ -59,7 +59,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label="YouTube"
-                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-[var(--color-brand)] hover:text-white"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/60 transition hover:bg-(--color-brand) hover:text-white"
                             >
                                 <SiYoutube className="h-4 w-4" />
                             </ExternalLink>
@@ -73,28 +73,28 @@ export function Footer({ categories }: { categories: Category[] }) {
                             <li>
                                 <Link
                                     href="/hakkimizda"
-                                    className="hover:text-[var(--color-brand)]"
+                                    className="hover:text-(--color-brand)"
                                 >
                                     {t("aboutLink")}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/urunler" className="hover:text-[var(--color-brand)]">
+                                <Link href="/urunler" className="hover:text-(--color-brand)">
                                     {t("productionGroupsLink")}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/ik" className="hover:text-[var(--color-brand)]">
+                                <Link href="/ik" className="hover:text-(--color-brand)">
                                     {t("hrLink")}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-[var(--color-brand)]">
+                                <Link href="#" className="hover:text-(--color-brand)">
                                     {t("sustainabilityLink")}
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="hover:text-[var(--color-brand)]">
+                                <Link href="#" className="hover:text-(--color-brand)">
                                     {t("contactLink")}
                                 </Link>
                             </li>
@@ -108,7 +108,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                             <li>
                                 <Link
                                     href="/arge-ve-prototipleme"
-                                    className="hover:text-[var(--color-brand)]"
+                                    className="hover:text-(--color-brand)"
                                 >
                                     {t("rndLink")}
                                 </Link>
@@ -116,7 +116,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                             <li>
                                 <Link
                                     href="/3d-baski-ve-tarama"
-                                    className="hover:text-[var(--color-brand)]"
+                                    className="hover:text-(--color-brand)"
                                 >
                                     {t("printing3dLink")}
                                 </Link>
@@ -124,7 +124,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                             <li>
                                 <Link
                                     href="/talasli-imalat"
-                                    className="hover:text-[var(--color-brand)]"
+                                    className="hover:text-(--color-brand)"
                                 >
                                     {t("machiningLink")}
                                 </Link>
@@ -132,7 +132,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                             <li>
                                 <Link
                                     href="/seri-uretim"
-                                    className="hover:text-[var(--color-brand)]"
+                                    className="hover:text-(--color-brand)"
                                 >
                                     {t("massProductionLink")}
                                 </Link>
@@ -142,7 +142,7 @@ export function Footer({ categories }: { categories: Category[] }) {
 
                     {/* Ürünler */}
                     <div className="flex flex-col items-center lg:items-start">
-                        <h4 className="mb-3 text-sm font-semibold text-white text-center lg:text-left">
+                        <h4 className="mb-3 text-sm font-semibold text-white text-center lg:text-start">
                             {t("productsTitle")}
                         </h4>
 
@@ -164,7 +164,7 @@ export function Footer({ categories }: { categories: Category[] }) {
                                 </li>
                             ))}
 
-                            <li className="pt-1 text-center lg:text-left">
+                            <li className="pt-1 text-center lg:text-start">
                                 <Link
                                     href="/urunler/filtre"
                                     className="text-white/50 hover:text-white transition"
@@ -183,11 +183,11 @@ export function Footer({ categories }: { categories: Category[] }) {
 
                         <ul className="space-y-2 text-white/70">
                             <li className="flex items-center justify-center lg:justify-start gap-2">
-                                <Phone className="h-3.5 w-3.5 text-[var(--color-brand)]" />
+                                <Phone className="h-3.5 w-3.5 text-(--color-brand)" />
                                 (0 232) 700 29 46
                             </li>
                             <li className="flex items-center justify-center lg:justify-start gap-2">
-                                <Phone className="h-3.5 w-3.5 text-[var(--color-brand)]" />
+                                <Phone className="h-3.5 w-3.5 text-(--color-brand)" />
                                 (0 553) 060 29 46
                             </li>
                             <li className="flex items-center justify-center lg:justify-start gap-2">
@@ -205,10 +205,10 @@ export function Footer({ categories }: { categories: Category[] }) {
             </div>
 
             {/* Soft divider (NO harsh white line) */}
-            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            <div className="h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
 
             {/* Bottom */}
-            <div className="mx-auto max-w-7xl px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-[11px] text-white/70 text-center md:text-left">
+            <div className="mx-auto max-w-7xl px-6 py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-[11px] text-white/70 text-center md:text-start">
                 <div className="flex items-center justify-center md:justify-start gap-2">
                     <MapPin className="h-3.5 w-3.5" />
                     {t("address")}

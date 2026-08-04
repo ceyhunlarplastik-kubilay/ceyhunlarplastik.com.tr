@@ -209,10 +209,10 @@ export default function ProductAssistantModal({ attributes }: Props) {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setOpen(true)}
                     className="
-                        fixed bottom-8 right-10 z-50
+                        fixed bottom-8 inset-e-10 z-50
                         w-16 h-16
                         rounded-full
-                        bg-gradient-to-br from-[var(--color-brand)] to-[color-mix(in_oklch,var(--color-brand),black_20%)]
+                        bg-linear-to-br from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_20%)]
                         text-white
                         shadow-[0_8px_30px_rgba(0,0,0,0.15)]
                         flex items-center justify-center
@@ -236,11 +236,11 @@ export default function ProductAssistantModal({ attributes }: Props) {
                             <path d="m3.3 7 8.7 5 8.7-5" />
                             <path d="M12 22V12" />
                         </svg>
-                        <Sparkles className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 text-yellow-300 animate-pulse" />
+                        <Sparkles className="absolute -top-1.5 -inset-e-1.5 w-3.5 h-3.5 text-yellow-300 animate-pulse" />
                     </div>
 
-                    <span className="absolute inset-0 rounded-full bg-[var(--color-brand)] opacity-30 animate-ping" />
-                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
+                    <span className="absolute inset-0 rounded-full bg-(--color-brand) opacity-30 animate-ping" />
+                    <span className="absolute -top-0.5 -inset-e-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
                 </motion.button>
             )}
 
@@ -251,7 +251,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                 >
                     <DialogTitle className="sr-only">{t("title")}</DialogTitle>
                     <div className="flex h-full flex-col">
-                        <div className="bg-gradient-to-r from-[var(--color-brand)] to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
+                        <div className="bg-linear-to-r from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
@@ -322,7 +322,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                             <motion.div
                                                 animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                                                 transition={{ duration: 2, repeat: Infinity }}
-                                                className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-1.5 shadow-lg shadow-yellow-200"
+                                                className="absolute -top-2 -inset-e-2 bg-yellow-400 rounded-full p-1.5 shadow-lg shadow-yellow-200"
                                             >
                                                 <Sparkles className="w-4 h-4 text-white" />
                                             </motion.div>
@@ -340,10 +340,10 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         <div className="flex flex-col w-full gap-3 max-w-sm px-4">
                                             <Button
                                                 onClick={() => setStep(1)}
-                                                className="h-14 text-lg font-semibold bg-brand text-white shadow-lg shadow-brand/20 transition-all hover:translate-y-[-2px] active:scale-95"
+                                                className="h-14 text-lg font-semibold bg-brand text-white shadow-lg shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-95"
                                             >
                                                 {t("welcome.start")}
-                                                <ArrowRight className="ml-2 h-5 w-5" />
+                                                <ArrowRight className="ms-2 h-5 w-5 rtl:-scale-x-100" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -368,16 +368,16 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                             <h3 className="text-lg font-semibold">{t("sector.title")}</h3>
                                             <p className="text-sm text-neutral-500">{t("sector.hint")}</p>
                                         </div>
-                                        <ScrollArea type="always" scrollHideDelay={0} className="h-[430px] rounded-lg border border-neutral-200/70 p-2 pr-3">
+                                        <ScrollArea type="always" scrollHideDelay={0} className="h-107.5 rounded-lg border border-neutral-200/70 p-2 pe-3">
                                             <div className="grid grid-cols-2 gap-2 pb-2 md:grid-cols-3 lg:grid-cols-4">
                                                 {sectorValues.map((value) => (
                                                     <button
                                                         key={value.id}
                                                         onClick={() => handleSelectSector(value.slug)}
                                                         className={cn(
-                                                            "group overflow-hidden rounded-xl border text-left text-sm transition",
+                                                            "group overflow-hidden rounded-xl border text-start text-sm transition",
                                                             selectedSectorSlug === value.slug
-                                                                ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)] shadow-sm"
+                                                                ? "border-(--color-brand) bg-brand/10 text-(--color-brand) shadow-sm"
                                                                 : "border-neutral-200 hover:border-neutral-300 hover:shadow-sm"
                                                         )}
                                                     >
@@ -429,7 +429,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                         className={cn(
                                                             "whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition sm:text-sm",
                                                             (activeProductionGroupSlug ?? selectedProductionGroupSlug) === value.slug
-                                                                ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)]"
+                                                                ? "border-(--color-brand) bg-brand/10 text-(--color-brand)"
                                                                 : "border-neutral-200 hover:border-neutral-300 text-neutral-700"
                                                         )}
                                                     >
@@ -444,13 +444,13 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                 value={query}
                                                 onChange={(e) => setQuery(e.target.value)}
                                                 placeholder={t("usage.searchPlaceholder")}
-                                                className="h-10 w-full rounded-xl border border-neutral-200 px-3 text-sm outline-none focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/20"
+                                                className="h-10 w-full rounded-xl border border-neutral-200 px-3 text-sm outline-none focus:border-(--color-brand) focus:ring-2 focus:ring-brand/20"
                                             />
                                         </div>
 
                                         <div
                                             ref={usageScrollRef}
-                                            className="h-[320px] overflow-y-auto rounded-xl border border-neutral-200"
+                                            className="h-80 overflow-y-auto rounded-xl border border-neutral-200"
                                         >
                                             <div className="space-y-5 p-3">
                                                     {visibleProductionGroups.map((group) => {
@@ -475,9 +475,9 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                                 type="button"
                                                                                 onClick={() => toggleUsageArea(value.slug)}
                                                                                 className={cn(
-                                                                                    "group overflow-hidden rounded-xl border text-left transition",
+                                                                                    "group overflow-hidden rounded-xl border text-start transition",
                                                                                     checked
-                                                                                        ? "border-[var(--color-brand)] bg-[var(--color-brand)]/10 text-[var(--color-brand)]"
+                                                                                        ? "border-(--color-brand) bg-brand/10 text-(--color-brand)"
                                                                                         : "border-neutral-200 hover:border-neutral-300"
                                                                                 )}
                                                                             >
@@ -499,7 +499,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                                 </div>
                                                                                 <div className="flex items-center justify-between px-2 py-1.5">
                                                                                     <p className="line-clamp-2 text-[11px] font-medium leading-4">{value.name}</p>
-                                                                                    {checked && <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--color-brand)]" />}
+                                                                                    {checked && <CheckCircle2 className="h-4 w-4 shrink-0 text-(--color-brand)" />}
                                                                                 </div>
                                                                             </button>
                                                                         )
@@ -521,7 +521,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                 {selectedUsageAreaSlugs.map((slug) => (
                                                     <span
                                                         key={slug}
-                                                        className="inline-flex items-center gap-1 rounded-full border border-[var(--color-brand)]/30 bg-[var(--color-brand)]/10 px-2 py-1 text-xs text-[var(--color-brand)]"
+                                                        className="inline-flex items-center gap-1 rounded-full border border-brand/30 bg-brand/10 px-2 py-1 text-xs text-(--color-brand)"
                                                     >
                                                         <CheckCircle2 className="h-3 w-3" />
                                                         {usageAreaValues.find((value) => value.slug === slug)?.name ?? slug}
@@ -544,15 +544,15 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                     <Button
                                         onClick={goNext}
                                         disabled={!canContinue}
-                                        className="bg-[var(--color-brand)] text-white"
+                                        className="bg-(--color-brand) text-white"
                                     >
                                         {t("nav.continue")}
-                                        <ArrowRight className="ml-2 h-4 w-4" />
+                                        <ArrowRight className="ms-2 h-4 w-4 rtl:-scale-x-100" />
                                     </Button>
                                 ) : (
-                                    <Button onClick={goToFilter} className="bg-[var(--color-brand)] text-white">
+                                    <Button onClick={goToFilter} className="bg-(--color-brand) text-white">
                                         {t("nav.listProducts")}
-                                        <ArrowRight className="ml-2 h-4 w-4" />
+                                        <ArrowRight className="ms-2 h-4 w-4 rtl:-scale-x-100" />
                                     </Button>
                                 )}
                             </div>

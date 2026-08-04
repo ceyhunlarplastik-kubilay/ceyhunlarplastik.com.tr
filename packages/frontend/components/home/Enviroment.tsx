@@ -79,15 +79,15 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
                     className="relative max-w-3xl"
                 >
                     {/* Corner decorations */}
-                    <span className="absolute -top-6 -left-6 h-8 w-8 border-l-2 border-t-2 border-white/70" />
-                    <span className="absolute -bottom-6 -right-6 h-8 w-8 border-r-2 border-b-2 border-white/70" />
+                    <span className="absolute -top-6 -inset-s-6 h-8 w-8 border-s-2 border-t-2 border-white/70" />
+                    <span className="absolute -bottom-6 -inset-e-6 h-8 w-8 border-e-2 border-b-2 border-white/70" />
 
                     <div className="w-full max-w-2xl mx-auto">
 
                         {/* DOĞA */}
                         <motion.div
                             variants={fadeUp}
-                            className="w-full text-left pl-2 md:pl-6"
+                            className="w-full text-start ps-2 md:ps-6"
                         >
                             <h2 className="
       font-heading
@@ -119,7 +119,7 @@ export function Enviroment({ fullScreen = false }: { fullScreen?: boolean }) {
                         {/* ÜRETİM */}
                         <motion.div
                             variants={fadeUp}
-                            className="w-full text-right pr-2 md:pr-6"
+                            className="w-full text-end pe-2 md:pe-6"
                         >
                             <h2 className="
       font-heading

@@ -1725,6 +1725,56 @@ kapatma butonu sağ üstte kalmalı; şifre alanındaki göz ikonu sağda kalmal
 tablo başlıkları ve `text-right` hücreler eskisi gibi hizalanmalı; ürün
 görseli karuselinde oklar sol/sağda kalmalı ve doğru yöne bakmalı.
 
+### AR-2 uygulandı: chrome (navigation + home + sections) (2026-08-03)
+
+13 dosya. Kapının `SCANNED_DIRS`'ine üç klasör eklendi; kapı 5 teste çıktı.
+
+**Üç simetrik `left-0 right-0` çifti `inset-x-0`'a indirildi** (NavbarClient,
+ProductsMarquee, CategoryNavigationItem). start/end'e çevirmek de çalışırdı ama
+tam genişlik zaten yönden bağımsız — `inset-x-0` hem daha kısa hem kapıya
+takılmıyor.
+
+**AR-1'in "iki parçalı aynalama" dersi burada üç kez daha karşımıza çıktı:**
+
+1. **Mobil menü çekmecesi.** `end-0` + `rounded-s-2xl` ile konum aynalandı ama
+   kapalı hâli hâlâ `translate-x-full` ile SAĞA gizleniyordu; RTL'de çekmece
+   solda olduğu için ekranın içinde kalırdı. `rtl:-translate-x-full` eklendi.
+2. **Yönü olan 8 ikon** (ArrowRight ×5, ChevronRight, ArrowUpRight, Send) —
+   hepsi buton metninden sonra gelen "ileri" göstergesi. `rtl:-scale-x-100`.
+3. **HeroSection'daki hover itişi.** Ok aynalandıktan sonra bile
+   `group-hover:translate-x-1` sağa itiyordu: CSS'te translate, scale'den ÖNCE
+   uygulandığı için aynalama itişi ters çevirmiyor. `rtl:group-hover:-translate-x-1`
+   ayrıca eklendi.
+
+**Kural:** yön aynalaması İKİ parçalı — (a) konum/boşluk sınıfları, (b) yönü olan
+her şey: ikon, `translate`, hareket. (b) kapı tarafından YAKALANMIYOR (geçerli
+mantıksal sınıf değil, fiziksel transform), o yüzden AR-3'te elle taranmalı.
+
+**Enviroment köşe süsleri** (`-left-6 border-l-2` / `-right-6 border-r-2`) ve
+DOĞA/ÜRETİM'in sol/sağ kaydırması da aynalandı — bunlar metin bloğunun çerçevesi
+olduğu için yazı yönüyle birlikte dönmeli.
+
+**Sınıfların gerçekten derlendiği doğrulandı:** üretilen sınıflar Tailwind CLI'ya
+verilip çıktı CSS'inde arandı — negatif mantıksal inset (`-start-6`, `-end-6`)
+dahil hepsi üretiliyor, `rtl:` varyantı da `:where(:dir(rtl), [dir="rtl"], …)`
+olarak çıkıyor. (Tailwind bilinmeyen sınıfı sessizce yok sayar; bu kontrol
+olmadan yazım hatası fark edilmezdi.)
+
+**Yan bulgu:** AR-1'de karusel okuna yazdığım `start-4`/`end-4`, dışarıdan
+`inset-s-4`/`inset-e-4` olarak değiştirilmiş. Geçersiz sandım, doğruladım:
+Tailwind v4.2.4 ikisini de sunuyor, ikisi de `inset-inline-start/end`'e çıkıyor.
+Eşdeğer — dokunulmadı.
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
+**135/135** ✅ (132 → +3: kapının yeni klasörleri)
+
+**kubi'de doğrulanacak (LTR regresyonu — ar hâlâ kapalı):** navbar tam genişlikte
+ve sabit kalmalı; mega-dropdown ekran genişliğinde açılmalı; mobil menü sağdan
+girip sağa kapanmalı; ana sayfada Enviroment köşe süsleri sol-üst/sağ-alt
+konumunda kalmalı; DOĞA sola / ÜRETİM sağa yaslı kalmalı; buton oklarının yönü
+ve hover'da sağa itişi değişmemeli; asistan balonu sağ altta kalmalı; müşteri
+formundaki alan ikonları solda kalmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
