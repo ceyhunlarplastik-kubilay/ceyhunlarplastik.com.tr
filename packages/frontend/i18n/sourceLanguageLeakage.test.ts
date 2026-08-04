@@ -1,9 +1,7 @@
-import { readFileSync } from "node:fs"
-import { fileURLToPath } from "node:url"
-import path from "node:path"
 import { describe, expect, it } from "vitest"
 
 import { routing } from "./routing"
+import { loadCatalog } from "./catalogTestSupport"
 
 /**
  * KAYNAK DİL SIZINTISI: bir dilin kataloğunda Türkçe metnin olduğu gibi kalması.
@@ -22,8 +20,6 @@ import { routing } from "./routing"
  * düşürür, bu tasarım gereği). Ama `routing.locales`'a eklendiği anda bu test
  * devreye girer: **bir dil, kaynak dil sızıntısıyla yayına giremez.**
  */
-
-const messagesDir = fileURLToPath(new URL("../messages", import.meta.url))
 
 /** Çeviriye tabi olmayan özel adlar. */
 const BRAND_TOKENS = ["Ceyhunlar", "Plastik"]
@@ -62,27 +58,6 @@ const IDENTICAL_BY_COINCIDENCE = new Map<string, Set<string>>([
     ["chrome.dialogs.catalogRequest.fields.address", new Set(["pl"])],
     ["public.hr.form.fields.address", new Set(["pl"])],
 ])
-
-type Tree = string | Tree[] | { [key: string]: Tree }
-
-function flatten(node: Tree, prefix = "", out = new Map<string, string>()) {
-    if (typeof node === "string") {
-        if (prefix) out.set(prefix, node)
-        return out
-    }
-    if (Array.isArray(node)) {
-        node.forEach((item, index) => flatten(item, `${prefix}[${index}]`, out))
-        return out
-    }
-    for (const [key, value] of Object.entries(node)) {
-        flatten(value, prefix ? `${prefix}.${key}` : key, out)
-    }
-    return out
-}
-
-function loadCatalog(locale: string) {
-    return flatten(JSON.parse(readFileSync(path.join(messagesDir, `${locale}.json`), "utf8")))
-}
 
 /**
  * Çevrilecek bir şey taşımayan değer: sayı/simge, yalnız yer tutucu, ya da

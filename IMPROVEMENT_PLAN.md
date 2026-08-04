@@ -1591,11 +1591,63 @@ subset eklenmemiş demektir); ana sayfada banner "ДРУГ ПРИРОДЫ" okunm
 `/ru/urun/<slug>` ürün sayfasında ölçü tablosunda `Мат.` / `Пост.` görünmeli;
 `/ru/arge-ve-prototipleme` başlığı `НИОКР` olmalı.
 
-**Sıradaki aday:** "hedef alfabe dışı kalıntı" taramasını yorumdan çıkarıp
-`sourceLanguageLeakage.test.ts` yanına kalıcı bir kapıya çevirmek. Dalga 1'de
-birebir sızıntı için yapılan şeyin aynısı; yapılmazsa ar/ko/ja/zh/hi'de aynı
-sınıf kusur elle aranmak zorunda kalır. Özel-ad allowlist'i gerektirdiği için
-ayrı dilim olarak öneriliyor.
+## Yazı sistemi kalıntısı kapıya çevrildi: `scriptLeakage.test.ts` (2026-08-03)
+
+Dalga 2'de ELLE yapılan "Kiril metnin içinde Latin kelime kalmış mı" taraması
+kalıcı teste dönüştürüldü. Dalga 1'de birebir sızıntı için yapılanın aynısı:
+bir kez elle bulunan kusur sınıfı, bir daha elle aranmasın diye kapıya bağlanır.
+
+**Neden ayrı bir test, `sourceLanguageLeakage`'a eklenmedi:** ikisi farklı şeye
+bakıyor. O test değerin TR ile **birebir** aynı olmasına bakar; bu testteki
+kusurda değer TR ile aynı DEĞİL — cümle düzgün çevrilmiş, içinde tek kelime
+yabancı kalmıştır (`«industrial usage»`, `ARGE`). Ayrı allowlist'leri var.
+
+**Neden yalnız Latin-dışı diller:** Almanca bir değerin içinde kalmış İngilizce
+kelime, doğru Almanca'dan ayırt edilemez — ikisi de Latin. Kiril/Arap/Hangıl/
+Kana/Han/Devanagari kataloglarda beklenen alfabe farklı olduğu için kalıntı
+mekanik olarak görünür. Testin gücü tam olarak buradan geliyor; Latin diller
+için aynı denetim yazılamaz.
+
+**Tasarım kararları:**
+- **`Record<SupportedLocale, "latin" | "non-latin">`** — `Set` değil. `@core`'a
+  yeni bir dil eklendiğinde dosya DERLENMEZ ve sınıflandırma yapılmaya zorlanır.
+  `Set` olsaydı yeni bir Latin-dışı dil sessizce denetim dışı kalırdı. Ayrıca
+  çalışma zamanında `SUPPORTED_LOCALES` ile eşleştiği de doğrulanıyor.
+- **Allowlist kelime değil ÖBEK tutar.** Resmi unvandaki `ve` tek başına listeye
+  alınmadı: alınsaydı gerçek bir Türkçe sızıntısındaki `ve` de maskelenirdi.
+  `Ceyhunlar Plastik Sanayi ve Ticaret Ltd. Şti.` tek parça olarak izinli. Aynı
+  ilke `Semt Garajı` için de geçerli. Her girdi gerekçeli.
+- **Kapsam yine `routing.locales`** — yayına alınmamış dilin kataloğu kısmi
+  olabilir. Dil yayına girdiği anda kapı kendiliğinden devreye giriyor.
+- `flattenCatalog`/`loadCatalog` üçüncü kez kopyalanmasın diye
+  `i18n/catalogTestSupport.ts`'e çıkarıldı ve `sourceLanguageLeakage` da oradan
+  alıyor. (`messageCatalogs.test.ts` BİLEREK kendi gezinmesini koruyor: dizinin
+  kendisini de bir yaprak olarak kaydediyor, çünkü dizi uzunluğu doğruluyor.)
+
+**Kapı doğrulandı:** Dalga 2'de bulunan iki kusur (`«industrial usage»` ve
+`ARGE`) geçici olarak ru.json'a geri konup test çalıştırıldı — **ikisi de
+yakalandı**, sonra geri alındı. Ayrıca yazılırken iki meşru özel adı (PDF,
+WhatsApp) eksik bırakmıştım; kapı onları da gösterdi ve gerekçeleriyle eklendi —
+amaçlanan çalışma biçimi tam olarak bu.
+
+### Gelecek dalgalar için iş tahmini (kapı henüz yayında olmayan dillere uygulandı)
+
+| Dil | Kalıntılı değer | Öne çıkan token'lar |
+|---|---|---|
+| ru | **0** | — (Dalga 2'de temizlendi) |
+| ar | 16 | `DOSTU`, `ARGE`, `Ted`, `H.M`, `thermoset`, `refresh token`, `CNC` |
+| ko | 34 | yukarıdakiler + adres parçaları (`Mah`, `No`, `Aydın`, `Karabağlar`), `IZBAN`, `MB` |
+| ja | 29 | ko ile benzer |
+| zh | 17 | + `Bakalit`/`Bakelite` (ürün adı çevrilmemiş) |
+| hi | 16 | `Plastics`, `metal`, `select`, `swarf` (İngilizce kalmış) |
+
+İkiye ayrılıyor: **gerçek kusur** (`DOSTU`, `ARGE`, `Ted.`, `H.M.`, `thermoset`,
+`swarf`, `select`, `metal`) ve **allowlist adayı** (`CNC`, `MB`, `ID`, adres
+özel adları). Her dalga açılırken bu ayrımın elle yapılması gerekiyor — kapının
+işi ayrımı yapmak değil, adayı önüne getirmek.
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
+**130/130** ✅ (127 → +3: yeni kapı)
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
