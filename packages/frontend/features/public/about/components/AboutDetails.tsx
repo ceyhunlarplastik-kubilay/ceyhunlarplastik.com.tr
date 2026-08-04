@@ -19,7 +19,7 @@ export function AboutDetails() {
                         initial={{ opacity: 0, y: 60 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
-                        className="relative w-full max-w-4xl mx-auto h-[300px] md:h-[380px] rounded-3xl overflow-hidden mb-12"
+                        className="relative w-full max-w-4xl mx-auto h-75 md:h-95 rounded-3xl overflow-hidden mb-12"
                     >
                         <Image
                             src="/logos/hakkimizda2.jpg"
@@ -67,7 +67,7 @@ export function AboutDetails() {
                 <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
 
                     {/* BACKGROUND QUOTE */}
-                    <div className="absolute right-10 top-10 text-[200px] text-neutral-200/40 blur-[2px] font-serif select-none pointer-events-none hidden lg:block">
+                    <div className="absolute inset-e-10 top-10 text-[200px] text-neutral-200/40 blur-[2px] font-serif select-none pointer-events-none hidden lg:block">
                         “”
                     </div>
 
@@ -76,7 +76,7 @@ export function AboutDetails() {
                         initial={{ opacity: 0, x: -60 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.7 }}
-                        className="relative h-[420px] md:h-[520px] w-full rounded-3xl overflow-hidden"
+                        className="relative h-95 md:h-130 w-full rounded-3xl overflow-hidden"
                     >
                         <Image
                             src="/motto.png"

@@ -1775,6 +1775,49 @@ konumunda kalmalı; DOĞA sola / ÜRETİM sağa yaslı kalmalı; buton okların�
 ve hover'da sağa itişi değişmemeli; asistan balonu sağ altta kalmalı; müşteri
 formundaki alan ikonları solda kalmalı.
 
+### AR-3 uygulandı: `features/public` (2026-08-03)
+
+18 dosyada 41 fiziksel kullanım mantıksala çevrildi. Kapı beş klasörü koruyor.
+
+**AR-2'de not edilen "kapının göremediği ikinci parça" ayrıca elle tarandı** ve
+karşılığını buldu — bu tarama olmasaydı hepsi RTL'de sessizce yanlış kalacaktı:
+
+| Bulgu | Düzeltme |
+|---|---|
+| 5× `hover:translate-x-1` (liste öğelerinde "ileri kayma" efekti) | `rtl:hover:-translate-x-1` — RTL'de ileri = sol |
+| Sayfalama okları (`ChevronLeft`/`ChevronRight`) | `rtl:-scale-x-100` |
+| Sepette `Send` ikonu | `rtl:-scale-x-100` |
+
+**YENİ KURAL — her yönlü ikon aynalanmaz.** İki `Play` üçgeni fiziksel bırakıldı
+(`ProductYoutubeEmbed` `ml-0.5`, `AboutHero` `ml-[2px]`). Oynat ikonu RTL'de
+AYNALANMAZ — medya akış yönü yazı yönünden bağımsızdır — dolayısıyla onu daire
+içinde optik ortalayan itiş de aynalanmamalı; çevrilirse üçgen dairenin ters
+tarafına kaçar. İkisi de kapının izin listesinde ortak gerekçeyle.
+
+**Bu ikisinden biri önce yanlışlıkla çevrilmişti:** `ProductYoutubeEmbed`'i baştan
+korumuştum ama `AboutHero`'daki ikinci oynat üçgenini gözden kaçırmıştım; diff
+gözden geçirilirken yakalandı ve geri alındı. **Ders:** aynı görsel kalıbın
+kodda birden fazla kopyası olabilir — istisnayı bir dosyada tanımlayıp geçmek
+yetmiyor, kalıbın tamamı aranmalı.
+
+**Üretilen yeni sınıf biçimleri Tailwind CLI ile doğrulandı:** `rtl:hover:-translate-x-1`,
+`rtl:-scale-x-100`, `-ms-32`, `border-e`, `rounded-s-2xl` — hepsi derleniyor.
+
+**Doğrulama:** typecheck frontend ✅ · lint 0 error (114 warning) · frontend
+**136/136** ✅
+
+**kubi'de doğrulanacak (LTR regresyonu — ar hâlâ kapalı):** ürün filtre
+kenar çubuğunda arama ikonu solda / temizle butonu sağda kalmalı; ürün
+sayfasında açıklama kartının sol accent çizgisi yerinde olmalı; varyant
+tablosunda seçili satırın sol kenar vurgusu ve sağa yaslı buton sütunu
+korunmalı; sayfalama okları doğru yöne bakmalı; katalog/sertifika kartlarındaki
+"YENİ" rozeti sağ üstte kalmalı; hizmet sayfalarında liste öğeleri hover'da
+sağa kaymalı; **oynat butonlarındaki üçgen daire içinde ortalı görünmeli.**
+
+**Sırada AR-4:** Arapça font (`Noto Sans Arabic` gövde yığınına yedek),
+9 katalog düzeltmesi, yazı sistemi kapısının allowlist'ine `R&D`/`CNC`/
+`thermoset`/`refresh token` eklenmesi ve `routing.locales`'e `ar`.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

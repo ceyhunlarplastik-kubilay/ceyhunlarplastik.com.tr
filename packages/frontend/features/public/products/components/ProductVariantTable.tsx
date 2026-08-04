@@ -290,9 +290,9 @@ export default function ProductVariantTable({
             <div className="grid gap-5 p-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]">
                 <div className="space-y-2">
                     <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{t("optionsTitle")}</p>
-                    <div className="relative max-h-[860px] overflow-auto rounded-xl border border-neutral-200 bg-neutral-50/10 shadow-inner">
+                    <div className="relative max-h-215 overflow-auto rounded-xl border border-neutral-200 bg-neutral-50/10 shadow-inner">
                         <Table className={cn(
-                            focusOnMeasurements ? "min-w-[620px]" : "min-w-[780px]",
+                            focusOnMeasurements ? "min-w-155" : "min-w-195",
                             "[&_td]:px-3 [&_td]:py-2.5 [&_td]:text-xs [&_th]:h-10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-[10px] [&_th]:font-bold [&_th]:tracking-wider [&_th]:uppercase [&_tr]:leading-tight border-separate border-spacing-0"
                         )}>
                             <TableHeader>
@@ -354,7 +354,7 @@ export default function ProductVariantTable({
                                             className={cn(
                                                 "cursor-pointer transition-all duration-150 border-b border-neutral-100",
                                                 isActive
-                                                    ? "bg-brand/[0.04] hover:bg-brand/[0.06] font-medium"
+                                                    ? "bg-brand/4 hover:bg-brand/6 font-medium"
                                                     : "hover:bg-neutral-50/70"
                                             )}
                                             onClick={() => setSelectedKey(option.key)}
@@ -370,7 +370,7 @@ export default function ProductVariantTable({
                                                             key={`${option.key}-${column.id}`}
                                                             className={cn(
                                                                 "text-neutral-300 text-center font-normal px-3 py-2.5",
-                                                                index === 0 && isActive && "border-l-2 border-l-brand"
+                                                                index === 0 && isActive && "border-s-2 border-s-brand"
                                                             )}
                                                         >
                                                             —
@@ -389,13 +389,13 @@ export default function ProductVariantTable({
                                                         className={cn(
                                                             "px-3 py-2.5 text-neutral-800",
                                                             index === 0 && isActive
-                                                                ? "border-l-2 border-l-brand text-brand font-bold"
+                                                                ? "border-s-2 border-s-brand text-brand font-bold"
                                                                 : "font-semibold"
                                                         )}
                                                     >
                                                         {formatMeasurementValue(measurement)}
                                                         {hasUnit ? (
-                                                            <span className="text-[10px] text-neutral-400 font-normal ml-0.5">
+                                                            <span className="text-[10px] text-neutral-400 font-normal ms-0.5">
                                                                 {measurement.measurementType.baseUnit}
                                                             </span>
                                                         ) : null}
@@ -428,7 +428,7 @@ export default function ProductVariantTable({
                                                     {t("codeCount", { count: option.fullCodes.length })}
                                                 </TableCell>
                                             ) : null}
-                                            <TableCell className="px-3 py-2.5 pr-4 text-right align-middle">
+                                            <TableCell className="px-3 py-2.5 pe-4 text-end align-middle">
                                                 <div className="flex items-center justify-end gap-1.5 leading-none">
                                                     <ButtonShine
                                                         href={variantDetailsHref}
@@ -445,8 +445,8 @@ export default function ProductVariantTable({
                                                         rel="noopener noreferrer" */
                                                         ariaLabel={t("showVariantsAria", { label: option.label })}
                                                         className={cn(
-                                                            "h-7 min-w-[132px] rounded-full border border-[var(--color-brand)]/80 bg-[var(--color-brand)] px-2.5 text-[11px] font-medium text-[var(--color-brand-foreground)] shadow-sm shadow-brand/10 transition-all duration-200 hover:border-[var(--color-brand)] hover:bg-white hover:text-[var(--color-brand)] active:scale-95",
-                                                            isActive && "ring-2 ring-[var(--color-brand)]/20 ring-offset-1",
+                                                            "h-7 min-w-33 rounded-full border border-brand/80 bg-(--color-brand) px-2.5 text-[11px] font-medium text-(--color-brand-foreground) shadow-sm shadow-brand/10 transition-all duration-200 hover:border-(--color-brand) hover:bg-white hover:text-(--color-brand) active:scale-95",
+                                                            isActive && "ring-2 ring-brand/20 ring-offset-1",
                                                             isPending && "cursor-wait"
                                                         )}
                                                     >

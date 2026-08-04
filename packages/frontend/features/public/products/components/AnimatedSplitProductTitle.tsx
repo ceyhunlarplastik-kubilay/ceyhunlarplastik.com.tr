@@ -111,7 +111,7 @@ export function AnimatedSplitProductTitle({ title, fitToContainer = true }: Prop
                     {index === lines.length - 1 ? (
                         <motion.span
                             aria-hidden="true"
-                            className="ml-1 inline-block h-[0.82em] w-[2px] translate-y-[0.08em] rounded-full bg-[var(--color-brand)]"
+                            className="ms-1 inline-block h-[0.82em] w-0.5 translate-y-[0.08em] rounded-full bg-(--color-brand)"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 0, 1, 0] }}
                             transition={{

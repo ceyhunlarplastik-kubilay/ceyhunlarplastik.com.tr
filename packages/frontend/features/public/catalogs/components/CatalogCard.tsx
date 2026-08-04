@@ -33,14 +33,14 @@ export function CatalogCard({ category }: { category: any }) {
                         <Link
                             href={catalog.url}
                             target="_blank"
-                            className="relative block w-full max-w-[250px] mx-auto aspect-[210/297] bg-white overflow-hidden border border-neutral-200 rounded-lg shadow-sm transition-transform duration-300 group-hover:scale-[1.015]"
+                            className="relative block w-full max-w-62.5 mx-auto aspect-210/297 bg-white overflow-hidden border border-neutral-200 rounded-lg shadow-sm transition-transform duration-300 group-hover:scale-[1.015]"
                         >
                             <PdfPreview url={catalog.url} />
 
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
                         </Link>
 
-                        <div className="absolute -top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md z-10 uppercase">
+                        <div className="absolute -top-2 inset-e-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md z-10 uppercase">
                             PDF
                         </div>
                     </div>
@@ -59,7 +59,7 @@ export function CatalogCard({ category }: { category: any }) {
                             asChild
                         >
                             <a href={catalog.url} download>
-                                <Download className="w-4 h-4 mr-2" />
+                                <Download className="w-4 h-4 me-2" />
                                 {t("download")}
                             </a>
                         </Button>

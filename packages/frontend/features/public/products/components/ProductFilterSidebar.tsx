@@ -114,18 +114,18 @@ function ProductSidebarSearchControl({
                 {label}
             </div>
             <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                <Search className="pointer-events-none absolute inset-s-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                 <Input
                     value={draftSearch}
                     onChange={(event) => setDraftSearch(event.target.value)}
                     placeholder={placeholder}
-                    className="h-10 rounded-xl pl-9 pr-10 text-sm"
+                    className="h-10 rounded-xl ps-9 pe-10 text-sm"
                 />
                 {draftSearch ? (
                     <button
                         type="button"
                         onClick={() => setDraftSearch("")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-700"
+                        className="absolute inset-e-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-700"
                         aria-label={clearLabel}
                     >
                         <X className="h-4 w-4" />
@@ -548,7 +548,7 @@ export default function ProductFilterSidebar({
                     <h2 className="text-base font-semibold">Filtreler</h2>
                     {hasActiveFilters && (
                         <Button size="sm" variant="ghost" onClick={clearAll}>
-                            <X className="mr-1 h-4 w-4" />
+                            <X className="me-1 h-4 w-4" />
                             Temizle
                         </Button>
                     )}
@@ -579,8 +579,8 @@ export default function ProductFilterSidebar({
                     ) : null}
 
                     {showSelectedCategoryPreview && selectedCategory ? (
-                        <section className="rounded-2xl border-2 border-[var(--color-brand)]/80 bg-[color-mix(in_oklab,var(--color-brand)_8%,white)] p-3 shadow-[0_14px_28px_-22px_rgba(0,0,0,0.35)] ring-2 ring-[var(--color-brand)]/10">
-                            <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
+                        <section className="rounded-2xl border-2 border-brand/80 bg-[color-mix(in_oklab,var(--color-brand)_8%,white)] p-3 shadow-[0_14px_28px_-22px_rgba(0,0,0,0.35)] ring-2 ring-brand/10">
+                            <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-brand/12 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-(--color-brand)">
                                 <Sparkles className="h-3 w-3" />
                                 {t("selectedCategory")}
                             </div>
@@ -627,7 +627,7 @@ export default function ProductFilterSidebar({
                                             className={[
                                                 "rounded-full px-3 py-1.5 text-xs font-medium transition",
                                                 active
-                                                    ? "bg-[var(--color-brand)] text-white shadow-sm"
+                                                    ? "bg-(--color-brand) text-white shadow-sm"
                                                     : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
                                             ].join(" ")}
                                         >
@@ -672,7 +672,7 @@ export default function ProductFilterSidebar({
                                     disabled={isPending || customerUsageAreaFilterPending}
                                     className="w-full justify-center rounded-xl border-emerald-200 bg-white text-emerald-900 hover:border-emerald-300 hover:bg-emerald-50"
                                 >
-                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    <Sparkles className="me-2 h-4 w-4" />
                                     {t("relevantToMe")}
                                 </Button>
                             ) : null}

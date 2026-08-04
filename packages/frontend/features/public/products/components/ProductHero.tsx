@@ -117,8 +117,8 @@ export default function ProductHero({
                     transition={{ delay: 0.2 }}
                     className="relative flex h-full min-h-55 items-center rounded-2xl border border-neutral-200 bg-linear-to-br from-neutral-50 to-white p-5 shadow-sm"
                 >
-                    <div className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-brand" />
-                    <p className="pl-3 text-sm leading-relaxed text-neutral-700 sm:text-base">
+                    <div className="absolute inset-s-0 top-0 h-full w-1 rounded-s-2xl bg-brand" />
+                    <p className="ps-3 text-sm leading-relaxed text-neutral-700 sm:text-base">
                         {product.description || t("descriptionFallback")}
                     </p>
                 </motion.div>

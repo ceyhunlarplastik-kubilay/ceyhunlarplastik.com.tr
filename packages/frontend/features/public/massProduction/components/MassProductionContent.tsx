@@ -78,7 +78,7 @@ export function MassProductionContent() {
             />
 
             {/* STICKY SUB-NAV (TABS) */}
-            <nav className="sticky top-[var(--header-height)] z-40 bg-white/90 backdrop-blur-xl border-b border-neutral-200 overflow-x-auto no-scrollbar py-2">
+            <nav className="sticky top-(--header-height) z-40 bg-white/90 backdrop-blur-xl border-b border-neutral-200 overflow-x-auto no-scrollbar py-2">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex gap-2 items-center justify-center min-w-max mx-auto">
                         {tabs.map((tab) => {
@@ -96,7 +96,7 @@ export function MassProductionContent() {
                                     {isActive && (
                                         <motion.div
                                             layoutId="activeTab"
-                                            className="absolute inset-0 bg-[var(--color-brand)] rounded-full -z-10"
+                                            className="absolute inset-0 bg-(--color-brand) rounded-full -z-10"
                                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                         />
                                     )}
@@ -113,7 +113,7 @@ export function MassProductionContent() {
                 <MassProductionMetal />
             </div>
 
-            <div id="plastic" className="bg-[var(--color-section-bg)]">
+            <div id="plastic" className="bg-(--color-section-bg)">
                 <MassProductionPlastic />
             </div>
 
@@ -121,7 +121,7 @@ export function MassProductionContent() {
                 <MassProductionRubber />
             </div>
 
-            <div id="bakelite" className="bg-[var(--color-section-bg)]">
+            <div id="bakelite" className="bg-(--color-section-bg)">
                 <MassProductionBakalite />
             </div>
             <AnimatePresence>
@@ -135,10 +135,10 @@ export function MassProductionContent() {
                             window.scrollTo({ top: 0, behavior: "smooth" })
                         }
                         className="
-                            fixed bottom-8 right-8 z-[100]
+                            fixed bottom-8 inset-e-8 z-100
                             w-12 h-12
                             rounded-full
-                            bg-[var(--color-brand)] text-white
+                            bg-(--color-brand) text-white
                             shadow-[0_8px_30px_rgb(0,0,0,0.12)]
                             flex items-center justify-center
                             hover:scale-110 active:scale-95

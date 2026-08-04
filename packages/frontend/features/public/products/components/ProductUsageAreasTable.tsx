@@ -194,7 +194,7 @@ function UsageFunctionPreview({
                     </DialogDescription>
                 </DialogHeader>
 
-                <ScrollArea className="max-h-[60vh] pr-4">
+                <ScrollArea className="max-h-[60vh] pe-4">
                     <div className="text-sm leading-7 text-neutral-700 whitespace-pre-wrap wrap-break-word">
                         {value}
                     </div>
@@ -246,7 +246,7 @@ function UsageAreasRowsTable({
                                 </TableCell>
                                 <TableCell className="px-4">
                                     {row.imageUrl ? (
-                                        <div className="group block w-full text-left">
+                                        <div className="group block w-full text-start">
                                             <div className="overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 shadow-sm transition group-hover:border-neutral-300">
                                                 <div className="aspect-4/3">
                                                     <InteractiveZoomImage
@@ -447,7 +447,7 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                                                 <Activity className="h-5 w-5" />
                                             </motion.div>
                                         </div>
-                                        <div className="text-left">
+                                        <div className="text-start">
                                             <p className="font-semibold text-neutral-900">
                                                 {t("accordionTitle")}
                                             </p>
@@ -456,7 +456,7 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 mr-2">
+                                    <div className="flex items-center gap-3 me-2">
                                         {!isOpen && hasRows && (
                                             <motion.span
                                                 initial={{ opacity: 0, x: -10 }}

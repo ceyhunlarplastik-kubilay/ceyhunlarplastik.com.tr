@@ -100,7 +100,7 @@ export default function ProductQuickNav({ className }: Props) {
                                 py-4 px-2
                                 transition
                                 `,
-                                    !isLastCol && "border-r border-neutral-100",
+                                    !isLastCol && "border-e border-neutral-100",
                                     !isLastRow && "border-b border-neutral-100",
                                     isActive ? "text-brand" : "text-neutral-500"
                                 )}

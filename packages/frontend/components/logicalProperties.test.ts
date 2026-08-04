@@ -29,12 +29,22 @@ const SCANNED_DIRS = [
     "components/navigation", // AR-2
     "components/home", // AR-2
     "components/sections", // AR-2
+    "features/public", // AR-3
 ]
 
 /**
  * Fiziksel kalması MEŞRU olanlar. Her giriş gerekçeli — bu liste "çevrilmeyi
  * unutmuş" ile "çevrilmemesi gereken" arasındaki tek ayrım noktası.
  */
+/**
+ * Oynat üçgeni içi boş bir daireye optik olarak ortalanırken hafifçe ileri
+ * itilir. Oynat ikonu RTL'de AYNALANMAZ — medya akış yönü yazı yönünden
+ * bağımsızdır — dolayısıyla onu ortalayan itiş de aynalanmamalı. Mantıksala
+ * çevrilirse RTL'de üçgen dairenin ters tarafına kaçar.
+ */
+const PLAY_ICON_REASON =
+    "Oynat üçgeninin optik ortalaması — oynat ikonu RTL'de aynalanmaz, itiş de aynalanmamalı."
+
 const ALLOWED: ReadonlyArray<{ file: string; pattern: string; reason: string }> = [
     {
         file: "components/ui/dialog.tsx",
@@ -52,6 +62,16 @@ const ALLOWED: ReadonlyArray<{ file: string; pattern: string; reason: string }> 
         file: "components/navigation/NavigationProgress.tsx",
         pattern: "left-1/2",
         reason: "Ortalama — dialog.tsx ile aynı gerekçe (`-translate-x-1/2` ile eşleşiyor).",
+    },
+    {
+        file: "features/public/products/components/ProductYoutubeEmbed.tsx",
+        pattern: "ml-0.5",
+        reason: PLAY_ICON_REASON,
+    },
+    {
+        file: "features/public/about/components/AboutHero.tsx",
+        pattern: "ml-[2px]",
+        reason: PLAY_ICON_REASON,
     },
     {
         file: "components/ui/navigation-menu.tsx",

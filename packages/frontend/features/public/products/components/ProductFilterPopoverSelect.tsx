@@ -72,7 +72,7 @@ export function ProductFilterPopoverSelect({
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
-                    className="h-10 w-full justify-between rounded-xl px-3 text-left text-[13px]"
+                    className="h-10 w-full justify-between rounded-xl px-3 text-start text-[13px]"
                 >
                     <span className="truncate">
                         {getTriggerLabel(placeholder, options, selectedValues)}
@@ -107,7 +107,7 @@ export function ProductFilterPopoverSelect({
                                             </div>
                                             <Check
                                                 className={cn(
-                                                    "h-4 w-4 shrink-0 text-[var(--color-brand)] transition-opacity",
+                                                    "h-4 w-4 shrink-0 text-(--color-brand) transition-opacity",
                                                     checked ? "opacity-100" : "opacity-0",
                                                 )}
                                             />

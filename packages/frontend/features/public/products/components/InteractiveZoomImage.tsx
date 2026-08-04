@@ -81,7 +81,7 @@ export default function InteractiveZoomImage({
                 />
 
                 <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/5" />
-                <div className="pointer-events-none absolute right-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="pointer-events-none absolute inset-e-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
                     <Maximize2 className="h-3 w-3" />
                     {trigger}
                 </div>
@@ -96,7 +96,7 @@ export default function InteractiveZoomImage({
             >
                 <DialogContent
                     showCloseButton={false}
-                    className="h-[90vh] w-[95vw] max-w-[1400px] overflow-hidden p-0"
+                    className="h-[90vh] w-[95vw] max-w-350 overflow-hidden p-0"
                 >
                     <DialogTitle className="sr-only">{title}</DialogTitle>
 

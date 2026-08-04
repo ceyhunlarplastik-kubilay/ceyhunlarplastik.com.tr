@@ -54,7 +54,7 @@ export default function ProductFilterPagination({ page, totalPages, basePath = "
                 disabled={page <= 1 || isPending}
                 aria-label={t("previousPage")}
             >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 rtl:-scale-x-100" />
             </Button>
 
             {/* Mobilde sayfa numaraları yerine kompakt gösterim */}
@@ -100,7 +100,7 @@ export default function ProductFilterPagination({ page, totalPages, basePath = "
                 disabled={page >= totalPages || isPending}
                 aria-label={t("nextPage")}
             >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 rtl:-scale-x-100" />
             </Button>
         </nav>
     )

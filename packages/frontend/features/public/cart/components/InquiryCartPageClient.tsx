@@ -110,7 +110,7 @@ export default function InquiryCartPageClient() {
                     {items.length === 0 ? (
                         <div className="p-5 text-sm text-neutral-500">
                             {t("emptyText")}{" "}
-                            <Link href="/urunler/filtre" className="text-[var(--color-brand)] underline">
+                            <Link href="/urunler/filtre" className="text-(--color-brand) underline">
                                 {t("emptyLink")}
                             </Link>
                             .
@@ -176,7 +176,7 @@ export default function InquiryCartPageClient() {
                         <Button
                             type="submit"
                             disabled={isPending || items.length === 0}
-                            className="h-11 w-full bg-[var(--color-brand)] text-white hover:opacity-95"
+                            className="h-11 w-full bg-(--color-brand) text-white hover:opacity-95"
                         >
                             {isPending ? (
                                 <span className="inline-flex items-center gap-2">
@@ -185,7 +185,7 @@ export default function InquiryCartPageClient() {
                                 </span>
                             ) : (
                                 <span className="inline-flex items-center gap-2">
-                                    <Send className="h-4 w-4" />
+                                    <Send className="h-4 w-4 rtl:-scale-x-100" />
                                     {t("submit")}
                                 </span>
                             )}

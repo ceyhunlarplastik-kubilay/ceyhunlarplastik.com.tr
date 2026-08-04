@@ -30,13 +30,13 @@ export function MaterialCertificateCard({ title, subtitle, certificate }: Props)
                             href={certificate.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="relative mx-auto block aspect-[210/297] w-full max-w-[250px] overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition-transform duration-300 group-hover:scale-[1.015]"
+                            className="relative mx-auto block aspect-210/297 w-full max-w-62.5 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm transition-transform duration-300 group-hover:scale-[1.015]"
                         >
                             <PdfPreview url={certificate.url} />
                             <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5" />
                         </Link>
 
-                        <div className="absolute -top-2 right-2 z-10 rounded bg-red-600 px-2 py-1 text-[10px] font-bold uppercase text-white shadow-md">
+                        <div className="absolute -top-2 inset-e-2 z-10 rounded bg-red-600 px-2 py-1 text-[10px] font-bold uppercase text-white shadow-md">
                             PDF
                         </div>
                     </div>
@@ -51,7 +51,7 @@ export function MaterialCertificateCard({ title, subtitle, certificate }: Props)
                     <div className="mt-auto">
                         <Button variant="outline" className="w-full text-sm font-medium" asChild>
                             <a href={certificate.url} download>
-                                <Download className="mr-2 h-4 w-4" />
+                                <Download className="me-2 h-4 w-4" />
                                 {t("download")}
                             </a>
                         </Button>

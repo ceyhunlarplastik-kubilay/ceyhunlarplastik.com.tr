@@ -63,7 +63,7 @@ export function DContent() {
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="relative h-[320px] rounded-2xl overflow-hidden"
+                        className="relative h-80 rounded-2xl overflow-hidden"
                     >
                         <Image
                             src="/logos/printer.jpg"
@@ -76,7 +76,7 @@ export function DContent() {
             </section>
 
             {/* ================= 2. BLOCK ================= */}
-            <section className="py-20 bg-[var(--color-section-bg)]">
+            <section className="py-20 bg-(--color-section-bg)">
                 <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-stretch">
 
                     {/* IMAGE */}
@@ -85,7 +85,7 @@ export function DContent() {
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="relative w-full aspect-[4/3] lg:aspect-auto lg:h-full rounded-2xl overflow-hidden"
+                        className="relative w-full aspect-4/3 lg:aspect-auto lg:h-full rounded-2xl overflow-hidden"
                     >
                         <Image
                             src="/logos/arges.png"
@@ -104,14 +104,14 @@ export function DContent() {
                         className="space-y-4"
                     >
                         {items.map((item) => (
-                            <div key={item.title} className="space-y-2 group hover:translate-x-1 transition">
+                            <div key={item.title} className="space-y-2 group hover:translate-x-1 rtl:hover:-translate-x-1 transition">
                                 <div className="flex items-center gap-3">
-                                    <Check className="text-[var(--color-brand)] w-6 h-6 shrink-0" />
-                                    <h4 className="font-semibold text-[var(--color-brand)]">
+                                    <Check className="text-(--color-brand) w-6 h-6 shrink-0" />
+                                    <h4 className="font-semibold text-(--color-brand)">
                                         {item.title}
                                     </h4>
                                 </div>
-                                <p className="text-muted-foreground leading-relaxed text-sm pl-9">
+                                <p className="text-muted-foreground leading-relaxed text-sm ps-9">
                                     {item.text}
                                 </p>
                             </div>
@@ -121,14 +121,14 @@ export function DContent() {
             </section>
 
             {/* ================= 4. BLOCK ================= */}
-            <section className="py-20 bg-[var(--color-section-bg)]">
+            <section className="py-20 bg-(--color-section-bg)">
                 <div className="max-w-7xl mx-auto px-6 text-center">
                     <motion.p
                         variants={fadeUp}
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="text-xl md:text-lg font-medium text-[var(--color-brand)] leading-relaxed"
+                        className="text-xl md:text-lg font-medium text-(--color-brand) leading-relaxed"
                     >
                         {t("closing")}
                     </motion.p>

@@ -67,7 +67,7 @@ export default function HrHero() {
                         className="
               gap-2
               bg-white text-black
-              hover:bg-[var(--color-brand)]
+              hover:bg-(--color-brand)
               hover:text-white
             "
                     >
@@ -106,15 +106,15 @@ export default function HrHero() {
                 bg-white/5
                 backdrop-blur-sm
                 p-6
-                text-left
+                text-start
                 transition-colors
-                hover:border-[var(--color-brand)]
+                hover:border-(--color-brand)
               "
                         >
                             <item.icon
                                 className="
                   h-8 w-8
-                  text-[var(--color-brand)]
+                  text-(--color-brand)
                   transition-transform
                   group-hover:scale-110
                 "

@@ -60,7 +60,7 @@ export default function ProductVariantDetailsTable({
                                 <p className="text-sm text-neutral-400">{t("noSelection")}</p>
                             ) : (
                                 selectedMeasurements.map((measurement) => (
-                                    <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-left">
+                                    <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-start">
                                         {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
                                         {formatMeasurementValue(measurement)}
                                         {measurement.measurementType.baseUnit &&
