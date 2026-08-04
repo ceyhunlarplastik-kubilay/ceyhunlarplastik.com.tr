@@ -1885,6 +1885,36 @@ edilirse iyi olur; hiçbiri yayını bloklamaz.
 8. Ana sayfada banner "إنتاج صديق للبيئة" okunmalı
 9. LTR dillerde (tr/en/de) hiçbir şey değişmemiş olmalı
 
+### Bekleyen çeviri teyitleri kapatıldı — ru'da gerçek hata bulundu (2026-08-04)
+
+D2/D3'te "native göz isteyebilir" diye işaretlenen üç karşılık kaynaklara karşı
+doğrulandı. **Bu native inceleme DEĞİL**, otoriter kaynak teyidi — ama biri
+gerçek bir hatayı ortaya çıkardı:
+
+| Karşılık | Sonuç |
+|---|---|
+| `НИОКР` (R&D) | ✅ Standart Rusça kısaltma; ru kataloğunda zaten 20+ yerde kullanılıyor |
+| `إنتاج صديق للبيئة` | ✅ `صديق للبيئة` yerleşik terim (HBR Arabic, Wikipedia) |
+| `ДРУГ ПРИРОДЫ` | ❌ **HATALI** — düzeltildi |
+
+**Hata:** Dalga 2'de `shared.enviroment` üçlüsünün yalnız `word1`/`word2`'sini
+değiştirmiştim; `word3` (`ПРОИЗВОДСТВО`) eski hâliyle kalınca banner
+"ДРУГ ПРИРОДЫ ПРОИЗВОДСТВО" = "doğanın dostu üretim" diye okunuyordu —
+dilbilgisel olarak bozuk. Dalga 3'te Arapça'da üçlüyü bütün olarak ele almış
+ama Rusça'ya geri dönüp aynı düzeltmeyi yapmamıştım.
+
+**Düzeltme:** `ЭКОЛОГИЧЕСКИ` / `ЧИСТОЕ` / `ПРОИЗВОДСТВО` —
+"экологически чистое производство" sözlüklerde ve resmî belgelerde geçen
+standart öbek, üçe doğal bölünüyor ve vurgulu orta satır TR'deki gibi
+"dostu/temiz" anlamındaki kelimeye düşüyor.
+
+**Ders (ikinci kez):** bölünmüş ifadelerde bir parçayı düzeltmek yetmez, öbeğin
+tamamı hedef dilde yeniden kurulmalı. Bu hata sınıfı hiçbir kapıya takılmıyor —
+`word2` artık Türkçe değil, ICU geçerli, anahtar sayısı doğru. **Yeni dil
+açarken `shared.enviroment` gibi çok parçalı öbekler elle okunmalı.**
+
+**Doğrulama:** typecheck ✅ · frontend 138/138 ✅
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
