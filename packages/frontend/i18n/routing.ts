@@ -31,9 +31,21 @@ import { defineRouting } from "next-intl/routing";
  *    (AR-1..3) ve `components/logicalProperties.test.ts` kapısı.
  * Yeni bir RTL dil (ör. fa, he, ur) açılırsa yalnız katalog + font subset'i
  * kontrolü gerekir; düzen tarafı hazır.
+ *
+ * Dalga 4 (ko/ja/zh/hi) 2026-08-04'te açıldı — `@core`'un tanıdığı 14 dilin
+ * TAMAMI artık yayında, bu liste ile SUPPORTED_LOCALES eşitlendi. CJK fontları
+ * `preload: false` ile bağlandı ve `--font-cjk` `:lang()` ile seçiliyor:
+ * ja ile zh aynı Han kod noktalarını paylaştığı için düz yedek zinciri
+ * ayrım yapamıyor (ayrıntı `app/fonts.ts` ve `globals.css`).
  */
 export const routing = defineRouting({
-    locales: ["tr", "en", "de", "fr", "es", "it", "pt", "pl", "ru", "ar"],
+    locales: [
+        "tr", "en",                                      // temel
+        "de", "fr", "es", "it", "pt", "pl",              // Dalga 1
+        "ru",                                            // Dalga 2
+        "ar",                                            // Dalga 3
+        "ko", "ja", "zh", "hi",                          // Dalga 4
+    ],
     defaultLocale: "tr",
 
     // TR URL'ler prefixsiz kalır (/hakkimizda), EN /en altında yaşar (/en/hakkimizda).

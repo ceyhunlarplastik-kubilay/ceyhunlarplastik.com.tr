@@ -155,7 +155,7 @@
         },
         "enviroment": {
             "word1": "자연",
-            "word2": "DOSTU",
+            "word2": "친화적",
             "word3": "생산",
             "subtitle": "당사는 생산량의 <highlight>80% 이상</highlight>을 재생 가능 에너지로 충당하고 있습니다.",
             "paragraph": "우리의 환경, 사회, 미래에 대한 배려와 책임감을 바탕으로 친환경 생산 모델을 채택하고 있으며, 지속 가능한 세상과 더 나은 미래를 위해 노력하고 있습니다."
@@ -259,7 +259,7 @@
             "badgeDescription": "로그인, 회원가입 및 비밀번호 재설정 절차는 애플리케이션 내에서 관리됩니다.",
             "targetLabel": "현재 목표:",
             "emailLabel": "이메일",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "yesi@ceyhunlar.com",
             "passwordLabel": "비밀번호",
             "passwordPlaceholder": "비밀번호를 입력하세요",
             "submit": "로그인",
@@ -288,7 +288,7 @@
             "lastNameLabel": "성",
             "lastNamePlaceholder": "성",
             "emailLabel": "이메일",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "yesi@ceyhunlar.com",
             "passwordLabel": "비밀번호",
             "passwordPlaceholder": "최소 8자",
             "confirmPasswordLabel": "비밀번호 재입력",
@@ -306,7 +306,7 @@
             "infoTitle": "비밀번호 재설정",
             "infoDescription": "계정에 연결된 이메일 주소를 입력하세요. 새 비밀번호를 설정할 수 있도록 인증 코드를 보내드리겠습니다. AWS Cognito 비밀번호 재설정 코드는 1시간 동안 유효합니다.",
             "emailLabel": "이메일",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "yesi@ceyhunlar.com",
             "submit": "초기화 코드 전송",
             "submitting": "코드 전송 중...",
             "codeSentToast": "비밀번호 재설정 코드가 발송되었습니다.",
@@ -320,7 +320,7 @@
             "infoTitle": "새 비밀번호를 설정하세요",
             "infoDescription": "이메일로 수신한 코드를 사용하여 새 비밀번호를 설정하십시오. AWS Cognito 비밀번호 재설정 코드는 1시간 동안 유효합니다.",
             "emailLabel": "이메일",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "yesi@ceyhunlar.com",
             "codeLabel": "인증 코드",
             "codeDescription": "코드의 유효 기간은 1시간입니다.",
             "newPasswordLabel": "새 비밀번호",
@@ -340,7 +340,7 @@
             "infoTitle": "계정을 인증하세요",
             "infoDescription": "이메일 주소로 전송된 인증 코드를 입력하세요. 코드를 받지 못하셨다면 새 코드를 요청하실 수 있습니다. AWS Cognito 인증 코드는 24시간 동안 유효합니다.",
             "emailLabel": "이메일",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "yesi@ceyhunlar.com",
             "codeLabel": "인증 코드",
             "codeDescription": "코드는 이메일에 포함된 메시지에 있으며 24시간 동안 유효합니다.",
             "submit": "계정 확인",
@@ -678,7 +678,7 @@
             "productFiltersTitle": "제품 필터",
             "productFiltersDesc": "카테고리에 따른 모델, 링크, 프로필, 소재 및 이와 유사한 필터들.",
             "industrialTitle": "산업용",
-            "industrialDesc": "업종, 생산 그룹 및 사용 분야는 제품의 ‘industrial usage’ 항목에서 필터링됩니다.",
+            "industrialDesc": "업종, 생산 그룹 및 사용 분야는 제품의 ‘산업 용도’ 항목에서 필터링됩니다.",
             "relevantToMe": "나와 관련된 제품 필터링",
             "filtering": "필터링 중...",
             "ready": "완료",
@@ -825,7 +825,7 @@
                 "colCode": "코드",
                 "colDetail": "상세 정보",
                 "colorCount": "{count} 색상",
-                "materialCount": "{count} H.M.",
+                "materialCount": "{count} 자재",
                 "supplierCount": "{count} 건.",
                 "codeCount": "{count} 코드",
                 "showVariantsAria": "{label} 변형 표시",
@@ -940,7 +940,7 @@
                 "bakelite": "바칼라이트"
             },
             "metal": {
-                "intro": "“판재(Sac metal)”는 일반적으로 금속 시트나 판을 지칭하는 용어입니다. 금속 산업에서는 주로 강철, 알루미늄 또는 구리 같은 재료로 만들어진 금속 시트를 의미합니다. 이러한 금속 판은 다양한 두께와 특성을 가질 수 있으며, 산업용 응용 분야, 건설 부문, 자동차 산업, 조선업 및 기타 여러 분야에서 사용됩니다.",
+                "intro": "“판재(Sheet metal)”는 일반적으로 금속 시트나 판을 지칭하는 용어입니다. 금속 산업에서는 주로 강철, 알루미늄 또는 구리 같은 재료로 만들어진 금속 시트를 의미합니다. 이러한 금속 판은 다양한 두께와 특성을 가질 수 있으며, 산업용 응용 분야, 건설 부문, 자동차 산업, 조선업 및 기타 여러 분야에서 사용됩니다.",
                 "imageAlt": "판금 금속 양산",
                 "items": [
                     {
@@ -1074,7 +1074,7 @@
                 },
                 "rail": {
                     "title": "철도",
-                    "text": "IZBAN 교외 노선의 ‘Semt Garajı’ 정류장에서 저희 시설까지 매우 짧은 시간 내에 오실 수 있습니다."
+                    "text": "İZBAN 교외 노선의 ‘Semt Garajı’ 정류장에서 저희 시설까지 매우 짧은 시간 내에 오실 수 있습니다."
                 }
             }
         },

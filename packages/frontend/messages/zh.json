@@ -154,8 +154,8 @@
             "navigationPending": "正在展开产品详情"
         },
         "enviroment": {
-            "word1": "自然",
-            "word2": "DOSTU",
+            "word1": "绿色",
+            "word2": "环保",
             "word3": "生产",
             "subtitle": "本公司<highlight>超过80%</highlight>的生产均由可再生能源提供。",
             "paragraph": "基于我们对环境、社会和未来的关切与责任，我们采用环保的生产模式；为建设一个可持续发展的世界和美好的未来而努力。"
@@ -259,7 +259,7 @@
             "badgeDescription": "登录、注册和密码重置流程由应用程序内部管理。",
             "targetLabel": "当前目标：",
             "emailLabel": "电子邮件",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "shili@ceyhunlar.com",
             "passwordLabel": "密码",
             "passwordPlaceholder": "请输入您的密码",
             "submit": "登录",
@@ -288,7 +288,7 @@
             "lastNameLabel": "姓氏",
             "lastNamePlaceholder": "您的姓氏",
             "emailLabel": "电子邮件",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "shili@ceyhunlar.com",
             "passwordLabel": "密码",
             "passwordPlaceholder": "至少8个字符",
             "confirmPasswordLabel": "密码确认",
@@ -306,7 +306,7 @@
             "infoTitle": "密码重置",
             "infoDescription": "请输入您账户关联的电子邮件地址。我们将向您发送验证码，以便您设置新密码。AWS Cognito 密码重置码的有效期为 1 小时。",
             "emailLabel": "电子邮件",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "shili@ceyhunlar.com",
             "submit": "发送重置代码",
             "submitting": "正在发送代码...",
             "codeSentToast": "密码重置代码已发送。",
@@ -320,7 +320,7 @@
             "infoTitle": "设置新密码",
             "infoDescription": "请使用发送到您邮箱的验证码设置新密码。AWS Cognito 密码重置验证码的有效期为 1 小时。",
             "emailLabel": "电子邮件",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "shili@ceyhunlar.com",
             "codeLabel": "验证码",
             "codeDescription": "该代码的有效期为1小时。",
             "newPasswordLabel": "新密码",
@@ -340,7 +340,7 @@
             "infoTitle": "请验证您的账户",
             "infoDescription": "请输入发送到您电子邮箱的验证码。如果未收到验证码，您可以申请新的验证码。AWS Cognito 验证码的有效期为 24 小时。",
             "emailLabel": "电子邮件",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "shili@ceyhunlar.com",
             "codeLabel": "验证码",
             "codeDescription": "验证码包含在电子邮件中，有效期为24小时。",
             "submit": "验证账户",
@@ -473,7 +473,7 @@
                     "description": "在我们的液压压机车间，对已完成批量生产模具的橡胶部件进行批量生产。"
                 },
                 {
-                    "title": "批量生产 Bakalit",
+                    "title": "批量生产 Bakelite",
                     "description": "在我们的 bakelite 注塑部门，对已完成批量生产模具的 bakelite 部件进行批量生产。"
                 }
             ]
@@ -619,7 +619,7 @@
         "products": {
             "meta": {
                 "title": "产品类别",
-                "description": "浏览Ceyhunlar塑料的产品类别。包括 Bakalit 手柄、塑料制品等。"
+                "description": "浏览Ceyhunlar塑料的产品类别。包括 Bakelite 手柄、塑料制品等。"
             },
             "heroTitle": "产品类别",
             "breadcrumbSelf": "产品类别",
@@ -825,7 +825,7 @@
                 "colCode": "代码",
                 "colDetail": "详情",
                 "colorCount": "{count} 颜色",
-                "materialCount": "{count} H.M.",
+                "materialCount": "{count} 材料",
                 "supplierCount": "{count} 注。",
                 "codeCount": "{count} 代码",
                 "showVariantsAria": "显示 {label} 的变体",
@@ -937,7 +937,7 @@
                 "metal": "金属板",
                 "plastic": "塑料注塑",
                 "rubber": "橡胶",
-                "bakelite": "Bakalit"
+                "bakelite": "Bakelite"
             },
             "metal": {
                 "intro": "“金属板”通常是指金属薄板或板材。在金属行业中，通常指由钢、铝或铜等材料制成的金属薄板。 这些金属板材可具有各种厚度和特性，广泛应用于工业、建筑、汽车制造、造船以及许多其他领域。",
@@ -1002,7 +1002,7 @@
                 ]
             },
             "bakelite": {
-                "imageAlt": "Bakalit 批量生产",
+                "imageAlt": "Bakelite 批量生产",
                 "paragraphs": [
                     " Bakelite 是一种耐热、耐化学腐蚀的硬质热固性塑料。由于其具有电绝缘特性，因此在电气和电子行业中得到广泛应用。此外，它也是厨房用具、手机外壳及各类工业设备的首选材料。",
                     "酚醛树脂可通过成型工艺轻松制成所需形状，即使在高温下也能保持其机械强度。凭借这些特性，它作为一种经久耐用、可靠且成本效益高的材料，在工业领域占据着重要地位。",
@@ -1152,7 +1152,7 @@
             "imageAlt1": "研发",
             "imageAlt2": "原型设计",
             "imageAlt3": "规划",
-            "block2Title": "ARGE（研究与开发）",
+            "block2Title": "研究与开发（R&D）",
             "block2Items": [
                 "创新与进步：研发（R&D）是指对新理念和新技术进行探索与开发。这对公司保持竞争优势至关重要。",
                 "产品与流程开发：研发活动旨在改进现有产品或业务流程，使其更加高效。这可以提高产品质量，并优化生产流程。",

@@ -154,8 +154,8 @@
             "navigationPending": "製品の詳細が表示されます"
         },
         "enviroment": {
-            "word1": "自然",
-            "word2": "DOSTU",
+            "word1": "環境",
+            "word2": "にやさしい",
             "word3": "製造",
             "subtitle": "当社は、生産量の<highlight>80％以上</highlight>を再生可能エネルギーで賄っています。",
             "paragraph": "環境、社会、そして未来に対する私たちの配慮と責任に基づき、環境に優しい生産モデルを採用し、持続可能な世界と明るい未来の実現に向けて取り組んでいます。"
@@ -259,7 +259,7 @@
             "badgeDescription": "ログイン、登録、パスワードリセットのフローは、アプリケーション内で管理されます。",
             "targetLabel": "現在の目標：",
             "emailLabel": "Eメール",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "rei@ceyhunlar.com",
             "passwordLabel": "パスワード",
             "passwordPlaceholder": "パスワードを入力してください",
             "submit": "ログイン",
@@ -288,7 +288,7 @@
             "lastNameLabel": "姓",
             "lastNamePlaceholder": "ご氏名",
             "emailLabel": "Eメール",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "rei@ceyhunlar.com",
             "passwordLabel": "パスワード",
             "passwordPlaceholder": "8文字以上",
             "confirmPasswordLabel": "パスワードの再入力",
@@ -306,7 +306,7 @@
             "infoTitle": "パスワードのリセット",
             "infoDescription": "アカウントに登録されているメールアドレスを入力してください。新しいパスワードを設定できるよう、確認コードをお送りします。AWS Cognitoのパスワードリセットコードの有効期限は1時間です。",
             "emailLabel": "Eメール",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "rei@ceyhunlar.com",
             "submit": "リセットコードを送信",
             "submitting": "コードを送信中...",
             "codeSentToast": "パスワードリセットコードが送信されました。",
@@ -320,7 +320,7 @@
             "infoTitle": "新しいパスワードを設定してください",
             "infoDescription": "メールで届いたコードを使用して、新しいパスワードを設定してください。AWS Cognitoのパスワードリセットコードの有効期限は1時間です。",
             "emailLabel": "Eメール",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "rei@ceyhunlar.com",
             "codeLabel": "認証コード",
             "codeDescription": "コードの有効期間は1時間です。",
             "newPasswordLabel": "新しいパスワード",
@@ -340,7 +340,7 @@
             "infoTitle": "アカウントを確認してください",
             "infoDescription": "メールアドレスに送信された認証コードを入力してください。コードが届かない場合は、新しいコードをリクエストできます。AWS Cognitoの認証コードの有効期限は24時間です。",
             "emailLabel": "Eメール",
-            "emailPlaceholder": "ornek@ceyhunlar.com",
+            "emailPlaceholder": "rei@ceyhunlar.com",
             "codeLabel": "認証コード",
             "codeDescription": "コードはメール本文に記載されており、24時間有効です。",
             "submit": "アカウントを確認する",
@@ -678,7 +678,7 @@
             "productFiltersTitle": "製品フィルター",
             "productFiltersDesc": "カテゴリーに応じたモデル、リンク、プロフィール、素材などのフィルター。",
             "industrialTitle": "産業用途",
-            "industrialDesc": "業種、製造グループ、および用途は、製品の「industrial usage」の行からフィルタリングされます。",
+            "industrialDesc": "業種、製造グループ、および用途は、製品の「産業用途」の行からフィルタリングされます。",
             "relevantToMe": "私に関連する商品を絞り込む",
             "filtering": "フィルタリング中...",
             "ready": "準備完了",
@@ -825,7 +825,7 @@
                 "colCode": "コード",
                 "colDetail": "詳細",
                 "colorCount": "{count} 色",
-                "materialCount": "{count} H.M.",
+                "materialCount": "{count} 素材",
                 "supplierCount": "{count} 件。",
                 "codeCount": "{count} コード",
                 "showVariantsAria": "{label}のバリエーションを表示",
@@ -1074,7 +1074,7 @@
                 },
                 "rail": {
                     "title": "鉄道",
-                    "text": "IZBAN郊外線の「Semt Garajı」駅からは、当社の施設までごく短時間でアクセスできます。"
+                    "text": "İZBAN郊外線の「Semt Garajı」駅からは、当社の施設までごく短時間でアクセスできます。"
                 }
             }
         },
@@ -1152,7 +1152,7 @@
             "imageAlt1": "研究開発",
             "imageAlt2": "プロトタイピング",
             "imageAlt3": "計画",
-            "block2Title": "ARGE（研究開発）",
+            "block2Title": "研究開発（R&D）",
             "block2Items": [
                 "革新と進歩：研究開発（R&D）とは、新しいアイデアや技術の発見と開発を意味します。これは、企業が競争優位性を維持するために不可欠です。",
                 "製品およびプロセスの開発：研究開発（R&D）活動は、既存の製品や業務プロセスを改善し、より効率的なものにするために実施されます。これにより、製品の品質を向上させ、生産プロセスを最適化することができます。",
@@ -1244,7 +1244,7 @@
                 "title": "特注生産<br></br><highlight>信頼できるビジネスパートナー</highlight>",
                 "description": "2001年以来、当社の強固な生産インフラと革新的なアプローチにより、最高品質基準でお客様のニーズにお応えしています。",
                 "videoDialogTitle": "紹介動画",
-                "videoIframeTitle": "Ceyhunlar Tanıtım",
+                "videoIframeTitle": "Ceyhunlar 紹介",
                 "videoCta": "紹介動画"
             },
             "content": {

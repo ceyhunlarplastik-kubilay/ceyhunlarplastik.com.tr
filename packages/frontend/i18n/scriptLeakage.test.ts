@@ -87,6 +87,19 @@ const ALLOWED_LATIN: ReadonlyArray<readonly [text: string, reason: string]> = [
     ["thermoset", "Malzeme terimi — Arapça karşılığın yanında parantez içinde"],
     ["refresh token", "Teknik terim — Arapça karşılığın yanında parantez içinde"],
     ["4A", "Fiziksel adresteki kapı numarası"],
+
+    // Dalga 4 (ko/ja/zh/hi).
+    // Adres TEK PARÇA olarak izinli: `Sk.`/`No:` tek başına listeye alınsaydı
+    // başka bir yerdeki gerçek Türkçe sızıntısı maskelenirdi.
+    ["Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar", "Fiziksel adres — çevrilmez"],
+    ["İzmir", "Şehir adı — ko/ja Latin bırakmış, zh çevirmiş; ikisi de meşru"],
+    ["Eメール", "Japonca'nın standart e-posta kelimesi — baştaki E kelimenin parçası"],
+    ["MB", "Dosya boyutu birimi"],
+    ["ID", "Kimlik — ko/ja'da yerleşik alıntı kelime"],
+    ["Bakelite", "Malzemenin uluslararası adı (tescilli ad kökenli)"],
+    ["bakelite", "Aynı ad, küçük harfli kullanım"],
+    ["Sheet metal", "Teknik terim — Korece metinde parantez içinde gloss"],
+    ["metal swarf", "Teknik terim — Hintçe metinde parantez içinde gloss"],
 ]
 
 const ALLOWED_SORTED = [...ALLOWED_LATIN]

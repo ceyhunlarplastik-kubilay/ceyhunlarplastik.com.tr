@@ -1965,8 +1965,57 @@ devamındaki SST links hatası bilinen ve ilgisiz) · derlenen CSS'te zincirin
 değişmedi), yani mevcut 10 dilde hiçbir şey değişmemeli — asıl kontrol bu.
 Font yüklemesinin gerçek sınavı CJK-2'de dilleri açınca yapılacak.
 
-**Sırada CJK-2:** 28 birebir sızıntı, ko/ja/zh'nin `enviroment` öbekleri,
-yazı sistemi kapısının allowlist'i ve `routing.locales`'e dört dil.
+### CJK-2 uygulandı — Dalga 4 AÇILDI: ko/ja/zh/hi (2026-08-04)
+
+`routing.locales` **14 dil** — `@core`'un tanıdığı listenin TAMAMI artık yayında;
+"sistem tanıyor" ile "sitede sunuluyor" ayrımı ilk kez kapandı. Deploy YAPILMADI.
+
+**26 katalog düzeltmesi.** Öne çıkanlar:
+
+| Kusur | Diller | Düzeltme |
+|---|---|---|
+| `enviroment` öbeği (`DOSTU`) | ko/ja/zh | `자연 친화적 생산` · `環境にやさしい製造` · `绿色环保生产` |
+| `ornek@` | 4'ü de | `yesi@` · `rei@` · `shili@` · `udaharan@` |
+| `{count} H.M.` | ko/ja/zh | `자재` · `素材` · `材料` |
+| `«industrial usage»` | ko/ja | `산업 용도` · `産業用途` |
+| `ARGE` | ja/zh | `研究開発（R&D）` · `研究与开发（R&D）` |
+| `Ceyhunlar Tanıtım` | ja | `Ceyhunlar 紹介` |
+| `Bakalit` (Türkçe yazım) | zh | `Bakelite` — 4 yerde, katalog içi tutarlılık |
+| `{label} select` | hi | `{label} चुनें` |
+| `Ceyhunlar Plastics` | hi | `Ceyhunlar Plastik` (gerçek marka) |
+| `(Sac metal)` gloss | ko | `(Sheet metal)` — Korece okura Türkçe terim gloss'lamak anlamsızdı |
+| `IZBAN` | ko/ja | `İZBAN` (ru'daki düzeltmeyle aynı) |
+
+**Üç `enviroment` öbeği de kaynaklara karşı doğrulandı** — ru'daki hatadan sonra
+bu artık standart adım: `친환경/자연 친화적`, `環境にやさしい` ve `绿色/环保`
+üçü de ilgili dillerin resmî/yerleşik terimleri.
+
+**Allowlist'e 9 giriş.** Adres TEK PARÇA olarak eklendi (`Sk.`/`No:` tek başına
+alınsaydı başka yerdeki gerçek Türkçe sızıntısı maskelenirdi) — resmi unvanda
+`ve` için verilen kararın aynısı. `Eメール` de öbek olarak: baştaki `E`
+Japonca'nın standart e-posta kelimesinin parçası, tek başına `E` izni vermek
+fazla geniş olurdu.
+
+**Yanlış alarm oranı ar'dakiyle aynı çıktı:** ham tarama ko 10 · ja 20 · zh 13 ·
+hi 5 gösterdi; bunların çoğu meşru (adres, `MB`, `ID`, `Eメール`, teknik gloss).
+**Kural doğrulandı:** kapının işi ayrımı yapmak değil, adayı önüne getirmek.
+
+**İki kapı da kendiliğinden genişledi:** sızıntı 10 → 14 test, yazı sistemi
+4 → 8 test. İlk çalıştırmada geçtiler.
+
+**Doğrulama:** `next build` → **Compiled successfully** (14 locale ile) ·
+typecheck ✅ · lint 0 error (114 warning) · frontend **146/146** ✅ (138 → +8)
+
+**kubi'de doğrulanacak (asıl sınav CJK fontları):**
+1. `/ko`, `/ja`, `/zh`, `/hi` açılmalı; dil değiştirici 14 dil listelemeli
+2. **Dört yazı sistemi de sistem fontuna düşmemeli** (`preload:false` çalışıyor mu)
+3. **`/ja` ve `/zh` sayfalarında ortak Han karakterleri FARKLI görünmeli** —
+   `:lang()` seçimi çalışmıyorsa ikisi de aynı bölgesel biçimi alır; bu dilimin
+   en ince kontrolü budur
+4. Ana sayfa banner'ları: `자연 친화적 생산` · `環境にやさしい製造` · `绿色环保生产`
+5. Ürün URL'leri Türkçe slug taşıyor olmalı (`/ko/urun/105-serisi-…`) ve
+   hreflang 14 dili listelemeli
+6. LTR/mevcut 10 dilde hiçbir şey değişmemiş olmalı
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
