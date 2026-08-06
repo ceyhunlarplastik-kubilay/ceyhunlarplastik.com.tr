@@ -101,7 +101,10 @@ export function normalizeProductTranslations({
 
         // Slug ASCII dışı yazı sistemlerinde boş çıkabilir (ko/ja/zh/hi);
         // ikinci geçişte varsayılan dilin slug'ına düşülür.
-        const slug = buildTranslationSlug(translation.slug?.trim() || name, translation.locale)
+        const explicitSlug = translation.slug?.trim()
+        const slug = explicitSlug
+            ? buildTranslationSlug(explicitSlug, translation.locale)
+            : buildTranslationSlug(name, translation.locale, { derivedFromName: true })
 
         normalized.push({
             locale: translation.locale,

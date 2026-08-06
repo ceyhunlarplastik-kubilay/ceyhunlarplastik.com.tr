@@ -138,7 +138,9 @@ export function normalizeProductAttributeValueTranslations({
         return {
             locale: translation.locale,
             name,
-            slug: buildTranslationSlug(translation.slug?.trim() || name, translation.locale),
+            slug: translation.slug?.trim()
+                ? buildTranslationSlug(translation.slug.trim(), translation.locale)
+                : buildTranslationSlug(name, translation.locale, { derivedFromName: true }),
         }
     })
 

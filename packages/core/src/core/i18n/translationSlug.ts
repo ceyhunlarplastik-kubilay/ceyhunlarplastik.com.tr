@@ -27,15 +27,56 @@ import type { SupportedLocale } from "./locales"
  * satırında tekrarı çakışma yaratmaz, ve repository zaten
  * istenen-locale → varsayılan → legacy sırasıyla çözümleme yapıyor.
  */
-export function buildTranslationSlug(
-    value: string,
-    locale: SupportedLocale,
-): string {
+function rawSlugify(value: string, locale: SupportedLocale): string {
     return slugify(value, {
         lower: true,
         strict: true,
         locale,
     })
+}
+
+const ASCII_ALNUM = /[A-Za-z0-9]/
+const LETTER_OR_NUMBER = /[\p{L}\p{N}]/u
+
+/**
+ * Ad'dan türetilen slug "yozlaşmış" mı? Yani slugify adın Latin olmayan
+ * kısmını tamamen eliyor mu?
+ *
+ * Locale listesi (ko/ja/zh/hi) HARDCODE EDİLMEDİ; yazı sistemi ampirik olarak
+ * sınanır — yeni bir dil eklendiğinde slugify'ın o yazı sistemi için charmap'i
+ * varsa kendiliğinden doğru davranır, yoksa kendiliğinden fallback'e düşer.
+ *
+ * Örnekler:
+ *   "PVC 모서리 세척기" → Latin dışı "모서리 세척기" → ""  → YOZLAŞMIŞ (slug "pvc" olurdu)
+ *   "Бакелитовые ручки" → Latin dışı = tümü → "bakelitovye-ruchki" → sağlam
+ *   "Çark Tipi"        → Latin dışı "Ç" → "c" → sağlam
+ *   "USB Type-C"       → Latin dışı yok → sağlam (ad zaten Latin)
+ */
+function isNameDerivedSlugDegenerate(value: string, locale: SupportedLocale): boolean {
+    // Yalnız HARF/RAKAM artığına bakılır. Noktalama/boşluk elenmezse
+    // "Bakelit-Griffe" gibi saf Latin adlarda geriye "-" kalır, slugify onu da
+    // eler ve ad yanlışlıkla yozlaşmış sayılırdı (testte yakalandı).
+    const nonLatinScript = Array.from(value)
+        .filter((ch) => LETTER_OR_NUMBER.test(ch) && !ASCII_ALNUM.test(ch))
+        .join("")
+
+    if (!nonLatinScript) return false
+
+    return rawSlugify(nonLatinScript, locale) === ""
+}
+
+export function buildTranslationSlug(
+    value: string,
+    locale: SupportedLocale,
+    options: { derivedFromName?: boolean } = {},
+): string {
+    // Yalnız ADDAN türetirken yozlaşma kontrolü yapılır. Admin'in AÇIKÇA girdiği
+    // slug asla sessizce atılmaz — o bilinçli bir tercihtir.
+    if (options.derivedFromName && isNameDerivedSlugDegenerate(value, locale)) {
+        return ""
+    }
+
+    return rawSlugify(value, locale)
 }
 
 /**

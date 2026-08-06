@@ -1,5 +1,6 @@
 import { z } from "zod"
 
+import { TRANSLATION_NAME_MIN_LENGTH } from "../../i18n/translationSlug"
 import { normalizeCategoryTranslations } from "./categoryTranslations"
 import { getDeepLTargetLanguage } from "../../i18n/deeplLanguages"
 import type { TargetLocale } from "../../i18n/locales"
@@ -20,11 +21,11 @@ const categoryTranslationDraftSchema = z.object({
         categoryId: z.string().min(1),
         categoryCode: z.number().int(),
         source: z.object({
-            name: z.string().min(2),
+            name: z.string().min(TRANSLATION_NAME_MIN_LENGTH),
             fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
         }).strict(),
         target: z.object({
-            name: z.string().min(2),
+            name: z.string().min(TRANSLATION_NAME_MIN_LENGTH),
             slug: z.string().min(1),
         }).strict(),
     }).strict()),

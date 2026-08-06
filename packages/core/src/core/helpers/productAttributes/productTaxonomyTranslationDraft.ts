@@ -9,12 +9,13 @@ import {
     createTranslationSourceFingerprint,
     translationDraftHeaderShape,
 } from "@/core/i18n/translationDraft"
+import { TRANSLATION_NAME_MIN_LENGTH } from "@/core/i18n/translationSlug"
 import { normalizeProductAttributeValueTranslations } from "./productAttributeTranslations"
 
 const SOURCE_LOCALE = TRANSLATION_DRAFT_SOURCE_LOCALE
 
 const sourceSchema = z.object({
-    name: z.string().min(2),
+    name: z.string().min(TRANSLATION_NAME_MIN_LENGTH),
     fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
 }).strict()
 
@@ -24,7 +25,7 @@ const attributeEntrySchema = z.object({
     productAttributeCode: z.string().min(1),
     source: sourceSchema,
     target: z.object({
-        name: z.string().min(2),
+        name: z.string().min(TRANSLATION_NAME_MIN_LENGTH),
     }).strict(),
 }).strict()
 
@@ -35,7 +36,7 @@ const valueEntrySchema = z.object({
     attributeCode: z.string().min(1),
     source: sourceSchema,
     target: z.object({
-        name: z.string().min(2),
+        name: z.string().min(TRANSLATION_NAME_MIN_LENGTH),
         slug: z.string().min(1),
     }).strict(),
 }).strict()
