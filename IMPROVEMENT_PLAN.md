@@ -2017,6 +2017,156 @@ typecheck ✅ · lint 0 error (114 warning) · frontend **146/146** ✅ (138 →
    hreflang 14 dili listelemeli
 6. LTR/mevcut 10 dilde hiçbir şey değişmemiş olmalı
 
+## İçerik çevirisi: ko'nun ortaya çıkardığı gizli hata + sürücü (2026-08-04)
+
+**Bulgu (kullanıcı raporu):** `translate:category-translations --generate
+--target-locale ko` → `ko translation slug could not be generated`.
+en/de/fr/es/it/pt/pl/ru/ar sorunsuz uygulanmıştı.
+
+**Kök neden — hata ko'ya özgü değil, ko sadece ilk tetikleyen.** `slugify`
+ko/ja/zh/hi'de boş döner (biliniyor, `translationSlug.ts`'de belgeli) ve
+normalizer bunun için iki geçişli: slug boşsa varsayılan dilin slug'ına düşer.
+Ama draft üreticileri normalizer'ı **yalnız hedef dille** çağırıyordu:
+
+```ts
+normalizeCategoryTranslations({
+    translations: [{ locale: targetLocale, name: translatedNames[index] }],
+})
+```
+
+TR satırı olmadığı için `defaultLocaleSlug` `undefined` kalıyor ve fallback
+çalışamıyor. **Dokuz dil boyunca fark edilmedi çünkü hepsinde slugify dolu bir
+slug üretti — fallback yolu hiç çalışmamıştı.**
+
+**Kapsam 3 entity:** category, product, product-taxonomy. `variant-dictionary`
+ve `product-industrial-usage` slug kullanmadığı için etkilenmiyor. ja/zh/hi de
+aynı duvara çarpacaktı.
+
+**Düzeltme:** generate yoluna kaynak (TR) satırı eklendi ve hedef girdi artık
+`.translations[0]` yerine locale'e göre seçiliyor (iki satır olunca ilk sıradaki
+TR olur). Apply yolu değişmedi: draft'taki slug'ı yeniden slug'lıyor ve o slug
+artık ASCII olduğu için hayatta kalıyor.
+
+**Uygulanmış en…ar çevirileri sağlam** — onların slug'ları çevrilmiş addan
+üretildi, doğrusu bu. Yalnız ko/ja/zh/hi TR slug'ına düşecek; `@@unique([locale,
+slug])` locale başına olduğu için TR satırıyla çakışmaz.
+
+**Regresyon testi:** `categoryTranslationDraft.test.ts`'e dört dil için
+"slugify boş dönerse TR slug'ına düşer" + "slug üretilebilen dilde TR slug'ı
+sızdırmaz" testleri eklendi (core 257 → **262**).
+
+**Ayrıca temizlendi:** `categoryTranslations.ts`'te bir `console.log` kalmıştı.
+Paylaşılan core helper olduğu için Lambda runtime'ında da çalışıyordu — prod'a
+gitseydi her kategori yazımında CloudWatch'a log basardı.
+
+### Sürücü: `translate:content`
+
+65 komutu (5 entity × 13 dil) elle yazmayı ve hangisinin yapıldığını takip
+etmeyi ortadan kaldırır. **Kendi çeviri mantığı yok** — mevcut beş CLI'yı
+olduğu gibi çağırır.
+
+```bash
+npm --workspace packages/core run translate:content -- --mode plan
+npm --workspace packages/core run translate:content -- --mode generate --locales ko,ja,zh,hi
+```
+
+Tasarım kararları:
+- **`--apply` BİLEREK desteklenmiyor.** Denenirse ne yapılacağını anlatan bir
+  hatayla çıkar. Taslak incelemesi E4'te insana bırakıldı; sürücü generate
+  bitince uygulanacak komutları *listeler*, çalıştırmaz.
+- **Yeniden çalıştırılabilir:** taslak dosyası zaten varsa (CLI'ın `flag: "wx"`
+  koruması) bu başarısızlık değil "daha önce yapılmış" sayılır ve atlanır.
+- **Sıralı, paralel değil:** DeepL kotası ve DB bağlantı sayısı paralellikten
+  zarar görür.
+- Özet tablosu + toplam tahmini karakter (kota planlaması için) + gerçek
+  başarısızlıkta non-zero exit.
+
+**Doğrulama:** typecheck:backend ✅ · core **262/262** ✅ · sürücünün korumaları
+denendi: `--apply` ve geçersiz dil ikisi de exit 1 veriyor, `tr` hedef olarak
+reddediliyor.
+
+**kubi'de doğrulanacak:** `--generate --target-locale ko` artık temiz geçmeli ve
+taslakta `target.slug` TR slug'ı olmalı (ör. `bakalit-tutamaklar`). Sonra
+ja/zh/hi. Uygulama komutlarını sürücü listeleyecek.
+
+## Pivot çeviri: taksonomi artık İngilizce'den çevrilebiliyor (2026-08-04)
+
+**Gerekçe (kullanıcı):** `productAttribute` ve `productAttributeValue` için EN
+çevirisi tamamlandı ve doğrulandı. DeepL'in en→X kalitesi tr→X'ten belirgin
+biçimde yüksek (Türkçe düşük kaynaklı bir dil, teknik kısaltmalarda daha çok
+hata yapıyor), o yüzden kalan 12 dil doğrulanmış EN satırlarından çevrilmeli.
+
+```bash
+npm --workspace packages/core run translate:content -- \
+  --mode plan --locales de --entities product-taxonomy --source-locale en
+```
+
+**Sözleşme genişletildi, daraltılmadı.** `translationDraftHeaderShape`'te
+`sourceLocale` artık `z.literal("tr")` değil `SUPPORTED_LOCALES` enum'u. Bu bir
+GENİŞLETME olduğu için mevcut `sourceLocale: "tr"` taslakları aynen geçerli
+kalıyor — **şema sürümü artırılmadı** (sürüm 2'de kaldı).
+
+**En ince nokta — slug fallback'i kaynak dile DEĞİL, varsayılan dile bakar.**
+ko/ja/zh/hi'de slugify boş döner ve normalizer `DEFAULT_LOCALE` (tr) slug'ına
+düşer. Pivot `en` olduğunda kaynak satır TR olmadığı için fallback'in
+dayanacağı slug kalmazdı ve az önce düzeltilen hata aynen geri gelirdi. Çözüm:
+aday satırı iki ad taşıyor — `sourceName` (çevrilecek metin, pivotta EN) ve
+`defaultLocaleName` (yalnız slug fallback'i için TR adı). Normalizer'a her zaman
+TR satırı veriliyor.
+
+**Parmak izi kaynak dile bağlandı.** `sourceFingerprint` artık `sourceLocale`
+alıyor. Almasaydı, EN'den üretilmiş bir taslak apply sırasında TR satırıyla
+eşleşmiş görünürdü; parmak izinin işi tam olarak "taslak üretildikten sonra
+kaynak değişti mi" sorusunu yanıtlamak.
+
+**Taslak yolu kaynak dili taşıyor:** `product-taxonomy-en-de.json`. Mevcut
+tr kaynaklı taslaklarla çakışmaz; `flag: "wx"` koruması ikisini de korur.
+
+**Kapsam bilinçli olarak dar:** yalnız `product-taxonomy`. Sürücüde her entity
+`supportsSourceLocale` bayrağı taşıyor ve desteklemeyen bir entity ile
+`--source-locale` verilirse **sessizce yok sayılmıyor, reddediliyor** — aksi
+halde kullanıcı pivot yaptığını sanıp tr'den çevrilmiş taslak üretirdi.
+Diğer entity'ler istenirse aynı desenle açılabilir.
+
+**Beş koruma denendi ve çalışıyor:** desteklemeyen entity + pivot · kaynak dilin
+hedef listesinde olması · geçersiz kaynak dil · CLI'da kaynak = hedef ·
+`--apply` ile `--source-locale` birlikte (kaynak dil taslağın başlığında yazılı,
+apply onu okur).
+
+**Yan düzeltme:** CLI'ın "EN" varsayan iki mesajı (`No taxonomy rows require an
+EN translation`, `Applied … EN translations`) gerçek hedef/kaynak dili yazacak
+şekilde düzeltildi.
+
+**Testler:** eski "kaynak dil yalnız tr olabilir" testi yeni sözleşmeye göre
+güncellendi (silinmedi — desteklenmeyen dil hâlâ reddediliyor). Pivot için üç
+test eklendi: kaynak dil başlığa yazılıyor · parmak izi tr/en için farklı ·
+**slug üretilemeyen hedefte TR adına düşüyor, EN adına değil.**
+
+**Doğrulama:** typecheck:backend ✅ · core **266/266** ✅ (262 → +4) ·
+functions 14/14 ✅
+
+### Kör nokta: `typecheck:backend` beş CLI'dan yalnız birini kapsıyormuş
+
+Pivot değişikliğindeki bir tip hatası (`Pick<CliOptions, …>` `sourceLocale`
+içermiyordu) `typecheck:backend`'ten geçti ama kullanıcının editöründe göründü.
+Sebep: `tsconfig.backend.json`'ın include'u çeviri CLI'larından **yalnız
+`translate-category-translations.ts`'i** listeliyordu. Diğer dördü ve
+`packages/core/scripts/**` (yeni sürücü dahil) hiç typecheck edilmiyordu.
+
+Include desene çevrildi (`translate-*.ts` + `scripts/**`) ki yeni bir CLI
+kendiliğinden kapsansın. Genişletme **dokunulmamış iki script'te önceden var
+olan üç hatayı** ortaya çıkardı:
+
+| Dosya | Hata | Gerçek etkisi |
+|---|---|---|
+| `translate-variant-dictionary-translations.ts` | `createDraftStore(transaction)` — `targetLocale` argümanı eksik | Atomik apply doğrulamasında iç store yanlış locale ile sorgulardı; **`--apply` yolunda patlardı** |
+| `translate-product-industrial-usage-translations.ts` | Aday `sourceUsageFunction`'ı nullable | Boş çeviri satırı aday olup DeepL'e `null` giderdi |
+| aynı dosya | `loadUsages` nullable satır döndürüyor | Apply "kaynak değişti" gibi yanlış sonuca varabilirdi |
+
+Üçü de düzeltildi. **Ders:** kardeş dosyaları tek tek listelemek, listeye
+eklenmeyen dosyayı sessizce kapsam dışı bırakıyor — kapı kurarken desen
+kullanılmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

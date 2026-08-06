@@ -2,7 +2,14 @@ import { createHash } from "node:crypto"
 import { z } from "zod"
 
 import { getDeepLTargetLanguage } from "./deeplLanguages"
-import { DEFAULT_LOCALE, TARGET_LOCALES, isSupportedLocale, type TargetLocale } from "./locales"
+import {
+    DEFAULT_LOCALE,
+    SUPPORTED_LOCALES,
+    TARGET_LOCALES,
+    isSupportedLocale,
+    type SupportedLocale,
+    type TargetLocale,
+} from "./locales"
 
 /**
  * SÜRÜM 2: taslaklar artık tek bir hedef dile (`en`) çivili değil; başlıkta
@@ -12,7 +19,15 @@ import { DEFAULT_LOCALE, TARGET_LOCALES, isSupportedLocale, type TargetLocale } 
  */
 export const TRANSLATION_DRAFT_SCHEMA_VERSION = 2 as const
 
-/** Taslaklar her zaman varsayılan dilden çevrilir. */
+/**
+ * Taslakların VARSAYILAN kaynak dili. Artık zorunlu değil: `--source-locale` ile
+ * pivot dil seçilebiliyor.
+ *
+ * NEDEN PİVOT: DeepL'in tr→X kalitesi en→X'ten belirgin biçimde düşük — Türkçe
+ * düşük kaynaklı bir dil ve teknik kısaltmalarda daha çok hata yapıyor. İngilizce
+ * çevirisi bir kez insan gözüyle doğrulandıktan sonra onu pivot almak, kalan 12
+ * dilin tamamını iyileştiriyor.
+ */
 export const TRANSLATION_DRAFT_SOURCE_LOCALE = DEFAULT_LOCALE
 
 export function countUnicodeCharacters(value: string) {
@@ -42,6 +57,15 @@ export const draftTargetLocaleSchema = z.enum(
 )
 
 /**
+ * Kaynak dil artık `tr` literali DEĞİL — pivot çeviriye izin vermek için
+ * genişletildi. Bu bir DARALTMA değil GENİŞLETME olduğu için mevcut
+ * `sourceLocale: "tr"` taslakları aynen geçerli kalır; şema sürümü artmadı.
+ */
+export const draftSourceLocaleSchema = z.enum(
+    SUPPORTED_LOCALES as unknown as [SupportedLocale, ...SupportedLocale[]],
+)
+
+/**
  * Beş taslak dosyasının ORTAK başlık alanları.
  *
  * Her entity kendi şemasına `...translationDraftHeaderShape` yayar; böylece
@@ -51,7 +75,7 @@ export const draftTargetLocaleSchema = z.enum(
 export const translationDraftHeaderShape = {
     schemaVersion: z.literal(TRANSLATION_DRAFT_SCHEMA_VERSION),
     provider: z.literal("deepl"),
-    sourceLocale: z.literal(TRANSLATION_DRAFT_SOURCE_LOCALE),
+    sourceLocale: draftSourceLocaleSchema,
     targetLocale: draftTargetLocaleSchema,
     deeplTargetLanguage: z.string().min(1),
     generatedAt: z.string().min(1),
@@ -89,8 +113,41 @@ export function assertDraftTargetLanguageMatches(
  * Hedef dil ADTA olmak zorunda — aynı entity'nin 13 hedefi aynı anda incelemede
  * bekleyebilir ve `flag: "wx"` koruması yalnız yol farklıysa işe yarar.
  */
-export function buildTranslationDraftPath(entity: string, targetLocale: TargetLocale) {
-    return `.translation-drafts/${entity}-${TRANSLATION_DRAFT_SOURCE_LOCALE}-${targetLocale}.json`
+export function buildTranslationDraftPath(
+    entity: string,
+    targetLocale: TargetLocale,
+    sourceLocale: SupportedLocale = TRANSLATION_DRAFT_SOURCE_LOCALE,
+) {
+    return `.translation-drafts/${entity}-${sourceLocale}-${targetLocale}.json`
+}
+
+/** CLI `--source-locale` değerini doğrular; verilmezse varsayılan dile düşer. */
+export function parseSourceLocaleOption(value: string | undefined): SupportedLocale {
+    if (value === undefined) return TRANSLATION_DRAFT_SOURCE_LOCALE
+
+    const normalized = value.trim().toLowerCase()
+    if (!isSupportedLocale(normalized)) {
+        throw new TranslationTargetLocaleError(
+            `--source-locale must be one of: ${SUPPORTED_LOCALES.join(", ")}`,
+        )
+    }
+
+    return normalized
+}
+
+/**
+ * Kaynak ve hedef aynı olamaz. DeepL katmanı bunu zaten reddediyor ama hata
+ * oraya kadar gitmeden, hangi bayrakların çakıştığı belliyken verilmeli.
+ */
+export function assertSourceDiffersFromTarget(
+    sourceLocale: SupportedLocale,
+    targetLocale: TargetLocale,
+) {
+    if (sourceLocale === targetLocale) {
+        throw new TranslationTargetLocaleError(
+            `--source-locale and --target-locale cannot both be "${targetLocale}"`,
+        )
+    }
 }
 
 export class TranslationTargetLocaleError extends Error {}

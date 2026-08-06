@@ -194,12 +194,17 @@ async function loadTranslationCandidates(prisma: PrismaClient, options: CliOptio
         const source = usage.translations.find(({ locale }) => locale === SOURCE_LOCALE)
         const target = usage.translations.find(({ locale }) => locale === options.targetLocale)
 
-        return source && !target
+        // `usageFunction` şemada nullable: yukarıdaki nonEmptyUsages filtresi ÜST
+        // kaydın alanına bakıyor, çeviri satırınınkine değil. Boş çeviri satırı
+        // aday olmamalı — aksi halde DeepL'e null gider.
+        const sourceUsageFunction = source?.usageFunction?.trim()
+
+        return sourceUsageFunction && !target
             ? [{
                 productIndustrialUsageId: usage.id,
                 productId: usage.productId,
                 productCode: usage.product.code,
-                sourceUsageFunction: source.usageFunction,
+                sourceUsageFunction,
             }]
             : []
     })
@@ -289,8 +294,8 @@ async function applyDraft(prisma: PrismaClient, applyPath: string | undefined) {
     const rawDraft = JSON.parse(await readFile(path.resolve(applyPath), "utf8"))
     const draft = parseProductIndustrialUsageTranslationDraft(rawDraft)
     const store: ProductIndustrialUsageTranslationDraftStore = {
-        loadUsages: (usageIds) =>
-            prisma.productIndustrialUsage.findMany({
+        loadUsages: async (usageIds) => {
+            const usages = await prisma.productIndustrialUsage.findMany({
                 where: { id: { in: usageIds } },
                 select: {
                     id: true,
@@ -308,7 +313,20 @@ async function applyDraft(prisma: PrismaClient, applyPath: string | undefined) {
                         },
                     },
                 },
-            }),
+            })
+
+            // `usageFunction` şemada nullable ama taslak sözleşmesi dolu metin
+            // bekliyor. Boş satırlar karşılaştırmaya girmemeli; onları burada
+            // eliyoruz ki apply "kaynak değişti" gibi yanlış bir sonuca varmasın.
+            return usages.map((usage) => ({
+                ...usage,
+                translations: usage.translations.flatMap((translation) =>
+                    translation.usageFunction
+                        ? [{ locale: translation.locale, usageFunction: translation.usageFunction }]
+                        : [],
+                ),
+            }))
+        },
         createManyAtomically: async (writes) => {
             const result = await prisma.$transaction(async (tx) => {
                 return tx.productIndustrialUsageTranslation.createMany({

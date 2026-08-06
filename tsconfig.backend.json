@@ -18,7 +18,12 @@
     "include": [
         "packages/core/src/**/*",
         "packages/core/prisma.config.ts",
-        "packages/core/prisma/translate-category-translations.ts",
+        // Beş çeviri CLI'ı + sürücü. Önceden yalnız category listeliydi ve bu bir
+        // kör nokta yarattı: taksonomi script'inde tip hatası CI'dan geçti,
+        // kullanıcının editöründe göründü. Kardeş dosyaları tek tek listelemek
+        // yerine desenle alınıyor ki yeni bir CLI kendiliğinden kapsansın.
+        "packages/core/prisma/translate-*.ts",
+        "packages/core/scripts/**/*",
         "packages/functions/src/**/*",
         "sst-env.d.ts"
     ],

@@ -175,13 +175,19 @@ export function createProductTranslationDraft({
         estimatedCharacters,
         billedCharacters,
         entries: products.map((product, index) => {
+            // Kaynak (TR) satırı da veriliyor: hedef dilde slugify boş dönerse
+            // (ko/ja/zh/hi) normalizer varsayılan dilin slug'ına düşer ve bunun
+            // için TR satırını görmesi gerekir. Ayrıntı: categoryTranslationDraft.ts.
             const normalized = normalizeProductTranslations({
-                translations: [{
-                    locale: targetLocale,
-                    name: translatedProducts[index].name,
-                    description: translatedProducts[index].description,
-                }],
-            }).translations[0]
+                translations: [
+                    { locale: SOURCE_LOCALE, name: product.sourceName },
+                    {
+                        locale: targetLocale,
+                        name: translatedProducts[index].name,
+                        description: translatedProducts[index].description,
+                    },
+                ],
+            }).translations.find(({ locale }) => locale === targetLocale)!
 
             return {
                 productId: product.id,

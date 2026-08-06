@@ -484,7 +484,7 @@ function createDraftStore(prisma: PrismaClient, targetLocale: TargetLocale): Var
         loadMaterials,
         loadColors,
         createManyAtomically: (writes, draft) => prisma.$transaction(async (transaction) => {
-            const store = createDraftStore(transaction as unknown as PrismaClient)
+            const store = createDraftStore(transaction as unknown as PrismaClient, targetLocale)
             const [currentMeasurementTypes, currentMaterials, currentColors] = await Promise.all([
                 store.loadMeasurementTypes(draft.entries
                     .filter((entry) => entry.entity === "measurementType")

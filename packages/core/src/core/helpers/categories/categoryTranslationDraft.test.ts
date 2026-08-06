@@ -73,6 +73,44 @@ describe("Category translation drafts", () => {
         expect(draft.entries[0].source.fingerprint).toMatch(/^[a-f0-9]{64}$/)
     })
 
+    /**
+     * Bu yol dokuz dil (en/de/fr/es/it/pt/pl/ru/ar) boyunca HİÇ çalışmadı: hepsinde
+     * slugify dolu bir slug üretti. ko/ja/zh/hi'de boş dönüyor ve draft üreticisi
+     * normalizer'ı yalnız hedef dille çağırdığı için fallback'in dayanacağı TR
+     * slug'ı yoktu — "slug could not be generated" ile patlıyordu.
+     */
+    it.each(["ko", "ja", "zh", "hi"] as const)(
+        "%s gibi slugify'ın boş döndüğü dillerde TR slug'ına düşer",
+        (targetLocale) => {
+            const draft = createCategoryTranslationDraft({
+                targetLocale,
+                categories: [{ id: "category-1", code: 10, sourceName: "Bakalit Tutamaklar" }],
+                translatedNames: ["바칼라이트 손잡이"],
+                generatedAt: new Date("2026-08-04T00:00:00.000Z"),
+                estimatedCharacters: 18,
+                billedCharacters: 18,
+            })
+
+            expect(draft.entries[0].target).toEqual({
+                name: "바칼라이트 손잡이",
+                // TR adından türeyen slug; `@@unique([locale, slug])` locale başına
+                // olduğu için TR satırıyla çakışmaz.
+                slug: "bakalit-tutamaklar",
+            })
+        },
+    )
+
+    it("slug üretilebilen dillerde TR slug'ı sızdırmaz", () => {
+        // Kaynak satırı normalizer'a vermek fallback için şart, ama hedef dilin
+        // KENDİ slug'ı üretilebiliyorsa o kullanılmalı — TR'ye düşülmemeli.
+        const draft = createDraft(
+            [{ id: "category-1", code: 10, sourceName: "Bakalit Tutamaklar" }],
+            ["Bakelite Handles"],
+        )
+
+        expect(draft.entries[0].target.slug).toBe("bakelite-handles")
+    })
+
     it("rejects a stale draft when the TR source changed", () => {
         const draft = createDraft()
 

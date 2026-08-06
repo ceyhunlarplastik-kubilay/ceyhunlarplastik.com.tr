@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 import { getDeepLTargetLanguage } from "@/core/i18n/deeplLanguages"
-import type { TargetLocale } from "@/core/i18n/locales"
+import { DEFAULT_LOCALE, type SupportedLocale, type TargetLocale } from "@/core/i18n/locales"
 import {
     TRANSLATION_DRAFT_SCHEMA_VERSION,
     TRANSLATION_DRAFT_SOURCE_LOCALE,
@@ -141,13 +141,15 @@ export class ProductTaxonomyTranslationDraftError extends Error {}
 function sourceFingerprint({
     entityId,
     sourceName,
+    sourceLocale,
 }: {
     entityId: string
     sourceName: string
+    sourceLocale: SupportedLocale
 }) {
     return createTranslationSourceFingerprint({
         entityId,
-        sourceLocale: SOURCE_LOCALE,
+        sourceLocale,
         fields: { name: sourceName },
     })
 }
@@ -176,6 +178,7 @@ export function createProductTaxonomyTranslationDraft({
     candidates,
     translatedNames,
     targetLocale,
+    sourceLocale = SOURCE_LOCALE,
     generatedAt = new Date(),
     glossaryId,
     estimatedCharacters,
@@ -194,10 +197,24 @@ export function createProductTaxonomyTranslationDraft({
             attributeId: string
             attributeCode: string
             sourceName: string
+            /**
+             * Varsayılan dildeki (TR) ad — YALNIZ slug fallback'i için.
+             *
+             * Slug fallback'i `DEFAULT_LOCALE`'e bakar, "kaynak dile" değil.
+             * Pivot `en` olduğunda kaynak satırı TR olmadığı için, ko/ja/zh/hi
+             * gibi slugify'ın boş döndüğü dillerde fallback'in dayanacağı bir
+             * slug kalmazdı. Bu alan onu taşıyor.
+             */
+            defaultLocaleName: string
         }
     >
     translatedNames: string[]
     targetLocale: TargetLocale
+    /**
+     * Çevirinin YAPILDIĞI dil. Varsayılan TR; `en` verilerek pivot çeviri
+     * yapılabilir (DeepL'in en→X kalitesi tr→X'ten belirgin biçimde yüksek).
+     */
+    sourceLocale?: SupportedLocale
     generatedAt?: Date
     glossaryId?: string
     estimatedCharacters: number
@@ -213,7 +230,7 @@ export function createProductTaxonomyTranslationDraft({
         schemaVersion: TRANSLATION_DRAFT_SCHEMA_VERSION,
         provider: "deepl",
         entity: "productTaxonomy",
-        sourceLocale: SOURCE_LOCALE,
+        sourceLocale,
         targetLocale,
         deeplTargetLanguage: getDeepLTargetLanguage(targetLocale),
         generatedAt: generatedAt.toISOString(),
@@ -236,6 +253,7 @@ export function createProductTaxonomyTranslationDraft({
                         fingerprint: sourceFingerprint({
                             entityId,
                             sourceName: candidate.sourceName,
+                            sourceLocale,
                         }),
                     },
                     target: {
@@ -244,12 +262,15 @@ export function createProductTaxonomyTranslationDraft({
                 }
             }
 
+            // Kaynak (TR) satırı da veriliyor: hedef dilde slugify boş dönerse
+            // (ko/ja/zh/hi) normalizer varsayılan dilin slug'ına düşer ve bunun
+            // için TR satırını görmesi gerekir. Ayrıntı: categoryTranslationDraft.ts.
             const normalized = normalizeProductAttributeValueTranslations({
-                translations: [{
-                    locale: targetLocale,
-                    name: translatedName,
-                }],
-            }).translations[0]
+                translations: [
+                    { locale: DEFAULT_LOCALE, name: candidate.defaultLocaleName },
+                    { locale: targetLocale, name: translatedName },
+                ],
+            }).translations.find(({ locale }) => locale === targetLocale)!
 
             return {
                 entity: candidate.entity,
@@ -261,6 +282,7 @@ export function createProductTaxonomyTranslationDraft({
                     fingerprint: sourceFingerprint({
                         entityId,
                         sourceName: candidate.sourceName,
+                        sourceLocale,
                     }),
                 },
                 target: {
@@ -318,6 +340,7 @@ export function buildProductTaxonomyTranslationWrites({
             const currentFingerprint = sourceFingerprint({
                 entityId: attribute.id,
                 sourceName: source.name,
+                sourceLocale: draft.sourceLocale,
             })
             if (
                 source.name !== entry.source.name ||
@@ -370,6 +393,7 @@ export function buildProductTaxonomyTranslationWrites({
         const currentFingerprint = sourceFingerprint({
             entityId: value.id,
             sourceName: source.name,
+            sourceLocale: draft.sourceLocale,
         })
         if (
             source.name !== entry.source.name ||

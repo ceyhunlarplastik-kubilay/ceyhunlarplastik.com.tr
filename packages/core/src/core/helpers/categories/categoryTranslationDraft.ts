@@ -147,12 +147,17 @@ export function createCategoryTranslationDraft({
         estimatedCharacters,
         billedCharacters,
         entries: categories.map((category, index) => {
+            // Kaynak (TR) satırı da veriliyor: normalizer, hedef dilde slugify
+            // boş dönerse (ko/ja/zh/hi — bkz. translationSlug.ts) varsayılan
+            // dilin slug'ına düşer ve bunun için TR satırını GÖRMESİ gerekir.
+            // Yalnız hedef satır verildiğinde fallback'in dayanacağı slug
+            // olmadığı için "slug could not be generated" ile patlıyordu.
             const normalized = normalizeCategoryTranslations({
-                translations: [{
-                    locale: targetLocale,
-                    name: translatedNames[index],
-                }],
-            }).translations[0]
+                translations: [
+                    { locale: SOURCE_LOCALE, name: category.sourceName },
+                    { locale: targetLocale, name: translatedNames[index] },
+                ],
+            }).translations.find(({ locale }) => locale === targetLocale)!
 
             return {
                 categoryId: category.id,

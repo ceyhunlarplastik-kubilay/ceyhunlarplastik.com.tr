@@ -74,8 +74,19 @@ describe("taslak başlığı", () => {
         expect(headerSchema.safeParse(header({ schemaVersion: 1 })).success).toBe(false)
     })
 
-    it("kaynak dil olarak yalnız varsayılan dili kabul eder", () => {
-        expect(headerSchema.safeParse(header({ sourceLocale: "en" })).success).toBe(false)
+    /**
+     * Kaynak dil eskiden `tr` literaliydi. Pivot çeviri için genişletildi:
+     * doğrulanmış İngilizce satırlardan çevirmek (en→X), tr→X'ten belirgin
+     * biçimde daha iyi sonuç veriyor. GENİŞLETME olduğu için mevcut
+     * `sourceLocale: "tr"` taslakları aynen geçerli — şema sürümü artmadı.
+     */
+    it("kaynak dil olarak desteklenen her dili kabul eder", () => {
+        expect(headerSchema.safeParse(header({ sourceLocale: "tr" })).success).toBe(true)
+        expect(headerSchema.safeParse(header({ sourceLocale: "en" })).success).toBe(true)
+    })
+
+    it("desteklenmeyen kaynak dilini reddeder", () => {
+        expect(headerSchema.safeParse(header({ sourceLocale: "xx" })).success).toBe(false)
     })
 
     it("hedef dil olarak varsayılan dili kabul etmez", () => {

@@ -16,7 +16,8 @@
     "backfill:product-translations": "tsx prisma/backfill-product-translations.ts",
     "translate:product-translations": "tsx prisma/translate-product-translations.ts",
     "seed:geo": "tsx prisma/seed-geo.ts",
-    "translate:messages": "tsx scripts/translate-messages.ts"
+    "translate:messages": "tsx scripts/translate-messages.ts",
+    "translate:content": "tsx scripts/translate-content.ts"
   },
   "exports": {
     "./*": [
