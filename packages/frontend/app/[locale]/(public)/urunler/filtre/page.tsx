@@ -9,19 +9,22 @@ import ProductFilterList from "@/features/public/products/components/ProductFilt
 import ProductGridSkeleton from "@/features/public/products/components/ProductGridSkeleton"
 
 import { PageHero } from "@/components/sections/PageHero";
+import { ProductFilterPageHero } from "@/features/public/products/components/ProductFilterPageHero";
+
+// searchParams KULLANILMAZ — okunduğu anda route dynamic'e düşer, CDN'de hazır kopya
+// tutulmaz ve her ziyaret Lambda'da sıfırdan render edilir (ölçüm: TTFB 0.26-0.37 s'e
+// karşı ISR'de 0.068 s). `?category=` artık ProductFilterPageHero içinde CLIENT'ta
+// okunuyor; sayfanın geri kalanı (filtre, arama, ürün listesi) zaten client'taydı.
+export const revalidate = 60;
 
 export default async function Page({
     params,
-    searchParams,
 }: {
     params: Promise<{ locale: string }>
-    searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
     const { locale } = await params
     setRequestLocale(locale)
 
-    const resolvedParams = await searchParams;
-    const categorySlug = resolvedParams?.category;
     // NOT: attributes BİLEREK çekilmiyor. `showOnlyIndustrialFilters` +
     // `lazyIndustrialAttributes` birlikte verildiğinde ProductFilterSidebar bu prop'u
     // hiç okumuyor (non-industrial dal erken `return []` ediyor, industrial dal lazy
@@ -33,33 +36,33 @@ export default async function Page({
         getCategories(locale),
     ])
 
-    let title = t("pageTitle");
-    let breadcrumbs = [
-        { label: tb("home"), href: "/" },
-        { label: t("pageTitle") }
-    ];
-
-    if (categorySlug) {
-        const selectedCategory = categories.find((c: any) => c.slug === categorySlug);
-        if (selectedCategory) {
-            title = t("filteringTitle", { name: selectedCategory.name });
-            breadcrumbs = [
-                { label: tb("home"), href: "/" },
-                { label: t("productCategories"), href: "/urunler" },
-                { label: selectedCategory.name, href: `/urun-kategori/${selectedCategory.slug}` },
-                { label: t("filteringLabel") }
-            ];
-        }
-    }
+    // Hero'ya yalnız slug+name geçilir; tam kategori nesnesi zaten sidebar için flight
+    // payload'unda ve buraya ikinci kez konması gereksiz ağırlık olurdu.
+    const heroCategories = categories.map((category) => ({
+        slug: category.slug,
+        name: category.name,
+    }))
 
     return (
         <main>
 
-            {/* HERO */}
-            <PageHero
-                title={title}
-                breadcrumbs={breadcrumbs}
-            />
+            {/* HERO — `?category=` client'ta okunur. Suspense ŞART: `useSearchParams`
+                Suspense'siz kullanılırsa bailout tüm route'u dynamic yapar ve yukarıdaki
+                `revalidate` sessizce yok sayılır. Fallback jenerik başlığı çizer, yani
+                statik HTML dolu bir hero ile gelir. */}
+            <Suspense
+                fallback={
+                    <PageHero
+                        title={t("pageTitle")}
+                        breadcrumbs={[
+                            { label: tb("home"), href: "/" },
+                            { label: t("pageTitle") },
+                        ]}
+                    />
+                }
+            >
+                <ProductFilterPageHero categories={heroCategories} />
+            </Suspense>
 
             {/* FILTER + PRODUCTS — kategori sayfası ve müşteri paneliyle aynı yerleşim:
                 sabit 320px filtre kolonu + esnek içerik, lg altında alt alta yığılır. */}

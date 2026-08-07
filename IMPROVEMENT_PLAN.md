@@ -2307,9 +2307,66 @@ değil, sadece yükleme sırası meselesi → lazy + iskelet doğru çözüm. Yo
   üç trigger placeholder'ı, `role="status"` + `aria-live="polite"` + `aria-busy`). AGENTS.md'deki
   "ilk yükte içerik yoksa iskelet" kuralı. Kategori sayfası ve portal da bundan yararlanır.
 
-**Beklenen:** `/urunler/filtre` 1.08 MB → ~0.42 MB (kategori sayfası referansı). **Deploy sonrası
-ölçülecek.** Doğrulama: frontend tsc ✅ lint 0 error / 114 warning ✅ 146 test ✅ build
+Doğrulama: frontend tsc ✅ lint 0 error / 114 warning ✅ 146 test ✅ build
 "Compiled successfully" ✅ (backend bu dilimde hiç değişmedi).
+
+**✅ Prod'a deploy edildi, canlıdan ölçüldü (2026-08-07) — tahminden iyi çıktı:**
+
+| Ölçüm | Önce | Sonra |
+|---|---|---|
+| `/urunler/filtre` HTML | 1,080,252 B | **271,882 B (−74.8%)** |
+| HTML'de `usage_area` geçişi | 1611 | **0** |
+| `/en/urunler/filtre` | — | 268,710 B |
+| `/urun-kategori/bakalit-tutamaklar` | 417,456 B | 419,092 B (değişmedi ✅) |
+| Ana sayfa | 475,438 B | 475,440 B (değişmedi ✅) |
+| `/api/product-filters/industrial` | 151,018 B | 151,018 B · 200 ✅ |
+
+Tahmin ~420 KB'ydi (kategori sayfası referansı), gerçek **272 KB**: fetch'i büsbütün kaldırmak
+non-industrial attribute'ları da payload'dan çıkardı — kategori sayfası onları hâlâ prop'la
+geçiyor, bu yüzden referans olduğundan yüksekti. İskelet SSR'da çiziliyor (`animate-pulse`).
+
+**🔎 Ölçerken çıkan YENİ bulgu — `/urunler/filtre` DYNAMIC, CDN cache'i yok:**
+`cache-control: private, no-cache, no-store, max-age=0, must-revalidate` + her istekte
+`x-cache: Miss from cloudfront`. TTFB tutarlı **0.26–0.37 s** (ana sayfa ISR/CDN hit'te
+**0.068 s** → ~4-5 kat). **Bu dilimden önce de böyleydi** (değişiklik onu ne yarattı ne
+düzeltti; yalnız istek başına yapılan işi 737 KB azalttı). Sebep skill'deki klasik P7 bailout'u:
+sayfa `searchParams` prop'u alıyor ve `resolvedParams?.category` ile başlık/breadcrumb
+kuruyor. **Karar gerektirir, tek taraflı yapılmadı:** static'e almak `?category=x` için
+sunucuda üretilen başlığın generic'e dönmesi (veya client'a taşınması) demek — SEO/UX tercihi.
+Kazanç: TTFB Lambda yerine CDN hızına iner + istek başına Lambda maliyeti sıfırlanır.
+
+### `/urunler/filtre` ISR'e alındı — başlık client'a taşındı (2026-08-07)
+
+Kullanıcı üç seçenek arasından **C**'yi seçti (başlık client'ta okunsun, CDN kazancı tam alınsın).
+
+**✅ Uygulandı:**
+- Yeni client bileşen [ProductFilterPageHero.tsx](packages/frontend/features/public/products/components/ProductFilterPageHero.tsx):
+  `?category=` `useSearchParams` ile CLIENT'ta okunur, başlık/breadcrumb orada kurulur.
+- [Sayfadan](packages/frontend/app/[locale]/(public)/urunler/filtre/page.tsx) `searchParams`
+  prop'u **tamamen kaldırıldı** + `export const revalidate = 60` eklendi (ana sayfa ve kategori
+  sayfasındaki konvansiyonun aynısı).
+- **Hero `<Suspense>` ile sarıldı** — skill'in açıkça uyardığı tuzak: `useSearchParams`
+  Suspense'siz kullanılırsa bailout TÜM route'u yine dynamic yapar ve `revalidate` **sessizce**
+  yok sayılır. Fallback jenerik başlığı çizer → statik HTML dolu bir hero ile gelir, boş bir an
+  olmaz.
+- Hero'ya tam kategori nesnesi değil `{slug, name}` geçildi (tam liste zaten sidebar için flight
+  payload'unda; ikinci kopya gereksiz ağırlık olurdu).
+
+**⚠️ Statiklik lokalde KANITLANAMADI — dürüst kayıt:** Skill "route tablosunda `○/●` mi bak"
+diyor; bunun için `sst shell -- next build` gerekiyor. Hem `sst shell --stage kubi`, hem
+`--target Ceyhunlar-Frontend` denendi, ikisi de `"MyPostgres" is not linked in your sst.config.ts`
+ile düştü (kubi'de MyPostgres bir `sst.Linkable`; `sst shell` onu çözmüyor). Bu **ortam kısıtı**,
+değişiklikle ilgisi yok. Kanıt deploy sonrası header'dan alınacak — zaten daha güçlü sinyal:
+`cache-control` `no-store` yerine `s-maxage=...` göstermeli ve ikinci istekte `x-cache: Hit`
+gelmeli.
+
+Doğrulama: frontend tsc ✅ lint **0 error / 113 warning** (bir `any` cast'i eksildiği için 114'ten
+düştü) ✅ 146 test ✅ `next build` "Compiled successfully" ✅.
+
+**Davranış farkı (kabul edilen):** `?category=` ile gelindiğinde başlık ilk boyada jenerik
+("Ürün Filtrele") görünür, hydration'dan sonra "… için filtreleniyor"a döner. Filtreler, arama ve
+ürün listesi etkilenmez — hepsi zaten client'taydı. **Link önizlemesi (og:title) bu bileşenin işi
+DEĞİL**, `generateMetadata`'nın işi; parametreli varyantlar için özel önizleme istenirse ayrı iş.
 
 **Bilinçli YAPILMAYAN — backend ayrıştırması:** `with-values`'tan usage_area'yı büsbütün çıkarıp
 ayrı bir endpoint'e almak, paylaşılan cache girdisini 737 KB → ~190 KB'ye indirirdi. Yapılmadı
