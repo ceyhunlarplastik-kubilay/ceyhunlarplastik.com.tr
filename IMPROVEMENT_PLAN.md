@@ -2268,8 +2268,54 @@ tüketici grep'i + runtime regresyon listesi yakalar. Repository tarafı Prisma'
 
 **Sonraya bırakılan (ölçülmüş, ayrı dilim):** `usage_area` payload'un **%74.6'sı** ve public
 layout'ta hiç gerekmiyor — zaten [/api/assistant/usage-areas](packages/frontend/app/api/assistant/usage-areas/route.ts)
-lazy route'u var. `with-values`'tan tamamen çıkarmak bir kat daha kazandırır, ama kategori
-sayfası filtre sidebar'ı ve `getIndustrialFilterAttributes` onu kullanıyor → ayrı ölçüm gerekir.
+lazy route'u var. → **Aşağıdaki dilimde ele alındı.**
+
+### usage_area ayrıştırması — kalan iki yüzey lazy'e alındı (2026-08-07)
+
+**Keşif, beklediğimden farklı çıktı: yeni mekanizma yazmaya gerek yokmuş.** `lazyIndustrialAttributes`
+bayrağı + [/api/product-filters/industrial](packages/frontend/app/api/product-filters/industrial/route.ts)
+BFF route'u + [useIndustrialFilterAttributes](packages/frontend/features/public/productAttributes/hooks/useIndustrialFilterAttributes.ts)
+**zaten vardı** (kategori sayfası için yazılmış). Geriye kalan iş, bayrağı hâlâ tam payload
+gönderen iki yüzeye taşımaktı.
+
+**Ölçüm:** `/urunler/filtre` HTML'i **1,080,252 B**; içinde `usage_area` **1611 kez** geçiyor
+(805 değer × ~2). Aynı düzeni lazy kullanan kategori sayfası referansı: **417,456 B**. Lazy
+route yanıtı yalnız **151,018 B** ve CDN'de `s-maxage=60, stale-while-revalidate=300`.
+
+**Reddedilen öncül — dokümante edilmiş eski karar geçersiz kılındı:** `lazyIndustrialAttributes`
+prop'unun yorumunda "`/urunler/filtre` bu bayrağı GÖNDERMEZ — orada endüstriyel filtreler
+birincil" yazıyordu. Kodu okuyunca bunun tutmadığı görüldü: o sayfa
+`attributeSelectorVariant="popover"` veriyor ve `renderAttributeFilter` bu modda **her**
+attribute'u kapalı bir `ProductFilterPopoverSelect` trigger'ı olarak çiziyor → 805 usage_area
+değeri ilk boyada **görünmüyor**, yalnızca HTML'de duruyordu. "Birincil olma" görünürlük
+değil, sadece yükleme sırası meselesi → lazy + iskelet doğru çözüm. Yorum güncellendi.
+
+**✅ Uygulandı:**
+- **`/urunler/filtre`:** `showOnlyIndustrialFilters` + `lazyIndustrialAttributes` birlikte
+  verildiğinde `attributes` prop'u sidebar'da **hiç okunmuyor** (non-industrial dal erken
+  `return []`, industrial dal lazy veriden besleniyor — iki okuma noktası da tek tek
+  doğrulandı). Bu yüzden prop'u slim'lemek yerine **`getAttributesForFilter` çağrısı sayfadan
+  tamamen kaldırıldı**; 737 KB'lık cache okuması da, aynı verinin flight payload'una
+  serialize olması da ortadan kalktı.
+- **`/musteri/tum-urunler`:** kategori sayfasıyla aynı desen —
+  `slimCategoryFilterAttributes(attributes, undefined, { excludeIndustrial: true })` + sidebar'a
+  `lazyIndustrialAttributes`. Portal'ın "bana uygun" (usage_area) kısayolu
+  `filterableAttributeMap`'ten okuduğu için lazy veri gelince çalışmaya devam eder.
+- **`ProductFilterSidebar` — yükleme iskeleti:** lazy modda veri gelmeden `industrialUsageAttributes`
+  boş olduğu için bölüm tamamen kayboluyordu; `/urunler/filtre`'de bu, sidebar'ın boş görünmesi
+  demekti. `isLoading` ile nihai yerleşimi taklit eden bir iskelet eklendi (aynı amber bölüm +
+  üç trigger placeholder'ı, `role="status"` + `aria-live="polite"` + `aria-busy`). AGENTS.md'deki
+  "ilk yükte içerik yoksa iskelet" kuralı. Kategori sayfası ve portal da bundan yararlanır.
+
+**Beklenen:** `/urunler/filtre` 1.08 MB → ~0.42 MB (kategori sayfası referansı). **Deploy sonrası
+ölçülecek.** Doğrulama: frontend tsc ✅ lint 0 error / 114 warning ✅ 146 test ✅ build
+"Compiled successfully" ✅ (backend bu dilimde hiç değişmedi).
+
+**Bilinçli YAPILMAYAN — backend ayrıştırması:** `with-values`'tan usage_area'yı büsbütün çıkarıp
+ayrı bir endpoint'e almak, paylaşılan cache girdisini 737 KB → ~190 KB'ye indirirdi. Yapılmadı
+çünkü A+B sonrası **hiçbir public yüzey usage_area'yı eager göndermiyor**; kalan maliyet yalnız
+sunucu tarafı cache okuması ve girdi zaten 2 MB tavanının çok altında. Yeni endpoint + iki lazy
+route'un yeniden kablolanması bu kazanç için orantısız. İhtiyaç doğarsa geri dönülebilir.
 
 **Yan not (sorun değil):** Yalnız `accept-encoding: br` gönderildiğinde bu endpoint 500 dönüyor
 — API Gateway gzip/deflate destekliyor, brotli desteklemiyor. Gerçek tarayıcılar her zaman

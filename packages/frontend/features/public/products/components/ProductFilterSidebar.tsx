@@ -71,9 +71,15 @@ type Props = {
     customerUsageAreaFilterPending?: boolean
     /**
      * true: endüstriyel kullanım filtreleri (sector/production_group/usage_area) prop'la
-     * gelmez, client'ta lazy çekilir. Kategori sayfasında bu 920 değer sayfanın attributes
-     * payload'unun %98.8'iydi (726KB) ve varsayılan KAPALI bir popover'ın içindeydi.
-     * `/urunler/filtre` bu bayrağı GÖNDERMEZ — orada endüstriyel filtreler birincil.
+     * gelmez, client'ta lazy çekilir (BFF: /api/product-filters/industrial, CDN'de
+     * `s-maxage=60`). Bu 920 değer kategori sayfasının attributes payload'unun %98.8'iydi.
+     *
+     * 2026-08-07 GÜNCELLEME — eski not "`/urunler/filtre` bu bayrağı GÖNDERMEZ, orada
+     * endüstriyel filtreler birincil" diyordu; ölçüm bunu geçersiz kıldı. O sayfa
+     * `attributeSelectorVariant="popover"` kullanıyor, yani üç filtre de **kapalı bir
+     * popover trigger'ı** olarak çiziliyor — 805 usage_area değeri ilk boyada GÖRÜNMÜYOR,
+     * yalnızca HTML'de duruyordu (sayfa 1.08 MB). Artık orada da lazy; birincil oldukları
+     * için veri gelene kadar aşağıdaki iskelet gösterilir.
      */
     lazyIndustrialAttributes?: boolean
 }
@@ -231,7 +237,7 @@ export default function ProductFilterSidebar({
     const industrialFiltersVisible = !(hideIndustrialFiltersWhenCategorySelected && scopedCategorySlug)
 
     // lazyIndustrialAttributes: bu 920 değer prop'la (SSR payload'unda) gelmez, burada çekilir.
-    const { data: lazyIndustrialData } = useIndustrialFilterAttributes(
+    const { data: lazyIndustrialData, isLoading: lazyIndustrialLoading } = useIndustrialFilterAttributes(
         lazyIndustrialAttributes && industrialFiltersVisible,
     )
 
@@ -244,6 +250,15 @@ export default function ProductFilterSidebar({
             .map((code) => source.find((attribute) => attribute.code === code))
             .filter((attribute): attribute is Attribute => Boolean(attribute && (attribute.values?.length ?? 0) > 0))
     }, [attributes, industrialFiltersVisible, lazyIndustrialAttributes, lazyIndustrialData])
+
+    // Lazy modda veri gelene kadar bölüm tamamen kaybolmasın: `/urunler/filtre`'de bu
+    // filtreler sayfanın BİRİCİK içeriği, boş sidebar "sayfa bozuk" gibi görünürdü.
+    // (AGENTS.md: ilk yükte içerik yoksa nihai yerleşimi taklit eden iskelet.)
+    const showIndustrialSkeleton =
+        lazyIndustrialAttributes &&
+        industrialFiltersVisible &&
+        lazyIndustrialLoading &&
+        industrialUsageAttributes.length === 0
 
     const filterableAttributes = useMemo(
         () => [...productFilterAttributes, ...industrialUsageAttributes],
@@ -677,6 +692,28 @@ export default function ProductFilterSidebar({
                                 </Button>
                             ) : null}
                             {industrialUsageAttributes.map((attr) => renderAttributeFilter(attr))}
+                        </section>
+                    ) : showIndustrialSkeleton ? (
+                        <section
+                            className="space-y-3 rounded-2xl border border-amber-200/70 bg-amber-50/45 p-3"
+                            role="status"
+                            aria-live="polite"
+                            aria-busy="true"
+                        >
+                            <div>
+                                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                                    {t("industrialTitle")}
+                                </h3>
+                                <p className="mt-1 text-xs leading-5 text-amber-900/70">
+                                    {t("industrialDesc")}
+                                </p>
+                            </div>
+                            {INDUSTRIAL_ATTRIBUTE_CODES.map((code) => (
+                                <div
+                                    key={code}
+                                    className="h-9 w-full animate-pulse rounded-xl border border-amber-200/70 bg-white/70"
+                                />
+                            ))}
                         </section>
                     ) : null}
 

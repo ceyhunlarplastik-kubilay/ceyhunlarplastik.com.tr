@@ -152,6 +152,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                     <ProductFilterSidebar
                         categories={categories}
                         attributes={attributes}
+                        lazyIndustrialAttributes
                         hideCategoryFilter
                         fixedCategorySlug={categorySlug}
                         basePath={basePath}

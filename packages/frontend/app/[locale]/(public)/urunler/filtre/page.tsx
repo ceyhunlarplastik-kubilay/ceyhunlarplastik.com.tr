@@ -2,7 +2,6 @@ import { Suspense } from "react"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { getCategories } from "@/features/public/categories/server/getCategories"
-import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
 
 import ProductFilterSidebar from "@/features/public/products/components/ProductFilterSidebar"
 import ProductFilterList from "@/features/public/products/components/ProductFilterList"
@@ -23,11 +22,15 @@ export default async function Page({
 
     const resolvedParams = await searchParams;
     const categorySlug = resolvedParams?.category;
-    const [t, tb, categories, attributes] = await Promise.all([
+    // NOT: attributes BİLEREK çekilmiyor. `showOnlyIndustrialFilters` +
+    // `lazyIndustrialAttributes` birlikte verildiğinde ProductFilterSidebar bu prop'u
+    // hiç okumuyor (non-industrial dal erken `return []` ediyor, industrial dal lazy
+    // veriden besleniyor) → hem 737 KB'lık cache okuması hem de aynı verinin RSC flight
+    // payload'una serialize olması ortadan kalkıyor.
+    const [t, tb, categories] = await Promise.all([
         getTranslations({ locale, namespace: "public.productFilter" }),
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getCategories(locale),
-        getAttributesForFilter(locale),
     ])
 
     let title = t("pageTitle");
@@ -68,7 +71,8 @@ export default async function Page({
                         <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-neutral-100" />}>
                             <ProductFilterSidebar
                                 categories={categories}
-                                attributes={attributes}
+                                attributes={[]}
+                                lazyIndustrialAttributes
                                 // Bu sayfanın işi sektör → üretim grubu → kullanım alanı
                                 // seçimi. Kategori-kapsamlı ürün filtreleri ve kategori
                                 // seçici burada gösterilmez; onlar kategori sayfasının işi.
