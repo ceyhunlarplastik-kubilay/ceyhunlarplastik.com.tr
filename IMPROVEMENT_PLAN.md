@@ -192,7 +192,19 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - **⚠️ Dilim A'nın doğrulaması `sst dev` ile YAPILAMAZ:** [ssr-site.ts](.sst/platform/src/components/aws/ssr-site.ts) dev modunda (`$dev && args.dev !== false`) erken `return` ediyor — `buildApp` çağrılmıyor, OpenNext hiç koşmuyor, image optimizer Lambda'sı hiç yaratılmıyor. Bu dilimi görmek için **`npx sst deploy --stage kubi`** gerekir. Kubi'de ölçülecek: (1) `/logos/...` gibi bir **yerel** görselin `/_next/image?url=...` üzerinden **200** dönmesi (asıl soru), (2) `cdn.` üzerinden gelen **uzak** görselin bozulmamış olması, (3) ISR/sayfa gezinme + admin/portal duman testi (next 16.2.4→16.3.0 minor). **Geri dönüş tek satır** (`openNextVersion` + pin geri).
 - **✅ kubi doğrulaması geçti + prod diff incelendi (2026-08-07):** Kullanıcı kubi'ye deploy etti, görseller açılıyor — `fetchInternalImage` regresyonu kapandı. `sst diff --stage prod` çıktısı (5211 satır) analiz edildi: build **Next.js 16.3.0 / OpenNext v4.0.3** ile koştu, `SHARP_VERSION = 0.35.3` hem Builder command'ına hem server Lambda env'ine geçti. **Değişiklik profili: 46 Created / 32 Updated / 46 Deleted, hiç `Replaced` YOK.** Dağılım: 44+44 `s3:BucketObjectv2` (yeni Lambda bundle+sourcemap'leri eskilerin yerine), **24 `lambda:Function` update (yalnız `s3Key` = kod)**, 1 Nextjs Builder command, 1 RevalidationSeed invocation, BucketFiles + DistributionInvalidation. **Hiçbir altyapı kaynağı (RDS, VPC, ApiGateway, Cognito, CloudFront) diff'te yok.** 24 backend Lambda'nın güncellenmesi bu dilimden değil — bekleyen i18n/slug commit'leri `packages/core`'a dokunduğu için tüm Lambda bundle'ları yenilendi.
 - **🔎 Diff'te ortaya çıkan AYRI sorun → ✅ ölçüldü ve çözüldü:** Build logundaki 211 adet `items over 2MB can not be cached` uyarısı. **Buradaki ilk teşhisim (`getCategories`) YANLIŞTI** — ölçüm suçlunun `/product-attributes/with-values` olduğunu gösterdi (`/categories` yalnız 98 KB). Tam analiz ve çözüm: [Public attribute payload'ı — 2MB data-cache tavanını aşan `translations` yükü (2026-08-07)](#public-attribute-payloadı--2mb-data-cache-tavanını-aşan-translations-yükü-2026-08-07).
-- **Dilim B (asıl P2.6, SST 4) hâlâ açık:** artık prod-runtime güvenliği için bloklayıcı DEĞİL; geriye kalan gerekçe 4 CLI high'ı (`sst`/`opencontrol`/`hono`/`@modelcontextprotocol/sdk`) + P2.7'yi (Node 24) açması + SST'nin destek ömrü. **Bilinçli risk kaydı:** SST'nin test ettiği eşleşme 3.9.14; 4.0.3'e geçmekle SST'nin resmen denemediği bir kombinasyona giriyoruz — sözleşme yüzeyi yukarıda kanıtlandı ama garanti SST'den gelmiyor.
+- **✅ Dilim B — SST 4'e geçildi (2026-08-07, KOD; hiçbir stage'e deploy EDİLMEDİ):** root `sst` `^3` → `^4` (kurulu **3.19.3 → 4.17.1**), `sst install` ile `.sst/platform` yenilendi (**@pulumi/aws 6.66.2 → 7.20.0**, @pulumi/pulumi 3.210 → 3.215).
+  - **Kod değişikliği GEREKMEDİ:** `infra/` + `sst.config.ts` v4 platformuna karşı **0 tip hatası**. Pulumi v7'nin kırıcı değişiklikleri tek tek tarandı: `tags`→`tagsAll` bizi etkilemiyor (7 yerde tag *yazıyoruz*, hiçbir yerde okumuyoruz), `assumeRole`→`assumeRoles` yok (provider config'imiz yok), S3 `BucketV2` birleşmesi SST'nin kendi component'inde, AMI/Worklink n/a. Doğrudan kullandığımız kaynaklar (`iam.Role`, `sfn.StateMachine`, `sns.Topic`/`TopicSubscription`, `cloudwatch.MetricAlarm`/`LogMetricFilter`, `cognito.UserGroup`, `lambda.Permission`) kırıcı listede yok.
+  - **Güvenlik kazancı:** high+critical **11 → 9**. `sst`, `opencontrol`, `@modelcontextprotocol/sdk`, `aws-sdk` (v2) ağaçtan **tamamen silindi** — P0.3'ten beri taşınan 4 CLI high'ı kapandı. Kalan `hono`/`js-yaml` artık SST'den değil `prisma`(@prisma/dev) ve `shadcn`/`eslint` zincirlerinden geliyor (dev-only). Lockfile churn: 3 eklendi / 28 silindi / 29 sürüm değişti — hepsi sst binary'leri + AWS SDK.
+  - **Runtime etkisi dar:** 15 backend Lambda'nın hepsi `runtime`'ı **açıkça** set ediyor (`nodejs22.x`; cognito postConfirmation hâlâ `nodejs20.x`), bu yüzden v4'ün yeni default'u (`nodejs24.x`) onları etkilemiyor. Değişen yalnız **4 frontend Lambda'sı**: server / image optimizer / revalidation seeder / subscriber → `nodejs20.x` → **`nodejs24.x`** (component içinde hardcoded, `infra/`'dan seçilemez). Frontend server sayfaları Prisma'yı doğrudan import ettiği için (`/hesabim`, auth) **Prisma 7.8.0'ın Node 24 altında koşması kubi'de kanıtlanmalı.** Ayrıca `function.ts` runtime union'ına `nodejs24.x` girdi → **P2.7'nin blokajı kalktı.**
+  - **🔴 PROD DEPLOY ÖNCESİ ASIL DİKKAT — RDS:** v3 ↔ v4 `postgres.ts` diff'i alındı (76 satır). v4, instance'a **üç yeni attribute** ekliyor: `applyImmediately: true`, `allowMajorVersionUpgrade: true`, **`autoMinorVersionUpgrade: false`**. Canlıda `AutoMinorVersionUpgrade` şu an **`true`** (AWS CLI ile doğrulandı) → diff bunu **değişecek** gösterecek. Üçü de **update-in-place**, replace DEĞİL. **Engine version default'u değişmedi** (v3 ve v4'te de `?? "17"`; canlı 17.9) → sürüm kaynaklı restart yok. **Ama `autoMinorVersionUpgrade: false` bir POLİTİKA değişikliğidir:** AWS artık Postgres minor yamalarını kendiliğinden uygulamaz, güvenlik yaması manuel işe döner. **Karar gerektirir** — istenirse `transform.instance` içinde `args.autoMinorVersionUpgrade = true` ile geri alınabilir. v4 ayrıca `blueGreen` seçeneği ekliyor (default `false`) ve component içinde `instance.tags` → `instance.tagsAll`'a geçmiş (Pulumi v7 uyumu).
+  - Doğrulama: **infra tsc 0 hata** ✅ backend tsc ✅ frontend tsc ✅ lint 0 error / 113 warning ✅ core 280 + functions 14 + frontend 146 test ✅ `next build` "Compiled successfully" ✅.
+  - **🔑 Beklenmeyen ZORUNLU adım — `sst refresh` (SST'nin kendi hata mesajından öğrenildi, migration rehberinde yoktu):** `sst dev --stage kubi` şu hatayla durdu: *"Detected AWS provider upgrade from v6 to v7 — A one-time state migration is required before you can deploy."* Sıra: `sst diff` → **`sst refresh`** (her stage için ayrı) → `sst deploy`. Refresh AWS'den okuyup **yerel state'i** yeniden yazar, buluttaki kaynakları değiştirmez.
+  - **kubi diff'inin ortaya çıkardığı ayrı gerçek:** çıktıda `Deleted Ceyhunlar-FrontendDevServer` + `Created Ceyhunlar-FrontendAssets/Cdn/KvStore/ServerCachePolicy` vardı → **kubi'ye frontend hiç tam deploy edilmemiş**, state dev placeholder'ıydı. Yani OpenNext 4.0.3 dilimi kubi'de hiç sınanmamış (o test `sst dev` altında OpenNext'i hiç çalıştırmaz). Boşluk **prod'da doğrudan kapatıldı**: `/_next/image` yerel görsellerde `/logos/ceyhunlar.png` → 200 (12,378 B), `/motto.png` → 200 (153,278 B), `/hakkimizda.jpg` → 200 (15,930 B). Ayrıca kubi Neon kullandığı için **kubi diff'i RDS hakkında hiçbir şey söylemiyor** (`aws:rds` geçen tek satır yok). kubi diff özeti: 459 Created / 1322 Updated / 222 Deleted, **`Replaced` 0**; geniş "Updated" kütlesi (217 iam:Role, 216 lambda:Function, 205+205 apigatewayv2) v6→v7 state migration'ının doğal sonucu.
+  - **✅ PROD'A DEPLOY EDİLDİ ve canlıdan doğrulandı (2026-08-07):** Frontend Lambda'larının dördü de **`nodejs24.x`** (AWS CLI ile teyit). RDS: `status: available`, engine **17.9 değişmedi**, `DeletionProtection: True` korundu, bekleyen değişiklik yok — **restart/replace olmadı**. Duman testi: `/` 200 · `/urunler/filtre` 200 (274 KB, TTFB 0.20 s) · `/urun-kategori/...` 200 · `/hesabim` 307 (anonim için doğru) · `/categories` ve `/product-attributes/with-values` 200.
+  - **↩️ `autoMinorVersionUpgrade` bilinçli olarak geri alındı (`true`):** Deploy sonrası canlıda `False` olduğu doğrulandı; [db.ts](infra/db.ts) `transform.instance`'a `args.autoMinorVersionUpgrade = true` eklendi. Gerekçe: `false`, Postgres minor yamalarının (17.9 → 17.10 …; yalnız hata/güvenlik düzeltmesi) **hiç uygulanmaması** demek ve bu projede CVE takip edip elle yükseltecek bir rutin yok → pratikte "hiç yamalanmaz". Bakım penceresi **Pazartesi 00:33-01:03 UTC (TR 03:33-04:03)**, B2B katalog için ölü saat; tek AZ olduğumuz için yamada birkaç dakika kesinti oluşur, kabul edildi. **Deploy gerektirir** (in-place attribute, replace/restart yok). Doğrulama: infra tsc 0 hata ✅.
+  - **P2.7 için kapı açıldı:** v4'ün `function.ts` runtime union'ında `nodejs24.x` var ve default'u o. 15 backend Lambda hâlâ açıkça `nodejs22.x` (cognito postConfirmation `nodejs20.x`) — Node 24'e taşıma artık ayrı bir dilim olarak yapılabilir.
+
+- **Dilim B (asıl P2.6, SST 4) — eski not, yukarıdaki uygulama notuyla kapandı:** artık prod-runtime güvenliği için bloklayıcı DEĞİL; geriye kalan gerekçe 4 CLI high'ı (`sst`/`opencontrol`/`hono`/`@modelcontextprotocol/sdk`) + P2.7'yi (Node 24) açması + SST'nin destek ömrü. **Bilinçli risk kaydı:** SST'nin test ettiği eşleşme 3.9.14; 4.0.3'e geçmekle SST'nin resmen denemediği bir kombinasyona giriyoruz — sözleşme yüzeyi yukarıda kanıtlandı ama garanti SST'den gelmiyor.
 
 **P2.7 — Node 22 → 24 LTS geçişi** · kapsam: orta · **⛔ BLOKE — P2.6 (SST 4) sonrasına ertelendi (2026-07-17)**
 - **Bloke gerekçesi (2026-07-17 kod incelemesi, "izole adım" varsayımı YANLIŞ çıktı):** (1) `nodejs24.x` SST 3.19.3'ün runtime union'ında **yok** — [.sst/platform/src/components/aws/function.ts:356-366](.sst/platform/src/components/aws/function.ts) yalnız `nodejs18.x|nodejs20.x|nodejs22.x|go|rust|provided.al2023|python3.9-3.12` kabul ediyor; `runtime: "nodejs24.x"` infra'da tip hatası verir (Pulumi `transform` ile union by-pass edilebilir ama 15 çağrı noktasında hack olur — bilinçli reddedildi). (2) Frontend Next.js Lambda'larının runtime'ı **SST'nin Nextjs component'i içinde `nodejs20.x` olarak hardcoded** ([nextjs.ts:679, 762, 899, 984](.sst/platform/src/components/aws/nextjs.ts): server, image optimizer, revalidation, warmer) → `infra/frontend.ts`'ten değiştirilemiyor. **Bulgu: prod frontend server bugün Node 20'de çalışıyor, 22'de değil.** Dolayısıyla P2.7 ancak P2.6 (SST 4) tamamlandıktan sonra ele alınabilir.
@@ -2187,7 +2199,7 @@ kullanılmalı.
 
 **İki ayrı kök neden:**
 1. **Latin-parça tuzağı.** `slugify(strict)` Hangul/Kana/Han/Devanagari'yi tamamen eler; ad içinde gömülü Latin/rakam varsa slug YALNIZ o parçaya çöker (`PVC 모서리 세척기` → `pvc`). Farklı değerler aynı parçaya düşünce `@@unique([locale, slug])` çakışır. [translationSlug.ts](packages/core/src/core/i18n/translationSlug.ts)'in kendi yorumu bunu birebir tarif ediyordu (*"çakışma mıknatısıdır"*) ama kod yalnız slug BOŞ olduğunda varsayılan dile düşüyordu — gerekçe uygulanmamıştı.
-2. **Veri sorunu (çeviriyle ilgisiz):** 3 çift `usage_area` kaydı TR adları yalnız **çift boşlukla** ayrışıyor (`Teknik Hırdavat` / `Teknik␣␣Hırdavat`) → slugify boşlukları birleştirince aynı slug. **Her dilde ve public filtrede çift görünüyorlar — admin'de birleştirilmeli (AÇIK İŞ).**
+2. **Veri sorunu (çeviriyle ilgisiz):** 3 çift `usage_area` kaydı TR adları yalnız **çift boşlukla** ayrışıyor (`Teknik Hırdavat` / `Teknik␣␣Hırdavat`) → slugify boşlukları birleştirince aynı slug. ~~admin'de birleştirilmeli~~ → **BU TEŞHİS YANLIŞTI, aşağıda düzeltildi:** kayıtlar **birleştirilmemeli**, farklı üstlere bağlı meşru girdiler. Bkz. [usage_area "ikizleri" — birleştirme değil, şema kısıtı sorunu (2026-08-07)](#usage_area-ikizleri--birleştirme-değil-şema-kısıtı-sorunu-2026-08-07).
 
 **Kalıcı çözüm:** `buildTranslationSlug`'a `{ derivedFromName }` seçeneği eklendi; addan türetimde "yozlaşma" sınanıyor — adın Latin-dışı HARF/RAKAM artığı slugify'da boşa düşüyorsa slug üretilmez, çağıran dokümante edilmiş varsayılan-dil fallback'ine düşer. **Locale listesi (ko/ja/zh/hi) hardcode EDİLMEDİ**, yazı sistemi ampirik sınanır → yeni dil kendiliğinden doğru davranır. Admin'in AÇIKÇA girdiği slug bu kontrole girmez (sessizce atılmaz). Üç çağrı noktası (product/category/attribute normalizer'ları) açık-slug vs addan-türetim ayrımına geçirildi. **14 regresyon testi** eklendi (280 core testi) — ilk implementasyonumdaki gerçek bir hatayı yakaladılar: noktalama artığı elenmeyince `Bakelit-Griffe` gibi saf Latin adlar yanlışlıkla yozlaşmış sayılıyordu.
 
@@ -2368,6 +2380,18 @@ düştü) ✅ 146 test ✅ `next build` "Compiled successfully" ✅.
 ürün listesi etkilenmez — hepsi zaten client'taydı. **Link önizlemesi (og:title) bu bileşenin işi
 DEĞİL**, `generateMetadata`'nın işi; parametreli varyantlar için özel önizleme istenirse ayrı iş.
 
+**✅ Prod'da doğrulandı (2026-08-07) — statiklik kanıtlandı:**
+
+| Ölçüm | Dilim öncesi | Şimdi |
+|---|---|---|
+| Render modu | dynamic · `cache-control: private, no-cache, no-store` · her istekte `x-cache: Miss` | **ISR** · `x-nextjs-prerender: 1` · `x-nextjs-cache: HIT` · `s-maxage=14, swr=2592000` · ardışık isteklerde **`x-cache: Hit from cloudfront` (`age: 22`)** |
+| TTFB | 0.26–0.37 s (her ziyaret Lambda) | **0.057–0.100 s** (~4-5 kat) |
+| HTML (usage_area dilimi dahil toplam yol) | 1,080,252 B | **274,230 B (−74.6%)** |
+
+`/urunler/filtre` ve `/urunler/filtre?category=bakalit-tutamaklar` **birebir aynı HTML'i**
+alıyor (h1 = "Sektörel Ürünler") → tek prerender kopyası servis ediliyor, başlık client'ta
+oturuyor. Tasarlandığı gibi.
+
 **Bilinçli YAPILMAYAN — backend ayrıştırması:** `with-values`'tan usage_area'yı büsbütün çıkarıp
 ayrı bir endpoint'e almak, paylaşılan cache girdisini 737 KB → ~190 KB'ye indirirdi. Yapılmadı
 çünkü A+B sonrası **hiçbir public yüzey usage_area'yı eager göndermiyor**; kalan maliyet yalnız
@@ -2377,6 +2401,43 @@ route'un yeniden kablolanması bu kazanç için orantısız. İhtiyaç doğarsa 
 **Yan not (sorun değil):** Yalnız `accept-encoding: br` gönderildiğinde bu endpoint 500 dönüyor
 — API Gateway gzip/deflate destekliyor, brotli desteklemiyor. Gerçek tarayıcılar her zaman
 gzip'i de sunduğu için canlıda etkisi yok.
+
+## usage_area "ikizleri" — birleştirme değil, şema kısıtı sorunu (2026-08-07)
+
+**Önceki kaydım yanlıştı.** "3 çift `usage_area` kaydı çift boşlukla ayrışıyor, admin'de
+birleştirilmeli" diye not düşmüştüm. Canlı veriye bakınca **birleştirilmemeleri gerektiği**
+ortaya çıktı — üst kayıtları farklı, yani ikisi de meşru:
+
+| Ad (tr) | Üst `production_group` | Üst sektör |
+|---|---|---|
+| `Medikal Test Aksesuarları` | Test ve Ölçüm Aletleri | Analiz, Test ve Ölçüm Teknolojileri |
+| `Medikal␣␣Test Aksesuarları` | Laboratuvar Ekipmanları | Test ve Laboratuvar Teknolojileri |
+| `Ortopedik Aşınma Simülatörleri` | Test ve Ölçüm Aletleri | Analiz, Test ve Ölçüm Teknolojileri |
+| `Ortopedik Aşınma␣␣Simülatörleri` | Laboratuvar Ekipmanları | Test ve Laboratuvar Teknolojileri |
+| `Teknik Hırdavat` | Toptan & Perakende Ürün Sektörü | Ticari Faaliyet Grupları |
+| `Teknik␣␣Hırdavat` | Toptancı Bayiler | Ticari Faaliyet Grupları |
+
+**Kök neden — şema:** [schema.prisma](packages/core/prisma/schema.prisma) `ProductAttributeValue`
+üzerinde `@@unique([attributeId, name])` var; yani bir `usage_area` adı **tüm attribute
+genelinde** benzersiz olmak zorunda. Oysa taksonomi hiyerarşik: aynı kullanım alanı adı iki
+farklı üretim grubunun altında meşru şekilde bulunabiliyor. Veri girişi bunu **çift boşlukla**
+aşmış. Aynı baskı çeviri tablosunda da var: `ProductAttributeValueTranslation`
+`@@unique([attributeId, locale, slug])`.
+
+**Sorun sanılandan geniş — workaround diller arasında TUTARSIZ:**
+
+| Dil | Durum |
+|---|---|
+| tr | çift boşluk (`Teknik␣␣Hırdavat`) |
+| en | **iki kayıt da birebir aynı** (`Technical Hardware` / `Technical Hardware`) → kullanıcı filtrede ayırt edemiyor |
+| de | ` 2` soneki (`Zubehör für medizinische Tests 2`) — ve `Teknik` çiftinde sonek **yanlış kayda** düşmüş (A'da, B'de değil) |
+
+**Önerilen çözüm (ONAY BEKLİYOR — migration gerektirir):** kısıtı ebeveyne göre daralt →
+`@@unique([attributeId, parentValueId, name])`, ardından 3 TR adındaki çift boşluğu ve DE'deki
+` 2` soneklerini temizle. **Dürüst uyarı:** PostgreSQL `NULL`'ları unique kısıtta ayrık sayar,
+bu yüzden kök seviyedeki (parentValueId = NULL) adlar DB tarafından korunmaz — oraya uygulama
+seviyesinde kontrol gerekir. Alternatif olarak kısıt olduğu gibi bırakılıp yalnız görünen adlar
+düzeltilebilir, ama o zaman workaround'a devam edilmiş olur.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

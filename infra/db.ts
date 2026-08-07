@@ -54,6 +54,16 @@ const prodRds = isProd
         // aynı adlı snapshot varsa silme sırasında yeniden adlandırılır).
         args.skipFinalSnapshot = false;
         args.finalSnapshotIdentifier = "ceyhunlarweb-prod-mypostgres-final";
+        // (3) SST 4 bunu `false`'a çekiyor (postgres.ts, v3'te yoktu). Bilinçli
+        // olarak GERİ ALINDI: `false`, Postgres minor yamalarının (17.9 → 17.10 …
+        // yalnız hata/güvenlik düzeltmesi, şema veya API kırılması yok) hiç
+        // uygulanmaması demek. Bu projede CVE takip edip elle yükseltecek bir
+        // rutin yok → pratikte "hiç yamalanmaz"a dönerdi. Bakım penceresi
+        // Pazartesi 00:33-01:03 UTC (TR 03:33-04:03), B2B katalog için ölü saat;
+        // tek AZ olduğumuz için yamada birkaç dakika kesinti olur, kabul edildi.
+        // Not: SST 4 ayrıca `applyImmediately: true` ekliyor — ileride sürüm ELLE
+        // değiştirilirse pencere beklenmez, anında uygulanır.
+        args.autoMinorVersionUpgrade = true;
       },
     },
   })
