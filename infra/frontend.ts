@@ -22,6 +22,13 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
   vpc,
   link: [rds],
+
+  // SST 3.19.3'ün default'u 3.9.14 (SST 4.17.1'de de aynı — yükseltmek bunu
+  // değiştirmez). 3.9.14 `fetchInternalImage`'i sabit 4 argümanla çağırıyor;
+  // Next 16.2.5+ araya `maximumResponseBody` ekledi → yerel public görseller
+  // /_next/image üzerinden 500 veriyordu. 4.0.3 arite'yi sürüme göre seçiyor.
+  // Bu satır kalkarsa `next` pin'i geri gelmeli.
+  openNextVersion: "4.0.3",
   /*   server: {
       memory: "2048 MB",
       timeout: "30 seconds",
@@ -37,6 +44,13 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   // link: [publicBucket],
 
   environment: {
+    // BUILD-TIME değişken (SST `environment`'ı build komutuna da enjekte eder —
+    // base-ssr-site.ts runBuild). OpenNext, image optimizer bundle'ına kendi
+    // sharp'ını kurar ve default'u `0.32.6`'dır; yani prod'daki sharp
+    // lockfile'daki sharp DEĞİLDİR ve `next` yükseltmesi ona dokunmaz.
+    // 0.35.3 = libvips CVE-2026-33327/33328/35590/35591 düzeltmesi.
+    // Node ≥20.9 ister; optimizer nodejs20.x → uyumlu.
+    SHARP_VERSION: "0.35.3",
     STAGE: $app.stage,
     DOMAIN: config.DOMAIN,
     REGION: config.AWS_REGION,
