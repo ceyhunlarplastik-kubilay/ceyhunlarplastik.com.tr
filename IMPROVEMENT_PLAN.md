@@ -191,7 +191,7 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - **✅ Dilim A uygulandı (2026-08-06) — SST 3'te kalarak 3 prod-runtime high kapatıldı (DEPLOY EDİLMEDİ):** [frontend.ts](infra/frontend.ts) `openNextVersion: "4.0.3"` + `environment.SHARP_VERSION: "0.35.3"` (libvips CVE-2026-33327/33328/35590/35591; Node ≥20.9 ister, optimizer nodejs20.x → uyumlu); [frontend/package.json](packages/frontend/package.json) `next` `16.2.4` → `^16.3.0`; root [package.json](package.json)'daki `overrides.next` kaldırıldı. **Lockfile cerrahi kaldı** (`next` pin dersi): 42 girdi — 2 eklendi (sharp'ın yeni wasm hedefleri), 1 silindi (next'in nested postcss 8.4.31'i), 39 sürüm değişti; hepsi next/sharp/postcss ailesi + doğrudan transitive'leri (nanoid, semver, @emnapi/runtime). AWS SDK vb. hiçbir alakasız paket oynamadı. Sonuç: `next` + `postcss` (8.4.31→8.5.23) + `sharp` (0.34.5→0.35.3) high listesinden **düştü**; high/critical 14 → 11. Doğrulama: frontend tsc ✅ backend tsc ✅ `infra/frontend.ts` root tsc'de 0 hata (`openNextVersion` geçerli arg) ✅ lint 0 error / 114 warning ✅ core 280 + functions 14 + frontend 146 test ✅ `next build` **"Compiled successfully" (Next.js 16.3.0)** ✅.
 - **⚠️ Dilim A'nın doğrulaması `sst dev` ile YAPILAMAZ:** [ssr-site.ts](.sst/platform/src/components/aws/ssr-site.ts) dev modunda (`$dev && args.dev !== false`) erken `return` ediyor — `buildApp` çağrılmıyor, OpenNext hiç koşmuyor, image optimizer Lambda'sı hiç yaratılmıyor. Bu dilimi görmek için **`npx sst deploy --stage kubi`** gerekir. Kubi'de ölçülecek: (1) `/logos/...` gibi bir **yerel** görselin `/_next/image?url=...` üzerinden **200** dönmesi (asıl soru), (2) `cdn.` üzerinden gelen **uzak** görselin bozulmamış olması, (3) ISR/sayfa gezinme + admin/portal duman testi (next 16.2.4→16.3.0 minor). **Geri dönüş tek satır** (`openNextVersion` + pin geri).
 - **✅ kubi doğrulaması geçti + prod diff incelendi (2026-08-07):** Kullanıcı kubi'ye deploy etti, görseller açılıyor — `fetchInternalImage` regresyonu kapandı. `sst diff --stage prod` çıktısı (5211 satır) analiz edildi: build **Next.js 16.3.0 / OpenNext v4.0.3** ile koştu, `SHARP_VERSION = 0.35.3` hem Builder command'ına hem server Lambda env'ine geçti. **Değişiklik profili: 46 Created / 32 Updated / 46 Deleted, hiç `Replaced` YOK.** Dağılım: 44+44 `s3:BucketObjectv2` (yeni Lambda bundle+sourcemap'leri eskilerin yerine), **24 `lambda:Function` update (yalnız `s3Key` = kod)**, 1 Nextjs Builder command, 1 RevalidationSeed invocation, BucketFiles + DistributionInvalidation. **Hiçbir altyapı kaynağı (RDS, VPC, ApiGateway, Cognito, CloudFront) diff'te yok.** 24 backend Lambda'nın güncellenmesi bu dilimden değil — bekleyen i18n/slug commit'leri `packages/core`'a dokunduğu için tüm Lambda bundle'ları yenilendi.
-- **🔎 Diff'te ortaya çıkan AYRI sorun (bu dilimden değil, kendi işi olmalı):** Build logunda **211 kez** `Failed to set Next.js data cache for unstable_cache ... items over 2MB can not be cached (~4.8 MB)`. Kaynak [getCategories.ts](packages/frontend/features/public/categories/server/getCategories.ts) → `GET /categories?limit=500`, `unstable_cache(..., { revalidate: 60 })`. Normalize edilmiş `Category[]` **~4.8 MB** olduğu için Next'in 2 MB data-cache tavanını aşıyor → **cache HİÇ yazılmıyor**. Bu fetch [(public)/layout.tsx](packages/frontend/app/[locale]/(public)/layout.tsx) içinde, yani **her public sayfa, her locale** (14 dil × 15 sayfa = 211 uyarı) her render'da 4.8 MB'lık taze bir API round-trip'i yapıyor. `page-performance` skill'indeki "paylaşılan layout'ta şişkin DTO" deseninin ders kitabı örneği. Çözüm yönü: navbar'ın gerçekten ihtiyaç duyduğu alanlara daralan bir liste yanıtı (id/slug/name/parent/sıra) — muhtemelen backend'de ayrı bir `?fields=nav` benzeri dar kontrat. **Ölçülmeli, sonra dilimlenmeli.**
+- **🔎 Diff'te ortaya çıkan AYRI sorun → ✅ ölçüldü ve çözüldü:** Build logundaki 211 adet `items over 2MB can not be cached` uyarısı. **Buradaki ilk teşhisim (`getCategories`) YANLIŞTI** — ölçüm suçlunun `/product-attributes/with-values` olduğunu gösterdi (`/categories` yalnız 98 KB). Tam analiz ve çözüm: [Public attribute payload'ı — 2MB data-cache tavanını aşan `translations` yükü (2026-08-07)](#public-attribute-payloadı--2mb-data-cache-tavanını-aşan-translations-yükü-2026-08-07).
 - **Dilim B (asıl P2.6, SST 4) hâlâ açık:** artık prod-runtime güvenliği için bloklayıcı DEĞİL; geriye kalan gerekçe 4 CLI high'ı (`sst`/`opencontrol`/`hono`/`@modelcontextprotocol/sdk`) + P2.7'yi (Node 24) açması + SST'nin destek ömrü. **Bilinçli risk kaydı:** SST'nin test ettiği eşleşme 3.9.14; 4.0.3'e geçmekle SST'nin resmen denemediği bir kombinasyona giriyoruz — sözleşme yüzeyi yukarıda kanıtlandı ama garanti SST'den gelmiyor.
 
 **P2.7 — Node 22 → 24 LTS geçişi** · kapsam: orta · **⛔ BLOKE — P2.6 (SST 4) sonrasına ertelendi (2026-07-17)**
@@ -2194,6 +2194,86 @@ kullanılmalı.
 **⚠️ Doğrulamada çıkan asıl bulgu — prod'da bozuk slug'lar var:** Yeni kod ko'da **50**, ja'da **35** slug'ı düzeltiyor; oysa apply'ı düşüren yalnız 18/12 taneydi. Aradaki fark **yozlaşmış ama ÇAKIŞMAYAN** slug'lar: `2`, `3`, `4`, `c`, `d`, `tpe`… Bunlar benzersiz oldukları için kontrolden geçip **prod'a uygulandılar** (ko ve ja apply edildi). Anlamsız URL üretiyorlar (`?usage_area=2`) ve ileride gerçek bir değerle çakışma riski taşıyorlar. **Temizlik için ko+ja yeniden generate+apply edilmeli** (DeepL ~22K karakter/dil; kota bolca yeterliydi). `zh`/`hi` artık baştan temiz çıkacak.
 
 **Ara çözüm olarak elle düzeltilen taslaklar:** ko ve ja draft'larındaki çakışan slug'lar projenin kendi `buildTranslationSlug`'ıyla TR adından yeniden üretilip yazıldı (yedekler `*.before-slug-fix`); fingerprint/entries/header korundu. Kod düzeltmesi sonrası bu elle müdahale gereksizleşti.
+
+## Public attribute payload'ı — 2MB data-cache tavanını aşan `translations` yükü (2026-08-07)
+
+**Nasıl bulundu:** P2.6-A prod diff'inin build logunda 211 kez
+`Failed to set Next.js data cache for unstable_cache ..., items over 2MB can not be cached (~4.8 MB)`.
+
+**İlk teşhisim YANLIŞTI ve düzeltildi.** Uyarıyı `getCategories`'e bağlamıştım — layout'u
+okuyup çıkarım yapmıştım, ölçmemiştim. Canlı ölçüm: `/categories?locale=tr&limit=500` yalnız
+**98 KB**. Suçlu [getAttributesForFilter.ts](packages/frontend/features/public/productAttributes/server/getAttributesForFilter.ts)
+→ `GET /product-attributes/with-values` = **4.45 MB** (gzip 979 KB). **Ders: kök nedeni
+tahmin etme, ölç — skill'in altın kuralı tam olarak burada işledi.**
+
+**Ölçülen bileşim** (1087 value, `locale=tr`): `translations` **3,367,340 B = %71.6** ·
+`alternateSlugs` 498,497 B = %10.6 · `assets` %6.7 · geri kalan her şey %11.1.
+Attribute bazında `usage_area` tek başına **%74.6** (805 value).
+
+**Kök neden:** [repository.ts](packages/core/src/core/helpers/prisma/productAttributes/repository.ts)
+`listAttributesForFilter` lokalizasyon için 14 dilin çeviri satırlarını çekiyor,
+`localizeProductAttribute` bunları `name`/`slug`/`resolvedLocale`'e çözüyor — **ama ham
+`translations` dizisi yanıtta kalıyor.** Sonuç 4.70 MB > Next'in 2 MB data-cache tavanı →
+`unstable_cache` **hiç yazılmıyor**. Bu fetch [(public)/layout.tsx](packages/frontend/app/[locale]/(public)/layout.tsx)
+Navbar'ında olduğu için **her public sayfa × her dil × her render** 4.45 MB'lık taze upstream
+fetch yapıyordu; ayrıca `/musteri/tum-urunler` ve iki `defined-products` paneli bu tam nesneyi
+client component'e prop olarak geçiyor (CLAUDE.md flight-payload tuzağı).
+
+**Tüketici analizi (değişikliğin güvenli olmasının sebebi):** Public tarafta `translations`'ı
+okuyan yok; attribute `alternateSlugs`'ını okuyan da yok (kategori/ürün alternateSlugs'ları
+ayrı ve hreflang'de kullanılıyor). Ham çevirileri okuyan tek yüzey admin attribute yönetimi ve
+o **ayrı bir modül**: `features/admin/productAttributes` → `NEXT_PUBLIC_ADMIN_API_URL`.
+[slimCategoryFilterAttributes.ts](packages/frontend/features/public/productAttributes/utils/slimCategoryFilterAttributes.ts)
+zaten `delete slimValue.translations // en büyük ölü yük` diyordu — ama 4.7 MB tel üzerinden
+geçip cache'i düşürdükten SONRA.
+
+**✅ Uygulandı (tek dilim, iki parça):**
+- **(a) Backend:** `listAttributesForFilter(locale, { includeTranslations })` — varsayılan
+  `true` (AdminApi davranışı **değişmedi**). `false` iken (1) çeviri satırları DB'de de
+  `{ locale: { in: [locale, DEFAULT_LOCALE] } }` ile daraltılır — lokalizasyonun ihtiyaç
+  duyduğu tek şey bu ikisidir, (2) lokalizasyondan sonra `translations` + `alternateSlugs`
+  yanıttan çıkarılır. Public handler bu seçeneği geçiyor. Response validator'da her iki alan
+  zaten `.optional()` olduğu için sözleşme kırılmıyor (kontrol edildi, varsayılmadı).
+- **(b) Frontend:** `fetchAttributesForFilter` aynı alanları `unstable_cache`'e YAZMADAN önce
+  ayıklar (`stripLocalizationSource`). Backend deploy sırasından bağımsız çalışır ve eski bir
+  yanıt geldiğinde de korur. Repo idiomuna uyuldu (`slimCategoryFilterAttributes` gibi shallow
+  copy + `delete`; destructure-and-discard 3 lint warning ekliyordu, geri alındı).
+
+**Ölçüm (gerçek prod payload'u üzerinde simüle edildi):** 4,703,820 B → **774,495 B**
+(**%83.5 düşüş**), 2 MB tavanının **altında** → cache artık yazılabilir. Beklenen etki: her
+render'da 4.45 MB fetch → **60 saniyede bir**; panel sayfalarının RSC flight payload'u da düşer.
+
+**Doğrulama:** backend tsc ✅ frontend tsc ✅ lint 0 error / 114 warning (taban) ✅
+core 280 + functions 14 + frontend 146 test ✅ `next build` "Compiled successfully" ✅.
+**✅ Prod'a deploy edildi ve canlıdan ölçüldü (2026-08-07):**
+
+| Ölçüm | Önce | Sonra | Değişim |
+|---|---|---|---|
+| `/product-attributes/with-values?locale=tr` | 4,449,701 B | **736,871 B** | **−83.4%** |
+| aynısı gzip'li | 979,813 B | **114,725 B** | **−88.3%** |
+| TTFB tr / en / de | 1.35 / 1.06 / 1.09 s | **1.07 / 0.79 / 0.72 s** | ~−20…30% |
+
+**Doğruluk kontrolü (tr/en/de yanıtları indirilip sayıldı):** kalan `translations` = **0**
+(attribute ve value), kalan `alternateSlugs` = **0**, attribute **9** / value **1087**
+(hiçbir kayıt kaybolmadı), `translationMissing` = **0** → DB'de çeviri satırlarını daraltmak
+lokalizasyonu bozmadı; `name`/`slug`/`resolvedLocale` üç dilde de doğru çözülüyor
+(`Analiz, Test ve Ölçüm Teknolojileri` / `Analysis, Testing and Measurement Technologies` /
+`Analyse-, Prüf- und Messtechnologien`). Ana sayfa ISR korundu (`x-cache: Hit from cloudfront`,
+sıcak TTFB **0.068 s**). `/urunler/filtre` tr ve en'de 200 ve filtre adları yerelleştirilmiş
+geliyor. **Kesin kanıt bir sonraki build'de:** logda "items over 2MB" uyarısı hiç çıkmamalı.
+
+**Test eklenmedi — gerekçe:** Bu değişikliğin riski strip fonksiyonunun doğruluğu değil
+(önemsiz), "bir tüketici o alanlara ihtiyaç duyuyor muydu" sorusu; onu unit test yakalamaz,
+tüketici grep'i + runtime regresyon listesi yakalar. Repository tarafı Prisma'ya bağlı.
+
+**Sonraya bırakılan (ölçülmüş, ayrı dilim):** `usage_area` payload'un **%74.6'sı** ve public
+layout'ta hiç gerekmiyor — zaten [/api/assistant/usage-areas](packages/frontend/app/api/assistant/usage-areas/route.ts)
+lazy route'u var. `with-values`'tan tamamen çıkarmak bir kat daha kazandırır, ama kategori
+sayfası filtre sidebar'ı ve `getIndustrialFilterAttributes` onu kullanıyor → ayrı ölçüm gerekir.
+
+**Yan not (sorun değil):** Yalnız `accept-encoding: br` gönderildiğinde bu endpoint 500 dönüyor
+— API Gateway gzip/deflate destekliyor, brotli desteklemiyor. Gerçek tarayıcılar her zaman
+gzip'i de sunduğu için canlıda etkisi yok.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

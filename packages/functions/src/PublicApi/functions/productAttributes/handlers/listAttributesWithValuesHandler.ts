@@ -12,7 +12,13 @@ export const listAttributesWithValuesHandler = ({
     return async (event: IListAttributesWithValuesEvent) => {
         try {
             const locale = getSupportedLocale(event.queryStringParameters?.locale)
-            const data = await productAttributeRepository.listAttributesForFilter(locale)
+            // Public yüzey ham çevirileri OKUMUYOR (isim/slug zaten burada çözülüyor)
+            // ama onlar payload'un %71.6'sıydı ve 2 MB'lık Next data-cache tavanını
+            // aşırıp public layout'un cache'ini tamamen devre dışı bırakıyordu.
+            // AdminApi'nin aynı route'u varsayılan (tam) davranışta kalır.
+            const data = await productAttributeRepository.listAttributesForFilter(locale, {
+                includeTranslations: false,
+            })
 
             return apiResponseDTO({
                 statusCode: 200,

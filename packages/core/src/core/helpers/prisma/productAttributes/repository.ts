@@ -16,6 +16,11 @@ import {
     type LocalizedProductAttribute,
 } from "@/core/helpers/productAttributes/localizeProductAttribute"
 
+/**
+ * `translations` ve `alternateSlugs` OPSİYONELDİR — `listAttributesForFilter`
+ * `includeTranslations: false` ile çağrıldığında yanıtta hiç bulunmazlar.
+ * Bkz. o metodun üstündeki not.
+ */
 type ProductAttributeForFilter = {
     id: string
     code: string
@@ -23,7 +28,7 @@ type ProductAttributeForFilter = {
     locale: SupportedLocale
     resolvedLocale: string
     translationMissing: boolean
-    translations: {
+    translations?: {
         id: string
         locale: string
         name: string
@@ -38,8 +43,8 @@ type ProductAttributeForFilter = {
         locale: SupportedLocale
         resolvedLocale: string
         translationMissing: boolean
-        alternateSlugs: Record<string, string>
-        translations: {
+        alternateSlugs?: Record<string, string>
+        translations?: {
             id: string
             locale: string
             name: string
@@ -57,6 +62,14 @@ type ProductAttributeForFilter = {
             url: string
         }[]
     }[]
+}
+
+export type ListAttributesForFilterOptions = {
+    /**
+     * Ham çeviri satırları (+ value'ların `alternateSlugs`'ı) yanıta dahil edilsin mi?
+     * Varsayılan `true` = mevcut davranış (AdminApi yönetim yüzeyleri buna güveniyor).
+     */
+    includeTranslations?: boolean
 }
 
 const productAttributeInclude = {
@@ -80,7 +93,10 @@ export interface IPrismaProductAttributeRepository {
         }
     }>
     listAttributesWithValues(locale?: SupportedLocale): Promise<any[]>
-    listAttributesForFilter(locale?: SupportedLocale): Promise<ProductAttributeForFilter[]>
+    listAttributesForFilter(
+        locale?: SupportedLocale,
+        options?: ListAttributesForFilterOptions,
+    ): Promise<ProductAttributeForFilter[]>
     getProductAttribute(id: string, locale?: SupportedLocale): Promise<LocalizedProductAttribute<ProductAttributeWithTranslations>>
     createProductAttribute(data: Prisma.ProductAttributeCreateInput): Promise<LocalizedProductAttribute<ProductAttributeWithTranslations>>
     updateProductAttribute(id: string, data: Prisma.ProductAttributeUpdateInput): Promise<LocalizedProductAttribute<ProductAttributeWithTranslations>>
@@ -196,8 +212,34 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
         }, locale))
     }
 
-    const listAttributesForFilter = async (requestedLocale?: SupportedLocale) => {
+    /**
+     * PERFORMANS NOTU (2026-08-07, ölçülerek eklendi): Bu metodun tam yanıtı
+     * `locale=tr` için **4.45 MB**'tı ve bunun **%71.6'sı ham `translations`**,
+     * %10.6'sı `alternateSlugs` idi — hâlbuki lokalizasyon zaten sunucuda yapılıp
+     * `name`/`slug`/`resolvedLocale` alanlarına yazılıyor. Public tarafta bu iki
+     * alanı okuyan hiçbir tüketici yok; buna karşılık boyut, Next'in 2 MB
+     * data-cache tavanını aştığı için public layout'un `unstable_cache`'i HİÇ
+     * yazılamıyordu (her sayfa, her dil, her render'da 4.45 MB taze fetch).
+     *
+     * `includeTranslations: false` ile:
+     *   - çeviri satırları DB'de de yalnız istenen dil + varsayılan dile daraltılır
+     *     (lokalizasyon için gereken tek şey bu ikisidir — bkz. localizeProductAttribute),
+     *   - lokalizasyondan SONRA `translations` ve `alternateSlugs` yanıttan çıkarılır.
+     * Ölçülen: ~4.45 MB → ~0.8 MB.
+     *
+     * Varsayılan `true`'dur: AdminApi `GET /product-attributes/with-values` aynı
+     * metodu kullanıyor ve attribute yönetim ekranları ham çevirileri düzenliyor.
+     */
+    const listAttributesForFilter = async (
+        requestedLocale?: SupportedLocale,
+        options?: ListAttributesForFilterOptions,
+    ) => {
         const locale = getSupportedLocale(requestedLocale)
+        const includeTranslations = options?.includeTranslations ?? true
+        // Lokalizasyon yalnız istenen dil + DEFAULT_LOCALE satırlarına bakar.
+        const translationsWhere = includeTranslations
+            ? undefined
+            : { locale: { in: [...new Set([locale, DEFAULT_LOCALE])] } }
         const attributes = await prisma.productAttribute.findMany({
             where: { isActive: true },
             select: {
@@ -209,6 +251,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                 createdAt: true,
                 updatedAt: true,
                 translations: {
+                    where: translationsWhere,
                     orderBy: { locale: "asc" },
                     select: {
                         id: true,
@@ -231,6 +274,7 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
                         createdAt: true,
                         updatedAt: true,
                         translations: {
+                            where: translationsWhere,
                             orderBy: { locale: "asc" },
                             select: {
                                 id: true,
@@ -259,17 +303,35 @@ export const productAttributeRepository = (): IPrismaProductAttributeRepository 
             orderBy: { displayOrder: "asc" }
         })
 
-        return attributes.map((attribute) => ({
-            ...localizeAttribute(attribute, locale),
-            isCustomerAssignable: getEffectiveCustomerAssignable(attribute),
-            values: attribute.values.map((value) => ({
-                ...localizeProductAttributeValue(value, locale),
-                assets: value.assets.map((asset) => ({
-                    ...asset,
-                    url: buildAssetUrl(asset.key),
-                })),
-            })),
-        }))
+        return attributes.map((attribute) => {
+            // Lokalizasyon çevirileri OKUR; aşağıda yalnız yanıttan çıkarılırlar.
+            const { translations: attributeTranslations, ...localizedAttribute } =
+                localizeAttribute(attribute, locale)
+
+            return {
+                ...localizedAttribute,
+                ...(includeTranslations ? { translations: attributeTranslations } : {}),
+                isCustomerAssignable: getEffectiveCustomerAssignable(attribute),
+                values: attribute.values.map((value) => {
+                    const {
+                        translations: valueTranslations,
+                        alternateSlugs,
+                        ...localizedValue
+                    } = localizeProductAttributeValue(value, locale)
+
+                    return {
+                        ...localizedValue,
+                        ...(includeTranslations
+                            ? { translations: valueTranslations, alternateSlugs }
+                            : {}),
+                        assets: value.assets.map((asset) => ({
+                            ...asset,
+                            url: buildAssetUrl(asset.key),
+                        })),
+                    }
+                }),
+            }
+        })
     }
 
     const getProductAttribute = async (

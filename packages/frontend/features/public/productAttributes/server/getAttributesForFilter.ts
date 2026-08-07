@@ -44,6 +44,32 @@ function sortValuesByName(values: NonNullable<ProductAttribute["values"]>, local
     return [...values].sort((a, b) => collator.compare(a.name, b.name))
 }
 
+/**
+ * Ham çeviri satırlarını at. Backend (PublicApi) artık bunları hiç göndermiyor;
+ * bu ikinci savunma hattı, backend deploy'undan BAĞIMSIZ olarak cache'lenen
+ * değerin küçük kalmasını garanti eder ve eski bir yanıt geldiğinde de korur.
+ *
+ * NEDEN ÖNEMLİ: `unstable_cache` 2 MB'tan büyük bir değeri sessizce YAZMAZ.
+ * Ölçüm (2026-08-07): yanıt 4.45 MB, %71.6'sı `translations` + %10.6'sı
+ * `alternateSlugs` → cache hiç yazılamıyor, bu fetch public layout'ta olduğu için
+ * her sayfa/her dil/her render'da baştan koşuyordu. İkisi de public tarafta
+ * OKUNMUYOR (isim/slug sunucuda çözülüp `name`/`slug`'a yazılıyor; attribute
+ * `alternateSlugs`'ını okuyan hiçbir yüzey yok — kategori/ürün'ünkiler ayrı).
+ */
+function stripLocalizationSource(attribute: ProductAttribute): ProductAttribute {
+    const slim = { ...attribute }
+    delete slim.translations
+
+    slim.values = attribute.values?.map((value) => {
+        const slimValue = { ...value }
+        delete slimValue.translations
+        delete slimValue.alternateSlugs
+        return slimValue
+    })
+
+    return slim
+}
+
 async function fetchAttributesForFilter(locale = "tr"): Promise<ProductAttribute[]> {
     try {
         const res = await publicServerClient().get<ListAttributesResponse>(
@@ -54,13 +80,15 @@ async function fetchAttributesForFilter(locale = "tr"): Promise<ProductAttribute
         const attributes = res.data.payload.data ?? [];
 
         return attributes.map((attribute) => {
-            if (!ALPHABETICAL_ATTRIBUTE_CODES.has(attribute.code) || !attribute.values?.length) {
-                return attribute
+            const slim = stripLocalizationSource(attribute)
+
+            if (!ALPHABETICAL_ATTRIBUTE_CODES.has(slim.code) || !slim.values?.length) {
+                return slim
             }
 
             return {
-                ...attribute,
-                values: sortValuesByName(attribute.values, locale),
+                ...slim,
+                values: sortValuesByName(slim.values, locale),
             }
         })
     } catch (error: any) {

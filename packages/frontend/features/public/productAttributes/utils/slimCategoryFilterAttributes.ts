@@ -43,7 +43,9 @@ export function slimCategoryFilterAttributes(
             })
             .map((value) => {
                 const slimValue = { ...value };
-                delete slimValue.translations; // sidebar kullanmıyor; en büyük ölü yük
+                // Artık genelde zaten yok (PublicApi göndermiyor, getAttributesForFilter
+                // de ayıklıyor) — savunma amaçlı bırakıldı.
+                delete slimValue.translations;
                 return slimValue;
             });
 
