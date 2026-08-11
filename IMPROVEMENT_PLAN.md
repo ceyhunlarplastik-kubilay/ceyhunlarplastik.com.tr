@@ -2439,6 +2439,60 @@ bu yüzden kök seviyedeki (parentValueId = NULL) adlar DB tarafından korunmaz 
 seviyesinde kontrol gerekir. Alternatif olarak kısıt olduğu gibi bırakılıp yalnız görünen adlar
 düzeltilebilir, ama o zaman workaround'a devam edilmiş olur.
 
+## Ürün adları: DeepL çevirisi yerine formülle besteleme (2026-08-10)
+
+**Fikir (ürün sahibi):** Ürün adları formüllü — `{sayı} {seri} {attr:kod}… {kategori}`. Parçalar
+(attribute değerleri, kategori adları) 14 dilde ZATEN çevrili olduğuna göre ad çevrilmemeli,
+**bestelenmeli**. Örnek: `11 Serisi Burç Bağlantılı Elcik Tipi Bakalit Tutamaklar` →
+`11 Series Bushed Connector Knob Handles Bakelite Handles`.
+
+**Kazanç:** DeepL kotası ad başına yanmaz; aynı terim her üründe aynı çevrilir; **bir attribute
+çevirisi düzeltilince onu kullanan bütün ürün adları tek hamlede düzelir.**
+
+**Reddedilen ilk tasarımım — otomatik şablon keşfi:** Sırayı Türkçe addan çıkarıp kategori başına
+çoğunluk oyuyla belirlemeyi denedim (%78 → %96 kapsam). Ölçüm iki kez tasarımı düzeltti
+(`Mobilya Bağlantı Sistemleri` kategorisinin İKİ meşru biçimi olduğu ortaya çıktı), ama sonuçta
+ürün sahibi **kategori kategori kesin tabloyu verdi** → keşif tamamen kaldırıldı. Tahmin yerine
+beyan: `Category.code` → şablon eşlemesi
+[productNameFormula.ts](packages/core/src/core/helpers/products/productNameFormula.ts) içinde
+açık bir tablo.
+
+**Kategori adının SONDA OLMADIĞI kategoriler:** 7, 9, 13, 21, 30 (ad zaten kategoriyi ima eden bir
+attribute değeriyle bitiyor).
+
+**Kategori 10'a özel kural:** `profile_type` değeri ("Kutu Profil") kategori adıyla ("Profil
+Tapaları") kelime paylaşıyor → atılmazsa "… Kutu Profil Profil Tapaları" olurdu. Çözüm dilden
+bağımsız: değerden, **kategori adında da geçen kelimeler** atılır. tr `Kutu Profil`+`Profil
+Tapaları`→`Kutu`; en `Box Profile`+`Profile Plugs`→`Box`. Almanca gibi bileşik kelime kuran
+dillerde ortak kelime bulunamaz (`Box-Profil` ↔ `Profilstopfen`) → değere **dokunulmaz**; sessizce
+yanlış kesmektense olduğu gibi bırakmak yeğdir.
+
+**Ölçülen kapsam (853 ürün, canlı veri): 826 ürün (%96.8) formülle besteleniyor.** Kalan 27:
+- **23 ürün — eksik attribute ataması** (veri girişi eksiği, formül sorunu değil): kategori 7 (4),
+  9 (4), 13 (2), 18 (2), 19 (2), 21 (1), **30 (8 — bu kategoride ürünlerin hiçbirine attribute
+  atanmamış)**.
+- **4 ürün — kategori 14 (Kulplar ve Düğmeler)**: formül henüz verilmedi. **AÇIK İŞ.**
+- Kategori **11 (Ruletler ve Tekerlekler)** hiç ürün içermiyor → formüle ihtiyacı yok.
+- Kategori **22 (Cıvata ve Somunlar)**: attribute sırası henüz verilmedi, şimdilik
+  `sayı + seri + kategori` (2 ürün). Attribute eklenince tablo güncellenmeli.
+
+**Script davranışı** ([translate-product-translations.ts](packages/core/prisma/translate-product-translations.ts)):
+ad artık DeepL'e gitmiyor. DeepL yalnız **açıklamalar** ve formülün kuramadığı adlar için çağrılır;
+çevrilecek hiçbir şey kalmazsa hiç çağrılmaz. `--plan` iki rapor basar: (1) hangi ad formülle
+hangisi DeepL ile gelecek, (2) **TR geri-beste uyuşmazlıkları** — attributelardan bestelenen ad
+saklı addan farklıysa (121 ürün) düzeltmeye aday ürün adları. Ürün sahibi teyit etti: bu vakalarda
+**doğru olan attribute değeridir, ürün adı yanlış yazılmıştır** — bu yüzden uyuşmazlık çeviriyi
+ENGELLEMEZ, yalnız raporlanır.
+
+**🔴 Yan etki — attribute çeviri kalitesi artık kaldıraçlı:** Besteleme, attribute çevirisini
+olduğu gibi taşır. Canlıda bulunan iki bozuk EN çevirisi: `Bağlantı Yuvalı` → **"Hole Center
+Diameter"** (ölçü terimi, bağlantı tipi değil) ve `Burç ve Bağlantı Yuvalı` → **"Hole Connector"**
+("burç" kaybolmuş). Bunlar düzeltilmeden çevrilen her ürün adına yayılırlar. Ayrıca DE'de
+`Gelenkige verschraubteFüße` (boşluk eksik). **Ürün adı üretmeden önce attribute çevirileri
+gözden geçirilmeli.**
+
+Doğrulama: backend tsc ✅ · core **298 test** ✅ (+18) · functions 14 ✅.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
