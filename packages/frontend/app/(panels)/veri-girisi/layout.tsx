@@ -29,6 +29,12 @@ const navItems = [
         match: "prefix" as const,
     },
     {
+        href: "/veri-girisi/potansiyel-musteriler",
+        label: "Potansiyel Müşteriler",
+        icon: "users" as const,
+        match: "prefix" as const,
+    },
+    {
         href: "/veri-girisi/productAttributes",
         label: "Özellikler",
         icon: "settings" as const,

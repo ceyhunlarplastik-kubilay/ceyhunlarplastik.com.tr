@@ -63,7 +63,7 @@ export function IndustrialUsageFunctionsPageClient({ categories, workspaceLabel 
     return (
         <div className="space-y-6">
             <section className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
-                <div className="bg-gradient-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-6 text-white sm:px-7">
+                <div className="bg-linear-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-6 text-white sm:px-7">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-3xl">
                             <Badge className="border-white/15 bg-white/10 text-white" variant="outline">

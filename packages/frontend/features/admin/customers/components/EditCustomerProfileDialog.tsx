@@ -430,12 +430,12 @@ export function EditCustomerProfileDialog({
                                                                             className={cn(
                                                                                 "flex min-h-11 items-center justify-between rounded-2xl border px-3 py-2 text-left text-sm transition",
                                                                                 isSelected
-                                                                                    ? "border-[var(--color-brand)] bg-[var(--color-brand)]/8 text-neutral-950 shadow-sm"
+                                                                                    ? "border-(--color-brand) bg-brand/8 text-neutral-950 shadow-sm"
                                                                                     : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300",
                                                                             )}
                                                                         >
                                                                             <span>{value.name}</span>
-                                                                            {isSelected ? <Check className="h-4 w-4 text-[var(--color-brand)]" /> : null}
+                                                                            {isSelected ? <Check className="h-4 w-4 text-(--color-brand)" /> : null}
                                                                         </button>
                                                                     )
                                                                 })}

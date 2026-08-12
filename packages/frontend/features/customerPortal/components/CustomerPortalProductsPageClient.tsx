@@ -71,7 +71,7 @@ function CustomerPortalFeaturedProductsContent() {
 
             <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm">
                 {featuredQuery.isLoading ? (
-                    <div className="flex min-h-[320px] items-center justify-center">
+                    <div className="flex min-h-80 items-center justify-center">
                         <Spinner className="size-5" />
                     </div>
                 ) : featuredProducts.length > 0 ? (
@@ -155,7 +155,7 @@ function ProductRecommendationReason({ item }: { item: CustomerFeaturedProduct }
                     <span
                         key={name}
                         title={name}
-                        className="inline-flex max-w-[9rem] items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-800"
+                        className="inline-flex max-w-36 items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-800"
                     >
                         <span className="truncate">{name}</span>
                     </span>

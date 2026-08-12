@@ -72,16 +72,13 @@ export async function validateCustomerAttributeSelection(
             throw new createError.BadRequest("usageAreaValueIds must reference active usage_area values")
         }
 
-        if (productionGroupValue && value.parentValueId !== productionGroupValue.id) {
-            throw new createError.BadRequest("usage_area must belong to selected production_group")
-        }
-
-        if (sectorValue) {
-            const usageSectorId = value.parentValue?.parentValueId
-            if (usageSectorId && usageSectorId !== sectorValue.id) {
-                throw new createError.BadRequest("usage_area must belong to selected sector")
-            }
-        }
+        // NOT: kullanım alanının seçili sektör/üretim grubunun ALTINDA olma
+        // zorunluluğu bilinçli olarak KALDIRILDI (2026-08-11, ürün sahibi kararı).
+        // `sectorValueId` + `productionGroupValueId` müşterinin BİRİNCİL sınıfıdır
+        // (tekil); `usageAreaValues` ise ilgi alanı listesidir (çoğul) ve farklı
+        // sektörlerden alan taşıyabilir. Eşleşme motoru bu üç seviyeyi zaten OR'ladığı
+        // için kısıtın kalkması eşleşmeyi genişletir — daraltmaz.
+        // Sektör ↔ üretim grubu tutarlılığı (yukarıdaki kontrol) korunur.
     }
 
     return {

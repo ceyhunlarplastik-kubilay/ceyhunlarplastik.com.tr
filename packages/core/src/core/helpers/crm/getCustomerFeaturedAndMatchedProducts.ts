@@ -1,7 +1,18 @@
 import { prisma } from "@/core/db/prisma"
 import { CUSTOMER_ATTRIBUTE_CODES } from "@/core/helpers/crm/customerAttributes"
 import { customerProductInclude } from "@/core/helpers/prisma/customers/repository"
+import {
+    buildCustomerProfileProductWhereClauses,
+    resolveCustomerProfileHierarchy,
+} from "@/core/helpers/crm/customerProfileMatching"
 import type { Prisma } from "@/prisma/generated/prisma/client"
+
+// Geriye dönük yüzey: bu iki fonksiyon artık saf modülde yaşıyor.
+export {
+    buildCustomerProfileProductWhereClauses,
+    resolveCustomerProfileHierarchy,
+} from "@/core/helpers/crm/customerProfileMatching"
+export type { CustomerProfileHierarchy } from "@/core/helpers/crm/customerProfileMatching"
 
 export type CustomerFeaturedAndMatchedProductSource = "MANUAL" | "ATTRIBUTE_MATCH"
 
@@ -117,88 +128,9 @@ export async function getCustomerFeaturedAndMatchedProducts(
 
     if (!customer) return []
 
-    const assignedSectorValueId = customer.attributeValueAssignments.find(
-        (assignment) => assignment.attributeValue.attribute.code === CUSTOMER_ATTRIBUTE_CODES.sector,
-    )?.attributeValueId ?? null
+    const selectedHierarchy = resolveCustomerProfileHierarchy(customer)
 
-    const assignedProductionGroupValueId = customer.attributeValueAssignments.find(
-        (assignment) => assignment.attributeValue.attribute.code === CUSTOMER_ATTRIBUTE_CODES.productionGroup,
-    )?.attributeValueId ?? null
-
-    const assignedUsageAreaValueIds = customer.attributeValueAssignments
-        .filter((assignment) => assignment.attributeValue.attribute.code === CUSTOMER_ATTRIBUTE_CODES.usageArea)
-        .map((assignment) => assignment.attributeValueId)
-
-    const selectedHierarchy = {
-        sectorValueId: customer.sectorValueId ?? assignedSectorValueId,
-        productionGroupValueId: customer.productionGroupValueId ?? assignedProductionGroupValueId,
-        usageAreaValueIds: Array.from(new Set([
-            ...customer.usageAreaValues.map((value) => value.id),
-            ...assignedUsageAreaValueIds,
-        ])),
-    }
-
-    const productWhereClauses: Prisma.ProductWhereInput[] = []
-
-    if (selectedHierarchy.sectorValueId) {
-        productWhereClauses.push({
-            industrialUsages: {
-                some: {
-                    OR: [
-                        {
-                            sectorValueId: selectedHierarchy.sectorValueId,
-                        },
-                        {
-                            productionGroupValue: {
-                                attribute: { code: CUSTOMER_ATTRIBUTE_CODES.productionGroup },
-                                parentValueId: selectedHierarchy.sectorValueId,
-                            },
-                        },
-                        {
-                            usageAreaValue: {
-                                attribute: { code: CUSTOMER_ATTRIBUTE_CODES.usageArea },
-                                parentValue: {
-                                    parentValueId: selectedHierarchy.sectorValueId,
-                                },
-                            },
-                        },
-                    ],
-                },
-            },
-        })
-    }
-
-    if (selectedHierarchy.productionGroupValueId) {
-        productWhereClauses.push({
-            industrialUsages: {
-                some: {
-                    OR: [
-                        {
-                            productionGroupValueId: selectedHierarchy.productionGroupValueId,
-                        },
-                        {
-                            usageAreaValue: {
-                                attribute: { code: CUSTOMER_ATTRIBUTE_CODES.usageArea },
-                                parentValueId: selectedHierarchy.productionGroupValueId,
-                            },
-                        },
-                    ],
-                },
-            },
-        })
-    }
-
-    if (selectedHierarchy.usageAreaValueIds.length > 0) {
-        productWhereClauses.push({
-            industrialUsages: {
-                some: {
-                    usageAreaValueId: {
-                        in: selectedHierarchy.usageAreaValueIds,
-                    },
-                },
-            },
-        })
-    }
+    const productWhereClauses = buildCustomerProfileProductWhereClauses(selectedHierarchy)
 
     const buildManualItems = (matchedProductsById = new Map<string, ReturnType<typeof collectMatchedHierarchyValues>>()) =>
         customer.featuredProducts.map((item) => {

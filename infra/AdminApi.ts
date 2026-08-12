@@ -566,6 +566,46 @@ adminApi.route("POST /products/assets/presign", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions })
 
+/*----------------------- LEAD CUSTOMERS (VERİ GİRİŞİ) -----------------------*/
+// Potansiyel müşteri kaydı + endüstriyel profil ataması. `/customers` uçlarından
+// AYRI tutuluyor: bu yüzey `content_editor`'a da açık ve şeması ticari alanları
+// (iskonto, kredi limiti, vade, satış temsilcisi) ile `status` alanını hiç
+// tanımıyor. Yalnız `status: LEAD` kayıtlara dokunur.
+adminApi.route("GET /lead-customers", {
+    handler: `${folderPrefix}/leadCustomers/actions.listLeadCustomers`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("POST /lead-customers", {
+    handler: `${folderPrefix}/leadCustomers/actions.createLeadCustomer`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("GET /lead-customers/{id}", {
+    handler: `${folderPrefix}/leadCustomers/actions.getLeadCustomer`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("PUT /lead-customers/{id}", {
+    handler: `${folderPrefix}/leadCustomers/actions.updateLeadCustomer`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("POST /lead-customers/{id}/addresses", {
+    handler: `${folderPrefix}/leadCustomers/actions.createLeadCustomerAddress`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("PUT /lead-customers/{id}/addresses/{addressId}", {
+    handler: `${folderPrefix}/leadCustomers/actions.updateLeadCustomerAddress`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("DELETE /lead-customers/{id}/addresses/{addressId}", {
+    handler: `${folderPrefix}/leadCustomers/actions.deleteLeadCustomerAddress`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
 /*----------------------- INDUSTRIAL USAGE FUNCTIONS (EXCEL) -----------------------*/
 // Ürünün kullanım fonksiyonu metinlerini 14 dilde dışa/içe aktarır. Ürün
 // güncelleme yolundan (PUT /products/{id}) bilinçli olarak ayrı: bu uç yalnız

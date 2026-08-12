@@ -2592,6 +2592,107 @@ ham XML koruma denetimi, gizli kimlik alanları ve zebra/donmuş bölme dahil) �
 **Kullanıcıda bekleyen:** kubi'de uçtan uca doğrulama (indir → LibreOffice/Excel'de doldur → yükle),
 ardından commit + prod deploy.
 
+## Potansiyel müşteri kaydı + kullanım alanı ataması (2026-08-11)
+
+**Hedef:** potansiyel müşteriyi sisteme kaydedip ilgilendiği endüstriyel kullanım alanlarını atamak;
+böylece müşteri portalındaki **"İlgili Ürünler"** profil eşleşmesiyle dolsun.
+
+**Keşifte çıkan asıl tablo — işin çoğu ZATEN vardı:**
+- Ayrım `CustomerStatus` (`LEAD` | `CUSTOMER`, varsayılan `LEAD`) ile yapılıyor.
+- Eşleşme motoru tamamdı: `getCustomerFeaturedAndMatchedProducts` müşterinin
+  `sectorValueId` / `productionGroupValueId` / `usageAreaValues` alanlarını `ProductIndustrialUsage`
+  ile eşleştiriyor ve MANUAL (satış temsilcisinin öne çıkardığı) ile ATTRIBUTE_MATCH ayrımını yapıyor.
+  **Bu tarafa hiç dokunulmadı** — müşteriye doğru kullanım alanını yazmak yeterliydi.
+- `/admin/potansiyel-musteriler` sayfası da vardı (LEAD listesi, `admin`+`owner`).
+- **Gerçek eksik:** admin tarafında müşteri OLUŞTURMA ucu yoktu. `POST /customers` yalnız
+  **PublicApi**'de (anonim public form). Ayrıca `content_editor`'ın hiçbir müşteri ucuna erişimi yoktu.
+
+**Yeni dar uç kümesi** — `GET|POST /lead-customers`, `GET|PUT /lead-customers/{id}`
+(`admin` + `content_editor`):
+- `/customers` uçlarına `content_editor` EKLENMEDİ. O uçlar iskonto, kredi limiti, vade, satış
+  temsilcisi ataması ve LEAD↔CUSTOMER dönüşümü kabul ediyor; içerik editörüne açmak gerçek bir
+  yetki genişlemesi olurdu. Yeni şema ticari alanları ve `status`'u **hiç tanımıyor**
+  (`additionalProperties: false` iç objelerde geçerli) → gönderilemez.
+- İkinci sert kural: yazma yolları yalnız `status: LEAD` kayıtlara dokunur; cari müşteriye
+  dönüşmüş kayıtta 409. İçerik editörü gerçek müşteri profilini bozamaz.
+- Dönüşüm (LEAD→CUSTOMER) bilinçli olarak bu sekmede YOK; ticari karar `/admin` · `/satis`'te kalır.
+
+**Eşleşme kuralı tek yerde — `customerProfileMatching.ts` (YENİ, saf modül):**
+`resolveCustomerProfileHierarchy` + `buildCustomerProfileProductWhereClauses`
+`getCustomerFeaturedAndMatchedProducts.ts` içinden çıkarıldı; ağır dosya artık bunları import edip
+geriye dönük olarak yeniden dışa aktarıyor (çağıranlar değişmedi). İki tüketici aynı kuralı paylaşır:
+portalın "İlgili Ürünler"i ve panelin eşleşme önizlemesi. **Kural kopyalanmadı.**
+
+**Önizleme neden ayrı sorgu:** `getCustomerFeaturedAndMatchedProducts` ürün başına
+`customerProductInclude` taşıyor (3 seviyeli taksonomi zinciri — repodaki ~0.5MB/ürün sorunu).
+Panel önizlemesi aynı WHERE kuralını ince bir `select` ile kullanır: sayı + ilk 12 ürün
+(`{id, kod, ad, görsel, eşleşen etiketler}`).
+
+**Hiyerarşi kısıtı (arayüz buna göre kuruldu):** `validateCustomerAttributeSelection` müşteriye
+**tek sektör + tek üretim grubu, çok kullanım alanı** izin veriyor; üretim grubu seçiliyse tüm
+kullanım alanları o grubun çocuğu olmak zorunda. Dialog listeyi buna göre daraltıyor ve
+"birden fazla üretim grubundan seçmek için üretim grubunu boş bırakın" notunu gösteriyor —
+kullanıcı 400 görmesin.
+
+**Ajan notu — prisma import eden modül test edilemez:** saf mantığı ayrı modüle çıkarmak bu repoda
+tekrar eden bir zorunluluk (`industrialUsageFunctionPlan.ts` ile aynı gerekçe).
+
+Doğrulama: backend tsc ✅ · frontend tsc ✅ · lint 0 error (113 warning, yeni dosyalarda uyarı yok) ✅ ·
+core **321 test** ✅ (+8) · functions 14 ✅ · frontend 187 ✅ · `next build` **Compiled successfully** ✅.
+
+**İkinci tur — kubi testi sonrası (2026-08-11):**
+
+**🔴 İş kuralı değişti — kullanım alanı artık ÇOKLU SEKTÖRDEN seçilebilir.** Ürün sahibi net
+söyledi. `validateCustomerAttributeSelection` içindeki iki kısıt KALDIRILDI: kullanım alanının
+seçili üretim grubunun/sektörün altında olma zorunluluğu. Gerekçe koda yazıldı:
+`sectorValueId` + `productionGroupValueId` müşterinin BİRİNCİL sınıfıdır (tekil), `usageAreaValues`
+ise İLGİ LİSTESİdir (çoğul) ve farklı sektörlerden alan taşıyabilir. Eşleşme motoru üç seviyeyi
+zaten OR'ladığı için kısıtın kalkması eşleşmeyi GENİŞLETİR.
+- Kısıt **paylaşılan** helper'da olduğu için değişiklik üç yüzeyi birden etkiler: `/lead-customers`,
+  `/customers` (admin) ve public müşteri formu. Bilinçli — aynı alan için iki farklı kural daha kötü olurdu.
+- **Sektör ↔ üretim grubu** tutarlılığı KORUNDU (üretim grubu seçili sektörün altında olmalı).
+- Gevşetme olduğu için mevcut veri/istekler geçersizleşmez.
+- UI sonucu: sektör değişiminde kullanım alanı seçimleri artık SİLİNMİYOR (yalnız üretim grubu sıfırlanır).
+
+**Kullanım alanı seçici ayrı bileşene alındı** (`LeadCustomerUsageAreaPicker`): kare görsel + ad,
+1→4 sütun, **sektöre göre gruplu başlıklar** ve **arama**. Kısıt kalkınca liste tüm alanları
+gösterdiği için gruplama ve arama zorunlu hale geldi. Görseller zaten
+`/product-attributes/with-values` yanıtında `assets[].url` olarak geliyordu — backend'e dokunulmadı.
+
+**Düzeltme — daraltmayı kaldırmak AŞIRI düzeltmeydi:** kısıt kalkınca sektör seçimi listeye hiç etki
+etmez oldu ("sektör seçince filtre çalışmıyor"). Doğrusu daraltmayı kaldırmak değil, ZORUNLU
+olmaktan çıkarmaktı. Picker'a kendi sektör filtresi eklendi; formdaki sektörden beslenir, listeyi
+varsayılan olarak daraltır, "Tüm sektörler" ile açılır. **Filtre dışında kalan SEÇİLİ öğeler
+görünür kalır** — kullanıcı başka sektöre geçince seçimini kaybettiğini sanmasın. Prop→state
+senkronu render sırasında yapılır (effect + setState lint hatası veriyor).
+
+**Adres + harita** — `POST /lead-customers/{id}/addresses`, `PUT|DELETE .../{addressId}`:
+- Frontend tarafında **hiç yeni UI yazılmadı**: `CustomerAddressFormDialog` (harita seçici
+  `CustomerLocationPicker` + `GeoAddressFields` içinde), `normalizeAddressPayload` ve
+  `toAddressDraftValues` olduğu gibi kullanıldı. Harita OpenFreeMap (anahtar yok), arama
+  Nominatim + `GeocodingCache`.
+- `normalizeCustomerAddressInput` ProtectedApi handler dosyasından çıkarılıp core'a taşındı
+  (`crm/customerAddressInput.ts`); satış/portal ve veri girişi artık AYNI normalize kuralını
+  paylaşıyor — kopyalanmadı.
+- Adres yazma yolları da `getLeadCustomerRowOrThrow` ile LEAD kontrolünden geçer.
+- Detay yanıtının tek üreticisi `buildLeadCustomerDetail`; dört uç da aynı gövdeyi döndürdüğü için
+  mutasyon sonrası ekstra GET turu yok.
+- Akış: kayıt → detay paneli açılır → **adres formu otomatik gelir** (kapatılabilir). Adres müşteri
+  ID'si gerektirdiği için iki adım teknik olarak da doğrusu; harita dialogu iç içe dialog olmadan
+  tam boy açılır.
+- **Düzeltme (aynı gün):** ilk uygulamada yalnız kart genişletiliyordu, onaylanan seçenekteki
+  "adres dialogu otomatik açılır" kısmı eksik kalmıştı. Ayrıca aktif filtre veya 2. sayfa yüzünden
+  yeni kayıt hiç render edilmediğinde kullanıcıya "hiçbir şey olmadı" gibi görünüyordu →
+  kayıttan sonra filtreler temizlenip ilk sayfaya dönülüyor.
+- Otomatik açılma `useState(autoOpen)` başlangıç değeriyle yapılır; bölüm kart genişletildiğinde
+  taze mount olduğu için effect gerekmez (effect + setState repo lint'inde hata).
+
+Doğrulama: backend tsc ✅ · frontend tsc ✅ · lint 0 error (113 warning) ✅ · core 321 ✅ ·
+functions 14 ✅ · frontend 187 ✅ · `next build` ✅.
+
+**Kullanıcıda bekleyen:** kubi'de uçtan uca doğrulama (kayıt → kullanım alanı ataması → eşleşme
+önizlemesi → müşteri portalında "İlgili Ürünler"), ardından commit + prod deploy.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

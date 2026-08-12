@@ -1,4 +1,5 @@
 import createError from "http-errors"
+import { normalizeCustomerAddressInput } from "@/core/helpers/crm/customerAddressInput"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
@@ -101,64 +102,6 @@ function parseCoordinateQuery(value: string | undefined, label: string) {
         throw new createError.BadRequest(`${label} must be a valid number`)
     }
     return parsed
-}
-
-function resolveLocationSource(body: ICustomerAddressBody, fallback: "MANUAL_PIN" | "GEOCODED" | "CUSTOMER_SUBMITTED") {
-    if (body.locationSource) return body.locationSource
-    if (fallback === "CUSTOMER_SUBMITTED") return "CUSTOMER_SUBMITTED"
-    return body.geocodingProvider || body.geocodingLabel ? "GEOCODED" : fallback
-}
-
-function normalizeCustomerAddressInput(
-    body: ICustomerAddressBody,
-    options: {
-        defaultLocationSource: "MANUAL_PIN" | "GEOCODED" | "CUSTOMER_SUBMITTED"
-        verifiedByUserId?: string | null
-        allowVerification?: boolean
-    },
-) {
-    const latitude = numberOrNull(body.latitude)
-    const longitude = numberOrNull(body.longitude)
-    const hasCoordinates = latitude !== null && longitude !== null
-    const locationVerifiedAt = options.allowVerification
-        ? dateOrNull(body.locationVerifiedAt) ?? (hasCoordinates ? new Date() : null)
-        : null
-    const locationVerifiedByUserId = options.allowVerification
-        ? textOrNull(body.locationVerifiedByUserId) ?? options.verifiedByUserId ?? null
-        : null
-
-    return {
-        label: body.label.trim(),
-        contactName: textOrNull(body.contactName) ?? null,
-        phone: textOrNull(body.phone) ?? null,
-        email: textOrNull(body.email) ?? null,
-        countryId: body.countryId ?? null,
-        stateId: body.stateId ?? null,
-        cityId: body.cityId ?? null,
-        country: body.country?.trim() || "Turkiye",
-        city: body.city.trim(),
-        district: textOrNull(body.district) ?? null,
-        line1: body.line1.trim(),
-        line2: textOrNull(body.line2) ?? null,
-        postalCode: textOrNull(body.postalCode) ?? null,
-        taxOffice: textOrNull(body.taxOffice) ?? null,
-        taxNumber: textOrNull(body.taxNumber) ?? null,
-        latitude,
-        longitude,
-        locationSource: resolveLocationSource(body, options.defaultLocationSource),
-        locationAccuracy: body.locationAccuracy ?? null,
-        geocodingProvider: textOrNull(body.geocodingProvider) ?? null,
-        geocodingPlaceId: textOrNull(body.geocodingPlaceId) ?? null,
-        geocodingLabel: textOrNull(body.geocodingLabel) ?? null,
-        geocodingRaw: body.geocodingRaw ?? null,
-        geocodedAt: dateOrNull(body.geocodedAt) ?? null,
-        locationVerifiedAt,
-        locationVerifiedByUserId,
-        isPrimary: body.isPrimary ?? false,
-        isBilling: body.isBilling ?? false,
-        isShipping: body.isShipping ?? true,
-        note: textOrNull(body.note) ?? null,
-    }
 }
 
 function normalizePaymentScheduleForPersistence(value: ICustomerSpecialPriceBody["paymentSchedule"]) {

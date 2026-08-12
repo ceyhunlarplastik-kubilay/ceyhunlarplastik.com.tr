@@ -296,6 +296,21 @@ When extending customer-to-product profile matching:
 - `sector`, `production_group`, and `usage_area` stay in the shared dictionary but must be assigned to products through `ProductIndustrialUsage`, not through `Product.attributeValues`
 - product-specific usage descriptions belong on `ProductIndustrialUsage.usageFunction`, not in `ProductAttributeValue`
 
+When extending the content-entry (`content_editor`) workspace toward CRM data:
+- keep `content_editor` out of `/customers` endpoints; those carry commercial fields (discount,
+  credit limit, payment terms, sales rep) and the LEAD↔CUSTOMER conversion
+- expose narrow, purpose-built endpoints instead (`/lead-customers`) whose request schema does not
+  declare commercial fields or `status` at all, and which only ever touch `status: LEAD` records
+- reuse the shared core layer (`customerRepository`, `resolveCustomerAttributeAssignments`,
+  `customerProfileMatching`) rather than reimplementing validation or matching rules
+- customer→product profile matching rules live in `core/helpers/crm/customerProfileMatching.ts`
+  and must stay the single source for both the customer portal and any admin preview surface
+- a customer's `sectorValueId` / `productionGroupValueId` is a single primary classification, while
+  `usageAreaValues` is a multi-valued interest list that MAY span other sectors; do not reintroduce
+  a "usage_area must belong to the selected sector/production group" constraint
+- reuse `CustomerAddressFormDialog` (map picker + geo fields included) and the shared
+  `core/helpers/crm/customerAddressInput.ts` normalizer for any new address surface
+
 When extending customer portal contact surfaces:
 - keep external customer-side portal/contact users as `User` records linked by `User.customerId`
 - keep Ceyhunlar department contact points as `CompanyContact` display records, not login accounts or roles

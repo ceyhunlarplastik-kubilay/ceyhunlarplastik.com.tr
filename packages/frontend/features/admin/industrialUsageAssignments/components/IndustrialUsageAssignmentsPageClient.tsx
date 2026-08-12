@@ -291,7 +291,7 @@ export function IndustrialUsageAssignmentsPageClient({ workspaceLabel }: Props) 
     return (
         <div className="space-y-6">
             <section className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
-                <div className="bg-gradient-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-6 text-white sm:px-7">
+                <div className="bg-linear-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-6 text-white sm:px-7">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-3xl">
                             <Badge className="border-white/15 bg-white/10 text-white" variant="outline">
@@ -473,7 +473,7 @@ export function IndustrialUsageAssignmentsPageClient({ workspaceLabel }: Props) 
 
             <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
                 <DialogContent className="max-h-[min(760px,calc(100vh-2rem))] max-w-3xl overflow-hidden rounded-3xl p-0">
-                    <DialogHeader className="border-b border-neutral-100 bg-gradient-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-5 text-white sm:px-6">
+                    <DialogHeader className="border-b border-neutral-100 bg-linear-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-5 text-white sm:px-6">
                         <Badge
                             variant="outline"
                             className="w-fit border-white/15 bg-white/10 text-white"
@@ -515,7 +515,7 @@ export function IndustrialUsageAssignmentsPageClient({ workspaceLabel }: Props) 
                         </div>
                     </div>
 
-                    <ScrollArea className="max-h-[380px] px-5 pb-2 sm:px-6">
+                    <ScrollArea className="max-h-95 px-5 pb-2 sm:px-6">
                         <div className="grid gap-3 lg:grid-cols-2">
                             <PendingProductList
                                 title="Eklenecek Ürünler"
