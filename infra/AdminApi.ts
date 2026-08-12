@@ -566,6 +566,20 @@ adminApi.route("POST /products/assets/presign", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions })
 
+/*----------------------- INDUSTRIAL USAGE FUNCTIONS (EXCEL) -----------------------*/
+// Ürünün kullanım fonksiyonu metinlerini 14 dilde dışa/içe aktarır. Ürün
+// güncelleme yolundan (PUT /products/{id}) bilinçli olarak ayrı: bu uç yalnız
+// metin yazar, ürünün geri kalanına dokunmaz.
+adminApi.route("GET /products/{id}/industrial-usage-functions", {
+    handler: `${folderPrefix}/industrialUsageFunctions/actions.getProductIndustrialUsageFunctions`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
+adminApi.route("PUT /products/{id}/industrial-usage-functions", {
+    handler: `${folderPrefix}/industrialUsageFunctions/actions.applyProductIndustrialUsageFunctions`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions })
+
 /*----------------------- INDUSTRIAL USAGE ASSIGNMENTS -----------------------*/
 adminApi.route("GET /industrial-usage-assignments/{usageAreaValueId}/products", {
     handler: `${folderPrefix}/industrialUsageAssignments/actions.listIndustrialUsageAssignmentProducts`,

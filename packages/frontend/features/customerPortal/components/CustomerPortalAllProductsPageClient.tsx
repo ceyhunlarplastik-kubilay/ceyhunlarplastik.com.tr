@@ -206,7 +206,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                             </span>
 
                             {isInitialLoading ? (
-                                <div className="min-h-[320px]">
+                                <div className="min-h-80">
                                     <CustomerPortalProductGridSkeleton />
                                 </div>
                             ) : products.length > 0 ? (

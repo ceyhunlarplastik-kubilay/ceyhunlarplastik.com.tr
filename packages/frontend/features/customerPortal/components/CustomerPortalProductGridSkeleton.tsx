@@ -25,7 +25,7 @@ export function CustomerPortalProductGridSkeleton({
                     }}
                     className="overflow-hidden rounded-[28px] border border-neutral-200 bg-white shadow-sm"
                 >
-                    <div className="aspect-[4/3] bg-gradient-to-br from-neutral-100 via-neutral-50 to-neutral-100" />
+                    <div className="aspect-4/3 bg-linear-to-br from-neutral-100 via-neutral-50 to-neutral-100" />
                     <div className="space-y-4 p-4">
                         <div className="space-y-2">
                             <div className="h-3 w-20 rounded-full bg-neutral-100" />

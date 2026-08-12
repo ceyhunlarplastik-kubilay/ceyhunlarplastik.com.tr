@@ -23,6 +23,12 @@ const navItems = [
         match: "prefix" as const,
     },
     {
+        href: "/veri-girisi/industrial-usage-functions",
+        label: "Kullanım Fonksiyonu Aktarımı",
+        icon: "sheet" as const,
+        match: "prefix" as const,
+    },
+    {
         href: "/veri-girisi/productAttributes",
         label: "Özellikler",
         icon: "settings" as const,

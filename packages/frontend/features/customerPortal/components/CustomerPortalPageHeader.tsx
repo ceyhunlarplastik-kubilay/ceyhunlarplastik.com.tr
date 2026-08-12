@@ -34,18 +34,18 @@ export function CustomerPortalPageHeader({
     return (
         <section
             className={cn(
-                "relative overflow-hidden rounded-[26px] border border-slate-200/80 bg-[linear-gradient(135deg,#ffffff_0%,#f8fafc_52%,#edf6f3_100%)] px-4 py-4 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] sm:px-5 sm:py-[1.125rem]",
+                "relative overflow-hidden rounded-[26px] border border-slate-200/80 bg-[linear-gradient(135deg,#ffffff_0%,#f8fafc_52%,#edf6f3_100%)] px-4 py-4 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)] sm:px-5 sm:py-4.5",
                 className,
             )}
         >
             <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[36%] bg-[radial-gradient(circle_at_top_right,rgba(15,118,110,0.13),transparent_62%)] lg:block" />
-            <div className="pointer-events-none absolute -right-12 top-0 h-24 w-24 rounded-full bg-[var(--color-brand)]/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-12 top-0 h-24 w-24 rounded-full bg-brand/10 blur-3xl" />
             <div className="pointer-events-none absolute bottom-0 left-10 h-14 w-14 rounded-full bg-white/70 blur-2xl" />
 
             <div className="relative flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
                 <div className="min-w-0 max-w-4xl space-y-2">
                     <div className="inline-flex items-center gap-1.5 rounded-full border border-white/70 bg-white/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur">
-                        {Icon ? <Icon className="h-3 w-3 text-[var(--color-brand)]" /> : null}
+                        {Icon ? <Icon className="h-3 w-3 text-(--color-brand)" /> : null}
                         {eyebrow}
                     </div>
 
@@ -78,7 +78,7 @@ export function CustomerPortalPageHeader({
                 </div>
 
                 {aside ? (
-                    <div className="relative min-w-0 xl:min-w-[220px] xl:max-w-[560px]">
+                    <div className="relative min-w-0 xl:min-w-55 xl:max-w-140">
                         {aside}
                     </div>
                 ) : null}

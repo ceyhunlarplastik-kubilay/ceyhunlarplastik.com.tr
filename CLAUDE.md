@@ -86,6 +86,10 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `additionalProperties: false`). Query parametresi gönderen bir route'a genel
   `idValidator`'ı verme — gönderilen her ekstra param 400 üretir. Route'un kabul
   ettiği query alanlarını açıkça beyan eden kendi validator'ını yaz.
+- İstek şemasında `z.record(z.enum([...]), …)` KULLANMA: `z.toJSONSchema` her anahtarı
+  `required` yapar ve request validator'ın ajv'si (`strict: true`) şemayı hiç derlemez
+  (`strictRequired`). Doğrusu `z.partialRecord(...)` — bilinmeyen anahtarı ve değer
+  kısıtlarını (max length vb.) yine uygular.
 - Bir handler'a response validator eklerken handler `apiResponseDTO` kullanmalı —
   `apiResponse` Date'leri ISO'ya normalize etmez, validator "must be string" ile
   patlar. Response şemaları `.loose()` olmalı (relation'lar tolere edilir).

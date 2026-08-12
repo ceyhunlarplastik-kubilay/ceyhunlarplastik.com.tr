@@ -9,6 +9,7 @@ import {
     Building2,
     ChevronLeft,
     ClipboardList,
+    FileSpreadsheet,
     Layers3,
     MapPinned,
     Menu,
@@ -27,7 +28,7 @@ import { cn } from "@/lib/utils"
 type NavItem = {
     href: string
     label: string
-    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package" | "settings" | "palette" | "layers" | "ruler"
+    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package" | "settings" | "palette" | "layers" | "ruler" | "sheet"
     match?: "exact" | "prefix"
 }
 
@@ -44,6 +45,7 @@ const iconMap = {
     palette: Palette,
     layers: Layers3,
     ruler: Ruler,
+    sheet: FileSpreadsheet,
 } as const
 
 type Props = {

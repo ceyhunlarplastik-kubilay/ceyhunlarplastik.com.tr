@@ -2493,6 +2493,105 @@ gözden geçirilmeli.**
 
 Doğrulama: backend tsc ✅ · core **298 test** ✅ (+18) · functions 14 ✅.
 
+## Kullanım fonksiyonu: 14 dilli Excel dışa/içe aktarımı (2026-08-11)
+
+**İhtiyaç:** `ProductIndustrialUsage.usageFunction` alanı ürünlerin çoğunda boş; metinler ürün
+dışında (bir iş arkadaşının Excel listesinde) 14 dilde üretiliyor. Ürün dialogundan satır satır
+girmek bu hacimde çalışmıyor.
+
+**Yeni sekme:** `/veri-girisi/industrial-usage-functions` — ürün seç → Excel indir → doldur → geri
+yükle. Panel TR-only olduğu için katalog değişikliği yok.
+
+**Excel sözleşmesi** ([usageFunctionWorkbookFormat.ts](packages/frontend/features/admin/industrialUsageFunctions/lib/usageFunctionWorkbookFormat.ts)
+— yazan ve okuyan taraf bu tek modülü paylaşır, ayrışmaları mümkün değil):
+- **Tek sayfa** (`Kullanım Fonksiyonları`), 14 dil **yan yana sütun** (`Türkçe (tr)`,
+  `İngilizce (en)`, … `Hintçe (hi)`). İlk tasarım 14 ayrı sayfaydı; ürün sahibi tek sayfa +
+  sütun düzenini istedi — çeviriyi yapan kişi kaynak Türkçe metni ve hedef dili aynı satırda görüyor.
+- Sütunun dili **başlıktan** okunur (`… (xx)` deseni), konumdan DEĞİL: bir sütun silinirse kalanlar
+  kaymış konumla yanlış dile yazılmasın. Çözülemeyen başlık atlanır ve uyarı olarak raporlanır —
+  sessiz tahmin yok.
+- Sol blok (A–E): `# · Kullanım Satırı ID · Sektör · Üretim Grubu · Kullanım Alanı`. Taksonomi
+  adları **Türkçe** (tek sayfada tek dil olabilir; kaynak dil zaten TR).
+- Üstte meta blok: Ürün ID / Kod / Ad / Dışa aktarım anı + kullanım notu.
+  **Doğrulama meta bloktan okunur, dosya adından DEĞİL** — dosya yeniden adlandırılabilir.
+- **Sayfa koruması açık, parolasız**: meta blok, başlık satırı ve sol bağlam sütunları KİLİTLİ;
+  yalnız 14 dil sütunu yazılabilir (`locked:false`). Gerekirse Excel'de tek tıkla kaldırılır.
+- **Ürün ID satırı ve Kullanım Satırı ID sütunu GİZLİ.** Nedeni aşağıdaki Numbers bulgusu:
+  koruma yalnız Excel/LibreOffice'te uygulandığı için makine-kritik iki alanı gözden kaldırmak
+  tek editörden bağımsız savunma. İçe aktarma sütunu indeksten okuduğu için gizli olması sorun değil.
+  `formatColumns` bilinçli KİLİTLİ bırakıldı → gizli sütun Excel'de kazara geri açılamaz.
+- **Tablo biçimi**: tüm hücrelerde ince kenarlık, satır aralarında zebra dolgu, koyu başlık şeridi,
+  kaynak dil (TR) sütununa ayırt edici altın başlık + ayrı zebra tonu, gridline kapalı, otomatik
+  filtre ve **donmuş bölme** (başlık satırı + sol 5 sütun sabit — 14 sütunda yatay kaydırırken
+  satır bağlamı kaybolmaz).
+- Dosya adı: `kullanim-fonksiyonu_<kod>_<slug>_<productId>_<tarih>.xlsx`.
+
+**🔴 Bulgu — Apple Numbers sayfa korumasını YOK SAYAR (2026-08-11):** ürün sahibi "korumalı alanları
+düzenleyebiliyorum" dedi. Üretilen dosya incelendi ve **doğru**du: `sheetProtection sheet="1"` yazılmış,
+`styles.xml`'deki 17 hücre stilinden yalnız 4'ü (dil sütunları) `locked="0"`. Sorun dosyada değil
+görüntüleyicideydi — Numbers'ın sayfa koruması diye bir özelliği yok ve xlsx'teki `sheetProtection`'ı
+sessizce düşürüyor. Google Sheets de içe aktarırken korumayı düşürür; Excel (masaüstü/web) ve
+LibreOffice Calc uyar. Dosyanın içine Numbers'ı buna zorlayacak hiçbir şey yazılamaz.
+Alınan önlemler: (1) kimlik alanlarını gizle, (2) panelde hangi uygulamayla doldurulacağını söyle,
+(3) doğrulamaya güven — zaten hiçbir bozuk dosya sessizce veri yazamıyor.
+
+**Ajan notu — exceljs koruma bayrakları:** OOXML'de `formatCells`/`formatColumns`/`sort` gibi
+bayraklar YAZILMADIĞINDA "kilitli" varsayılır; `attr="0"` ise o eylem serbesttir. exceljs varsayılana
+eşit değerleri dosyaya hiç yazmaz ve geri okurken `undefined` verir — bu yüzden koruma testi exceljs'in
+modeliyle değil, **jszip ile açılan ham `sheetProtection` XML'iyle** doğrulanıyor.
+
+**Bozuk dosya ne yapar:** taksonomi sütunları (Sektör/Üretim Grubu/Kullanım Alanı) içe aktarmada HİÇ
+okunmaz — yalnız bağlam için yazılır, değiştirilmeleri veriyi bozamaz. Ürün ID değişirse sert hata,
+satır ID'si değişirse o satır için "bulunamadı" hatası; her iki durumda da hiçbir şey yazılmaz.
+
+**Neden `PUT /products/{id}` kullanılmadı:** o yol tüm ürünü (varyantlar, attribute değerleri,
+görseller, taksonomi bağları) yeniden yazar. Excel yalnız METİN taşıyor; ürünün geri kalanını riske
+atmamak için ayrı uç açıldı: `GET|PUT /products/{id}/industrial-usage-functions`
+(`admin` + `content_editor`). TR yazımında base kolon + `tr` çeviri satırı **birlikte** güncellenir;
+`imageKey`'e hiç dokunulmaz.
+
+**Bağımlılık kararı — `exceljs` (yalnız tarayıcıda, `await import()` ile):**
+- `write-excel-file` daha hafifti ama **sayfa koruması üretmiyor** (`sheetProtection` sadece XML
+  sıralama listesinde, API'si yok) — koruma istendiği için elendi.
+- exceljs tarayıcıda package.json `browser` alanıyla tek parça hazır bundle'a çözülür;
+  `archiver`/`unzipper`/`tmp` gibi node bağımlılıkları bundle'a **girmez**. Probe build ile
+  doğrulandı (Turbopack `Compiled successfully`). Lambda'ya konulsaydı bu dep ağacı esbuild'e
+  girecekti — bilinçli olarak istemci tarafı seçildi.
+- `npm audit`: exceljs transitif `uuid@<11.1.1` (moderate, v3/v5/v6 `buf` sınır kontrolü) getiriyor;
+  kullanılan kod yolu v4 ve tarayıcı tarafı. **Takip edilecek.**
+
+**Ölçüm notu:** canlıdaki `11-serisi-…-bakalit-tutamaklar` ürününde ~112 kullanım satırı var.
+GET payload'ı 14 dil × satır olduğu için en kötü durumda ~1MB mertebesine çıkabilir (Lambda 6MB
+sınırının altında); import tarafı yalnız değişen satırları gönderdiği için küçüktür.
+
+**Ajan notu — ajv strict tuzağı:** `z.record(z.enum(locales), …)` her dili `required` yapar ve
+`transpileSchema(..., {strict:true})` şemayı hiç derlemez (`strictRequired`). Doğrusu
+**`z.partialRecord`** — bilinmeyen dil kodunu ve uzunluk aşımını yine reddeder.
+
+Doğrulama: backend tsc ✅ · frontend tsc ✅ · lint 0 error (113 warning, yeni dosyalarda uyarı yok) ✅ ·
+core **313 test** ✅ (+15) · functions 14 ✅ · frontend **187 test** ✅ (+41, exceljs yaz→oku turu,
+ham XML koruma denetimi, gizli kimlik alanları ve zebra/donmuş bölme dahil) ·
+`next build` **Compiled successfully** ✅.
+
+**Panel UX ikinci turu (2026-08-11):**
+- **Ürün seçici**: kod araması yetersizdi (850+ ürün). Artık görselli kart ızgarası +
+  `ProductCategoryFilterRail` (müşteri portalı/admin ile ORTAK bileşen, yenisi yazılmadı) +
+  `AdminListPagination`. Görsel doğrulama yanlış ürüne dosya yükleme riskini de düşürüyor.
+- **İçe aktarma önizlemesi**: değişiklikler artık **dil sekmelerinde** (bayrak + Türkçe dil adı +
+  değişiklik sayısı). Sekmeler yalnız DEĞİŞİKLİĞİ OLAN diller için açılır — 14 sabit sekmenin 11'i
+  boş olsaydı "kaçırdım mı?" hissi verirdi. Sekme sırası `SUPPORTED_LOCALES`.
+- Önizleme tablosuna **Sektör / Üretim Grubu / Kullanım Alanı** sütunları eklendi; satır artık
+  yalnız Excel satır numarasıyla değil, ait olduğu kullanım alanıyla tanınıyor. Taksonomi adları
+  diff modülüne DEĞİL, bileşende `payload.taxonomy` ile join edilerek üretiliyor (saf modül
+  payload'dan bağımsız kaldı).
+- Uzun kullanım fonksiyonu metni kısaltılıp "Tamamını gör" dialoguna alındı —
+  `ProductUsageAreasTable` ile aynı okuma alışkanlığı.
+- `components/ui/tabs.tsx` eklendi (shadcn, repodaki `radix-ui` unified import desenine göre).
+  Repoda tabs primitive'i yoktu; el yapımı sekme yerine erişilebilir primitive tercih edildi.
+
+**Kullanıcıda bekleyen:** kubi'de uçtan uca doğrulama (indir → LibreOffice/Excel'de doldur → yükle),
+ardından commit + prod deploy.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

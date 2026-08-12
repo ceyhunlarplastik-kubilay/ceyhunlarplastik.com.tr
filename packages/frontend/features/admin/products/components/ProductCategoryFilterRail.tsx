@@ -53,10 +53,10 @@ function ProductCategoryCard({
             type="button"
             onClick={onClick}
             className={[
-                "group relative flex min-w-[220px] items-center gap-3 rounded-2xl border bg-white p-3 text-left transition",
-                "hover:border-[var(--color-brand)]/40 hover:shadow-sm",
+                "group relative flex min-w-55 items-center gap-3 rounded-2xl border bg-white p-3 text-left transition",
+                "hover:border-brand/40 hover:shadow-sm",
                 selected
-                    ? "border-2 border-[var(--color-brand)] bg-[color-mix(in_oklab,var(--color-brand)_10%,white)] shadow-[0_14px_28px_-20px_rgba(0,0,0,0.35)] ring-2 ring-[var(--color-brand)]/15"
+                    ? "border-2 border-(--color-brand) bg-[color-mix(in_oklab,var(--color-brand)_10%,white)] shadow-[0_14px_28px_-20px_rgba(0,0,0,0.35)] ring-2 ring-brand/15"
                     : "border-slate-200",
             ].join(" ")}
         >
@@ -76,7 +76,7 @@ function ProductCategoryCard({
 
             <div className="min-w-0 flex-1">
                 {selected ? (
-                    <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
+                    <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-(--color-brand)s">
                         <Sparkles className="h-3 w-3" />
                         Seçili
                     </div>
@@ -90,7 +90,7 @@ function ProductCategoryCard({
             </div>
 
             {selected && (
-                <div className="shrink-0 rounded-full bg-[var(--color-brand)] p-1 text-white">
+                <div className="shrink-0 rounded-full bg-(--color-brand) p-1 text-white">
                     <Check className="h-3.5 w-3.5" />
                 </div>
             )}
@@ -110,10 +110,10 @@ function AllProductsCard({
             type="button"
             onClick={onClick}
             className={[
-                "group flex min-w-[220px] items-center gap-3 rounded-2xl border bg-white p-3 text-left transition",
-                "hover:border-[var(--color-brand)]/40 hover:shadow-sm",
+                "group flex min-w-55 items-center gap-3 rounded-2xl border bg-white p-3 text-left transition",
+                "hover:border-brand/40 hover:shadow-sm",
                 selected
-                    ? "border-2 border-[var(--color-brand)] bg-[color-mix(in_oklab,var(--color-brand)_10%,white)] shadow-[0_14px_28px_-20px_rgba(0,0,0,0.35)] ring-2 ring-[var(--color-brand)]/15"
+                    ? "border-2 border-(--color-brand) bg-[color-mix(in_oklab,var(--color-brand)_10%,white)] shadow-[0_14px_28px_-20px_rgba(0,0,0,0.35)] ring-2 ring-brand/15"
                     : "border-slate-200",
             ].join(" ")}
         >
@@ -123,7 +123,7 @@ function AllProductsCard({
 
             <div className="min-w-0 flex-1">
                 {selected ? (
-                    <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
+                    <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-(--color-brand)">
                         <Sparkles className="h-3 w-3" />
                         Seçili
                     </div>
@@ -137,7 +137,7 @@ function AllProductsCard({
             </div>
 
             {selected && (
-                <div className="shrink-0 rounded-full bg-[var(--color-brand)] p-1 text-white">
+                <div className="shrink-0 rounded-full bg-(--color-brand) p-1 text-white">
                     <Check className="h-3.5 w-3.5" />
                 </div>
             )}
