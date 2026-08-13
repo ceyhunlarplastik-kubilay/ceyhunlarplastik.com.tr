@@ -160,7 +160,10 @@ export const listProductsHandler =
                     attributeValueIds
                 }, { view: "card" })
 
-                const mapped = result.data.map((product) => mapProductWithAssets(product, locale))
+                // Public yüzey admin'e özel çeviri satırlarını taşımaz.
+                const mapped = result.data.map((product) =>
+                    mapProductWithAssets(product, locale, { includeAdminTranslations: false }),
+                )
 
                 return apiResponseDTO({
                     statusCode: 200,

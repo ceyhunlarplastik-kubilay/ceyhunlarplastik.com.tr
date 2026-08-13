@@ -15,7 +15,12 @@ export const getProductHandler = ({ productRepository }: Pick<IProductDependenci
 
             return apiResponseDTO({
                 statusCode: 200,
-                payload: { product: mapProductWithAssets(product, locale) },
+                payload: {
+                    // Public yüzey admin'e özel çeviri satırlarını taşımaz.
+                    product: mapProductWithAssets(product, locale, {
+                        includeAdminTranslations: false,
+                    }),
+                },
             });
         } catch (err: any) {
             if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") throw new createError.NotFound("Product not found");

@@ -231,6 +231,112 @@ describe("mapProductWithAssets", () => {
         expect(industrialUsage.usageAreaValue.translations).toBeUndefined()
     })
 
+    /**
+     * Public payload daralması. Prod ölçümü (224 kullanım satırlı ürün):
+     * HTML 2374 KB'ın 1945 KB'ı (%82) `industrialUsages` dizisiydi; 1256 KB'ı
+     * 14 dilin `translations` satırları, 384 KB'ı taksonomi `alternateSlugs`'ları.
+     * Public sayfa ikisini de okumaz. Bu testler alanların sessizce geri
+     * gelmesini engeller.
+     */
+    describe("includeAdminTranslations: false (public yüzey)", () => {
+        function mapUsageProduct(options?: { includeAdminTranslations: boolean }) {
+            const usageAreaAttribute = makeAttribute(
+                "attribute-usage-area",
+                "usage_area",
+                "Kullanım Alanı",
+                "Usage Area",
+            )
+            const usageArea = makeValue(
+                "usage-area-1",
+                usageAreaAttribute,
+                "Duvar Rafları",
+                "duvar-raflari",
+                "Wall Shelves",
+                "wall-shelves",
+            )
+
+            return mapProductWithAssets(
+                makeProduct({
+                    industrialUsages: [
+                        {
+                            id: "industrial-usage-1",
+                            productId: "product-1",
+                            sectorValueId: null,
+                            sectorValue: null,
+                            productionGroupValueId: null,
+                            productionGroupValue: null,
+                            usageAreaValueId: usageArea.id,
+                            usageAreaValue: usageArea,
+                            usageFunction: "Kullanım açıklaması",
+                            translations: [
+                                {
+                                    id: "usage-translation-tr",
+                                    productIndustrialUsageId: "industrial-usage-1",
+                                    locale: "tr",
+                                    usageFunction: "Kullanım açıklaması",
+                                    createdAt: now,
+                                    updatedAt: now,
+                                },
+                                {
+                                    id: "usage-translation-en",
+                                    productIndustrialUsageId: "industrial-usage-1",
+                                    locale: "en",
+                                    usageFunction: "Usage explanation",
+                                    createdAt: now,
+                                    updatedAt: now,
+                                },
+                            ],
+                            imageKey: null,
+                            displayOrder: 0,
+                            createdAt: now,
+                            updatedAt: now,
+                        },
+                    ],
+                }),
+                "en",
+                options,
+            )
+        }
+
+        it("varsayılan admin davranışını korur — çeviri satırları taşınır", () => {
+            const [usage] = mapUsageProduct().industrialUsages
+
+            expect(usage.translations).toHaveLength(2)
+            expect(usage.usageAreaValue.alternateSlugs).toBeDefined()
+        })
+
+        it("public çağrıda kullanım satırı çevirilerini taşımaz", () => {
+            const [usage] = mapUsageProduct({ includeAdminTranslations: false })
+                .industrialUsages
+
+            expect(usage.translations).toBeUndefined()
+        })
+
+        it("public çağrıda taksonomi alternateSlugs'ını taşımaz", () => {
+            const [usage] = mapUsageProduct({ includeAdminTranslations: false })
+                .industrialUsages
+
+            expect(usage.usageAreaValue.alternateSlugs).toBeUndefined()
+        })
+
+        it("public çağrıda ürün çeviri satırlarını taşımaz", () => {
+            const mapped = mapUsageProduct({ includeAdminTranslations: false })
+
+            expect(mapped.translations).toBeUndefined()
+        })
+
+        it("SEO için gerekenleri KORUR: ürün alternateSlugs ve çözümlenmiş metin", () => {
+            const mapped = mapUsageProduct({ includeAdminTranslations: false })
+            const [usage] = mapped.industrialUsages
+
+            // hreflang/canonical bunu okur — asla düşmemeli.
+            expect(mapped.alternateSlugs).toBeDefined()
+            // Tabloda render edilen metin ve taksonomi adı yerinde.
+            expect(usage.usageFunction).toBe("Usage explanation")
+            expect(usage.usageAreaValue.name).toBe("Wall Shelves")
+        })
+    })
+
     it("localizes regular product attribute values used by badges", () => {
         const modelTypeAttribute = makeAttribute(
             "attribute-model-type",

@@ -136,7 +136,11 @@ function mapProductAttributeValue(value: any, locale: SupportedLocale): any {
 // Usage değerlerini isim/slug + attribute künyesine indirger: public tablo yalnız
 // name, admin formu yalnız *ValueId okur. Derin attribute/parentValue zincirleri
 // yanıt boyutunu ürün başına ~0.5MB'a şişirip Lambda 6MB limitini aşıyordu.
-function mapIndustrialUsageValue(value: any, locale: SupportedLocale) {
+function mapIndustrialUsageValue(
+    value: any,
+    locale: SupportedLocale,
+    includeAdminTranslations: boolean,
+) {
     if (!value) return null
 
     const localized = localizeProductAttributeValue(value, locale)
@@ -148,33 +152,47 @@ function mapIndustrialUsageValue(value: any, locale: SupportedLocale) {
         locale: localized.locale,
         resolvedLocale: localized.resolvedLocale,
         translationMissing: localized.translationMissing,
-        alternateSlugs: localized.alternateSlugs,
+        // `alternateSlugs` yalnız ÜRÜN ve KATEGORİ seviyesinde tüketilir
+        // (canonical/hreflang). Kullanım satırının taksonomi değerinde hiçbir
+        // yüzey okumaz; 224 satırda 384 KB ediyordu.
+        ...(includeAdminTranslations && { alternateSlugs: localized.alternateSlugs }),
         attribute: mapIndustrialUsageAttribute(value.attribute, locale),
     }
 }
 
-function mapIndustrialUsage(usage: any, locale: SupportedLocale) {
+function mapIndustrialUsage(
+    usage: any,
+    locale: SupportedLocale,
+    includeAdminTranslations: boolean,
+) {
     const localized = localizeProductIndustrialUsage(usage, locale)
 
     return {
         id: usage.id,
         productId: usage.productId,
         sectorValueId: usage.sectorValueId ?? null,
-        sectorValue: mapIndustrialUsageValue(usage.sectorValue, locale),
+        sectorValue: mapIndustrialUsageValue(usage.sectorValue, locale, includeAdminTranslations),
         productionGroupValueId: usage.productionGroupValueId ?? null,
-        productionGroupValue: mapIndustrialUsageValue(usage.productionGroupValue, locale),
+        productionGroupValue: mapIndustrialUsageValue(
+            usage.productionGroupValue,
+            locale,
+            includeAdminTranslations,
+        ),
         usageAreaValueId: usage.usageAreaValueId ?? null,
-        usageAreaValue: mapIndustrialUsageValue(usage.usageAreaValue, locale),
+        usageAreaValue: mapIndustrialUsageValue(usage.usageAreaValue, locale, includeAdminTranslations),
         usageFunction: localized.usageFunction,
         locale: localized.locale,
         resolvedLocale: localized.resolvedLocale,
         translationMissing: localized.translationMissing,
-        // Çeviri satırları admin formunu besler (EN görsel önizlemesi); public
-        // taraf yalnız çözümlenmiş imageKey/imageUrl'i okur.
-        translations: localized.translations.map((translation) => ({
-            ...translation,
-            imageUrl: translation.imageKey ? buildAssetUrl(translation.imageKey) : null,
-        })),
+        // Çeviri satırları YALNIZ admin formunu besler (locale'e özgü görsel
+        // önizlemesi); public taraf çözümlenmiş imageKey/imageUrl'i okur.
+        // 224 satırlı bir üründe bu dizi tek başına 1256 KB'dı.
+        ...(includeAdminTranslations && {
+            translations: localized.translations.map((translation) => ({
+                ...translation,
+                imageUrl: translation.imageKey ? buildAssetUrl(translation.imageKey) : null,
+            })),
+        }),
         // localized.imageKey = istenen locale'in görseli, yoksa varsayılan (TR).
         imageKey: localized.imageKey,
         imageUrl: localized.imageKey ? buildAssetUrl(localized.imageKey) : null,
@@ -184,9 +202,27 @@ function mapIndustrialUsage(usage: any, locale: SupportedLocale) {
     }
 }
 
+/**
+ * Public yüzeylerde ADMIN'e özel alanlar taşınmaz.
+ *
+ * Ölçüm (prod, 224 kullanım satırlı ürün): HTML 2374 KB'ın 1945 KB'ı (%82)
+ * `industrialUsages` dizisiydi; bunun 1256 KB'ı (%53) 14 dilin `translations`
+ * satırları, 384 KB'ı (%16) taksonomi değerlerinin `alternateSlugs`'larıydı.
+ * Public sayfa TEK dil render eder ve bu iki alanı hiç okumaz — `.translations`
+ * public bileşenlerde hiç geçmez, `alternateSlugs` yalnız ÜRÜN ve KATEGORİ
+ * seviyesinde (canonical/hreflang) tüketilir.
+ *
+ * Varsayılan `true`: admin ürün formu çeviri satırlarını (locale'e özgü görsel
+ * önizlemesi dahil) okumaya devam eder. Yalnız PublicApi handler'ları `false` geçer.
+ */
+export type MapProductOptions = {
+    includeAdminTranslations?: boolean
+}
+
 export function mapProductWithAssets(
     product: any,
     locale: SupportedLocale = DEFAULT_LOCALE,
+    { includeAdminTranslations = true }: MapProductOptions = {},
 ) {
     const localized = localizeProduct(product, locale)
 
@@ -210,7 +246,7 @@ export function mapProductWithAssets(
         resolvedLocale: localized.resolvedLocale,
         translationMissing: localized.translationMissing,
         alternateSlugs: localized.alternateSlugs,
-        translations: localized.translations,
+        ...(includeAdminTranslations && { translations: localized.translations }),
         categoryId: product.categoryId,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
@@ -232,7 +268,7 @@ export function mapProductWithAssets(
             .map((value) => mapProductAttributeValue(value, locale))
             .filter((value) => !INDUSTRIAL_ATTRIBUTE_CODE_SET.has(value.attribute?.code ?? "")),
         industrialUsages: (product.industrialUsages ?? []).map((usage: any) =>
-            mapIndustrialUsage(usage, locale)
+            mapIndustrialUsage(usage, locale, includeAdminTranslations)
         ),
     }
 }

@@ -145,7 +145,7 @@ export default function ProductAssetFeatureSection({
                                         href={openHref ?? previewSrc}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className={`inline-flex items-center justify-center rounded-xl bg-[var(--color-brand)] ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-white transition-opacity hover:opacity-90`}
+                                        className={`inline-flex items-center justify-center rounded-xl bg-(--color-brand) ${compact ? "px-3 py-2 text-xs" : "px-4 py-2.5 text-sm"} font-semibold text-white transition-opacity hover:opacity-90`}
                                     >
                                         {openButtonLabel}
                                     </Link>

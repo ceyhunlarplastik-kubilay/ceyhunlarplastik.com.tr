@@ -25,6 +25,21 @@ import { buildAlternates } from "@/i18n/alternates";
 
 export const revalidate = 60
 
+/**
+ * ISR'i AÇAR. Dinamik segmentli bir route `generateStaticParams` OLMADAN tamamen
+ * dynamic render edilir ve `export const revalidate` sessizce etkisiz kalır —
+ * prod'da ölçüldü: `cache-control: private, no-store`, `x-nextjs-prerender`
+ * başlığı yok, her istek Lambda'ya gidiyordu (TTFB ~1.3 sn). Statik yollu
+ * sayfalar (`/`, `/urunler/filtre`) aynı anda ISR çalışıyordu.
+ *
+ * Boş dizi + varsayılan `dynamicParams: true`: build'de hiçbir sayfa üretilmez
+ * (850 ürün × 14 dil ~11.900 sayfa olurdu), ilk istek sayfayı üretir ve CDN'de
+ * cache'lenir. Sonraki ziyaretçiler CDN hızında alır.
+ */
+export async function generateStaticParams() {
+    return []
+}
+
 type PageProps = {
     params: Promise<{ locale: string; slug: string }>
 }

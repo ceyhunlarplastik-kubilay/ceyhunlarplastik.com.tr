@@ -2768,6 +2768,77 @@ gerçek Postgres 17'de uçtan uca SQL doğrulaması ✅.
 
 **Kullanıcıda bekleyen:** deploy sonrası prod'da aynı Excel ile tekrar deneme.
 
+## Ürün detay sayfası performansı — iki bağımsız kök neden (2026-08-13)
+
+**Belirti:** kullanım fonksiyonları 14 dilde toplu doldurulduktan sonra
+`/urun/[slug]` geç açılıyor. Kullanıcı tahmini: uzun kullanım fonksiyonu metinleri.
+
+**Ölçüm (canlı prod, Aşama 0):**
+
+| Sayfa | cache-control | prerender | TTFB |
+|---|---|---|---|
+| `/` | `s-maxage=2, swr` | `x-nextjs-prerender: 1`, `age: 36`, CDN **Hit** | hızlı |
+| `/urunler/filtre` | `s-maxage=2, swr` | ISR ✅ | hızlı |
+| `/urun/[slug]` | **`private, no-store`** | **yok** | **1.31 / 1.42 sn** |
+| `/urun-kategori/[slug]`, `/urun/[slug]/varyantlar`, `/ham-madde-sertifikalari/[materialId]` | `no-store` | yok | — |
+
+**Kök neden 1 — dinamik segment + `generateStaticParams` yokluğu (P7).** Sayfada
+`export const revalidate = 60` VARDI ama işlemiyordu. Ayırt edici test: statik yollu
+sayfalar ISR çalışıyor, `[slug]` route'ları çalışmıyor; ikisi arasındaki tek fark
+`generateStaticParams`. `[locale]` katmanında var, hiçbir `[slug]` route'unda yoktu.
+Sayfa gövdesinde dynamic API (`cookies`/`headers`/`searchParams`) YOK — `setRequestLocale`
+zaten çağrılı, yani bailout başka bir yerden gelmiyor.
+→ Dört route'a `generateStaticParams` (boş dizi) eklendi: build'de sayfa üretilmez
+(850 ürün × 14 dil ≈ 11.900 sayfa olurdu), ilk istek üretir, CDN cache'ler.
+`varyantlar` ve `ham-madde-sertifikalari` sayfalarında `revalidate` de yoktu, eklendi.
+
+**Kök neden 2 — payload'ın %82'si render edilmiyor (P1).** HTML **2374 KB**:
+
+| Parça | Boyut | Pay |
+|---|---|---|
+| `industrialUsages` dizisi | 1945 KB | %82 |
+| ↳ `translations` (14 dil) | 1256 KB | %53 |
+| ↳ taksonomi `alternateSlugs` | 384 KB | %16 |
+
+`usageFunction` HTML'de **3360 kez** geçiyordu = 224 kullanım × 15 (base + 14 çeviri).
+Kullanıcının tahmini doğru yeri gösterdi ama sebep metinlerin UZUNLUĞU değil, 14 kez
+TEKRARLANMALARIydı (çözümlenmiş tek dil ~37 KB).
+
+Kök neden `mapProductWithAssets`'in AdminApi ile PublicApi arasında paylaşılması.
+Dosyanın kendi yorumu zaten söylüyordu: *"Çeviri satırları admin formunu besler; public
+taraf yalnız çözümlenmiş imageKey/imageUrl'i okur."* Mapper attribute çevirilerini
+zaten atıyordu, industrialUsages için yapılmamıştı.
+→ Paylaşılan fonksiyona DOKUNULMADI; `includeAdminTranslations` seçeneği eklendi
+(varsayılan `true` = admin davranışı aynen korunur), yalnız üç PublicApi handler'ı
+`false` geçiyor. Kaldırılan alanların hepsi response validator'da `.optional()`.
+
+**Gerçek prod HTML'i üzerinde simüle edilen kazanç:**
+
+| | önce | sonra | fark |
+|---|---|---|---|
+| `industrialUsages` | 1945 KB | 370 KB | **−%81** |
+| HTML toplam | 2374 KB | ~799 KB | **−%66** |
+
+**SEO korundu:** kullanım fonksiyonu metinleri HTML'de server-render kalmaya devam
+ediyor (lazy-load'a alınmadı — zengin içerik), ürün/kategori `alternateSlugs`
+(canonical + hreflang) korundu, `robots`/`alternates` mantığı değişmedi.
+Regresyon testi: `mapProductWithAssets.test.ts` içinde 5 yeni test (varsayılan admin
+davranışı + public'te üç alanın düşmesi + SEO alanlarının korunması).
+
+**Yan iş:** `i18n/scriptLeakage.test.ts` 3D commit'iyle kırılmıştı (GLB/GLTF/WebGL
+Latin-dışı alfabelerde "çevrilmemiş kelime" sayılıyordu). Dosya biçimi ve tarayıcı
+API adları gerekçeleriyle `ALLOWED_LATIN`'e eklendi.
+
+Doğrulama: backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core **332 test** ✅ (+5) ·
+functions 14 ✅ · frontend **187 test** ✅ · `next build` Compiled successfully ✅.
+
+**Kullanıcıda bekleyen:**
+1. `sst shell -- next build` → route tablosunda `/urun/[slug]` `ƒ` yerine `○`/`●` mi
+   (P7 iddiasının tek kesin kanıtı build zamanında görülür).
+2. Deploy sonrası Aşama 0 komutlarını tekrar çalıştırıp önce/sonra karşılaştırması.
+3. Aynı mapper'ı kullanan müşteri portalı (`ProtectedApi/crm`) hâlâ varsayılanda —
+   istenirse orası da daraltılabilir (panel, SEO kaygısı yok).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

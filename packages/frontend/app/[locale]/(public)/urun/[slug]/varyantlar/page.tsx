@@ -10,6 +10,19 @@ import ProductVariantHeaderActions from "@/features/public/products/components/P
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
+
+export const revalidate = 60
+
+/**
+ * ISR'i AÇAR — bkz. `urun/[slug]/page.tsx`. `generateStaticParams` olmadan
+ * dinamik segmentli route tamamen dynamic render edilir ve CDN'de hiç
+ * cache'lenmez. Boş dizi: build'de sayfa üretilmez, ilk istekte üretilip
+ * CDN'e alınır.
+ */
+export async function generateStaticParams() {
+    return []
+}
+
 import { buildMeasurementKey } from "@/features/public/products/utils/measurement"
 import { getOgLocale } from "@/i18n/localeMetadata";
 import { buildAlternates } from "@/i18n/alternates";

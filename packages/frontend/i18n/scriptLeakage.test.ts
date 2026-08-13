@@ -100,6 +100,14 @@ const ALLOWED_LATIN: ReadonlyArray<readonly [text: string, reason: string]> = [
     ["bakelite", "Aynı ad, küçük harfli kullanım"],
     ["Sheet metal", "Teknik terim — Korece metinde parantez içinde gloss"],
     ["metal swarf", "Teknik terim — Hintçe metinde parantez içinde gloss"],
+
+    // 3D model görüntüleyici. Dosya biçimi ve tarayıcı API'si adları her dilde
+    // Latin yazılır; kullanıcı dosyayı bu uzantıyla görür/kaydeder, çevirmek
+    // hata mesajını anlaşılmaz yapardı.
+    ["GLB", "Dosya biçimi adı (glTF binary)"],
+    ["GLTF", "Dosya biçimi adı"],
+    ["glTF", "Dosya biçiminin resmi yazımı"],
+    ["WebGL", "Tarayıcı API adı"],
 ]
 
 const ALLOWED_SORTED = [...ALLOWED_LATIN]

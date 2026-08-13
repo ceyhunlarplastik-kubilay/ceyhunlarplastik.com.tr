@@ -136,7 +136,7 @@ export default function Product3DModelViewer({
     return (
         <div
             ref={fullscreenRef}
-            className="grid min-h-[360px] grid-rows-[1fr_auto] bg-neutral-100 sm:min-h-[430px]"
+            className="grid min-h-90 grid-rows-[1fr_auto] bg-neutral-100 sm:min-h-107.5"
             aria-busy={!isLoaded && !hasError}
         >
             <div className="relative min-h-0 overflow-hidden">
@@ -157,12 +157,12 @@ export default function Product3DModelViewer({
                     shadow-intensity="0.9"
                     shadow-softness="0.75"
                     exposure="1"
-                    className="block h-full min-h-[360px] w-full outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand sm:min-h-[430px]"
+                    className="block h-full min-h-90 w-full outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand sm:min-h-107.5"
                     style={viewerStyle}
                 />
 
                 {!hasError ? (
-                    <div className="absolute end-3 top-3 flex gap-2">
+                    <div className="absolute inset-e-3 top-3 flex gap-2">
                         <button
                             type="button"
                             onClick={resetView}

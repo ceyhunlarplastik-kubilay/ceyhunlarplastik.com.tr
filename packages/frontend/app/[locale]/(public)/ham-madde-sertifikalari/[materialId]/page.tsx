@@ -4,6 +4,19 @@ import { PageHero } from "@/components/sections/PageHero"
 import { MaterialCertificateCard } from "@/features/public/materials/components/MaterialCertificateCard"
 import { getMaterial } from "@/features/public/materials/server/getMaterial"
 
+export const revalidate = 60
+
+/**
+ * ISR'i AÇAR — bkz. `urun/[slug]/page.tsx`. `generateStaticParams` olmadan
+ * dinamik segmentli route tamamen dynamic render edilir ve CDN'de hiç
+ * cache'lenmez. Boş dizi: build'de sayfa üretilmez, ilk istekte üretilip
+ * CDN'e alınır.
+ */
+export async function generateStaticParams() {
+    return []
+}
+
+
 type PageProps = {
     params: Promise<{ locale: string; materialId: string }>
 }
