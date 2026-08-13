@@ -27,6 +27,24 @@ type Props = {
     refetchProduct: () => Promise<void>
 }
 
+const MODEL_3D_ACCEPT = {
+    "model/gltf-binary": [".glb"],
+    "model/gltf+json": [".gltf"],
+    "application/octet-stream": [".glb", ".gltf"],
+}
+
+function isModel3DFile(file: File) {
+    const name = file.name.toLowerCase()
+    return name.endsWith(".glb") || name.endsWith(".gltf")
+}
+
+function resolveContentType(file: File) {
+    const name = file.name.toLowerCase()
+    if (name.endsWith(".glb")) return "model/gltf-binary"
+    if (name.endsWith(".gltf")) return "model/gltf+json"
+    return file.type || "application/octet-stream"
+}
+
 export function AssetUploader({
     product,
     activeRole,
@@ -38,7 +56,15 @@ export function AssetUploader({
     const presignMutation = usePresignProductAsset()
     const updateProductMutation = useUpdateProduct()
 
-    const handleFiles = (files: File[]) => {
+    const handleFiles = (selectedFiles: File[]) => {
+
+        let files = selectedFiles
+        if (activeRole === "MODEL_3D" && files.some(file => !isModel3DFile(file))) {
+            toast.error("3D model alanı yalnız .glb veya .gltf dosyalarını kabul eder")
+            files = files.filter(isModel3DFile)
+        }
+
+        if (!files.length) return
 
         const newUploads = files.map(file => ({
             id: crypto.randomUUID(),
@@ -54,6 +80,7 @@ export function AssetUploader({
 
     const uploadFile = async (upload: Upload) => {
         try {
+            const contentType = resolveContentType(upload.file)
             const slug = slugify(product.name, {
                 lower: true,
                 strict: true
@@ -64,7 +91,7 @@ export function AssetUploader({
                 productSlug: slug,
                 assetRole: activeRole,
                 fileName: upload.file.name,
-                contentType: upload.file.type
+                contentType
 
             })
 
@@ -73,7 +100,7 @@ export function AssetUploader({
             await axios.put(uploadUrl, upload.file, {
 
                 headers: {
-                    "Content-Type": upload.file.type
+                    "Content-Type": contentType
                 },
 
                 onUploadProgress: (e) => {
@@ -99,12 +126,16 @@ export function AssetUploader({
                 id: product.id,
                 assetKey: key,
                 assetRole: activeRole,
-                assetType: upload.file.type.startsWith("image")
+                // MODEL_3D rolü semantik kaynaktır. Mevcut AssetType şemasında
+                // ayrı 3D değeri bulunmadığı için teknik dosya tipini kullanırız.
+                assetType: activeRole === "MODEL_3D"
+                    ? "TECHNICAL_DRAWING"
+                    : contentType.startsWith("image")
                     ? "IMAGE"
-                    : upload.file.type.startsWith("video")
+                    : contentType.startsWith("video")
                         ? "VIDEO"
                         : "PDF",
-                mimeType: upload.file.type
+                mimeType: contentType
 
             })
 
@@ -119,7 +150,13 @@ export function AssetUploader({
 
         <div className="space-y-4">
 
-            <UploadDropzone onFiles={handleFiles} />
+            <UploadDropzone
+                onFiles={handleFiles}
+                accept={activeRole === "MODEL_3D" ? MODEL_3D_ACCEPT : undefined}
+                description={activeRole === "MODEL_3D"
+                    ? "GLB önerilir. GLTF kullanıyorsanız texture ve buffer verilerinin dosyaya gömülü olduğundan emin olun."
+                    : undefined}
+            />
 
             <UploadQueue uploads={uploads} />
 

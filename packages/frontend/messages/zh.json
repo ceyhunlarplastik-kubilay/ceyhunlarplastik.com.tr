@@ -782,7 +782,14 @@
                     "badge": "3D模型",
                     "title": "3D模型",
                     "description": "通过查看产品的3D模型，您可以更真实地评估其形状细节。如有CAD/技术方面的需求，欢迎联系我们的团队。",
-                    "open": "打开3D模型"
+                    "open": "打开3D模型",
+                    "alt": "{name}的交互式3D模型",
+                    "loading": "正在加载3D模型",
+                    "errorTitle": "无法显示3D模型",
+                    "errorDescription": "无法加载文件。请检查GLB/GLTF文件以及浏览器是否支持WebGL。",
+                    "interactionHint": "拖动以旋转，滚动以缩放。",
+                    "resetView": "重置视图",
+                    "fullscreen": "全屏"
                 },
                 "videoPlay": "播放视频"
             },

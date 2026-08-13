@@ -1,14 +1,16 @@
 "use client"
 
 import { useCallback } from "react"
-import { useDropzone } from "react-dropzone"
+import { useDropzone, type Accept } from "react-dropzone"
 import { UploadCloud } from "lucide-react"
 
 type Props = {
     onFiles: (files: File[]) => void
+    accept?: Accept
+    description?: string
 }
 
-export function UploadDropzone({ onFiles }: Props) {
+export function UploadDropzone({ onFiles, accept, description }: Props) {
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
 
@@ -17,7 +19,8 @@ export function UploadDropzone({ onFiles }: Props) {
     }, [onFiles])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        onDrop
+        onDrop,
+        accept,
     })
 
     return (
@@ -31,6 +34,9 @@ export function UploadDropzone({ onFiles }: Props) {
                 ? <p>Dosyaları bırak...</p>
                 : <p>Dosyaları sürükle veya tıkla</p>
             }
+            {description ? (
+                <p className="mt-2 text-xs leading-5 text-neutral-500">{description}</p>
+            ) : null}
         </div>
     )
 }

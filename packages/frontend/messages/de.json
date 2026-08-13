@@ -782,7 +782,14 @@
                     "badge": "3D-Modell",
                     "title": "3D-Modell",
                     "description": "Anhand des 3D-Modells des Produkts können Sie die Formdetails realistischer beurteilen. Für Ihre CAD- und technischen Anforderungen können Sie sich gerne an unser Team wenden.",
-                    "open": "3D-Modell öffnen"
+                    "open": "3D-Modell öffnen",
+                    "alt": "Interaktives 3D-Modell von {name}",
+                    "loading": "3D-Modell wird geladen",
+                    "errorTitle": "Das 3D-Modell konnte nicht angezeigt werden",
+                    "errorDescription": "Die Datei konnte nicht geladen werden. Prüfen Sie die GLB/GLTF-Datei und die WebGL-Unterstützung des Browsers.",
+                    "interactionHint": "Zum Drehen ziehen und zum Zoomen scrollen.",
+                    "resetView": "Ansicht zurücksetzen",
+                    "fullscreen": "Vollbild"
                 },
                 "videoPlay": "Video abspielen"
             },

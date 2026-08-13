@@ -1,6 +1,6 @@
 "use client"
 
-import { Copy, ExternalLink, Trash2 } from "lucide-react"
+import { Box, Copy, ExternalLink, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { useDeleteAsset } from "@/features/admin/categories/hooks/useDeleteAsset"
@@ -49,7 +49,13 @@ export function AssetPreviewPanel({
                 Detay / Önizleme
             </div>
 
-            {currentAsset.type === "IMAGE" && (
+            {currentAsset.role === "MODEL_3D" ? (
+                <div className="flex h-[260px] flex-col items-center justify-center rounded-lg bg-neutral-100 text-neutral-600">
+                    <Box className="mb-3 size-8" aria-hidden="true" />
+                    <span className="text-sm font-medium">3D model dosyası</span>
+                    <span className="mt-1 text-xs text-neutral-500">GLB / GLTF</span>
+                </div>
+            ) : currentAsset.type === "IMAGE" && (
                 <img
                     src={currentAsset.url}
                     className="max-h-[260px] w-full object-contain"
@@ -57,14 +63,14 @@ export function AssetPreviewPanel({
                 />
             )}
 
-            {currentAsset.type === "VIDEO" && (
+            {currentAsset.role !== "MODEL_3D" && currentAsset.type === "VIDEO" && (
                 <video
                     src={currentAsset.url}
                     controls
                     className="max-h-[260px] w-full"
                 />
             )}
-            {currentAsset.type === "PDF" && (
+            {currentAsset.role !== "MODEL_3D" && currentAsset.type === "PDF" && (
                 <iframe
                     src={currentAsset.url}
                     className="w-full h-[260px]"

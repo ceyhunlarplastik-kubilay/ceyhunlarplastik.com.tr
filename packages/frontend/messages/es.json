@@ -782,7 +782,14 @@
                     "badge": "Modelo 3D",
                     "title": "Modelo 3D",
                     "description": "Al examinar el modelo 3D del producto, podrás evaluar los detalles de la forma de una manera más realista. Puedes ponerte en contacto con nuestro equipo para tus necesidades de CAD o técnicas.",
-                    "open": "Abrir modelo 3D"
+                    "open": "Abrir modelo 3D",
+                    "alt": "Modelo 3D interactivo de {name}",
+                    "loading": "Cargando el modelo 3D",
+                    "errorTitle": "No se pudo mostrar el modelo 3D",
+                    "errorDescription": "No se pudo cargar el archivo. Comprueba el archivo GLB/GLTF y la compatibilidad del navegador con WebGL.",
+                    "interactionHint": "Arrastra para girar y desplázate para acercar.",
+                    "resetView": "Restablecer vista",
+                    "fullscreen": "Pantalla completa"
                 },
                 "videoPlay": "Reproducir el vídeo"
             },

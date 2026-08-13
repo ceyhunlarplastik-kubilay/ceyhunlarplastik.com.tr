@@ -1,6 +1,6 @@
 "use client"
 
-import { Trash2, FileText, Film, Image as ImageIcon } from "lucide-react"
+import { Box, Trash2, FileText, Film, Image as ImageIcon } from "lucide-react"
 
 import { useDeleteAsset } from "@/features/admin/categories/hooks/useDeleteAsset"
 
@@ -51,26 +51,30 @@ export function AssetGrid({
                         onClick={() => onSelect(asset.id)}
                     >
                         {/* PREVIEW */}
-                        {asset.type === "IMAGE" && (
+                        {asset.role === "MODEL_3D" ? (
+                            <div className="flex h-28 items-center justify-center bg-neutral-100">
+                                <Box size={20} />
+                            </div>
+                        ) : asset.type === "IMAGE" && (
                             <img
                                 src={asset.url}
                                 className="w-full h-28 object-cover"
                                 alt=""
                             />
                         )}
-                        {asset.type === "VIDEO" && (
+                        {asset.role !== "MODEL_3D" && asset.type === "VIDEO" && (
 
                             <div className="flex items-center justify-center h-28 bg-neutral-100">
                                 <Film size={20} />
                             </div>
 
                         )}
-                        {asset.type === "PDF" && (
+                        {asset.role !== "MODEL_3D" && asset.type === "PDF" && (
                             <div className="flex items-center justify-center h-28 bg-neutral-100">
                                 <FileText size={20} />
                             </div>
                         )}
-                        {!["IMAGE", "VIDEO", "PDF"].includes(asset.type) && (
+                        {asset.role !== "MODEL_3D" && !["IMAGE", "VIDEO", "PDF"].includes(asset.type) && (
 
                             <div className="flex items-center justify-center h-28 bg-neutral-100">
                                 <ImageIcon size={20} />

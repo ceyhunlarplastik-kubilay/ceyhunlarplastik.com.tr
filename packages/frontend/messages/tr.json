@@ -659,7 +659,14 @@
                     "badge": "3D Model",
                     "title": "3D Model",
                     "description": "Ürünün 3D modelini inceleyerek form detaylarını daha gerçekçi şekilde değerlendirebilirsiniz. CAD/teknik ihtiyaçlarınız için ekibimizle iletişime geçebilirsiniz.",
-                    "open": "3D Modeli Aç"
+                    "open": "3D Modeli Aç",
+                    "alt": "{name} ürününün etkileşimli 3D modeli",
+                    "loading": "3D model yükleniyor",
+                    "errorTitle": "3D model görüntülenemedi",
+                    "errorDescription": "Dosya yüklenemedi. GLB/GLTF dosyasını ve tarayıcının WebGL desteğini kontrol edin.",
+                    "interactionHint": "Döndürmek için sürükleyin, yakınlaştırmak için kaydırın.",
+                    "resetView": "Görünümü sıfırla",
+                    "fullscreen": "Tam ekran"
                 },
                 "videoPlay": "Videoyu oynat"
             },

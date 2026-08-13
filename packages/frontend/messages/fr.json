@@ -782,7 +782,14 @@
                     "badge": "Modèle 3D",
                     "title": "Modèle 3D",
                     "description": "En examinant le modèle 3D du produit, vous pouvez évaluer les détails de sa forme de manière plus réaliste. Vous pouvez contacter notre équipe pour vos besoins en CAO et techniques.",
-                    "open": "Ouvrir le modèle 3D"
+                    "open": "Ouvrir le modèle 3D",
+                    "alt": "Modèle 3D interactif de {name}",
+                    "loading": "Chargement du modèle 3D",
+                    "errorTitle": "Le modèle 3D ne peut pas être affiché",
+                    "errorDescription": "Le fichier ne peut pas être chargé. Vérifiez le fichier GLB/GLTF et la prise en charge de WebGL par le navigateur.",
+                    "interactionHint": "Faites glisser pour faire pivoter et utilisez la molette pour zoomer.",
+                    "resetView": "Réinitialiser la vue",
+                    "fullscreen": "Plein écran"
                 },
                 "videoPlay": "Lancer la vidéo"
             },

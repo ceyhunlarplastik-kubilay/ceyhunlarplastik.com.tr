@@ -659,7 +659,14 @@
                     "badge": "3D Model",
                     "title": "3D Model",
                     "description": "You can evaluate the form details more realistically by examining the product's 3D model. Contact our team for your CAD/technical needs.",
-                    "open": "Open 3D Model"
+                    "open": "Open 3D Model",
+                    "alt": "Interactive 3D model of {name}",
+                    "loading": "Loading 3D model",
+                    "errorTitle": "The 3D model could not be displayed",
+                    "errorDescription": "The file could not be loaded. Check the GLB/GLTF file and the browser's WebGL support.",
+                    "interactionHint": "Drag to rotate and scroll to zoom.",
+                    "resetView": "Reset view",
+                    "fullscreen": "Full screen"
                 },
                 "videoPlay": "Play video"
             },
