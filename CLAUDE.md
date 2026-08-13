@@ -96,6 +96,16 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   Prisma `Decimal` alanları JSON'da `{s,e,d}` objesi olarak serialize olur.
 - Lambda 6MB senkron yanıt limiti yalnız BUFFERED API Gateway Lambda'ları için
   geçerlidir; frontend server `aws-lambda-streaming` kullanır, ona uygulanmaz.
+- Toplu yazmada satır başına `update`/`upsert` ÜRETME: Prisma'nın varsayılan transaction
+  zaman aşımı 5 sn'dir ve birkaç bin round-trip bunu aşar (P2028, prod'da yaşandı).
+  Satır başına FARKLI değer yazılacaksa `updateMany` işe yaramaz (tek değer yazar),
+  `createMany` de mevcut satırı güncellemez. Doğrusu `$executeRaw` +
+  `UNNEST(dizi1, dizi2, …)` ile tek ifade (+ `ON CONFLICT DO UPDATE`), 500'lük parçalar.
+  Aynı ifadede aynı çakışma anahtarı iki kez bulunamaz.
+- Repoda prettier config'i YOK ve kod elle 4 boşluk girintiyle yazılmış. `npx prettier --write`
+  çalıştırma: varsayılan 2 boşluğa çevirip küçük bir değişikliği yüzlerce satırlık diff'e dönüştürür.
+- shadcn `SelectTrigger` varsayılanı `w-fit`'tir; ızgara/flex sütununu doldurması gerektiğinde
+  `className="w-full"` vermeyi unutma, yoksa alan içeriğe göre daralır.
 - Client component'e ham API objesi / büyük DTO'yu prop olarak geçme — RSC flight
   payload'una serialize olup tarayıcıya iner (6MB/performans sınıfının kök nedeni).
   Server'da daralt/grupla, client'a görüntülenecek kadarını ver.

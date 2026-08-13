@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
 
 import {
+    BULK_WRITE_CHUNK_SIZE,
     USAGE_FUNCTION_MAX_LENGTH,
+    chunkForBulkWrite,
     buildIndustrialUsageFunctionWritePlan,
     mapIndustrialUsageFunctionExport,
     type IndustrialUsageFunctionProductSource,
@@ -258,5 +260,35 @@ describe("mapIndustrialUsageFunctionExport", () => {
         const result = mapIndustrialUsageFunctionExport(makeProductSource())
 
         expect(result.rows.map((row) => row.usageId)).toEqual(["usage-2", "usage-1"])
+    })
+})
+
+describe("chunkForBulkWrite", () => {
+    it("boş dizide hiç parça üretmez", () => {
+        expect(chunkForBulkWrite([])).toEqual([])
+    })
+
+    it("parça boyutunun altındaki diziyi tek parça bırakır", () => {
+        expect(chunkForBulkWrite([1, 2, 3], 5)).toEqual([[1, 2, 3]])
+    })
+
+    it("tam bölünen diziyi eşit parçalara ayırır", () => {
+        expect(chunkForBulkWrite([1, 2, 3, 4], 2)).toEqual([[1, 2], [3, 4]])
+    })
+
+    it("artan elemanları son parçaya koyar", () => {
+        expect(chunkForBulkWrite([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]])
+    })
+
+    it("hiçbir elemanı düşürmez veya çoğaltmaz", () => {
+        const items = Array.from({ length: 3136 }, (_, index) => index)
+        const chunks = chunkForBulkWrite(items)
+
+        expect(chunks.flat()).toEqual(items)
+        expect(chunks.every((chunk) => chunk.length <= BULK_WRITE_CHUNK_SIZE)).toBe(true)
+    })
+
+    it("geçersiz parça boyutunu reddeder", () => {
+        expect(() => chunkForBulkWrite([1], 0)).toThrow(RangeError)
     })
 })

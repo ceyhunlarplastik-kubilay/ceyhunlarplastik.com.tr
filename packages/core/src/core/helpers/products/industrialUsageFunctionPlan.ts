@@ -321,3 +321,20 @@ export function buildIndustrialUsageFunctionWritePlan({
 
     return { baseUpdates, translationWrites, stats }
 }
+
+/**
+ * Toplu SQL için parça boyutu. Postgres'in 65535 bağlı parametre sınırına ve
+ * tek ifadenin makul kalmasına göre seçildi: 500 satır × 4 dizi = 2000 parametre.
+ */
+export const BULK_WRITE_CHUNK_SIZE = 500
+
+/** Diziyi eşit parçalara böler; boş dizide hiç parça üretmez. */
+export function chunkForBulkWrite<T>(items: T[], size = BULK_WRITE_CHUNK_SIZE): T[][] {
+    if (size <= 0) throw new RangeError("chunk size must be positive")
+
+    const chunks: T[][] = []
+    for (let index = 0; index < items.length; index += size) {
+        chunks.push(items.slice(index, index + size))
+    }
+    return chunks
+}

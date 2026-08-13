@@ -2690,8 +2690,83 @@ senkronu render sırasında yapılır (effect + setState lint hatası veriyor).
 Doğrulama: backend tsc ✅ · frontend tsc ✅ · lint 0 error (113 warning) ✅ · core 321 ✅ ·
 functions 14 ✅ · frontend 187 ✅ · `next build` ✅.
 
+**Endüstriyel profil bölümü — tasarım turu (2026-08-11):**
+- **Gerçek hata:** shadcn `SelectTrigger` varsayılanı `w-fit`. Sektör/Üretim Grubu select'leri ızgara
+  sütununu doldurmayıp içeriğe göre daralıyordu — ekrandaki hizasızlığın sebebi buydu, zevk meselesi
+  değil. `w-full` eklendi. **Yeni select eklerken bu tuzak tekrar eder.**
+- **İki "Sektör" kontrolü kaldırıldı.** Formun Sektör alanının hemen altında ikinci bir sektör
+  dropdown'ı vardı (picker filtresi); ikisi farklı anlamda ama aynı isimde olduğu için "veri girişi mi
+  filtre mi?" ayrımı kayboluyordu. Filtre artık **chip satırı** (Tümü + sektör + adet) — dropdown
+  olmadığı için "filtre" olduğu görsel olarak belli.
+- **Çift sayaç birleşti**: üstteki "N kullanım alanı" rozeti kalktı, sayım picker başlığında tek yerde.
+- **Seçilenler çubuğu**: seçili alanlar kaldırılabilir chip olarak listenin üstünde sabit durur;
+  kullanıcı scroll'da ne seçtiğini kaybetmiyor.
+- **İç içe scroll kaldırıldı**: picker'ın kendi 340px'lik ScrollArea'sı dialog'un scroll'uyla
+  çakışıyor ve listeyi dar bir pencereye hapsediyordu. Artık tek scroll var, araç çubuğu `sticky`.
+- Kartlar sıkılaştı (2→5 sütun), seçili durum `ring` + dolu tik rozetiyle net.
+- İki select "Birincil Sınıflandırma" kutusuna alındı; altındaki yardım metni üretim grubu ile
+  kullanım alanı arasındaki kural farkını açıklıyor.
+
+**Ajan notu — bu repoda `npx prettier` ÇALIŞTIRMA:** prettier config'i yok, kod elle 4 boşluk
+girintiyle yazılmış. Prettier varsayılan 2 boşluğa çevirip 40 satırlık değişikliği 739 satırlık
+diff'e dönüştürdü; dosya `git checkout` ile geri alınıp düzenlemeler elle tekrar uygulandı.
+
 **Kullanıcıda bekleyen:** kubi'de uçtan uca doğrulama (kayıt → kullanım alanı ataması → eşleşme
 önizlemesi → müşteri portalında "İlgili Ürünler"), ardından commit + prod deploy.
+
+## 🔴 PROD HATASI: kullanım fonksiyonu içe aktarımı P2028 ile düşüyordu (2026-08-13)
+
+**Belirti:** prod'da `Kullanım Fonksiyonu Aktarımı → İçe Aktar → Değişiklikleri Kaydet`
+→ `{"message": "Kullanım fonksiyonları içe aktarılamadı"}`. Dosya 224 kullanım satırı ×
+14 dil = **3136 çeviri hücresi** taşıyordu.
+
+**CloudWatch kök nedeni** (`.../admin-industrialUsageFunctions-applyProd-54526`):
+```
+PrismaClientKnownRequestError: Transaction API error: A rollback cannot be executed on an
+expired transaction. The timeout for this transaction was 5000 ms, however 5028 ms passed
+code: 'P2028'
+```
+
+**Gerçek sebep veri hacmi DEĞİL, ROUND-TRIP SAYISI:** yazma yolu satır başına bir
+`update`/`upsert` üretiyordu → tek transaction içinde **~3360 ayrı sorgu** (224 + 3136).
+VPC + RDS Proxy üzerinden bu, Prisma'nın 5 sn'lik varsayılan transaction sınırını aşıyor.
+Zaman aşımını büyütmek yama olurdu: 3360 round-trip yine 10+ sn sürer, transaction o süre
+boyunca satır kilidi tutar ve Lambda zaman aşımına yaklaşırdı.
+
+**Çözüm — toplu SQL (sorgu sayısı veriden bağımsız):**
+- TR base kolonu: tek `UPDATE … FROM UNNEST(ids, texts)` ifadesi.
+- Çeviri satırları: tek `INSERT … SELECT FROM UNNEST(4 dizi) … ON CONFLICT
+  ("productIndustrialUsageId","locale") DO UPDATE`.
+- 500'lük parçalara bölünür (`chunkForBulkWrite`, saf + testli) → 3360 sorgu yerine **~8 ifade**.
+- `imageKey` `DO UPDATE` listesinde YOK: locale'e özgü görseller bu akışın dışında yönetiliyor.
+
+**Neden Prisma API'si yetmedi:** `updateMany` tüm satırlara TEK değer yazar (burada satır başına
+farklı metin gerekiyor); `createMany` + `skipDuplicates` ise mevcut satırı GÜNCELLEMEZ.
+
+**Gerçek Postgres 17 üzerinde doğrulandı** (yerel geçici örnek, prod şemasının birebir DDL'i,
+224 satır + 3136 hücre + 50 mevcut görselli çeviri satırı):
+
+| Ölçüm | Sonuç |
+|---|---|
+| `UPDATE … UNNEST` (224 satır) | **2.4 ms** |
+| `INSERT … ON CONFLICT` (3136 hücre) | **15.1 ms** |
+| Toplam transaction | **~18 ms** (önce: 5000 ms'de timeout) |
+| Çeviri satırı / benzersiz | 3136 / 3136 — kopya yok |
+| **Mevcut `imageKey` korunan** | **50 / 50** |
+| Güncellenen satır kimliği | korundu (INSERT değil UPDATE olduğu kanıtlandı) |
+
+**⚠️ Yeni invariant bağımlılığı:** aynı ifadede aynı `(usageId, locale)` çifti iki kez bulunursa
+Postgres `ON CONFLICT DO UPDATE command cannot affect row a second time` ile patlar (bu da
+yerelde kanıtlandı). Tekilliği `buildIndustrialUsageFunctionWritePlan` garanti ediyor
+(aynı kullanım satırını reddeder + diller map anahtarı). O garanti kaldırılırsa SQL kırılır —
+koda uyarı olarak yazıldı.
+
+Transaction zaman aşımı ayrıca 15 sn'ye çekildi (Lambda'nın altında) — artık yalnız emniyet payı.
+
+Doğrulama: backend tsc ✅ · core **327 test** ✅ (+6 chunk) · functions 14 ✅ ·
+gerçek Postgres 17'de uçtan uca SQL doğrulaması ✅.
+
+**Kullanıcıda bekleyen:** deploy sonrası prod'da aynı Excel ile tekrar deneme.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
