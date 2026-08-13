@@ -2,20 +2,10 @@
 
 import Image from "next/image"
 import { useDeferredValue, useMemo, useState } from "react"
-import { Check, ImageOff, Search, X } from "lucide-react"
+import { Check, ImageOff, Layers, Search, X } from "lucide-react"
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
 export type UsageAreaOption = {
@@ -40,6 +30,7 @@ function pickThumb(value: UsageAreaOption) {
 }
 
 const ALL_SECTORS = "__all__"
+const UNGROUPED_LABEL = "Sektörsüz"
 
 type Props = {
     usageAreaValues: UsageAreaOption[]
@@ -49,18 +40,23 @@ type Props = {
     onToggle: (valueId: string) => void
     onClear: () => void
     /**
-     * Formda seçili sektör. Listeyi VARSAYILAN olarak daraltır ama kilitlemez —
-     * kullanıcı "Tüm sektörler"e alıp başka sektörlerden de seçebilir.
+     * Formdaki birincil sektör. Listeyi VARSAYILAN olarak daraltır ama
+     * kilitlemez — kullanıcı "Tümü"ye alıp başka sektörlerden de seçebilir.
      */
     focusSectorId?: string | null
     isLoading?: boolean
 }
 
 /**
- * Kullanım alanı seçimi FARKLI SEKTÖRLERDEN yapılabilir (2026-08-11 kararı):
- * `sectorValueId` müşterinin birincil sınıfı, kullanım alanları ise ilgi
- * listesidir. Bu yüzden liste sektöre göre DARALTILMAZ — bunun yerine sektör
- * başlıklarıyla GRUPLANIR ve aranabilir, kullanıcı ne seçtiğini görsün.
+ * Kullanım alanı seçimi FARKLI SEKTÖRLERDEN yapılabilir: `sectorValueId`
+ * müşterinin birincil sınıfı, kullanım alanları ise ilgi listesidir.
+ *
+ * Bu yüzden liste sektöre göre kilitlenmez; sektör CHIP'leri bir filtredir.
+ * Chip tercih edilmesinin sebebi: formun "Sektör" alanının yanında ikinci bir
+ * dropdown, "veri girişi mi filtre mi?" ayrımını kaybettiriyordu.
+ *
+ * İç scroll YOK: dialog'un kendi scroll'u kullanılır. İç içe scroll alanı
+ * kullanıcıyı 340px'lik bir pencereye hapsediyordu.
  */
 export function LeadCustomerUsageAreaPicker({
     usageAreaValues,
@@ -79,14 +75,13 @@ export function LeadCustomerUsageAreaPicker({
 
     // Formda sektör değiştiğinde liste ona odaklanır. React'in "prop değişince
     // state'i render sırasında ayarla" deseni — effect + setState cascading
-    // render üretir ve lint tarafından da yasak.
-    // https://react.dev/learn/you-might-not-need-an-effect
+    // render üretir. https://react.dev/learn/you-might-not-need-an-effect
     if (focusSectorId !== lastFocusSectorId) {
         setLastFocusSectorId(focusSectorId)
         setSectorFilterId(focusSectorId || ALL_SECTORS)
     }
 
-    /** usageAreaId → { sektör id'si, sektör adı }. Gruplama ve filtre ikisini de kullanır. */
+    /** usageAreaId → { sektör id, sektör adı }. Gruplama, filtre ve chip sayıları. */
     const sectorByUsageAreaId = useMemo(() => {
         const sectorById = new Map(sectorValues.map((value) => [value.id, value.name]))
         const groupById = new Map(productionGroupValues.map((value) => [value.id, value]))
@@ -97,10 +92,31 @@ export function LeadCustomerUsageAreaPicker({
                 const sectorId = group?.parentValueId ?? null
                 const sectorName = sectorId ? sectorById.get(sectorId) : undefined
 
-                return [value.id, { id: sectorId, name: sectorName ?? "Sektörsüz" }]
+                return [value.id, { id: sectorId, name: sectorName ?? UNGROUPED_LABEL }]
             }),
         )
     }, [productionGroupValues, sectorValues, usageAreaValues])
+
+    /** Filtre chip'leri: yalnız gerçekten kullanım alanı olan sektörler. */
+    const sectorChips = useMemo(() => {
+        const counts = new Map<string, number>()
+
+        for (const value of usageAreaValues) {
+            const sectorId = sectorByUsageAreaId.get(value.id)?.id
+            if (!sectorId) continue
+            counts.set(sectorId, (counts.get(sectorId) ?? 0) + 1)
+        }
+
+        return sectorValues
+            .filter((sector) => counts.has(sector.id))
+            .map((sector) => ({
+                id: sector.id,
+                name: sector.name,
+                count: counts.get(sector.id) ?? 0,
+            }))
+    }, [sectorByUsageAreaId, sectorValues, usageAreaValues])
+
+    const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds])
 
     const groups = useMemo(() => {
         const normalized = deferredSearch.trim().toLocaleLowerCase("tr")
@@ -110,9 +126,10 @@ export function LeadCustomerUsageAreaPicker({
 
             // Seçili olanlar filtre dışında kalsa bile GÖRÜNÜR kalır: kullanıcı
             // neyi seçtiğini kaybetmemeli.
-            const isSelected = selectedIds.includes(value.id)
             const matchesSector =
-                sectorFilterId === ALL_SECTORS || sector?.id === sectorFilterId || isSelected
+                sectorFilterId === ALL_SECTORS ||
+                sector?.id === sectorFilterId ||
+                selectedSet.has(value.id)
 
             if (!matchesSector) return false
             if (!normalized) return true
@@ -126,153 +143,229 @@ export function LeadCustomerUsageAreaPicker({
         const bySector = new Map<string, UsageAreaOption[]>()
 
         for (const value of filtered) {
-            const sectorName = sectorByUsageAreaId.get(value.id)?.name ?? "Sektörsüz"
+            const sectorName = sectorByUsageAreaId.get(value.id)?.name ?? UNGROUPED_LABEL
             const bucket = bySector.get(sectorName)
             if (bucket) bucket.push(value)
             else bySector.set(sectorName, [value])
         }
 
         return [...bySector.entries()].sort(([left], [right]) => left.localeCompare(right, "tr"))
-    }, [deferredSearch, sectorByUsageAreaId, sectorFilterId, selectedIds, usageAreaValues])
+    }, [deferredSearch, sectorByUsageAreaId, sectorFilterId, selectedSet, usageAreaValues])
 
-    const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds])
+    /** Seçilenler çubuğu — scroll'dan bağımsız, her zaman görünür ve kaldırılabilir. */
+    const selectedValues = useMemo(
+        () => usageAreaValues.filter((value) => selectedSet.has(value.id)),
+        [selectedSet, usageAreaValues],
+    )
     const selectedSectorCount = useMemo(
-        () =>
-            new Set(selectedIds.map((id) => sectorByUsageAreaId.get(id)?.name ?? "Sektörsüz")).size,
-        [selectedIds, sectorByUsageAreaId],
+        () => new Set(selectedValues.map((value) => sectorByUsageAreaId.get(value.id)?.name)).size,
+        [sectorByUsageAreaId, selectedValues],
     )
 
     return (
-        <div className="space-y-3">
-            <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex flex-1 flex-col gap-2 sm:flex-row">
-                    <Select value={sectorFilterId} onValueChange={setSectorFilterId}>
-                        <SelectTrigger className="h-10 w-full rounded-2xl sm:max-w-[220px]">
-                            <SelectValue placeholder="Sektör" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL_SECTORS}>Tüm sektörler</SelectItem>
-                            {sectorValues.map((value) => (
-                                <SelectItem key={value.id} value={value.id}>
-                                    {value.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <div className="relative w-full sm:max-w-xs">
+        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+            {/* Araç çubuğu: dialog scroll'unda yukarıda sabit kalır. */}
+            <div className="sticky top-0 z-10 space-y-3 border-b border-neutral-100 bg-white/95 p-3 backdrop-blur">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                         <Input
                             value={search}
                             onChange={(event) => setSearch(event.target.value)}
                             placeholder="Kullanım alanı ara"
-                            className="h-10 rounded-2xl pl-9"
+                            className="h-10 rounded-xl border-neutral-200 pl-9"
                         />
+                        {search ? (
+                            <button
+                                type="button"
+                                onClick={() => setSearch("")}
+                                aria-label="Aramayı temizle"
+                                className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-600"
+                            >
+                                <X className="h-3.5 w-3.5" />
+                            </button>
+                        ) : null}
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                        <Layers className="h-3.5 w-3.5" />
+                        <span className="font-medium text-neutral-800">{selectedIds.length}</span>
+                        seçili
+                        {selectedSectorCount > 1 ? (
+                            <span className="text-neutral-400">· {selectedSectorCount} sektör</span>
+                        ) : null}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="rounded-full">
-                        {selectedIds.length} seçili
-                        {selectedSectorCount > 1 ? ` · ${selectedSectorCount} sektör` : ""}
-                    </Badge>
-                    {selectedIds.length > 0 ? (
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="rounded-2xl"
-                            onClick={onClear}
-                        >
-                            <X className="h-3.5 w-3.5" />
-                            Temizle
-                        </Button>
-                    ) : null}
-                </div>
+                {sectorChips.length > 0 ? (
+                    <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5">
+                        <SectorChip
+                            label="Tümü"
+                            count={usageAreaValues.length}
+                            isActive={sectorFilterId === ALL_SECTORS}
+                            onClick={() => setSectorFilterId(ALL_SECTORS)}
+                        />
+                        {sectorChips.map((sector) => (
+                            <SectorChip
+                                key={sector.id}
+                                label={sector.name}
+                                count={sector.count}
+                                isActive={sectorFilterId === sector.id}
+                                onClick={() => setSectorFilterId(sector.id)}
+                            />
+                        ))}
+                    </div>
+                ) : null}
             </div>
 
-            <ScrollArea className="max-h-[340px] rounded-2xl border border-neutral-200 bg-neutral-50/60">
-                <div className="space-y-4 p-3">
-                    {groups.map(([sectorName, values]) => (
-                        <div key={sectorName}>
-                            <div className="mb-2 flex items-center gap-2">
-                                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
-                                    {sectorName}
-                                </span>
-                                <span className="h-px flex-1 bg-neutral-200" />
-                            </div>
-
-                            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                {values.map((value) => {
-                                    const isSelected = selectedSet.has(value.id)
-                                    const thumb = pickThumb(value)
-
-                                    return (
-                                        <button
-                                            key={value.id}
-                                            type="button"
-                                            onClick={() => onToggle(value.id)}
-                                            className={cn(
-                                                "group overflow-hidden rounded-2xl border text-start transition",
-                                                isSelected
-                                                    ? "border-brand bg-brand/8 shadow-sm"
-                                                    : "border-neutral-200 bg-white hover:border-neutral-300",
-                                            )}
-                                        >
-                                            <div className="relative aspect-square w-full bg-neutral-50">
-                                                {thumb ? (
-                                                    <Image
-                                                        src={thumb}
-                                                        alt={value.name}
-                                                        fill
-                                                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 33vw, 20vw"
-                                                        className="object-contain p-2"
-                                                    />
-                                                ) : (
-                                                    <div className="grid h-full place-items-center text-neutral-300">
-                                                        <ImageOff className="h-6 w-6" />
-                                                    </div>
-                                                )}
-
-                                                {isSelected ? (
-                                                    <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-brand text-white shadow">
-                                                        <Check className="h-3.5 w-3.5" />
-                                                    </span>
-                                                ) : null}
-                                            </div>
-
-                                            <div
-                                                className={cn(
-                                                    "border-t px-2 py-1.5 text-xs font-medium leading-4",
-                                                    isSelected
-                                                        ? "border-brand/20 text-neutral-950"
-                                                        : "border-neutral-100 text-neutral-600",
-                                                )}
-                                            >
-                                                {value.name}
-                                            </div>
-                                        </button>
-                                    )
-                                })}
-                            </div>
-                        </div>
+            {selectedValues.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-1.5 border-b border-neutral-100 bg-brand/4 px-3 py-2.5">
+                    {selectedValues.map((value) => (
+                        <button
+                            key={value.id}
+                            type="button"
+                            onClick={() => onToggle(value.id)}
+                            className="group inline-flex items-center gap-1 rounded-full border border-brand/30 bg-white py-1 pl-2.5 pr-1.5 text-xs font-medium text-neutral-800 transition hover:border-brand/60"
+                        >
+                            {value.name}
+                            <span className="grid h-4 w-4 place-items-center rounded-full text-neutral-400 transition group-hover:bg-neutral-100 group-hover:text-neutral-700">
+                                <X className="h-3 w-3" />
+                            </span>
+                        </button>
                     ))}
 
-                    {groups.length === 0 ? (
-                        <p className="px-3 py-8 text-center text-xs text-neutral-500">
-                            {isLoading
-                                ? "Kullanım alanları yükleniyor"
-                                : "Aramanıza uyan kullanım alanı bulunamadı."}
-                        </p>
-                    ) : null}
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="ms-auto h-7 rounded-full px-2 text-xs text-neutral-500 hover:text-neutral-800"
+                        onClick={onClear}
+                    >
+                        Tümünü kaldır
+                    </Button>
                 </div>
-            </ScrollArea>
+            ) : null}
 
-            <p className="text-xs text-neutral-500">
-                {sectorFilterId === ALL_SECTORS
-                    ? "Tüm sektörler listeleniyor; farklı sektörlerden alan seçebilirsiniz."
-                    : "Liste seçili sektöre göre daraltıldı. Başka sektörlerden de seçmek için \"Tüm sektörler\"e geçin — mevcut seçimleriniz korunur."}
-            </p>
+            <div className="space-y-5 p-3">
+                {groups.map(([sectorName, values]) => (
+                    <div key={sectorName}>
+                        <div className="mb-2 flex items-center gap-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+                                {sectorName}
+                            </span>
+                            <span className="text-[11px] text-neutral-300">{values.length}</span>
+                            <span className="h-px flex-1 bg-neutral-100" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+                            {values.map((value) => {
+                                const isSelected = selectedSet.has(value.id)
+                                const thumb = pickThumb(value)
+
+                                return (
+                                    <button
+                                        key={value.id}
+                                        type="button"
+                                        onClick={() => onToggle(value.id)}
+                                        aria-pressed={isSelected}
+                                        className={cn(
+                                            "group relative overflow-hidden rounded-xl border text-start transition",
+                                            isSelected
+                                                ? "border-brand ring-2 ring-brand/20"
+                                                : "border-neutral-200 hover:border-neutral-300 hover:shadow-sm",
+                                        )}
+                                    >
+                                        <div className="relative aspect-square w-full bg-neutral-50">
+                                            {thumb ? (
+                                                <Image
+                                                    src={thumb}
+                                                    alt={value.name}
+                                                    fill
+                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                                                    className="object-contain p-2 transition duration-200 group-hover:scale-[1.04]"
+                                                />
+                                            ) : (
+                                                <div className="grid h-full place-items-center text-neutral-300">
+                                                    <ImageOff className="h-5 w-5" />
+                                                </div>
+                                            )}
+
+                                            <span
+                                                className={cn(
+                                                    "absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full border transition",
+                                                    isSelected
+                                                        ? "border-brand bg-brand text-white"
+                                                        : "border-neutral-200 bg-white/80 text-transparent group-hover:text-neutral-300",
+                                                )}
+                                            >
+                                                <Check className="h-3.5 w-3.5" />
+                                            </span>
+                                        </div>
+
+                                        <div
+                                            className={cn(
+                                                "border-t px-2 py-1.5 text-[11px] font-medium leading-4",
+                                                isSelected
+                                                    ? "border-brand/20 bg-brand/5 text-neutral-950"
+                                                    : "border-neutral-100 text-neutral-600",
+                                            )}
+                                        >
+                                            <span className="line-clamp-2">{value.name}</span>
+                                        </div>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ))}
+
+                {groups.length === 0 ? (
+                    <div className="px-3 py-10 text-center">
+                        <div className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-neutral-100 text-neutral-400">
+                            <Search className="h-5 w-5" />
+                        </div>
+                        <p className="mt-3 text-sm font-medium text-neutral-700">
+                            {isLoading ? "Kullanım alanları yükleniyor" : "Sonuç bulunamadı"}
+                        </p>
+                        {!isLoading ? (
+                            <p className="mt-1 text-xs text-neutral-500">
+                                Aramayı değiştirin veya &quot;Tümü&quot; sekmesine geçin.
+                            </p>
+                        ) : null}
+                    </div>
+                ) : null}
+            </div>
         </div>
+    )
+}
+
+function SectorChip({
+    label,
+    count,
+    isActive,
+    onClick,
+}: {
+    label: string
+    count: number
+    isActive: boolean
+    onClick: () => void
+}) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            aria-pressed={isActive}
+            className={cn(
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                isActive
+                    ? "border-neutral-950 bg-neutral-950 text-white"
+                    : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50",
+            )}
+        >
+            {label}
+            <span className={cn("text-[10px]", isActive ? "text-white/60" : "text-neutral-400")}>
+                {count}
+            </span>
+        </button>
     )
 }

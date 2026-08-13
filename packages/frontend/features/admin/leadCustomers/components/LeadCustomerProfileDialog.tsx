@@ -86,10 +86,6 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
     }, [customer, form, open])
 
     const selectedSectorValueId = useWatch({ control: form.control, name: "sectorValueId" })
-    const selectedUsageAreaValueIds = useWatch({
-        control: form.control,
-        name: "usageAreaValueIds",
-    })
 
     const valuesByCode = useMemo(() => {
         const read = (code: string): AttributeValueOption[] =>
@@ -142,8 +138,6 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
     }, () => {
         toast.error("Formda eksik veya hatalı alanlar var")
     })
-
-    const selectedUsageAreaCount = selectedUsageAreaValueIds?.length ?? 0
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -240,21 +234,21 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                 <Separator />
 
                                 <div>
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div>
-                                            <h3 className="text-sm font-semibold text-neutral-950">
-                                                Endüstriyel Profil
-                                            </h3>
-                                            <p className="text-xs text-neutral-500">
-                                                Sektör → üretim grubu → kullanım alanı. Ürünler bu hiyerarşi üzerinden eşleşir.
-                                            </p>
-                                        </div>
-                                        <Badge variant="outline" className="rounded-full">
-                                            {selectedUsageAreaCount} kullanım alanı
-                                        </Badge>
+                                    <div className="flex items-baseline gap-2">
+                                        <h3 className="text-sm font-semibold text-neutral-950">
+                                            Endüstriyel Profil
+                                        </h3>
+                                        <span className="text-xs text-neutral-400">
+                                            ürün eşleşmesini belirler
+                                        </span>
                                     </div>
 
-                                    <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                                    <div className="mt-3 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3">
+                                        <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+                                            Birincil Sınıflandırma
+                                        </p>
+
+                                        <div className="grid gap-3 sm:grid-cols-2">
                                         <FormField
                                             control={form.control}
                                             name="sectorValueId"
@@ -274,7 +268,9 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                         disabled={attributesQuery.isLoading}
                                                     >
                                                         <FormControl>
-                                                            <SelectTrigger>
+                                                            {/* shadcn SelectTrigger varsayılanı `w-fit`;
+                                                                ızgara sütununu doldurması için w-full. */}
+                                                            <SelectTrigger className="h-10 w-full rounded-xl bg-white">
                                                                 <SelectValue placeholder="Sektör seçin" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -307,7 +303,7 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                         disabled={attributesQuery.isLoading}
                                                     >
                                                         <FormControl>
-                                                            <SelectTrigger>
+                                                            <SelectTrigger className="h-10 w-full rounded-xl bg-white">
                                                                 <SelectValue placeholder="Üretim grubu seçin" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -324,6 +320,12 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                 </FormItem>
                                             )}
                                         />
+                                        </div>
+
+                                        <p className="mt-2.5 text-[11px] leading-4 text-neutral-500">
+                                            Üretim grubu, seçili sektörün altında olmalıdır. Kullanım alanları ise
+                                            bundan bağımsızdır — farklı sektörlerden seçilebilir.
+                                        </p>
                                     </div>
 
                                     <FormField
@@ -331,7 +333,14 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                         name="usageAreaValueIds"
                                         render={({ field }) => (
                                             <FormItem className="mt-4">
-                                                <FormLabel>Kullanım Alanları</FormLabel>
+                                                <div className="flex items-baseline justify-between gap-2">
+                                                    <FormLabel className="text-sm font-semibold text-neutral-950">
+                                                        Kullanım Alanları
+                                                    </FormLabel>
+                                                    <span className="text-xs text-neutral-400">
+                                                        müşterinin ilgilendiği alanlar
+                                                    </span>
+                                                </div>
                                                 <FormControl>
                                                     <LeadCustomerUsageAreaPicker
                                                         usageAreaValues={valuesByCode.usageArea}
