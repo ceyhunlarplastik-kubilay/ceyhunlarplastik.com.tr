@@ -504,6 +504,23 @@ export type FloatWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
 }
 
+export type EnumCustomerAssignedProductSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAssignedProductSource | Prisma.EnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel> | $Enums.CustomerAssignedProductSource
+}
+
+export type EnumCustomerAssignedProductSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAssignedProductSource | Prisma.EnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAssignedProductSourceWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAssignedProductSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel>
+}
+
 export type EnumCustomerAddressLocationSourceNullableFilter<$PrismaModel = never> = {
   equals?: $Enums.CustomerAddressLocationSource | Prisma.EnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
   in?: $Enums.CustomerAddressLocationSource[] | Prisma.ListEnumCustomerAddressLocationSourceFieldRefInput<$PrismaModel> | null
@@ -1205,6 +1222,23 @@ export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedFloatFilter<$PrismaModel>
   _min?: Prisma.NestedFloatFilter<$PrismaModel>
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAssignedProductSource | Prisma.EnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel> | $Enums.CustomerAssignedProductSource
+}
+
+export type NestedEnumCustomerAssignedProductSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerAssignedProductSource | Prisma.EnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerAssignedProductSource[] | Prisma.ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerAssignedProductSourceWithAggregatesFilter<$PrismaModel> | $Enums.CustomerAssignedProductSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel>
 }
 
 export type NestedEnumCustomerAddressLocationSourceNullableFilter<$PrismaModel = never> = {

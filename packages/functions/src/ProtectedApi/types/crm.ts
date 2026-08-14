@@ -182,6 +182,15 @@ export type IDeletePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGen
     { addressId: string }
 >
 
+export type ICreatePortalCustomerFavoriteVariantEvent = IAPIGatewayProxyEventWithUserGeneric<
+    { productVariantId: string }
+>
+
+export type IDeletePortalCustomerFavoriteVariantEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    { productVariantId: string }
+>
+
 export type ICreateManagedCustomerAddressEvent = IAPIGatewayProxyEventWithUserGeneric<
     ICustomerAddressBody,
     { id: string }

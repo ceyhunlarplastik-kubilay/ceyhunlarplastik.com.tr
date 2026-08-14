@@ -92,6 +92,14 @@ export const MeasurementCode = {
 export type MeasurementCode = (typeof MeasurementCode)[keyof typeof MeasurementCode]
 
 
+export const CustomerAssignedProductSource = {
+  STAFF: 'STAFF',
+  CUSTOMER: 'CUSTOMER'
+} as const
+
+export type CustomerAssignedProductSource = (typeof CustomerAssignedProductSource)[keyof typeof CustomerAssignedProductSource]
+
+
 export const CustomerAddressLocationSource = {
   MANUAL_PIN: 'MANUAL_PIN',
   GEOCODED: 'GEOCODED',

@@ -10,7 +10,7 @@ import {
     CustomerStatus,
     CustomerVisitStatus,
 } from "@/prisma/generated/prisma/enums"
-import { Customer, Prisma } from "@/prisma/generated/prisma/client"
+import { Customer, CustomerAssignedProductSource, Prisma } from "@/prisma/generated/prisma/client"
 
 const customerUserSummarySelect = {
     id: true,
@@ -429,6 +429,15 @@ export interface IPrismaCustomerRepository {
         createdByUserId: string,
     ): Promise<CustomerAssignedProductWithRelations[]>
     listAssignedProducts(customerId: string): Promise<CustomerAssignedProductWithRelations[]>
+    addCustomerFavoriteVariant(
+        customerId: string,
+        productVariantId: string,
+        createdByUserId: string,
+    ): Promise<CustomerAssignedProductWithRelations[]>
+    removeCustomerFavoriteVariant(
+        customerId: string,
+        productVariantId: string,
+    ): Promise<CustomerAssignedProductWithRelations[]>
     listVisits(customerId: string): Promise<CustomerVisitWithRelations[]>
     createVisit(data: Prisma.CustomerVisitCreateInput): Promise<CustomerVisitWithRelations>
     updateVisit(id: string, data: Prisma.CustomerVisitUpdateInput): Promise<CustomerVisitWithRelations>
@@ -929,9 +938,12 @@ export const customerRepository = (): IPrismaCustomerRepository => {
     const listAssignedProducts = async (customerId: string) =>
         prisma.customerAssignedProduct.findMany({
             where: { customerId },
-            orderBy: {
-                displayOrder: "asc",
-            },
+            orderBy: [
+                // Temsilci ataması önce, müşterinin kendi favorileri sonra;
+                // aynı kaynak içinde displayOrder korunur.
+                { source: "asc" },
+                { displayOrder: "asc" },
+            ],
             include: customerAssignedProductVariantInclude,
         })
 
@@ -943,8 +955,11 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         const uniqueProductVariantIds = Array.from(new Set(productVariantIds.filter(Boolean)))
 
         await prisma.$transaction(async (tx) => {
+            // KAYNAK İZOLASYONU (kritik): silme YALNIZ temsilci atamalarını kapsar.
+            // Kapsam daraltılmazsa temsilcinin listeyi kaydetmesi, müşterinin kalple
+            // eklediği favorileri de siler.
             await tx.customerAssignedProduct.deleteMany({
-                where: { customerId },
+                where: { customerId, source: CustomerAssignedProductSource.STAFF },
             })
 
             if (uniqueProductVariantIds.length > 0) {
@@ -953,10 +968,66 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                         customerId,
                         productVariantId,
                         displayOrder: index,
+                        source: CustomerAssignedProductSource.STAFF,
                         createdByUserId,
                     })),
                 })
             }
+        })
+
+        return listAssignedProducts(customerId)
+    }
+
+    /**
+     * Müşterinin kendi kalp işareti. `source: CUSTOMER` satırlarına dokunur;
+     * temsilci ataması (STAFF) aynı varyant için ayrı satırda durmaya devam eder.
+     *
+     * Zaten favorideyse yeni satır üretmez — kalp butonu çift tıklamaya ve
+     * eşzamanlı isteklere karşı bu sayede dayanıklıdır (unique kısıt da korur).
+     */
+    const addCustomerFavoriteVariant = async (
+        customerId: string,
+        productVariantId: string,
+        createdByUserId: string,
+    ) => {
+        const lastFavorite = await prisma.customerAssignedProduct.findFirst({
+            where: { customerId, source: CustomerAssignedProductSource.CUSTOMER },
+            orderBy: { displayOrder: "desc" },
+            select: { displayOrder: true },
+        })
+
+        await prisma.customerAssignedProduct.upsert({
+            where: {
+                customerId_productVariantId_source: {
+                    customerId,
+                    productVariantId,
+                    source: CustomerAssignedProductSource.CUSTOMER,
+                },
+            },
+            create: {
+                customerId,
+                productVariantId,
+                source: CustomerAssignedProductSource.CUSTOMER,
+                displayOrder: (lastFavorite?.displayOrder ?? -1) + 1,
+                createdByUserId,
+            },
+            // Var olan favori yeniden eklenirse sahiplik/sıra değişmemeli.
+            update: {},
+        })
+
+        return listAssignedProducts(customerId)
+    }
+
+    const removeCustomerFavoriteVariant = async (
+        customerId: string,
+        productVariantId: string,
+    ) => {
+        await prisma.customerAssignedProduct.deleteMany({
+            where: {
+                customerId,
+                productVariantId,
+                source: CustomerAssignedProductSource.CUSTOMER,
+            },
         })
 
         return listAssignedProducts(customerId)
@@ -1009,6 +1080,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         listFeaturedProducts,
         replaceAssignedProducts,
         listAssignedProducts,
+        addCustomerFavoriteVariant,
+        removeCustomerFavoriteVariant,
         listVisits,
         createVisit,
         updateVisit,

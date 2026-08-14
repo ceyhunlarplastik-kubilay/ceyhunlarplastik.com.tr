@@ -36,6 +36,8 @@ import {
     IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
+    ICreatePortalCustomerFavoriteVariantEvent,
+    IDeletePortalCustomerFavoriteVariantEvent,
     IManagedCustomerEvent,
     IManagedSupplierEvent,
     IPortalCustomerSpecialPricesEvent,
@@ -1088,6 +1090,72 @@ export const getPortalCustomerFeaturedProductsHandler = ({ customerRepository }:
         return apiResponseDTO({
             statusCode: 200,
             payload: { data: mapFeaturedProducts(data) },
+        })
+    }
+}
+
+/**
+ * Kalp butonu — müşterinin kendi favorisi.
+ *
+ * Yalnız `source: CUSTOMER` satırına dokunur; aynı varyant için temsilci ataması
+ * varsa o ayrı satırda durmaya devam eder. Varyant kimliği önce doğrulanır ki
+ * geçersiz kimlik FK ihlali olarak 500'e dönüşmesin.
+ */
+export const createPortalCustomerFavoriteVariantHandler = ({
+    customerRepository,
+    productVariantRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: ICreatePortalCustomerFavoriteVariantEvent) => {
+        if (!productVariantRepository) {
+            throw new createError.InternalServerError("Product variant repository not configured")
+        }
+
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customerId = requester.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(requester, customerId)
+
+        const { productVariantId } = event.body
+        const productVariant = await productVariantRepository.getProductVariant(productVariantId)
+        if (!productVariant) throw new createError.NotFound("Product variant not found")
+
+        const data = await customerRepository.addCustomerFavoriteVariant(
+            customerId,
+            productVariantId,
+            requester.id,
+        )
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { data: mapAssignedProducts(data) },
+        })
+    }
+}
+
+export const deletePortalCustomerFavoriteVariantHandler = ({
+    customerRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IDeletePortalCustomerFavoriteVariantEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customerId = requester.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(requester, customerId)
+
+        // Favoride olmayan varyant için de 200: kalp butonu idempotent olmalı.
+        const data = await customerRepository.removeCustomerFavoriteVariant(
+            customerId,
+            event.pathParameters.productVariantId,
+        )
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { data: mapAssignedProducts(data) },
         })
     }
 }

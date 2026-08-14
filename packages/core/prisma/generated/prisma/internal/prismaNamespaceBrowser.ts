@@ -596,6 +596,7 @@ export const CustomerAssignedProductScalarFieldEnum = {
   customerId: 'customerId',
   productVariantId: 'productVariantId',
   displayOrder: 'displayOrder',
+  source: 'source',
   createdByUserId: 'createdByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -126,6 +126,34 @@ export const deletePortalCustomerAddressValidator = validatorWrapper(
     },
 )
 
+/**
+ * Müşterinin kendi favori varyantı (kalp butonu). Gövde yalnız varyant kimliği
+ * taşır: müşteri kaynağı, sahiplik ve sıra sunucuda belirlenir — istemci
+ * `source` ya da `displayOrder` gönderemez.
+ */
+export const createPortalCustomerFavoriteVariantValidator = validatorWrapper(
+    z.object({
+        body: z.object({
+            productVariantId: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["body"],
+        requiredBodyFields: ["productVariantId"],
+    },
+)
+
+export const deletePortalCustomerFavoriteVariantValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            productVariantId: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    },
+)
+
 export const createManagedCustomerAddressValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({

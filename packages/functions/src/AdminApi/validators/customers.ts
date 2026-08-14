@@ -126,6 +126,8 @@ const assignedProductVariantSchema = z.object({
     customerId: z.uuid(),
     productVariantId: z.uuid(),
     displayOrder: z.number(),
+    // Kimin eklediğini ayırt eder: temsilci ataması mı, müşterinin kendi favorisi mi.
+    source: z.enum(["STAFF", "CUSTOMER"]),
     createdAt: z.string().optional(),
     updatedAt: z.string().optional(),
     createdByUserId: z.uuid().optional(),

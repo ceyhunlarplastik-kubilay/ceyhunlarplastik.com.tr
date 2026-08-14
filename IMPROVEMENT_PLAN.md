@@ -2902,6 +2902,106 @@ core 337 ✅ · functions 252 ✅ (+238 yeni) · frontend 199 ✅. kubi PublicAp
 runtime'da doğrulanamadı — admin panelinde ürün listesi/düzenleme ve 3D asset yükleme
 elle denenmeli. Ayrıca prod'a deploy gerekiyor (bu hata prod'da da vardı).
 
+## Favori Ürün Varyantlarım — Dilim 1: şema + backend (2026-08-14)
+
+Portaldaki "Tanımlı Ürün Varyantları" iki kaynaktan beslenen "Favori Ürün
+Varyantlarım"a dönüşüyor: temsilci/admin ataması ve müşterinin kendi kalp işareti.
+
+**Yol boyunca bulunan mayın:** `replaceAssignedProducts` müşterinin TÜM satırlarını
+silip yeniden yazıyordu (`deleteMany({ where: { customerId } })`). Kalp özelliği
+eklendiğinde temsilcinin listeyi kaydetmesi müşterinin favorilerini silecekti.
+Gerçek Postgres'te kanıtlandı: 2 STAFF + 1 CUSTOMER satırında eski sorgu 3 satırı
+birden siliyor, `source: STAFF` daraltmasıyla müşteri favorisi hayatta kalıyor.
+
+**Şema (migration `20260814120000_add_customer_assigned_product_source`):**
+- `enum CustomerAssignedProductSource { STAFF CUSTOMER }`
+- `CustomerAssignedProduct.source` (NOT NULL, `@default(STAFF)`)
+- tekillik `[customerId, productVariantId]` → `[customerId, productVariantId, source]`
+  (aynı varyant hem temsilci hem müşteri tarafında ayrı satır olabilsin)
+- index `[customerId, displayOrder]` → `[customerId, source, displayOrder]`
+
+**Geri doldurma gerekmedi:** bugüne kadarki tüm satırlar temsilci ataması olduğu için
+`DEFAULT 'STAFF'` mevcut satırları doğru işaretliyor. Yerel PostgreSQL 17'de doğrulandı:
+migration öncesi eklenen iki satır sonrasında `STAFF` olarak görüldü.
+
+**Migration gerçek veritabanında sınandı** (elle yazıldı, `prisma migrate dev`
+kullanılmadı):
+- dolu tablo üzerinde `migrate deploy` sorunsuz
+- aynı varyant STAFF + CUSTOMER olarak eklenebiliyor ✅
+- aynı (müşteri, varyant, kaynak) ikinci kez reddediliyor ✅
+- `migrate diff --from-config-datasource --to-schema` → "empty migration", yani elle
+  yazılan SQL şemayla birebir örtüşüyor, sapma yok ✅
+
+**Backend:**
+- `replaceAssignedProducts` artık yalnız STAFF satırlarını siler/yazar
+- `addCustomerFavoriteVariant` / `removeCustomerFavoriteVariant` — yalnız CUSTOMER
+  satırına dokunur; ekleme `upsert` + `update: {}` ile idempotent (çift tıklama ve
+  eşzamanlı istek güvenli), çıkarma favoride olmayan varyantta da 200 döner
+- `listAssignedProducts` sıralaması `[source, displayOrder]` — temsilci seçimi önce
+- Yeni uçlar: `POST /portal/customer/favorite-variants`,
+  `DELETE /portal/customer/favorite-variants/{productVariantId}`
+- İstek şeması yalnız `productVariantId` kabul eder; `source` ve `displayOrder`
+  sunucuda belirlenir (istemci kaynak sahtekârlığı yapamaz)
+- Yanıt şemasına `source` açıkça eklendi
+
+**Regresyon koruması:** `favoriteVariants.test.ts` (6 test) kaynak izolasyonunu
+sabitler. `source: STAFF` daraltması geçici olarak kaldırıldığında 2 test kırmızıya
+döndü — koruma doğrulandı. Ayrıca iki yeni validator, dünkü
+`validatorCompilation.test.ts` glob'una otomatik girdi (252 → 254 kontrol).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 343 ✅ (+6) ·
+functions 254 ✅ (+2) · frontend 199 ✅
+
+**Bilinçli sapma:** model adı `CustomerAssignedProduct` kaldı, arayüz "Favori" diyor.
+Tablo adını değiştirmek çok daha büyük bir migration; gerekirse ayrı dilim.
+
+**Kullanıcıda bekleyen:** migration'ı kubi'de uygulamak
+(`npx prisma migrate deploy`), sonra Dilim 2 (yeniden adlandırma + sayfa) ve
+Dilim 3 (kalp butonu).
+
+## Favori Ürün Varyantlarım — Dilim 2: yeniden adlandırma + kaynak sekmeleri (2026-08-14)
+
+**Route:** `/musteri/musteriye-tanimli-urunler` → `/musteri/favori-varyantlarim`.
+Eski adres `permanentRedirect` ile korundu (panel içi eski linkler ve yer imleri
+kırılmasın diye); repoda eski yola atıf kalmadı.
+
+**Etiketler:** sidebar "Tanımlı Varyantlar" → "Favori Varyantlarım" (ikon `Boxes` →
+`Heart`), müşteri özet sayfasındaki hızlı erişim kartı ve "Tüm Ürünler" sayfasındaki
+metin içi link de güncellendi. Sayfa başlığı "Favori Ürün Varyantlarım".
+
+**Kaynak sekmeleri:** Tümü · Temsilci Seçimi · Kendi Favorilerim. Sekme seçimi URL'de
+(`?kaynak=`) tutuluyor — repo kuralı gereği `useState` değil `nuqs`; parser
+`parseAsStringLiteral` ile, bilinmeyen değer "all"a düşüyor. Her sekmenin kendi boş
+durumu var (kendi favorilerim sekmesi kullanıcıyı kalp butonuna yönlendiriyor).
+
+**Kart rozeti:** "Tanımlı" rozeti kaynağa göre ikiye ayrıldı — müşterinin kendi
+favorisinde "Favorim" (dolu kalp), temsilci atamasında "Temsilci · <ad>". Ekleyen
+kişi adı yalnız temsilci atamasında gösteriliyor; kendi favorisinde müşteri zaten
+kendisidir.
+
+**Yol boyunca bulunan ikinci sorun:** admin/satış tarafındaki
+`CustomerAssignedVariantsPageClient`, atama listesini `GET .../assigned-products`
+ten alıyor ve bu uç artık müşterinin kendi favorilerini DE döndürüyor. Filtrelenmeseydi
+müşteri favorileri editörde seçili görünecek, kaydedildiğinde temsilci ataması olarak
+yeniden yazılacak ve "Temsilci Seçimi" sekmesinde de belirecekti. Editör
+`source === "STAFF"` ile sınırlandırıldı. (Veri kaybı değil, ama görünür kirlilik.)
+
+**Sadeleştirme:** `CustomerPortalProductsPageClient`'ın `mode` prop'u ve
+`CustomerPortalAssignedVariantsPageClient` dosyası kaldırıldı — favori sayfası artık
+kendi route'undan kendi bileşenini çağırıyor.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 343 ✅ ·
+functions 254 ✅ · frontend 199 ✅ · `next build` → "Compiled successfully" ✅
+
+**Bilinçli kapsam sınırı:** admin/satış tarafındaki "Tanımlı Varyantlar" başlıkları
+(`/admin/customers/[id]/defined-products`, `/satis/musteriler/[id]/defined-products`)
+DEĞİŞTİRİLMEDİ — istenen yeniden adlandırma müşteri paneliyle sınırlıydı. Portal bu
+kayıtları "Temsilci Seçimi" diye gösterdiği için ileride personel tarafını da
+hizalamak istenebilir.
+
+**Kullanıcıda bekleyen:** kubi'de doğrulama (aşağıdaki adımlar), sonra Dilim 3
+(kalp butonu).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -808,6 +808,16 @@ model CustomerFeaturedProduct {
   @@index([createdByUserId])
 }
 
+/// Portalda "Favori Ürün Varyantlarım" olarak gösterilir. İki kaynaktan beslenir:
+/// temsilci/admin ataması (STAFF) ve müşterinin kendi kalp işareti (CUSTOMER).
+/// Aynı varyant iki kaynakta da bulunabilir; bu yüzden tekillik kısıtı `source`
+/// içerir ve toplu yazma yolu (replaceAssignedProducts) YALNIZ STAFF satırlarına
+/// dokunur — aksi hâlde temsilci kaydı müşterinin favorilerini silerdi.
+enum CustomerAssignedProductSource {
+  STAFF
+  CUSTOMER
+}
+
 model CustomerAssignedProduct {
   id String @id @default(uuid())
 
@@ -819,14 +829,17 @@ model CustomerAssignedProduct {
 
   displayOrder Int @default(0)
 
+  /// Mevcut satırların tamamı temsilci atamasıdır; STAFF varsayılanı geri dolduruyu üstlenir.
+  source CustomerAssignedProductSource @default(STAFF)
+
   createdByUserId String
   createdByUser   User   @relation("CustomerAssignedProductCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([customerId, productVariantId])
-  @@index([customerId, displayOrder])
+  @@unique([customerId, productVariantId, source])
+  @@index([customerId, source, displayOrder])
   @@index([productVariantId])
   @@index([createdByUserId])
 }

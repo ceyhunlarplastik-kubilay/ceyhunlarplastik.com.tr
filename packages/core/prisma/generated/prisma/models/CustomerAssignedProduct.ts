@@ -39,6 +39,7 @@ export type CustomerAssignedProductMinAggregateOutputType = {
   customerId: string | null
   productVariantId: string | null
   displayOrder: number | null
+  source: $Enums.CustomerAssignedProductSource | null
   createdByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +50,7 @@ export type CustomerAssignedProductMaxAggregateOutputType = {
   customerId: string | null
   productVariantId: string | null
   displayOrder: number | null
+  source: $Enums.CustomerAssignedProductSource | null
   createdByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +61,7 @@ export type CustomerAssignedProductCountAggregateOutputType = {
   customerId: number
   productVariantId: number
   displayOrder: number
+  source: number
   createdByUserId: number
   createdAt: number
   updatedAt: number
@@ -79,6 +82,7 @@ export type CustomerAssignedProductMinAggregateInputType = {
   customerId?: true
   productVariantId?: true
   displayOrder?: true
+  source?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -89,6 +93,7 @@ export type CustomerAssignedProductMaxAggregateInputType = {
   customerId?: true
   productVariantId?: true
   displayOrder?: true
+  source?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -99,6 +104,7 @@ export type CustomerAssignedProductCountAggregateInputType = {
   customerId?: true
   productVariantId?: true
   displayOrder?: true
+  source?: true
   createdByUserId?: true
   createdAt?: true
   updatedAt?: true
@@ -196,6 +202,7 @@ export type CustomerAssignedProductGroupByOutputType = {
   customerId: string
   productVariantId: string
   displayOrder: number
+  source: $Enums.CustomerAssignedProductSource
   createdByUserId: string
   createdAt: Date
   updatedAt: Date
@@ -229,6 +236,7 @@ export type CustomerAssignedProductWhereInput = {
   customerId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   productVariantId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntFilter<"CustomerAssignedProduct"> | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFilter<"CustomerAssignedProduct"> | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
@@ -242,6 +250,7 @@ export type CustomerAssignedProductOrderByWithRelationInput = {
   customerId?: Prisma.SortOrder
   productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -252,26 +261,28 @@ export type CustomerAssignedProductOrderByWithRelationInput = {
 
 export type CustomerAssignedProductWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  customerId_productVariantId?: Prisma.CustomerAssignedProductCustomerIdProductVariantIdCompoundUniqueInput
+  customerId_productVariantId_source?: Prisma.CustomerAssignedProductCustomerIdProductVariantIdSourceCompoundUniqueInput
   AND?: Prisma.CustomerAssignedProductWhereInput | Prisma.CustomerAssignedProductWhereInput[]
   OR?: Prisma.CustomerAssignedProductWhereInput[]
   NOT?: Prisma.CustomerAssignedProductWhereInput | Prisma.CustomerAssignedProductWhereInput[]
   customerId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   productVariantId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntFilter<"CustomerAssignedProduct"> | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFilter<"CustomerAssignedProduct"> | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   productVariant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "customerId_productVariantId">
+}, "id" | "customerId_productVariantId_source">
 
 export type CustomerAssignedProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -290,6 +301,7 @@ export type CustomerAssignedProductScalarWhereWithAggregatesInput = {
   customerId?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
   productVariantId?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntWithAggregatesFilter<"CustomerAssignedProduct"> | number
+  source?: Prisma.EnumCustomerAssignedProductSourceWithAggregatesFilter<"CustomerAssignedProduct"> | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringWithAggregatesFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerAssignedProduct"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerAssignedProduct"> | Date | string
@@ -298,6 +310,7 @@ export type CustomerAssignedProductScalarWhereWithAggregatesInput = {
 export type CustomerAssignedProductCreateInput = {
   id?: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAssignedProductsInput
@@ -310,6 +323,7 @@ export type CustomerAssignedProductUncheckedCreateInput = {
   customerId: string
   productVariantId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -318,6 +332,7 @@ export type CustomerAssignedProductUncheckedCreateInput = {
 export type CustomerAssignedProductUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAssignedProductsNestedInput
@@ -330,6 +345,7 @@ export type CustomerAssignedProductUncheckedUpdateInput = {
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -340,6 +356,7 @@ export type CustomerAssignedProductCreateManyInput = {
   customerId: string
   productVariantId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -348,6 +365,7 @@ export type CustomerAssignedProductCreateManyInput = {
 export type CustomerAssignedProductUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -357,6 +375,7 @@ export type CustomerAssignedProductUncheckedUpdateManyInput = {
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,9 +391,10 @@ export type CustomerAssignedProductOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CustomerAssignedProductCustomerIdProductVariantIdCompoundUniqueInput = {
+export type CustomerAssignedProductCustomerIdProductVariantIdSourceCompoundUniqueInput = {
   customerId: string
   productVariantId: string
+  source: $Enums.CustomerAssignedProductSource
 }
 
 export type CustomerAssignedProductCountOrderByAggregateInput = {
@@ -382,6 +402,7 @@ export type CustomerAssignedProductCountOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -396,6 +417,7 @@ export type CustomerAssignedProductMaxOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -406,6 +428,7 @@ export type CustomerAssignedProductMinOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   productVariantId?: Prisma.SortOrder
   displayOrder?: Prisma.SortOrder
+  source?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -541,9 +564,14 @@ export type CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantNeste
   deleteMany?: Prisma.CustomerAssignedProductScalarWhereInput | Prisma.CustomerAssignedProductScalarWhereInput[]
 }
 
+export type EnumCustomerAssignedProductSourceFieldUpdateOperationsInput = {
+  set?: $Enums.CustomerAssignedProductSource
+}
+
 export type CustomerAssignedProductCreateWithoutCreatedByUserInput = {
   id?: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAssignedProductsInput
@@ -555,6 +583,7 @@ export type CustomerAssignedProductUncheckedCreateWithoutCreatedByUserInput = {
   customerId: string
   productVariantId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -593,6 +622,7 @@ export type CustomerAssignedProductScalarWhereInput = {
   customerId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   productVariantId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   displayOrder?: Prisma.IntFilter<"CustomerAssignedProduct"> | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFilter<"CustomerAssignedProduct"> | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFilter<"CustomerAssignedProduct"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerAssignedProduct"> | Date | string
@@ -601,6 +631,7 @@ export type CustomerAssignedProductScalarWhereInput = {
 export type CustomerAssignedProductCreateWithoutCustomerInput = {
   id?: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdAt?: Date | string
   updatedAt?: Date | string
   productVariant: Prisma.ProductVariantCreateNestedOneWithoutAssignedToCustomersInput
@@ -611,6 +642,7 @@ export type CustomerAssignedProductUncheckedCreateWithoutCustomerInput = {
   id?: string
   productVariantId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -645,6 +677,7 @@ export type CustomerAssignedProductUpdateManyWithWhereWithoutCustomerInput = {
 export type CustomerAssignedProductCreateWithoutProductVariantInput = {
   id?: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAssignedProductsInput
@@ -655,6 +688,7 @@ export type CustomerAssignedProductUncheckedCreateWithoutProductVariantInput = {
   id?: string
   customerId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -691,6 +725,7 @@ export type CustomerAssignedProductCreateManyCreatedByUserInput = {
   customerId: string
   productVariantId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -698,6 +733,7 @@ export type CustomerAssignedProductCreateManyCreatedByUserInput = {
 export type CustomerAssignedProductUpdateWithoutCreatedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAssignedProductsNestedInput
@@ -709,6 +745,7 @@ export type CustomerAssignedProductUncheckedUpdateWithoutCreatedByUserInput = {
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -718,6 +755,7 @@ export type CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserInput 
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -726,6 +764,7 @@ export type CustomerAssignedProductCreateManyCustomerInput = {
   id?: string
   productVariantId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -734,6 +773,7 @@ export type CustomerAssignedProductCreateManyCustomerInput = {
 export type CustomerAssignedProductUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productVariant?: Prisma.ProductVariantUpdateOneRequiredWithoutAssignedToCustomersNestedInput
@@ -744,6 +784,7 @@ export type CustomerAssignedProductUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -753,6 +794,7 @@ export type CustomerAssignedProductUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productVariantId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -762,6 +804,7 @@ export type CustomerAssignedProductCreateManyProductVariantInput = {
   id?: string
   customerId: string
   displayOrder?: number
+  source?: $Enums.CustomerAssignedProductSource
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -770,6 +813,7 @@ export type CustomerAssignedProductCreateManyProductVariantInput = {
 export type CustomerAssignedProductUpdateWithoutProductVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAssignedProductsNestedInput
@@ -780,6 +824,7 @@ export type CustomerAssignedProductUncheckedUpdateWithoutProductVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -789,6 +834,7 @@ export type CustomerAssignedProductUncheckedUpdateManyWithoutProductVariantInput
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  source?: Prisma.EnumCustomerAssignedProductSourceFieldUpdateOperationsInput | $Enums.CustomerAssignedProductSource
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -801,6 +847,7 @@ export type CustomerAssignedProductSelect<ExtArgs extends runtime.Types.Extensio
   customerId?: boolean
   productVariantId?: boolean
   displayOrder?: boolean
+  source?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -814,6 +861,7 @@ export type CustomerAssignedProductSelectCreateManyAndReturn<ExtArgs extends run
   customerId?: boolean
   productVariantId?: boolean
   displayOrder?: boolean
+  source?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -827,6 +875,7 @@ export type CustomerAssignedProductSelectUpdateManyAndReturn<ExtArgs extends run
   customerId?: boolean
   productVariantId?: boolean
   displayOrder?: boolean
+  source?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -840,12 +889,13 @@ export type CustomerAssignedProductSelectScalar = {
   customerId?: boolean
   productVariantId?: boolean
   displayOrder?: boolean
+  source?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerAssignedProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "productVariantId" | "displayOrder" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAssignedProduct"]>
+export type CustomerAssignedProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "productVariantId" | "displayOrder" | "source" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAssignedProduct"]>
 export type CustomerAssignedProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   productVariant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
@@ -874,6 +924,10 @@ export type $CustomerAssignedProductPayload<ExtArgs extends runtime.Types.Extens
     customerId: string
     productVariantId: string
     displayOrder: number
+    /**
+     * Mevcut satırların tamamı temsilci atamasıdır; STAFF varsayılanı geri dolduruyu üstlenir.
+     */
+    source: $Enums.CustomerAssignedProductSource
     createdByUserId: string
     createdAt: Date
     updatedAt: Date
@@ -1307,6 +1361,7 @@ export interface CustomerAssignedProductFieldRefs {
   readonly customerId: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
   readonly productVariantId: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
   readonly displayOrder: Prisma.FieldRef<"CustomerAssignedProduct", 'Int'>
+  readonly source: Prisma.FieldRef<"CustomerAssignedProduct", 'CustomerAssignedProductSource'>
   readonly createdByUserId: Prisma.FieldRef<"CustomerAssignedProduct", 'String'>
   readonly createdAt: Prisma.FieldRef<"CustomerAssignedProduct", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CustomerAssignedProduct", 'DateTime'>

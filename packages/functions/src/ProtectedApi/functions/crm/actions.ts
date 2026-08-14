@@ -22,6 +22,8 @@ import {
     getManagedCustomerSpecialPriceHandler,
     getManagedCustomerHandler,
     getManagedSupplierHandler,
+    createPortalCustomerFavoriteVariantHandler,
+    deletePortalCustomerFavoriteVariantHandler,
     getPortalCustomerAssignedProductsHandler,
     createPortalCustomerAddressHandler,
     deletePortalCustomerAddressHandler,
@@ -59,6 +61,8 @@ import type {
     IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
+    ICreatePortalCustomerFavoriteVariantEvent,
+    IDeletePortalCustomerFavoriteVariantEvent,
     IManagedCustomerEvent,
     IManagedSupplierEvent,
     IPortalCustomerSpecialPricesEvent,
@@ -96,6 +100,8 @@ import {
     listManagedCustomersMapValidator,
     updateManagedCustomerAddressValidator,
     updatePortalCustomerAddressValidator,
+    createPortalCustomerFavoriteVariantValidator,
+    deletePortalCustomerFavoriteVariantValidator,
 } from "@/functions/ProtectedApi/validators/crm"
 import {
     createCustomerSpecialPriceValidator,
@@ -425,6 +431,30 @@ export const getPortalCustomerAssignedProducts = lambdaHandler(
     async (event) => getPortalCustomerAssignedProductsHandler(deps)(event as IManagedCustomerEvent),
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        responseValidator: customerAssignedProductsResponseValidator,
+    },
+)
+
+export const createPortalCustomerFavoriteVariant = lambdaHandler(
+    async (event) =>
+        createPortalCustomerFavoriteVariantHandler(deps)(
+            event as ICreatePortalCustomerFavoriteVariantEvent,
+        ),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        requestValidator: createPortalCustomerFavoriteVariantValidator,
+        responseValidator: customerAssignedProductsResponseValidator,
+    },
+)
+
+export const deletePortalCustomerFavoriteVariant = lambdaHandler(
+    async (event) =>
+        deletePortalCustomerFavoriteVariantHandler(deps)(
+            event as IDeletePortalCustomerFavoriteVariantEvent,
+        ),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        requestValidator: deletePortalCustomerFavoriteVariantValidator,
         responseValidator: customerAssignedProductsResponseValidator,
     },
 )

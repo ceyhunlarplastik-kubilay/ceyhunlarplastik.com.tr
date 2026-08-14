@@ -4225,6 +4225,7 @@ export const CustomerAssignedProductScalarFieldEnum = {
   customerId: 'customerId',
   productVariantId: 'productVariantId',
   displayOrder: 'displayOrder',
+  source: 'source',
   createdByUserId: 'createdByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -4781,6 +4782,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerAssignedProductSource'
+ */
+export type EnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerAssignedProductSource'>
+    
+
+
+/**
+ * Reference to a field of type 'CustomerAssignedProductSource[]'
+ */
+export type ListEnumCustomerAssignedProductSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CustomerAssignedProductSource[]'>
     
 
 

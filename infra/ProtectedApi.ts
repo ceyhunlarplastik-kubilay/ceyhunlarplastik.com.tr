@@ -475,6 +475,18 @@ protectedApi.route('GET /portal/customer/assigned-products', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Kalp butonu: müşterinin kendi favori varyantları (source: CUSTOMER).
+// Temsilci ataması ayrı yoldan (PUT .../assigned-products) yönetilir.
+protectedApi.route('POST /portal/customer/favorite-variants', {
+    handler: `${folderPrefix}/crm/actions.createPortalCustomerFavoriteVariant`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /portal/customer/favorite-variants/{productVariantId}', {
+    handler: `${folderPrefix}/crm/actions.deletePortalCustomerFavoriteVariant`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /portal/customer/requests', {
     handler: `${folderPrefix}/businessRequests/actions.listPortalBusinessRequests`,
     ...defaultRouteOptions,
