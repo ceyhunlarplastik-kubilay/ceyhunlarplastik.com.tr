@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client"
+import { productModel3dConfigSchema } from "@/core/helpers/products/model3dConfig"
 
 export const createAssetValidator = validatorWrapper(
     z.object({
@@ -10,12 +11,22 @@ export const createAssetValidator = validatorWrapper(
             mimeType: z.string().optional(),
             type: z.enum(AssetType),
             role: z.enum(AssetRole).optional(),
+            model3dConfig: productModel3dConfigSchema.optional(),
             categoryId: z.uuid().optional(),
             productId: z.uuid().optional(),
             variantId: z.uuid().optional(),
             productAttributeValueId: z.uuid().optional(),
             materialId: z.uuid().optional(),
         })
+            .superRefine((data, ctx) => {
+                if (data.model3dConfig && (data.role !== "MODEL_3D" || data.mimeType !== "model/gltf-binary")) {
+                    ctx.addIssue({
+                        code: "custom",
+                        path: ["model3dConfig"],
+                        message: "model3dConfig requires a MODEL_3D GLB asset",
+                    })
+                }
+            })
             .refine((data) => Boolean(data.key || data.url), {
                 message: "key or url is required",
                 path: ["body"],
@@ -49,11 +60,20 @@ export const updateAssetValidator = validatorWrapper(
             mimeType: z.string().optional(),
             type: z.enum(AssetType).optional(),
             role: z.enum(AssetRole).optional(),
+            model3dConfig: productModel3dConfigSchema.optional(),
             categoryId: z.uuid().optional(),
             productId: z.uuid().optional(),
             variantId: z.uuid().optional(),
             productAttributeValueId: z.uuid().optional(),
             materialId: z.uuid().optional(),
+        }).superRefine((data, ctx) => {
+            if (data.model3dConfig && (data.role !== "MODEL_3D" || data.mimeType !== "model/gltf-binary")) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["model3dConfig"],
+                    message: "model3dConfig requires a MODEL_3D GLB asset",
+                })
+            }
         }),
     }),
     {
@@ -83,6 +103,7 @@ const assetSchema = z.object({
     mimeType: z.string(),
     type: z.enum(AssetType),
     role: z.enum(AssetRole),
+    model3dConfig: productModel3dConfigSchema.nullish(),
     categoryId: z.uuid().nullish(),
     productId: z.uuid().nullish(),
     variantId: z.uuid().nullish(),

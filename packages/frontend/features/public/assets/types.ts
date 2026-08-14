@@ -21,6 +21,8 @@ export type Asset = {
     type: AssetType
     role: AssetRole
     url: string
+    model3dConfig?: ProductModel3dConfig
     createdAt: string
     updatedAt: string
 }
+import type { ProductModel3dConfig } from "@core/helpers/products/model3dConfig"

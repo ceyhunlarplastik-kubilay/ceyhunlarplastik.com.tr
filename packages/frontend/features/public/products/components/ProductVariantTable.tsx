@@ -6,6 +6,7 @@ import { CircleHelp, Loader2, Palette, Ruler, Layers3, Hash } from "lucide-react
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
+import { parseAsString, useQueryState } from "nuqs"
 
 import { Badge } from "@/components/ui/badge"
 import { ButtonShine } from "@/components/ui/button-shine"
@@ -206,7 +207,10 @@ export default function ProductVariantTable({
     const t = useTranslations("public.productVariant.table")
     const { data: session } = useSession()
     const [pendingVariantKey, setPendingVariantKey] = useState<string | null>(null)
-    const [selectedKey, setSelectedKey] = useState<string>("")
+    const [selectedKey, setSelectedKey] = useQueryState(
+        "m",
+        parseAsString.withOptions({ history: "replace", shallow: true }),
+    )
 
     const isNavigatingToVariant = pendingVariantKey !== null
     // P1.8(B0): tedarikçi verisi yoksa (public + customer-main artık

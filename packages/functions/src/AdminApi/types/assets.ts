@@ -6,6 +6,7 @@ import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVa
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { IPrismaMaterialRepository } from "@/core/helpers/prisma/materials/repository"
 import { AssetRole, AssetType } from "@/prisma/generated/prisma/client"
+import type { ProductModel3dConfig } from "@/core/helpers/products/model3dConfig"
 
 export interface IAssetDependencies {
     assetRepository: IPrismaAssetRepository
@@ -22,6 +23,7 @@ export interface ICreateAssetBody {
     mimeType?: string
     type: AssetType
     role?: AssetRole
+    model3dConfig?: ProductModel3dConfig
     categoryId?: string
     productId?: string
     variantId?: string

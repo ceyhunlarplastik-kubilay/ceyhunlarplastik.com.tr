@@ -786,7 +786,7 @@
                     "alt": "{name}的交互式3D模型",
                     "loading": "正在加载3D模型",
                     "errorTitle": "无法显示3D模型",
-                    "errorDescription": "无法加载文件。请检查GLB/GLTF文件以及浏览器是否支持WebGL。",
+                    "errorDescription": "无法加载文件。请检查GLB文件以及浏览器是否支持WebGL。",
                     "interactionHint": "拖动以旋转，滚动以缩放。",
                     "resetView": "重置视图",
                     "fullscreen": "全屏"

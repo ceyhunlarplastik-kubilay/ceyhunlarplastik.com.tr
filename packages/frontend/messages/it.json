@@ -786,7 +786,7 @@
                     "alt": "Modello 3D interattivo di {name}",
                     "loading": "Caricamento del modello 3D",
                     "errorTitle": "Impossibile visualizzare il modello 3D",
-                    "errorDescription": "Impossibile caricare il file. Controlla il file GLB/GLTF e il supporto WebGL del browser.",
+                    "errorDescription": "Impossibile caricare il file. Controlla il file GLB e il supporto WebGL del browser.",
                     "interactionHint": "Trascina per ruotare e scorri per ingrandire.",
                     "resetView": "Reimposta vista",
                     "fullscreen": "Schermo intero"

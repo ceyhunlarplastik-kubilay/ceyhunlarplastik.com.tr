@@ -663,7 +663,7 @@
                     "alt": "Interactive 3D model of {name}",
                     "loading": "Loading 3D model",
                     "errorTitle": "The 3D model could not be displayed",
-                    "errorDescription": "The file could not be loaded. Check the GLB/GLTF file and the browser's WebGL support.",
+                    "errorDescription": "The file could not be loaded. Check the GLB file and the browser's WebGL support.",
                     "interactionHint": "Drag to rotate and scroll to zoom.",
                     "resetView": "Reset view",
                     "fullscreen": "Full screen"

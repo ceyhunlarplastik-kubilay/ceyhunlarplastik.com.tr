@@ -112,6 +112,7 @@ export default async function ProductPage({ params }: PageProps) {
     ])
 
     const similarProducts = toSimilarProductItems(productsByCategory, product.id)
+    const groupedVariantOptions = groupVariantMeasurements(variantTable.variants)
 
     return (
         <main>
@@ -147,7 +148,7 @@ export default async function ProductPage({ params }: PageProps) {
 
                 <div id="product-variants">
                     <ProductVariantTable
-                        options={groupVariantMeasurements(variantTable.variants)}
+                        options={groupedVariantOptions}
                         loadError={variantTable.error}
                         productSlug={product.slug}
                         productId={product.id}
@@ -160,7 +161,7 @@ export default async function ProductPage({ params }: PageProps) {
                 </div>
                 <ProductUsageAreasTable product={product} collapsible/>
                 <div id="product-3d-model">
-                    <Product3DModelSection product={product} />
+                    <Product3DModelSection product={product} options={groupedVariantOptions} />
                 </div>
                 <div id="product-assembly-video">
                     <ProductAssemblyVideoSection product={product} />

@@ -4514,6 +4514,7 @@ export const AssetScalarFieldEnum = {
   mimeType: 'mimeType',
   type: 'type',
   role: 'role',
+  model3dConfig: 'model3dConfig',
   categoryId: 'categoryId',
   productId: 'productId',
   variantId: 'variantId',

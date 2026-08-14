@@ -33,6 +33,7 @@ export default async function CustomerPortalProductDetailPage({
     ])
 
     const similarProducts = toSimilarProductItems(productsByCategory, product.id)
+    const groupedVariantOptions = groupVariantMeasurements(variantTable.variants)
 
     return (
         <div className="space-y-6">
@@ -51,7 +52,7 @@ export default async function CustomerPortalProductDetailPage({
 
             <div id="product-variants">
                 <ProductVariantTable
-                    options={groupVariantMeasurements(variantTable.variants)}
+                    options={groupedVariantOptions}
                     loadError={variantTable.error}
                     productSlug={product.slug}
                     productId={product.id}
@@ -68,7 +69,7 @@ export default async function CustomerPortalProductDetailPage({
             <ProductUsageAreasTable product={product} collapsible />
 
             <div id="product-3d-model">
-                <Product3DModelSection product={product} />
+                <Product3DModelSection product={product} options={groupedVariantOptions} />
             </div>
             <div id="product-assembly-video">
                 <ProductAssemblyVideoSection product={product} />

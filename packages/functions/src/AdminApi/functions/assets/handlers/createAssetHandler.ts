@@ -1,10 +1,11 @@
 import createError, { HttpError } from "http-errors"
+import { Prisma } from "@/prisma/generated/prisma/client"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IAssetDependencies, ICreateAssetEvent } from "@/functions/AdminApi/types/assets"
 
 export const createAssetHandler = ({ assetRepository, categoryRepository, productRepository, productVariantRepository, productAttributeValueRepository, materialRepository }: IAssetDependencies) => {
     return async (event: ICreateAssetEvent) => {
-        const { key, url, mimeType, type, role, categoryId, productId, variantId, productAttributeValueId, materialId } = event.body;
+        const { key, url, mimeType, type, role, model3dConfig, categoryId, productId, variantId, productAttributeValueId, materialId } = event.body;
 
         try {
             if (categoryId) {
@@ -32,6 +33,9 @@ export const createAssetHandler = ({ assetRepository, categoryRepository, produc
                 mimeType,
                 type,
                 role: role ?? "GALLERY",
+                ...(model3dConfig && {
+                    model3dConfig: model3dConfig as Prisma.InputJsonValue,
+                }),
                 ...(categoryId && { category: { connect: { id: categoryId } } }),
                 ...(productId && { product: { connect: { id: productId } } }),
                 ...(variantId && { variant: { connect: { id: variantId } } }),
