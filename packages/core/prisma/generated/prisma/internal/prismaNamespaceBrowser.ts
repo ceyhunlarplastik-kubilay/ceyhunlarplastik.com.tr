@@ -87,6 +87,8 @@ export const ModelName = {
   ProductVariantSupplier: 'ProductVariantSupplier',
   ProductVariantCampaign: 'ProductVariantCampaign',
   ProductVariantCampaignItem: 'ProductVariantCampaignItem',
+  CampaignAnnouncement: 'CampaignAnnouncement',
+  CampaignAnnouncementRecipient: 'CampaignAnnouncementRecipient',
   CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
   BusinessRequest: 'BusinessRequest',
   Order: 'Order',
@@ -731,6 +733,34 @@ export const ProductVariantCampaignItemScalarFieldEnum = {
 } as const
 
 export type ProductVariantCampaignItemScalarFieldEnum = (typeof ProductVariantCampaignItemScalarFieldEnum)[keyof typeof ProductVariantCampaignItemScalarFieldEnum]
+
+
+export const CampaignAnnouncementScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  createdByUserId: 'createdByUserId',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignAnnouncementScalarFieldEnum = (typeof CampaignAnnouncementScalarFieldEnum)[keyof typeof CampaignAnnouncementScalarFieldEnum]
+
+
+export const CampaignAnnouncementRecipientScalarFieldEnum = {
+  id: 'id',
+  announcementId: 'announcementId',
+  customerId: 'customerId',
+  channel: 'channel',
+  status: 'status',
+  note: 'note',
+  contactedAt: 'contactedAt',
+  respondedAt: 'respondedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignAnnouncementRecipientScalarFieldEnum = (typeof CampaignAnnouncementRecipientScalarFieldEnum)[keyof typeof CampaignAnnouncementRecipientScalarFieldEnum]
 
 
 export const CustomerVariantSpecialPriceScalarFieldEnum = {

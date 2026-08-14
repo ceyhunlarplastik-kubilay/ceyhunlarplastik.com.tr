@@ -50,6 +50,7 @@ model User {
   createdCustomerFeaturedProducts CustomerFeaturedProduct[]     @relation("CustomerFeaturedProductCreatedBy")
   createdCustomerAssignedProducts CustomerAssignedProduct[]     @relation("CustomerAssignedProductCreatedBy")
   createdProductVariantCampaigns  ProductVariantCampaign[]      @relation("ProductVariantCampaignCreatedBy")
+  createdCampaignAnnouncements    CampaignAnnouncement[]        @relation("CampaignAnnouncementCreatedBy")
   ownedCustomerVisits             CustomerVisit[]               @relation("CustomerVisitOwner")
   createdCustomerVisits           CustomerVisit[]               @relation("CustomerVisitCreatedBy")
   createdCustomerSpecialPrices    CustomerVariantSpecialPrice[] @relation("CustomerVariantSpecialPriceCreatedBy")
@@ -413,6 +414,7 @@ model Customer {
   businessRequests          BusinessRequest[]
   orders                    Order[]
   specialVariantPrices      CustomerVariantSpecialPrice[]
+  campaignAnnouncements     CampaignAnnouncementRecipient[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1027,7 +1029,8 @@ model ProductVariantCampaign {
   createdByUserId String
   createdByUser   User   @relation("ProductVariantCampaignCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
 
-  items ProductVariantCampaignItem[]
+  items         ProductVariantCampaignItem[]
+  announcements CampaignAnnouncement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1063,6 +1066,74 @@ enum ProductVariantCampaignStatus {
   ACTIVE
   PAUSED
   ENDED
+}
+
+/// Kampanya duyurusu: satış temsilcisinin seçtiği müşterilere sıcak temas listesi.
+/// Kampanya oluşturulduğunda OTOMATİK bildirim gitmez — temsilci bilinçli olarak
+/// müşteri seçer ki gerçek geri dönüşler takip edilebilsin.
+model CampaignAnnouncement {
+  id String @id @default(uuid())
+
+  campaignId String
+  campaign   ProductVariantCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  /// Duyuruyu oluşturan satış temsilcisi.
+  createdByUserId String
+  createdByUser   User   @relation("CampaignAnnouncementCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  /// Duyuru geneli not (kampanya mesajının özeti, hedef vb.).
+  note String? @db.Text
+
+  recipients CampaignAnnouncementRecipient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([campaignId, createdAt])
+  @@index([createdByUserId, createdAt])
+}
+
+model CampaignAnnouncementRecipient {
+  id String @id @default(uuid())
+
+  announcementId String
+  announcement   CampaignAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  /// Kanal alıcı bazındadır: bir müşteri aranır, diğerine mail atılır.
+  channel CampaignAnnouncementChannel
+
+  status CampaignAnnouncementRecipientStatus @default(PENDING)
+
+  /// Görüşme notu — temsilcinin o müşteriyle teması hakkında yazdığı.
+  note String? @db.Text
+
+  contactedAt DateTime?
+  respondedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([announcementId, customerId])
+  @@index([customerId, createdAt])
+  @@index([announcementId, status])
+}
+
+enum CampaignAnnouncementChannel {
+  /// Temsilci kendi telefonundan aradı/yazdı; sistem yalnız kaydı tutar.
+  MANUAL
+  EMAIL
+  WHATSAPP
+}
+
+enum CampaignAnnouncementRecipientStatus {
+  PENDING
+  REACHED
+  RESPONDED
+  NOT_INTERESTED
+  UNREACHABLE
 }
 
 model CustomerVariantSpecialPrice {

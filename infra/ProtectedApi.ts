@@ -503,6 +503,28 @@ protectedApi.route('DELETE /sales/product-variant-campaigns/{id}', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Kampanya duyurusu: kampanyayı müdür oluşturur, duyuruyu sahadaki temsilci yapar.
+// Bu yüzden `sales` de yetkili; kapsam daraltması handler'da (yalnız kendi müşterileri).
+protectedApi.route('GET /sales/campaign-announcements', {
+    handler: `${folderPrefix}/campaignAnnouncements/actions.listCampaignAnnouncements`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/campaign-announcements/{id}', {
+    handler: `${folderPrefix}/campaignAnnouncements/actions.getCampaignAnnouncement`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /sales/campaign-announcements', {
+    handler: `${folderPrefix}/campaignAnnouncements/actions.createCampaignAnnouncement`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /sales/campaign-announcements/{id}/recipients/{recipientId}', {
+    handler: `${folderPrefix}/campaignAnnouncements/actions.updateCampaignAnnouncementRecipient`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /portal/customer/campaigns', {
     handler: `${folderPrefix}/crm/actions.getPortalProductVariantCampaigns`,
     ...defaultRouteOptions

@@ -3208,6 +3208,57 @@ adaptörleri + takip listesi + görüşme notları), sitemap sertleştirme, 3D m
 **Kullanıcıda bekleyen:** kubi'de fiyat doğrulaması — özellikle genel iskontosu
 kampanyadan yüksek olan bir müşteride kampanyanın fiyatı BOZMADIĞI.
 
+## Kampanya Duyurusu (Aşama 2) — Dilim 8: şema + backend (2026-08-14)
+
+Satış temsilcisi bir kampanyayı seçtiği müşterilere duyurur; sistem sıcak temas
+listesini ve görüşme notlarını tutar. **Kampanya oluşturulduğunda otomatik bildirim
+GİTMEZ** — temsilci bilinçli olarak müşteri seçer ki gerçek geri dönüşler takip
+edilebilsin (kullanıcının açık gerekçesi).
+
+**Kullanıcı kararları:** kayıt-önce/gönderim manuel · kanal ALICI bazında ·
+statü seti Bekliyor/Ulaşıldı/Yanıt Var/İlgilenmiyor/Ulaşılamadı.
+
+**Şema (migration `20260814170000_add_campaign_announcements`):**
+- `CampaignAnnouncement` — kampanya, oluşturan temsilci, duyuru geneli not
+- `CampaignAnnouncementRecipient` — müşteri, kanal, statü, görüşme notu,
+  `contactedAt`/`respondedAt`; `@@unique([announcementId, customerId])`
+- `CampaignAnnouncementChannel { MANUAL EMAIL WHATSAPP }`
+- Gönderim/sağlayıcı alanları (ör. `providerMessageId`) BİLİNÇLİ olarak YOK:
+  bu aşamada hiçbir otomatik ileti gitmiyor, AGENTS.md spekülatif şema
+  değişikliğini yasaklıyor. Otomatik gönderime geçince eklemeli migration yeter.
+
+**Migration gerçek Postgres'te sınandı:** temiz DB'ye deploy ✅ · `migrate diff`
+"empty migration" ✅ · aynı müşteri aynı duyuruda ikinci kez reddediliyor ✅ ·
+kampanya silinince duyuru+alıcılar zincirleme gidiyor ✅ · müşteri silinince alıcı
+gidiyor, duyuru kalıyor ✅ · varsayılan statü `PENDING` ✅
+
+**Kritik güvenlik kuralı:** satış temsilcisi YALNIZ kendisine atanmış müşterilere
+duyuru yapabilir ve yalnız kendi duyurularını görebilir. Kural saf bir helper'da
+(`campaignAnnouncementAccess.ts`) ve **11 testle** kilitli. Liste sorgusunda
+sahiplik filtresi temsilcinin kimliğine SABİTLENİR — istemci başka temsilciyi
+sorsa bile kendi kimliği uygulanır.
+
+**Uçlar (ProtectedApi):** `GET/POST /sales/campaign-announcements`,
+`GET /{id}`, `PATCH /{id}/recipients/{recipientId}`. Roller `sales` dahil —
+kampanyayı müdür oluşturur ama duyuruyu sahadaki temsilci yapar.
+
+**Türetilen zaman damgaları:** `contactedAt`/`respondedAt` istemciden alınmaz,
+statüye göre sunucuda üretilir.
+
+**Testler:** access 11 + repository 7. Repository testlerinde en kritik olanı,
+müşteri ve durum filtresinin AYNI alıcı satırında aranması — ayrı `some` olsaydı
+"bu müşteri var VE (başka birinden) yanıt var" yanlış eşleşirdi.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 375 ✅ (+18) ·
+functions 268 ✅ (+6) · frontend 229 ✅
+
+**İYS notu:** bu aşamada sistem hiçbir ticari elektronik ileti göndermiyor
+(temsilci kendi telefonundan arıyor/yazıyor, sistem yalnız kaydı tutuyor), bu
+yüzden İYS yükümlülüğü doğmuyor. Otomatik gönderime geçildiğinde izin kaydı +
+İYS senkronu gerekecek — Dilim 10.
+
+**Kullanıcıda bekleyen:** migration'ı kubi'ye uygulamak; sonra Dilim 9 (arayüz).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

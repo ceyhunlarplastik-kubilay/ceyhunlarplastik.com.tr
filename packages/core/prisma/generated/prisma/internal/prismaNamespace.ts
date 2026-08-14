@@ -420,6 +420,8 @@ export const ModelName = {
   ProductVariantSupplier: 'ProductVariantSupplier',
   ProductVariantCampaign: 'ProductVariantCampaign',
   ProductVariantCampaignItem: 'ProductVariantCampaignItem',
+  CampaignAnnouncement: 'CampaignAnnouncement',
+  CampaignAnnouncementRecipient: 'CampaignAnnouncementRecipient',
   CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
   BusinessRequest: 'BusinessRequest',
   Order: 'Order',
@@ -445,7 +447,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "measurementTypeTranslation" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "measurementTypeTranslation" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3113,6 +3115,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CampaignAnnouncement: {
+      payload: Prisma.$CampaignAnnouncementPayload<ExtArgs>
+      fields: Prisma.CampaignAnnouncementFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignAnnouncementFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignAnnouncementFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignAnnouncementFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignAnnouncementFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignAnnouncementFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignAnnouncementCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignAnnouncementCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignAnnouncementCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignAnnouncementDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>
+        }
+        update: {
+          args: Prisma.CampaignAnnouncementUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignAnnouncementDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignAnnouncementUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignAnnouncementUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignAnnouncementUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignAnnouncementAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignAnnouncement>
+        }
+        groupBy: {
+          args: Prisma.CampaignAnnouncementGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignAnnouncementGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignAnnouncementCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignAnnouncementCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignAnnouncementRecipient: {
+      payload: Prisma.$CampaignAnnouncementRecipientPayload<ExtArgs>
+      fields: Prisma.CampaignAnnouncementRecipientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignAnnouncementRecipientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignAnnouncementRecipientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignAnnouncementRecipientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignAnnouncementRecipientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignAnnouncementRecipientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignAnnouncementRecipientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignAnnouncementRecipientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignAnnouncementRecipientCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignAnnouncementRecipientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>
+        }
+        update: {
+          args: Prisma.CampaignAnnouncementRecipientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignAnnouncementRecipientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignAnnouncementRecipientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignAnnouncementRecipientUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignAnnouncementRecipientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignAnnouncementRecipientPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignAnnouncementRecipientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignAnnouncementRecipient>
+        }
+        groupBy: {
+          args: Prisma.CampaignAnnouncementRecipientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignAnnouncementRecipientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignAnnouncementRecipientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignAnnouncementRecipientCountAggregateOutputType> | number
+        }
+      }
+    }
     CustomerVariantSpecialPrice: {
       payload: Prisma.$CustomerVariantSpecialPricePayload<ExtArgs>
       fields: Prisma.CustomerVariantSpecialPriceFieldRefs
@@ -4510,6 +4660,34 @@ export const ProductVariantCampaignItemScalarFieldEnum = {
 export type ProductVariantCampaignItemScalarFieldEnum = (typeof ProductVariantCampaignItemScalarFieldEnum)[keyof typeof ProductVariantCampaignItemScalarFieldEnum]
 
 
+export const CampaignAnnouncementScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  createdByUserId: 'createdByUserId',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignAnnouncementScalarFieldEnum = (typeof CampaignAnnouncementScalarFieldEnum)[keyof typeof CampaignAnnouncementScalarFieldEnum]
+
+
+export const CampaignAnnouncementRecipientScalarFieldEnum = {
+  id: 'id',
+  announcementId: 'announcementId',
+  customerId: 'customerId',
+  channel: 'channel',
+  status: 'status',
+  note: 'note',
+  contactedAt: 'contactedAt',
+  respondedAt: 'respondedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignAnnouncementRecipientScalarFieldEnum = (typeof CampaignAnnouncementRecipientScalarFieldEnum)[keyof typeof CampaignAnnouncementRecipientScalarFieldEnum]
+
+
 export const CustomerVariantSpecialPriceScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
@@ -5049,6 +5227,34 @@ export type ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel> = Fi
 
 
 /**
+ * Reference to a field of type 'CampaignAnnouncementChannel'
+ */
+export type EnumCampaignAnnouncementChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignAnnouncementChannel'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignAnnouncementChannel[]'
+ */
+export type ListEnumCampaignAnnouncementChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignAnnouncementChannel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignAnnouncementRecipientStatus'
+ */
+export type EnumCampaignAnnouncementRecipientStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignAnnouncementRecipientStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignAnnouncementRecipientStatus[]'
+ */
+export type ListEnumCampaignAnnouncementRecipientStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignAnnouncementRecipientStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'BusinessRequestDomain'
  */
 export type EnumBusinessRequestDomainFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessRequestDomain'>
@@ -5333,6 +5539,8 @@ export type GlobalOmitConfig = {
   productVariantSupplier?: Prisma.ProductVariantSupplierOmit
   productVariantCampaign?: Prisma.ProductVariantCampaignOmit
   productVariantCampaignItem?: Prisma.ProductVariantCampaignItemOmit
+  campaignAnnouncement?: Prisma.CampaignAnnouncementOmit
+  campaignAnnouncementRecipient?: Prisma.CampaignAnnouncementRecipientOmit
   customerVariantSpecialPrice?: Prisma.CustomerVariantSpecialPriceOmit
   businessRequest?: Prisma.BusinessRequestOmit
   order?: Prisma.OrderOmit

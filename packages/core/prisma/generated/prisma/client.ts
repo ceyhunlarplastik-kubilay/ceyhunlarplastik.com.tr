@@ -225,6 +225,18 @@ export type ProductVariantCampaign = Prisma.ProductVariantCampaignModel
  */
 export type ProductVariantCampaignItem = Prisma.ProductVariantCampaignItemModel
 /**
+ * Model CampaignAnnouncement
+ * Kampanya duyurusu: satış temsilcisinin seçtiği müşterilere sıcak temas listesi.
+ * Kampanya oluşturulduğunda OTOMATİK bildirim gitmez — temsilci bilinçli olarak
+ * müşteri seçer ki gerçek geri dönüşler takip edilebilsin.
+ */
+export type CampaignAnnouncement = Prisma.CampaignAnnouncementModel
+/**
+ * Model CampaignAnnouncementRecipient
+ * 
+ */
+export type CampaignAnnouncementRecipient = Prisma.CampaignAnnouncementRecipientModel
+/**
  * Model CustomerVariantSpecialPrice
  * 
  */

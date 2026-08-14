@@ -148,6 +148,26 @@ export const ProductVariantCampaignStatus = {
 export type ProductVariantCampaignStatus = (typeof ProductVariantCampaignStatus)[keyof typeof ProductVariantCampaignStatus]
 
 
+export const CampaignAnnouncementChannel = {
+  MANUAL: 'MANUAL',
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP'
+} as const
+
+export type CampaignAnnouncementChannel = (typeof CampaignAnnouncementChannel)[keyof typeof CampaignAnnouncementChannel]
+
+
+export const CampaignAnnouncementRecipientStatus = {
+  PENDING: 'PENDING',
+  REACHED: 'REACHED',
+  RESPONDED: 'RESPONDED',
+  NOT_INTERESTED: 'NOT_INTERESTED',
+  UNREACHABLE: 'UNREACHABLE'
+} as const
+
+export type CampaignAnnouncementRecipientStatus = (typeof CampaignAnnouncementRecipientStatus)[keyof typeof CampaignAnnouncementRecipientStatus]
+
+
 export const BusinessRequestDomain = {
   SALES: 'SALES',
   PURCHASING: 'PURCHASING'
