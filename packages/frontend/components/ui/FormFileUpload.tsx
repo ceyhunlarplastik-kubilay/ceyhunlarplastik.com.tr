@@ -6,7 +6,7 @@ import {
     type FieldValues,
     type Path,
 } from "react-hook-form";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, type LucideIcon } from "lucide-react";
 
 import { FormItem, FormControl, FormMessage } from "@/components/ui/form";
 
@@ -14,7 +14,7 @@ type Props<TFieldValues extends FieldValues> = {
     control: Control<TFieldValues>;
     name: Path<TFieldValues>;
     label: string;
-    icon?: React.ElementType;
+    icon?: LucideIcon;
 };
 
 export function FormFileUpload<TFieldValues extends FieldValues>({
@@ -36,10 +36,10 @@ export function FormFileUpload<TFieldValues extends FieldValues>({
                 rounded-2xl border-2 border-dashed
                 border-neutral-300 bg-neutral-50
                 px-6 py-8 text-center cursor-pointer
-                transition hover:border-[var(--color-brand)]
+                transition hover:border-(--color-brand)
               `}
                         >
-                            <Icon className="h-8 w-8 text-[var(--color-brand)] mb-3" />
+                            <Icon className="h-8 w-8 text-(--color-brand) mb-3" />
 
                             <span className="text-base font-medium text-neutral-800">
                                 {label}
