@@ -16,6 +16,12 @@ export const createProductAssetUploadHandler = () => {
             throw new createError.BadRequest("Missing required fields")
         }
 
+        if (purpose === "PRODUCT_ASSET" && assetRole === "MODEL_3D") {
+            if (!fileName.toLowerCase().endsWith(".glb") || contentType !== "model/gltf-binary") {
+                throw new createError.BadRequest("MODEL_3D uploads require a model/gltf-binary .glb file")
+            }
+        }
+
         const presigned = purpose === "INDUSTRIAL_USAGE_IMAGE"
             ? await generateProductIndustrialUsageImageUpload({
                 productSlug,

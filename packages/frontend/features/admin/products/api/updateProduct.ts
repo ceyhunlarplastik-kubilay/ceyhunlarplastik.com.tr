@@ -2,6 +2,7 @@ import { adminApiClient } from "@/lib/http/client"
 
 import type { Product } from "@/features/public/products/types"
 import type { AssetRole, AssetType } from "@/features/public/assets/types"
+import type { ProductModel3dConfig } from "@core/helpers/products/model3dConfig"
 import type {
     ProductIndustrialUsageFormValues,
     ProductTranslationFormValues,
@@ -26,6 +27,7 @@ type Params = {
     assetRole?: AssetRole
     assetKey?: string
     mimeType?: string
+    model3dConfig?: ProductModel3dConfig
     attributeValueIds?: string[]
     industrialUsages?: ProductIndustrialUsageFormValues[]
     translations?: ProductTranslationFormValues[]
@@ -43,6 +45,7 @@ export async function updateProduct({
     assetRole,
     assetKey,
     mimeType,
+    model3dConfig,
     attributeValueIds,
     industrialUsages,
     translations,
@@ -60,6 +63,7 @@ export async function updateProduct({
             assetRole,
             assetKey,
             mimeType,
+            model3dConfig,
             attributeValueIds,
             industrialUsages: serializeIndustrialUsages(industrialUsages),
             translations: serializeTranslations(translations),

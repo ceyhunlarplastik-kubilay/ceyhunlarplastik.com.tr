@@ -33,6 +33,12 @@ export type GroupedMeasurementOption = {
         currency: string
     }
     fullCodes: string[]
+    variants: Array<{
+        id: string
+        fullCode: string
+        colorId: string | null
+        materialIds: string[]
+    }>
 }
 
 export function groupVariantMeasurements(
@@ -71,6 +77,12 @@ export function groupVariantMeasurements(
                     return priced.reduce((min, cur) => (cur.value < min.value ? cur : min))
                 })(),
                 fullCodes: [variant.fullCode],
+                variants: [{
+                    id: variant.id,
+                    fullCode: variant.fullCode,
+                    colorId: variant.color?.id ?? null,
+                    materialIds: variant.materials.map((material) => material.id),
+                }],
             })
             continue
         }
@@ -119,6 +131,15 @@ export function groupVariantMeasurements(
 
         if (!existing.fullCodes.includes(variant.fullCode)) {
             existing.fullCodes.push(variant.fullCode)
+        }
+
+        if (!existing.variants.some((item) => item.id === variant.id)) {
+            existing.variants.push({
+                id: variant.id,
+                fullCode: variant.fullCode,
+                colorId: variant.color?.id ?? null,
+                materialIds: variant.materials.map((material) => material.id),
+            })
         }
     }
 

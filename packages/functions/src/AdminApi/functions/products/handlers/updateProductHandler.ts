@@ -28,7 +28,7 @@ export const updateProductHandler = ({ productRepository, categoryRepository, pr
         // 🔥 asset alanlarını ayır
         // Video URL'leri de ayrılır: ham hâlleriyle productData üzerinden Prisma'ya
         // sızmamalı, normalizeProductVideoUrls'ten geçmeleri gerekir.
-        const { assetType, assetRole, assetKey, mimeType, attributeValueIds, industrialUsages, translations, categoryId, assemblyVideoUrl, promoVideoUrl, ...productData } = body;
+        const { assetType, assetRole, assetKey, mimeType, model3dConfig, attributeValueIds, industrialUsages, translations, categoryId, assemblyVideoUrl, promoVideoUrl, ...productData } = body;
 
         try {
 
@@ -207,6 +207,9 @@ export const updateProductHandler = ({ productRepository, categoryRepository, pr
                             mimeType,
                             type: assetType,
                             role: assetRole ?? "GALLERY",
+                            ...(model3dConfig && {
+                                model3dConfig: model3dConfig as Prisma.InputJsonValue,
+                            }),
                         },
                     },
                 }),

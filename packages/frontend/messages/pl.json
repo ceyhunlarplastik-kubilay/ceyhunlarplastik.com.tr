@@ -786,7 +786,7 @@
                     "alt": "Interaktywny model 3D produktu {name}",
                     "loading": "Ładowanie modelu 3D",
                     "errorTitle": "Nie można wyświetlić modelu 3D",
-                    "errorDescription": "Nie udało się wczytać pliku. Sprawdź plik GLB/GLTF oraz obsługę WebGL w przeglądarce.",
+                    "errorDescription": "Nie udało się wczytać pliku. Sprawdź plik GLB oraz obsługę WebGL w przeglądarce.",
                     "interactionHint": "Przeciągnij, aby obrócić, i przewiń, aby przybliżyć.",
                     "resetView": "Resetuj widok",
                     "fullscreen": "Pełny ekran"

@@ -2,6 +2,7 @@ import { z } from "zod"
 import { categorySchema } from "@/functions/PublicApi/validators/categories";
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { localeSchema } from "@/core/helpers/validation/localeSchema"
+import { productModel3dConfigSchema } from "@/core/helpers/products/model3dConfig"
 
 
 export const assetTypeEnum = z.enum([
@@ -52,6 +53,7 @@ export const assetSchema = z.object({
     type: assetTypeEnum,
     role: assetRoleEnum,
     url: z.string(), // ✅ runtime generated
+    model3dConfig: productModel3dConfigSchema.optional(),
     createdAt: z.string(),
     updatedAt: z.string(),
 }).loose()

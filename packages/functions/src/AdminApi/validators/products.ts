@@ -3,6 +3,7 @@ import { categorySchema } from "@/functions/AdminApi/validators/categories"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 import { assetTypeEnum, assetRoleEnum, productSchema } from "@/functions/PublicApi/validators/products"
 import { localeSchema, TRANSLATIONS_ARRAY_MAX } from "@/core/helpers/validation/localeSchema"
+import { productModel3dConfigSchema } from "@/core/helpers/products/model3dConfig"
 
 /* const assetTypeEnum = z.enum([
     "IMAGE",
@@ -105,11 +106,20 @@ export const createProductValidator = validatorWrapper(
             assetRole: assetRoleEnum.optional(),
             assetKey: z.string().optional(),
             mimeType: z.string().optional(),
+            model3dConfig: productModel3dConfigSchema.optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
             translations: z.array(productTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             assemblyVideoUrl: productVideoUrlSchema,
             promoVideoUrl: productVideoUrlSchema,
+        }).superRefine((body, ctx) => {
+            if (body.model3dConfig && (body.assetRole !== "MODEL_3D" || body.mimeType !== "model/gltf-binary")) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["model3dConfig"],
+                    message: "model3dConfig requires a MODEL_3D GLB asset",
+                })
+            }
         }),
     }),
     {
@@ -132,11 +142,20 @@ export const updateProductValidator = validatorWrapper(
             assetRole: assetRoleEnum.optional(),
             assetKey: z.string().optional(),
             mimeType: z.string().optional(),
+            model3dConfig: productModel3dConfigSchema.optional(),
             attributeValueIds: z.array(z.uuid()).optional(),
             industrialUsages: z.array(productIndustrialUsageInputSchema).max(100).optional(),
             translations: z.array(productTranslationInputSchema).max(TRANSLATIONS_ARRAY_MAX).optional(),
             assemblyVideoUrl: productVideoUrlSchema,
             promoVideoUrl: productVideoUrlSchema,
+        }).superRefine((body, ctx) => {
+            if (body.model3dConfig && (body.assetRole !== "MODEL_3D" || body.mimeType !== "model/gltf-binary")) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["model3dConfig"],
+                    message: "model3dConfig requires a MODEL_3D GLB asset",
+                })
+            }
         }),
     }),
     {
@@ -219,6 +238,23 @@ export const createProductAssetUploadValidator = validatorWrapper(
                     path: ["assetRole"],
                     message: "assetRole is required for product asset uploads",
                 })
+            }
+
+            if (purpose === "PRODUCT_ASSET" && body.assetRole === "MODEL_3D") {
+                if (!body.fileName.toLowerCase().endsWith(".glb")) {
+                    ctx.addIssue({
+                        code: "custom",
+                        path: ["fileName"],
+                        message: "MODEL_3D uploads only accept .glb files",
+                    })
+                }
+                if (body.contentType !== "model/gltf-binary") {
+                    ctx.addIssue({
+                        code: "custom",
+                        path: ["contentType"],
+                        message: "MODEL_3D uploads require model/gltf-binary",
+                    })
+                }
             }
 
             if (purpose === "INDUSTRIAL_USAGE_IMAGE" && !body.contentType.startsWith("image/")) {

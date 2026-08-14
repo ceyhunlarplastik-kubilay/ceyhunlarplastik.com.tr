@@ -1363,10 +1363,11 @@ enum AssetRole {
 model Asset {
   id String @id @default(uuid())
 
-  key      String // S3 key
-  mimeType String // image/png, image/gif, application/pdf
-  type     AssetType
-  role     AssetRole
+  key           String // S3 key
+  mimeType      String // image/png, image/gif, application/pdf
+  type          AssetType
+  role          AssetRole
+  model3dConfig Json?
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)

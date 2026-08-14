@@ -786,7 +786,7 @@
                     "alt": "{name}のインタラクティブ3Dモデル",
                     "loading": "3Dモデルを読み込んでいます",
                     "errorTitle": "3Dモデルを表示できませんでした",
-                    "errorDescription": "ファイルを読み込めませんでした。GLB/GLTFファイルとブラウザーのWebGL対応状況を確認してください。",
+                    "errorDescription": "ファイルを読み込めませんでした。GLBファイルとブラウザーのWebGL対応状況を確認してください。",
                     "interactionHint": "ドラッグで回転し、スクロールで拡大縮小できます。",
                     "resetView": "表示をリセット",
                     "fullscreen": "全画面"

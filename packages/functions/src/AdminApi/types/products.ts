@@ -6,6 +6,7 @@ import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/pr
 import { AssetType, AssetRole } from "@/prisma/generated/prisma/client";
 import type { ProductIndustrialUsageInput } from "@/core/helpers/products/productIndustrialUsages";
 import type { ProductTranslationInput } from "@/core/helpers/products/productTranslations";
+import type { ProductModel3dConfig } from "@/core/helpers/products/model3dConfig"
 
 export interface IProductDependencies {
     productRepository: IPrismaProductRepository
@@ -30,6 +31,7 @@ export interface ICreateProductBody {
     assetRole?: AssetRole
     assetKey?: string
     mimeType?: string
+    model3dConfig?: ProductModel3dConfig
     attributeValueIds?: string[]
     industrialUsages?: ProductIndustrialUsageInput[]
     translations?: ProductTranslationInput[]

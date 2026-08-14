@@ -39,9 +39,14 @@ import {
 } from "@/core/helpers/productAttributes/localizeProductAttribute"
 import { localizeProductIndustrialUsage } from "@/core/helpers/products/localizeProductIndustrialUsage"
 import { localizeProduct } from "@/core/helpers/products/localizeProduct"
+import { parseProductModel3dConfig } from "@/core/helpers/products/model3dConfig"
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
 
 export function mapAsset(asset: any) {
+    const model3dConfig = asset.role === AssetRole.MODEL_3D
+        ? parseProductModel3dConfig(asset.model3dConfig)
+        : null
+
     return {
         id: asset.id,
         key: asset.key,
@@ -49,6 +54,7 @@ export function mapAsset(asset: any) {
         type: asset.type,
         role: asset.role,
         url: buildAssetUrl(asset.key),
+        ...(model3dConfig ? { model3dConfig } : {}),
         createdAt: asset.createdAt,
         updatedAt: asset.updatedAt,
     }

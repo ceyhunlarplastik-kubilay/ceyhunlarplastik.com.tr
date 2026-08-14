@@ -20,7 +20,7 @@ import { normalizeProductVideoUrls } from "@/core/helpers/products/productVideos
 // assetRepository artık gerekmiyor: asset kaydı ürün create'ine nested edildi.
 export const createProductHandler = ({ productRepository, categoryRepository, productAttributeValueRepository }: ICreateProductDependencies) => {
     return async (event: ICreateProductEvent) => {
-        const { code, name, description, categoryId, attributeValueIds, industrialUsages, translations, assemblyVideoUrl, promoVideoUrl, assetType, assetRole, assetKey, mimeType } = event.body;
+        const { code, name, description, categoryId, attributeValueIds, industrialUsages, translations, assemblyVideoUrl, promoVideoUrl, assetType, assetRole, assetKey, mimeType, model3dConfig } = event.body;
 
         try {
             const category = await categoryRepository.getCategory(categoryId)
@@ -86,6 +86,9 @@ export const createProductHandler = ({ productRepository, categoryRepository, pr
                             mimeType,
                             type: assetType,
                             role: assetRole ?? "GALLERY",
+                            ...(model3dConfig && {
+                                model3dConfig: model3dConfig as Prisma.InputJsonValue,
+                            }),
                         },
                     }
                     : undefined,

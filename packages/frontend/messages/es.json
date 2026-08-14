@@ -786,7 +786,7 @@
                     "alt": "Modelo 3D interactivo de {name}",
                     "loading": "Cargando el modelo 3D",
                     "errorTitle": "No se pudo mostrar el modelo 3D",
-                    "errorDescription": "No se pudo cargar el archivo. Comprueba el archivo GLB/GLTF y la compatibilidad del navegador con WebGL.",
+                    "errorDescription": "No se pudo cargar el archivo. Comprueba el archivo GLB y la compatibilidad del navegador con WebGL.",
                     "interactionHint": "Arrastra para girar y desplázate para acercar.",
                     "resetView": "Restablecer vista",
                     "fullscreen": "Pantalla completa"

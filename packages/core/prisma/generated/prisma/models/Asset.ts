@@ -60,6 +60,7 @@ export type AssetCountAggregateOutputType = {
   mimeType: number
   type: number
   role: number
+  model3dConfig: number
   categoryId: number
   productId: number
   variantId: number
@@ -107,6 +108,7 @@ export type AssetCountAggregateInputType = {
   mimeType?: true
   type?: true
   role?: true
+  model3dConfig?: true
   categoryId?: true
   productId?: true
   variantId?: true
@@ -195,6 +197,7 @@ export type AssetGroupByOutputType = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig: runtime.JsonValue | null
   categoryId: string | null
   productId: string | null
   variantId: string | null
@@ -231,6 +234,7 @@ export type AssetWhereInput = {
   mimeType?: Prisma.StringFilter<"Asset"> | string
   type?: Prisma.EnumAssetTypeFilter<"Asset"> | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFilter<"Asset"> | $Enums.AssetRole
+  model3dConfig?: Prisma.JsonNullableFilter<"Asset">
   categoryId?: Prisma.StringNullableFilter<"Asset"> | string | null
   productId?: Prisma.StringNullableFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableFilter<"Asset"> | string | null
@@ -251,6 +255,7 @@ export type AssetOrderByWithRelationInput = {
   mimeType?: Prisma.SortOrder
   type?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  model3dConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,6 +279,7 @@ export type AssetWhereUniqueInput = Prisma.AtLeast<{
   mimeType?: Prisma.StringFilter<"Asset"> | string
   type?: Prisma.EnumAssetTypeFilter<"Asset"> | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFilter<"Asset"> | $Enums.AssetRole
+  model3dConfig?: Prisma.JsonNullableFilter<"Asset">
   categoryId?: Prisma.StringNullableFilter<"Asset"> | string | null
   productId?: Prisma.StringNullableFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableFilter<"Asset"> | string | null
@@ -294,6 +300,7 @@ export type AssetOrderByWithAggregationInput = {
   mimeType?: Prisma.SortOrder
   type?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  model3dConfig?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   variantId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -315,6 +322,7 @@ export type AssetScalarWhereWithAggregatesInput = {
   mimeType?: Prisma.StringWithAggregatesFilter<"Asset"> | string
   type?: Prisma.EnumAssetTypeWithAggregatesFilter<"Asset"> | $Enums.AssetType
   role?: Prisma.EnumAssetRoleWithAggregatesFilter<"Asset"> | $Enums.AssetRole
+  model3dConfig?: Prisma.JsonNullableWithAggregatesFilter<"Asset">
   categoryId?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
   productId?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableWithAggregatesFilter<"Asset"> | string | null
@@ -330,6 +338,7 @@ export type AssetCreateInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
@@ -345,6 +354,7 @@ export type AssetUncheckedCreateInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
@@ -360,6 +370,7 @@ export type AssetUpdateInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
@@ -375,6 +386,7 @@ export type AssetUncheckedUpdateInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -390,6 +402,7 @@ export type AssetCreateManyInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
@@ -405,6 +418,7 @@ export type AssetUpdateManyMutationInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -415,6 +429,7 @@ export type AssetUncheckedUpdateManyInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -440,6 +455,7 @@ export type AssetCountOrderByAggregateInput = {
   mimeType?: Prisma.SortOrder
   type?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  model3dConfig?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
@@ -703,6 +719,7 @@ export type AssetCreateWithoutCategoryInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   product?: Prisma.ProductCreateNestedOneWithoutAssetsInput
@@ -717,6 +734,7 @@ export type AssetUncheckedCreateWithoutCategoryInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   productId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
@@ -760,6 +778,7 @@ export type AssetScalarWhereInput = {
   mimeType?: Prisma.StringFilter<"Asset"> | string
   type?: Prisma.EnumAssetTypeFilter<"Asset"> | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFilter<"Asset"> | $Enums.AssetRole
+  model3dConfig?: Prisma.JsonNullableFilter<"Asset">
   categoryId?: Prisma.StringNullableFilter<"Asset"> | string | null
   productId?: Prisma.StringNullableFilter<"Asset"> | string | null
   variantId?: Prisma.StringNullableFilter<"Asset"> | string | null
@@ -775,6 +794,7 @@ export type AssetCreateWithoutProductInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
@@ -789,6 +809,7 @@ export type AssetUncheckedCreateWithoutProductInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
@@ -829,6 +850,7 @@ export type AssetCreateWithoutProductAttributeValueInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
@@ -843,6 +865,7 @@ export type AssetUncheckedCreateWithoutProductAttributeValueInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
@@ -883,6 +906,7 @@ export type AssetCreateWithoutVariantInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
@@ -897,6 +921,7 @@ export type AssetUncheckedCreateWithoutVariantInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   productAttributeValueId?: string | null
@@ -937,6 +962,7 @@ export type AssetCreateWithoutMaterialInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutAssetsInput
@@ -951,6 +977,7 @@ export type AssetUncheckedCreateWithoutMaterialInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
@@ -991,6 +1018,7 @@ export type AssetCreateManyCategoryInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   productId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
@@ -1005,6 +1033,7 @@ export type AssetUpdateWithoutCategoryInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneWithoutAssetsNestedInput
@@ -1019,6 +1048,7 @@ export type AssetUncheckedUpdateWithoutCategoryInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1033,6 +1063,7 @@ export type AssetUncheckedUpdateManyWithoutCategoryInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1047,6 +1078,7 @@ export type AssetCreateManyProductInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   variantId?: string | null
   productAttributeValueId?: string | null
@@ -1061,6 +1093,7 @@ export type AssetUpdateWithoutProductInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
@@ -1075,6 +1108,7 @@ export type AssetUncheckedUpdateWithoutProductInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1089,6 +1123,7 @@ export type AssetUncheckedUpdateManyWithoutProductInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1103,6 +1138,7 @@ export type AssetCreateManyProductAttributeValueInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
@@ -1117,6 +1153,7 @@ export type AssetUpdateWithoutProductAttributeValueInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
@@ -1131,6 +1168,7 @@ export type AssetUncheckedUpdateWithoutProductAttributeValueInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1145,6 +1183,7 @@ export type AssetUncheckedUpdateManyWithoutProductAttributeValueInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1159,6 +1198,7 @@ export type AssetCreateManyVariantInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   productAttributeValueId?: string | null
@@ -1173,6 +1213,7 @@ export type AssetUpdateWithoutVariantInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
@@ -1187,6 +1228,7 @@ export type AssetUncheckedUpdateWithoutVariantInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1201,6 +1243,7 @@ export type AssetUncheckedUpdateManyWithoutVariantInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productAttributeValueId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1215,6 +1258,7 @@ export type AssetCreateManyMaterialInput = {
   mimeType: string
   type: $Enums.AssetType
   role: $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: string | null
   productId?: string | null
   variantId?: string | null
@@ -1229,6 +1273,7 @@ export type AssetUpdateWithoutMaterialInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutAssetsNestedInput
@@ -1243,6 +1288,7 @@ export type AssetUncheckedUpdateWithoutMaterialInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1257,6 +1303,7 @@ export type AssetUncheckedUpdateManyWithoutMaterialInput = {
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAssetTypeFieldUpdateOperationsInput | $Enums.AssetType
   role?: Prisma.EnumAssetRoleFieldUpdateOperationsInput | $Enums.AssetRole
+  model3dConfig?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   variantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1273,6 +1320,7 @@ export type AssetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   mimeType?: boolean
   type?: boolean
   role?: boolean
+  model3dConfig?: boolean
   categoryId?: boolean
   productId?: boolean
   variantId?: boolean
@@ -1293,6 +1341,7 @@ export type AssetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   mimeType?: boolean
   type?: boolean
   role?: boolean
+  model3dConfig?: boolean
   categoryId?: boolean
   productId?: boolean
   variantId?: boolean
@@ -1313,6 +1362,7 @@ export type AssetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   mimeType?: boolean
   type?: boolean
   role?: boolean
+  model3dConfig?: boolean
   categoryId?: boolean
   productId?: boolean
   variantId?: boolean
@@ -1333,6 +1383,7 @@ export type AssetSelectScalar = {
   mimeType?: boolean
   type?: boolean
   role?: boolean
+  model3dConfig?: boolean
   categoryId?: boolean
   productId?: boolean
   variantId?: boolean
@@ -1342,7 +1393,7 @@ export type AssetSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "mimeType" | "type" | "role" | "categoryId" | "productId" | "variantId" | "productAttributeValueId" | "materialId" | "createdAt" | "updatedAt", ExtArgs["result"]["asset"]>
+export type AssetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "mimeType" | "type" | "role" | "model3dConfig" | "categoryId" | "productId" | "variantId" | "productAttributeValueId" | "materialId" | "createdAt" | "updatedAt", ExtArgs["result"]["asset"]>
 export type AssetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.Asset$categoryArgs<ExtArgs>
   product?: boolean | Prisma.Asset$productArgs<ExtArgs>
@@ -1380,6 +1431,7 @@ export type $AssetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     mimeType: string
     type: $Enums.AssetType
     role: $Enums.AssetRole
+    model3dConfig: runtime.JsonValue | null
     categoryId: string | null
     productId: string | null
     variantId: string | null
@@ -1820,6 +1872,7 @@ export interface AssetFieldRefs {
   readonly mimeType: Prisma.FieldRef<"Asset", 'String'>
   readonly type: Prisma.FieldRef<"Asset", 'AssetType'>
   readonly role: Prisma.FieldRef<"Asset", 'AssetRole'>
+  readonly model3dConfig: Prisma.FieldRef<"Asset", 'Json'>
   readonly categoryId: Prisma.FieldRef<"Asset", 'String'>
   readonly productId: Prisma.FieldRef<"Asset", 'String'>
   readonly variantId: Prisma.FieldRef<"Asset", 'String'>

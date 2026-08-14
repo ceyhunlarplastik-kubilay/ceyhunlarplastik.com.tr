@@ -14,11 +14,17 @@ import type { AssetRole } from "@/features/public/assets/types"
 
 import { usePresignProductAsset } from "@/features/admin/products/hooks/usePresignProductAsset"
 import { useUpdateProduct } from "@/features/admin/products/hooks/useUpdateProduct"
+import {
+    Model3dGlbValidationError,
+    validateModel3dGlbFile,
+} from "@/features/admin/products/utils/validateModel3dGlb"
+import type { ProductModel3dConfig } from "@core/helpers/products/model3dConfig"
 
 type Upload = {
     id: string
     file: File
     progress: number
+    model3dConfig?: ProductModel3dConfig
 }
 
 type Props = {
@@ -29,19 +35,16 @@ type Props = {
 
 const MODEL_3D_ACCEPT = {
     "model/gltf-binary": [".glb"],
-    "model/gltf+json": [".gltf"],
-    "application/octet-stream": [".glb", ".gltf"],
+    "application/octet-stream": [".glb"],
 }
 
 function isModel3DFile(file: File) {
-    const name = file.name.toLowerCase()
-    return name.endsWith(".glb") || name.endsWith(".gltf")
+    return file.name.toLowerCase().endsWith(".glb")
 }
 
 function resolveContentType(file: File) {
     const name = file.name.toLowerCase()
     if (name.endsWith(".glb")) return "model/gltf-binary"
-    if (name.endsWith(".gltf")) return "model/gltf+json"
     return file.type || "application/octet-stream"
 }
 
@@ -56,21 +59,46 @@ export function AssetUploader({
     const presignMutation = usePresignProductAsset()
     const updateProductMutation = useUpdateProduct()
 
-    const handleFiles = (selectedFiles: File[]) => {
+    const handleFiles = async (selectedFiles: File[]) => {
 
         let files = selectedFiles
         if (activeRole === "MODEL_3D" && files.some(file => !isModel3DFile(file))) {
-            toast.error("3D model alanı yalnız .glb veya .gltf dosyalarını kabul eder")
+            toast.error("3D model alanı yalnız tek dosyalık .glb modellerini kabul eder")
             files = files.filter(isModel3DFile)
         }
 
         if (!files.length) return
 
-        const newUploads = files.map(file => ({
-            id: crypto.randomUUID(),
-            file,
-            progress: 0
-        }))
+        const newUploads: Upload[] = []
+        for (const file of files) {
+            try {
+                const inspection = activeRole === "MODEL_3D"
+                    ? await validateModel3dGlbFile(file)
+                    : null
+
+                newUploads.push({
+                    id: crypto.randomUUID(),
+                    file,
+                    progress: 0,
+                    ...(inspection?.model3dConfig
+                        ? { model3dConfig: inspection.model3dConfig }
+                        : {}),
+                })
+
+                if (activeRole === "MODEL_3D") {
+                    toast.success(inspection?.model3dConfig
+                        ? `${file.name}: parametrik R3F yapılandırması doğrulandı`
+                        : `${file.name}: statik GLB doğrulandı; model-viewer kullanılacak`)
+                }
+            } catch (error) {
+                const message = error instanceof Model3dGlbValidationError
+                    ? error.message
+                    : "GLB dosyası doğrulanamadı"
+                toast.error(`${file.name}: ${message}`)
+            }
+        }
+
+        if (!newUploads.length) return
 
         setUploads(prev => [...prev, ...newUploads])
 
@@ -131,11 +159,12 @@ export function AssetUploader({
                 assetType: activeRole === "MODEL_3D"
                     ? "TECHNICAL_DRAWING"
                     : contentType.startsWith("image")
-                    ? "IMAGE"
-                    : contentType.startsWith("video")
-                        ? "VIDEO"
-                        : "PDF",
-                mimeType: contentType
+                        ? "IMAGE"
+                        : contentType.startsWith("video")
+                            ? "VIDEO"
+                            : "PDF",
+                mimeType: contentType,
+                model3dConfig: upload.model3dConfig,
 
             })
 
@@ -154,7 +183,7 @@ export function AssetUploader({
                 onFiles={handleFiles}
                 accept={activeRole === "MODEL_3D" ? MODEL_3D_ACCEPT : undefined}
                 description={activeRole === "MODEL_3D"
-                    ? "GLB önerilir. GLTF kullanıyorsanız texture ve buffer verilerinin dosyaya gömülü olduğundan emin olun."
+                    ? "Yalnız GLB kabul edilir. Buffer ve texture verileri dosyanın içinde olmalıdır; parametrik modeller ceyhunlarModel3d v1 bilgisini GLB extras alanında taşımalıdır."
                     : undefined}
             />
 
