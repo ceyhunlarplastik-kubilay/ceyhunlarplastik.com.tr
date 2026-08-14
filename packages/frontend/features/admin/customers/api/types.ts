@@ -191,11 +191,16 @@ export type CustomerFeaturedProduct = {
     product: Product
 }
 
+/** Portalda "Favori Ürün Varyantlarım" olarak gösterilir. */
+export type CustomerAssignedProductSource = "STAFF" | "CUSTOMER"
+
 export type CustomerAssignedProduct = {
     id: string
     customerId: string
     productVariantId: string
     displayOrder: number
+    /** STAFF: temsilci/admin ataması · CUSTOMER: müşterinin kendi kalp işareti. */
+    source: CustomerAssignedProductSource
     createdByUserId?: string
     createdAt?: string
     updatedAt?: string

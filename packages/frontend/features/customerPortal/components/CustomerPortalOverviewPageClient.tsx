@@ -3,7 +3,7 @@
 import Link from "next/link"
 import {
     ArrowUpRight,
-    Boxes,
+    Heart,
     Building2,
     ClipboardList,
     DollarSign,
@@ -101,10 +101,10 @@ export function CustomerPortalOverviewPageClient({
             className: "from-violet-50 via-purple-50 to-white text-violet-700",
         },
         {
-            href: "/musteri/musteriye-tanimli-urunler",
-            label: "Tanımlı Varyantlar",
-            description: "Firmanıza özel tanımlanmış ürün varyant portföyü.",
-            icon: Boxes,
+            href: "/musteri/favori-varyantlarim",
+            label: "Favori Varyantlarım",
+            description: "Temsilcinizin tanımladığı ve kendi favorilerinize eklediğiniz varyantlar.",
+            icon: Heart,
             metric: `${assignedProductCount} varyant`,
             className: "from-slate-50 via-zinc-50 to-white text-slate-700",
         },

@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Boxes } from "lucide-react"
+import { ArrowRight, Heart, UserRoundCog } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { CustomerAssignedProduct } from "@/features/admin/customers/api/types"
@@ -49,6 +49,39 @@ function buildVariantHref(item: CustomerAssignedProduct) {
     return `/musteri/tum-urunler/urun/${product.slug}/varyantlar?m=${encodeURIComponent(measurementKey)}`
 }
 
+function formatAddedBy(item: CustomerAssignedProduct) {
+    const user = item.createdByUser
+    if (!user) return null
+
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ").trim()
+    return fullName || user.identifier || user.email || null
+}
+
+/**
+ * Kaynağı görünür kılar: temsilci ataması mı, müşterinin kendi favorisi mi.
+ * Ekleyen kişi adı yalnız temsilci atamasında anlamlı — kendi favorisinde
+ * müşteri zaten kendisidir.
+ */
+function SourceBadge({ item }: Props) {
+    if (item.source === "CUSTOMER") {
+        return (
+            <Badge variant="secondary" className="gap-1.5 bg-rose-50 text-rose-700">
+                <Heart className="h-3.5 w-3.5 fill-current" />
+                Favorim
+            </Badge>
+        )
+    }
+
+    const addedBy = formatAddedBy(item)
+
+    return (
+        <Badge variant="secondary" className="gap-1.5">
+            <UserRoundCog className="h-3.5 w-3.5" />
+            {addedBy ? `Temsilci · ${addedBy}` : "Temsilci Seçimi"}
+        </Badge>
+    )
+}
+
 export function CustomerPortalAssignedVariantCard({ item }: Props) {
     const product = item.productVariant.product
     const categoryName = product?.category?.name ?? "Kategori"
@@ -76,10 +109,7 @@ export function CustomerPortalAssignedVariantCard({ item }: Props) {
 
                 <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="secondary" className="gap-1.5">
-                            <Boxes className="h-3.5 w-3.5" />
-                            Tanımlı
-                        </Badge>
+                        <SourceBadge item={item} />
                         <Badge variant="outline" className="border-neutral-200 bg-neutral-50 text-[10px] uppercase tracking-[0.16em] text-neutral-500">
                             {categoryName}
                         </Badge>

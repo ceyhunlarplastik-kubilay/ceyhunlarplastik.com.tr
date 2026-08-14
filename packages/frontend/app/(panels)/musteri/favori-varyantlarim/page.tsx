@@ -1,5 +1,5 @@
-import { CustomerPortalProductsPageClient } from "@/features/customerPortal/components/CustomerPortalProductsPageClient"
+import { CustomerPortalFavoriteVariantsPageClient } from "@/features/customerPortal/components/CustomerPortalFavoriteVariantsPageClient"
 
-export default function CustomerPortalAssignedProductsPage() {
-    return <CustomerPortalProductsPageClient mode="assigned" />
+export default function CustomerPortalFavoriteVariantsPage() {
+    return <CustomerPortalFavoriteVariantsPageClient />
 }

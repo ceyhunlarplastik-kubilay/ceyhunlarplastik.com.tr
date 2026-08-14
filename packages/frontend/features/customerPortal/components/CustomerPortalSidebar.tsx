@@ -6,12 +6,12 @@ import { useMemo, useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import {
     BookMarked,
-    Boxes,
     BadgePercent,
     CalendarDays,
     ChevronLeft,
     ChevronRight,
     ClipboardList,
+    Heart,
     LayoutDashboard,
     Menu,
     PackageCheck,
@@ -34,7 +34,7 @@ const items = [
     { href: "/musteri", label: "Müşteri Profili", icon: LayoutDashboard },
     /* { href: "/musteri/profil", label: "Profil / Firma Bilgileri", icon: Building2 }, */
     { href: "/musteri/tanimli-urunler", label: "İlgili Ürün Modelleri", icon: BookMarked },
-    { href: "/musteri/musteriye-tanimli-urunler", label: "Tanımlı Varyantlar", icon: Boxes },
+    { href: "/musteri/favori-varyantlarim", label: "Favori Varyantlarım", icon: Heart },
     { href: "/musteri/ozel-fiyatli-urunler", label: "Özel Fiyatlı Ürünler ve Talepler", icon: BadgePercent },
     { href: "/musteri/tum-urunler", label: "Tüm Ürünler", icon: PackageSearch },
     { href: "/musteri/siparisler", label: "Siparişler ve Talepler", icon: PackageCheck },

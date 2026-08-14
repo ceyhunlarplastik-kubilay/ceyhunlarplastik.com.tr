@@ -164,6 +164,9 @@ function buildDraftAssignedProduct(
         customerId,
         productVariantId: variant.id,
         displayOrder,
+        // Admin/temsilci ekranından yapılan atama her zaman STAFF kaynaklıdır;
+        // müşterinin kendi favorileri bu listeye hiç girmez.
+        source: "STAFF",
         createdByUserId: "",
         createdAt: "",
         updatedAt: "",
@@ -191,7 +194,14 @@ export function CustomerAssignedVariantsPageClient({
 
     const assignedQuery = scope === "sales" ? salesAssignedQuery : adminAssignedQuery
     const replaceMutation = scope === "sales" ? salesReplaceMutation : adminReplaceMutation
-    const assignedProducts = useMemo(() => assignedQuery.data ?? [], [assignedQuery.data])
+    // Bu ekran YALNIZ temsilci atamalarını düzenler. Uç, müşterinin kendi
+    // favorilerini (source: CUSTOMER) de döndürüyor; onlar seçime dahil edilirse
+    // kaydetme sırasında temsilci ataması olarak yeniden yazılır ve müşterinin
+    // kendi seçimi "Temsilci Seçimi" sekmesinde de görünmeye başlar.
+    const assignedProducts = useMemo(
+        () => (assignedQuery.data ?? []).filter((item) => item.source === "STAFF"),
+        [assignedQuery.data],
+    )
     const knownAttributeCodes = useMemo(
         () => new Set(attributes.map((attribute) => attribute.code)),
         [attributes],

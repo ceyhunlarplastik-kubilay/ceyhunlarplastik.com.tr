@@ -285,7 +285,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                         <p className="mt-2 text-sm leading-6 text-neutral-500">
                             Ürün kartına tıkladığınızda model detayına, oradan da varyant detay ekranına geçebilirsiniz.
                             Dilerseniz doğrudan <Link href="/musteri/tanimli-urunler" className="font-medium text-brand hover:underline">İlgili Ürünler</Link>,{" "}
-                            <Link href="/musteri/musteriye-tanimli-urunler" className="font-medium text-brand hover:underline">Tanımlı Varyantlar</Link> veya{" "}
+                            <Link href="/musteri/favori-varyantlarim" className="font-medium text-brand hover:underline">Favori Varyantlarım</Link> veya{" "}
                             <Link href="/musteri/talepler" className="font-medium text-brand hover:underline">Taleplerim</Link> sekmesine geçebilirsiniz.
                         </p>
                     </div>

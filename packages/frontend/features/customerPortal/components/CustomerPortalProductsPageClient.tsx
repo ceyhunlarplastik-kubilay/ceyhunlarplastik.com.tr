@@ -14,7 +14,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Spinner } from "@/components/ui/spinner"
 import type { CustomerFeaturedProduct } from "@/features/admin/customers/api/types"
-import { CustomerPortalAssignedVariantsPageClient } from "@/features/customerPortal/components/CustomerPortalAssignedVariantsPageClient"
 import { usePortalFeaturedProducts } from "@/features/customerPortal/hooks/usePortalFeaturedProducts"
 import {
     CustomerPortalPageHeader,
@@ -23,15 +22,9 @@ import {
 
 const INLINE_USAGE_AREA_LIMIT = 2
 
-type Props = {
-    mode?: "featured" | "assigned"
-}
-
-export function CustomerPortalProductsPageClient({ mode = "featured" }: Props) {
-    if (mode === "assigned") {
-        return <CustomerPortalAssignedVariantsPageClient />
-    }
-
+// Favori varyantlar artık ayrı bir route ve ayrı bir bileşen
+// (CustomerPortalFavoriteVariantsPageClient); buradaki `mode` dağıtıcısı kalktı.
+export function CustomerPortalProductsPageClient() {
     return <CustomerPortalFeaturedProductsContent />
 }
 
