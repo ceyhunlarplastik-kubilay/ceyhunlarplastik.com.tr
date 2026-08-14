@@ -3002,6 +3002,41 @@ hizalamak istenebilir.
 **Kullanıcıda bekleyen:** kubi'de doğrulama (aşağıdaki adımlar), sonra Dilim 3
 (kalp butonu).
 
+## Favori Ürün Varyantlarım — Dilim 3: kalp butonu (2026-08-14)
+
+**Uçlar/istemci katmanı:** `api/portalFavoriteVariants.ts` (ekle/çıkar) +
+`hooks/usePortalFavoriteVariant.ts`. İki uç da güncel favori listesinin TAMAMINI
+döndürdüğü için mutation sonrası ayrı bir liste isteği gerekmiyor.
+
+**Bileşen:** `PortalFavoriteVariantButton` — `icon` (tablo satırı) ve `labeled`
+(kart) olmak üzere iki biçim. `aria-pressed`, `aria-label`/`title`, `motion/react`
+geçişi ve `useReducedMotion` desteği var.
+
+**Bağlandığı üç yüzey:**
+- `/musteri/tum-urunler/urun/[slug]/varyantlar` varyant tablosunda en sol sütun
+  (yatay kaydırmada ilk görünen yer)
+- Favori sayfasının kartlarında ("Varyantları İncele" ile yan yana)
+- Özel Fiyatlı Ürünler kartlarında (etiketli biçim)
+
+**Optimistic güncelleme:** tıklama anında listeye yansır, yanıtla gerçek satır
+gelir, hata olursa önceki liste geri yüklenir (`onMutate`/`onError`/`onSettled`).
+Uçuştaki liste isteği optimistic veriyi ezmesin diye `cancelQueries` çağrılıyor.
+
+**Kalbin anlamı bilinçli olarak dar:** yalnız `source: "CUSTOMER"` satırını açıp
+kapatır. Temsilcinin eklediği bir varyantta kalp BOŞ görünür ve müşteri onu ayrıca
+kendi favorisine alabilir; kaldırdığında temsilcinin kaydı listede kalır. Alternatif
+(kalbin her iki kaynağı da temsil etmesi) müşteriye "kaldıramıyorum" hissi verirdi.
+
+**Saf katman + test:** optimistic liste mantığı `lib/favoriteVariantList.ts`
+içindeki `applyFavoriteToggle`'a çıkarıldı ve 6 testle sabitlendi — özellikle
+"kendi favorisini kaldırınca aynı varyantın temsilci ataması listede kalır" kuralı.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 343 ✅ ·
+functions 254 ✅ · frontend 205 ✅ (+6) · `next build` "Compiled successfully" ✅
+
+**Kullanıcıda bekleyen:** kubi'de kalp akışının uçtan uca denenmesi (migration
+uygulanmış olmalı).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

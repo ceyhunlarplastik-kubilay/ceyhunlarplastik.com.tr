@@ -41,6 +41,11 @@ import {
     type AppliedVariantFilters,
 } from "@/features/customerPortal/schema/customerPortalVariantFilters"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
+import { PortalFavoriteVariantButton } from "@/features/customerPortal/components/PortalFavoriteVariantButton"
+import {
+    usePortalFavoriteVariantIds,
+    usePortalFavoriteVariants,
+} from "@/features/customerPortal/hooks/usePortalFavoriteVariant"
 import type { CustomerVariantSpecialPrice } from "@/features/admin/customers/api/types"
 import { formatMoney, resolveCustomerDiscountedPrice } from "@/lib/customers/pricing"
 
@@ -159,6 +164,8 @@ export function CustomerPortalVariantDetailsTable({
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
     const draftItems = usePortalRequestDraftStore((state) => state.items)
     const specialPricesQuery = usePortalSpecialPrices()
+    const favoriteVariantIds = usePortalFavoriteVariantIds()
+    const { toggleFavorite, pendingVariantId } = usePortalFavoriteVariants()
     const [quantityByVariantId, setQuantityByVariantId] = useState<Record<string, string>>({})
     const [refreshKey, setRefreshKey] = useState(0)
     const [specialPriceRequestOpen, setSpecialPriceRequestOpen] = useState(false)
@@ -527,6 +534,9 @@ export function CustomerPortalVariantDetailsTable({
                         <Table className="min-w-[1060px] text-[13px]">
                             <TableHeader className="bg-neutral-50/90">
                                 <TableRow className="hover:bg-transparent">
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} w-[52px] min-w-[52px] pl-3`}>
+                                        <span className="sr-only">Favori</span>
+                                    </TableHead>
                                     <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[108px]`}>Ürün Kodu</TableHead>
                                     {measurementColumns.map((column) => (
                                         <TableHead key={column.id} className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[76px]`}>
@@ -560,6 +570,13 @@ export function CustomerPortalVariantDetailsTable({
                                             transition={{ duration: 0.22, delay: index * 0.04 }}
                                             className="border-b border-neutral-100 align-middle transition-colors last:border-0 hover:bg-neutral-50/70"
                                         >
+                                            <TableCell className={`${VARIANT_TABLE_CELL_CLASS} pl-3`}>
+                                                <PortalFavoriteVariantButton
+                                                    isFavorite={favoriteVariantIds.has(variant.id)}
+                                                    isPending={pendingVariantId === variant.id}
+                                                    onToggle={() => toggleFavorite(variant.id, !favoriteVariantIds.has(variant.id))}
+                                                />
+                                            </TableCell>
                                             <TableCell className={`${VARIANT_TABLE_CELL_CLASS} font-mono text-xs font-medium text-neutral-800`}>
                                                 {variant.fullCode}
                                             </TableCell>

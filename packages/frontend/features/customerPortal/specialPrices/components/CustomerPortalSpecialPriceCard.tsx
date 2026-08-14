@@ -6,6 +6,11 @@ import { motion } from "motion/react"
 import { BadgePercent, CalendarClock, FileText, Plus, ReceiptText, ShoppingCart } from "lucide-react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { PortalFavoriteVariantButton } from "@/features/customerPortal/components/PortalFavoriteVariantButton"
+import {
+    usePortalFavoriteVariantIds,
+    usePortalFavoriteVariants,
+} from "@/features/customerPortal/hooks/usePortalFavoriteVariant"
 import { Button } from "@/components/ui/button"
 import type { CustomerVariantSpecialPrice } from "@/features/admin/customers/api/types"
 import {
@@ -37,6 +42,9 @@ function formatQuantity(value?: number | null) {
 
 export function CustomerPortalSpecialPriceCard({ item, index }: Props) {
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
+    const favoriteVariantIds = usePortalFavoriteVariantIds()
+    const { toggleFavorite, pendingVariantId } = usePortalFavoriteVariants()
+    const isFavorite = favoriteVariantIds.has(item.productVariantId)
     const product = item.productVariant?.product
     const variant = item.productVariant
     const quantity = item.minOrderQuantity ?? 1
@@ -106,6 +114,16 @@ export function CustomerPortalSpecialPriceCard({ item, index }: Props) {
                     </Badge>
                     <Badge variant="outline">{item.taxIncluded ? "KDV dahil" : "KDV hariç"}</Badge>
                     {item.minOrderQuantity ? <Badge variant="secondary">Minimum {formatQuantity(item.minOrderQuantity)} adet</Badge> : null}
+
+                    {item.productVariantId ? (
+                        <PortalFavoriteVariantButton
+                            isFavorite={isFavorite}
+                            isPending={pendingVariantId === item.productVariantId}
+                            onToggle={() => toggleFavorite(item.productVariantId, !isFavorite)}
+                            variant="labeled"
+                            className="ml-auto border border-neutral-200 bg-white"
+                        />
+                    ) : null}
                 </div>
 
                 <div className="space-y-1">

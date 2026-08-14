@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button"
 import type { CustomerAssignedProduct } from "@/features/admin/customers/api/types"
 import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { getAssignedProductVariantImageUrl } from "@/lib/customers/assignedProductVariants"
+import { PortalFavoriteVariantButton } from "@/features/customerPortal/components/PortalFavoriteVariantButton"
+import {
+    usePortalFavoriteVariantIds,
+    usePortalFavoriteVariants,
+} from "@/features/customerPortal/hooks/usePortalFavoriteVariant"
 
 type Props = {
     item: CustomerAssignedProduct
@@ -83,6 +88,11 @@ function SourceBadge({ item }: Props) {
 }
 
 export function CustomerPortalAssignedVariantCard({ item }: Props) {
+    const favoriteVariantIds = usePortalFavoriteVariantIds()
+    const { toggleFavorite, pendingVariantId } = usePortalFavoriteVariants()
+    // Temsilci ataması olan bir satırda da kalp boş olabilir: müşteri onu ayrıca
+    // kendi favorisine alabilir, kaldırma yalnız kendi kaydını siler.
+    const isFavorite = favoriteVariantIds.has(item.productVariantId)
     const product = item.productVariant.product
     const categoryName = product?.category?.name ?? "Kategori"
     const color = item.productVariant.color
@@ -189,14 +199,24 @@ export function CustomerPortalAssignedVariantCard({ item }: Props) {
                 </div>
             </div>
 
-            {variantHref ? (
-                <Button asChild variant="outline" className="h-10 w-full justify-between rounded-2xl border-neutral-200 bg-white text-sm font-medium">
-                    <Link href={variantHref}>
-                        Varyantları İncele
-                        <ArrowRight className="h-4 w-4" />
-                    </Link>
-                </Button>
-            ) : null}
+            <div className="flex items-center gap-2">
+                {variantHref ? (
+                    <Button asChild variant="outline" className="h-10 min-w-0 flex-1 justify-between rounded-2xl border-neutral-200 bg-white text-sm font-medium">
+                        <Link href={variantHref}>
+                            Varyantları İncele
+                            <ArrowRight className="h-4 w-4" />
+                        </Link>
+                    </Button>
+                ) : null}
+
+                <PortalFavoriteVariantButton
+                    isFavorite={isFavorite}
+                    isPending={pendingVariantId === item.productVariantId}
+                    onToggle={() => toggleFavorite(item.productVariantId, !isFavorite)}
+                    variant={variantHref ? "icon" : "labeled"}
+                    className={variantHref ? "h-10 w-10 shrink-0 border border-neutral-200 bg-white" : "h-10 w-full justify-center rounded-2xl border border-neutral-200 bg-white"}
+                />
+            </div>
         </article>
     )
 }
