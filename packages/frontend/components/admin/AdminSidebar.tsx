@@ -22,6 +22,7 @@ import {
     ShieldCheck,
     ClipboardCheck,
     MapPinned,
+    Megaphone,
     Menu,
     ChevronLeft,
     ChevronDown,
@@ -103,6 +104,11 @@ const navItems = [
         href: "/admin/web-requests",
         label: "Web Talepleri",
         icon: ClipboardList,
+    },
+    {
+        href: "/admin/kampanyalar",
+        label: "Kampanyalar",
+        icon: Megaphone,
     },
     {
         href: "/admin/onaylar",

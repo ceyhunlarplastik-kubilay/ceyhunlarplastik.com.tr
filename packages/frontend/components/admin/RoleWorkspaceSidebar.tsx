@@ -12,6 +12,7 @@ import {
     FileSpreadsheet,
     Layers3,
     MapPinned,
+    Megaphone,
     Menu,
     Package,
     Palette,
@@ -28,7 +29,7 @@ import { cn } from "@/lib/utils"
 type NavItem = {
     href: string
     label: string
-    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package" | "settings" | "palette" | "layers" | "ruler" | "sheet"
+    icon: "users" | "truck" | "boxes" | "building" | "shield" | "clipboard" | "map" | "package" | "settings" | "palette" | "layers" | "ruler" | "sheet" | "megaphone"
     match?: "exact" | "prefix"
 }
 
@@ -46,6 +47,7 @@ const iconMap = {
     layers: Layers3,
     ruler: Ruler,
     sheet: FileSpreadsheet,
+    megaphone: Megaphone,
 } as const
 
 type Props = {

@@ -5,6 +5,7 @@ import { IPrismaProductRepository } from "@/core/helpers/prisma/products/reposit
 import { IPrismaCompanyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
 import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { IPrismaCustomerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
+import { IPrismaProductVariantCampaignRepository } from "@/core/helpers/prisma/productVariantCampaigns/repository"
 import { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { IPrismaUserRepository } from "@/core/helpers/prisma/users/repository"
 import { IUserInvitationRepository } from "@/core/helpers/prisma/userInvitations/repository"
@@ -21,6 +22,7 @@ export interface IProtectedCrmDependencies {
     productVariantRepository?: IPrismaProductVariantRepository
     companyContactRepository?: IPrismaCompanyContactRepository
     customerVariantSpecialPriceRepository?: IPrismaCustomerVariantSpecialPriceRepository
+    productVariantCampaignRepository?: IPrismaProductVariantCampaignRepository
     userRepository?: IPrismaUserRepository
     userInvitationRepository?: IUserInvitationRepository
     cognitoRepository?: ICognitoUserRepository
@@ -181,6 +183,9 @@ export type IDeletePortalCustomerAddressEvent = IAPIGatewayProxyEventWithUserGen
     {},
     { addressId: string }
 >
+
+/** Portal kampanya listesi: müşteri kimliği token'dan gelir, parametre almaz. */
+export type IPortalProductVariantCampaignsEvent = IAPIGatewayProxyEventWithUserGeneric
 
 export type ICreatePortalCustomerFavoriteVariantEvent = IAPIGatewayProxyEventWithUserGeneric<
     { productVariantId: string }

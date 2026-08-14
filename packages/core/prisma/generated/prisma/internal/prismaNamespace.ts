@@ -418,6 +418,8 @@ export const ModelName = {
   GeocodingCache: 'GeocodingCache',
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
+  ProductVariantCampaign: 'ProductVariantCampaign',
+  ProductVariantCampaignItem: 'ProductVariantCampaignItem',
   CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
   BusinessRequest: 'BusinessRequest',
   Order: 'Order',
@@ -443,7 +445,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "measurementTypeTranslation" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "measurementType" | "measurementTypeTranslation" | "productMeasurement" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2963,6 +2965,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProductVariantCampaign: {
+      payload: Prisma.$ProductVariantCampaignPayload<ExtArgs>
+      fields: Prisma.ProductVariantCampaignFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductVariantCampaignFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductVariantCampaignFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductVariantCampaignFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductVariantCampaignFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>
+        }
+        findMany: {
+          args: Prisma.ProductVariantCampaignFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>[]
+        }
+        create: {
+          args: Prisma.ProductVariantCampaignCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>
+        }
+        createMany: {
+          args: Prisma.ProductVariantCampaignCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductVariantCampaignCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductVariantCampaignDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>
+        }
+        update: {
+          args: Prisma.ProductVariantCampaignUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductVariantCampaignDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductVariantCampaignUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductVariantCampaignUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductVariantCampaignUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductVariantCampaignAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductVariantCampaign>
+        }
+        groupBy: {
+          args: Prisma.ProductVariantCampaignGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantCampaignGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductVariantCampaignCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantCampaignCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductVariantCampaignItem: {
+      payload: Prisma.$ProductVariantCampaignItemPayload<ExtArgs>
+      fields: Prisma.ProductVariantCampaignItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductVariantCampaignItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductVariantCampaignItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>
+        }
+        findFirst: {
+          args: Prisma.ProductVariantCampaignItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductVariantCampaignItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>
+        }
+        findMany: {
+          args: Prisma.ProductVariantCampaignItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>[]
+        }
+        create: {
+          args: Prisma.ProductVariantCampaignItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>
+        }
+        createMany: {
+          args: Prisma.ProductVariantCampaignItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductVariantCampaignItemCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>[]
+        }
+        delete: {
+          args: Prisma.ProductVariantCampaignItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>
+        }
+        update: {
+          args: Prisma.ProductVariantCampaignItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductVariantCampaignItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductVariantCampaignItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductVariantCampaignItemUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductVariantCampaignItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVariantCampaignItemPayload>
+        }
+        aggregate: {
+          args: Prisma.ProductVariantCampaignItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductVariantCampaignItem>
+        }
+        groupBy: {
+          args: Prisma.ProductVariantCampaignItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantCampaignItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductVariantCampaignItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductVariantCampaignItemCountAggregateOutputType> | number
+        }
+      }
+    }
     CustomerVariantSpecialPrice: {
       payload: Prisma.$CustomerVariantSpecialPricePayload<ExtArgs>
       fields: Prisma.CustomerVariantSpecialPriceFieldRefs
@@ -4331,6 +4481,35 @@ export const ProductVariantSupplierScalarFieldEnum = {
 export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
 
 
+export const ProductVariantCampaignScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  discountPercent: 'discountPercent',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  status: 'status',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductVariantCampaignScalarFieldEnum = (typeof ProductVariantCampaignScalarFieldEnum)[keyof typeof ProductVariantCampaignScalarFieldEnum]
+
+
+export const ProductVariantCampaignItemScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  productVariantId: 'productVariantId',
+  discountPercent: 'discountPercent',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductVariantCampaignItemScalarFieldEnum = (typeof ProductVariantCampaignItemScalarFieldEnum)[keyof typeof ProductVariantCampaignItemScalarFieldEnum]
+
+
 export const CustomerVariantSpecialPriceScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
@@ -4856,6 +5035,20 @@ export type ListEnumCustomerVisitStatusFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'ProductVariantCampaignStatus'
+ */
+export type EnumProductVariantCampaignStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductVariantCampaignStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ProductVariantCampaignStatus[]'
+ */
+export type ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductVariantCampaignStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'BusinessRequestDomain'
  */
 export type EnumBusinessRequestDomainFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessRequestDomain'>
@@ -5138,6 +5331,8 @@ export type GlobalOmitConfig = {
   geocodingCache?: Prisma.GeocodingCacheOmit
   customerVisit?: Prisma.CustomerVisitOmit
   productVariantSupplier?: Prisma.ProductVariantSupplierOmit
+  productVariantCampaign?: Prisma.ProductVariantCampaignOmit
+  productVariantCampaignItem?: Prisma.ProductVariantCampaignItemOmit
   customerVariantSpecialPrice?: Prisma.CustomerVariantSpecialPriceOmit
   businessRequest?: Prisma.BusinessRequestOmit
   order?: Prisma.OrderOmit

@@ -212,6 +212,19 @@ export type CustomerVisit = Prisma.CustomerVisitModel
  */
 export type ProductVariantSupplier = Prisma.ProductVariantSupplierModel
 /**
+ * Model ProductVariantCampaign
+ * Kampanya, MÜŞTERİYE ÖZEL DEĞİLDİR: tüm müşterilere aynı yüzde indirimi açar.
+ * Müşteriye özel pazarlık (CustomerVariantSpecialPrice) her koşulda kampanyayı
+ * ezer; kampanya ile genel iskonto ise ikisi de liste fiyatına yüzde olduğu için
+ * karşılaştırılır ve büyük olan uygulanır (bkz. customerPricing.ts).
+ */
+export type ProductVariantCampaign = Prisma.ProductVariantCampaignModel
+/**
+ * Model ProductVariantCampaignItem
+ * 
+ */
+export type ProductVariantCampaignItem = Prisma.ProductVariantCampaignItemModel
+/**
  * Model CustomerVariantSpecialPrice
  * 
  */

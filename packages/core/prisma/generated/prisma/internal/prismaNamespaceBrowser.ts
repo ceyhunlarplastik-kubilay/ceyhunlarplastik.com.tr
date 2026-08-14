@@ -85,6 +85,8 @@ export const ModelName = {
   GeocodingCache: 'GeocodingCache',
   CustomerVisit: 'CustomerVisit',
   ProductVariantSupplier: 'ProductVariantSupplier',
+  ProductVariantCampaign: 'ProductVariantCampaign',
+  ProductVariantCampaignItem: 'ProductVariantCampaignItem',
   CustomerVariantSpecialPrice: 'CustomerVariantSpecialPrice',
   BusinessRequest: 'BusinessRequest',
   Order: 'Order',
@@ -700,6 +702,35 @@ export const ProductVariantSupplierScalarFieldEnum = {
 } as const
 
 export type ProductVariantSupplierScalarFieldEnum = (typeof ProductVariantSupplierScalarFieldEnum)[keyof typeof ProductVariantSupplierScalarFieldEnum]
+
+
+export const ProductVariantCampaignScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  discountPercent: 'discountPercent',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  status: 'status',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductVariantCampaignScalarFieldEnum = (typeof ProductVariantCampaignScalarFieldEnum)[keyof typeof ProductVariantCampaignScalarFieldEnum]
+
+
+export const ProductVariantCampaignItemScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  productVariantId: 'productVariantId',
+  discountPercent: 'discountPercent',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductVariantCampaignItemScalarFieldEnum = (typeof ProductVariantCampaignItemScalarFieldEnum)[keyof typeof ProductVariantCampaignItemScalarFieldEnum]
 
 
 export const CustomerVariantSpecialPriceScalarFieldEnum = {

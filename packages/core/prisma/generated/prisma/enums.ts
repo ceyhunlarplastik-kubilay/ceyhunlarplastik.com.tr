@@ -138,6 +138,16 @@ export const CustomerVisitStatus = {
 export type CustomerVisitStatus = (typeof CustomerVisitStatus)[keyof typeof CustomerVisitStatus]
 
 
+export const ProductVariantCampaignStatus = {
+  DRAFT: 'DRAFT',
+  ACTIVE: 'ACTIVE',
+  PAUSED: 'PAUSED',
+  ENDED: 'ENDED'
+} as const
+
+export type ProductVariantCampaignStatus = (typeof ProductVariantCampaignStatus)[keyof typeof ProductVariantCampaignStatus]
+
+
 export const BusinessRequestDomain = {
   SALES: 'SALES',
   PURCHASING: 'PURCHASING'

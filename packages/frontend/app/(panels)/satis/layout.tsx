@@ -4,7 +4,7 @@ import { RoleWorkspaceSidebar } from "@/components/admin/RoleWorkspaceSidebar"
 import { AdminTopbar } from "@/components/admin/AdminTopbar"
 import { NotificationBell } from "@/features/notifications/components/NotificationBell"
 
-const navItems = [
+const baseNavItems = [
     {
         href: "/satis",
         label: "Atanmış Müşteriler",
@@ -36,6 +36,25 @@ const navItems = [
     },
 ]
 
+/**
+ * Kampanya YÖNETİMİ satış temsilcisine kapalı: uç `sales_director/admin/owner`
+ * istiyor, temsilciye gösterilseydi tıklayınca 403 alırdı. Temsilci Aşama 2'de
+ * yalnız mevcut kampanyayı kendi müşterilerine duyurabilecek.
+ */
+const campaignNavItem = {
+    href: "/satis/kampanyalar",
+    label: "Kampanyalar",
+    icon: "megaphone" as const,
+    match: "prefix" as const,
+}
+
+function buildNavItems(groups: string[]) {
+    const canManageCampaigns =
+        groups.includes("sales_director") || groups.includes("admin") || groups.includes("owner")
+
+    return canManageCampaigns ? [...baseNavItems, campaignNavItem] : baseNavItems
+}
+
 export default async function SalesLayout({
     children,
 }: {
@@ -61,7 +80,7 @@ export default async function SalesLayout({
             <RoleWorkspaceSidebar
                 panelTitle="Satış Paneli"
                 panelSubtitle="Operasyon"
-                navItems={navItems}
+                navItems={buildNavItems(groups)}
                 name={session.user?.name}
                 email={session.user?.email}
                 image={session.user?.image}

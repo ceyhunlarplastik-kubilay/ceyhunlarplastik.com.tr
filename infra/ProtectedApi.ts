@@ -475,6 +475,39 @@ protectedApi.route('GET /portal/customer/assigned-products', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Kampanyalı ürün varyantları. AdminApi DEĞİL ProtectedApi: kampanyayı satış
+// müdürü yönetiyor ve AdminApi bu repoda admin/owner sınırına ait.
+// Satış temsilcisi (`sales`) burada YOK — kampanyayı yalnız duyurabilecek (Aşama 2).
+protectedApi.route('GET /sales/product-variant-campaigns', {
+    handler: `${folderPrefix}/productVariantCampaigns/actions.listProductVariantCampaigns`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /sales/product-variant-campaigns/{id}', {
+    handler: `${folderPrefix}/productVariantCampaigns/actions.getProductVariantCampaign`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /sales/product-variant-campaigns', {
+    handler: `${folderPrefix}/productVariantCampaigns/actions.createProductVariantCampaign`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /sales/product-variant-campaigns/{id}', {
+    handler: `${folderPrefix}/productVariantCampaigns/actions.updateProductVariantCampaign`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /sales/product-variant-campaigns/{id}', {
+    handler: `${folderPrefix}/productVariantCampaigns/actions.deleteProductVariantCampaign`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /portal/customer/campaigns', {
+    handler: `${folderPrefix}/crm/actions.getPortalProductVariantCampaigns`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 // Kalp butonu: müşterinin kendi favori varyantları (source: CUSTOMER).
 // Temsilci ataması ayrı yoldan (PUT .../assigned-products) yönetilir.
 protectedApi.route('POST /portal/customer/favorite-variants', {

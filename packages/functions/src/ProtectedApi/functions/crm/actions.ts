@@ -8,6 +8,7 @@ import { productAttributeValueRepository } from "@/core/helpers/prisma/productAt
 import { productRepository } from "@/core/helpers/prisma/products/repository"
 import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { customerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
+import { productVariantCampaignRepository } from "@/core/helpers/prisma/productVariantCampaigns/repository"
 import { userRepository } from "@/core/helpers/prisma/users/repository"
 import { userInvitationRepository } from "@/core/helpers/prisma/userInvitations/repository"
 import {
@@ -25,6 +26,7 @@ import {
     createPortalCustomerFavoriteVariantHandler,
     deletePortalCustomerFavoriteVariantHandler,
     getPortalCustomerAssignedProductsHandler,
+    getPortalProductVariantCampaignsHandler,
     createPortalCustomerAddressHandler,
     deletePortalCustomerAddressHandler,
     getPortalCustomerFeaturedProductsHandler,
@@ -62,6 +64,7 @@ import type {
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerFavoriteVariantEvent,
+    IPortalProductVariantCampaignsEvent,
     IDeletePortalCustomerFavoriteVariantEvent,
     IManagedCustomerEvent,
     IManagedSupplierEvent,
@@ -89,6 +92,7 @@ import {
     updateCustomerValidator,
     updateCustomerVisitValidator,
 } from "@/functions/AdminApi/validators/customers"
+import { portalProductVariantCampaignsResponseValidator } from "@/functions/ProtectedApi/validators/productVariantCampaigns"
 import { listCompanyContactsResponseValidator } from "@/functions/AdminApi/validators/companyContacts"
 import {
     createManagedCustomerAddressValidator,
@@ -127,6 +131,7 @@ const deps = {
     productVariantRepository: productVariantRepository(),
     companyContactRepository: companyContactRepository(),
     customerVariantSpecialPriceRepository: customerVariantSpecialPriceRepository(),
+    productVariantCampaignRepository: productVariantCampaignRepository(),
     userRepository: userRepository(),
     userInvitationRepository: userInvitationRepository(),
     cognitoRepository: cognitoUserRepository(),
@@ -432,6 +437,15 @@ export const getPortalCustomerAssignedProducts = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
         responseValidator: customerAssignedProductsResponseValidator,
+    },
+)
+
+export const getPortalProductVariantCampaigns = lambdaHandler(
+    async (event) =>
+        getPortalProductVariantCampaignsHandler(deps)(event as IPortalProductVariantCampaignsEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
+        responseValidator: portalProductVariantCampaignsResponseValidator,
     },
 )
 

@@ -37,6 +37,7 @@ import {
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerFavoriteVariantEvent,
+    IPortalProductVariantCampaignsEvent,
     IDeletePortalCustomerFavoriteVariantEvent,
     IManagedCustomerEvent,
     IManagedSupplierEvent,
@@ -1157,6 +1158,34 @@ export const deletePortalCustomerFavoriteVariantHandler = ({
             statusCode: 200,
             payload: { data: mapAssignedProducts(data) },
         })
+    }
+}
+
+/**
+ * Portal kampanya listesi. Kampanya müşteriye özel olmadığı için filtre YOK:
+ * yalnız ACTIVE ve tarih penceresi içindekiler döner. "Bana uygun" ayrımı
+ * istemcide, müşterinin favori/tanımlı varyantlarıyla kesişimden yapılır —
+ * o veri portalda zaten yüklü, ikinci bir sorgu gerekmiyor.
+ */
+export const getPortalProductVariantCampaignsHandler = ({
+    productVariantCampaignRepository,
+}: IProtectedCrmDependencies) => {
+    return async (event: IPortalProductVariantCampaignsEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const customerId = requester.customerId
+        if (!customerId) throw new createError.Forbidden("Customer portal access denied")
+
+        assertCustomerPortalAccess(requester, customerId)
+
+        if (!productVariantCampaignRepository) {
+            throw new createError.InternalServerError("Campaign repository not configured")
+        }
+
+        const data = await productVariantCampaignRepository.listActiveCampaigns()
+
+        return apiResponseDTO({ statusCode: 200, payload: { data } })
     }
 }
 

@@ -3037,6 +3037,98 @@ functions 254 ✅ · frontend 205 ✅ (+6) · `next build` "Compiled successfull
 **Kullanıcıda bekleyen:** kubi'de kalp akışının uçtan uca denenmesi (migration
 uygulanmış olmalı).
 
+## Kampanyalı Ürün Varyantları — Dilim 4: şema + backend (2026-08-14)
+
+Aşama 1'in ilk dilimi. Kampanya MÜŞTERİYE ÖZEL DEĞİLDİR: tüm müşterilere aynı
+yüzde indirimini açar, bu yüzden şemada `customerId` yoktur.
+
+**Alınan kararlar (kullanıcı onaylı):**
+- Onay akışı YOK, rol kısıtı yeterli: `sales_director`, `admin`, `owner`.
+  `BusinessRequest` motoruna bağlanmadı — kampanya bir "talep" değil.
+- Fiyat: liste fiyatına yüzde indirim. Müşteriye özel fiyat her koşulda kazanır.
+- Portal ikinci sekmesi favori + tanımlı varyantlarla kesişimden hesaplanacak.
+
+**Şema (migration `20260814150000_add_product_variant_campaigns`):**
+- `ProductVariantCampaign` — başlık, açıklama, `discountPercent`, geçerlilik
+  aralığı, `status` (DRAFT/ACTIVE/PAUSED/ENDED), oluşturan kullanıcı
+- `ProductVariantCampaignItem` — kampanya × varyant, opsiyonel varyant bazlı
+  `discountPercent` ezmesi, `displayOrder`
+- Başlık + kalem yapısı seçildi: stok eritme kampanyası tipik olarak birden çok
+  varyantı kapsar ve Aşama 2'de duyuru kampanya seviyesinde yapılacak.
+
+**Migration gerçek Postgres'te sınandı** (elle yazıldı):
+- temiz DB'ye `migrate deploy` sorunsuz ✅
+- `migrate diff` → "empty migration", şemayla sapma yok ✅
+- aynı kampanyada aynı varyant ikinci kez → reddediliyor ✅
+- kampanya silinince kalemler gidiyor (Cascade) ✅
+- varyant silinince kalem gidiyor, kampanya kalıyor ✅
+- kampanyası olan kullanıcı silinemiyor (Restrict) ✅
+- `Decimal(5,2)` ondalık koruyor (25.00) ✅
+
+**Backend:**
+- `productVariantCampaigns/repository.ts` — liste (sayfalama/filtre),
+  `listActiveCampaigns` (portal: yalnız ACTIVE + tarih penceresi), CRUD
+- Kalem yazımında varyant tekilleştirme (unique ihlalini önler)
+- Güncellemede kalem listesi gönderilmezse kalemlere DOKUNULMAZ
+- AdminApi: `GET/POST /product-variant-campaigns`, `GET/PATCH/DELETE /{id}`
+- ProtectedApi: `GET /portal/customer/campaigns` (customer/admin/owner)
+- Kalem varyantları kart görünümü kadar taşır; tedarikçi/fiyat ağacı bilinçli
+  olarak include DIŞINDA (portal payload'ını şişirmemek için)
+
+**Testler:** `repository.test.ts` (7 test) tekilleştirme, kalem değişim
+semantiği ve portal filtresini sabitliyor. 8 yeni validator dünkü
+`validatorCompilation.test.ts` glob'una otomatik girdi (254 → 262).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 350 ✅ (+7) ·
+functions 262 ✅ (+8) · frontend 205 ✅
+
+**Kullanıcıda bekleyen:** migration'ı kubi'ye uygulamak; sonra Dilim 5 (yönetim
+ekranı), Dilim 6 (portal sayfası), Dilim 7 (fiyat zinciri entegrasyonu).
+
+## Kampanyalı Ürün Varyantları — Dilim 5: yönetim ekranı (2026-08-14)
+
+**Dilim 4'ten taşınan düzeltme (API sınırı):** kampanya uçlarını AdminApi'ye koyup
+`sales_director`'a açmıştım. Tarama gösterdi ki AdminApi'de satış rolü verilen TEK
+yer bu uçlardı — repo kuralı AdminApi'yi admin/owner'a, iş kullanıcısı akışlarını
+ProtectedApi'ye ayırıyor. Tüm yüzey (`functions/`, `validators/`, `types/`,
+infra route'ları) ProtectedApi'ye taşındı: `/sales/product-variant-campaigns`.
+Dilim 4 henüz commit'lenmemişti, bu yüzden geçmişe bulaşmadan düzeltildi.
+
+**Ekranlar:** aynı bileşen iki çalışma alanında —
+`/satis/kampanyalar` (satış müdürü) ve `/admin/kampanyalar` (admin/owner).
+Uç tek olduğu için `scope` prop'una gerek olmadı.
+
+**Rol kapısı:** `/satis` layout'u `sales`'e de açık, ama kampanya YÖNETİMİ
+temsilciye kapalı. Nav öğesi role göre türetiliyor (`buildNavItems`); aksi hâlde
+temsilci menüde görür, tıklar ve 403 alırdı.
+
+**Bileşenler:**
+- `CampaignsPageClient` — arama + durum filtresi (nuqs ile URL'de), kampanya
+  kartları, kalem rozetleri (varyant + etkin oran), düzenle/sil
+- `CampaignFormDialog` — başlık, açıklama, oran, tarih aralığı, durum + varyant
+  seçici. Kabuk/gövde ayrımı: gövde `key` ile taze mount ediliyor, böylece
+  "açılışta formu sıfırla" effect'ine gerek kalmıyor
+- `CampaignVariantPicker` — ürün ara → varyant işaretle; seçim ürünler arasında
+  korunur (bir kampanya birden çok ürünün varyantını kapsayabilir), her seçili
+  varyant için opsiyonel oran ezmesi girilebilir
+
+**Saf katman + test:** `campaignDiscount.ts` (13 test) — Prisma `Decimal`
+objesini okuma, kalem/kampanya oran önceliği (kalem `0` ise kampanya geneline
+DÜŞMEZ), Türkçe yüzde biçimi, geçerlilik penceresi durumu.
+
+**Yol boyunca iki lint düzeltmesi:**
+- `form.watch` React Compiler'ı düşürüyordu → repo idiomu olan `Controller`'a
+  geçildi (CustomerSpecialPricesPageClient ile aynı desen)
+- effect içinde senkron `setState` lint HATASI veriyordu → keyed gövde deseniyle
+  effect tamamen kaldırıldı
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (113 warning,
+başlangıç sayısı) ✅ · core 350 ✅ · functions 262 ✅ · frontend 218 ✅ (+13) ·
+`next build` "Compiled successfully" ✅
+
+**Kullanıcıda bekleyen:** migration kubi'ye uygulanmış olmalı; ekranın uçtan uca
+denenmesi. Sonra Dilim 6 (portal sayfası) ve Dilim 7 (fiyat zinciri).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

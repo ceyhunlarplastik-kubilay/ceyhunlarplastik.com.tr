@@ -616,6 +616,23 @@ export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDecimalFilter<$PrismaModel>
 }
 
+export type EnumProductVariantCampaignStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductVariantCampaignStatus | Prisma.EnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductVariantCampaignStatusFilter<$PrismaModel> | $Enums.ProductVariantCampaignStatus
+}
+
+export type EnumProductVariantCampaignStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductVariantCampaignStatus | Prisma.EnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductVariantCampaignStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductVariantCampaignStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductVariantCampaignStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductVariantCampaignStatusFilter<$PrismaModel>
+}
+
 export type EnumBusinessRequestDomainFilter<$PrismaModel = never> = {
   equals?: $Enums.BusinessRequestDomain | Prisma.EnumBusinessRequestDomainFieldRefInput<$PrismaModel>
   in?: $Enums.BusinessRequestDomain[] | Prisma.ListEnumBusinessRequestDomainFieldRefInput<$PrismaModel>
@@ -1334,6 +1351,23 @@ export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalFilter<$PrismaModel>
+}
+
+export type NestedEnumProductVariantCampaignStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductVariantCampaignStatus | Prisma.EnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductVariantCampaignStatusFilter<$PrismaModel> | $Enums.ProductVariantCampaignStatus
+}
+
+export type NestedEnumProductVariantCampaignStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductVariantCampaignStatus | Prisma.EnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductVariantCampaignStatus[] | Prisma.ListEnumProductVariantCampaignStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductVariantCampaignStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductVariantCampaignStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductVariantCampaignStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductVariantCampaignStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumBusinessRequestDomainFilter<$PrismaModel = never> = {

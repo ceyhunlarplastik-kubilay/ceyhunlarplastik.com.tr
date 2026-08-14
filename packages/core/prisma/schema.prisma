@@ -49,6 +49,7 @@ model User {
   activityLogs                    ActivityLog[]                 @relation("ActivityLogActor")
   createdCustomerFeaturedProducts CustomerFeaturedProduct[]     @relation("CustomerFeaturedProductCreatedBy")
   createdCustomerAssignedProducts CustomerAssignedProduct[]     @relation("CustomerAssignedProductCreatedBy")
+  createdProductVariantCampaigns  ProductVariantCampaign[]      @relation("ProductVariantCampaignCreatedBy")
   ownedCustomerVisits             CustomerVisit[]               @relation("CustomerVisitOwner")
   createdCustomerVisits           CustomerVisit[]               @relation("CustomerVisitCreatedBy")
   createdCustomerSpecialPrices    CustomerVariantSpecialPrice[] @relation("CustomerVariantSpecialPriceCreatedBy")
@@ -678,6 +679,7 @@ model ProductVariant {
   requestItems          BusinessRequestItem[]
   orderItems            OrderItem[]
   customerSpecialPrices CustomerVariantSpecialPrice[]
+  campaignItems         ProductVariantCampaignItem[]
 
   @@unique([productId, supplierCode, versionCode, variantIndex])
   @@index([productId])
@@ -998,6 +1000,69 @@ model ProductVariantSupplier {
   @@unique([variantId, supplierId])
   @@index([variantId])
   @@index([supplierId])
+}
+
+///////////////////////////////////////////////////////
+// PRODUCT VARIANT CAMPAIGN
+///////////////////////////////////////////////////////
+
+/// Kampanya, MÜŞTERİYE ÖZEL DEĞİLDİR: tüm müşterilere aynı yüzde indirimi açar.
+/// Müşteriye özel pazarlık (CustomerVariantSpecialPrice) her koşulda kampanyayı
+/// ezer; kampanya ile genel iskonto ise ikisi de liste fiyatına yüzde olduğu için
+/// karşılaştırılır ve büyük olan uygulanır (bkz. customerPricing.ts).
+model ProductVariantCampaign {
+  id String @id @default(uuid())
+
+  title       String
+  description String? @db.Text
+
+  /// Kampanya geneli indirim; kalem bazında ezilebilir.
+  discountPercent Decimal @db.Decimal(5, 2)
+
+  validFrom  DateTime?
+  validUntil DateTime?
+
+  status ProductVariantCampaignStatus @default(DRAFT)
+
+  createdByUserId String
+  createdByUser   User   @relation("ProductVariantCampaignCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  items ProductVariantCampaignItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, validFrom, validUntil])
+  @@index([createdByUserId])
+}
+
+model ProductVariantCampaignItem {
+  id String @id @default(uuid())
+
+  campaignId String
+  campaign   ProductVariantCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  /// Doluysa kampanya genelindeki oranın yerine geçer.
+  discountPercent Decimal? @db.Decimal(5, 2)
+
+  displayOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([campaignId, productVariantId])
+  @@index([productVariantId])
+  @@index([campaignId, displayOrder])
+}
+
+enum ProductVariantCampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ENDED
 }
 
 model CustomerVariantSpecialPrice {
