@@ -91,6 +91,7 @@ export function formatCommercialPriceSource(
         || getStringValue(snapshot.priceSource)
 
     if (priceSource === "CUSTOMER_SPECIAL_PRICE") return "Özel fiyat"
+    if (priceSource === "CAMPAIGN_DISCOUNT") return "Kampanya"
     if (priceSource === "CUSTOMER_GENERAL_DISCOUNT") return "Genel iskonto"
     return "Liste fiyatı"
 }

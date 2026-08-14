@@ -75,7 +75,11 @@ export type CustomerCompanyContactAssignment = {
 
 export type CustomerStatus = "LEAD" | "CUSTOMER"
 export type CustomerVisitStatus = "PLANNED" | "COMPLETED" | "CANCELED"
-export type CustomerVariantPriceSource = "CUSTOMER_SPECIAL_PRICE" | "CUSTOMER_GENERAL_DISCOUNT" | "LIST_PRICE"
+export type CustomerVariantPriceSource =
+    | "CUSTOMER_SPECIAL_PRICE"
+    | "CAMPAIGN_DISCOUNT"
+    | "CUSTOMER_GENERAL_DISCOUNT"
+    | "LIST_PRICE"
 
 export type CustomerVariantPaymentScheduleStep = {
     percentage: number

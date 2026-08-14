@@ -1,4 +1,8 @@
-export type PortalDraftPriceSource = "CUSTOMER_SPECIAL_PRICE" | "CUSTOMER_GENERAL_DISCOUNT" | "LIST_PRICE"
+export type PortalDraftPriceSource =
+    | "CUSTOMER_SPECIAL_PRICE"
+    | "CAMPAIGN_DISCOUNT"
+    | "CUSTOMER_GENERAL_DISCOUNT"
+    | "LIST_PRICE"
 
 export type PortalDraftSpecialPriceIneligibilityReason =
     | "SPECIAL_PRICE_INACTIVE"
@@ -183,11 +187,18 @@ export function mapSpecialPriceToPortalDraftPreview(
     }
 }
 
+/**
+ * ⚠️ Bu fonksiyon core'daki `resolveCustomerVariantPrice` ile AYNI zinciri
+ * uygular (özel fiyat → kampanya/genel iskonto → liste). İkisi tarihsel olarak
+ * ayrı; birinde kural değişirse DİĞERİ DE değişmeli.
+ */
 export function resolvePortalDraftPricing(input: {
     quantity?: number | null
     listUnitPrice?: number | null
     currency?: string | null
     generalDiscountPercent?: number | null
+    /** Bu varyantta geçerli kampanya oranı; kampanyayı çözmek çağıranın işi. */
+    campaignDiscountPercent?: number | null
     specialPrice?: PortalDraftSpecialPricePreview | null
 }): ResolvedPortalDraftPricing {
     const listUnitPrice = toFiniteNumber(input.listUnitPrice)
@@ -209,10 +220,18 @@ export function resolvePortalDraftPricing(input: {
         priceSource = "CUSTOMER_SPECIAL_PRICE"
         specialPriceApplied = true
     } else if (listUnitPrice !== null) {
-        appliedDiscountPercent = normalizeDiscountPercent(input.generalDiscountPercent)
+        // Kampanya ve genel iskonto ikisi de liste fiyatına yüzde; büyük olan
+        // uygulanır ki kampanya, iskontosu daha iyi olan müşteriyi cezalandırmasın.
+        // Eşitlikte etiket genel iskontoda kalır (müşteri o oranı zaten alıyordu).
+        const campaignPercent = normalizeDiscountPercent(input.campaignDiscountPercent)
+        const generalPercent = normalizeDiscountPercent(input.generalDiscountPercent)
+        appliedDiscountPercent = Math.max(campaignPercent, generalPercent)
+
         if (appliedDiscountPercent > 0) {
             customerUnitPrice = roundMoney(listUnitPrice * (1 - appliedDiscountPercent / 100))
-            priceSource = "CUSTOMER_GENERAL_DISCOUNT"
+            priceSource = campaignPercent > generalPercent
+                ? "CAMPAIGN_DISCOUNT"
+                : "CUSTOMER_GENERAL_DISCOUNT"
         }
     }
 

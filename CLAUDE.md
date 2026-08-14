@@ -111,6 +111,12 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `createMany` de mevcut satırı güncellemez. Doğrusu `$executeRaw` +
   `UNNEST(dizi1, dizi2, …)` ile tek ifade (+ `ON CONFLICT DO UPDATE`), 500'lük parçalar.
   Aynı ifadede aynı çakışma anahtarı iki kez bulunamaz.
+- Müşteri fiyat zinciri İKİ YERDE uygulanıyor: core
+  `pricing/customerPricing.ts` (backend) ve frontend
+  `customerPortal/pricing/portalDraftPricing.ts` (portal taslak/tablo). Fiyat
+  kuralı değiştiriyorsan İKİSİNİ birden güncelle, yoksa portalın gösterdiği fiyat
+  ile sunucunun hesapladığı fiyat ayrışır. Zincir: özel fiyat → kampanya/genel
+  iskonto (büyük olan) → liste.
 - Repoda prettier config'i YOK ve kod elle 4 boşluk girintiyle yazılmış. `npx prettier --write`
   çalıştırma: varsayılan 2 boşluğa çevirip küçük bir değişikliği yüzlerce satırlık diff'e dönüştürür.
 - shadcn `SelectTrigger` varsayılanı `w-fit`'tir; ızgara/flex sütununu doldurması gerektiğinde

@@ -3167,6 +3167,47 @@ functions 262 ✅ · frontend 224 ✅ (+6) · `next build` "Compiled successfull
 entegrasyonu) — kampanya indirimi şu an yalnız GÖSTERİLİYOR, portal fiyat
 hesabına henüz girmiyor.
 
+## Kampanyalı Ürün Varyantları — Dilim 7: fiyat zinciri entegrasyonu (2026-08-14)
+
+Kampanya artık yalnız gösterilmiyor, **fiyata giriyor**.
+
+**Zincir:** `CUSTOMER_SPECIAL_PRICE → CAMPAIGN_DISCOUNT / CUSTOMER_GENERAL_DISCOUNT
+→ LIST_PRICE`.
+
+**Alt karar (Dilim 4'te sunulmuştu, burada uygulandı):** kampanya ve genel iskonto
+ikisi de liste fiyatına yüzde olduğu için karşılaştırılır ve **büyük olan** uygulanır.
+Katı sıralama olsaydı %30 iskontolu müşteri %10'luk kampanyada daha pahalıya alırdı —
+kampanya müşteriyi cezalandırırdı. Eşitlikte etiket genel iskontoda kalır (müşteri o
+oranı zaten alıyordu). Müşteriye özel fiyat net tutar olduğu için karşılaştırmaya
+girmez, her koşulda kazanır.
+
+**Fiyat yardımcısı kampanya VARLIĞINI bilmez:** girdi olarak yalnız çözülmüş
+`campaignDiscountPercent` alır. Hangi kampanyanın geçerli olduğunu çağıran çözer;
+böylece hesap saf ve testlenebilir kalır.
+
+**İki uygulama birden güncellendi:** core `customerPricing.ts` ve frontend
+`portalDraftPricing.ts`. Bu ikisi tarihsel olarak ayrı ama aynı zinciri uyguluyor;
+ikisine de aynı kural ve ayrı test setleri eklendi. Bu tuzak CLAUDE.md'ye yazıldı.
+
+**Varyant tablosunda besleme:** bir varyant birden çok kampanyada olabildiği için
+varyant başına EN İYİ oran seçilir (`campaignPercentByVariantId`).
+
+**Arayüz:** fiyat kaynağı etiketine "Kampanya" eklendi
+(`formatCommercialPriceSource`), `CustomerVariantPriceSource` tipi genişletildi.
+
+**Testler:** core `customerPricing.test.ts` +7, frontend
+`portalDraftPricing.campaign.test.ts` +5. En kritik iki test: "kampanya müşteriyi
+cezalandırmaz" ve "özel fiyat kampanyayı her koşulda ezer".
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 357 ✅ (+7) ·
+functions 262 ✅ · frontend 229 ✅ (+5) · `next build` "Compiled successfully" ✅
+
+**Aşama 1 TAMAMLANDI** (Dilim 4-7). Kalan: Aşama 2 (kampanya duyurusu + kanal
+adaptörleri + takip listesi + görüşme notları), sitemap sertleştirme, 3D model.
+
+**Kullanıcıda bekleyen:** kubi'de fiyat doğrulaması — özellikle genel iskontosu
+kampanyadan yüksek olan bir müşteride kampanyanın fiyatı BOZMADIĞI.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

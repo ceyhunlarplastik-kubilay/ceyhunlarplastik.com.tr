@@ -95,3 +95,111 @@ describe("resolveCustomerVariantPrice", () => {
         expect(resolved.priceSource).toBe("LIST_PRICE")
     })
 })
+
+describe("kampanya indirimi", () => {
+    const now = new Date("2026-08-14T00:00:00.000Z")
+
+    it("kampanya oranı genel iskontodan büyükse kampanya uygulanır", () => {
+        const resolved = resolveCustomerVariantPrice({
+            customer: { generalDiscountPercent: 10 },
+            variant,
+            campaignDiscountPercent: 25,
+            now,
+        })
+
+        expect(resolved.priceSource).toBe("CAMPAIGN_DISCOUNT")
+        expect(resolved.appliedDiscountPercent).toBe(25)
+        expect(resolved.finalPrice).toBe(75)
+        expect(resolved.campaignDiscountPercent).toBe(25)
+    })
+
+    it("KAMPANYA MÜŞTERİYİ CEZALANDIRMAZ: genel iskonto daha iyiyse o kalır", () => {
+        const resolved = resolveCustomerVariantPrice({
+            customer: { generalDiscountPercent: 30 },
+            variant,
+            campaignDiscountPercent: 10,
+            now,
+        })
+
+        expect(resolved.priceSource).toBe("CUSTOMER_GENERAL_DISCOUNT")
+        expect(resolved.appliedDiscountPercent).toBe(30)
+        expect(resolved.finalPrice).toBe(70)
+        // Kampanya uygulanmasa da bilgi olarak taşınır.
+        expect(resolved.campaignDiscountPercent).toBe(10)
+    })
+
+    it("eşitlikte etiket genel iskontoda kalır", () => {
+        const resolved = resolveCustomerVariantPrice({
+            customer: { generalDiscountPercent: 15 },
+            variant,
+            campaignDiscountPercent: 15,
+            now,
+        })
+
+        expect(resolved.priceSource).toBe("CUSTOMER_GENERAL_DISCOUNT")
+        expect(resolved.appliedDiscountPercent).toBe(15)
+    })
+
+    it("müşteriye özel fiyat kampanyayı her koşulda ezer", () => {
+        const resolved = resolveCustomerVariantPrice({
+            customer: { generalDiscountPercent: 0 },
+            variant,
+            campaignDiscountPercent: 90,
+            now,
+            specialPrice: {
+                id: "sp-1",
+                price: 75,
+                currency: "TRY",
+                isActive: true,
+            },
+        })
+
+        expect(resolved.priceSource).toBe("CUSTOMER_SPECIAL_PRICE")
+        expect(resolved.finalPrice).toBe(75)
+        expect(resolved.campaignDiscountPercent).toBe(90)
+    })
+
+    it("özel fiyat uygun değilse kampanya devreye girer", () => {
+        const resolved = resolveCustomerVariantPrice({
+            customer: { generalDiscountPercent: 0 },
+            variant,
+            campaignDiscountPercent: 20,
+            quantity: 1,
+            now,
+            specialPrice: {
+                id: "sp-1",
+                price: 75,
+                currency: "TRY",
+                minOrderQuantity: 50,
+                isActive: true,
+            },
+        })
+
+        expect(resolved.priceSource).toBe("CAMPAIGN_DISCOUNT")
+        expect(resolved.finalPrice).toBe(80)
+    })
+
+    it("kampanya yoksa davranış değişmez", () => {
+        const resolved = resolveCustomerVariantPrice({
+            customer: { generalDiscountPercent: 0 },
+            variant,
+            now,
+        })
+
+        expect(resolved.priceSource).toBe("LIST_PRICE")
+        expect(resolved.finalPrice).toBe(100)
+        expect(resolved.campaignDiscountPercent).toBeNull()
+    })
+
+    it("kampanya oranı sınır dışıysa kırpılır", () => {
+        const resolved = resolveCustomerVariantPrice({
+            customer: { generalDiscountPercent: 0 },
+            variant,
+            campaignDiscountPercent: 150,
+            now,
+        })
+
+        expect(resolved.appliedDiscountPercent).toBe(100)
+        expect(resolved.finalPrice).toBe(0)
+    })
+})

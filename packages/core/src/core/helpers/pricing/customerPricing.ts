@@ -8,6 +8,7 @@ type DecimalLike = number | string | { toNumber?: () => number } | null | undefi
 
 export type CustomerVariantPriceSource =
     | "CUSTOMER_SPECIAL_PRICE"
+    | "CAMPAIGN_DISCOUNT"
     | "CUSTOMER_GENERAL_DISCOUNT"
     | "LIST_PRICE"
 
@@ -59,6 +60,8 @@ export type ResolvedCustomerVariantPrice = {
     currency: string
     priceSource: CustomerVariantPriceSource
     appliedDiscountPercent: number
+    /** Bu varyantta geçerli kampanya oranı; uygulanmasa da bilgi olarak taşınır. */
+    campaignDiscountPercent: number | null
     specialPriceId: string | null
     minOrderQuantity: number | null
     maxOrderQuantity: number | null
@@ -168,6 +171,11 @@ export function resolveCustomerVariantPrice(input: {
     }
     variant: CustomerVariantPriceVariantLike
     specialPrice?: CustomerVariantSpecialPriceLike | null
+    /**
+     * Bu varyantta geçerli kampanya oranı. Kampanya kaydını çözmek çağıranın
+     * işi; burada yalnız sayı görülür ki fiyat mantığı saf kalsın.
+     */
+    campaignDiscountPercent?: DecimalLike
     quantity?: number | null
     now?: Date
 }): ResolvedCustomerVariantPrice {
@@ -177,6 +185,8 @@ export function resolveCustomerVariantPrice(input: {
     const quantity = normalizeQuantity(input.quantity)
     const now = input.now ?? new Date()
     const specialPrice = input.specialPrice ?? null
+    const campaignPercent = normalizeCustomerDiscountPercent(input.campaignDiscountPercent) ?? 0
+    const campaignDiscountPercent = campaignPercent > 0 ? campaignPercent : null
     const ineligibilityReason = specialPrice
         ? getSpecialPriceIneligibility(specialPrice, quantity, now)
         : null
@@ -198,6 +208,9 @@ export function resolveCustomerVariantPrice(input: {
             currency: specialPrice.currency?.trim() || defaultCurrency,
             priceSource: "CUSTOMER_SPECIAL_PRICE",
             appliedDiscountPercent: 0,
+            // Müşteriye özel pazarlık kampanyayı HER KOŞULDA ezer; oran yalnız
+            // arayüz "özel fiyatınız kampanyadan iyi" diyebilsin diye taşınır.
+            campaignDiscountPercent,
             specialPriceId: specialPrice.id,
             minOrderQuantity: specialPrice.minOrderQuantity ?? null,
             maxOrderQuantity: specialPrice.maxOrderQuantity ?? null,
@@ -216,14 +229,26 @@ export function resolveCustomerVariantPrice(input: {
         }
     }
 
-    const discounted = resolveCustomerDiscountedUnitPrice(listPrice, input.customer.generalDiscountPercent)
+    /**
+     * Kampanya ve genel iskonto İKİSİ DE liste fiyatına yüzdedir, bu yüzden
+     * doğrudan karşılaştırılır ve BÜYÜK olan uygulanır. Katı sıralama (önce
+     * kampanya) uygulansaydı %20 iskontolu müşteri %10'luk kampanyada daha
+     * pahalıya alırdı — kampanya müşteriyi cezalandırırdı.
+     *
+     * Eşitlikte etiket genel iskontodadır: müşteri o oranı zaten alıyordu.
+     */
+    const generalPercent = normalizeCustomerDiscountPercent(input.customer.generalDiscountPercent) ?? 0
+    const bestPercent = Math.max(campaignPercent, generalPercent)
+
+    const discounted = resolveCustomerDiscountedUnitPrice(listPrice, bestPercent)
     if (discounted && discounted.appliedDiscountPercent > 0) {
         return {
             listPrice: discounted.listUnitPrice,
             finalPrice: discounted.customerUnitPrice,
             currency: defaultCurrency,
-            priceSource: "CUSTOMER_GENERAL_DISCOUNT",
+            priceSource: campaignPercent > generalPercent ? "CAMPAIGN_DISCOUNT" : "CUSTOMER_GENERAL_DISCOUNT",
             appliedDiscountPercent: discounted.appliedDiscountPercent,
+            campaignDiscountPercent,
             specialPriceId: specialPrice?.id ?? null,
             minOrderQuantity: specialPrice?.minOrderQuantity ?? null,
             maxOrderQuantity: specialPrice?.maxOrderQuantity ?? null,
@@ -248,6 +273,7 @@ export function resolveCustomerVariantPrice(input: {
         currency: defaultCurrency,
         priceSource: "LIST_PRICE",
         appliedDiscountPercent: 0,
+        campaignDiscountPercent,
         specialPriceId: specialPrice?.id ?? null,
         minOrderQuantity: specialPrice?.minOrderQuantity ?? null,
         maxOrderQuantity: specialPrice?.maxOrderQuantity ?? null,

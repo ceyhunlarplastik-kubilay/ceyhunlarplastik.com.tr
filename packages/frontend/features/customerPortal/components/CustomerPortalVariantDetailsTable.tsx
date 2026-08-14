@@ -42,6 +42,8 @@ import {
 } from "@/features/customerPortal/schema/customerPortalVariantFilters"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { PortalFavoriteVariantButton } from "@/features/customerPortal/components/PortalFavoriteVariantButton"
+import { usePortalCampaigns } from "@/features/customerPortal/hooks/usePortalCampaigns"
+import { flattenCampaignVariants } from "@/features/customerPortal/lib/campaignRelevance"
 import {
     usePortalFavoriteVariantIds,
     usePortalFavoriteVariants,
@@ -166,6 +168,24 @@ export function CustomerPortalVariantDetailsTable({
     const specialPricesQuery = usePortalSpecialPrices()
     const favoriteVariantIds = usePortalFavoriteVariantIds()
     const { toggleFavorite, pendingVariantId } = usePortalFavoriteVariants()
+    const campaignsQuery = usePortalCampaigns()
+
+    /**
+     * Varyant başına EN İYİ kampanya oranı. Bir varyant birden çok kampanyada
+     * olabilir; fiyatta müşterinin lehine olan uygulanır.
+     */
+    const campaignPercentByVariantId = useMemo(() => {
+        const best = new Map<string, number>()
+
+        for (const entry of flattenCampaignVariants(campaignsQuery.data ?? [], new Set())) {
+            if (entry.discountPercent === null) continue
+
+            const current = best.get(entry.productVariantId) ?? 0
+            if (entry.discountPercent > current) best.set(entry.productVariantId, entry.discountPercent)
+        }
+
+        return best
+    }, [campaignsQuery.data])
     const [quantityByVariantId, setQuantityByVariantId] = useState<Record<string, string>>({})
     const [refreshKey, setRefreshKey] = useState(0)
     const [specialPriceRequestOpen, setSpecialPriceRequestOpen] = useState(false)
@@ -349,6 +369,7 @@ export function CustomerPortalVariantDetailsTable({
             listUnitPrice: specialPrice?.pricing.listPrice ?? minListPrice?.value ?? null,
             currency: minListPrice?.currency ?? specialPrice?.pricing.currency ?? specialPrice?.currency ?? "TRY",
             generalDiscountPercent: customerDiscountPercent,
+            campaignDiscountPercent: campaignPercentByVariantId.get(variant.id) ?? null,
             specialPrice: specialPricePreview,
         })
 
@@ -489,7 +510,7 @@ export function CustomerPortalVariantDetailsTable({
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.05 }}
-                className="overflow-hidden rounded-[24px] border border-neutral-200 bg-white shadow-sm"
+                className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm"
             >
                 <div className="border-b border-neutral-100 px-4 py-3">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -531,24 +552,24 @@ export function CustomerPortalVariantDetailsTable({
                         transition={{ duration: 0.22, ease: "easeOut" }}
                         className="overflow-x-auto"
                     >
-                        <Table className="min-w-[1060px] text-[13px]">
+                        <Table className="min-w-265 text-[13px]">
                             <TableHeader className="bg-neutral-50/90">
                                 <TableRow className="hover:bg-transparent">
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} w-[52px] min-w-[52px] pl-3`}>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} w-13 min-w-13 pl-3`}>
                                         <span className="sr-only">Favori</span>
                                     </TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[108px]`}>Ürün Kodu</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-27`}>Ürün Kodu</TableHead>
                                     {measurementColumns.map((column) => (
-                                        <TableHead key={column.id} className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[76px]`}>
+                                        <TableHead key={column.id} className={`${VARIANT_TABLE_HEAD_CLASS} min-w-19`}>
                                             {column.name} ({column.code})
                                         </TableHead>
                                     ))}
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[72px]`}>Versiyon</TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[104px]`}>Renk</TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[210px]`}>Ham Madde</TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[220px]`}>Müşteri Fiyatı</TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[116px]`}>Fiyat Son Güncelleme</TableHead>
-                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-[224px] pr-3`}>Talep</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-18`}>Versiyon</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-26`}>Renk</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-52`}>Ham Madde</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-55`}>Müşteri Fiyatı</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-29`}>Fiyat Son Güncelleme</TableHead>
+                                    <TableHead className={`${VARIANT_TABLE_HEAD_CLASS} min-w-56 pr-3`}>Talep</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -623,7 +644,7 @@ export function CustomerPortalVariantDetailsTable({
                                             </TableCell>
                                             <TableCell className={`${VARIANT_TABLE_CELL_CLASS} whitespace-normal text-left`}>
                                                 {variant.materials.length ? (
-                                                    <div className="flex min-w-[190px] max-w-[230px] flex-col gap-1.5">
+                                                    <div className="flex min-w-47.5 max-w-57.5 flex-col gap-1.5">
                                                         {variant.materials.map((material) => {
                                                             const certificateCount = (material.assets ?? []).filter(
                                                                 (asset) => asset.type === "PDF" && asset.role === "CERTIFICATE",
@@ -667,7 +688,7 @@ export function CustomerPortalVariantDetailsTable({
                                             </TableCell>
                                             <TableCell className={`${VARIANT_TABLE_CELL_CLASS} whitespace-normal font-medium text-neutral-900`}>
                                                 {minListPrice || basePricing.customerUnitPrice !== null || hasSpecialPrice ? (
-                                                    <div className="mx-auto max-w-[220px] space-y-1.5 text-left">
+                                                    <div className="mx-auto max-w-55 space-y-1.5 text-left">
                                                         <div className="rounded-xl border border-neutral-200 bg-white px-2.5 py-1.5">
                                                             <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
                                                                 Liste fiyatı
@@ -773,7 +794,7 @@ export function CustomerPortalVariantDetailsTable({
                                                 )}
                                             </TableCell>
                                             <TableCell className={`${VARIANT_TABLE_CELL_CLASS} pr-3`}>
-                                                <div className="mx-auto grid w-[216px] max-w-full gap-2">
+                                                <div className="mx-auto grid w-54 max-w-full gap-2">
                                                     <div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2">
                                                         <Input
                                                             type="number"
