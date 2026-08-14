@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest"
 import { Box3, Vector3 } from "three"
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js"
 
-import { productModel3dConfigSchema } from "@core/helpers/products/model3dConfig"
+import { parseProductModel3dConfig } from "@core/helpers/products/model3dConfig"
 import {
     calculateParametricNodeTransforms,
     ParametricMeasurementError,
 } from "./model3dTransforms"
 
-const config = productModel3dConfigSchema.parse({
+const config = parseProductModel3dConfig({
     version: 1,
     renderer: "r3f-parametric",
     parameters: [
@@ -28,7 +28,7 @@ const config = productModel3dConfigSchema.parse({
             rules: [{ kind: "scale", node: "Stretch", axis: "y" }],
         },
     ],
-})
+})!
 
 function createParametricFixtureGlb() {
     // 100 mm × 20 mm üçgen: gerçek GLTFLoader ile parse edilen self-contained GLB.

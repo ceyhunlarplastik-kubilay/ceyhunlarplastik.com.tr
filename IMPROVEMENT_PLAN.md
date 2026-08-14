@@ -2839,6 +2839,69 @@ functions 14 ✅ · frontend **187 test** ✅ · `next build` Compiled successfu
 3. Aynı mapper'ı kullanan müşteri portalı (`ProtectedApi/crm`) hâlâ varsayılanda —
    istenirse orası da daraltılabilir (panel, SEO kaygısı yok).
 
+## 🔴 Ürün uçları ajv `strict mode` ile import anında düşüyordu (2026-08-14)
+
+**Belirti:** kubi'de `sst dev` logunda
+`Error packages/functions/src/PublicApi/functions/products/actions.listProducts` →
+`strict mode: default is ignored for: data80.factor`. `/urun-kategori/profil-tapalari`
+açılmıyor, `/urun-kategori/panel-cit-aksesuarlari` açılıyordu.
+
+**Kök neden — migration DEĞİL, 3D model şeması.** `productModel3dConfigSchema` içindeki
+`factor: z.number().finite().default(1)` bir `z.discriminatedUnion` dalında duruyor.
+`z.toJSONSchema` bunu `oneOf` altına koyuyor; ajv composite bir alt şemadaki `default`'u
+UYGULAYAMAZ (`compositeRule` → `assignDefault` erken çıkar) ve `strict: true` altında
+şemayı hiç derlemez. Aynı şey `AdminApi/validators/assets.ts`'teki
+`productModel3dConfigSchema.nullish()` için de geçerli: `.nullish()` tüm konfigürasyonu
+`anyOf` altına aldığı için o şemadaki BÜTÜN default'lar (`measurementUnit`,
+`materialSlots`, `animations`, `colorFromVariant`, `materialPresets`) yok sayılan
+konuma düşüyordu.
+
+**Neden hata `listProducts`'ı gösteriyordu:** `lambdaHandler` validator'ı MODÜL
+YÜKLENİRKEN derletiyor (`transpileSchema`, `actions.ts`'te top-level). PublicApi'nin
+`listProductsResponseValidator`'ı aslında sağlamdı; derlenmeyen şema aynı dosyadaki
+`productResponseValidator`'dı. Tek bir bozuk validator, o `actions.ts`'teki TÜM
+endpoint'leri import anında düşürüyor.
+
+**Etki alanı ölçüldü (tahmin değil):** tüm `packages/functions/**/validators/*` şemaları
+middy'nin ajv ayarlarıyla derlenerek tarandı → **223 şemadan 11'i** derlenmiyordu:
+- `PublicApi/validators/products.ts` → `productResponseValidator`
+- `PublicApi/validators/materials.ts` → `get…` / `list…ResponseValidator`
+- `AdminApi/validators/products.ts` → `create`, `update`, `list…Response`, `…Response`
+- `AdminApi/validators/assets.ts` → `create`, `update`, `list…Response`, `…Response`
+
+Yani yalnız public ürün listesi değil, **admin ürün ve asset yönetimi de** (3D model
+yükleme dahil) import anında düşüyordu.
+
+**Çözüm:** şemadan `.default()` tamamen kaldırıldı, alanlar `.optional()` yapıldı;
+varsayılanlar tek noktada — `normalizeProductModel3dConfig` — uygulanıyor ve
+`parseProductModel3dConfig` bunu çağırıyor. Böylece:
+- Okuma yolu normalize edilmiş veri döndürdüğü için `ProductR3FScene`,
+  `model3dTransforms` gibi tüketiciler DEĞİŞMEDİ (`?? 1` / `?? []` yazmak gerekmedi).
+- Tip ayrımı netleşti: `ProductModel3dConfigInput` (tel üzerindeki, opsiyonel alanlı)
+  vs `ProductModel3dConfig` (normalize, zorunlu alanlı).
+- Admin yükleme akışı zaten `parseProductModel3dConfig`'ten geçtiği için API'ye
+  gönderilen konfigürasyon eskisi gibi tam alanlı gidiyor.
+
+**Neden global bir çözüm seçilmedi:** `validatorWrapper`'da tüm `default`'ları silmek
+cazipti; ölçüm bunu çürüttü — ajv'nin GERÇEKTEN uyguladığı iki default var
+(`createMeasurementTypeValidator.displayOrder = 0`, `createColorValidator.system = "RAL"`).
+ajv ayarını `strictSchema: "log"` yapmak da elendi: strict mode bu repoda gerçek hatalar
+yakaladı (bkz. `z.record` → `strictRequired` tuzağı).
+
+**Regresyon koruması:** `packages/functions/src/validatorCompilation.test.ts` —
+`import.meta.glob` ile TÜM validator dosyalarını gezip her şemayı hem request hem
+response ajv ayarlarıyla derliyor (238 kontrol). Kapsam glob olduğu için yeni validator
+dosyaları otomatik giriyor. Testin gerçekten koruduğu doğrulandı: `.default(1)` geçici
+olarak geri konduğunda test kırmızıya döndü.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (113 warning) ✅ ·
+core 337 ✅ · functions 252 ✅ (+238 yeni) · frontend 199 ✅. kubi PublicApi canlı:
+`GET /products` → 200 (169 KB), `GET /products/slug/…` → 200, `GET /materials` → 200.
+
+**Kullanıcıda bekleyen:** AdminApi uçları gateway authorizer'ı 401 ile erken kestiği için
+runtime'da doğrulanamadı — admin panelinde ürün listesi/düzenleme ve 3D asset yükleme
+elle denenmeli. Ayrıca prod'a deploy gerekiyor (bu hata prod'da da vardı).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

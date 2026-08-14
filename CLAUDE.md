@@ -86,6 +86,15 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `additionalProperties: false`). Query parametresi gönderen bir route'a genel
   `idValidator`'ı verme — gönderilen her ekstra param 400 üretir. Route'un kabul
   ettiği query alanlarını açıkça beyan eden kendi validator'ını yaz.
+- Validator şemasında `.default()`, ancak alan bir union'ın DIŞINDAysa işe yarar.
+  `z.discriminatedUnion` dalındaki ya da `.nullish()`/`.nullable()` ile sarılmış bir
+  objenin içindeki `default`'u ajv uygulayamaz ve `strict: true` altında şemayı hiç
+  derlemez (`strict mode: default is ignored for: …`). `lambdaHandler` validator'ı MODÜL
+  YÜKLENİRKEN derlettiği için tek bozuk şema, o `actions.ts`'teki TÜM endpoint'leri
+  import anında düşürür — hata da çoğu zaman bozuk şemayı DEĞİL, o dosyadaki ilk
+  fonksiyonu gösterir. Varsayılanı şemaya değil, tek bir normalize fonksiyonuna koy
+  (`normalizeProductModel3dConfig` örneği). Koruma:
+  `packages/functions/src/validatorCompilation.test.ts` tüm validator'ları derler.
 - İstek şemasında `z.record(z.enum([...]), …)` KULLANMA: `z.toJSONSchema` her anahtarı
   `required` yapar ve request validator'ın ajv'si (`strict: true`) şemayı hiç derlemez
   (`strictRequired`). Doğrusu `z.partialRecord(...)` — bilinmeyen anahtarı ve değer

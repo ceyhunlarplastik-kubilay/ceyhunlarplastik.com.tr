@@ -1,5 +1,21 @@
 import { z } from "zod"
 
+/**
+ * ⚠️ BU ŞEMADA `.default()` KULLANMA.
+ *
+ * Şema iki yerde birden tüketiliyor: Zod `parse` (runtime) ve `z.toJSONSchema`
+ * üzerinden ajv request/response validator'ları. Şema birçok noktada bir union'ın
+ * altına giriyor — `discriminatedUnion` (`oneOf`) ve `.nullish()` (`anyOf`) gibi.
+ * ajv composite bir alt şemadaki `default`'u UYGULAYAMAZ ve `strict: true` altında
+ * derlemeyi tümden reddeder:
+ *     strict mode: default is ignored for: data80.factor
+ * Bu, validator'ı taşıyan actions.ts modülünü import anında patlatır; yani tek bir
+ * `default` o dosyadaki TÜM endpoint'leri düşürür.
+ *
+ * Varsayılanlar bu yüzden tek yerde, `normalizeProductModel3dConfig` içinde
+ * uygulanır; şema alanları `.optional()` kalır.
+ */
+
 const axisSchema = z.enum(["x", "y", "z"])
 
 const model3dScaleRuleSchema = z.object({
@@ -12,8 +28,11 @@ const model3dTranslateRuleSchema = z.object({
     kind: z.literal("translate"),
     node: z.string().trim().min(1).max(255),
     axis: axisSchema,
-    /** Ölçü farkının node hareketine etkisi. Negatif değer ters yönü ifade eder. */
-    factor: z.number().finite().default(1),
+    /**
+     * Ölçü farkının node hareketine etkisi. Negatif değer ters yönü ifade eder.
+     * Boş bırakılırsa normalizasyonda 1 uygulanır.
+     */
+    factor: z.number().finite().optional(),
 }).strict()
 
 export const productModel3dTransformRuleSchema = z.discriminatedUnion("kind", [
@@ -65,9 +84,9 @@ const pbrMaterialPresetSchema = z.object({
 export const productModel3dMaterialSlotSchema = z.object({
     id: z.string().trim().min(1).max(100),
     materialNames: z.array(z.string().trim().min(1).max(255)).min(1).max(50),
-    colorFromVariant: z.boolean().default(true),
+    colorFromVariant: z.boolean().optional(),
     /** Product Material.code değerine göre uygulanacak PBR görünümü. */
-    materialPresets: z.record(z.string(), pbrMaterialPresetSchema).default({}),
+    materialPresets: z.record(z.string(), pbrMaterialPresetSchema).optional(),
 }).strict()
 
 export const productModel3dAnimationSchema = z.object({
@@ -85,10 +104,10 @@ export const productModel3dAnimationSchema = z.object({
 export const productModel3dConfigSchema = z.object({
     version: z.literal(1),
     renderer: z.literal("r3f-parametric"),
-    measurementUnit: z.literal("millimeter").default("millimeter"),
+    measurementUnit: z.literal("millimeter").optional(),
     parameters: z.array(productModel3dParameterSchema).min(1).max(50),
-    materialSlots: z.array(productModel3dMaterialSlotSchema).max(50).default([]),
-    animations: z.array(productModel3dAnimationSchema).max(50).default([]),
+    materialSlots: z.array(productModel3dMaterialSlotSchema).max(50).optional(),
+    animations: z.array(productModel3dAnimationSchema).max(50).optional(),
 }).strict().superRefine((config, ctx) => {
     const parameterCodes = new Set<string>()
     for (const [index, parameter] of config.parameters.entries()) {
@@ -103,7 +122,7 @@ export const productModel3dConfigSchema = z.object({
     }
 
     const slotIds = new Set<string>()
-    for (const [index, slot] of config.materialSlots.entries()) {
+    for (const [index, slot] of (config.materialSlots ?? []).entries()) {
         if (slotIds.has(slot.id)) {
             ctx.addIssue({
                 code: "custom",
@@ -115,9 +134,41 @@ export const productModel3dConfigSchema = z.object({
     }
 })
 
-export type ProductModel3dConfig = z.infer<typeof productModel3dConfigSchema>
-export type ProductModel3dParameter = z.infer<typeof productModel3dParameterSchema>
-export type ProductModel3dTransformRule = z.infer<typeof productModel3dTransformRuleSchema>
+/**
+ * Tel üzerindeki (wire) biçim: şemadan doğrudan çıkan, varsayılanları henüz
+ * uygulanmamış hâli. İstek gövdesi tipleri bunu kullanmalı — istemcinin
+ * `factor` / `materialSlots` gibi alanları göndermeme hakkı var.
+ */
+export type ProductModel3dConfigInput = z.infer<typeof productModel3dConfigSchema>
+export type ProductModel3dParameterInput = z.infer<typeof productModel3dParameterSchema>
+export type ProductModel3dTransformRuleInput = z.infer<typeof productModel3dTransformRuleSchema>
+export type ProductModel3dMaterialSlotInput = z.infer<typeof productModel3dMaterialSlotSchema>
+export type ProductModel3dAnimation = z.infer<typeof productModel3dAnimationSchema>
+
+/**
+ * Normalize edilmiş biçim: varsayılanlar uygulanmış, render/hesap katmanının
+ * gördüğü hâl. Alanlar zorunlu olduğu için tüketiciler `?? 1` / `?? []` yazmaz.
+ */
+export type ProductModel3dTransformRule =
+    | Extract<ProductModel3dTransformRuleInput, { kind: "scale" }>
+    | (Extract<ProductModel3dTransformRuleInput, { kind: "translate" }> & { factor: number })
+
+export type ProductModel3dParameter = Omit<ProductModel3dParameterInput, "rules"> & {
+    rules: ProductModel3dTransformRule[]
+}
+
+export type ProductModel3dMaterialSlot = ProductModel3dMaterialSlotInput & {
+    colorFromVariant: boolean
+    materialPresets: NonNullable<ProductModel3dMaterialSlotInput["materialPresets"]>
+}
+
+export type ProductModel3dConfig =
+    Omit<ProductModel3dConfigInput, "measurementUnit" | "parameters" | "materialSlots" | "animations"> & {
+        measurementUnit: "millimeter"
+        parameters: ProductModel3dParameter[]
+        materialSlots: ProductModel3dMaterialSlot[]
+        animations: ProductModel3dAnimation[]
+    }
 
 export type ProductModel3dGltfInventory = {
     nodeNames: Iterable<string>
@@ -125,13 +176,43 @@ export type ProductModel3dGltfInventory = {
     animationNames: Iterable<string>
 }
 
-export function parseProductModel3dConfig(value: unknown): ProductModel3dConfig | null {
-    const parsed = productModel3dConfigSchema.safeParse(value)
-    return parsed.success ? parsed.data : null
+/**
+ * Şemadaki `.default()` yerine geçen TEK nokta (nedeni için dosya başındaki nota
+ * bak). Depoda eksik alanlarla duran eski konfigürasyonlar da buradan geçtiği
+ * için okuma yolu geriye dönük uyumlu kalır.
+ */
+export function normalizeProductModel3dConfig(
+    config: ProductModel3dConfigInput,
+): ProductModel3dConfig {
+    return {
+        ...config,
+        measurementUnit: config.measurementUnit ?? "millimeter",
+        parameters: config.parameters.map((parameter) => ({
+            ...parameter,
+            rules: parameter.rules.map((rule) =>
+                rule.kind === "translate" ? { ...rule, factor: rule.factor ?? 1 } : rule,
+            ),
+        })),
+        materialSlots: (config.materialSlots ?? []).map((slot) => ({
+            ...slot,
+            colorFromVariant: slot.colorFromVariant ?? true,
+            materialPresets: slot.materialPresets ?? {},
+        })),
+        animations: config.animations ?? [],
+    }
 }
 
+export function parseProductModel3dConfig(value: unknown): ProductModel3dConfig | null {
+    const parsed = productModel3dConfigSchema.safeParse(value)
+    return parsed.success ? normalizeProductModel3dConfig(parsed.data) : null
+}
+
+/**
+ * Normalize edilmemiş girdiyi de kabul eder: admin tarafı GLB'ye gömülü ham
+ * konfigürasyonu doğrularken henüz normalizasyondan geçmemiş olabiliyor.
+ */
 export function validateProductModel3dConfigReferences(
-    config: ProductModel3dConfig,
+    config: ProductModel3dConfigInput,
     inventory: ProductModel3dGltfInventory,
 ): string[] {
     const nodeNames = new Set(inventory.nodeNames)
@@ -147,7 +228,7 @@ export function validateProductModel3dConfigReferences(
         }
     }
 
-    for (const slot of config.materialSlots) {
+    for (const slot of config.materialSlots ?? []) {
         for (const materialName of slot.materialNames) {
             if (!materialNames.has(materialName)) {
                 issues.push(`Materyal slotu ${slot.id} bilinmeyen materyal kullanıyor: ${materialName}`)
@@ -155,7 +236,7 @@ export function validateProductModel3dConfigReferences(
         }
     }
 
-    for (const animation of config.animations) {
+    for (const animation of config.animations ?? []) {
         if (!animationNames.has(animation.clipName)) {
             issues.push(`Bilinmeyen animasyon klibi: ${animation.clipName}`)
         }
