@@ -3,7 +3,16 @@ import { formatMeasurementValue } from "@/features/public/products/utils/measure
 
 type AssignedProductVariant = CustomerAssignedProduct["productVariant"] | null | undefined
 
-export function getAssignedProductVariantImageUrl(variant: AssignedProductVariant) {
+/**
+ * Görsel çözümü yalnız asset listelerini okur; kampanya kalemleri gibi başka
+ * varyant biçimleri de kullanabilsin diye yapısal ve dar tutuldu.
+ */
+type VariantImageSource = {
+    assets?: Array<{ url?: string; type?: string; role?: string }> | null
+    product?: { assets?: Array<{ url?: string; type?: string; role?: string }> | null } | null
+} | null | undefined
+
+export function getAssignedProductVariantImageUrl(variant: VariantImageSource) {
     const variantAssets = variant?.assets ?? []
     const productAssets = variant?.product?.assets ?? []
 

@@ -3129,6 +3129,44 @@ başlangıç sayısı) ✅ · core 350 ✅ · functions 262 ✅ · frontend 218 
 **Kullanıcıda bekleyen:** migration kubi'ye uygulanmış olmalı; ekranın uçtan uca
 denenmesi. Sonra Dilim 6 (portal sayfası) ve Dilim 7 (fiyat zinciri).
 
+## Kampanyalı Ürün Varyantları — Dilim 6: müşteri portalı sayfası (2026-08-14)
+
+**Route:** `/musteri/kampanyali-urunler`. Sidebar'a "Kampanyalı Ürünler"
+(`Megaphone`) eklendi, müşteri özet sayfasına da hızlı erişim kartı.
+
+**Sekmeler:** **Tüm Kampanyalar** · **Bana Uygun**. Favori sayfasıyla aynı desen:
+seçim URL'de (`?kapsam=`), `parseAsStringLiteral` ile bilinmeyen değer "all"a
+düşer.
+
+**"Bana uygun" tanımı (kullanıcı kararı):** kampanya kaleminin varyantı,
+müşterinin favori + temsilci-tanımlı listesinde varsa ilgili sayılır. Bu veri
+portalda zaten yüklü (`usePortalAssignedProducts`), **ikinci bir uç gerekmedi** —
+filtre tamamen istemcide.
+
+**Liste varyant seviyesinde:** uç kampanya seviyesinde dönüyor, sayfa ise
+"Kampanyalı Ürün Varyantları" olduğu için kalemlere açılıyor
+(`flattenCampaignVariants`). Aynı varyant iki kampanyadaysa iki ayrı satır kalır
+(anahtar kampanya+varyant), çünkü müşteri hangi kampanyadan geldiğini görmeli.
+Sıralama en yüksek indirim önce.
+
+**Kartta:** görselin üstünde indirim rozeti, kampanya başlığı, müşterinin kendi
+listesindeyse "Sizin listenizde" rozeti, bitiş tarihi ve varyant detayına link.
+
+**Saf katman + test:** `campaignRelevance.ts` (6 test) — kalem/kampanya oran
+önceliği, ilgililik işaretleme, aynı varyantın iki kampanyada ayrı satır kalması,
+indirim sıralaması.
+
+**Yan düzeltme:** `getAssignedProductVariantImageUrl` yalnız asset listelerini
+okuduğu hâlde tipi `CustomerAssignedProduct["productVariant"]`e bağlıydı; kampanya
+kalemleri de kullanabilsin diye yapısal ve dar bir tiple genişletildi (cast yok).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 350 ✅ ·
+functions 262 ✅ · frontend 224 ✅ (+6) · `next build` "Compiled successfully" ✅
+
+**Kullanıcıda bekleyen:** kubi'de doğrulama. Sonra Dilim 7 (fiyat zinciri
+entegrasyonu) — kampanya indirimi şu an yalnız GÖSTERİLİYOR, portal fiyat
+hesabına henüz girmiyor.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

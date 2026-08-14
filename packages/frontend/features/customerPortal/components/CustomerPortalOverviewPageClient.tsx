@@ -4,6 +4,7 @@ import Link from "next/link"
 import {
     ArrowUpRight,
     Heart,
+    Megaphone,
     Building2,
     ClipboardList,
     DollarSign,
@@ -99,6 +100,14 @@ export function CustomerPortalOverviewPageClient({
             icon: DollarSign,
             metric: "Özel Fiyatlar",
             className: "from-violet-50 via-purple-50 to-white text-violet-700",
+        },
+        {
+            href: "/musteri/kampanyali-urunler",
+            label: "Kampanyalı Ürünler",
+            description: "Güncel kampanyalardaki ürün varyantlarını ve indirim oranlarını görün.",
+            icon: Megaphone,
+            metric: "Kampanyalar",
+            className: "from-rose-50 via-red-50 to-white text-rose-700",
         },
         {
             href: "/musteri/favori-varyantlarim",

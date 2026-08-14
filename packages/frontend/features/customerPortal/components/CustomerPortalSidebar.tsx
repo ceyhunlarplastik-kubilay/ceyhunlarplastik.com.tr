@@ -13,6 +13,7 @@ import {
     ClipboardList,
     Heart,
     LayoutDashboard,
+    Megaphone,
     Menu,
     PackageCheck,
     PackageSearch,
@@ -35,6 +36,7 @@ const items = [
     /* { href: "/musteri/profil", label: "Profil / Firma Bilgileri", icon: Building2 }, */
     { href: "/musteri/tanimli-urunler", label: "İlgili Ürün Modelleri", icon: BookMarked },
     { href: "/musteri/favori-varyantlarim", label: "Favori Varyantlarım", icon: Heart },
+    { href: "/musteri/kampanyali-urunler", label: "Kampanyalı Ürünler", icon: Megaphone },
     { href: "/musteri/ozel-fiyatli-urunler", label: "Özel Fiyatlı Ürünler ve Talepler", icon: BadgePercent },
     { href: "/musteri/tum-urunler", label: "Tüm Ürünler", icon: PackageSearch },
     { href: "/musteri/siparisler", label: "Siparişler ve Talepler", icon: PackageCheck },
