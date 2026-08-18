@@ -111,6 +111,11 @@ const navItems = [
         icon: Megaphone,
     },
     {
+        href: "/admin/duyurular",
+        label: "Kampanya Duyuruları",
+        icon: Megaphone,
+    },
+    {
         href: "/admin/onaylar",
         label: "Müşteri / Satış Onay Akışı",
         icon: ClipboardCheck,

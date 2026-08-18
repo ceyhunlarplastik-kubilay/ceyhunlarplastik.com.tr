@@ -283,7 +283,7 @@ export type CustomerVisit = {
 export type AdminCustomer = {
     id: string
     companyName?: string | null
-    fullName: string
+    fullName: string | null
     phone: string
     email: string
     note?: string | null

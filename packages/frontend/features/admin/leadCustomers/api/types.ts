@@ -11,7 +11,8 @@ export type LeadCustomerAttributeValue = {
 export type LeadCustomer = {
     id: string
     companyName: string | null
-    fullName: string
+    websiteUrl: string | null
+    fullName: string | null
     phone: string
     email: string
     note: string | null
@@ -62,8 +63,10 @@ export type LeadCustomerDetailResponse = ApiEnvelope<{ customer: LeadCustomerDet
 
 /** Ticari alanlar bilinçli olarak YOK — bu yüzey onları hiç taşımaz. */
 export type LeadCustomerProfileInput = {
-    companyName?: string | null
-    fullName: string
+    companyName: string
+    /** Ham metin gönderilir ("acme.com"); sunucu kanonik biçime indirir. */
+    websiteUrl?: string | null
+    fullName: string | null
     phone: string
     email: string
     note?: string | null

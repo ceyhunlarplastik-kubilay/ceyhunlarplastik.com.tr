@@ -5,7 +5,20 @@ import { searchGeocoding } from "@/features/customerLocations/server/geocodingSe
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-const allowedGroups = ["customer", "sales", "sales_director", "admin", "owner"]
+/**
+ * `content_editor` DAHİL: veri girişi panelindeki potansiyel müşteri formu da
+ * haritadan adres seçtiriyor. Bu rol eklenmeyi atladığı için o panelde adres
+ * araması 403 dönüyordu — panelin rol kapısı (`veri-girisi/layout.tsx`)
+ * content_editor'a açıkken bu uç kapalıydı.
+ */
+const allowedGroups = [
+    "customer",
+    "sales",
+    "sales_director",
+    "content_editor",
+    "admin",
+    "owner",
+]
 
 function canAccess(groups: string[]) {
     return groups.some((group) => allowedGroups.includes(group))

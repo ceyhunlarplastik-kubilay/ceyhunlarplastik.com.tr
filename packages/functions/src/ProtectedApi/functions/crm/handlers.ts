@@ -14,6 +14,7 @@ import {
     assertSupplierManagementAccess,
 } from "@/core/helpers/crm/access"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
+import { resolveCustomerDisplayName } from "@/core/helpers/crm/customerDisplayName"
 import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
 import { mapCustomerVariantSpecialPriceForApi } from "@/core/helpers/pricing/customerVariantSpecialPriceDto"
 import {
@@ -858,7 +859,7 @@ export const createPortalCustomerUserHandler = ({
 
         await createCustomerPortalUserInvitation({
             customerId: customer.id,
-            customerName: customer.companyName || customer.fullName,
+            customerName: resolveCustomerDisplayName(customer),
             requester,
             email: event.body.email,
             firstName: event.body.firstName,

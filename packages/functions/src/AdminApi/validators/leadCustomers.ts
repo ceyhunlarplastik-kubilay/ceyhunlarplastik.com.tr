@@ -8,64 +8,20 @@ import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
  * gönderilemez (`additionalProperties: false` iç objelerde geçerlidir).
  */
 const profileBodySchema = z.object({
-    companyName: z.string().trim().max(255).nullable().optional(),
-    fullName: z.string().trim().min(2).max(255),
+    // Veri girişi panelinde kaydedilen şey bir FİRMADIR: firma adı zorunlu,
+    // yetkili adı sonradan öğrenilebilir. Public web formunda kural TERSİDİR
+    // (orada kişi kendini kaydeder) — bkz. PublicApi/validators/customers.ts.
+    companyName: z.string().trim().min(2).max(255),
+    fullName: z.string().trim().max(255).nullable().optional(),
     phone: z.string().trim().min(5).max(50),
     email: z.email().max(320),
+    /// Ham metin kabul edilir ("acme.com"); sunucuda kanonik biçime indirilir.
+    websiteUrl: z.string().trim().max(500).nullable().optional(),
     note: z.string().trim().max(5000).nullable().optional(),
     sectorValueId: z.uuid().nullable().optional(),
     productionGroupValueId: z.uuid().nullable().optional(),
     usageAreaValueIds: z.array(z.uuid()).max(200).optional(),
 })
-
-export const listLeadCustomersValidator = validatorWrapper(
-    z.object({
-        queryStringParameters: z.object({
-            page: z.string().optional(),
-            limit: z.string().optional(),
-            search: z.string().optional(),
-            sectorValueId: z.uuid().optional(),
-            usageAreaValueId: z.uuid().optional(),
-        }).optional(),
-    }),
-    {
-        requiredRootFields: [],
-    },
-)
-
-export const getLeadCustomerValidator = validatorWrapper(
-    z.object({
-        pathParameters: z.object({
-            id: z.uuid(),
-        }),
-    }),
-    {
-        requiredRootFields: ["pathParameters"],
-    },
-)
-
-export const createLeadCustomerValidator = validatorWrapper(
-    z.object({
-        body: profileBodySchema,
-    }),
-    {
-        requiredRootFields: ["body"],
-        requiredBodyFields: ["fullName", "phone", "email"],
-    },
-)
-
-export const updateLeadCustomerValidator = validatorWrapper(
-    z.object({
-        pathParameters: z.object({
-            id: z.uuid(),
-        }),
-        body: profileBodySchema,
-    }),
-    {
-        requiredRootFields: ["pathParameters", "body"],
-        requiredBodyFields: ["fullName", "phone", "email"],
-    },
-)
 
 const nullableText = (max: number) => z.string().trim().max(max).nullable().optional()
 const nullablePositiveInt = () => z.number().int().positive().nullable().optional()
@@ -115,6 +71,59 @@ const leadCustomerAddressBodySchema = z.object({
     }
 }).loose()
 
+export const listLeadCustomersValidator = validatorWrapper(
+    z.object({
+        queryStringParameters: z.object({
+            page: z.string().optional(),
+            limit: z.string().optional(),
+            search: z.string().optional(),
+            sectorValueId: z.uuid().optional(),
+            usageAreaValueId: z.uuid().optional(),
+        }).optional(),
+    }),
+    {
+        requiredRootFields: [],
+    },
+)
+
+export const getLeadCustomerValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    },
+)
+
+export const createLeadCustomerValidator = validatorWrapper(
+    z.object({
+        // Adres OPSİYONEL: oluşturma dialogunda girilirse aynı istekte yazılır,
+        // girilmezse detay panelinden sonradan eklenir.
+        body: profileBodySchema.extend({
+            address: leadCustomerAddressBodySchema.optional(),
+        }),
+    }),
+    {
+        requiredRootFields: ["body"],
+        requiredBodyFields: ["companyName", "phone", "email"],
+    },
+)
+
+export const updateLeadCustomerValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        body: profileBodySchema,
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+        requiredBodyFields: ["companyName", "phone", "email"],
+    },
+)
+
 export const createLeadCustomerAddressValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({ id: z.uuid() }),
@@ -152,9 +161,10 @@ const attributeValueSchema = z.object({
 })
 
 const leadCustomerSummarySchema = z.object({
+    websiteUrl: z.string().nullable(),
     id: z.uuid(),
-    companyName: z.string().nullable(),
-    fullName: z.string(),
+    companyName: z.string(),
+    fullName: z.string().nullable(),
     phone: z.string(),
     email: z.string(),
     note: z.string().nullable(),

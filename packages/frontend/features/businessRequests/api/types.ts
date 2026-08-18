@@ -25,7 +25,7 @@ export type BusinessRequestUserSummary = {
 
 export type BusinessRequestCustomerSummary = {
     id: string
-    fullName: string
+    fullName: string | null
     companyName?: string | null
     assignedSalesUserId?: string | null
     assignedSalesUser?: BusinessRequestUserSummary | null

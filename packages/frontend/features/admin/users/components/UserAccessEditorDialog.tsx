@@ -23,6 +23,7 @@ import {
 import type { Supplier } from "@/features/admin/suppliers/api/types"
 import type { AdminUser } from "@/features/admin/users/api/types"
 import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
+import { resolveCustomerDisplayName } from "@core/helpers/crm/customerDisplayName"
 import { UserAccessStatusBadge } from "@/features/admin/users/components/UserAccessStatusBadge"
 import {
     formatUserDateTime,
@@ -332,8 +333,8 @@ export function UserAccessEditorDialog({
                                 value={effective.assignedCustomerIds}
                                 options={customers.map((customer) => ({
                                     id: customer.id,
-                                    label: customer.companyName || customer.fullName,
-                                    caption: customer.fullName,
+                                    label: resolveCustomerDisplayName(customer),
+                                    caption: customer.fullName ?? undefined,
                                 }))}
                                 placeholder="Müşteri seç"
                                 emptyLabel="Müşteri bulunamadı"

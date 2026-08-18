@@ -21,13 +21,13 @@ export type AdminUser = {
     } | null
     customer?: {
         id: string
-        fullName: string
+        fullName: string | null
         companyName?: string | null
         status: "LEAD" | "CUSTOMER"
     } | null
     assignedSalesCustomers?: Array<{
         id: string
-        fullName: string
+        fullName: string | null
         companyName?: string | null
         status: "LEAD" | "CUSTOMER"
     }>

@@ -45,7 +45,7 @@ export function CustomerPortalProfilePageClient() {
                 description="Firma kayıtlarınızı, irtibat bilgilerinizi ve sektörel eşleşmenizi bu ekrandan takip edebilirsiniz."
                 meta={[
                     { value: customer.companyName || "-", label: "firma" },
-                    { value: primaryContact?.name || customer.fullName, label: "yetkili" },
+                    { value: primaryContact?.name || customer.fullName || "-", label: "yetkili" },
                 ]}
             />
 

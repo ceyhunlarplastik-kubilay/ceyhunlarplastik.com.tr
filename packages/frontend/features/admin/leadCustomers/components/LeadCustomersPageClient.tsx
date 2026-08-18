@@ -5,6 +5,7 @@ import {
     Building2,
     ChevronDown,
     Loader2,
+    Globe,
     Mail,
     Phone,
     Plus,
@@ -17,6 +18,8 @@ import {
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
+import { resolveCustomerNameParts } from "@core/helpers/crm/customerDisplayName"
+import { formatWebsiteLabel } from "@core/helpers/crm/customerWebsite"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -62,6 +65,9 @@ function LeadCustomerCard({
 }) {
     const usageAreaCount = customer.usageAreaValues.length
     const hasProfile = Boolean(customer.sectorValue) || usageAreaCount > 0
+    // Firma adı başlık, yetkili adı (varsa) alt satır; ikisi de yoksa fallback.
+    const nameParts = resolveCustomerNameParts(customer)
+    const websiteLabel = formatWebsiteLabel(customer.websiteUrl)
 
     return (
         <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
@@ -69,10 +75,10 @@ function LeadCustomerCard({
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-neutral-950">
-                            {customer.companyName || customer.fullName}
+                            {nameParts.title}
                         </span>
-                        {customer.companyName ? (
-                            <span className="text-sm text-neutral-500">{customer.fullName}</span>
+                        {nameParts.subtitle ? (
+                            <span className="text-sm text-neutral-500">{nameParts.subtitle}</span>
                         ) : null}
                         {!hasProfile ? (
                             <Badge
@@ -93,6 +99,19 @@ function LeadCustomerCard({
                             <Phone className="h-3.5 w-3.5" />
                             {customer.phone}
                         </span>
+                        {websiteLabel ? (
+                            <a
+                                href={customer.websiteUrl ?? undefined}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="inline-flex items-center gap-1 text-brand hover:underline"
+                                // Kart tıklaması kartı açıp kapatıyor; link onu tetiklemesin.
+                                onClick={(event) => event.stopPropagation()}
+                            >
+                                <Globe className="h-3.5 w-3.5" />
+                                {websiteLabel}
+                            </a>
+                        ) : null}
                     </div>
 
                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5">

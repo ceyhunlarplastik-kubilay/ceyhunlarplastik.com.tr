@@ -1,5 +1,6 @@
 import type { AdminCustomer, UserSummary } from "@/features/admin/customers/api/types"
 import { getUserDisplayName } from "@/lib/users/displayName"
+import { resolveCustomerDisplayName } from "@core/helpers/crm/customerDisplayName"
 
 export type CustomerContactCardModel = {
     id: string
@@ -23,7 +24,7 @@ function sortCustomerContacts(left: UserSummary, right: UserSummary) {
 
 function mapPortalUserToContact(customer: AdminCustomer, user: UserSummary): CustomerContactCardModel {
     const isInvited = user.portalOnboardingState === "INVITED"
-    const name = getUserDisplayName(user) || user.email || customer.fullName
+    const name = getUserDisplayName(user) || user.email || resolveCustomerDisplayName(customer)
 
     return {
         id: user.id,

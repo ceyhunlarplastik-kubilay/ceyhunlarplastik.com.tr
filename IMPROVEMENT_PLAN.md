@@ -3259,6 +3259,235 @@ yüzden İYS yükümlülüğü doğmuyor. Otomatik gönderime geçildiğinde izi
 
 **Kullanıcıda bekleyen:** migration'ı kubi'ye uygulamak; sonra Dilim 9 (arayüz).
 
+## Kampanya Duyurusu (Aşama 2) — Dilim 9: arayüz (2026-08-14)
+
+**Akış:** Kampanyalar sayfasında **yayındaki** kampanyanın kartında "Duyur" →
+müşteri seçici → duyuru listesi oluşur → Kampanya Duyuruları sayfasından takip.
+
+**Ekranlar:** `/satis/duyurular` ve `/admin/duyurular` (aynı bileşen).
+Satış menüsünde duyuru **tüm satış rollerine açık** — kampanya YÖNETİMİ
+temsilciye kapalıydı ama duyuru YAPMAK zaten temsilcinin işi.
+
+**Duyuru oluşturma:** müşteri listesi `useManagedCustomers`'tan geliyor ve uç
+zaten temsilcinin kendi portföyüyle sınırlı döndürdüğü için istemcide ek filtre
+gerekmedi. Varsayılan kanal üstte seçilir, seçilen her müşteride satır bazında
+değiştirilebilir.
+
+**Takip listesi:** duyuru başlığında ilerleme rozetleri (müşteri sayısı, temas
+yüzdesi, yanıt sayısı), altında alıcı satırları. Her satırda kanal, durum seçici
+ve genişleyen görüşme notu editörü. Not editörü taze mount edildiği için
+"açılışta sıfırla" effect'i yok (aynı desen `CampaignFormDialog`'da da var).
+
+**Filtreler:** kampanya ve durum URL'de (nuqs). Müşteri araması bilinçli olarak
+İSTEMCİDE: liste zaten temsilcinin kendi duyurularıyla ve sayfa başına 50 kayıtla
+sınırlı, sunucuya ek filtre taşımaya değmiyor.
+
+**"Temas yüzdesi" tanımı:** beklemede OLMAYAN her satır temas sayılır —
+"İlgilenmiyor" ve "Ulaşılamadı" da bir sonuçtur, temsilci o satırı işlemiştir.
+Saf `summarizeAnnouncement` fonksiyonunda ve 4 testle kilitli.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 375 ✅ ·
+functions 268 ✅ · frontend 233 ✅ (+4) · `next build` "Compiled successfully" ✅
+
+**Aşama 2'nin kalan parçası:** Dilim 10 — gerçek gönderim (Gmail/SES/WhatsApp
+adaptörleri) + İYS izin modeli. Şu an sistem hiçbir ileti göndermiyor.
+
+**Kullanıcıda bekleyen:** kubi'de uçtan uca deneme.
+
+## 🔴 Dilim 9 düzeltmesi: satış temsilcisi duyuru yapamıyordu (2026-08-14)
+
+**Belirti:** `sales` yetkili kullanıcı Kampanya Duyuruları sayfasında 403 alıyordu:
+`ForbiddenError: User does not have permission` —
+`productVariantCampaigns/actions.listProductVariantCampaigns`.
+
+**Kök neden İKİ katmanlıydı:**
+1. Duyurular sayfası kampanya FİLTRESİ için `useCampaigns`'i çağırıyor; o uç
+   `sales_director/admin/owner` ile sınırlıydı → sayfa tümden düşüyordu.
+2. Daha ciddisi: Kampanyalar menüsünü `sales`'e kapatmıştım ve "Duyur" butonu
+   YALNIZ o sayfadaydı. Yani düz temsilcinin duyuru oluşturmak için hiçbir yolu
+   yoktu — "satış personeli kampanyanın duyurusunu yapabilmeli" gereksinimiyle
+   doğrudan çelişiyordu.
+
+**Düzeltme:**
+- Kampanya uçlarında OKUMA/YAZMA ayrıldı: `GET` liste ve detay artık `sales`e de
+  açık (`campaignReaderGroups`), `POST/PATCH/DELETE` yönetici-only kalıyor
+  (`campaignManagerGroups`). Temsilci kampanyayı görebilmeli ki duyurabilsin.
+- `AnnouncementComposerDialog` artık kampanya önceden belli değilse İÇİNDE
+  kampanya seçtiriyor (yalnız ACTIVE olanlar).
+- Duyurular sayfasına "Yeni Duyuru" butonu eklendi — temsilcinin duyuru başlatma
+  yolu burası. Boş durum metni de buna göre düzeltildi (eskiden erişemediği
+  Kampanyalar sayfasına yönlendiriyordu).
+
+**Ders:** rol kapısı koyarken yalnız "kim yönetir"i değil, "kim TÜKETİR"i de
+sormak gerekiyordu. Kampanya yönetimi ile kampanya okuma farklı yetkiler.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 375 ✅ ·
+functions 268 ✅ · frontend 233 ✅ · `next build` "Compiled successfully" ✅
+
+## 🔴 Dilim 9 düzeltmesi 2: yöneticinin oluşturduğu duyuru temsilciye görünmüyordu (2026-08-14)
+
+**Belirti:** admin bir kampanya duyurusu oluşturdu, satış temsilcisi
+`/satis/duyurular` sayfasında hiçbir kayıt göremedi (hata YOK, liste boş).
+
+**Kök neden — Dilim 8'deki tasarım kararım:** temsilci yalnız KENDİ OLUŞTURDUĞU
+duyuruları görüyordu (`createdByUserId = requester.id` sabitlemesi). Admin'in
+oluşturduğu duyurunun sahibi admin olduğu için temsilciye görünmüyordu.
+
+Kural yanlıştı: yönetici bir temsilcinin portföyü için duyuru oluşturabiliyor ve
+takibi (arama, görüşme notu) yapacak kişi o temsilci. Görmezse iş yapılamaz.
+
+**Yeni kural — temsilci bir duyuruyu iki nedenden görebilir:**
+1. duyuruyu kendisi oluşturmuştur, VEYA
+2. duyuru kendi müşterilerinden en az birini hedefliyordur.
+
+Uygulama: `resolveAnnouncementSalesScope` kapsam kimliğini döner, repository bunu
+`OR: [createdByUserId, recipients.some.customer.assignedSalesUserId]` olarak
+çevirir. `canViewCampaignAnnouncement` de aynı iki nedeni kontrol eder (detay ve
+alıcı güncelleme yolları için).
+
+Yöneticinin açık `createdByUserId` filtresi temsilcide artık YOK SAYILIYOR —
+görünürlüğü kapsam belirliyor, istemcinin gönderdiği filtre değil.
+
+**Ders:** "kim görebilir" sorusunu sahiplikle (kim oluşturdu) sınırladım; oysa
+doğru ölçüt İŞİ KİMİN YAPACAĞI (müşteri portföyü) idi.
+
+**Testler:** access 11 → 15, repository 7 → 9. Yeni testlerin en kritiği
+"yöneticinin oluşturduğu duyuruyu, kendi müşterisi hedeflendiyse görür" ve
+"başka temsilcinin müşterilerini hedefleyeni göremez".
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 381 ✅ (+6) ·
+functions 268 ✅ · frontend 233 ✅
+
+## Müşteri adı: firma zorunlu, yetkili opsiyonel (2026-08-14)
+
+**Soru 1 — aynı firma adı kaydedilebiliyor mu?** EVET, değişiklik gerekmedi.
+`Customer` üzerinde isim/firma/e-posta tekilliği YOK (`@@index([email])` var ama
+unique değil) ve uygulama katmanında da tekrar kontrolü yok. Yerel Postgres'te
+ampirik olarak da doğrulandı: aynı `companyName` ile iki kayıt kabul edildi.
+Türkiye'de aynı unvanla birden çok firma olabildiği için bu doğru davranış;
+ayrım vergi numarası/adres/konumdan yapılır.
+
+**Soru 2 — zorunluluk takası.** Ölçtüm: `companyName` zorunlu + `fullName`
+opsiyonel yapmak backend'de 9, frontend'de 0 hata üretiyordu (frontend'in sıfır
+olması yanıltıcı — kendi elle yazılmış tipleri var, derlemede değil ÇALIŞMA
+ANINDA null alırdı).
+
+**Şemayı tek yüzeyin kuralına göre daraltmadım.** `companyName`'i NOT NULL yapmak
+public web formunu kırıyordu: orada `fullName` zorunlu, `companyName` opsiyonel —
+çünkü formu dolduran bir KİŞİ, kendini kaydediyor. Ayrıca mevcut
+`companyName IS NULL` satırları için geri doldurma gerekirdi.
+
+**Seçilen yol — kısıt yüzeye özel, şemaya değil:**
+
+| | Şema | Veri girişi dialogu | Public form |
+|---|---|---|---|
+| `companyName` | nullable (değişmedi) | **zorunlu** | opsiyonel |
+| `fullName` | **nullable oldu** | opsiyonel | zorunlu |
+
+**Migration (`20260814190000_customer_full_name_optional`):** yalnız
+`ALTER COLUMN "fullName" DROP NOT NULL`. Geri doldurma YOK. Yerel PostgreSQL 17'de
+sınandı: migration öncesi null denemesi reddediliyor, sonrasında kabul ediliyor,
+mevcut satırlar aynen kalıyor, `migrate diff` sapma göstermiyor.
+
+**Paylaşılan yardımcı:** `crm/customerDisplayName.ts` —
+`resolveCustomerDisplayName` (firma → yetkili → fallback) ve
+`resolveCustomerNameParts` (başlık + alt satır; ikisi aynıysa alt satır boş).
+Repoda 36 yerde `companyName || fullName` deseni vardı; artık iki alan da
+opsiyonel olduğu için fallback kuralı tek yerde. Frontend `@core/*` alias'ıyla
+aynı yardımcıyı kullanıyor — kural iki tarafta ayrışmıyor. 10 test.
+
+**Dokunulan yerler:** lead form şeması + dialog etiketleri (zorunluluk yıldızı
+takas edildi), AdminApi lead validator (`requiredBodyFields` → `companyName`),
+`LeadCustomerProfileInput`, `LeadCustomerSummary`, `CustomerMapPointRecord`,
+portal davet servisi, ProtectedApi crm handler, 5 frontend tip dosyası ve
+4 gösterim noktası.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 391 ✅ (+10) ·
+functions 268 ✅ · frontend 233 ✅ · `next build` "Compiled successfully" ✅
+
+**Kullanıcıda bekleyen:** migration'ı kubi'ye uygulamak, sonra dialogu denemek.
+
+## Potansiyel müşteri: web sitesi alanı + oluşturmada adres (2026-08-14)
+
+**Tespit:** adres desteği zaten VARDI — `LeadCustomerAddressesSection` +
+`CustomerAddressFormDialog`, kayıt sonrası kart açılıp form otomatik geliyordu
+(`autoOpenAddress`). Kullanıcı tek adımlı akış istedi, o yüzden adres oluşturma
+dialogunun İÇİNE alındı; kayıt sonrası düzenleme yolu aynen korunuyor.
+
+**Migration (`20260814210000_add_customer_website_url`):** `Customer.websiteUrl`
+(nullable TEXT). Yerel PostgreSQL 17'de doğrulandı, `migrate diff` sapma yok.
+
+**Website normalizasyonu (`crm/customerWebsite.ts`, 16 test):** kullanıcı
+"acme.com", "www.acme.com", "HTTP://Acme.com/" yazıyor; ham metin saklamak aynı
+site için beş farklı kayıt biriktirir. Kurallar: şema yoksa `https://` eklenir,
+host küçültülür, kök yoldaki sondaki `/` atılır, alt yol/sorgu korunur.
+**Yalnız http/https kabul edilir** — bu değer arayüzde link olarak render
+edildiği için `javascript:` gibi şemalar reddedilir. Geçersiz adres sessizce
+null'a düşürülmez; `InvalidWebsiteUrlError` fırlatılır ve handler'lar bunu
+**400**'e çevirir (500 değil, kullanıcı hatası).
+
+**Oluşturmada adres:** create ucu opsiyonel `address` kabul ediyor.
+- Adres normalizasyonu müşteri yazılmadan ÖNCE yapılıyor: geçersiz adres yüzünden
+  "müşteri var, adres yok" yarım kaydı oluşmasın.
+- Yazma `customerRepository.createAddress`'e devredildi (sıra ve birincil-adres
+  tekilliğini kendi transaction'ında yönetiyor); iç içe Prisma create ile
+  yazılmadı.
+- Dialogdaki adres alt-dialogu API ÇAĞIRMIYOR: taslağı yerel duruma alıyor,
+  müşteri kaydıyla aynı istekte gidiyor.
+- Adres bölümü yalnız OLUŞTURMADA görünüyor; düzenlemede adresler detay
+  panelinden yönetiliyor (iki yerde iki farklı kaynak olmasın).
+
+**Yol boyunca:** `leadCustomers.ts` validator'ında `leadCustomerAddressBodySchema`
+create validator'dan SONRA tanımlıydı; oluşturma gövdesine eklenince TDZ hatası
+verirdi. Blok yukarı taşındı.
+
+**Website gösterimi:** lead listesinde `formatWebsiteLabel` ile kısa biçim
+(şema ve `www.` atılır), yeni sekmede açılan link. Kart tıklaması kartı
+açıp/kapattığı için link `stopPropagation` yapıyor.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 407 ✅ (+16) ·
+functions 268 ✅ · frontend 233 ✅ · `next build` "Compiled successfully" ✅
+
+**Kullanıcıda bekleyen:** migration'ı kubi'ye uygulamak, sonra dialogu denemek.
+
+## 🔴 İki hata: adres aramada 403 ve üretim grubu filtresi (2026-08-14)
+
+### 1. Veri girişinde adres araması 403 veriyordu
+
+`app/geocoding/search/route.ts` ve `reverse/route.ts` içindeki allowlist:
+`["customer", "sales", "sales_director", "admin", "owner"]` — **`content_editor`
+YOK**. Veri girişi paneli o rolle çalışıyor; admin'de sorun görünmemesinin sebebi
+"admin"in listede olması.
+
+Bu boşluk potansiyel müşteri adres desteğini eklediğim dilimde oluştu: arayüzü
+`veri-girisi` paneline bağladım ama geocoding ucunun rol listesini güncellemeyi
+atladım. Panelin kendi rol kapısı `content_editor`'a açıkken uç kapalıydı.
+
+**Ders:** bir bileşeni yeni panele taşırken o bileşenin ÇAĞIRDIĞI uçların rol
+listelerini de kontrol etmek gerekiyor — panel kapısı yeterli değil.
+
+### 2. Üretim grubu seçimi kullanım alanı listesini daraltmıyordu
+
+Taksonomi `sektör → üretim grubu → kullanım alanı`, ama picker yalnız SEKTÖR
+boyutunda süzüyordu; üretim grubu hiç filtreye girmiyordu (sektör çalışıyordu,
+bu yüzden hata yalnız ikinci adımda görünüyordu).
+
+**Düzeltme:** `focusProductionGroupId` prop'u eklendi; daraltma sektörle aynı
+"varsayılan ama kaçılabilir" deseninde:
+- Seçili kullanım alanları filtre dışında kalsa bile GÖRÜNÜR kalır.
+- Sektör chip'ine basmak grup daraltmasını DÜŞÜRÜR — grup tek bir sektöre ait
+  olduğu için başka sektöre geçince liste boşalır ve kullanıcı sebebini anlamazdı.
+- Aktif daraltma görünür bir göstergede ("Üretim grubu: X · Kaldır") gösteriliyor;
+  sessiz filtre kullanıcıyı şaşırtır.
+
+**Saf katman:** süzme kuralı `lib/usageAreaFilter.ts` içine çıkarıldı ve 10 testle
+sabitlendi. Çıkarma sırasında gerçek bir tuzak yakalandı: picker'ın "Tümü"
+sentinel'i `"__all__"` iken kütüphaneye `"ALL"` yazmıştım — sentinel tek kaynağa
+alındı, yoksa sektör filtresi sessizce hiç eşleşmeyecekti.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 407 ✅ ·
+functions 268 ✅ · frontend 243 ✅ (+10) · `next build` "Compiled successfully" ✅
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

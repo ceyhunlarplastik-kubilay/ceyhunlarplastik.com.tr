@@ -17,6 +17,9 @@ type CustomerLike = {
 
 type AnnouncementLike = {
     createdByUserId: string
+    recipients?: Array<{
+        customer?: { assignedSalesUserId?: string | null } | null
+    }>
 }
 
 /** Kısıtsız roller: müdür/admin/owner tüm portföyü yönetir. */
@@ -40,22 +43,45 @@ export function findInaccessibleCustomerIds(
         .map((customer) => customer.id)
 }
 
+/**
+ * Temsilci bir duyuruyu İKİ nedenden görebilir:
+ *  1. duyuruyu kendisi oluşturmuştur,
+ *  2. duyuru KENDİ müşterilerinden en az birini hedefliyordur.
+ *
+ * İkincisi şart: satış müdürü/admin bir temsilcinin portföyü için duyuru
+ * oluşturabiliyor ve takibi yapacak kişi o temsilci. Yalnız "oluşturan" kuralı
+ * uygulansaydı yöneticinin oluşturduğu duyuru, işi yapacak kişiye görünmezdi.
+ */
 export function canViewCampaignAnnouncement(
     user: IAuthenticatedUser,
     announcement: AnnouncementLike,
 ) {
     if (hasFullScope(user)) return true
-    return user.isSales && announcement.createdByUserId === user.id
+    if (!user.isSales) return false
+
+    if (announcement.createdByUserId === user.id) return true
+
+    return (announcement.recipients ?? []).some(
+        (recipient) => recipient.customer?.assignedSalesUserId === user.id,
+    )
 }
 
 /**
- * Liste sorgusunda uygulanacak sahiplik daraltması. Temsilci için kendi
- * kimliğine sabitlenir; müdür/admin isterse belirli bir temsilciyi filtreleyebilir.
+ * Liste sorgusunda uygulanacak KAPSAM daraltması. Temsilci için kendi kimliği
+ * döner (repository bunu "oluşturan VEYA müşterisi hedeflenen" olarak çevirir);
+ * kısıtsız roller için `undefined`.
+ */
+export function resolveAnnouncementSalesScope(user: IAuthenticatedUser): string | undefined {
+    return hasFullScope(user) ? undefined : user.id
+}
+
+/**
+ * Yöneticinin açık temsilci filtresi. Temsilcinin kendisi için anlamsız olduğu
+ * için yok sayılır — onun görünürlüğünü `resolveAnnouncementSalesScope` belirler.
  */
 export function resolveAnnouncementOwnerFilter(
     user: IAuthenticatedUser,
     requestedCreatedByUserId?: string,
 ): string | undefined {
-    if (hasFullScope(user)) return requestedCreatedByUserId
-    return user.id
+    return hasFullScope(user) ? requestedCreatedByUserId : undefined
 }

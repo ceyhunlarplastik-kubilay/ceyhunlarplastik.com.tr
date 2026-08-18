@@ -16,6 +16,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { CampaignFormDialog } from "@/features/sales/campaigns/components/CampaignFormDialog"
+import { AnnouncementComposerDialog } from "@/features/sales/campaignAnnouncements/components/AnnouncementComposerDialog"
 import { useCampaigns, useDeleteCampaign } from "@/features/sales/campaigns/hooks/useCampaigns"
 import {
     formatDiscountPercent,
@@ -61,6 +62,7 @@ export function CampaignsPageClient() {
     const [status, setStatus] = useQueryState("durum", { defaultValue: "" })
     const [dialogOpen, setDialogOpen] = useState(false)
     const [editing, setEditing] = useState<ProductVariantCampaign | null>(null)
+    const [announcing, setAnnouncing] = useState<ProductVariantCampaign | null>(null)
 
     const campaignsQuery = useCampaigns({
         page: 1,
@@ -197,6 +199,17 @@ export function CampaignsPageClient() {
                                     </div>
 
                                     <div className="flex items-center gap-2">
+                                        {campaign.status === "ACTIVE" ? (
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                className="gap-1.5"
+                                                onClick={() => setAnnouncing(campaign)}
+                                            >
+                                                <Megaphone className="h-3.5 w-3.5" />
+                                                Duyur
+                                            </Button>
+                                        ) : null}
                                         <Button
                                             type="button"
                                             variant="outline"
@@ -258,6 +271,12 @@ export function CampaignsPageClient() {
             )}
 
             <CampaignFormDialog open={dialogOpen} onOpenChange={setDialogOpen} campaign={editing} />
+
+            <AnnouncementComposerDialog
+                open={Boolean(announcing)}
+                onOpenChange={(open) => { if (!open) setAnnouncing(null) }}
+                campaign={announcing ? { id: announcing.id, title: announcing.title } : null}
+            />
         </div>
     )
 }

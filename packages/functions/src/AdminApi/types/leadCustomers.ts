@@ -6,6 +6,8 @@ import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/pris
 
 export interface ILeadCustomerDependencies {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
+    /** Oluşturma sırasında adres de gönderildiyse yazmak için. */
+    customerRepository?: IPrismaCustomerRepository
 }
 
 export interface ILeadCustomerAddressDependencies {
@@ -27,7 +29,8 @@ export type IListLeadCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
 export type IGetLeadCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
 
 export type ICreateLeadCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
-    LeadCustomerProfileInput,
+    // Adres opsiyonel: oluşturma dialogunda girilirse aynı istekte yazılır.
+    LeadCustomerProfileInput & { address?: CustomerAddressBody },
     {}
 >
 

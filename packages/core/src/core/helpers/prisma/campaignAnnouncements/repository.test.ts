@@ -91,11 +91,28 @@ describe("campaignAnnouncementRepository", () => {
         })
     })
 
-    it("sahiplik filtresi doğrudan uygulanır", async () => {
+    it("yöneticinin açık temsilci filtresi doğrudan uygulanır", async () => {
         await campaignAnnouncementRepository().listAnnouncements({ createdByUserId: "rep-1" })
 
         const call = prismaMock.campaignAnnouncement.findMany.mock.calls[0][0]
         expect(call.where.createdByUserId).toBe("rep-1")
+    })
+
+    it("temsilci kapsamı: kendi oluşturdukları VEYA kendi müşterilerini hedefleyenler", async () => {
+        await campaignAnnouncementRepository().listAnnouncements({ salesScopeUserId: "rep-1" })
+
+        const call = prismaMock.campaignAnnouncement.findMany.mock.calls[0][0]
+        expect(call.where.OR).toEqual([
+            { createdByUserId: "rep-1" },
+            { recipients: { some: { customer: { assignedSalesUserId: "rep-1" } } } },
+        ])
+    })
+
+    it("kapsam verilmezse OR üretilmez (yönetici tümünü görür)", async () => {
+        await campaignAnnouncementRepository().listAnnouncements({})
+
+        const call = prismaMock.campaignAnnouncement.findMany.mock.calls[0][0]
+        expect(call.where.OR).toBeUndefined()
     })
 
     it("alıcı güncellemesi duyurunun tamamını geri döner", async () => {

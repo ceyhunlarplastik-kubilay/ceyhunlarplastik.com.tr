@@ -2,11 +2,12 @@
 
 import Image from "next/image"
 import { useDeferredValue, useMemo, useState } from "react"
-import { Check, ImageOff, Layers, Search, X } from "lucide-react"
+import { Check, Filter, ImageOff, Layers, Search, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { ALL_SECTORS, matchesUsageAreaFilter } from "@/features/admin/leadCustomers/lib/usageAreaFilter"
 
 export type UsageAreaOption = {
     id: string
@@ -29,7 +30,7 @@ function pickThumb(value: UsageAreaOption) {
     return value.assets?.find((asset) => asset.type === "IMAGE")?.url ?? null
 }
 
-const ALL_SECTORS = "__all__"
+
 const UNGROUPED_LABEL = "Sektörsüz"
 
 type Props = {
@@ -44,6 +45,12 @@ type Props = {
      * kilitlemez — kullanıcı "Tümü"ye alıp başka sektörlerden de seçebilir.
      */
     focusSectorId?: string | null
+    /**
+     * Formda üretim grubu seçildiyse liste o gruba daraltılır. Sektör gibi bu da
+     * VARSAYILANDIR, kilit değil: kullanıcı grubu temizleyip tüm sektörde
+     * gezinebilir. Seçili kullanım alanları filtre dışında kalsa bile görünür.
+     */
+    focusProductionGroupId?: string | null
     isLoading?: boolean
 }
 
@@ -66,11 +73,14 @@ export function LeadCustomerUsageAreaPicker({
     onToggle,
     onClear,
     focusSectorId,
+    focusProductionGroupId,
     isLoading = false,
 }: Props) {
     const [search, setSearch] = useState("")
     const [sectorFilterId, setSectorFilterId] = useState(focusSectorId || ALL_SECTORS)
     const [lastFocusSectorId, setLastFocusSectorId] = useState(focusSectorId)
+    const [productionGroupFilterId, setProductionGroupFilterId] = useState(focusProductionGroupId ?? null)
+    const [lastFocusProductionGroupId, setLastFocusProductionGroupId] = useState(focusProductionGroupId)
     const deferredSearch = useDeferredValue(search)
 
     // Formda sektör değiştiğinde liste ona odaklanır. React'in "prop değişince
@@ -79,6 +89,11 @@ export function LeadCustomerUsageAreaPicker({
     if (focusSectorId !== lastFocusSectorId) {
         setLastFocusSectorId(focusSectorId)
         setSectorFilterId(focusSectorId || ALL_SECTORS)
+    }
+
+    if (focusProductionGroupId !== lastFocusProductionGroupId) {
+        setLastFocusProductionGroupId(focusProductionGroupId)
+        setProductionGroupFilterId(focusProductionGroupId ?? null)
     }
 
     /** usageAreaId → { sektör id, sektör adı }. Gruplama, filtre ve chip sayıları. */
@@ -121,23 +136,18 @@ export function LeadCustomerUsageAreaPicker({
     const groups = useMemo(() => {
         const normalized = deferredSearch.trim().toLocaleLowerCase("tr")
 
+        // Süzme kuralı saf yüklemede (lib/usageAreaFilter.ts) ve testli.
         const filtered = usageAreaValues.filter((value) => {
             const sector = sectorByUsageAreaId.get(value.id)
 
-            // Seçili olanlar filtre dışında kalsa bile GÖRÜNÜR kalır: kullanıcı
-            // neyi seçtiğini kaybetmemeli.
-            const matchesSector =
-                sectorFilterId === ALL_SECTORS ||
-                sector?.id === sectorFilterId ||
-                selectedSet.has(value.id)
-
-            if (!matchesSector) return false
-            if (!normalized) return true
-
-            return (
-                value.name.toLocaleLowerCase("tr").includes(normalized) ||
-                (sector?.name ?? "").toLocaleLowerCase("tr").includes(normalized)
-            )
+            return matchesUsageAreaFilter(value, {
+                sectorId: sector?.id ?? null,
+                sectorName: sector?.name ?? "",
+                sectorFilterId,
+                productionGroupFilterId,
+                isSelected: selectedSet.has(value.id),
+                search: normalized,
+            })
         })
 
         const bySector = new Map<string, UsageAreaOption[]>()
@@ -150,13 +160,26 @@ export function LeadCustomerUsageAreaPicker({
         }
 
         return [...bySector.entries()].sort(([left], [right]) => left.localeCompare(right, "tr"))
-    }, [deferredSearch, sectorByUsageAreaId, sectorFilterId, selectedSet, usageAreaValues])
+    }, [
+        deferredSearch,
+        productionGroupFilterId,
+        sectorByUsageAreaId,
+        sectorFilterId,
+        selectedSet,
+        usageAreaValues,
+    ])
 
     /** Seçilenler çubuğu — scroll'dan bağımsız, her zaman görünür ve kaldırılabilir. */
     const selectedValues = useMemo(
         () => usageAreaValues.filter((value) => selectedSet.has(value.id)),
         [selectedSet, usageAreaValues],
     )
+    /** Aktif üretim grubu daraltmasının adı — kullanıcı neden az sonuç gördüğünü anlamalı. */
+    const activeProductionGroupName = useMemo(() => {
+        if (!productionGroupFilterId) return null
+        return productionGroupValues.find((value) => value.id === productionGroupFilterId)?.name ?? null
+    }, [productionGroupFilterId, productionGroupValues])
+
     const selectedSectorCount = useMemo(
         () => new Set(selectedValues.map((value) => sectorByUsageAreaId.get(value.id)?.name)).size,
         [sectorByUsageAreaId, selectedValues],
@@ -203,7 +226,10 @@ export function LeadCustomerUsageAreaPicker({
                             label="Tümü"
                             count={usageAreaValues.length}
                             isActive={sectorFilterId === ALL_SECTORS}
-                            onClick={() => setSectorFilterId(ALL_SECTORS)}
+                            onClick={() => {
+                                setSectorFilterId(ALL_SECTORS)
+                                setProductionGroupFilterId(null)
+                            }}
                         />
                         {sectorChips.map((sector) => (
                             <SectorChip
@@ -211,9 +237,30 @@ export function LeadCustomerUsageAreaPicker({
                                 label={sector.name}
                                 count={sector.count}
                                 isActive={sectorFilterId === sector.id}
-                                onClick={() => setSectorFilterId(sector.id)}
+                                onClick={() => {
+                                    setSectorFilterId(sector.id)
+                                    // Grup başka sektöre aitse liste boşalırdı.
+                                    setProductionGroupFilterId(null)
+                                }}
                             />
                         ))}
+                    </div>
+                ) : null}
+
+                {activeProductionGroupName ? (
+                    <div className="flex items-center gap-2 rounded-xl border border-brand/20 bg-brand/5 px-2.5 py-1.5 text-xs text-neutral-700">
+                        <Filter className="h-3.5 w-3.5 text-brand" />
+                        <span className="min-w-0 truncate">
+                            <span className="text-neutral-500">Üretim grubu: </span>
+                            <span className="font-medium text-neutral-900">{activeProductionGroupName}</span>
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => setProductionGroupFilterId(null)}
+                            className="ml-auto shrink-0 rounded-full px-2 py-0.5 font-medium text-brand transition hover:bg-brand/10"
+                        >
+                            Kaldır
+                        </button>
                     </div>
                 ) : null}
             </div>

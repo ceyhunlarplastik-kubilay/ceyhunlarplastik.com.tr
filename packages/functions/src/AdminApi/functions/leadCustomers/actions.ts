@@ -40,6 +40,8 @@ const leadCustomerManagerGroups = ["admin", "content_editor"]
 
 const deps = () => ({
     productAttributeValueRepository: productAttributeValueRepository(),
+    // Oluşturma dialogunda adres de gönderilebiliyor.
+    customerRepository: customerRepository(),
 })
 
 const addressDeps = () => ({

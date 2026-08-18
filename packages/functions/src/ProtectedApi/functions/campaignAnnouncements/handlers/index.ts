@@ -5,6 +5,7 @@ import {
     canViewCampaignAnnouncement,
     findInaccessibleCustomerIds,
     resolveAnnouncementOwnerFilter,
+    resolveAnnouncementSalesScope,
 } from "@/core/helpers/crm/campaignAnnouncementAccess"
 import type {
     ICampaignAnnouncementDependencies,
@@ -30,8 +31,10 @@ export const listCampaignAnnouncementsHandler = (
             campaignId: query.campaignId,
             customerId: query.customerId,
             status: query.status,
-            // Temsilci kendi duyurularına sabitlenir; müdür/admin filtreleyebilir.
+            // Yöneticinin açık temsilci filtresi (temsilcide yok sayılır).
             createdByUserId: resolveAnnouncementOwnerFilter(requester, query.createdByUserId),
+            // Temsilci kapsamı: kendi oluşturdukları + kendi müşterilerini hedefleyenler.
+            salesScopeUserId: resolveAnnouncementSalesScope(requester),
         })
 
         return apiResponseDTO({ statusCode: 200, payload: result })

@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "crypto"
+import { resolveCustomerDisplayName } from "@/core/helpers/crm/customerDisplayName"
 import createError from "http-errors"
 import type { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import type { IUserInvitationRepository } from "@/core/helpers/prisma/userInvitations/repository"
@@ -184,7 +185,7 @@ async function getUsableInvitation({
 function mapInvitationSummary(invitation: Awaited<ReturnType<typeof getUsableInvitation>>): CustomerPortalInvitationSummary {
     return {
         email: invitation.email,
-        customerName: invitation.customer.companyName || invitation.customer.fullName,
+        customerName: resolveCustomerDisplayName(invitation.customer),
         firstName: invitation.requestedFirstName ?? invitation.user.firstName ?? null,
         lastName: invitation.requestedLastName ?? invitation.user.lastName ?? null,
         customerContactTitle: invitation.requestedCustomerContactTitle ?? invitation.user.customerContactTitle ?? null,

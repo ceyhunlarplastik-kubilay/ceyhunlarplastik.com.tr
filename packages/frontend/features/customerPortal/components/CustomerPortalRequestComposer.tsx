@@ -191,7 +191,7 @@ export function CustomerPortalRequestComposer({
             ...form.getValues(),
             type: composerState.composeType,
             profileCompanyName: customer.companyName ?? "",
-            profileFullName: primaryContact?.name || customer.fullName,
+            profileFullName: primaryContact?.name || customer.fullName || "",
             profilePhone: primaryContact?.phone || customer.phone,
             profileEmail: primaryContact?.email || customer.email,
             profileNote: customer.note ?? "",

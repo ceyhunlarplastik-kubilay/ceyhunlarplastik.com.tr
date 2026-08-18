@@ -346,7 +346,7 @@ export type CustomerAddressMutationInput = {
 export type CustomerMapPointRecord = {
     customerId: string
     companyName?: string | null
-    fullName: string
+    fullName: string | null
     email: string
     phone: string
     status: CustomerStatus

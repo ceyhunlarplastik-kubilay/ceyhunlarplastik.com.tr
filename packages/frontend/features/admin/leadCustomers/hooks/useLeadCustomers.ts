@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { resolveCustomerDisplayName } from "@core/helpers/crm/customerDisplayName"
 import { toast } from "sonner"
 
 import {
@@ -45,7 +46,7 @@ export function useCreateLeadCustomer() {
         onSuccess: async (customer) => {
             await queryClient.invalidateQueries({ queryKey: leadCustomerKeys.all })
             toast.success(
-                `${customer.companyName ?? customer.fullName} kaydedildi · profiliyle eşleşen ${customer.matchedProductCount} ürün`,
+                `${resolveCustomerDisplayName(customer)} kaydedildi · profiliyle eşleşen ${customer.matchedProductCount} ürün`,
             )
         },
     })

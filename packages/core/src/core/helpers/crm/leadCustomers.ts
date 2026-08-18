@@ -7,6 +7,7 @@ import {
     type CustomerAddressBody,
 } from "@/core/helpers/crm/customerAddressInput"
 import { CUSTOMER_ATTRIBUTE_CODES, resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
+import { normalizeWebsiteUrl } from "@/core/helpers/crm/customerWebsite"
 import {
     buildCustomerProfileProductWhereClauses,
     resolveCustomerProfileHierarchy,
@@ -41,7 +42,9 @@ export type LeadCustomerAttributeValue = {
 export type LeadCustomerSummary = {
     id: string
     companyName: string | null
-    fullName: string
+    websiteUrl: string | null
+    /** Yetkili adı opsiyonel: veri girişinde firma kaydedilir, kişi sonra öğrenilir. */
+    fullName: string | null
     phone: string
     email: string
     note: string | null
@@ -69,8 +72,12 @@ export type LeadCustomerDetail = LeadCustomerSummary & {
 }
 
 export type LeadCustomerProfileInput = {
-    companyName?: string | null
-    fullName: string
+    /** Bu yüzeyde FİRMA kaydedilir; firma adı zorunludur. */
+    companyName: string
+    /** Ham metin gelir; `normalizeWebsiteUrl` kanonik biçime indirir. */
+    websiteUrl?: string | null
+    /** Yetkili adı sonradan öğrenilebilir. */
+    fullName?: string | null
     phone: string
     email: string
     note?: string | null
@@ -139,6 +146,7 @@ export type LeadCustomerAddress = Prisma.CustomerAddressGetPayload<{
 const leadCustomerSelect = {
     id: true,
     companyName: true,
+    websiteUrl: true,
     fullName: true,
     phone: true,
     email: true,
@@ -160,6 +168,7 @@ function mapLeadCustomer(customer: LeadCustomerRow): LeadCustomerSummary {
     return {
         id: customer.id,
         companyName: customer.companyName,
+        websiteUrl: customer.websiteUrl,
         fullName: customer.fullName,
         phone: customer.phone,
         email: customer.email,
@@ -392,17 +401,38 @@ async function resolveProfileAssignments(
 
 export async function createLeadCustomer({
     productAttributeValueRepository,
+    customerRepository,
     input,
+    address,
+    verifiedByUserId,
 }: {
     productAttributeValueRepository: IPrismaProductAttributeValueRepository
+    /** Adres yazımı için; yalnız `address` verildiğinde kullanılır. */
+    customerRepository?: IPrismaCustomerRepository
     input: LeadCustomerProfileInput
+    /**
+     * Oluşturma dialogunda adres de girildiyse aynı istekte yazılır. Ayrı adres
+     * uçları (create/update/delete) sonradan düzenleme için duruyor.
+     */
+    address?: CustomerAddressBody | null
+    verifiedByUserId?: string | null
 }): Promise<LeadCustomerDetail> {
     const resolved = await resolveProfileAssignments(productAttributeValueRepository, input)
+    // Adres normalizasyonu müşteri yazılmadan ÖNCE yapılır: geçersiz adres
+    // yüzünden yarım kayıt (müşteri var, adres yok) oluşmasın.
+    const normalizedAddress = address
+        ? normalizeCustomerAddressInput(address, {
+            defaultLocationSource: "MANUAL_PIN",
+            verifiedByUserId,
+            allowVerification: true,
+        })
+        : null
 
     const customer = await prisma.customer.create({
         data: {
-            companyName: normalizeText(input.companyName),
-            fullName: input.fullName.trim(),
+            companyName: input.companyName.trim(),
+            websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
+            fullName: normalizeText(input.fullName),
             phone: input.phone.trim(),
             email: input.email.trim(),
             note: normalizeText(input.note),
@@ -429,6 +459,15 @@ export async function createLeadCustomer({
         },
         select: leadCustomerSelect,
     })
+
+    // Adres ayrı yazılır: repository kendi yazma biçimini üretiyor ve sıra
+    // (displayOrder) ile birincil-adres tekilliğini kendi transaction'ında
+    // yönetiyor. Geçersiz adres yukarıda normalize aşamasında elendiği için
+    // burada kalan tek risk DB hatası — o durumda müşteri kaydı korunur ve
+    // adres detay panelinden eklenebilir.
+    if (normalizedAddress && customerRepository) {
+        await customerRepository.createAddress(customer.id, normalizedAddress)
+    }
 
     return buildLeadCustomerDetail(customer.id)
 }
@@ -468,8 +507,9 @@ export async function updateLeadCustomer({
         await tx.customer.update({
             where: { id },
             data: {
-                companyName: normalizeText(input.companyName),
-                fullName: input.fullName.trim(),
+                companyName: input.companyName.trim(),
+                websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
+                fullName: normalizeText(input.fullName),
                 phone: input.phone.trim(),
                 email: input.email.trim(),
                 note: normalizeText(input.note),

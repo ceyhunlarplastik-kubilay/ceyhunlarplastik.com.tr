@@ -5,6 +5,7 @@ import {
     canViewCampaignAnnouncement,
     findInaccessibleCustomerIds,
     resolveAnnouncementOwnerFilter,
+    resolveAnnouncementSalesScope,
 } from "./campaignAnnouncementAccess"
 
 function user(overrides: Partial<IAuthenticatedUser> = {}): IAuthenticatedUser {
@@ -64,7 +65,23 @@ describe("canViewCampaignAnnouncement", () => {
         expect(canViewCampaignAnnouncement(salesRep, { createdByUserId: "rep-1" })).toBe(true)
     })
 
-    it("temsilci başkasının duyurusunu göremez", () => {
+    it("YÖNETİCİNİN oluşturduğu duyuruyu, kendi müşterisi hedeflendiyse görür", () => {
+        // Asıl senaryo: admin bir temsilcinin portföyü için duyuru oluşturur,
+        // takibi o temsilci yapar. Görmezse iş yapılamaz.
+        expect(canViewCampaignAnnouncement(salesRep, {
+            createdByUserId: "admin-1",
+            recipients: [{ customer: { assignedSalesUserId: "rep-1" } }],
+        })).toBe(true)
+    })
+
+    it("başka temsilcinin müşterilerini hedefleyen duyuruyu göremez", () => {
+        expect(canViewCampaignAnnouncement(salesRep, {
+            createdByUserId: "admin-1",
+            recipients: [{ customer: { assignedSalesUserId: "rep-2" } }],
+        })).toBe(false)
+    })
+
+    it("alıcısı olmayan, başkasının duyurusunu göremez", () => {
         expect(canViewCampaignAnnouncement(salesRep, { createdByUserId: "rep-2" })).toBe(false)
     })
 
@@ -74,10 +91,21 @@ describe("canViewCampaignAnnouncement", () => {
     })
 })
 
+describe("resolveAnnouncementSalesScope", () => {
+    it("temsilci kendi kapsamına daraltılır", () => {
+        expect(resolveAnnouncementSalesScope(salesRep)).toBe("rep-1")
+    })
+
+    it("müdür ve admin kısıtsızdır", () => {
+        expect(resolveAnnouncementSalesScope(director)).toBeUndefined()
+        expect(resolveAnnouncementSalesScope(admin)).toBeUndefined()
+    })
+})
+
 describe("resolveAnnouncementOwnerFilter", () => {
-    it("temsilcide kendi kimliğine sabitlenir", () => {
-        // İstemci başka temsilciyi sorsa bile kendi kimliği uygulanır.
-        expect(resolveAnnouncementOwnerFilter(salesRep, "rep-2")).toBe("rep-1")
+    it("temsilcide açık filtre yok sayılır", () => {
+        // Görünürlüğü kapsam belirler; istemcinin gönderdiği filtre uygulanmaz.
+        expect(resolveAnnouncementOwnerFilter(salesRep, "rep-2")).toBeUndefined()
     })
 
     it("müdür istediği temsilciyi filtreleyebilir", () => {

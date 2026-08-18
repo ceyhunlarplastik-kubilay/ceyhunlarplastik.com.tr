@@ -44,6 +44,7 @@ export type CustomerMinAggregateOutputType = {
   fullName: string | null
   phone: string | null
   email: string | null
+  websiteUrl: string | null
   note: string | null
   status: $Enums.CustomerStatus | null
   generalDiscountPercent: runtime.Decimal | null
@@ -65,6 +66,7 @@ export type CustomerMaxAggregateOutputType = {
   fullName: string | null
   phone: string | null
   email: string | null
+  websiteUrl: string | null
   note: string | null
   status: $Enums.CustomerStatus | null
   generalDiscountPercent: runtime.Decimal | null
@@ -86,6 +88,7 @@ export type CustomerCountAggregateOutputType = {
   fullName: number
   phone: number
   email: number
+  websiteUrl: number
   note: number
   status: number
   generalDiscountPercent: number
@@ -121,6 +124,7 @@ export type CustomerMinAggregateInputType = {
   fullName?: true
   phone?: true
   email?: true
+  websiteUrl?: true
   note?: true
   status?: true
   generalDiscountPercent?: true
@@ -142,6 +146,7 @@ export type CustomerMaxAggregateInputType = {
   fullName?: true
   phone?: true
   email?: true
+  websiteUrl?: true
   note?: true
   status?: true
   generalDiscountPercent?: true
@@ -163,6 +168,7 @@ export type CustomerCountAggregateInputType = {
   fullName?: true
   phone?: true
   email?: true
+  websiteUrl?: true
   note?: true
   status?: true
   generalDiscountPercent?: true
@@ -268,9 +274,10 @@ export type CustomerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type CustomerGroupByOutputType = {
   id: string
   companyName: string | null
-  fullName: string
+  fullName: string | null
   phone: string
   email: string
+  websiteUrl: string | null
   note: string | null
   status: $Enums.CustomerStatus
   generalDiscountPercent: runtime.Decimal | null
@@ -312,9 +319,10 @@ export type CustomerWhereInput = {
   NOT?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
   id?: Prisma.StringFilter<"Customer"> | string
   companyName?: Prisma.StringNullableFilter<"Customer"> | string | null
-  fullName?: Prisma.StringFilter<"Customer"> | string
+  fullName?: Prisma.StringNullableFilter<"Customer"> | string | null
   phone?: Prisma.StringFilter<"Customer"> | string
   email?: Prisma.StringFilter<"Customer"> | string
+  websiteUrl?: Prisma.StringNullableFilter<"Customer"> | string | null
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -350,9 +358,10 @@ export type CustomerWhereInput = {
 export type CustomerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyName?: Prisma.SortOrderInput | Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  fullName?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   generalDiscountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -391,9 +400,10 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CustomerWhereInput[]
   NOT?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
   companyName?: Prisma.StringNullableFilter<"Customer"> | string | null
-  fullName?: Prisma.StringFilter<"Customer"> | string
+  fullName?: Prisma.StringNullableFilter<"Customer"> | string | null
   phone?: Prisma.StringFilter<"Customer"> | string
   email?: Prisma.StringFilter<"Customer"> | string
+  websiteUrl?: Prisma.StringNullableFilter<"Customer"> | string | null
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -429,9 +439,10 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
 export type CustomerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyName?: Prisma.SortOrderInput | Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  fullName?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   generalDiscountPercent?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -458,9 +469,10 @@ export type CustomerScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CustomerScalarWhereWithAggregatesInput | Prisma.CustomerScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   companyName?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
-  fullName?: Prisma.StringWithAggregatesFilter<"Customer"> | string
+  fullName?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   phone?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   email?: Prisma.StringWithAggregatesFilter<"Customer"> | string
+  websiteUrl?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusWithAggregatesFilter<"Customer"> | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.DecimalNullableWithAggregatesFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -479,9 +491,10 @@ export type CustomerScalarWhereWithAggregatesInput = {
 export type CustomerCreateInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -513,9 +526,10 @@ export type CustomerCreateInput = {
 export type CustomerUncheckedCreateInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -547,9 +561,10 @@ export type CustomerUncheckedCreateInput = {
 export type CustomerUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -581,9 +596,10 @@ export type CustomerUpdateInput = {
 export type CustomerUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -615,9 +631,10 @@ export type CustomerUncheckedUpdateInput = {
 export type CustomerCreateManyInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -636,9 +653,10 @@ export type CustomerCreateManyInput = {
 export type CustomerUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -653,9 +671,10 @@ export type CustomerUpdateManyMutationInput = {
 export type CustomerUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -692,6 +711,7 @@ export type CustomerCountOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrder
   note?: Prisma.SortOrder
   status?: Prisma.SortOrder
   generalDiscountPercent?: Prisma.SortOrder
@@ -719,6 +739,7 @@ export type CustomerMaxOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrder
   note?: Prisma.SortOrder
   status?: Prisma.SortOrder
   generalDiscountPercent?: Prisma.SortOrder
@@ -740,6 +761,7 @@ export type CustomerMinOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  websiteUrl?: Prisma.SortOrder
   note?: Prisma.SortOrder
   status?: Prisma.SortOrder
   generalDiscountPercent?: Prisma.SortOrder
@@ -1159,9 +1181,10 @@ export type CustomerUpdateOneRequiredWithoutOrdersNestedInput = {
 export type CustomerCreateWithoutPortalUsersInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1192,9 +1215,10 @@ export type CustomerCreateWithoutPortalUsersInput = {
 export type CustomerUncheckedCreateWithoutPortalUsersInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1230,9 +1254,10 @@ export type CustomerCreateOrConnectWithoutPortalUsersInput = {
 export type CustomerCreateWithoutAssignedSalesUserInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1263,9 +1288,10 @@ export type CustomerCreateWithoutAssignedSalesUserInput = {
 export type CustomerUncheckedCreateWithoutAssignedSalesUserInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1306,9 +1332,10 @@ export type CustomerCreateManyAssignedSalesUserInputEnvelope = {
 export type CustomerCreateWithoutConvertedByUserInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1339,9 +1366,10 @@ export type CustomerCreateWithoutConvertedByUserInput = {
 export type CustomerUncheckedCreateWithoutConvertedByUserInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1393,9 +1421,10 @@ export type CustomerUpdateToOneWithWhereWithoutPortalUsersInput = {
 export type CustomerUpdateWithoutPortalUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1426,9 +1455,10 @@ export type CustomerUpdateWithoutPortalUsersInput = {
 export type CustomerUncheckedUpdateWithoutPortalUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1478,9 +1508,10 @@ export type CustomerScalarWhereInput = {
   NOT?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
   id?: Prisma.StringFilter<"Customer"> | string
   companyName?: Prisma.StringNullableFilter<"Customer"> | string | null
-  fullName?: Prisma.StringFilter<"Customer"> | string
+  fullName?: Prisma.StringNullableFilter<"Customer"> | string | null
   phone?: Prisma.StringFilter<"Customer"> | string
   email?: Prisma.StringFilter<"Customer"> | string
+  websiteUrl?: Prisma.StringNullableFilter<"Customer"> | string | null
   note?: Prisma.StringNullableFilter<"Customer"> | string | null
   status?: Prisma.EnumCustomerStatusFilter<"Customer"> | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1515,9 +1546,10 @@ export type CustomerUpdateManyWithWhereWithoutConvertedByUserInput = {
 export type CustomerCreateWithoutSectorValueInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1548,9 +1580,10 @@ export type CustomerCreateWithoutSectorValueInput = {
 export type CustomerUncheckedCreateWithoutSectorValueInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1591,9 +1624,10 @@ export type CustomerCreateManySectorValueInputEnvelope = {
 export type CustomerCreateWithoutProductionGroupValueInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1624,9 +1658,10 @@ export type CustomerCreateWithoutProductionGroupValueInput = {
 export type CustomerUncheckedCreateWithoutProductionGroupValueInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1667,9 +1702,10 @@ export type CustomerCreateManyProductionGroupValueInputEnvelope = {
 export type CustomerCreateWithoutUsageAreaValuesInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1700,9 +1736,10 @@ export type CustomerCreateWithoutUsageAreaValuesInput = {
 export type CustomerUncheckedCreateWithoutUsageAreaValuesInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1786,9 +1823,10 @@ export type CustomerUpdateManyWithWhereWithoutUsageAreaValuesInput = {
 export type CustomerCreateWithoutUserInvitationsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1819,9 +1857,10 @@ export type CustomerCreateWithoutUserInvitationsInput = {
 export type CustomerUncheckedCreateWithoutUserInvitationsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1868,9 +1907,10 @@ export type CustomerUpdateToOneWithWhereWithoutUserInvitationsInput = {
 export type CustomerUpdateWithoutUserInvitationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1901,9 +1941,10 @@ export type CustomerUpdateWithoutUserInvitationsInput = {
 export type CustomerUncheckedUpdateWithoutUserInvitationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1934,9 +1975,10 @@ export type CustomerUncheckedUpdateWithoutUserInvitationsInput = {
 export type CustomerCreateWithoutAttributeValueAssignmentsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1967,9 +2009,10 @@ export type CustomerCreateWithoutAttributeValueAssignmentsInput = {
 export type CustomerUncheckedCreateWithoutAttributeValueAssignmentsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2016,9 +2059,10 @@ export type CustomerUpdateToOneWithWhereWithoutAttributeValueAssignmentsInput = 
 export type CustomerUpdateWithoutAttributeValueAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2049,9 +2093,10 @@ export type CustomerUpdateWithoutAttributeValueAssignmentsInput = {
 export type CustomerUncheckedUpdateWithoutAttributeValueAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2082,9 +2127,10 @@ export type CustomerUncheckedUpdateWithoutAttributeValueAssignmentsInput = {
 export type CustomerCreateWithoutCompanyContactAssignmentsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2115,9 +2161,10 @@ export type CustomerCreateWithoutCompanyContactAssignmentsInput = {
 export type CustomerUncheckedCreateWithoutCompanyContactAssignmentsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2164,9 +2211,10 @@ export type CustomerUpdateToOneWithWhereWithoutCompanyContactAssignmentsInput = 
 export type CustomerUpdateWithoutCompanyContactAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2197,9 +2245,10 @@ export type CustomerUpdateWithoutCompanyContactAssignmentsInput = {
 export type CustomerUncheckedUpdateWithoutCompanyContactAssignmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2230,9 +2279,10 @@ export type CustomerUncheckedUpdateWithoutCompanyContactAssignmentsInput = {
 export type CustomerCreateWithoutFeaturedProductsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2263,9 +2313,10 @@ export type CustomerCreateWithoutFeaturedProductsInput = {
 export type CustomerUncheckedCreateWithoutFeaturedProductsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2312,9 +2363,10 @@ export type CustomerUpdateToOneWithWhereWithoutFeaturedProductsInput = {
 export type CustomerUpdateWithoutFeaturedProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2345,9 +2397,10 @@ export type CustomerUpdateWithoutFeaturedProductsInput = {
 export type CustomerUncheckedUpdateWithoutFeaturedProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2378,9 +2431,10 @@ export type CustomerUncheckedUpdateWithoutFeaturedProductsInput = {
 export type CustomerCreateWithoutAssignedProductsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2411,9 +2465,10 @@ export type CustomerCreateWithoutAssignedProductsInput = {
 export type CustomerUncheckedCreateWithoutAssignedProductsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2460,9 +2515,10 @@ export type CustomerUpdateToOneWithWhereWithoutAssignedProductsInput = {
 export type CustomerUpdateWithoutAssignedProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2493,9 +2549,10 @@ export type CustomerUpdateWithoutAssignedProductsInput = {
 export type CustomerUncheckedUpdateWithoutAssignedProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2526,9 +2583,10 @@ export type CustomerUncheckedUpdateWithoutAssignedProductsInput = {
 export type CustomerCreateWithoutAddressesInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2559,9 +2617,10 @@ export type CustomerCreateWithoutAddressesInput = {
 export type CustomerUncheckedCreateWithoutAddressesInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2608,9 +2667,10 @@ export type CustomerUpdateToOneWithWhereWithoutAddressesInput = {
 export type CustomerUpdateWithoutAddressesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2641,9 +2701,10 @@ export type CustomerUpdateWithoutAddressesInput = {
 export type CustomerUncheckedUpdateWithoutAddressesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2674,9 +2735,10 @@ export type CustomerUncheckedUpdateWithoutAddressesInput = {
 export type CustomerCreateWithoutVisitsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2707,9 +2769,10 @@ export type CustomerCreateWithoutVisitsInput = {
 export type CustomerUncheckedCreateWithoutVisitsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2756,9 +2819,10 @@ export type CustomerUpdateToOneWithWhereWithoutVisitsInput = {
 export type CustomerUpdateWithoutVisitsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2789,9 +2853,10 @@ export type CustomerUpdateWithoutVisitsInput = {
 export type CustomerUncheckedUpdateWithoutVisitsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2822,9 +2887,10 @@ export type CustomerUncheckedUpdateWithoutVisitsInput = {
 export type CustomerCreateWithoutCampaignAnnouncementsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2855,9 +2921,10 @@ export type CustomerCreateWithoutCampaignAnnouncementsInput = {
 export type CustomerUncheckedCreateWithoutCampaignAnnouncementsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2904,9 +2971,10 @@ export type CustomerUpdateToOneWithWhereWithoutCampaignAnnouncementsInput = {
 export type CustomerUpdateWithoutCampaignAnnouncementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2937,9 +3005,10 @@ export type CustomerUpdateWithoutCampaignAnnouncementsInput = {
 export type CustomerUncheckedUpdateWithoutCampaignAnnouncementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2970,9 +3039,10 @@ export type CustomerUncheckedUpdateWithoutCampaignAnnouncementsInput = {
 export type CustomerCreateWithoutSpecialVariantPricesInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3003,9 +3073,10 @@ export type CustomerCreateWithoutSpecialVariantPricesInput = {
 export type CustomerUncheckedCreateWithoutSpecialVariantPricesInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3052,9 +3123,10 @@ export type CustomerUpdateToOneWithWhereWithoutSpecialVariantPricesInput = {
 export type CustomerUpdateWithoutSpecialVariantPricesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3085,9 +3157,10 @@ export type CustomerUpdateWithoutSpecialVariantPricesInput = {
 export type CustomerUncheckedUpdateWithoutSpecialVariantPricesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3118,9 +3191,10 @@ export type CustomerUncheckedUpdateWithoutSpecialVariantPricesInput = {
 export type CustomerCreateWithoutBusinessRequestsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3151,9 +3225,10 @@ export type CustomerCreateWithoutBusinessRequestsInput = {
 export type CustomerUncheckedCreateWithoutBusinessRequestsInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3200,9 +3275,10 @@ export type CustomerUpdateToOneWithWhereWithoutBusinessRequestsInput = {
 export type CustomerUpdateWithoutBusinessRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3233,9 +3309,10 @@ export type CustomerUpdateWithoutBusinessRequestsInput = {
 export type CustomerUncheckedUpdateWithoutBusinessRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3266,9 +3343,10 @@ export type CustomerUncheckedUpdateWithoutBusinessRequestsInput = {
 export type CustomerCreateWithoutOrdersInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3299,9 +3377,10 @@ export type CustomerCreateWithoutOrdersInput = {
 export type CustomerUncheckedCreateWithoutOrdersInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3348,9 +3427,10 @@ export type CustomerUpdateToOneWithWhereWithoutOrdersInput = {
 export type CustomerUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3381,9 +3461,10 @@ export type CustomerUpdateWithoutOrdersInput = {
 export type CustomerUncheckedUpdateWithoutOrdersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3414,9 +3495,10 @@ export type CustomerUncheckedUpdateWithoutOrdersInput = {
 export type CustomerCreateManyAssignedSalesUserInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3434,9 +3516,10 @@ export type CustomerCreateManyAssignedSalesUserInput = {
 export type CustomerCreateManyConvertedByUserInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3454,9 +3537,10 @@ export type CustomerCreateManyConvertedByUserInput = {
 export type CustomerUpdateWithoutAssignedSalesUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3487,9 +3571,10 @@ export type CustomerUpdateWithoutAssignedSalesUserInput = {
 export type CustomerUncheckedUpdateWithoutAssignedSalesUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3520,9 +3605,10 @@ export type CustomerUncheckedUpdateWithoutAssignedSalesUserInput = {
 export type CustomerUncheckedUpdateManyWithoutAssignedSalesUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3540,9 +3626,10 @@ export type CustomerUncheckedUpdateManyWithoutAssignedSalesUserInput = {
 export type CustomerUpdateWithoutConvertedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3573,9 +3660,10 @@ export type CustomerUpdateWithoutConvertedByUserInput = {
 export type CustomerUncheckedUpdateWithoutConvertedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3606,9 +3694,10 @@ export type CustomerUncheckedUpdateWithoutConvertedByUserInput = {
 export type CustomerUncheckedUpdateManyWithoutConvertedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3626,9 +3715,10 @@ export type CustomerUncheckedUpdateManyWithoutConvertedByUserInput = {
 export type CustomerCreateManySectorValueInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3646,9 +3736,10 @@ export type CustomerCreateManySectorValueInput = {
 export type CustomerCreateManyProductionGroupValueInput = {
   id?: string
   companyName?: string | null
-  fullName: string
+  fullName?: string | null
   phone: string
   email: string
+  websiteUrl?: string | null
   note?: string | null
   status?: $Enums.CustomerStatus
   generalDiscountPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3666,9 +3757,10 @@ export type CustomerCreateManyProductionGroupValueInput = {
 export type CustomerUpdateWithoutSectorValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3699,9 +3791,10 @@ export type CustomerUpdateWithoutSectorValueInput = {
 export type CustomerUncheckedUpdateWithoutSectorValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3732,9 +3825,10 @@ export type CustomerUncheckedUpdateWithoutSectorValueInput = {
 export type CustomerUncheckedUpdateManyWithoutSectorValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3752,9 +3846,10 @@ export type CustomerUncheckedUpdateManyWithoutSectorValueInput = {
 export type CustomerUpdateWithoutProductionGroupValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3785,9 +3880,10 @@ export type CustomerUpdateWithoutProductionGroupValueInput = {
 export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3818,9 +3914,10 @@ export type CustomerUncheckedUpdateWithoutProductionGroupValueInput = {
 export type CustomerUncheckedUpdateManyWithoutProductionGroupValueInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3838,9 +3935,10 @@ export type CustomerUncheckedUpdateManyWithoutProductionGroupValueInput = {
 export type CustomerUpdateWithoutUsageAreaValuesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3871,9 +3969,10 @@ export type CustomerUpdateWithoutUsageAreaValuesInput = {
 export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -3904,9 +4003,10 @@ export type CustomerUncheckedUpdateWithoutUsageAreaValuesInput = {
 export type CustomerUncheckedUpdateManyWithoutUsageAreaValuesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   companyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
   generalDiscountPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -4067,6 +4167,7 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   fullName?: boolean
   phone?: boolean
   email?: boolean
+  websiteUrl?: boolean
   note?: boolean
   status?: boolean
   generalDiscountPercent?: boolean
@@ -4106,6 +4207,7 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   fullName?: boolean
   phone?: boolean
   email?: boolean
+  websiteUrl?: boolean
   note?: boolean
   status?: boolean
   generalDiscountPercent?: boolean
@@ -4131,6 +4233,7 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   fullName?: boolean
   phone?: boolean
   email?: boolean
+  websiteUrl?: boolean
   note?: boolean
   status?: boolean
   generalDiscountPercent?: boolean
@@ -4156,6 +4259,7 @@ export type CustomerSelectScalar = {
   fullName?: boolean
   phone?: boolean
   email?: boolean
+  websiteUrl?: boolean
   note?: boolean
   status?: boolean
   generalDiscountPercent?: boolean
@@ -4171,7 +4275,7 @@ export type CustomerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyName" | "fullName" | "phone" | "email" | "note" | "status" | "generalDiscountPercent" | "defaultPaymentTermDays" | "creditLimit" | "paymentTermNote" | "assignedSalesUserId" | "convertedAt" | "convertedByUserId" | "sectorValueId" | "productionGroupValueId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyName" | "fullName" | "phone" | "email" | "websiteUrl" | "note" | "status" | "generalDiscountPercent" | "defaultPaymentTermDays" | "creditLimit" | "paymentTermNote" | "assignedSalesUserId" | "convertedAt" | "convertedByUserId" | "sectorValueId" | "productionGroupValueId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedSalesUser?: boolean | Prisma.Customer$assignedSalesUserArgs<ExtArgs>
   convertedByUser?: boolean | Prisma.Customer$convertedByUserArgs<ExtArgs>
@@ -4228,10 +4332,24 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    /**
+     * Firma adı. Tekillik YOK: Türkiye'de aynı unvanla birden çok firma olabiliyor;
+     * ayrım vergi numarası, adres ve konumdan yapılır.
+     */
     companyName: string | null
-    fullName: string
+    /**
+     * Yetkili kişi adı. Veri girişi panelinde firma kaydedilirken boş bırakılabilir;
+     * public web formunda ise ZORUNLUDUR (orada kişi kendini kaydeder). Kısıt bu
+     * yüzden şemada değil, yüzeye özel validator'larda.
+     */
+    fullName: string | null
     phone: string
     email: string
+    /**
+     * Firma web sitesi. Normalize edilerek saklanır ("acme.com" → "https://acme.com");
+     * kural core/helpers/crm/customerWebsite.ts içinde.
+     */
+    websiteUrl: string | null
     note: string | null
     status: $Enums.CustomerStatus
     generalDiscountPercent: runtime.Decimal | null
@@ -4690,6 +4808,7 @@ export interface CustomerFieldRefs {
   readonly fullName: Prisma.FieldRef<"Customer", 'String'>
   readonly phone: Prisma.FieldRef<"Customer", 'String'>
   readonly email: Prisma.FieldRef<"Customer", 'String'>
+  readonly websiteUrl: Prisma.FieldRef<"Customer", 'String'>
   readonly note: Prisma.FieldRef<"Customer", 'String'>
   readonly status: Prisma.FieldRef<"Customer", 'CustomerStatus'>
   readonly generalDiscountPercent: Prisma.FieldRef<"Customer", 'Decimal'>

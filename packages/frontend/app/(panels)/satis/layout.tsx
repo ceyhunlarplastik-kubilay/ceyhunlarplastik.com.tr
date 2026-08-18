@@ -34,6 +34,14 @@ const baseNavItems = [
         icon: "clipboard" as const,
         match: "prefix" as const,
     },
+    {
+        // Duyuru YAPMAK temsilcinin işi; kampanya yönetiminden farklı olarak
+        // tüm satış rollerine açık.
+        href: "/satis/duyurular",
+        label: "Kampanya Duyuruları",
+        icon: "megaphone" as const,
+        match: "prefix" as const,
+    },
 ]
 
 /**

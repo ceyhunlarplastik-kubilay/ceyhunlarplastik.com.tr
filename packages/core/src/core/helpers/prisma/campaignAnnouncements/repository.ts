@@ -59,7 +59,13 @@ export type CampaignAnnouncementListQuery = IPaginationQuery & {
     campaignId?: string
     /** Belirli müşteriyi içeren duyurular. */
     customerId?: string
+    /** Yöneticinin açık temsilci filtresi. */
     createdByUserId?: string
+    /**
+     * Temsilci kapsamı: duyuruyu bu kullanıcı oluşturmuş VEYA duyuru bu
+     * kullanıcının müşterilerinden birini hedefliyor olmalı.
+     */
+    salesScopeUserId?: string
     status?: CampaignAnnouncementRecipientStatus
 }
 
@@ -130,6 +136,21 @@ export const campaignAnnouncementRepository = (): IPrismaCampaignAnnouncementRep
             ...where,
             ...(query.campaignId ? { campaignId: query.campaignId } : {}),
             ...(query.createdByUserId ? { createdByUserId: query.createdByUserId } : {}),
+            // Temsilci kapsamı: kendi oluşturdukları VEYA kendi müşterilerini
+            // hedefleyenler. Yönetici bir temsilcinin portföyü için duyuru
+            // oluşturduğunda takibi yapacak kişi o duyuruyu görmeli.
+            ...(query.salesScopeUserId
+                ? {
+                    OR: [
+                        { createdByUserId: query.salesScopeUserId },
+                        {
+                            recipients: {
+                                some: { customer: { assignedSalesUserId: query.salesScopeUserId } },
+                            },
+                        },
+                    ],
+                }
+                : {}),
             // Müşteri ve durum filtreleri alıcı satırları üzerinden uygulanır.
             ...(query.customerId || query.status
                 ? {

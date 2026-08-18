@@ -378,10 +378,18 @@ model ProductIndustrialUsageTranslation {
 model Customer {
   id String @id @default(uuid())
 
+  /// Firma adı. Tekillik YOK: Türkiye'de aynı unvanla birden çok firma olabiliyor;
+  /// ayrım vergi numarası, adres ve konumdan yapılır.
   companyName            String?
-  fullName               String
+  /// Yetkili kişi adı. Veri girişi panelinde firma kaydedilirken boş bırakılabilir;
+  /// public web formunda ise ZORUNLUDUR (orada kişi kendini kaydeder). Kısıt bu
+  /// yüzden şemada değil, yüzeye özel validator'larda.
+  fullName               String?
   phone                  String
   email                  String
+  /// Firma web sitesi. Normalize edilerek saklanır ("acme.com" → "https://acme.com");
+  /// kural core/helpers/crm/customerWebsite.ts içinde.
+  websiteUrl             String?
   note                   String?        @db.Text
   status                 CustomerStatus @default(LEAD)
   generalDiscountPercent Decimal?       @db.Decimal(5, 2)

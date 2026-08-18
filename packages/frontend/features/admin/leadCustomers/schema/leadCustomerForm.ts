@@ -13,8 +13,14 @@ import type {
  * şeması da onları tanımıyor, iki taraf aynı daralmayı paylaşır.
  */
 export const leadCustomerFormSchema = z.object({
-    companyName: z.string().trim().max(255).optional().transform((value) => value || ""),
-    fullName: z.string().trim().min(2, "Yetkili adı en az 2 karakter olmalıdır").max(255),
+    // Kaydedilen şey bir FİRMA: firma adı zorunlu, yetkili sonradan öğrenilebilir.
+    // Aynı unvanla birden çok firma olabilir; tekillik kontrolü YOK (bkz.
+    // core/helpers/crm/customerDisplayName.ts).
+    companyName: z.string().trim().min(2, "Firma adı en az 2 karakter olmalıdır").max(255),
+    fullName: z.string().trim().max(255).optional().transform((value) => value || ""),
+    // Doğrulama ve kanonikleştirme sunucuda (core/helpers/crm/customerWebsite.ts);
+    // burada yalnız uzunluk sınırı var ki kural iki yerde ayrışmasın.
+    websiteUrl: z.string().trim().max(500).optional().transform((value) => value || ""),
     phone: z.string().trim().min(5, "Telefon çok kısa").max(50),
     email: z.email("Geçerli bir e-posta adresi girin"),
     note: z.string().trim().max(5000).optional().transform((value) => value || ""),
@@ -32,6 +38,7 @@ export function createLeadCustomerFormDefaults(
     return {
         companyName: customer?.companyName ?? "",
         fullName: customer?.fullName ?? "",
+        websiteUrl: customer?.websiteUrl ?? "",
         phone: customer?.phone ?? "",
         email: customer?.email ?? "",
         note: customer?.note ?? "",
@@ -45,8 +52,10 @@ export function buildLeadCustomerPayload(
     values: LeadCustomerFormValues,
 ): LeadCustomerProfileInput {
     return {
-        companyName: values.companyName || null,
-        fullName: values.fullName,
+        companyName: values.companyName,
+        // Boş bırakıldıysa null yazılır; şema artık nullable.
+        fullName: values.fullName || null,
+        websiteUrl: values.websiteUrl || null,
         phone: values.phone,
         email: values.email,
         note: values.note || null,

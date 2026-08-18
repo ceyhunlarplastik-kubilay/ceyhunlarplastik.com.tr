@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, Save } from "lucide-react"
+import { Loader2, MapPin, Pencil, Save, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -26,6 +26,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { CustomerAddressFormDialog } from "@/features/customerLocations/components/CustomerAddressFormDialog"
+import { normalizeAddressPayload } from "@/features/customerLocations/lib/addressPayload"
+import type { AddressDraftFormValues } from "@/features/customerPortal/components/requestComposer/schema"
 import {
     Select,
     SelectContent,
@@ -70,6 +73,10 @@ type Props = {
 
 export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCreated }: Props) {
     const isEditing = Boolean(customer)
+    // Oluşturmada adres AYNI dialogda toplanır ve kayıtla birlikte gider.
+    // Düzenlemede gösterilmez: mevcut adresler detay panelinden yönetiliyor.
+    const [addressDraft, setAddressDraft] = useState<AddressDraftFormValues | null>(null)
+    const [addressDialogOpen, setAddressDialogOpen] = useState(false)
     const attributesQuery = useAttributesForFilter()
     const createMutation = useCreateLeadCustomer()
     const updateMutation = useUpdateLeadCustomer(customer?.id ?? "")
@@ -86,6 +93,10 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
     }, [customer, form, open])
 
     const selectedSectorValueId = useWatch({ control: form.control, name: "sectorValueId" })
+    const selectedProductionGroupValueId = useWatch({
+        control: form.control,
+        name: "productionGroupValueId",
+    })
 
     const valuesByCode = useMemo(() => {
         const read = (code: string): AttributeValueOption[] =>
@@ -126,7 +137,12 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
             if (customer) {
                 await updateMutation.mutateAsync(payload)
             } else {
-                const created = await createMutation.mutateAsync(payload)
+                // Adres girildiyse AYNI istekte gider; girilmediyse kayıt sonrası
+                // detay panelinden eklenir (mevcut otomatik açılma korunur).
+                const created = await createMutation.mutateAsync({
+                    ...payload,
+                    ...(addressDraft ? { address: normalizeAddressPayload(addressDraft) } : {}),
+                })
                 onCreated?.(created.id)
             }
 
@@ -164,9 +180,22 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                         name="companyName"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Firma Adı</FormLabel>
+                                                <FormLabel>Firma Adı *</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Örn. Akdeniz Makine" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="websiteUrl"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Web Sitesi</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="acme.com" inputMode="url" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -177,7 +206,7 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                         name="fullName"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Yetkili Adı *</FormLabel>
+                                                <FormLabel>Yetkili Adı</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Ad Soyad" {...field} />
                                                 </FormControl>
@@ -347,6 +376,7 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                         productionGroupValues={valuesByCode.productionGroup}
                                                         sectorValues={valuesByCode.sector}
                                                         focusSectorId={selectedSectorValueId}
+                                                        focusProductionGroupId={selectedProductionGroupValueId}
                                                         selectedIds={field.value ?? []}
                                                         onToggle={toggleUsageArea}
                                                         onClear={() =>
@@ -362,6 +392,73 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                         )}
                                     />
                                 </div>
+
+                                {!isEditing ? (
+                                    <div className="rounded-2xl border border-neutral-200 p-4">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <div>
+                                                <div className="flex items-center gap-2 text-sm font-medium text-neutral-900">
+                                                    <MapPin className="h-4 w-4 text-neutral-500" />
+                                                    Adres
+                                                    <Badge variant="outline" className="rounded-full font-normal">
+                                                        Opsiyonel
+                                                    </Badge>
+                                                </div>
+                                                <p className="mt-1 text-xs text-neutral-500">
+                                                    Haritadan konum seçerek şimdi ekleyebilir ya da kayıttan
+                                                    sonra düzenleyebilirsiniz.
+                                                </p>
+                                            </div>
+
+                                            {!addressDraft ? (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    className="rounded-2xl"
+                                                    onClick={() => setAddressDialogOpen(true)}
+                                                >
+                                                    <MapPin className="h-4 w-4" />
+                                                    Adres Ekle
+                                                </Button>
+                                            ) : null}
+                                        </div>
+
+                                        {addressDraft ? (
+                                            <div className="mt-3 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+                                                <div className="min-w-0 text-xs text-neutral-700">
+                                                    <div className="font-medium text-neutral-900">
+                                                        {addressDraft.label}
+                                                    </div>
+                                                    <div className="truncate">
+                                                        {[addressDraft.line1, addressDraft.district, addressDraft.city]
+                                                            .filter(Boolean)
+                                                            .join(" · ")}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        aria-label="Adresi düzenle"
+                                                        onClick={() => setAddressDialogOpen(true)}
+                                                    >
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        aria-label="Adresi kaldır"
+                                                        onClick={() => setAddressDraft(null)}
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                ) : null}
                             </div>
                         </ScrollArea>
 
@@ -387,6 +484,24 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                     </form>
                 </Form>
             </DialogContent>
+
+            {/*
+              Adres dialogu API ÇAĞIRMAZ: taslağı yerel duruma alır, müşteri
+              kaydıyla aynı istekte gider. Böylece "müşteri oluştu ama adres
+              yazılamadı" gibi yarım durum oluşmaz.
+            */}
+            <CustomerAddressFormDialog
+                open={addressDialogOpen}
+                onOpenChange={setAddressDialogOpen}
+                initialValues={addressDraft}
+                title={addressDraft ? "Adresi Düzenle" : "Adres Ekle"}
+                description="Haritadan konum seçin; adres müşteri kaydıyla birlikte oluşturulacak."
+                submitLabel={addressDraft ? "Adresi Güncelle" : "Adresi Ekle"}
+                onSubmit={(values) => {
+                    setAddressDraft(values)
+                    setAddressDialogOpen(false)
+                }}
+            />
         </Dialog>
     )
 }

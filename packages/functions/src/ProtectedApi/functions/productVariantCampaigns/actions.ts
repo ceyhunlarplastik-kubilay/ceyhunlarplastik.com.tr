@@ -26,10 +26,11 @@ import type {
 } from "@/functions/ProtectedApi/types/productVariantCampaigns"
 
 /**
- * Kampanyayı yalnız satış müdürü, admin ve owner yönetir. Satış temsilcisi
- * (`sales`) kampanya OLUŞTURAMAZ; Aşama 2'de yalnız mevcut kampanyayı kendi
- * müşterilerine duyurabilecek.
+ * OKUMA ve YAZMA ayrı: kampanyayı yalnız satış müdürü/admin/owner OLUŞTURUP
+ * düzenler, ama satış temsilcisi kampanyayı GÖREBİLMELİ — duyuru yapabilmesi
+ * için kampanya listesine erişmesi şart (Aşama 2).
  */
+const campaignReaderGroups = ["sales", "sales_director", "admin", "owner"]
 const campaignManagerGroups = ["sales_director", "admin", "owner"]
 
 const deps = () => ({
@@ -40,7 +41,7 @@ const deps = () => ({
 export const listProductVariantCampaigns = lambdaHandler(
     async (event) => listProductVariantCampaignsHandler(deps())(event as IListProductVariantCampaignsEvent),
     {
-        auth: { requiredPermissionGroups: campaignManagerGroups },
+        auth: { requiredPermissionGroups: campaignReaderGroups },
         requestValidator: listProductVariantCampaignsValidator,
         responseValidator: listProductVariantCampaignsResponseValidator,
     },
@@ -49,7 +50,7 @@ export const listProductVariantCampaigns = lambdaHandler(
 export const getProductVariantCampaign = lambdaHandler(
     async (event) => getProductVariantCampaignHandler(deps())(event as IGetProductVariantCampaignEvent),
     {
-        auth: { requiredPermissionGroups: campaignManagerGroups },
+        auth: { requiredPermissionGroups: campaignReaderGroups },
         requestValidator: getProductVariantCampaignValidator,
         responseValidator: productVariantCampaignResponseValidator,
     },
