@@ -3551,6 +3551,72 @@ doğrulanması; prod deploy'da `GoogleMapsLocationRefresh` cron'unun oluştuğun
 non-prod stage'lerde OLUŞMADIĞININ teyidi; Google Console'da tarayıcı anahtarının
 referrer listesine canlı `.xyz` alan adının eklenmesi.
 
+## Varyant kod sistemi — Dilim 1a: saf kod çekirdeği (2026-08-20)
+
+**Neden:** Toplantı kararıyla varyant kodu `10.5.A.V1.8` → **`10.5.8.V1.A`**
+oluyor. Segment sırası değişikliği yüzeysel kısım; asıl sorun 3. segmentin
+(ölçü kodu) bugün `ProductVariant.variantIndex` olarak **elle** girilmesi. Ölçüyle
+hiçbir bağı olmadığı için aynı fiziksel ölçü farklı tedarikçi kataloglarından
+girildiğinde her seferinde yeni kod alabiliyor. Yeni kuralda ölçü kodu ölçünün
+kendisinden türer, ürün modeli içinde tekildir ve küçükten büyüğe verilir.
+
+**Onaylanan mimari kararlar (bu dilimden önce):**
+1. **Tedarikçi varyanttan ayrı satırda.** `ProductVariant` = ürün + ölçü + versiyon
+   (`10.5.8.V1`); tedarikçili tam kod `10.5.8.V1.A` `ProductVariantSupplier`'da.
+   Gerekçe: istenen yeni alanların TAMAMI tedarikçiye özel (tedarikçi kodu, logo,
+   koli adedi/ölçüsü, min sipariş, termin, alış fiyatı); ayrıca fiyat zinciri zaten
+   tedarikçiden bağımsız çözülüyor (`resolveListPrice` en düşük `listPrice`'ı seçer)
+   ve public tablo tedarikçi kopyalarını çalışma zamanında tekilleştiriyor
+   (`dedupeVariantTable.ts`) — yeni modelde bu hack gereksizleşiyor.
+2. **"Taslak + kilitle" numaralandırma.** Taslakta her kayıtta yeniden sıralanır;
+   `Product.variantCodesLockedAt` sonrası yeni ölçü sona eklenir (max+1).
+3. Giriş ekranı hem `/veri-girisi` hem `/admin` altında, ortak bileşenle.
+
+**Bu dilimde ne yapıldı:** Prisma'ya HİÇ dokunmayan, tamamen test edilebilir kod
+çekirdeği. Şema değişikliği bilinçli olarak Dilim 1b'ye bırakıldı: şema + tüketici
+uyarlaması aynı dilimde inmezse `typecheck:backend` ~50 dosyada kırılır ve dilim
+sonu DoD'u geçmez.
+
+`packages/core/src/core/helpers/productVariants/` (5 modül + 5 test):
+- `variantCode.ts` — kod üretme/ayrıştırma TEK KAYNAK. `fullCode` şablonu bugüne
+  kadar **dört ayrı yerde** elle kuruluyordu (`createProductVariantHandler.ts:31`,
+  `updateProductVariantHandler.ts:34`, `businessRequests/service.ts:743`, frontend
+  `CreateVariantDialog.tsx:937`) ve hiç testi yoktu. `parseVariantFullCode` sondan
+  ayrıştırır — `Product.code` nokta içerdiği için baştan saymak güvenli değil; bu,
+  `SuppliersPageClient.tsx:549`'daki `split(".").slice(0, 2)` hack'inin yerini alır.
+- `measurementValue.ts` — ölçü girdisi ayrıştırma; frontend'den core'a taşındı ki
+  UI ile sunucu aynı girdiyi aynı yorumlasın.
+- `sizeSignature.ts` — ölçünün tekilleştirme (`signature`) ve sıralama (`sortKey`)
+  anahtarları. Çok ölçülü ürünlerde ("M4 + 10 cm") sıralama şablondaki
+  `sortPriority` sırasına göre ÇOK ANAHTARLIDIR.
+- `versionSignature.ts` — renk + hammadde kombinasyonunun imzası ve ilk atama sırası.
+- `assignProductVariantCodes.ts` — saf planlayıcı; `industrialUsageFunctionPlan.ts`
+  desenini izler. Yalnız DEĞİŞEN satırları döndürür.
+
+**Yol boyunca bulunan ve düzeltilen hata:** frontend'in özgün
+`parseMeasurementInput`'u, girdi "M" ile başlıyorsa ondalık virgülü koruyor
+("M4,5"), başlamıyorsa noktaya çeviriyordu ("M4.5") — aynı diş iki farklı
+etiketle saklanabiliyordu. Core sürümü her iki dalda da noktaya normalize eder.
+
+**Tasarım notu — Postgres kısıtı:** taslakta yeniden numaralandırma 1↔2 takası
+üretebilir. `@@unique([productId, code])` bir unique INDEX olduğu için Postgres'te
+ERTELENEMEZ ve tek `UPDATE … UNNEST` ifadesinde çakışma verir. Bu yüzden plan
+`previousCode`/`requiresSizeRenumber` alanlarını taşır: Dilim 1b'deki writer önce
+mevcut kodları negatifleyip sonra nihai değerleri yazacak (iki fazlı).
+
+**Testler:** core 423 → **492** (+69; variantCode 18, measurementValue 10,
+sizeSignature 15, versionSignature 9, planlayıcı 17).
+
+**Doğrulama:** backend tsc ✅ · core 492 ✅ · functions 272 ✅.
+Frontend'e dokunulmadı (typecheck/lint kapsam dışı).
+
+**Sırada (Dilim 1b):** `schema.prisma` (5 yeni model: `ProductMeasurementRequirement`
++ çevirisi, `ProductSize`/`ProductSizeValue`, `ProductVersion`, `ProductSupplierCode`;
+`ProductVariant` yeniden tanımı; `ProductMeasurement` kaldırılıyor), elle yazılmış
+migration (**ayrı onay gerekiyor**), `writeProductVariantCodes.ts`, repository
+include'u ve mapper düzleştirmesi — DTO şekli korunarak (`measurements`/`color`/
+`materials` alanları `size`/`version`'dan düzleştirilir) tüketici churn'ü kısılır.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
