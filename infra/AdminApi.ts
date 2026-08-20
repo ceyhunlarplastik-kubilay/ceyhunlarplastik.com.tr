@@ -505,6 +505,40 @@ adminApi.route("DELETE /product-variants/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+/*----------------------- PRODUCT MEASUREMENT REQUIREMENTS -----------------------*/
+// Ürün modeline özel ölçü şablonu: bu modelde hangi ölçüler girilmeli.
+adminApi.route("GET /products/{id}/measurement-requirements", {
+    handler: `${folderPrefix}/productMeasurementRequirements/actions.listProductMeasurementRequirements`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /products/{id}/measurement-requirements", {
+    handler: `${folderPrefix}/productMeasurementRequirements/actions.replaceProductMeasurementRequirements`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+/*----------------------- PRODUCT VARIANT MATRIX -----------------------*/
+// Veri girişi operatörünün varyant giriş yüzeyi (ölçü/renk/hammadde/tedarikçi).
+adminApi.route("GET /products/{id}/variant-matrix", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.getProductVariantMatrix`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PUT /products/{id}/variant-matrix", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.saveProductVariantMatrix`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /products/{id}/variant-codes/lock", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.setVariantCodeLock`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /products/{id}/variant-codes/renumber", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.renumberVariantCodes`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- PRODUCTS -----------------------*/
 // P1.8(c): observability RequestEntityTooLarge alarmı için route referansı export edilir.
 export const adminListProductsRoute = adminApi.route("GET /products", {

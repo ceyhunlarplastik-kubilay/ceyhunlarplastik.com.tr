@@ -3705,6 +3705,67 @@ yalnız AD güncelliyor — ölçü/versiyon/tedarikçi değişimi Dilim 3'teki 
 **Sırada (Dilim 3):** ölçü şablonu CRUD'u ve `GET/PUT /products/{id}/variant-matrix`
 + kilitle/yeniden numaralandır uçları; `content_editor` yetkilendirmesi.
 
+## Varyant kod sistemi — Dilim 3: backend yüzeyi (2026-08-21)
+
+**Ne yapıldı:** Operatörün varyant girişi için gereken tüm backend uçları. Frontend
+Dilim 4'te; bu dilim uçları ve yetki sınırını kuruyor.
+
+**Yeni uçlar** ([infra/AdminApi.ts](infra/AdminApi.ts)):
+
+| Route | Rol | Ne yapar |
+|---|---|---|
+| `GET/PUT /products/{id}/measurement-requirements` | admin + content_editor | Ürün modeline özel ölçü şablonu (tam replace) |
+| `GET /products/{id}/variant-matrix` | admin + content_editor | Ekranın ihtiyaç duyduğu her şey tek çağrıda |
+| `PUT /products/{id}/variant-matrix` | admin + content_editor | Toplu satır kaydı (≤500 satır) |
+| `POST /products/{id}/variant-codes/lock` | **yalnız admin** | Kodları kilitle/aç |
+| `POST /products/{id}/variant-codes/renumber` | **yalnız admin** | Kilidi yok sayarak baştan numaralandır (`confirm: true` şart) |
+
+**Yetki ayrımı — `content_editor` ve marj alanları.** Operatör katalog + ALIŞ
+tarafını girer: `price` (tedarikçinin bize fiyatı), tedarikçi kodu, logo, koli
+adedi/ölçüleri/ağırlığı, min sipariş, termin, vade, para birimi. Marj alanları
+(`operationalCostRate`, `netCost`, `profitRate`, `listPrice`) müşteriye satış
+fiyatını belirlediği için operatöre kapalı: yanıtta hiç dönmez, istekte gönderilirse
+sessizce düşürülür. Kural tek yerde ve testli:
+[supplierFieldVisibility.ts](packages/core/src/core/helpers/productVariants/supplierFieldVisibility.ts).
+Şemadan tamamen çıkarmak yerine rolde kapı tutuldu — aksi hâlde admin de aynı uçtan
+marj yazamazdı.
+
+Kilit ve yeniden numaralandırma bilinçli olarak `content_editor`'a KAPALI: ikisi de
+kod düzenini kalıcı olarak etkiler.
+
+**Şablon değişikliği kodları bayatlatıyordu — kapatıldı.** `ProductSize.signature` ve
+`sortKey`, şablondaki etiket, ölçü kodu ve `sortPriority`'den türer. Şablon
+değiştiğinde bu anahtarlar yenilenmezse sıralama sessizce eskiye göre kalır ve
+"küçükten büyüğe" kuralı bozulur. `PUT /measurement-requirements` artık kaydın
+ardından [recalculateProductVariantCodes](packages/core/src/core/helpers/productVariants/productVariantMaintenance.ts)
+çağırıyor: anahtarlar UNNEST ile toplu yenileniyor, sonra kodlar yeniden planlanıyor.
+
+**Kullanımdaki ölçü korunuyor.** Şablondan `ProductSizeValue` taşıyan bir gereksinimi
+çıkarmaya çalışmak Prisma'nın ham P2003'ü yerine hangi ölçünün engel olduğunu söyleyen
+bir 409 döner.
+
+**Validator tuzakları** (CLAUDE.md): `.refine()` kullanılmadı — "aynı ölçü tipi + etiket
+iki kez gelemez" kuralı handler'da; `confirm: z.literal(true)` ile yıkıcı işlem niyeti
+açıkça isteniyor; response şemaları `.loose()` ve `apiResponseDTO` ile; Decimal alanlar
+`{s,e,d}` union'ıyla karşılanıyor.
+
+**Gerçek Postgres'te doğrulandı (7/7):** şablon kuruldu · çok ölçülü sıralama şablon
+önceliğine göre çalıştı (Kol Çapı baskın) · **öncelikler ters çevrilince ölçüler
+yeniden sıralandı** (40→60→90) · kilitliyken en küçük ölçü bile sona eklendi · zorla
+yeniden numaralandırma kilidi yok sayıp 12 kodu yeniden yazdı · kullanımdaki ölçü
+korundu · matris satırı beklenen alanları taşıyor.
+
+**Testler:** core 501 → **508** (+7; marj görünürlüğü). Validator derlemesi 245 → **256**.
+
+**Doğrulama:** backend tsc ✅ · core 508 ✅ · functions 272 ✅ · gerçek DB senaryosu 7/7 ✅.
+
+**Kullanıcıda bekleyen:** kubi'ye deploy (yeni Lambda route'ları). Ekran henüz yok;
+uçlar Dilim 4'teki matris arayüzüyle kullanılabilir hâle gelecek.
+
+**Sırada (Dilim 4):** `features/admin/productVariantMatrix` + `/veri-girisi/products/[id]/
+variants` ve `/admin/products/[id]/variants` route'ları; `CreateVariantDialog` (2274
+satır) kaldırılacak.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
