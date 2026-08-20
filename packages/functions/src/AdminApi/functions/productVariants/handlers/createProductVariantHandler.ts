@@ -1,88 +1,55 @@
 import createError, { HttpError } from "http-errors"
 import { Prisma } from "@/prisma/generated/prisma/client"
-import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/productVariantSupplier"
+import { prisma } from "@/core/db/prisma"
+import { upsertProductVariantRows } from "@/core/helpers/productVariants/productVariantWriter"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { IProductVariantDependencies, ICreateProductVariantEvent } from "@/functions/AdminApi/types/productVariants"
 
-export const createProductVariantHandler = ({ productVariantRepository, productRepository, supplierRepository, materialRepository }: IProductVariantDependencies) => {
+/**
+ * Tek varyant satırı oluşturur.
+ *
+ * Kod alanları (`versionCode`/`supplierCode`/`variantIndex`) ARTIK İSTEK GÖVDESİNDE
+ * YOK: ölçü kodu ölçünün kendisinden, versiyon renk+hammadde kombinasyonundan,
+ * tedarikçi harfi de ürün modeli içindeki ilk kullanım sırasından türetilir.
+ * Tüm iş `upsertProductVariantRows`'ta — Dilim 3'teki toplu matris endpoint'i de
+ * aynı yolu kullanacak.
+ */
+export const createProductVariantHandler = ({ productVariantRepository }: IProductVariantDependencies) => {
     return async (event: ICreateProductVariantEvent) => {
-        const { productId, variantIndex, suppliers, versionCode, supplierCode, name, colorId, materialIds, measurements } = event.body;
+        const { productId, name, colorId, materialIds, measurements, supplier } = event.body
 
         try {
-            const product = await productRepository.getProduct(productId)
-            if (!product) throw new createError.NotFound("Product not found");
+            const result = await prisma.$transaction(
+                async (tx) => {
+                    const written = await upsertProductVariantRows(tx, {
+                        productId,
+                        rows: [{
+                            name,
+                            measurements,
+                            colorId: colorId ?? null,
+                            materialIds: materialIds ?? [],
+                            supplier: supplier ?? null,
+                        }],
+                    })
+                    return written
+                },
+                { timeout: 15_000, maxWait: 10_000 },
+            )
 
-            // Validate all suppliers and ensure single active supplier
-            let activeSupplierCount = 0;
-            if (suppliers) {
-                for (const sup of suppliers) {
-                    const supplier = await supplierRepository.getSupplier(sup.id)
-                    if (!supplier) throw new createError.NotFound(`Supplier ${sup.id} not found`);
-                    if (sup.isActive) activeSupplierCount++;
-                }
-
-                if (activeSupplierCount > 1) {
-                    throw new createError.BadRequest("Only one supplier can be active for a variant");
-                }
+            // Aynı ölçü+versiyon zaten varsa YENİ varyant oluşmaz; bu bir hata
+            // değildir — mevcut varyanta ikinci bir tedarikçi eklemek geçerli bir
+            // işlemdir. Her iki durumda da etkilenen satır döndürülür.
+            const [variantId] = result.affectedVariantIds
+            if (!variantId) {
+                throw new createError.BadRequest("No variant row was produced for the given input")
             }
 
-            // Generate fullCode: <ProductCode>.<SupplierCode>.<VersionCode>.<VariantIndex>
-            // e.g. 1.9.A.V1.1
-            const fullCode = `${product.code}.${supplierCode}.${versionCode}.${variantIndex}`;
-
-            const variant = await productVariantRepository.createProductVariant({
-                product: { connect: { id: productId } },
-                versionCode,
-                supplierCode,
-                variantIndex,
-                fullCode,
-                name,
-                ...(colorId && { color: { connect: { id: colorId } } }),
-                ...(materialIds && materialIds.length > 0 && {
-                    materials: {
-                        connect: materialIds.map(id => ({ id }))
-                    }
-                }),
-                // Connect product variant suppliers
-                ...(suppliers && suppliers.length > 0 && {
-                    variantSuppliers: {
-                        create: suppliers.map(sup => ({
-                            supplier: { connect: { id: sup.id } },
-                            isActive: sup.isActive ?? false,
-                            ...resolveProductVariantSupplierPricing({
-                                price: sup.price,
-                                operationalCostRate: sup.operationalCostRate,
-                                netCost: sup.netCost,
-                                profitRate: sup.profitRate,
-                                listPrice: sup.listPrice,
-                            }),
-                            ...(typeof sup.paymentTermDays === "number" ? { paymentTermDays: sup.paymentTermDays } : {}),
-                            ...(sup.supplierVariantCode ? { supplierVariantCode: sup.supplierVariantCode.trim() } : {}),
-                            ...(sup.supplierNote ? { supplierNote: sup.supplierNote.trim() } : {}),
-                            ...(typeof sup.minOrderQty === "number" ? { minOrderQty: sup.minOrderQty } : {}),
-                            ...(typeof sup.stockQty === "number" ? { stockQty: sup.stockQty } : {}),
-                            ...((typeof sup.minOrderQty === "number" || typeof sup.stockQty === "number")
-                                ? { availabilityUpdatedAt: new Date() }
-                                : {}),
-                            ...(sup.currency && { currency: sup.currency.toUpperCase() }),
-                        }))
-                    }
-                }),
-                // Create measurements inline
-                ...(measurements && measurements.length > 0 && {
-                    measurements: {
-                        create: measurements.map((m: { measurementTypeId: string; value: number; label: string }) => ({
-                            measurementType: { connect: { id: m.measurementTypeId } },
-                            value: m.value,
-                            label: m.label,
-                        }))
-                    }
-                })
-            })
+            // Yazma sonrası kodlar nihai; satırı yeniden okuyup döndür.
+            const [variant] = await productVariantRepository.listProductVariantsByIds([variantId])
 
             return apiResponseDTO({
-                statusCode: 201,
-                payload: { productVariant: variant },
+                statusCode: result.createdVariants > 0 ? 201 : 200,
+                payload: { productVariant: variant ?? null },
             })
         } catch (err: any) {
             if (err instanceof HttpError) throw err;

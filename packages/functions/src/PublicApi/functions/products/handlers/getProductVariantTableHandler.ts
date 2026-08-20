@@ -2,7 +2,7 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
-import { dedupeAndPaginateVariantTable } from "@/core/helpers/products/dedupeVariantTable"
+import { paginateVariantTable } from "@/core/helpers/products/paginateVariantTable"
 import { mapPublicProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
 import { IProductVariantTableDependencies, IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
 
@@ -26,7 +26,7 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
             // P1.8(B0): PUBLIC — fiyat/tedarikçi çekilmez (includeListPrice yok).
             const rawVariants = await productVariantRepository.getProductVariantTableData(productId)
 
-            const { paginated, meta } = dedupeAndPaginateVariantTable(rawVariants, { page, limit, search, order })
+            const { paginated, meta } = paginateVariantTable(rawVariants, { page, limit, search, order })
 
             return apiResponseDTO({
                 statusCode: 200,

@@ -460,23 +460,6 @@ export type EnumWebRequestStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumWebRequestStatusFilter<$PrismaModel>
 }
 
-export type EnumMeasurementCodeFilter<$PrismaModel = never> = {
-  equals?: $Enums.MeasurementCode | Prisma.EnumMeasurementCodeFieldRefInput<$PrismaModel>
-  in?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel> | $Enums.MeasurementCode
-}
-
-export type EnumMeasurementCodeWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.MeasurementCode | Prisma.EnumMeasurementCodeFieldRefInput<$PrismaModel>
-  in?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumMeasurementCodeWithAggregatesFilter<$PrismaModel> | $Enums.MeasurementCode
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel>
-}
-
 export type FloatFilter<$PrismaModel = never> = {
   equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
@@ -502,6 +485,23 @@ export type FloatWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedFloatFilter<$PrismaModel>
   _min?: Prisma.NestedFloatFilter<$PrismaModel>
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type EnumMeasurementCodeFilter<$PrismaModel = never> = {
+  equals?: $Enums.MeasurementCode | Prisma.EnumMeasurementCodeFieldRefInput<$PrismaModel>
+  in?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel> | $Enums.MeasurementCode
+}
+
+export type EnumMeasurementCodeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MeasurementCode | Prisma.EnumMeasurementCodeFieldRefInput<$PrismaModel>
+  in?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMeasurementCodeWithAggregatesFilter<$PrismaModel> | $Enums.MeasurementCode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel>
 }
 
 export type EnumCustomerAssignedProductSourceFilter<$PrismaModel = never> = {
@@ -1242,6 +1242,22 @@ export type NestedEnumWebRequestStatusWithAggregatesFilter<$PrismaModel = never>
   _max?: Prisma.NestedEnumWebRequestStatusFilter<$PrismaModel>
 }
 
+export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
+  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
+  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
+  _min?: Prisma.NestedFloatFilter<$PrismaModel>
+  _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
 export type NestedEnumMeasurementCodeFilter<$PrismaModel = never> = {
   equals?: $Enums.MeasurementCode | Prisma.EnumMeasurementCodeFieldRefInput<$PrismaModel>
   in?: $Enums.MeasurementCode[] | Prisma.ListEnumMeasurementCodeFieldRefInput<$PrismaModel>
@@ -1257,22 +1273,6 @@ export type NestedEnumMeasurementCodeWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumMeasurementCodeFilter<$PrismaModel>
-}
-
-export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  notIn?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
-  lt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  lte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedFloatWithAggregatesFilter<$PrismaModel> | number
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _avg?: Prisma.NestedFloatFilter<$PrismaModel>
-  _sum?: Prisma.NestedFloatFilter<$PrismaModel>
-  _min?: Prisma.NestedFloatFilter<$PrismaModel>
-  _max?: Prisma.NestedFloatFilter<$PrismaModel>
 }
 
 export type NestedEnumCustomerAssignedProductSourceFilter<$PrismaModel = never> = {

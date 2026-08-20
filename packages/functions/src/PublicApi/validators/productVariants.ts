@@ -95,26 +95,24 @@ const measurementTypeSchema = z.object({
 
 const measurementSchema = z.object({
     id: z.string(),
-    variantId: z.string(),
-    measurementTypeId: z.string(),
     value: z.number(),
     label: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    measurementType: measurementTypeSchema,
-})
+    unit: z.string().nullable().optional(),
+    measurementType: measurementTypeSchema.nullable(),
+}).loose()
 
 
 export const productVariantSchema = z.object({
     id: z.string(),
     name: z.string(),
     productId: z.string(),
-    versionCode: z.string(),
-    supplierCode: z.string(),
-    variantIndex: z.number(),
+    productSizeId: z.string().optional(),
+    productVersionId: z.string().optional(),
+    sizeCode: z.number().nullable().optional(),
+    versionCode: z.string().nullable().optional(),
     fullCode: z.string(),
 
-    colorId: z.string().nullable(),
+    colorId: z.string().nullable().optional(),
 
     createdAt: z.string(),
     updatedAt: z.string(),
@@ -122,7 +120,8 @@ export const productVariantSchema = z.object({
     product: productSchema,
     color: colorSchema,
     materials: z.array(materialSchema),
-    variantSuppliers: z.array(variantSupplierSchema),
+    // variantSuppliers KASITLI OLARAK YOK: tedarikçi kimliği ve fiyatı public
+    // yanıta çıkmaz (bkz. repository.publicInclude).
     measurements: z.array(measurementSchema),
 })
 

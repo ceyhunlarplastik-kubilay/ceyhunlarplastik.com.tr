@@ -3,6 +3,7 @@ import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQ
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import type { CustomerVariantSpecialPrice, Prisma } from "@/prisma/generated/prisma/client"
+import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 
 const userSummarySelect = {
     id: true,
@@ -25,20 +26,8 @@ const specialPriceInclude = {
     },
     productVariant: {
         include: {
-            color: true,
-            materials: true,
+            ...productVariantStructureIncludeBasic,
             assets: true,
-            measurements: {
-                orderBy: [
-                    { measurementType: { displayOrder: "asc" } },
-                    { measurementType: { code: "asc" } },
-                    { value: "asc" },
-                    { label: "asc" },
-                ],
-                include: {
-                    measurementType: true,
-                },
-            },
             product: {
                 include: {
                     category: true,

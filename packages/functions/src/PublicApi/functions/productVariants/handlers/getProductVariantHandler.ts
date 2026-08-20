@@ -8,7 +8,7 @@ export const getProductVariantHandler = ({ productVariantRepository }: IProductV
         const { id } = event.pathParameters;
 
         try {
-            const variant = await productVariantRepository.getProductVariant(id);
+            const variant = await productVariantRepository.getPublicProductVariant(id);
             if (!variant) throw new createError.NotFound("ProductVariant not found");
 
             return apiResponseDTO({

@@ -1,4 +1,5 @@
 import { prisma } from "@/core/db/prisma"
+import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import type {
@@ -73,13 +74,7 @@ export const businessRequestInclude = {
                             assets: true,
                         },
                     },
-                    measurements: {
-                        include: {
-                            measurementType: true,
-                        },
-                    },
-                    color: true,
-                    materials: true,
+                    ...productVariantStructureIncludeBasic,
                 },
             },
         },

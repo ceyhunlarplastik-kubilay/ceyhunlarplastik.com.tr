@@ -158,9 +158,60 @@ export type GeoCity = Prisma.GeoCityModel
 export type WebRequest = Prisma.WebRequestModel
 /**
  * Model ProductVariant
+ * Varyant = ürün modeli + ÖLÇÜ + VERSİYON (renk & hammadde). Tedarikçi varyantın
+ * bir parçası DEĞİLDİR: aynı fiziksel ürünü birden çok tedarikçiden alabiliriz ve
+ * her tedarikçinin kendi kodu/fiyatı/koli bilgisi `ProductVariantSupplier`
+ * üzerinde yaşar. Tedarikçili tam kod (`10.5.8.V1.A`) da oradadır.
  * 
+ * Kod üretimi tek kaynaktan gelir:
+ * `core/helpers/productVariants/variantCode.ts` + `assignProductVariantCodes.ts`.
  */
 export type ProductVariant = Prisma.ProductVariantModel
+/**
+ * Model ProductMeasurementRequirement
+ * Ürün modeline özel ölçü şablonu: bu modelde HANGİ ölçülerin girilmesi gerektiği.
+ * `Category.allowedAttributeValueIds`'in ürün-modeli karşılığıdır, ama düz bir id
+ * listesi değil ilişki tablosudur — çünkü ölçü başına etiket, birim ve sıralama
+ * önceliği taşımamız gerekir: "1.1" modelinde `R` = "Elcik Çapı", "1.8" modelinde
+ * aynı `R` = "Kol Çapı".
+ */
+export type ProductMeasurementRequirement = Prisma.ProductMeasurementRequirementModel
+/**
+ * Model ProductMeasurementRequirementTranslation
+ * 
+ */
+export type ProductMeasurementRequirementTranslation = Prisma.ProductMeasurementRequirementTranslationModel
+/**
+ * Model ProductSize
+ * Ürün modeli içindeki bir ÖLÇÜ — kodun 3. segmenti.
+ * 
+ * `signature` tekilleştirme anahtarıdır: aynı fiziksel ölçü kaç farklı tedarikçi
+ * kataloğundan girilirse girilsin TEK kod alır (eski `variantIndex` elle girildiği
+ * için bunu sağlayamıyordu). `sortKey` ise "küçükten büyüğe" numaralandırmayı
+ * besler; çok ölçülü modellerde (ör. "M4 + 10 cm") şablondaki `sortPriority`
+ * sırasına göre çok anahtarlıdır. İkisi de
+ * `core/helpers/productVariants/sizeSignature.ts` tarafından üretilir.
+ */
+export type ProductSize = Prisma.ProductSizeModel
+/**
+ * Model ProductSizeValue
+ * 
+ */
+export type ProductSizeValue = Prisma.ProductSizeValueModel
+/**
+ * Model ProductVersion
+ * Ürün modeli içindeki RENK + HAMMADDE kombinasyonu — kodun 4. segmenti ("V1").
+ * Ölçüden farklı olarak doğal bir büyüklük sırası yoktur: ilk atamada derli toplu
+ * ve deterministik sıralanır, sonrasında append-only'dur.
+ */
+export type ProductVersion = Prisma.ProductVersionModel
+/**
+ * Model ProductSupplierCode
+ * Ürün modeli içinde tedarikçiye verilen harf — kodun 5. segmenti ("A").
+ * Kilit durumundan BAĞIMSIZ olarak her zaman append-only'dur: verilmiş bir harf
+ * asla başka tedarikçiye devredilmez, aradan çıkan tedarikçinin boşluğu doldurulmaz.
+ */
+export type ProductSupplierCode = Prisma.ProductSupplierCodeModel
 /**
  * Model MeasurementType
  * 
@@ -171,11 +222,6 @@ export type MeasurementType = Prisma.MeasurementTypeModel
  * 
  */
 export type MeasurementTypeTranslation = Prisma.MeasurementTypeTranslationModel
-/**
- * Model ProductMeasurement
- * 
- */
-export type ProductMeasurement = Prisma.ProductMeasurementModel
 /**
  * Model Supplier
  * 

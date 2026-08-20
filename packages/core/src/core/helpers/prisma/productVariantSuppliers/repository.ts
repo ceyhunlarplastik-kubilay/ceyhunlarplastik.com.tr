@@ -5,23 +5,28 @@ import { resolveProductVariantSupplierPricing } from "@/core/helpers/pricing/pro
 
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { Prisma, ProductVariantSupplier } from "@/prisma/generated/prisma/client"
+import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 
 export type ProductVariantSupplierWithRelations = Prisma.ProductVariantSupplierGetPayload<{
     include: {
         variant: {
             include: {
-                color: true
-                materials: true
-                measurements: {
+                size: {
                     include: {
-                        measurementType: true
+                        values: {
+                            include: {
+                                requirement: {
+                                    include: { measurementType: true }
+                                }
+                            }
+                        }
                     }
-                    orderBy: [
-                        { measurementType: { displayOrder: "asc" } },
-                        { measurementType: { code: "asc" } },
-                        { value: "asc" },
-                        { label: "asc" },
-                    ]
+                }
+                version: {
+                    include: {
+                        color: true
+                        materials: true
+                    }
                 }
                 product: {
                     include: {
@@ -128,19 +133,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                 include: {
                     variant: {
                         include: {
-                            color: true,
-                            materials: true,
-                            measurements: {
-                                include: {
-                                    measurementType: true,
-                                },
-                                orderBy: [
-                                    { measurementType: { displayOrder: "asc" } },
-                                    { measurementType: { code: "asc" } },
-                                    { value: "asc" },
-                                    { label: "asc" },
-                                ],
-                            },
+                            ...productVariantStructureIncludeBasic,
                             product: {
                                 include: {
                                     category: true,
@@ -168,19 +161,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             include: {
                 variant: {
                     include: {
-                        color: true,
-                        materials: true,
-                        measurements: {
-                            include: {
-                                measurementType: true,
-                            },
-                            orderBy: [
-                                { measurementType: { displayOrder: "asc" } },
-                                { measurementType: { code: "asc" } },
-                                { value: "asc" },
-                                { label: "asc" },
-                            ],
-                        },
+                        ...productVariantStructureIncludeBasic,
                         product: {
                             include: {
                                 category: true,
@@ -209,19 +190,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                     include: {
                         variant: {
                             include: {
-                                color: true,
-                                materials: true,
-                                measurements: {
-                                    include: {
-                                        measurementType: true,
-                                    },
-                                    orderBy: [
-                                        { measurementType: { displayOrder: "asc" } },
-                                        { measurementType: { code: "asc" } },
-                                        { value: "asc" },
-                                        { label: "asc" },
-                                    ],
-                                },
+                                ...productVariantStructureIncludeBasic,
                                 product: {
                                     include: {
                                         category: true,
@@ -240,19 +209,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             include: {
                 variant: {
                     include: {
-                        color: true,
-                        materials: true,
-                        measurements: {
-                            include: {
-                                measurementType: true,
-                            },
-                            orderBy: [
-                                { measurementType: { displayOrder: "asc" } },
-                                { measurementType: { code: "asc" } },
-                                { value: "asc" },
-                                { label: "asc" },
-                            ],
-                        },
+                        ...productVariantStructureIncludeBasic,
                         product: {
                             include: {
                                 category: true,
@@ -287,19 +244,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                             supplier: true,
                             variant: {
                                 include: {
-                                    color: true,
-                                    materials: true,
-                                    measurements: {
-                                        include: {
-                                            measurementType: true,
-                                        },
-                                        orderBy: [
-                                            { measurementType: { displayOrder: "asc" } },
-                                            { measurementType: { code: "asc" } },
-                                            { value: "asc" },
-                                            { label: "asc" },
-                                        ],
-                                    },
+                                    ...productVariantStructureIncludeBasic,
                                     product: {
                                         include: {
                                             category: true,
@@ -320,19 +265,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
                 supplier: true,
                 variant: {
                     include: {
-                        color: true,
-                        materials: true,
-                        measurements: {
-                            include: {
-                                measurementType: true,
-                            },
-                            orderBy: [
-                                { measurementType: { displayOrder: "asc" } },
-                                { measurementType: { code: "asc" } },
-                                { value: "asc" },
-                                { label: "asc" },
-                            ],
-                        },
+                        ...productVariantStructureIncludeBasic,
                         product: {
                             include: {
                                 category: true,
@@ -350,19 +283,7 @@ export const productVariantSupplierRepository = (): IPrismaProductVariantSupplie
             include: {
                 variant: {
                     include: {
-                        color: true,
-                        materials: true,
-                        measurements: {
-                            include: {
-                                measurementType: true,
-                            },
-                            orderBy: [
-                                { measurementType: { displayOrder: "asc" } },
-                                { measurementType: { code: "asc" } },
-                                { value: "asc" },
-                                { label: "asc" },
-                            ],
-                        },
+                        ...productVariantStructureIncludeBasic,
                         product: {
                             include: {
                                 category: true,

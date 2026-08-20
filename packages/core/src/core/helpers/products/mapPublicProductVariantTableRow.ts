@@ -1,5 +1,6 @@
 import { mapAsset } from "@/core/helpers/assets/mapProductWithAssets"
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
+import { formatVersionCode } from "@/core/helpers/productVariants/variantCode"
 import {
     localizeColor,
     localizeMaterial,
@@ -32,31 +33,51 @@ function mapVariantMeasurementType(measurementType: any, locale: SupportedLocale
 }
 
 /**
+ * Ürün modeline özel ölçü etiketi ("Kol Çapı"). Locale çevirisi varsa o, yoksa
+ * şablonun TR etiketi. Ölçü TİPİ adından (`measurementType.name`) farklıdır:
+ * aynı `R` kodu bir modelde "Elcik Çapı", diğerinde "Kol Çapı" olabilir.
+ */
+function resolveRequirementLabel(requirement: any, locale: SupportedLocale): string {
+    const translation = (requirement?.translations ?? []).find(
+        (entry: any) => entry.locale === locale,
+    )
+    return translation?.label ?? requirement?.label ?? ""
+}
+
+/**
  * Varyant tablosu satırının ORTAK (hassas olmayan) yapısı: ölçü, renk, hammadde,
  * kodlar. Ne fiyat ne tedarikçi içerir — public ve customer DTO'ları bunu paylaşır.
+ *
+ * DTO ŞEKLİ BİLİNÇLİ OLARAK KORUNUYOR: veri modelinde ölçüler `size.values`,
+ * renk/hammadde `version` altına taşındı, ama okuyan yüzeyler (public katalog,
+ * portal, kampanya, özel fiyat) hâlâ düz `measurements` / `color` / `materials`
+ * görür. Aksi hâlde ~50 dosya tek dilimde değişmek zorunda kalırdı.
  */
 function mapVariantTableStructure(
     variant: any,
     locale: SupportedLocale = DEFAULT_LOCALE,
 ) {
+    const sizeValues = variant.size?.values ?? []
+
     return {
         id: variant.id,
         productId: variant.productId,
         name: variant.name,
-        versionCode: variant.versionCode,
-        supplierCode: variant.supplierCode,
-        variantIndex: variant.variantIndex,
+        /// Kodun 3. segmenti — eski `variantIndex`'in yerini alır.
+        sizeCode: variant.size?.code ?? null,
+        versionCode: variant.version?.code ? formatVersionCode(variant.version.code) : null,
         fullCode: variant.fullCode,
-        colorId: variant.colorId ?? null,
-        color: mapVariantColor(variant.color, locale),
-        materials: (variant.materials ?? []).map((material: any) =>
+        colorId: variant.version?.colorId ?? null,
+        color: mapVariantColor(variant.version?.color, locale),
+        materials: (variant.version?.materials ?? []).map((material: any) =>
             mapVariantMaterial(material, locale),
         ),
-        measurements: (variant.measurements ?? []).map((measurement: any) => ({
-            id: measurement.id,
-            value: measurement.value,
-            label: measurement.label ?? "",
-            measurementType: mapVariantMeasurementType(measurement.measurementType, locale),
+        measurements: sizeValues.map((sizeValue: any) => ({
+            id: sizeValue.id,
+            value: sizeValue.value,
+            label: resolveRequirementLabel(sizeValue.requirement, locale),
+            unit: sizeValue.requirement?.unit ?? sizeValue.requirement?.measurementType?.baseUnit ?? null,
+            measurementType: mapVariantMeasurementType(sizeValue.requirement?.measurementType, locale),
         })),
         createdAt: variant.createdAt,
         updatedAt: variant.updatedAt,
@@ -83,7 +104,7 @@ export function mapPublicProductVariantTableRow(
  *
  * Public yapıya EK olarak yalnız liste fiyatı alanlarını taşır
  * (resolveMinListPrice'ın kullandığı): listPrice, currency, pricingUpdatedAt,
- * updatedAt. Tedarikçi kimliği (id/name) ve tedarikçi maliyeti (price/netCost/
+ * updatedAt. Tedarikçi kimliği (id/name/harf) ve tedarikçi maliyeti (price/netCost/
  * profitRate/...) HİÇ taşınmaz — bunlar admin/sales'e özgüdür (bkz. B0-admin).
  * Yalnız ProtectedApi (giriş yapmış) endpoint'inden döner.
  */

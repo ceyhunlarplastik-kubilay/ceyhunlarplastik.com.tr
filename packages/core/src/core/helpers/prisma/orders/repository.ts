@@ -3,6 +3,7 @@ import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginati
 import type { IPaginatedResult } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import type { OrderStatus, Prisma } from "@/prisma/generated/prisma/client"
+import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 
 export const orderInclude = {
     customer: {
@@ -58,13 +59,7 @@ export const orderInclude = {
                             assets: true,
                         },
                     },
-                    measurements: {
-                        include: {
-                            measurementType: true,
-                        },
-                    },
-                    color: true,
-                    materials: true,
+                    ...productVariantStructureIncludeBasic,
                 },
             },
         },

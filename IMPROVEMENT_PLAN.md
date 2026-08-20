@@ -3617,6 +3617,94 @@ migration (**ayrı onay gerekiyor**), `writeProductVariantCodes.ts`, repository
 include'u ve mapper düzleştirmesi — DTO şekli korunarak (`measurements`/`color`/
 `materials` alanları `size`/`version`'dan düzleştirilir) tüketici churn'ü kısılır.
 
+## Varyant kod sistemi — Dilim 1b: şema, migration, yazma zinciri (2026-08-21)
+
+**Ne yapıldı:** Yeni kod biçiminin (`10.5.8.V1` + tedarikçili `10.5.8.V1.A`) veri
+modeli ve yazma yolu. Dilim 1a'nın saf çekirdeği artık Prisma'ya bağlandı.
+
+**Şema — 6 yeni model:** `ProductMeasurementRequirement` (+`Translation`),
+`ProductSize` + `ProductSizeValue`, `ProductVersion`, `ProductSupplierCode`.
+`ProductVariant` = ürün + ölçü + versiyon olarak yeniden tanımlandı
+(`versionCode`/`supplierCode`/`variantIndex`/`colorId`/`materials`/`measurements`
+kaldırıldı). `ProductMeasurement` tamamen kaldırıldı — frontend'de hiçbir
+tüketicisi yoktu, ölçüler varyant başına tekrar ettiği için kod tekilliğini
+imkânsız kılıyordu. `ProductVariantSupplier`'a `fullCode`/`supplierCode` + logo,
+koli adedi/ölçüleri/ağırlığı, minimum termin eklendi.
+
+**Churn kısıtlama kararı:** `variant.measurements` / `.color` / `.materials` ~50
+dosyada okunuyordu. Veri modeli `size`/`version`'a taşınırken **DTO şekli
+korundu** (`flattenVariantStructure.ts` + mapper düzleştirmesi). Sonuç: kırılan
+dosya sayısı 13'te kaldı, elli değil. DTO'da yalnız `supplierCode`/`variantIndex`
+gitti, yerine `sizeCode` geldi.
+
+**`dedupeVariantTable.ts` silindi.** Aynı fiziksel ürünün her tedarikçi için ayrı
+varyant satırı olması yüzünden çalışma zamanında parmak izi çıkarıp tekilleştirme
+yapılıyordu; yeni modelde satırlar kurgu gereği tekil. Yerine yalnız arama/
+sıralama/sayfalama yapan `paginateVariantTable.ts` geldi.
+
+**`SUPPLIER_VARIANT_CREATE` düzeltildi.** Bu yol `fullCode`'u elle kuruyor ve admin
+yolundaki regex doğrulamasını (`/^V[0-9]+$/`, `/^[A-Z]$/`) tamamen atlıyordu; artık
+ortak `upsertProductVariantRows` üzerinden geçiyor.
+
+**Ek kapsam — public fiyat sızıntısı kapatıldı.** Public `GET /product-variants` ve
+`/product-variants/{id}` admin ile aynı repository include'unu kullandığı için
+tedarikçi adını ve `price`/`netCost`/`profitRate`/`listPrice` alanlarını public
+yanıtta döndürüyordu (kural yalnız `/products/{id}/variant-table` yolunda
+uygulanmıştı). Public'e özel include eklendi; public `/product-variant-suppliers`
+route'ları tamamen kaldırıldı.
+
+### 🔴 Migration gerçek Postgres'te doğrulandı — 3 hata yakalandı
+
+Migration'ı "yazdım, göndereyim" demek yerine tek kullanımlık bir Postgres 17
+ayağa kaldırılıp 74 migration'lık zincir baştan sona çalıştırıldı. Üç ayrı hata
+ancak bu sayede çıktı:
+
+1. **Üç indeks adı yanlıştı.** Prisma adları 63 karaktere kendi kuralıyla kısaltıyor;
+   elle yazdığım adlar tutmuyordu. `migrate diff` bunları `RenameIndex` olarak
+   raporladı. Düzeltildikten sonra diff **"This is an empty migration"** (exit 0) —
+   yani migration şemayı birebir üretiyor.
+
+2. **Faz sırası hatalıydı.** Yeni satırlar NİHAİ kodlarıyla INSERT ediliyor, ama
+   "park etme" fazı insert'lerden SONRA çalışıyordu. Taslakta araya 11 cm
+   girildiğinde yeni satırın alacağı kod (2) hâlâ 12 cm'in üzerindeydi →
+   `@@unique([productId, code])` ihlali. Park etme insert'lerden önceye alındı.
+
+3. **Park etme kapsamı fazla genişti.** Ürünün TÜM satırları negatifleniyor, ama
+   faz 2 yalnız DEĞİŞEN satırları geri yazıyordu → değişmeyen bir ölçünün kodu
+   kalıcı olarak negatif kalırdı. Kapsam tam olarak güncellenecek satırlara
+   daraltıldı. Aynı sorunun `fullCode` karşılığı da çıktı: metin ve GLOBAL unique
+   olduğu için negatiflenemiyor, `~` ön ekiyle park ediliyor.
+
+**Neden park etme gerekli:** `@@unique([productId, code])` bir unique INDEX'tir ve
+Postgres'te unique index ERTELENEMEZ (yalnız unique CONSTRAINT deferrable olabilir,
+Prisma index üretir). Taslak yeniden numaralandırma 1↔2 takası ürettiği için tek
+ifadede çakışma kaçınılmaz.
+
+**Uçtan uca senaryo (gerçek DB'de koştu, 6/6):** 10/12/30 cm → `1/2/3` · aynı 10 cm
+ikinci tedarikçiden → yeni ölçü kodu ÜRETİLMEDİ, `10.5.1.V1.A` + `10.5.1.V1.B` ·
+taslakta araya 11 cm → yeniden sıralandı (11→2, 12→3, 30→4) · kilitten sonra 40 cm →
+sona eklendi (5) · kilitliyken 5 cm → en küçük olmasına rağmen sona eklendi (6) ·
+şablon dışı ölçü reddedildi.
+
+**Testler:** core 497 → **501** (+4; park etme kapsamı regresyon testleri).
+Mapper testi yeni `size`/`version` yapısına taşındı ve genişletildi (1 → 6 test).
+
+**Doğrulama:** backend tsc ✅ · core 501 ✅ · functions 261 ✅ (245 validator
+derleniyor) · `prisma migrate deploy` (74 migration) ✅ · `migrate diff` boş ✅.
+
+**Kullanıcıda bekleyen:** kubi'de `migrate deploy`. Migration YIKICI: tüm
+`ProductVariant` satırları ve cascade ile bağlıları silinir (`OrderItem` /
+`BusinessRequestItem` `SetNull` ile korunur).
+
+**Bilinçli olarak kırık bırakılan:** frontend varyant ekranı. DTO'da
+`supplierCode`/`variantIndex` yerine `sizeCode` geldiği için `/admin/products/[id]/
+variants` çalışmaz; frontend kendi elle yazılmış tiplerini kullandığından typecheck
+yine de geçiyor. Dilim 4/5'te düzelecek. Admin `PUT /product-variants/{id}` şimdilik
+yalnız AD güncelliyor — ölçü/versiyon/tedarikçi değişimi Dilim 3'teki matris akışına ait.
+
+**Sırada (Dilim 3):** ölçü şablonu CRUD'u ve `GET/PUT /products/{id}/variant-matrix`
++ kilitle/yeniden numaralandır uçları; `content_editor` yetkilendirmesi.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

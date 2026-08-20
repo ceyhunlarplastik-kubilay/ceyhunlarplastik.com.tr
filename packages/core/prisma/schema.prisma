@@ -114,7 +114,9 @@ model Color {
   rgbB     Int?
   isActive Boolean     @default(true)
 
-  variants     ProductVariant[]
+  // Renk artık varyanta doğrudan değil, ürün modeli içindeki versiyona
+  // (renk + hammadde kombinasyonu = "V1") bağlanır.
+  versions     ProductVersion[]
   translations ColorTranslation[]
 
   createdAt DateTime @default(now())
@@ -205,7 +207,22 @@ model Product {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
+  /// Varyant kodları kilitlendi mi. null = TASLAK: ürüne her varyant kaydında
+  /// ölçüler yeniden sıralanıp 1..N numaralanır, kodlar kendiliğinden düzelir.
+  /// Dolu = KİLİTLİ: mevcut hiçbir kod değişmez, yeni ölçü sona eklenir (max+1).
+  /// Kilit, kodlar katalog/teklif/sipariş üzerinden dışarı çıktıktan sonra
+  /// geçmişin bozulmaması içindir.
+  variantCodesLockedAt       DateTime?
+  variantCodesLockedByUserId String?
+
   variants            ProductVariant[]
+  // Varyant kod sisteminin ürün-modeli başına tutulan sözlükleri:
+  // ölçü şablonu (hangi ölçüler zorunlu), ölçü kayıtları (kodun 3. segmenti),
+  // versiyonlar (4. segment) ve tedarikçi harfleri (5. segment).
+  measurementRequirements ProductMeasurementRequirement[]
+  sizes                   ProductSize[]
+  versions                ProductVersion[]
+  supplierCodes           ProductSupplierCode[]
   assets              Asset[]
   attributeValues     ProductAttributeValue[]
   industrialUsages    ProductIndustrialUsage[]
@@ -658,9 +675,16 @@ enum WebRequestStatus {
 }
 
 ///////////////////////////////////////////////////////
-// PRODUCT VARIANT (10.11.B.V1)
+// PRODUCT VARIANT (10.5.8.V1)
 ///////////////////////////////////////////////////////
 
+/// Varyant = ürün modeli + ÖLÇÜ + VERSİYON (renk & hammadde). Tedarikçi varyantın
+/// bir parçası DEĞİLDİR: aynı fiziksel ürünü birden çok tedarikçiden alabiliriz ve
+/// her tedarikçinin kendi kodu/fiyatı/koli bilgisi `ProductVariantSupplier`
+/// üzerinde yaşar. Tedarikçili tam kod (`10.5.8.V1.A`) da oradadır.
+///
+/// Kod üretimi tek kaynaktan gelir:
+/// `core/helpers/productVariants/variantCode.ts` + `assignProductVariantCodes.ts`.
 model ProductVariant {
   id String @id @default(uuid())
 
@@ -668,19 +692,18 @@ model ProductVariant {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 
-  versionCode  String
-  supplierCode String // 10.11.B
-  variantIndex Int // 1, 2, 3...
+  /// Kodun 3. segmenti buradan gelir (ProductSize.code).
+  productSizeId String
+  size          ProductSize @relation(fields: [productSizeId], references: [id], onDelete: Restrict)
 
+  /// Kodun 4. segmenti buradan gelir (ProductVersion.code → "V1").
+  productVersionId String
+  version          ProductVersion @relation(fields: [productVersionId], references: [id], onDelete: Restrict)
+
+  /// "10.5.8.V1" — tedarikçi harfi İÇERMEZ.
   fullCode String @unique
 
-  colorId String?
-  color   Color?  @relation(fields: [colorId], references: [id])
-
-  materials Material[]
-
-  measurements ProductMeasurement[]
-  assets       Asset[]
+  assets Asset[]
 
   createdAt             DateTime                      @default(now())
   updatedAt             DateTime                      @updatedAt
@@ -691,9 +714,163 @@ model ProductVariant {
   customerSpecialPrices CustomerVariantSpecialPrice[]
   campaignItems         ProductVariantCampaignItem[]
 
-  @@unique([productId, supplierCode, versionCode, variantIndex])
+  @@unique([productId, productSizeId, productVersionId])
   @@index([productId])
+  @@index([productSizeId])
+  @@index([productVersionId])
+}
+
+/// Ürün modeline özel ölçü şablonu: bu modelde HANGİ ölçülerin girilmesi gerektiği.
+/// `Category.allowedAttributeValueIds`'in ürün-modeli karşılığıdır, ama düz bir id
+/// listesi değil ilişki tablosudur — çünkü ölçü başına etiket, birim ve sıralama
+/// önceliği taşımamız gerekir: "1.1" modelinde `R` = "Elcik Çapı", "1.8" modelinde
+/// aynı `R` = "Kol Çapı".
+model ProductMeasurementRequirement {
+  id String @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  measurementTypeId String
+  measurementType   MeasurementType @relation(fields: [measurementTypeId], references: [id], onDelete: Restrict)
+
+  /// Ürün modeline özel görünen ad — "Kol Çapı", "Burç Metriği".
+  label String
+  /// null → MeasurementType.baseUnit. Şablon cm/mm farkını burada ezebilir.
+  unit  String?
+
+  isRequired Boolean @default(true)
+  /// Ölçü KODU sıralamasında anahtar önceliği (küçük olan baskın).
+  sortPriority Int @default(0)
+  /// Tablo kolon sırası.
+  displayOrder Int @default(0)
+
+  translations ProductMeasurementRequirementTranslation[]
+  sizeValues   ProductSizeValue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, measurementTypeId, label])
+  @@index([productId, displayOrder])
+  @@index([measurementTypeId])
+}
+
+model ProductMeasurementRequirementTranslation {
+  id            String @id @default(uuid())
+  requirementId String
+  locale        String @db.VarChar(16)
+  label         String
+
+  requirement ProductMeasurementRequirement @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([requirementId, locale])
+  @@index([locale, requirementId])
+}
+
+/// Ürün modeli içindeki bir ÖLÇÜ — kodun 3. segmenti.
+///
+/// `signature` tekilleştirme anahtarıdır: aynı fiziksel ölçü kaç farklı tedarikçi
+/// kataloğundan girilirse girilsin TEK kod alır (eski `variantIndex` elle girildiği
+/// için bunu sağlayamıyordu). `sortKey` ise "küçükten büyüğe" numaralandırmayı
+/// besler; çok ölçülü modellerde (ör. "M4 + 10 cm") şablondaki `sortPriority`
+/// sırasına göre çok anahtarlıdır. İkisi de
+/// `core/helpers/productVariants/sizeSignature.ts` tarafından üretilir.
+model ProductSize {
+  id String @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  /// 1..N. Taslakta yeniden numaralanır, kilitten sonra append-only.
+  code      Int
+  signature String
+  sortKey   String
+
+  values   ProductSizeValue[]
+  variants ProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, signature])
+  @@unique([productId, code])
+  @@index([productId, sortKey])
+}
+
+model ProductSizeValue {
+  id String @id @default(uuid())
+
+  productSizeId String
+  productSize   ProductSize @relation(fields: [productSizeId], references: [id], onDelete: Cascade)
+
+  /// Şablonda tanımlı olmayan ölçü girilemesin diye doğrudan gereksinime bağlanır;
+  /// Restrict, kullanımdaki bir gereksinimin sessizce silinmesini de engeller.
+  requirementId String
+  requirement   ProductMeasurementRequirement @relation(fields: [requirementId], references: [id], onDelete: Restrict)
+
+  value Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productSizeId, requirementId])
+  @@index([requirementId])
+}
+
+/// Ürün modeli içindeki RENK + HAMMADDE kombinasyonu — kodun 4. segmenti ("V1").
+/// Ölçüden farklı olarak doğal bir büyüklük sırası yoktur: ilk atamada derli toplu
+/// ve deterministik sıralanır, sonrasında append-only'dur.
+model ProductVersion {
+  id String @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  code Int
+
+  colorId String?
+  color   Color?  @relation(fields: [colorId], references: [id], onDelete: Restrict)
+
+  /// Hammadde ÇOKLUDUR — eski ProductVariant.materials m2m davranışı korunuyor.
+  materials Material[]
+
+  signature String
+
+  variants ProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, signature])
+  @@unique([productId, code])
+  @@index([productId, code])
   @@index([colorId])
+}
+
+/// Ürün modeli içinde tedarikçiye verilen harf — kodun 5. segmenti ("A").
+/// Kilit durumundan BAĞIMSIZ olarak her zaman append-only'dur: verilmiş bir harf
+/// asla başka tedarikçiye devredilmez, aradan çıkan tedarikçinin boşluğu doldurulmaz.
+model ProductSupplierCode {
+  id String @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  supplierId String
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  code String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, supplierId])
+  @@unique([productId, code])
+  @@index([supplierId])
 }
 
 ///////////////////////////////////////////////////////
@@ -728,7 +905,9 @@ model MeasurementType {
   baseUnit     String // mm, degree, kg
   displayOrder Int             @default(0)
 
-  measurements  ProductMeasurement[]
+  // Ölçüler artık varyanta doğrudan değil, ürün modelinin ölçü şablonuna ve
+  // oradan ProductSizeValue'ya bağlanır.
+  requirements  ProductMeasurementRequirement[]
   translations  MeasurementTypeTranslation[]
 
   createdAt DateTime @default(now())
@@ -750,30 +929,10 @@ model MeasurementTypeTranslation {
   @@index([locale, measurementTypeId])
 }
 
-///////////////////////////////////////////////////////
-// PRODUCT MEASUREMENT
-///////////////////////////////////////////////////////
-
-model ProductMeasurement {
-  id String @id @default(uuid())
-
-  variantId String
-  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
-
-  measurementTypeId String
-  measurementType   MeasurementType @relation(fields: [measurementTypeId], references: [id])
-
-  value Float
-  label String @default("")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([variantId, measurementTypeId, label])
-  @@index([variantId])
-  @@index([measurementTypeId])
-  @@index([measurementTypeId, value])
-}
+// ProductMeasurement kaldırıldı: ölçüler artık varyant başına DEĞİL, ürün modeli
+// başına tekilleştirilmiş ProductSize/ProductSizeValue üzerinde tutuluyor. Aksi
+// hâlde aynı fiziksel ölçü her tedarikçi satırında tekrar edip kod tekilliğini
+// imkânsız kılıyordu.
 
 model Supplier {
   id String @id @default(uuid())
@@ -788,6 +947,8 @@ model Supplier {
   assignedPurchasingSuppliers User[]  @relation("SupplierPurchasingAssignments")
 
   variantSuppliers ProductVariantSupplier[]
+  /// Ürün modeli başına verilen harf (kodun 5. segmenti).
+  productCodes     ProductSupplierCode[]
   users            User[]
   businessRequests BusinessRequest[]
 
@@ -992,13 +1153,25 @@ model ProductVariantSupplier {
   supplierId String
   supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
-  isActive              Boolean   @default(false)
+  /// Ürün modeli içindeki tedarikçi harfi ("A") — ProductSupplierCode'dan yazılan
+  /// snapshot. Aramanın ve gösterimin join'siz çalışması için burada da tutulur.
+  supplierCode String?
+  /// Tedarikçili TAM kod: "10.5.8.V1.A".
+  fullCode     String? @unique
+
+  isActive Boolean @default(false)
+
+  // ── Fiyat zinciri ────────────────────────────────────────────────────────────
+  // DİKKAT: `price` TEDARİKÇİNİN BİZE fiyatıdır (alış) — operatörün "liste fiyatı"
+  // dediği alan budur. `listPrice` ise BİZİM MÜŞTERİYE liste fiyatımızdır ve
+  // netCost × (1 + profitRate) ile türetilir (bkz. helpers/pricing/productVariantSupplier.ts).
   price                 Decimal   @default(0) @db.Decimal(10, 2)
   operationalCostRate   Decimal?  @db.Decimal(5, 2)
   netCost               Decimal?  @db.Decimal(10, 2)
   profitRate            Decimal?  @db.Decimal(5, 2)
   listPrice             Decimal?  @db.Decimal(10, 2)
   paymentTermDays       Int?
+  /// Tedarikçinin kendi ürün kodu — "AS231".
   supplierVariantCode   String?
   supplierNote          String?   @db.Text
   pricingUpdatedAt      DateTime?
@@ -1006,12 +1179,26 @@ model ProductVariantSupplier {
   stockQty              Int?
   availabilityUpdatedAt DateTime?
   currency              String    @default("TRY")
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+
+  // ── Tedarikçiye özel ürün/lojistik bilgisi ───────────────────────────────────
+  /// Ürünün üzerinde tedarikçinin kendi logosu var mı.
+  hasSupplierLogo Boolean  @default(false)
+  /// Bir kolide/pakette kaç adet.
+  unitsPerPackage Int?
+  packageLengthMm Decimal? @db.Decimal(10, 2)
+  packageWidthMm  Decimal? @db.Decimal(10, 2)
+  packageHeightMm Decimal? @db.Decimal(10, 2)
+  packageWeightKg Decimal? @db.Decimal(10, 3)
+  /// Minimum termin süresi (gün).
+  minLeadTimeDays Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([variantId, supplierId])
   @@index([variantId])
   @@index([supplierId])
+  @@index([supplierCode])
 }
 
 ///////////////////////////////////////////////////////
@@ -1472,7 +1659,8 @@ model Material {
   name String
   code String? // PP, PE, PVC gibi
 
-  variants     ProductVariant[]
+  // bkz. Color.versions — hammadde de versiyona bağlanır.
+  versions     ProductVersion[]
   assets       Asset[]
   translations MaterialTranslation[]
 

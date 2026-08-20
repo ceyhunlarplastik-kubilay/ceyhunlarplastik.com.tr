@@ -35,6 +35,12 @@ export type ProductVariantSupplierAvgAggregateOutputType = {
   paymentTermDays: number | null
   minOrderQty: number | null
   stockQty: number | null
+  unitsPerPackage: number | null
+  packageLengthMm: runtime.Decimal | null
+  packageWidthMm: runtime.Decimal | null
+  packageHeightMm: runtime.Decimal | null
+  packageWeightKg: runtime.Decimal | null
+  minLeadTimeDays: number | null
 }
 
 export type ProductVariantSupplierSumAggregateOutputType = {
@@ -46,12 +52,20 @@ export type ProductVariantSupplierSumAggregateOutputType = {
   paymentTermDays: number | null
   minOrderQty: number | null
   stockQty: number | null
+  unitsPerPackage: number | null
+  packageLengthMm: runtime.Decimal | null
+  packageWidthMm: runtime.Decimal | null
+  packageHeightMm: runtime.Decimal | null
+  packageWeightKg: runtime.Decimal | null
+  minLeadTimeDays: number | null
 }
 
 export type ProductVariantSupplierMinAggregateOutputType = {
   id: string | null
   variantId: string | null
   supplierId: string | null
+  supplierCode: string | null
+  fullCode: string | null
   isActive: boolean | null
   price: runtime.Decimal | null
   operationalCostRate: runtime.Decimal | null
@@ -66,6 +80,13 @@ export type ProductVariantSupplierMinAggregateOutputType = {
   stockQty: number | null
   availabilityUpdatedAt: Date | null
   currency: string | null
+  hasSupplierLogo: boolean | null
+  unitsPerPackage: number | null
+  packageLengthMm: runtime.Decimal | null
+  packageWidthMm: runtime.Decimal | null
+  packageHeightMm: runtime.Decimal | null
+  packageWeightKg: runtime.Decimal | null
+  minLeadTimeDays: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,6 +95,8 @@ export type ProductVariantSupplierMaxAggregateOutputType = {
   id: string | null
   variantId: string | null
   supplierId: string | null
+  supplierCode: string | null
+  fullCode: string | null
   isActive: boolean | null
   price: runtime.Decimal | null
   operationalCostRate: runtime.Decimal | null
@@ -88,6 +111,13 @@ export type ProductVariantSupplierMaxAggregateOutputType = {
   stockQty: number | null
   availabilityUpdatedAt: Date | null
   currency: string | null
+  hasSupplierLogo: boolean | null
+  unitsPerPackage: number | null
+  packageLengthMm: runtime.Decimal | null
+  packageWidthMm: runtime.Decimal | null
+  packageHeightMm: runtime.Decimal | null
+  packageWeightKg: runtime.Decimal | null
+  minLeadTimeDays: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -96,6 +126,8 @@ export type ProductVariantSupplierCountAggregateOutputType = {
   id: number
   variantId: number
   supplierId: number
+  supplierCode: number
+  fullCode: number
   isActive: number
   price: number
   operationalCostRate: number
@@ -110,6 +142,13 @@ export type ProductVariantSupplierCountAggregateOutputType = {
   stockQty: number
   availabilityUpdatedAt: number
   currency: number
+  hasSupplierLogo: number
+  unitsPerPackage: number
+  packageLengthMm: number
+  packageWidthMm: number
+  packageHeightMm: number
+  packageWeightKg: number
+  minLeadTimeDays: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -125,6 +164,12 @@ export type ProductVariantSupplierAvgAggregateInputType = {
   paymentTermDays?: true
   minOrderQty?: true
   stockQty?: true
+  unitsPerPackage?: true
+  packageLengthMm?: true
+  packageWidthMm?: true
+  packageHeightMm?: true
+  packageWeightKg?: true
+  minLeadTimeDays?: true
 }
 
 export type ProductVariantSupplierSumAggregateInputType = {
@@ -136,12 +181,20 @@ export type ProductVariantSupplierSumAggregateInputType = {
   paymentTermDays?: true
   minOrderQty?: true
   stockQty?: true
+  unitsPerPackage?: true
+  packageLengthMm?: true
+  packageWidthMm?: true
+  packageHeightMm?: true
+  packageWeightKg?: true
+  minLeadTimeDays?: true
 }
 
 export type ProductVariantSupplierMinAggregateInputType = {
   id?: true
   variantId?: true
   supplierId?: true
+  supplierCode?: true
+  fullCode?: true
   isActive?: true
   price?: true
   operationalCostRate?: true
@@ -156,6 +209,13 @@ export type ProductVariantSupplierMinAggregateInputType = {
   stockQty?: true
   availabilityUpdatedAt?: true
   currency?: true
+  hasSupplierLogo?: true
+  unitsPerPackage?: true
+  packageLengthMm?: true
+  packageWidthMm?: true
+  packageHeightMm?: true
+  packageWeightKg?: true
+  minLeadTimeDays?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -164,6 +224,8 @@ export type ProductVariantSupplierMaxAggregateInputType = {
   id?: true
   variantId?: true
   supplierId?: true
+  supplierCode?: true
+  fullCode?: true
   isActive?: true
   price?: true
   operationalCostRate?: true
@@ -178,6 +240,13 @@ export type ProductVariantSupplierMaxAggregateInputType = {
   stockQty?: true
   availabilityUpdatedAt?: true
   currency?: true
+  hasSupplierLogo?: true
+  unitsPerPackage?: true
+  packageLengthMm?: true
+  packageWidthMm?: true
+  packageHeightMm?: true
+  packageWeightKg?: true
+  minLeadTimeDays?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -186,6 +255,8 @@ export type ProductVariantSupplierCountAggregateInputType = {
   id?: true
   variantId?: true
   supplierId?: true
+  supplierCode?: true
+  fullCode?: true
   isActive?: true
   price?: true
   operationalCostRate?: true
@@ -200,6 +271,13 @@ export type ProductVariantSupplierCountAggregateInputType = {
   stockQty?: true
   availabilityUpdatedAt?: true
   currency?: true
+  hasSupplierLogo?: true
+  unitsPerPackage?: true
+  packageLengthMm?: true
+  packageWidthMm?: true
+  packageHeightMm?: true
+  packageWeightKg?: true
+  minLeadTimeDays?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -295,6 +373,8 @@ export type ProductVariantSupplierGroupByOutputType = {
   id: string
   variantId: string
   supplierId: string
+  supplierCode: string | null
+  fullCode: string | null
   isActive: boolean
   price: runtime.Decimal
   operationalCostRate: runtime.Decimal | null
@@ -309,6 +389,13 @@ export type ProductVariantSupplierGroupByOutputType = {
   stockQty: number | null
   availabilityUpdatedAt: Date | null
   currency: string
+  hasSupplierLogo: boolean
+  unitsPerPackage: number | null
+  packageLengthMm: runtime.Decimal | null
+  packageWidthMm: runtime.Decimal | null
+  packageHeightMm: runtime.Decimal | null
+  packageWeightKg: runtime.Decimal | null
+  minLeadTimeDays: number | null
   createdAt: Date
   updatedAt: Date
   _count: ProductVariantSupplierCountAggregateOutputType | null
@@ -340,6 +427,8 @@ export type ProductVariantSupplierWhereInput = {
   id?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   variantId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   supplierId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
+  supplierCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  fullCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
   isActive?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -354,6 +443,13 @@ export type ProductVariantSupplierWhereInput = {
   stockQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
   availabilityUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringFilter<"ProductVariantSupplier"> | string
+  hasSupplierLogo?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
+  unitsPerPackage?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  packageLengthMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
@@ -364,6 +460,8 @@ export type ProductVariantSupplierOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  fullCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
   operationalCostRate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -378,6 +476,13 @@ export type ProductVariantSupplierOrderByWithRelationInput = {
   stockQty?: Prisma.SortOrderInput | Prisma.SortOrder
   availabilityUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasSupplierLogo?: Prisma.SortOrder
+  unitsPerPackage?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageLengthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageWidthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageHeightMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageWeightKg?: Prisma.SortOrderInput | Prisma.SortOrder
+  minLeadTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   variant?: Prisma.ProductVariantOrderByWithRelationInput
@@ -386,12 +491,14 @@ export type ProductVariantSupplierOrderByWithRelationInput = {
 
 export type ProductVariantSupplierWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  fullCode?: string
   variantId_supplierId?: Prisma.ProductVariantSupplierVariantIdSupplierIdCompoundUniqueInput
   AND?: Prisma.ProductVariantSupplierWhereInput | Prisma.ProductVariantSupplierWhereInput[]
   OR?: Prisma.ProductVariantSupplierWhereInput[]
   NOT?: Prisma.ProductVariantSupplierWhereInput | Prisma.ProductVariantSupplierWhereInput[]
   variantId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   supplierId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
+  supplierCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
   isActive?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -406,16 +513,25 @@ export type ProductVariantSupplierWhereUniqueInput = Prisma.AtLeast<{
   stockQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
   availabilityUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringFilter<"ProductVariantSupplier"> | string
+  hasSupplierLogo?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
+  unitsPerPackage?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  packageLengthMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   variant?: Prisma.XOR<Prisma.ProductVariantScalarRelationFilter, Prisma.ProductVariantWhereInput>
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
-}, "id" | "variantId_supplierId">
+}, "id" | "fullCode" | "variantId_supplierId">
 
 export type ProductVariantSupplierOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  fullCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
   operationalCostRate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -430,6 +546,13 @@ export type ProductVariantSupplierOrderByWithAggregationInput = {
   stockQty?: Prisma.SortOrderInput | Prisma.SortOrder
   availabilityUpdatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasSupplierLogo?: Prisma.SortOrder
+  unitsPerPackage?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageLengthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageWidthMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageHeightMm?: Prisma.SortOrderInput | Prisma.SortOrder
+  packageWeightKg?: Prisma.SortOrderInput | Prisma.SortOrder
+  minLeadTimeDays?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductVariantSupplierCountOrderByAggregateInput
@@ -446,6 +569,8 @@ export type ProductVariantSupplierScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ProductVariantSupplier"> | string
   variantId?: Prisma.StringWithAggregatesFilter<"ProductVariantSupplier"> | string
   supplierId?: Prisma.StringWithAggregatesFilter<"ProductVariantSupplier"> | string
+  supplierCode?: Prisma.StringNullableWithAggregatesFilter<"ProductVariantSupplier"> | string | null
+  fullCode?: Prisma.StringNullableWithAggregatesFilter<"ProductVariantSupplier"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -460,12 +585,21 @@ export type ProductVariantSupplierScalarWhereWithAggregatesInput = {
   stockQty?: Prisma.IntNullableWithAggregatesFilter<"ProductVariantSupplier"> | number | null
   availabilityUpdatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringWithAggregatesFilter<"ProductVariantSupplier"> | string
+  hasSupplierLogo?: Prisma.BoolWithAggregatesFilter<"ProductVariantSupplier"> | boolean
+  unitsPerPackage?: Prisma.IntNullableWithAggregatesFilter<"ProductVariantSupplier"> | number | null
+  packageLengthMm?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.DecimalNullableWithAggregatesFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.IntNullableWithAggregatesFilter<"ProductVariantSupplier"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariantSupplier"> | Date | string
 }
 
 export type ProductVariantSupplierCreateInput = {
   id?: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -480,6 +614,13 @@ export type ProductVariantSupplierCreateInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variant: Prisma.ProductVariantCreateNestedOneWithoutVariantSuppliersInput
@@ -490,6 +631,8 @@ export type ProductVariantSupplierUncheckedCreateInput = {
   id?: string
   variantId: string
   supplierId: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -504,12 +647,21 @@ export type ProductVariantSupplierUncheckedCreateInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductVariantSupplierUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -524,6 +676,13 @@ export type ProductVariantSupplierUpdateInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutVariantSuppliersNestedInput
@@ -534,6 +693,8 @@ export type ProductVariantSupplierUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -548,6 +709,13 @@ export type ProductVariantSupplierUncheckedUpdateInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -556,6 +724,8 @@ export type ProductVariantSupplierCreateManyInput = {
   id?: string
   variantId: string
   supplierId: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -570,12 +740,21 @@ export type ProductVariantSupplierCreateManyInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductVariantSupplierUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -590,6 +769,13 @@ export type ProductVariantSupplierUpdateManyMutationInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -598,6 +784,8 @@ export type ProductVariantSupplierUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -612,6 +800,13 @@ export type ProductVariantSupplierUncheckedUpdateManyInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -635,6 +830,8 @@ export type ProductVariantSupplierCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  fullCode?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
   operationalCostRate?: Prisma.SortOrder
@@ -649,6 +846,13 @@ export type ProductVariantSupplierCountOrderByAggregateInput = {
   stockQty?: Prisma.SortOrder
   availabilityUpdatedAt?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasSupplierLogo?: Prisma.SortOrder
+  unitsPerPackage?: Prisma.SortOrder
+  packageLengthMm?: Prisma.SortOrder
+  packageWidthMm?: Prisma.SortOrder
+  packageHeightMm?: Prisma.SortOrder
+  packageWeightKg?: Prisma.SortOrder
+  minLeadTimeDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -662,12 +866,20 @@ export type ProductVariantSupplierAvgOrderByAggregateInput = {
   paymentTermDays?: Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   stockQty?: Prisma.SortOrder
+  unitsPerPackage?: Prisma.SortOrder
+  packageLengthMm?: Prisma.SortOrder
+  packageWidthMm?: Prisma.SortOrder
+  packageHeightMm?: Prisma.SortOrder
+  packageWeightKg?: Prisma.SortOrder
+  minLeadTimeDays?: Prisma.SortOrder
 }
 
 export type ProductVariantSupplierMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  fullCode?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
   operationalCostRate?: Prisma.SortOrder
@@ -682,6 +894,13 @@ export type ProductVariantSupplierMaxOrderByAggregateInput = {
   stockQty?: Prisma.SortOrder
   availabilityUpdatedAt?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasSupplierLogo?: Prisma.SortOrder
+  unitsPerPackage?: Prisma.SortOrder
+  packageLengthMm?: Prisma.SortOrder
+  packageWidthMm?: Prisma.SortOrder
+  packageHeightMm?: Prisma.SortOrder
+  packageWeightKg?: Prisma.SortOrder
+  minLeadTimeDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -690,6 +909,8 @@ export type ProductVariantSupplierMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   variantId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  supplierCode?: Prisma.SortOrder
+  fullCode?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   price?: Prisma.SortOrder
   operationalCostRate?: Prisma.SortOrder
@@ -704,6 +925,13 @@ export type ProductVariantSupplierMinOrderByAggregateInput = {
   stockQty?: Prisma.SortOrder
   availabilityUpdatedAt?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  hasSupplierLogo?: Prisma.SortOrder
+  unitsPerPackage?: Prisma.SortOrder
+  packageLengthMm?: Prisma.SortOrder
+  packageWidthMm?: Prisma.SortOrder
+  packageHeightMm?: Prisma.SortOrder
+  packageWeightKg?: Prisma.SortOrder
+  minLeadTimeDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -717,6 +945,12 @@ export type ProductVariantSupplierSumOrderByAggregateInput = {
   paymentTermDays?: Prisma.SortOrder
   minOrderQty?: Prisma.SortOrder
   stockQty?: Prisma.SortOrder
+  unitsPerPackage?: Prisma.SortOrder
+  packageLengthMm?: Prisma.SortOrder
+  packageWidthMm?: Prisma.SortOrder
+  packageHeightMm?: Prisma.SortOrder
+  packageWeightKg?: Prisma.SortOrder
+  minLeadTimeDays?: Prisma.SortOrder
 }
 
 export type ProductVariantSupplierCreateNestedManyWithoutVariantInput = {
@@ -813,6 +1047,8 @@ export type DecimalFieldUpdateOperationsInput = {
 
 export type ProductVariantSupplierCreateWithoutVariantInput = {
   id?: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -827,6 +1063,13 @@ export type ProductVariantSupplierCreateWithoutVariantInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutVariantSuppliersInput
@@ -835,6 +1078,8 @@ export type ProductVariantSupplierCreateWithoutVariantInput = {
 export type ProductVariantSupplierUncheckedCreateWithoutVariantInput = {
   id?: string
   supplierId: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -849,6 +1094,13 @@ export type ProductVariantSupplierUncheckedCreateWithoutVariantInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -886,6 +1138,8 @@ export type ProductVariantSupplierScalarWhereInput = {
   id?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   variantId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
   supplierId?: Prisma.StringFilter<"ProductVariantSupplier"> | string
+  supplierCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
+  fullCode?: Prisma.StringNullableFilter<"ProductVariantSupplier"> | string | null
   isActive?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
   price?: Prisma.DecimalFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -900,12 +1154,21 @@ export type ProductVariantSupplierScalarWhereInput = {
   stockQty?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
   availabilityUpdatedAt?: Prisma.DateTimeNullableFilter<"ProductVariantSupplier"> | Date | string | null
   currency?: Prisma.StringFilter<"ProductVariantSupplier"> | string
+  hasSupplierLogo?: Prisma.BoolFilter<"ProductVariantSupplier"> | boolean
+  unitsPerPackage?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
+  packageLengthMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.DecimalNullableFilter<"ProductVariantSupplier"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.IntNullableFilter<"ProductVariantSupplier"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariantSupplier"> | Date | string
 }
 
 export type ProductVariantSupplierCreateWithoutSupplierInput = {
   id?: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -920,6 +1183,13 @@ export type ProductVariantSupplierCreateWithoutSupplierInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variant: Prisma.ProductVariantCreateNestedOneWithoutVariantSuppliersInput
@@ -928,6 +1198,8 @@ export type ProductVariantSupplierCreateWithoutSupplierInput = {
 export type ProductVariantSupplierUncheckedCreateWithoutSupplierInput = {
   id?: string
   variantId: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -942,6 +1214,13 @@ export type ProductVariantSupplierUncheckedCreateWithoutSupplierInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -975,6 +1254,8 @@ export type ProductVariantSupplierUpdateManyWithWhereWithoutSupplierInput = {
 export type ProductVariantSupplierCreateManyVariantInput = {
   id?: string
   supplierId: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -989,12 +1270,21 @@ export type ProductVariantSupplierCreateManyVariantInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductVariantSupplierUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1009,6 +1299,13 @@ export type ProductVariantSupplierUpdateWithoutVariantInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutVariantSuppliersNestedInput
@@ -1017,6 +1314,8 @@ export type ProductVariantSupplierUpdateWithoutVariantInput = {
 export type ProductVariantSupplierUncheckedUpdateWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1031,6 +1330,13 @@ export type ProductVariantSupplierUncheckedUpdateWithoutVariantInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1038,6 +1344,8 @@ export type ProductVariantSupplierUncheckedUpdateWithoutVariantInput = {
 export type ProductVariantSupplierUncheckedUpdateManyWithoutVariantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1052,6 +1360,13 @@ export type ProductVariantSupplierUncheckedUpdateManyWithoutVariantInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1059,6 +1374,8 @@ export type ProductVariantSupplierUncheckedUpdateManyWithoutVariantInput = {
 export type ProductVariantSupplierCreateManySupplierInput = {
   id?: string
   variantId: string
+  supplierCode?: string | null
+  fullCode?: string | null
   isActive?: boolean
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1073,12 +1390,21 @@ export type ProductVariantSupplierCreateManySupplierInput = {
   stockQty?: number | null
   availabilityUpdatedAt?: Date | string | null
   currency?: string
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: number | null
+  packageLengthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ProductVariantSupplierUpdateWithoutSupplierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1093,6 +1419,13 @@ export type ProductVariantSupplierUpdateWithoutSupplierInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variant?: Prisma.ProductVariantUpdateOneRequiredWithoutVariantSuppliersNestedInput
@@ -1101,6 +1434,8 @@ export type ProductVariantSupplierUpdateWithoutSupplierInput = {
 export type ProductVariantSupplierUncheckedUpdateWithoutSupplierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1115,6 +1450,13 @@ export type ProductVariantSupplierUncheckedUpdateWithoutSupplierInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1122,6 +1464,8 @@ export type ProductVariantSupplierUncheckedUpdateWithoutSupplierInput = {
 export type ProductVariantSupplierUncheckedUpdateManyWithoutSupplierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   variantId?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fullCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   operationalCostRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1136,6 +1480,13 @@ export type ProductVariantSupplierUncheckedUpdateManyWithoutSupplierInput = {
   stockQty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   availabilityUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  hasSupplierLogo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitsPerPackage?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageLengthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWidthMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageHeightMm?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  packageWeightKg?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  minLeadTimeDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1146,6 +1497,8 @@ export type ProductVariantSupplierSelect<ExtArgs extends runtime.Types.Extension
   id?: boolean
   variantId?: boolean
   supplierId?: boolean
+  supplierCode?: boolean
+  fullCode?: boolean
   isActive?: boolean
   price?: boolean
   operationalCostRate?: boolean
@@ -1160,6 +1513,13 @@ export type ProductVariantSupplierSelect<ExtArgs extends runtime.Types.Extension
   stockQty?: boolean
   availabilityUpdatedAt?: boolean
   currency?: boolean
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: boolean
+  packageLengthMm?: boolean
+  packageWidthMm?: boolean
+  packageHeightMm?: boolean
+  packageWeightKg?: boolean
+  minLeadTimeDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
@@ -1170,6 +1530,8 @@ export type ProductVariantSupplierSelectCreateManyAndReturn<ExtArgs extends runt
   id?: boolean
   variantId?: boolean
   supplierId?: boolean
+  supplierCode?: boolean
+  fullCode?: boolean
   isActive?: boolean
   price?: boolean
   operationalCostRate?: boolean
@@ -1184,6 +1546,13 @@ export type ProductVariantSupplierSelectCreateManyAndReturn<ExtArgs extends runt
   stockQty?: boolean
   availabilityUpdatedAt?: boolean
   currency?: boolean
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: boolean
+  packageLengthMm?: boolean
+  packageWidthMm?: boolean
+  packageHeightMm?: boolean
+  packageWeightKg?: boolean
+  minLeadTimeDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
@@ -1194,6 +1563,8 @@ export type ProductVariantSupplierSelectUpdateManyAndReturn<ExtArgs extends runt
   id?: boolean
   variantId?: boolean
   supplierId?: boolean
+  supplierCode?: boolean
+  fullCode?: boolean
   isActive?: boolean
   price?: boolean
   operationalCostRate?: boolean
@@ -1208,6 +1579,13 @@ export type ProductVariantSupplierSelectUpdateManyAndReturn<ExtArgs extends runt
   stockQty?: boolean
   availabilityUpdatedAt?: boolean
   currency?: boolean
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: boolean
+  packageLengthMm?: boolean
+  packageWidthMm?: boolean
+  packageHeightMm?: boolean
+  packageWeightKg?: boolean
+  minLeadTimeDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
@@ -1218,6 +1596,8 @@ export type ProductVariantSupplierSelectScalar = {
   id?: boolean
   variantId?: boolean
   supplierId?: boolean
+  supplierCode?: boolean
+  fullCode?: boolean
   isActive?: boolean
   price?: boolean
   operationalCostRate?: boolean
@@ -1232,11 +1612,18 @@ export type ProductVariantSupplierSelectScalar = {
   stockQty?: boolean
   availabilityUpdatedAt?: boolean
   currency?: boolean
+  hasSupplierLogo?: boolean
+  unitsPerPackage?: boolean
+  packageLengthMm?: boolean
+  packageWidthMm?: boolean
+  packageHeightMm?: boolean
+  packageWeightKg?: boolean
+  minLeadTimeDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductVariantSupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "supplierId" | "isActive" | "price" | "operationalCostRate" | "netCost" | "profitRate" | "listPrice" | "paymentTermDays" | "supplierVariantCode" | "supplierNote" | "pricingUpdatedAt" | "minOrderQty" | "stockQty" | "availabilityUpdatedAt" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariantSupplier"]>
+export type ProductVariantSupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "variantId" | "supplierId" | "supplierCode" | "fullCode" | "isActive" | "price" | "operationalCostRate" | "netCost" | "profitRate" | "listPrice" | "paymentTermDays" | "supplierVariantCode" | "supplierNote" | "pricingUpdatedAt" | "minOrderQty" | "stockQty" | "availabilityUpdatedAt" | "currency" | "hasSupplierLogo" | "unitsPerPackage" | "packageLengthMm" | "packageWidthMm" | "packageHeightMm" | "packageWeightKg" | "minLeadTimeDays" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariantSupplier"]>
 export type ProductVariantSupplierInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variant?: boolean | Prisma.ProductVariantDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
@@ -1260,6 +1647,15 @@ export type $ProductVariantSupplierPayload<ExtArgs extends runtime.Types.Extensi
     id: string
     variantId: string
     supplierId: string
+    /**
+     * Ürün modeli içindeki tedarikçi harfi ("A") — ProductSupplierCode'dan yazılan
+     * snapshot. Aramanın ve gösterimin join'siz çalışması için burada da tutulur.
+     */
+    supplierCode: string | null
+    /**
+     * Tedarikçili TAM kod: "10.5.8.V1.A".
+     */
+    fullCode: string | null
     isActive: boolean
     price: runtime.Decimal
     operationalCostRate: runtime.Decimal | null
@@ -1267,6 +1663,9 @@ export type $ProductVariantSupplierPayload<ExtArgs extends runtime.Types.Extensi
     profitRate: runtime.Decimal | null
     listPrice: runtime.Decimal | null
     paymentTermDays: number | null
+    /**
+     * Tedarikçinin kendi ürün kodu — "AS231".
+     */
     supplierVariantCode: string | null
     supplierNote: string | null
     pricingUpdatedAt: Date | null
@@ -1274,6 +1673,22 @@ export type $ProductVariantSupplierPayload<ExtArgs extends runtime.Types.Extensi
     stockQty: number | null
     availabilityUpdatedAt: Date | null
     currency: string
+    /**
+     * Ürünün üzerinde tedarikçinin kendi logosu var mı.
+     */
+    hasSupplierLogo: boolean
+    /**
+     * Bir kolide/pakette kaç adet.
+     */
+    unitsPerPackage: number | null
+    packageLengthMm: runtime.Decimal | null
+    packageWidthMm: runtime.Decimal | null
+    packageHeightMm: runtime.Decimal | null
+    packageWeightKg: runtime.Decimal | null
+    /**
+     * Minimum termin süresi (gün).
+     */
+    minLeadTimeDays: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productVariantSupplier"]>
@@ -1704,6 +2119,8 @@ export interface ProductVariantSupplierFieldRefs {
   readonly id: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
   readonly variantId: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
   readonly supplierId: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
+  readonly supplierCode: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
+  readonly fullCode: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
   readonly isActive: Prisma.FieldRef<"ProductVariantSupplier", 'Boolean'>
   readonly price: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
   readonly operationalCostRate: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
@@ -1718,6 +2135,13 @@ export interface ProductVariantSupplierFieldRefs {
   readonly stockQty: Prisma.FieldRef<"ProductVariantSupplier", 'Int'>
   readonly availabilityUpdatedAt: Prisma.FieldRef<"ProductVariantSupplier", 'DateTime'>
   readonly currency: Prisma.FieldRef<"ProductVariantSupplier", 'String'>
+  readonly hasSupplierLogo: Prisma.FieldRef<"ProductVariantSupplier", 'Boolean'>
+  readonly unitsPerPackage: Prisma.FieldRef<"ProductVariantSupplier", 'Int'>
+  readonly packageLengthMm: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly packageWidthMm: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly packageHeightMm: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly packageWeightKg: Prisma.FieldRef<"ProductVariantSupplier", 'Decimal'>
+  readonly minLeadTimeDays: Prisma.FieldRef<"ProductVariantSupplier", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ProductVariantSupplier", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductVariantSupplier", 'DateTime'>
 }

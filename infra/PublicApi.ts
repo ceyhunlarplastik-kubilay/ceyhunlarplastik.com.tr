@@ -176,17 +176,6 @@ publicApi.route("GET /materials/{id}", {
     ...defaultOptions,
 });
 
-/*----------------------- PRODUCT VARIANT SUPPLIERS -----------------------*/
-publicApi.route("GET /product-variant-suppliers", {
-    handler: `${folderPrefix}/productVariantSuppliers/actions.listProductVariantSuppliers`,
-    ...defaultOptions
-});
-
-publicApi.route("GET /product-variant-suppliers/{id}", {
-    handler: `${folderPrefix}/productVariantSuppliers/actions.getProductVariantSupplier`,
-    ...defaultOptions
-});
-
 /*----------------------- PRODUCT VARIANTS -----------------------*/
 publicApi.route("GET /product-variants", {
     handler: `${folderPrefix}/productVariants/actions.listProductVariants`,
@@ -198,16 +187,6 @@ publicApi.route("GET /product-variants/{id}", {
     ...defaultOptions
 });
 
-/*----------------------- PRODUCT MEASUREMENTS -----------------------*/
-publicApi.route("GET /product-measurements", {
-    handler: `${folderPrefix}/productMeasurements/actions.listProductMeasurements`,
-    ...defaultOptions,
-});
-
-publicApi.route("GET /product-measurements/{id}", {
-    handler: `${folderPrefix}/productMeasurements/actions.getProductMeasurement`,
-    ...defaultOptions,
-});
 /*----------------------- PRODUCTS -----------------------*/
 export const listProductsRoute = publicApi.route("GET /products", {
     handler: `${folderPrefix}/products/actions.listProducts`,

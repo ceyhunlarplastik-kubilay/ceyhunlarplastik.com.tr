@@ -9,38 +9,102 @@ import { colorTranslationSelect } from "@/core/helpers/prisma/colors/repository"
 import { materialTranslationSelect } from "@/core/helpers/prisma/materials/repository"
 import { measurementTypeTranslationSelect } from "@/core/helpers/prisma/measurementTypes/repository"
 
+/**
+ * Varyantın YAPISAL include'u: ölçü (size) ve versiyon (renk + hammadde).
+ *
+ * Ölçüler artık varyanta değil ürün modelinin ÖLÇÜ KAYDINA bağlı; renk/hammadde de
+ * varyanta değil VERSİYONA bağlı. Okuyan taraf bunu bilmek zorunda kalmasın diye
+ * `mapPublicProductVariantTableRow.ts` düzleştirip eski DTO şeklini (`measurements`,
+ * `color`, `materials`) korur.
+ */
+export const productVariantStructureInclude = {
+    size: {
+        include: {
+            values: {
+                include: {
+                    requirement: {
+                        include: {
+                            measurementType: {
+                                include: {
+                                    translations: {
+                                        orderBy: { locale: "asc" as const },
+                                        select: measurementTypeTranslationSelect,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    version: {
+        include: {
+            color: {
+                include: {
+                    translations: {
+                        orderBy: { locale: "asc" as const },
+                        select: colorTranslationSelect,
+                    },
+                },
+            },
+            materials: {
+                include: {
+                    assets: true,
+                    translations: {
+                        orderBy: { locale: "asc" as const },
+                        select: materialTranslationSelect,
+                    },
+                },
+            },
+        },
+    },
+} satisfies Prisma.ProductVariantInclude
+
 export type ProductVariantWithRelations = Prisma.ProductVariantGetPayload<{
     include: {
         product: true
-        color: {
+        size: {
             include: {
-                translations: {
-                    select: typeof colorTranslationSelect
+                values: {
+                    include: {
+                        requirement: {
+                            include: {
+                                measurementType: {
+                                    include: {
+                                        translations: {
+                                            select: typeof measurementTypeTranslationSelect
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-        materials: {
+        version: {
             include: {
-                assets: true
-                translations: {
-                    select: typeof materialTranslationSelect
+                color: {
+                    include: {
+                        translations: {
+                            select: typeof colorTranslationSelect
+                        }
+                    }
+                }
+                materials: {
+                    include: {
+                        assets: true
+                        translations: {
+                            select: typeof materialTranslationSelect
+                        }
+                    }
                 }
             }
         }
         variantSuppliers: {
             include: {
                 supplier: true
-            }
-        }
-        measurements: {
-            include: {
-                measurementType: {
-                    include: {
-                        translations: {
-                            select: typeof measurementTypeTranslationSelect
-                        }
-                    }
-                }
             }
         }
     }
@@ -57,8 +121,12 @@ export interface IPrismaProductVariantRepository {
         }
     }>
     getProductVariant(id: string): Promise<ProductVariantWithRelations | null>
+    listPublicProductVariants(query: IPaginationQuery): Promise<{
+        data: any[]
+        meta: { page: number; limit: number; total: number; totalPages: number }
+    }>
+    getPublicProductVariant(id: string): Promise<any | null>
     listProductVariantsByIds(ids: string[]): Promise<ProductVariantWithRelations[]>
-    countProductVariants(productId: string, versionCode: string): Promise<number>
     createProductVariant(data: Prisma.ProductVariantCreateInput): Promise<ProductVariant>
     updateProductVariant(id: string, data: Prisma.ProductVariantUpdateInput): Promise<ProductVariant>
     deleteProductVariant(id: string): Promise<ProductVariant>
@@ -67,39 +135,31 @@ export interface IPrismaProductVariantRepository {
 
 const defaultInclude = {
     product: true,
-    color: {
-        include: {
-            translations: {
-                orderBy: { locale: "asc" },
-                select: colorTranslationSelect,
-            },
-        },
-    },
-    materials: {
-        include: {
-            assets: true,
-            translations: {
-                orderBy: { locale: "asc" },
-                select: materialTranslationSelect,
-            },
-        },
-    },
+    ...productVariantStructureInclude,
     variantSuppliers: {
         include: { supplier: true }
     },
-    measurements: {
-        include: {
-            measurementType: {
-                include: {
-                    translations: {
-                        orderBy: { locale: "asc" },
-                        select: measurementTypeTranslationSelect,
-                    },
-                },
-            },
-        },
-    }
 } satisfies Prisma.ProductVariantInclude
+
+/**
+ * PUBLIC okuma include'u — `variantSuppliers` KASITLI OLARAK YOK.
+ *
+ * Public `/product-variants` ve `/product-variants/{id}` uçları uzun süre admin
+ * ile aynı `defaultInclude`'u kullanıyordu; bu da tedarikçi adını ve
+ * price/netCost/profitRate/listPrice alanlarını public yanıta sızdırıyordu. Kural
+ * yalnız `/products/{id}/variant-table` yolunda uygulanmıştı (bkz. P1.8 B0), diğer
+ * iki yolda değil.
+ */
+const publicInclude = {
+    product: true,
+    ...productVariantStructureInclude,
+} satisfies Prisma.ProductVariantInclude
+
+/** Varyant tablosu her yerde ölçü kodu, sonra versiyon sırasıyla gösterilir. */
+const variantTableOrderBy = [
+    { size: { code: "asc" as const } },
+    { version: { code: "asc" as const } },
+]
 
 export const productVariantRepository = (): IPrismaProductVariantRepository => {
 
@@ -153,6 +213,28 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             include: defaultInclude
         })
 
+    const listPublicProductVariants = async (query: IPaginationQuery) => {
+        const { where, orderBy, skip, take, page, limit } = buildPaginationQuery<ProductVariant>(query, {
+            searchableFields: ["fullCode", "name"],
+            defaultSort: "fullCode",
+        })
+
+        const [data, total] = await Promise.all([
+            prisma.productVariant.findMany({ where, orderBy, skip, take, include: publicInclude }),
+            prisma.productVariant.count({ where }),
+        ])
+
+        return buildPaginationResponse(data, {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        })
+    }
+
+    const getPublicProductVariant = async (id: string) =>
+        prisma.productVariant.findUnique({ where: { id }, include: publicInclude })
+
     const listProductVariantsByIds = async (ids: string[]) => {
         const uniqueIds = Array.from(new Set(ids.filter(Boolean)))
         if (uniqueIds.length === 0) return []
@@ -164,9 +246,6 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             include: defaultInclude,
         })
     }
-
-    const countProductVariants = async (productId: string, versionCode: string) =>
-        prisma.productVariant.count({ where: { productId, versionCode } })
 
     const createProductVariant = async (data: Prisma.ProductVariantCreateInput) =>
         prisma.productVariant.create({
@@ -190,34 +269,61 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
     const getProductVariantTableData = async (productId: string, options: { includeListPrice?: boolean } = {}) => {
         return prisma.productVariant.findMany({
             where: { productId },
-            orderBy: [
-                { supplierCode: "asc" },
-                { versionCode: "asc" },
-                { variantIndex: "asc" },
-            ],
+            orderBy: variantTableOrderBy,
             include: {
-                color: {
+                size: {
                     include: {
-                        translations: {
-                            orderBy: { locale: "asc" },
-                            select: colorTranslationSelect,
+                        values: {
+                            orderBy: [
+                                { requirement: { sortPriority: "asc" } },
+                                { requirement: { displayOrder: "asc" } },
+                            ],
+                            include: {
+                                requirement: {
+                                    include: {
+                                        measurementType: {
+                                            include: {
+                                                translations: {
+                                                    orderBy: { locale: "asc" },
+                                                    select: measurementTypeTranslationSelect,
+                                                },
+                                            },
+                                        },
+                                        translations: {
+                                            orderBy: { locale: "asc" },
+                                        },
+                                    },
+                                },
+                            },
                         },
                     },
                 },
-                materials: {
+                version: {
                     include: {
-                        assets: {
-                            where: {
-                                type: "PDF",
-                                role: "CERTIFICATE",
-                            },
-                            orderBy: {
-                                createdAt: "desc",
+                        color: {
+                            include: {
+                                translations: {
+                                    orderBy: { locale: "asc" },
+                                    select: colorTranslationSelect,
+                                },
                             },
                         },
-                        translations: {
-                            orderBy: { locale: "asc" },
-                            select: materialTranslationSelect,
+                        materials: {
+                            include: {
+                                assets: {
+                                    where: {
+                                        type: "PDF",
+                                        role: "CERTIFICATE",
+                                    },
+                                    orderBy: {
+                                        createdAt: "desc",
+                                    },
+                                },
+                                translations: {
+                                    orderBy: { locale: "asc" },
+                                    select: materialTranslationSelect,
+                                },
+                            },
                         },
                     },
                 },
@@ -240,24 +346,6 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                         },
                     }
                     : {}),
-                measurements: {
-                    orderBy: [
-                        { measurementType: { displayOrder: "asc" } },
-                        { measurementType: { code: "asc" } },
-                        { value: "asc" },
-                        { label: "asc" },
-                    ],
-                    include: {
-                        measurementType: {
-                            include: {
-                                translations: {
-                                    orderBy: { locale: "asc" },
-                                    select: measurementTypeTranslationSelect,
-                                },
-                            },
-                        },
-                    }
-                }
             }
         })
     }
@@ -265,11 +353,41 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
     return {
         listProductVariants,
         getProductVariant,
+        listPublicProductVariants,
+        getPublicProductVariant,
         listProductVariantsByIds,
-        countProductVariants,
         createProductVariant,
         updateProductVariant,
         deleteProductVariant,
         getProductVariantTableData,
     }
 }
+
+/**
+ * Çeviri taşımayan sade yapı include'u — sipariş, business request, kampanya,
+ * özel fiyat ve müşteri atama yüzeyleri bunu kullanır. Bu yüzeyler ölçü/renk/hammadde
+ * sözlüklerini lokalize etmez, yalnız ham adları gösterir.
+ */
+export const productVariantStructureIncludeBasic = {
+    size: {
+        include: {
+            values: {
+                orderBy: [
+                    { requirement: { sortPriority: "asc" as const } },
+                    { requirement: { displayOrder: "asc" as const } },
+                ],
+                include: {
+                    requirement: {
+                        include: { measurementType: true },
+                    },
+                },
+            },
+        },
+    },
+    version: {
+        include: {
+            color: true,
+            materials: true,
+        },
+    },
+} satisfies Prisma.ProductVariantInclude

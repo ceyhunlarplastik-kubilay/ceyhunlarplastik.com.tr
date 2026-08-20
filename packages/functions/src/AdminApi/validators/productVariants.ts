@@ -71,6 +71,15 @@ const variantSupplierSchema = z.object({
     listPrice: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
     paymentTermDays: z.number().nullable().optional(),
     supplierVariantCode: z.string().nullable().optional(),
+    supplierCode: z.string().nullable().optional(),
+    fullCode: z.string().nullable().optional(),
+    hasSupplierLogo: z.boolean().optional(),
+    unitsPerPackage: z.number().nullable().optional(),
+    packageLengthMm: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
+    packageWidthMm: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
+    packageHeightMm: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
+    packageWeightKg: z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional(),
+    minLeadTimeDays: z.number().nullable().optional(),
     supplierNote: z.string().nullable().optional(),
     minOrderQty: z.number().nullable().optional(),
     stockQty: z.number().nullable().optional(),
@@ -92,15 +101,14 @@ const measurementTypeSchema = z.object({
     updatedAt: z.string().optional(),
 }).loose()
 
+// Yanıt DTO'su düzleştirilmiş yapıyı taşır (bkz. flattenVariantStructure.ts):
+// ölçüler `size.values`'tan, renk/hammadde `version`'dan düzleştirilir.
 const measurementSchema = z.object({
     id: z.string(),
-    variantId: z.string(),
-    measurementTypeId: z.string(),
     value: z.number(),
     label: z.string(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-    measurementType: measurementTypeSchema,
+    unit: z.string().nullable().optional(),
+    measurementType: measurementTypeSchema.nullable(),
 }).loose()
 
 
@@ -108,26 +116,27 @@ export const productVariantSchema = z.object({
     id: z.string(),
     name: z.string(),
     productId: z.string(),
-    versionCode: z.string(),
-    supplierCode: z.string(),
-    variantIndex: z.number(),
+    productSizeId: z.string().optional(),
+    productVersionId: z.string().optional(),
+    sizeCode: z.number().nullable().optional(),
+    versionCode: z.string().nullable().optional(),
     fullCode: z.string(),
 
-    colorId: z.string().nullable(),
+    colorId: z.string().nullable().optional(),
 
     createdAt: z.string(),
     updatedAt: z.string(),
 
-    product: productSchema,
-    color: colorSchema,
-    materials: z.array(materialSchema),
-    variantSuppliers: z.array(variantSupplierSchema),
-    measurements: z.array(measurementSchema),
+    product: productSchema.optional(),
+    color: colorSchema.optional(),
+    materials: z.array(materialSchema).optional(),
+    variantSuppliers: z.array(variantSupplierSchema).optional(),
+    measurements: z.array(measurementSchema).optional(),
 }).loose()
 
 
-const createVariantSupplierInputSchema = z.object({
-    id: z.uuid(), // supplier id
+const variantSupplierInputSchema = z.object({
+    supplierId: z.uuid(),
     isActive: z.boolean().optional(),
     price: z.number().nonnegative().optional(),
     operationalCostRate: z.number().min(0).max(1000).optional(),
@@ -140,71 +149,56 @@ const createVariantSupplierInputSchema = z.object({
     minOrderQty: z.number().int().min(0).optional(),
     stockQty: z.number().int().min(0).optional(),
     currency: z.string().min(3).max(3).optional(),
+    hasSupplierLogo: z.boolean().optional(),
+    unitsPerPackage: z.number().int().min(0).optional(),
+    packageLengthMm: z.number().nonnegative().optional(),
+    packageWidthMm: z.number().nonnegative().optional(),
+    packageHeightMm: z.number().nonnegative().optional(),
+    packageWeightKg: z.number().nonnegative().optional(),
+    minLeadTimeDays: z.number().int().min(0).optional(),
 })
 
+/**
+ * DİKKAT: kod alanları (versionCode/supplierCode/variantIndex) şemadan KALDIRILDI.
+ * Kodlar sunucuda ölçü/versiyon/tedarikçi sözlüklerinden türetilir; istemcinin
+ * gönderdiği bir kod artık kabul edilmez.
+ */
 export const createProductVariantValidator = validatorWrapper(
     z.object({
         body: z.object({
             productId: z.uuid(),
-            variantIndex: z.number().int().min(1),
-            suppliers: z.array(createVariantSupplierInputSchema).optional(),
-            versionCode: z.string().regex(/^V[0-9]+$/),
-            supplierCode: z.string().regex(/^[A-Z]$/),
             name: z.string().min(1),
             colorId: z.uuid().optional(),
             materialIds: z.array(z.uuid()).optional(),
             measurements: z.array(z.object({
-                measurementTypeId: z.uuid(),
+                requirementId: z.uuid(),
                 value: z.number(),
-                label: z.string().optional(),
-            })).optional(),
+            })).min(1),
+            supplier: variantSupplierInputSchema.optional(),
         }),
     }),
     {
         requiredRootFields: ["body"],
-        requiredBodyFields: ["productId", "variantIndex", "versionCode", "supplierCode", "name"],
+        requiredBodyFields: ["productId", "name", "measurements"],
     }
 )
 
+/**
+ * Yalnız ad güncellenir — ölçü/versiyon/tedarikçi varyantın kimliğini belirlediği
+ * için değişimi matris akışına aittir (bkz. updateProductVariantHandler).
+ */
 export const updateProductVariantValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({
             id: z.uuid(),
         }),
         body: z.object({
-            productId: z.string().optional(),
-            variantIndex: z.coerce.number().int().min(1).optional(),
-            suppliers: z.array(
-                z.object({
-                    id: z.string().min(1),
-                    isActive: z.boolean().optional(),
-                    price: z.union([z.number(), z.coerce.number()]).optional(),
-                    operationalCostRate: z.union([z.number(), z.coerce.number()]).optional(),
-                    netCost: z.union([z.number(), z.coerce.number()]).optional(),
-                    profitRate: z.union([z.number(), z.coerce.number()]).optional(),
-                    listPrice: z.union([z.number(), z.coerce.number()]).optional(),
-                    paymentTermDays: z.union([z.number().int(), z.coerce.number().int()]).optional(),
-                    supplierVariantCode: z.string().max(120).optional(),
-                    supplierNote: z.string().max(2000).optional(),
-                    minOrderQty: z.union([z.number().int(), z.coerce.number().int()]).optional(),
-                    stockQty: z.union([z.number().int(), z.coerce.number().int()]).optional(),
-                    currency: z.string().min(3).max(3).optional(),
-                }).loose()
-            ).optional(),
-            versionCode: z.string().regex(/^V[0-9]+$/).optional(),
-            supplierCode: z.string().regex(/^[A-Z]$/).optional(),
-            name: z.string().min(1).optional(),
-            colorId: z.string().optional(),
-            materialIds: z.array(z.string()).optional(),
-            measurements: z.array(z.object({
-                measurementTypeId: z.string().min(1),
-                value: z.union([z.number(), z.coerce.number()]),
-                label: z.string().optional(),
-            }).loose()).optional(),
-        }).loose(),
+            name: z.string().min(1),
+        }),
     }),
     {
         requiredRootFields: ["pathParameters", "body"],
+        requiredBodyFields: ["name"],
     }
 )
 

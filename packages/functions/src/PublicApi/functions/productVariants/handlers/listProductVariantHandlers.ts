@@ -14,7 +14,7 @@ export const listProductVariantsHandler = ({ productVariantRepository }: IProduc
             })
 
         try {
-            const result = await productVariantRepository.listProductVariants({
+            const result = await productVariantRepository.listPublicProductVariants({
                 page,
                 limit,
                 search,

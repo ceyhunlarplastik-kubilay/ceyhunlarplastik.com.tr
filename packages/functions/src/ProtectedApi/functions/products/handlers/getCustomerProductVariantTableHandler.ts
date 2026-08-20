@@ -2,7 +2,7 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
-import { dedupeAndPaginateVariantTable } from "@/core/helpers/products/dedupeVariantTable"
+import { paginateVariantTable } from "@/core/helpers/products/paginateVariantTable"
 import { mapCustomerProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
 import { normalizeCustomerDiscountPercent } from "@/core/helpers/pricing/customerPricing"
 import { IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
@@ -11,7 +11,7 @@ import { ICustomerProductVariantTableDependencies } from "@/functions/ProtectedA
 /**
  * CUSTOMER varyant tablosu (P1.8 B0 + P2.8a).
  *
- * Public handler ile AYNI yapısal mantığı (dedupeAndPaginateVariantTable)
+ * Public handler ile AYNI yapısal mantığı (paginateVariantTable)
  * paylaşır; farkı: repository `includeListPrice:true` ile çağrılır ve customer
  * DTO'su liste fiyatı alanlarını taşır. Tedarikçi kimliği/maliyeti taşınmaz.
  * ProtectedApi (giriş yapmış) olduğundan fiyat public'e sızmaz.
@@ -44,7 +44,7 @@ export const getCustomerProductVariantTableHandler = ({ productVariantRepository
                     : Promise.resolve(null),
             ])
 
-            const { paginated, meta } = dedupeAndPaginateVariantTable(rawVariants, { page, limit, search, order })
+            const { paginated, meta } = paginateVariantTable(rawVariants, { page, limit, search, order })
 
             return apiResponseDTO({
                 statusCode: 200,

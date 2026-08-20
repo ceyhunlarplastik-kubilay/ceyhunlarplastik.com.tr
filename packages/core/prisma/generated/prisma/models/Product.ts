@@ -33,6 +33,8 @@ export type ProductMinAggregateOutputType = {
   assemblyVideoUrl: string | null
   promoVideoUrl: string | null
   categoryId: string | null
+  variantCodesLockedAt: Date | null
+  variantCodesLockedByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +48,8 @@ export type ProductMaxAggregateOutputType = {
   assemblyVideoUrl: string | null
   promoVideoUrl: string | null
   categoryId: string | null
+  variantCodesLockedAt: Date | null
+  variantCodesLockedByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +63,8 @@ export type ProductCountAggregateOutputType = {
   assemblyVideoUrl: number
   promoVideoUrl: number
   categoryId: number
+  variantCodesLockedAt: number
+  variantCodesLockedByUserId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +80,8 @@ export type ProductMinAggregateInputType = {
   assemblyVideoUrl?: true
   promoVideoUrl?: true
   categoryId?: true
+  variantCodesLockedAt?: true
+  variantCodesLockedByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +95,8 @@ export type ProductMaxAggregateInputType = {
   assemblyVideoUrl?: true
   promoVideoUrl?: true
   categoryId?: true
+  variantCodesLockedAt?: true
+  variantCodesLockedByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +110,8 @@ export type ProductCountAggregateInputType = {
   assemblyVideoUrl?: true
   promoVideoUrl?: true
   categoryId?: true
+  variantCodesLockedAt?: true
+  variantCodesLockedByUserId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +198,8 @@ export type ProductGroupByOutputType = {
   assemblyVideoUrl: string | null
   promoVideoUrl: string | null
   categoryId: string
+  variantCodesLockedAt: Date | null
+  variantCodesLockedByUserId: string | null
   createdAt: Date
   updatedAt: Date
   _count: ProductCountAggregateOutputType | null
@@ -220,10 +234,16 @@ export type ProductWhereInput = {
   assemblyVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
+  variantCodesLockedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
+  variantCodesLockedByUserId?: Prisma.StringNullableFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   variants?: Prisma.ProductVariantListRelationFilter
+  measurementRequirements?: Prisma.ProductMeasurementRequirementListRelationFilter
+  sizes?: Prisma.ProductSizeListRelationFilter
+  versions?: Prisma.ProductVersionListRelationFilter
+  supplierCodes?: Prisma.ProductSupplierCodeListRelationFilter
   assets?: Prisma.AssetListRelationFilter
   attributeValues?: Prisma.ProductAttributeValueListRelationFilter
   industrialUsages?: Prisma.ProductIndustrialUsageListRelationFilter
@@ -240,10 +260,16 @@ export type ProductOrderByWithRelationInput = {
   assemblyVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantCodesLockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantCodesLockedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.CategoryOrderByWithRelationInput
   variants?: Prisma.ProductVariantOrderByRelationAggregateInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementOrderByRelationAggregateInput
+  sizes?: Prisma.ProductSizeOrderByRelationAggregateInput
+  versions?: Prisma.ProductVersionOrderByRelationAggregateInput
+  supplierCodes?: Prisma.ProductSupplierCodeOrderByRelationAggregateInput
   assets?: Prisma.AssetOrderByRelationAggregateInput
   attributeValues?: Prisma.ProductAttributeValueOrderByRelationAggregateInput
   industrialUsages?: Prisma.ProductIndustrialUsageOrderByRelationAggregateInput
@@ -263,10 +289,16 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   assemblyVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
+  variantCodesLockedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
+  variantCodesLockedByUserId?: Prisma.StringNullableFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
   variants?: Prisma.ProductVariantListRelationFilter
+  measurementRequirements?: Prisma.ProductMeasurementRequirementListRelationFilter
+  sizes?: Prisma.ProductSizeListRelationFilter
+  versions?: Prisma.ProductVersionListRelationFilter
+  supplierCodes?: Prisma.ProductSupplierCodeListRelationFilter
   assets?: Prisma.AssetListRelationFilter
   attributeValues?: Prisma.ProductAttributeValueListRelationFilter
   industrialUsages?: Prisma.ProductIndustrialUsageListRelationFilter
@@ -283,6 +315,8 @@ export type ProductOrderByWithAggregationInput = {
   assemblyVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantCodesLockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  variantCodesLockedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
@@ -302,6 +336,8 @@ export type ProductScalarWhereWithAggregatesInput = {
   assemblyVideoUrl?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   categoryId?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  variantCodesLockedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
+  variantCodesLockedByUserId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
 }
@@ -314,10 +350,16 @@ export type ProductCreateInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
@@ -334,9 +376,15 @@ export type ProductUncheckedCreateInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
@@ -352,10 +400,16 @@ export type ProductUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
@@ -372,9 +426,15 @@ export type ProductUncheckedUpdateInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
@@ -391,6 +451,8 @@ export type ProductCreateManyInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -403,6 +465,8 @@ export type ProductUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -416,6 +480,8 @@ export type ProductUncheckedUpdateManyInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -439,6 +505,8 @@ export type ProductCountOrderByAggregateInput = {
   assemblyVideoUrl?: Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantCodesLockedAt?: Prisma.SortOrder
+  variantCodesLockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -452,6 +520,8 @@ export type ProductMaxOrderByAggregateInput = {
   assemblyVideoUrl?: Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantCodesLockedAt?: Prisma.SortOrder
+  variantCodesLockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -465,6 +535,8 @@ export type ProductMinOrderByAggregateInput = {
   assemblyVideoUrl?: Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
+  variantCodesLockedAt?: Prisma.SortOrder
+  variantCodesLockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -601,6 +673,62 @@ export type ProductUpdateOneRequiredWithoutVariantsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutVariantsInput, Prisma.ProductUpdateWithoutVariantsInput>, Prisma.ProductUncheckedUpdateWithoutVariantsInput>
 }
 
+export type ProductCreateNestedOneWithoutMeasurementRequirementsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutMeasurementRequirementsInput, Prisma.ProductUncheckedCreateWithoutMeasurementRequirementsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutMeasurementRequirementsInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutMeasurementRequirementsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutMeasurementRequirementsInput, Prisma.ProductUncheckedCreateWithoutMeasurementRequirementsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutMeasurementRequirementsInput
+  upsert?: Prisma.ProductUpsertWithoutMeasurementRequirementsInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutMeasurementRequirementsInput, Prisma.ProductUpdateWithoutMeasurementRequirementsInput>, Prisma.ProductUncheckedUpdateWithoutMeasurementRequirementsInput>
+}
+
+export type ProductCreateNestedOneWithoutSizesInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutSizesInput, Prisma.ProductUncheckedCreateWithoutSizesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutSizesInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutSizesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutSizesInput, Prisma.ProductUncheckedCreateWithoutSizesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutSizesInput
+  upsert?: Prisma.ProductUpsertWithoutSizesInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutSizesInput, Prisma.ProductUpdateWithoutSizesInput>, Prisma.ProductUncheckedUpdateWithoutSizesInput>
+}
+
+export type ProductCreateNestedOneWithoutVersionsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutVersionsInput, Prisma.ProductUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutVersionsInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutVersionsInput, Prisma.ProductUncheckedCreateWithoutVersionsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutVersionsInput
+  upsert?: Prisma.ProductUpsertWithoutVersionsInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutVersionsInput, Prisma.ProductUpdateWithoutVersionsInput>, Prisma.ProductUncheckedUpdateWithoutVersionsInput>
+}
+
+export type ProductCreateNestedOneWithoutSupplierCodesInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutSupplierCodesInput, Prisma.ProductUncheckedCreateWithoutSupplierCodesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutSupplierCodesInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutSupplierCodesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutSupplierCodesInput, Prisma.ProductUncheckedCreateWithoutSupplierCodesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutSupplierCodesInput
+  upsert?: Prisma.ProductUpsertWithoutSupplierCodesInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutSupplierCodesInput, Prisma.ProductUpdateWithoutSupplierCodesInput>, Prisma.ProductUncheckedUpdateWithoutSupplierCodesInput>
+}
+
 export type ProductCreateNestedOneWithoutFeaturedByCustomersInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutFeaturedByCustomersInput, Prisma.ProductUncheckedCreateWithoutFeaturedByCustomersInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutFeaturedByCustomersInput
@@ -639,9 +767,15 @@ export type ProductCreateWithoutCategoryInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
@@ -657,9 +791,15 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
@@ -705,6 +845,8 @@ export type ProductScalarWhereInput = {
   assemblyVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
+  variantCodesLockedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
+  variantCodesLockedByUserId?: Prisma.StringNullableFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
 }
@@ -717,10 +859,16 @@ export type ProductCreateWithoutTranslationsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
@@ -736,9 +884,15 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
@@ -769,10 +923,16 @@ export type ProductUpdateWithoutTranslationsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
@@ -788,9 +948,15 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
@@ -805,10 +971,16 @@ export type ProductCreateWithoutAttributeValuesInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
@@ -824,9 +996,15 @@ export type ProductUncheckedCreateWithoutAttributeValuesInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
@@ -862,10 +1040,16 @@ export type ProductCreateWithoutIndustrialUsagesInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
@@ -881,9 +1065,15 @@ export type ProductUncheckedCreateWithoutIndustrialUsagesInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
@@ -914,10 +1104,16 @@ export type ProductUpdateWithoutIndustrialUsagesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
@@ -933,9 +1129,15 @@ export type ProductUncheckedUpdateWithoutIndustrialUsagesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
@@ -950,9 +1152,15 @@ export type ProductCreateWithoutVariantsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
@@ -969,8 +1177,14 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
@@ -1002,9 +1216,15 @@ export type ProductUpdateWithoutVariantsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
@@ -1021,8 +1241,462 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutMeasurementRequirementsInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutMeasurementRequirementsInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutMeasurementRequirementsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutMeasurementRequirementsInput, Prisma.ProductUncheckedCreateWithoutMeasurementRequirementsInput>
+}
+
+export type ProductUpsertWithoutMeasurementRequirementsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutMeasurementRequirementsInput, Prisma.ProductUncheckedUpdateWithoutMeasurementRequirementsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutMeasurementRequirementsInput, Prisma.ProductUncheckedCreateWithoutMeasurementRequirementsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutMeasurementRequirementsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutMeasurementRequirementsInput, Prisma.ProductUncheckedUpdateWithoutMeasurementRequirementsInput>
+}
+
+export type ProductUpdateWithoutMeasurementRequirementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutMeasurementRequirementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutSizesInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutSizesInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutSizesInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutSizesInput, Prisma.ProductUncheckedCreateWithoutSizesInput>
+}
+
+export type ProductUpsertWithoutSizesInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutSizesInput, Prisma.ProductUncheckedUpdateWithoutSizesInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutSizesInput, Prisma.ProductUncheckedCreateWithoutSizesInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutSizesInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutSizesInput, Prisma.ProductUncheckedUpdateWithoutSizesInput>
+}
+
+export type ProductUpdateWithoutSizesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutSizesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutVersionsInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutVersionsInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutVersionsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutVersionsInput, Prisma.ProductUncheckedCreateWithoutVersionsInput>
+}
+
+export type ProductUpsertWithoutVersionsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutVersionsInput, Prisma.ProductUncheckedUpdateWithoutVersionsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutVersionsInput, Prisma.ProductUncheckedCreateWithoutVersionsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutVersionsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutVersionsInput, Prisma.ProductUncheckedUpdateWithoutVersionsInput>
+}
+
+export type ProductUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutVersionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutSupplierCodesInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutSupplierCodesInput = {
+  id?: string
+  code: string
+  name: string
+  slug: string
+  description?: string | null
+  assemblyVideoUrl?: string | null
+  promoVideoUrl?: string | null
+  categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
+  attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
+  translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutSupplierCodesInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutSupplierCodesInput, Prisma.ProductUncheckedCreateWithoutSupplierCodesInput>
+}
+
+export type ProductUpsertWithoutSupplierCodesInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutSupplierCodesInput, Prisma.ProductUncheckedUpdateWithoutSupplierCodesInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutSupplierCodesInput, Prisma.ProductUncheckedCreateWithoutSupplierCodesInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutSupplierCodesInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutSupplierCodesInput, Prisma.ProductUncheckedUpdateWithoutSupplierCodesInput>
+}
+
+export type ProductUpdateWithoutSupplierCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
+  attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
+  industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
+  translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
+  featuredByCustomers?: Prisma.CustomerFeaturedProductUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutSupplierCodesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
@@ -1038,10 +1712,16 @@ export type ProductCreateWithoutFeaturedByCustomersInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
@@ -1057,9 +1737,15 @@ export type ProductUncheckedCreateWithoutFeaturedByCustomersInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
@@ -1090,10 +1776,16 @@ export type ProductUpdateWithoutFeaturedByCustomersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
@@ -1109,9 +1801,15 @@ export type ProductUncheckedUpdateWithoutFeaturedByCustomersInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
@@ -1126,10 +1824,16 @@ export type ProductCreateWithoutAssetsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationCreateNestedManyWithoutProductInput
@@ -1145,9 +1849,15 @@ export type ProductUncheckedCreateWithoutAssetsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
+  sizes?: Prisma.ProductSizeUncheckedCreateNestedManyWithoutProductInput
+  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutProductInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedCreateNestedManyWithoutProductInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedCreateNestedManyWithoutProductsInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedCreateNestedManyWithoutProductInput
   translations?: Prisma.ProductTranslationUncheckedCreateNestedManyWithoutProductInput
@@ -1178,10 +1888,16 @@ export type ProductUpdateWithoutAssetsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
@@ -1197,9 +1913,15 @@ export type ProductUncheckedUpdateWithoutAssetsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
@@ -1214,6 +1936,8 @@ export type ProductCreateManyCategoryInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
+  variantCodesLockedAt?: Date | string | null
+  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1226,9 +1950,15 @@ export type ProductUpdateWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
@@ -1244,9 +1974,15 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   attributeValues?: Prisma.ProductAttributeValueUncheckedUpdateManyWithoutProductsNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
@@ -1262,6 +1998,8 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1274,10 +2012,16 @@ export type ProductUpdateWithoutAttributeValuesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUpdateManyWithoutProductNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUpdateManyWithoutProductNestedInput
@@ -1293,9 +2037,15 @@ export type ProductUncheckedUpdateWithoutAttributeValuesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
+  measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
+  sizes?: Prisma.ProductSizeUncheckedUpdateManyWithoutProductNestedInput
+  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutProductNestedInput
+  supplierCodes?: Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutProductNestedInput
   assets?: Prisma.AssetUncheckedUpdateManyWithoutProductNestedInput
   industrialUsages?: Prisma.ProductIndustrialUsageUncheckedUpdateManyWithoutProductNestedInput
   translations?: Prisma.ProductTranslationUncheckedUpdateManyWithoutProductNestedInput
@@ -1311,6 +2061,8 @@ export type ProductUncheckedUpdateManyWithoutAttributeValuesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1322,6 +2074,10 @@ export type ProductUncheckedUpdateManyWithoutAttributeValuesInput = {
 
 export type ProductCountOutputType = {
   variants: number
+  measurementRequirements: number
+  sizes: number
+  versions: number
+  supplierCodes: number
   assets: number
   attributeValues: number
   industrialUsages: number
@@ -1331,6 +2087,10 @@ export type ProductCountOutputType = {
 
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   variants?: boolean | ProductCountOutputTypeCountVariantsArgs
+  measurementRequirements?: boolean | ProductCountOutputTypeCountMeasurementRequirementsArgs
+  sizes?: boolean | ProductCountOutputTypeCountSizesArgs
+  versions?: boolean | ProductCountOutputTypeCountVersionsArgs
+  supplierCodes?: boolean | ProductCountOutputTypeCountSupplierCodesArgs
   assets?: boolean | ProductCountOutputTypeCountAssetsArgs
   attributeValues?: boolean | ProductCountOutputTypeCountAttributeValuesArgs
   industrialUsages?: boolean | ProductCountOutputTypeCountIndustrialUsagesArgs
@@ -1353,6 +2113,34 @@ export type ProductCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
  */
 export type ProductCountOutputTypeCountVariantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProductVariantWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountMeasurementRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductMeasurementRequirementWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountSizesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductSizeWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductVersionWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountSupplierCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductSupplierCodeWhereInput
 }
 
 /**
@@ -1400,10 +2188,16 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
+  variantCodesLockedAt?: boolean
+  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   variants?: boolean | Prisma.Product$variantsArgs<ExtArgs>
+  measurementRequirements?: boolean | Prisma.Product$measurementRequirementsArgs<ExtArgs>
+  sizes?: boolean | Prisma.Product$sizesArgs<ExtArgs>
+  versions?: boolean | Prisma.Product$versionsArgs<ExtArgs>
+  supplierCodes?: boolean | Prisma.Product$supplierCodesArgs<ExtArgs>
   assets?: boolean | Prisma.Product$assetsArgs<ExtArgs>
   attributeValues?: boolean | Prisma.Product$attributeValuesArgs<ExtArgs>
   industrialUsages?: boolean | Prisma.Product$industrialUsagesArgs<ExtArgs>
@@ -1421,6 +2215,8 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
+  variantCodesLockedAt?: boolean
+  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -1435,6 +2231,8 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
+  variantCodesLockedAt?: boolean
+  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -1449,14 +2247,20 @@ export type ProductSelectScalar = {
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
+  variantCodesLockedAt?: boolean
+  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "slug" | "description" | "assemblyVideoUrl" | "promoVideoUrl" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "slug" | "description" | "assemblyVideoUrl" | "promoVideoUrl" | "categoryId" | "variantCodesLockedAt" | "variantCodesLockedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   variants?: boolean | Prisma.Product$variantsArgs<ExtArgs>
+  measurementRequirements?: boolean | Prisma.Product$measurementRequirementsArgs<ExtArgs>
+  sizes?: boolean | Prisma.Product$sizesArgs<ExtArgs>
+  versions?: boolean | Prisma.Product$versionsArgs<ExtArgs>
+  supplierCodes?: boolean | Prisma.Product$supplierCodesArgs<ExtArgs>
   assets?: boolean | Prisma.Product$assetsArgs<ExtArgs>
   attributeValues?: boolean | Prisma.Product$attributeValuesArgs<ExtArgs>
   industrialUsages?: boolean | Prisma.Product$industrialUsagesArgs<ExtArgs>
@@ -1476,6 +2280,10 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     category: Prisma.$CategoryPayload<ExtArgs>
     variants: Prisma.$ProductVariantPayload<ExtArgs>[]
+    measurementRequirements: Prisma.$ProductMeasurementRequirementPayload<ExtArgs>[]
+    sizes: Prisma.$ProductSizePayload<ExtArgs>[]
+    versions: Prisma.$ProductVersionPayload<ExtArgs>[]
+    supplierCodes: Prisma.$ProductSupplierCodePayload<ExtArgs>[]
     assets: Prisma.$AssetPayload<ExtArgs>[]
     attributeValues: Prisma.$ProductAttributeValuePayload<ExtArgs>[]
     industrialUsages: Prisma.$ProductIndustrialUsagePayload<ExtArgs>[]
@@ -1491,6 +2299,15 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     assemblyVideoUrl: string | null
     promoVideoUrl: string | null
     categoryId: string
+    /**
+     * Varyant kodları kilitlendi mi. null = TASLAK: ürüne her varyant kaydında
+     * ölçüler yeniden sıralanıp 1..N numaralanır, kodlar kendiliğinden düzelir.
+     * Dolu = KİLİTLİ: mevcut hiçbir kod değişmez, yeni ölçü sona eklenir (max+1).
+     * Kilit, kodlar katalog/teklif/sipariş üzerinden dışarı çıktıktan sonra
+     * geçmişin bozulmaması içindir.
+     */
+    variantCodesLockedAt: Date | null
+    variantCodesLockedByUserId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["product"]>
@@ -1889,6 +2706,10 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   category<T extends Prisma.CategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   variants<T extends Prisma.Product$variantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$variantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  measurementRequirements<T extends Prisma.Product$measurementRequirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$measurementRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductMeasurementRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sizes<T extends Prisma.Product$sizesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$sizesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductSizePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  versions<T extends Prisma.Product$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  supplierCodes<T extends Prisma.Product$supplierCodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$supplierCodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductSupplierCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assets<T extends Prisma.Product$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attributeValues<T extends Prisma.Product$attributeValuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$attributeValuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductAttributeValuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   industrialUsages<T extends Prisma.Product$industrialUsagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$industrialUsagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductIndustrialUsagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1931,6 +2752,8 @@ export interface ProductFieldRefs {
   readonly assemblyVideoUrl: Prisma.FieldRef<"Product", 'String'>
   readonly promoVideoUrl: Prisma.FieldRef<"Product", 'String'>
   readonly categoryId: Prisma.FieldRef<"Product", 'String'>
+  readonly variantCodesLockedAt: Prisma.FieldRef<"Product", 'DateTime'>
+  readonly variantCodesLockedByUserId: Prisma.FieldRef<"Product", 'String'>
   readonly createdAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Product", 'DateTime'>
 }
@@ -2355,6 +3178,102 @@ export type Product$variantsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.ProductVariantScalarFieldEnum | Prisma.ProductVariantScalarFieldEnum[]
+}
+
+/**
+ * Product.measurementRequirements
+ */
+export type Product$measurementRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductMeasurementRequirement
+   */
+  select?: Prisma.ProductMeasurementRequirementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductMeasurementRequirement
+   */
+  omit?: Prisma.ProductMeasurementRequirementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductMeasurementRequirementInclude<ExtArgs> | null
+  where?: Prisma.ProductMeasurementRequirementWhereInput
+  orderBy?: Prisma.ProductMeasurementRequirementOrderByWithRelationInput | Prisma.ProductMeasurementRequirementOrderByWithRelationInput[]
+  cursor?: Prisma.ProductMeasurementRequirementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductMeasurementRequirementScalarFieldEnum | Prisma.ProductMeasurementRequirementScalarFieldEnum[]
+}
+
+/**
+ * Product.sizes
+ */
+export type Product$sizesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductSize
+   */
+  select?: Prisma.ProductSizeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductSize
+   */
+  omit?: Prisma.ProductSizeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductSizeInclude<ExtArgs> | null
+  where?: Prisma.ProductSizeWhereInput
+  orderBy?: Prisma.ProductSizeOrderByWithRelationInput | Prisma.ProductSizeOrderByWithRelationInput[]
+  cursor?: Prisma.ProductSizeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductSizeScalarFieldEnum | Prisma.ProductSizeScalarFieldEnum[]
+}
+
+/**
+ * Product.versions
+ */
+export type Product$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductVersion
+   */
+  select?: Prisma.ProductVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductVersion
+   */
+  omit?: Prisma.ProductVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductVersionInclude<ExtArgs> | null
+  where?: Prisma.ProductVersionWhereInput
+  orderBy?: Prisma.ProductVersionOrderByWithRelationInput | Prisma.ProductVersionOrderByWithRelationInput[]
+  cursor?: Prisma.ProductVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductVersionScalarFieldEnum | Prisma.ProductVersionScalarFieldEnum[]
+}
+
+/**
+ * Product.supplierCodes
+ */
+export type Product$supplierCodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductSupplierCode
+   */
+  select?: Prisma.ProductSupplierCodeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductSupplierCode
+   */
+  omit?: Prisma.ProductSupplierCodeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductSupplierCodeInclude<ExtArgs> | null
+  where?: Prisma.ProductSupplierCodeWhereInput
+  orderBy?: Prisma.ProductSupplierCodeOrderByWithRelationInput | Prisma.ProductSupplierCodeOrderByWithRelationInput[]
+  cursor?: Prisma.ProductSupplierCodeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductSupplierCodeScalarFieldEnum | Prisma.ProductSupplierCodeScalarFieldEnum[]
 }
 
 /**

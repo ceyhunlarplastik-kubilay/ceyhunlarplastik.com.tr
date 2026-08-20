@@ -16,7 +16,7 @@ export interface IProductVariantDependencies {
 }
 
 export interface IVariantSupplierInput {
-    id: string
+    supplierId: string
     isActive?: boolean
     price?: number
     operationalCostRate?: number
@@ -29,22 +29,36 @@ export interface IVariantSupplierInput {
     minOrderQty?: number
     stockQty?: number
     currency?: string
+    hasSupplierLogo?: boolean
+    unitsPerPackage?: number
+    packageLengthMm?: number
+    packageWidthMm?: number
+    packageHeightMm?: number
+    packageWeightKg?: number
+    minLeadTimeDays?: number
 }
 
+/**
+ * Kod alanları (`versionCode`/`supplierCode`/`variantIndex`) BİLİNÇLİ OLARAK YOK:
+ * ölçü kodu ölçüden, versiyon renk+hammaddeden, tedarikçi harfi ilk kullanım
+ * sırasından türetilir. Ölçüler `measurementTypeId` ile değil ürün modelinin ölçü
+ * ŞABLONUNDAKİ `requirementId` ile gelir — aynı ölçü tipi bir modelde iki farklı
+ * anlamda kullanılabilir ("Kol Çapı R" / "Elcik Çapı R").
+ */
 export interface ICreateProductVariantBody {
     productId: string
-    variantIndex: number
-    suppliers: IVariantSupplierInput[]
-    versionCode: string
-    supplierCode: string
     name: string
     colorId?: string
     materialIds?: string[]
-    measurements?: {
-        measurementTypeId: string
+    measurements: {
+        requirementId: string
         value: number
-        label: string
     }[]
+    supplier?: IVariantSupplierInput
+}
+
+export interface IUpdateProductVariantBody {
+    name: string
 }
 
 export type ICreateProductVariantEvent =
@@ -52,7 +66,7 @@ export type ICreateProductVariantEvent =
 
 export type IUpdateProductVariantEvent =
     IAPIGatewayProxyEventWithUserGeneric<
-        Partial<ICreateProductVariantBody>,
+        IUpdateProductVariantBody,
         { id: string }
     >
 

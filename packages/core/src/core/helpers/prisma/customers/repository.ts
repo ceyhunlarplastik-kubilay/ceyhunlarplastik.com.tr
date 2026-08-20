@@ -12,6 +12,7 @@ import {
     CustomerVisitStatus,
 } from "@/prisma/generated/prisma/enums"
 import { Customer, CustomerAssignedProductSource, Prisma } from "@/prisma/generated/prisma/client"
+import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
 
 const customerUserSummarySelect = {
     id: true,
@@ -189,20 +190,8 @@ export const customerAssignedProductVariantInclude = {
     productVariant: {
         include: {
             product: customerProductInclude.product,
-            color: true,
-            materials: true,
+            ...productVariantStructureIncludeBasic,
             assets: true,
-            measurements: {
-                orderBy: [
-                    { measurementType: { displayOrder: "asc" } },
-                    { measurementType: { code: "asc" } },
-                    { value: "asc" },
-                    { label: "asc" },
-                ],
-                include: {
-                    measurementType: true,
-                },
-            },
         },
     },
 } satisfies Prisma.CustomerAssignedProductInclude

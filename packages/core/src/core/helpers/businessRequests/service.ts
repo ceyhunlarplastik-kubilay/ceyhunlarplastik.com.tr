@@ -37,6 +37,8 @@ import {
     type CustomerAddressBody,
 } from "@/core/helpers/crm/customerAddressInput"
 import type { CustomerAddressMutationInput } from "@/core/helpers/prisma/customers/repository"
+import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
+import { upsertProductVariantRows } from "@/core/helpers/productVariants/productVariantWriter"
 
 type RequestWithApprovalSteps<TStep> = {
     approvalSteps: TStep[]
@@ -387,21 +389,21 @@ function normalizeStringArray(value: unknown) {
     return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
 }
 
-function normalizeVariantMeasurements(
-    value: unknown,
-): Array<{ measurementTypeId: string; value: number; label: string }> {
+/**
+ * Tedarikçi varyant talebindeki ölçü değerleri. Artık `measurementTypeId` değil
+ * ürün modelinin ölçü ŞABLONUNDAKİ `requirementId` taşınır — aynı ölçü tipi bir
+ * modelde iki farklı anlamda kullanılabildiği için (ör. "Kol Çapı R" ve
+ * "Elcik Çapı R") tip tek başına yeterli değil.
+ */
+function normalizeVariantSizeValues(value: unknown): Array<{ requirementId: string; value: number }> {
     if (!Array.isArray(value)) return []
 
     return value.flatMap((item) => {
         if (!item || typeof item !== "object") return []
         const record = item as Record<string, unknown>
-        if (typeof record.measurementTypeId !== "string" || !isFiniteNumber(record.value)) return []
+        if (typeof record.requirementId !== "string" || !isFiniteNumber(record.value)) return []
 
-        return [{
-            measurementTypeId: record.measurementTypeId,
-            value: record.value,
-            label: typeof record.label === "string" ? record.label : "",
-        }]
+        return [{ requirementId: record.requirementId, value: record.value }]
     })
 }
 
@@ -602,13 +604,7 @@ async function applyApprovedBusinessRequestTx(
             include: {
                 variant: {
                     include: {
-                        color: true,
-                        materials: true,
-                        measurements: {
-                            include: {
-                                measurementType: true,
-                            },
-                        },
+                        ...productVariantStructureIncludeBasic,
                         product: {
                             include: {
                                 category: true,
@@ -718,80 +714,46 @@ async function applyApprovedBusinessRequestTx(
 
     if (request.type === "SUPPLIER_VARIANT_CREATE") {
         const productId = typeof requestedData.productId === "string" ? requestedData.productId : ""
-        const variantIndex = typeof requestedData.variantIndex === "number" ? requestedData.variantIndex : null
-        const versionCode = typeof requestedData.versionCode === "string" ? requestedData.versionCode.trim() : ""
-        const supplierCode = typeof requestedData.supplierCode === "string" ? requestedData.supplierCode.trim() : ""
         const name = typeof requestedData.name === "string" ? requestedData.name.trim() : ""
-        const colorId = typeof requestedData.colorId === "string" ? requestedData.colorId : undefined
+        const colorId = typeof requestedData.colorId === "string" ? requestedData.colorId : null
         const materialIds = normalizeStringArray(requestedData.materialIds)
-        const measurements = normalizeVariantMeasurements(requestedData.measurements)
+        const measurements = normalizeVariantSizeValues(requestedData.measurements)
 
         if (!request.supplierId) {
             throw new createError.BadRequest("Supplier target is missing for variant create request")
         }
-        if (!productId || variantIndex === null || !versionCode || !supplierCode || !name) {
+        if (!productId || !name || measurements.length === 0) {
             throw new createError.BadRequest("Supplier variant create request payload is incomplete")
         }
 
-        const product = await tx.product.findUnique({
-            where: { id: productId },
-        })
-        if (!product) {
-            throw new createError.NotFound("Product not found for supplier variant request")
-        }
-
-        const fullCode = `${product.code}.${supplierCode}.${versionCode}.${variantIndex}`
-
-        await tx.productVariant.create({
-            data: {
-                product: { connect: { id: productId } },
-                versionCode,
-                supplierCode,
-                variantIndex,
-                fullCode,
+        // Kod üretimi ARTIK BURADA YAPILMIYOR. Eski sürüm `fullCode`'u elle kurar,
+        // versionCode/supplierCode'u yalnız `.trim()`'ler ve admin yolundaki regex
+        // doğrulamasını (`/^V[0-9]+$/`, `/^[A-Z]$/`) tamamen atlardı. Artık ölçü,
+        // versiyon ve tedarikçi harfi bul-ya-da-oluştur ile çözülüp tüm kodlar
+        // `upsertProductVariantRows` içinde tek kaynaktan hesaplanıyor.
+        await upsertProductVariantRows(tx, {
+            productId,
+            rows: [{
                 name,
-                ...(colorId ? { color: { connect: { id: colorId } } } : {}),
-                ...(materialIds.length > 0
-                    ? {
-                        materials: {
-                            connect: materialIds.map((id) => ({ id })),
-                        },
-                    }
-                    : {}),
-                variantSuppliers: {
-                    create: [{
-                        supplier: { connect: { id: request.supplierId } },
-                        isActive: true,
-                        ...resolveProductVariantSupplierPricing({
-                            price: typeof requestedData.price === "number" ? requestedData.price : undefined,
-                            operationalCostRate: typeof requestedData.operationalCostRate === "number" ? requestedData.operationalCostRate : undefined,
-                            netCost: typeof requestedData.netCost === "number" ? requestedData.netCost : undefined,
-                            profitRate: typeof requestedData.profitRate === "number" ? requestedData.profitRate : undefined,
-                            listPrice: typeof requestedData.listPrice === "number" ? requestedData.listPrice : undefined,
-                        }),
-                        ...(typeof requestedData.paymentTermDays === "number" ? { paymentTermDays: requestedData.paymentTermDays } : {}),
-                        ...(typeof requestedData.supplierVariantCode === "string" ? { supplierVariantCode: requestedData.supplierVariantCode.trim() } : {}),
-                        ...(typeof requestedData.supplierNote === "string" ? { supplierNote: requestedData.supplierNote.trim() } : {}),
-                        ...(typeof requestedData.minOrderQty === "number" ? { minOrderQty: requestedData.minOrderQty } : {}),
-                        ...(typeof requestedData.stockQty === "number" ? { stockQty: requestedData.stockQty } : {}),
-                        ...(typeof requestedData.currency === "string" ? { currency: requestedData.currency.toUpperCase() } : {}),
-                        ...((typeof requestedData.minOrderQty === "number" || typeof requestedData.stockQty === "number")
-                            ? { availabilityUpdatedAt: new Date() }
-                            : {}),
-                    }],
+                measurements,
+                colorId,
+                materialIds,
+                supplier: {
+                    supplierId: request.supplierId,
+                    isActive: true,
+                    price: isFiniteNumber(requestedData.price) ? requestedData.price : undefined,
+                    operationalCostRate: isFiniteNumber(requestedData.operationalCostRate) ? requestedData.operationalCostRate : undefined,
+                    netCost: isFiniteNumber(requestedData.netCost) ? requestedData.netCost : undefined,
+                    profitRate: isFiniteNumber(requestedData.profitRate) ? requestedData.profitRate : undefined,
+                    listPrice: isFiniteNumber(requestedData.listPrice) ? requestedData.listPrice : undefined,
+                    paymentTermDays: isFiniteNumber(requestedData.paymentTermDays) ? requestedData.paymentTermDays : undefined,
+                    supplierVariantCode: typeof requestedData.supplierVariantCode === "string" ? requestedData.supplierVariantCode : undefined,
+                    supplierNote: typeof requestedData.supplierNote === "string" ? requestedData.supplierNote : undefined,
+                    minOrderQty: isFiniteNumber(requestedData.minOrderQty) ? requestedData.minOrderQty : undefined,
+                    stockQty: isFiniteNumber(requestedData.stockQty) ? requestedData.stockQty : undefined,
+                    currency: typeof requestedData.currency === "string" ? requestedData.currency : undefined,
                 },
-                ...(measurements.length > 0
-                    ? {
-                        measurements: {
-                            create: measurements.map((measurement) => ({
-                                measurementType: { connect: { id: measurement.measurementTypeId } },
-                                value: measurement.value,
-                                label: measurement.label,
-                            })),
-                        },
-                    }
-                    : {}),
-            },
+            }],
         })
     }
 }

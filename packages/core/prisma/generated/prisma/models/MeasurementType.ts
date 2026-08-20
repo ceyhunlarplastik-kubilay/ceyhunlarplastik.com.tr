@@ -232,7 +232,7 @@ export type MeasurementTypeWhereInput = {
   displayOrder?: Prisma.IntFilter<"MeasurementType"> | number
   createdAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
-  measurements?: Prisma.ProductMeasurementListRelationFilter
+  requirements?: Prisma.ProductMeasurementRequirementListRelationFilter
   translations?: Prisma.MeasurementTypeTranslationListRelationFilter
 }
 
@@ -244,7 +244,7 @@ export type MeasurementTypeOrderByWithRelationInput = {
   displayOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  measurements?: Prisma.ProductMeasurementOrderByRelationAggregateInput
+  requirements?: Prisma.ProductMeasurementRequirementOrderByRelationAggregateInput
   translations?: Prisma.MeasurementTypeTranslationOrderByRelationAggregateInput
 }
 
@@ -259,7 +259,7 @@ export type MeasurementTypeWhereUniqueInput = Prisma.AtLeast<{
   displayOrder?: Prisma.IntFilter<"MeasurementType"> | number
   createdAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MeasurementType"> | Date | string
-  measurements?: Prisma.ProductMeasurementListRelationFilter
+  requirements?: Prisma.ProductMeasurementRequirementListRelationFilter
   translations?: Prisma.MeasurementTypeTranslationListRelationFilter
 }, "id" | "code">
 
@@ -299,7 +299,7 @@ export type MeasurementTypeCreateInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutMeasurementTypeInput
+  requirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutMeasurementTypeInput
   translations?: Prisma.MeasurementTypeTranslationCreateNestedManyWithoutMeasurementTypeInput
 }
 
@@ -311,7 +311,7 @@ export type MeasurementTypeUncheckedCreateInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutMeasurementTypeInput
+  requirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutMeasurementTypeInput
   translations?: Prisma.MeasurementTypeTranslationUncheckedCreateNestedManyWithoutMeasurementTypeInput
 }
 
@@ -323,7 +323,7 @@ export type MeasurementTypeUpdateInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  measurements?: Prisma.ProductMeasurementUpdateManyWithoutMeasurementTypeNestedInput
+  requirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutMeasurementTypeNestedInput
   translations?: Prisma.MeasurementTypeTranslationUpdateManyWithoutMeasurementTypeNestedInput
 }
 
@@ -335,7 +335,7 @@ export type MeasurementTypeUncheckedUpdateInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutMeasurementTypeNestedInput
+  requirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutMeasurementTypeNestedInput
   translations?: Prisma.MeasurementTypeTranslationUncheckedUpdateManyWithoutMeasurementTypeNestedInput
 }
 
@@ -367,6 +367,11 @@ export type MeasurementTypeUncheckedUpdateManyInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MeasurementTypeScalarRelationFilter = {
+  is?: Prisma.MeasurementTypeWhereInput
+  isNot?: Prisma.MeasurementTypeWhereInput
 }
 
 export type MeasurementTypeCountOrderByAggregateInput = {
@@ -407,9 +412,18 @@ export type MeasurementTypeSumOrderByAggregateInput = {
   displayOrder?: Prisma.SortOrder
 }
 
-export type MeasurementTypeScalarRelationFilter = {
-  is?: Prisma.MeasurementTypeWhereInput
-  isNot?: Prisma.MeasurementTypeWhereInput
+export type MeasurementTypeCreateNestedOneWithoutRequirementsInput = {
+  create?: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutRequirementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutRequirementsInput>
+  connectOrCreate?: Prisma.MeasurementTypeCreateOrConnectWithoutRequirementsInput
+  connect?: Prisma.MeasurementTypeWhereUniqueInput
+}
+
+export type MeasurementTypeUpdateOneRequiredWithoutRequirementsNestedInput = {
+  create?: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutRequirementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutRequirementsInput>
+  connectOrCreate?: Prisma.MeasurementTypeCreateOrConnectWithoutRequirementsInput
+  upsert?: Prisma.MeasurementTypeUpsertWithoutRequirementsInput
+  connect?: Prisma.MeasurementTypeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MeasurementTypeUpdateToOneWithWhereWithoutRequirementsInput, Prisma.MeasurementTypeUpdateWithoutRequirementsInput>, Prisma.MeasurementTypeUncheckedUpdateWithoutRequirementsInput>
 }
 
 export type EnumMeasurementCodeFieldUpdateOperationsInput = {
@@ -430,18 +444,64 @@ export type MeasurementTypeUpdateOneRequiredWithoutTranslationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MeasurementTypeUpdateToOneWithWhereWithoutTranslationsInput, Prisma.MeasurementTypeUpdateWithoutTranslationsInput>, Prisma.MeasurementTypeUncheckedUpdateWithoutTranslationsInput>
 }
 
-export type MeasurementTypeCreateNestedOneWithoutMeasurementsInput = {
-  create?: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutMeasurementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutMeasurementsInput>
-  connectOrCreate?: Prisma.MeasurementTypeCreateOrConnectWithoutMeasurementsInput
-  connect?: Prisma.MeasurementTypeWhereUniqueInput
+export type MeasurementTypeCreateWithoutRequirementsInput = {
+  id?: string
+  name: string
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  translations?: Prisma.MeasurementTypeTranslationCreateNestedManyWithoutMeasurementTypeInput
 }
 
-export type MeasurementTypeUpdateOneRequiredWithoutMeasurementsNestedInput = {
-  create?: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutMeasurementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutMeasurementsInput>
-  connectOrCreate?: Prisma.MeasurementTypeCreateOrConnectWithoutMeasurementsInput
-  upsert?: Prisma.MeasurementTypeUpsertWithoutMeasurementsInput
-  connect?: Prisma.MeasurementTypeWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.MeasurementTypeUpdateToOneWithWhereWithoutMeasurementsInput, Prisma.MeasurementTypeUpdateWithoutMeasurementsInput>, Prisma.MeasurementTypeUncheckedUpdateWithoutMeasurementsInput>
+export type MeasurementTypeUncheckedCreateWithoutRequirementsInput = {
+  id?: string
+  name: string
+  code: $Enums.MeasurementCode
+  baseUnit: string
+  displayOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  translations?: Prisma.MeasurementTypeTranslationUncheckedCreateNestedManyWithoutMeasurementTypeInput
+}
+
+export type MeasurementTypeCreateOrConnectWithoutRequirementsInput = {
+  where: Prisma.MeasurementTypeWhereUniqueInput
+  create: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutRequirementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutRequirementsInput>
+}
+
+export type MeasurementTypeUpsertWithoutRequirementsInput = {
+  update: Prisma.XOR<Prisma.MeasurementTypeUpdateWithoutRequirementsInput, Prisma.MeasurementTypeUncheckedUpdateWithoutRequirementsInput>
+  create: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutRequirementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutRequirementsInput>
+  where?: Prisma.MeasurementTypeWhereInput
+}
+
+export type MeasurementTypeUpdateToOneWithWhereWithoutRequirementsInput = {
+  where?: Prisma.MeasurementTypeWhereInput
+  data: Prisma.XOR<Prisma.MeasurementTypeUpdateWithoutRequirementsInput, Prisma.MeasurementTypeUncheckedUpdateWithoutRequirementsInput>
+}
+
+export type MeasurementTypeUpdateWithoutRequirementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  translations?: Prisma.MeasurementTypeTranslationUpdateManyWithoutMeasurementTypeNestedInput
+}
+
+export type MeasurementTypeUncheckedUpdateWithoutRequirementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
+  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
+  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  translations?: Prisma.MeasurementTypeTranslationUncheckedUpdateManyWithoutMeasurementTypeNestedInput
 }
 
 export type MeasurementTypeCreateWithoutTranslationsInput = {
@@ -452,7 +512,7 @@ export type MeasurementTypeCreateWithoutTranslationsInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  measurements?: Prisma.ProductMeasurementCreateNestedManyWithoutMeasurementTypeInput
+  requirements?: Prisma.ProductMeasurementRequirementCreateNestedManyWithoutMeasurementTypeInput
 }
 
 export type MeasurementTypeUncheckedCreateWithoutTranslationsInput = {
@@ -463,7 +523,7 @@ export type MeasurementTypeUncheckedCreateWithoutTranslationsInput = {
   displayOrder?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  measurements?: Prisma.ProductMeasurementUncheckedCreateNestedManyWithoutMeasurementTypeInput
+  requirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutMeasurementTypeInput
 }
 
 export type MeasurementTypeCreateOrConnectWithoutTranslationsInput = {
@@ -490,7 +550,7 @@ export type MeasurementTypeUpdateWithoutTranslationsInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  measurements?: Prisma.ProductMeasurementUpdateManyWithoutMeasurementTypeNestedInput
+  requirements?: Prisma.ProductMeasurementRequirementUpdateManyWithoutMeasurementTypeNestedInput
 }
 
 export type MeasurementTypeUncheckedUpdateWithoutTranslationsInput = {
@@ -501,67 +561,7 @@ export type MeasurementTypeUncheckedUpdateWithoutTranslationsInput = {
   displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  measurements?: Prisma.ProductMeasurementUncheckedUpdateManyWithoutMeasurementTypeNestedInput
-}
-
-export type MeasurementTypeCreateWithoutMeasurementsInput = {
-  id?: string
-  name: string
-  code: $Enums.MeasurementCode
-  baseUnit: string
-  displayOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  translations?: Prisma.MeasurementTypeTranslationCreateNestedManyWithoutMeasurementTypeInput
-}
-
-export type MeasurementTypeUncheckedCreateWithoutMeasurementsInput = {
-  id?: string
-  name: string
-  code: $Enums.MeasurementCode
-  baseUnit: string
-  displayOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  translations?: Prisma.MeasurementTypeTranslationUncheckedCreateNestedManyWithoutMeasurementTypeInput
-}
-
-export type MeasurementTypeCreateOrConnectWithoutMeasurementsInput = {
-  where: Prisma.MeasurementTypeWhereUniqueInput
-  create: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutMeasurementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutMeasurementsInput>
-}
-
-export type MeasurementTypeUpsertWithoutMeasurementsInput = {
-  update: Prisma.XOR<Prisma.MeasurementTypeUpdateWithoutMeasurementsInput, Prisma.MeasurementTypeUncheckedUpdateWithoutMeasurementsInput>
-  create: Prisma.XOR<Prisma.MeasurementTypeCreateWithoutMeasurementsInput, Prisma.MeasurementTypeUncheckedCreateWithoutMeasurementsInput>
-  where?: Prisma.MeasurementTypeWhereInput
-}
-
-export type MeasurementTypeUpdateToOneWithWhereWithoutMeasurementsInput = {
-  where?: Prisma.MeasurementTypeWhereInput
-  data: Prisma.XOR<Prisma.MeasurementTypeUpdateWithoutMeasurementsInput, Prisma.MeasurementTypeUncheckedUpdateWithoutMeasurementsInput>
-}
-
-export type MeasurementTypeUpdateWithoutMeasurementsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
-  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
-  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  translations?: Prisma.MeasurementTypeTranslationUpdateManyWithoutMeasurementTypeNestedInput
-}
-
-export type MeasurementTypeUncheckedUpdateWithoutMeasurementsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.EnumMeasurementCodeFieldUpdateOperationsInput | $Enums.MeasurementCode
-  baseUnit?: Prisma.StringFieldUpdateOperationsInput | string
-  displayOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  translations?: Prisma.MeasurementTypeTranslationUncheckedUpdateManyWithoutMeasurementTypeNestedInput
+  requirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutMeasurementTypeNestedInput
 }
 
 
@@ -570,12 +570,12 @@ export type MeasurementTypeUncheckedUpdateWithoutMeasurementsInput = {
  */
 
 export type MeasurementTypeCountOutputType = {
-  measurements: number
+  requirements: number
   translations: number
 }
 
 export type MeasurementTypeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  measurements?: boolean | MeasurementTypeCountOutputTypeCountMeasurementsArgs
+  requirements?: boolean | MeasurementTypeCountOutputTypeCountRequirementsArgs
   translations?: boolean | MeasurementTypeCountOutputTypeCountTranslationsArgs
 }
 
@@ -592,8 +592,8 @@ export type MeasurementTypeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Ty
 /**
  * MeasurementTypeCountOutputType without action
  */
-export type MeasurementTypeCountOutputTypeCountMeasurementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductMeasurementWhereInput
+export type MeasurementTypeCountOutputTypeCountRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductMeasurementRequirementWhereInput
 }
 
 /**
@@ -612,7 +612,7 @@ export type MeasurementTypeSelect<ExtArgs extends runtime.Types.Extensions.Inter
   displayOrder?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  measurements?: boolean | Prisma.MeasurementType$measurementsArgs<ExtArgs>
+  requirements?: boolean | Prisma.MeasurementType$requirementsArgs<ExtArgs>
   translations?: boolean | Prisma.MeasurementType$translationsArgs<ExtArgs>
   _count?: boolean | Prisma.MeasurementTypeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["measurementType"]>
@@ -649,7 +649,7 @@ export type MeasurementTypeSelectScalar = {
 
 export type MeasurementTypeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "baseUnit" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["measurementType"]>
 export type MeasurementTypeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  measurements?: boolean | Prisma.MeasurementType$measurementsArgs<ExtArgs>
+  requirements?: boolean | Prisma.MeasurementType$requirementsArgs<ExtArgs>
   translations?: boolean | Prisma.MeasurementType$translationsArgs<ExtArgs>
   _count?: boolean | Prisma.MeasurementTypeCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -659,7 +659,7 @@ export type MeasurementTypeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type $MeasurementTypePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MeasurementType"
   objects: {
-    measurements: Prisma.$ProductMeasurementPayload<ExtArgs>[]
+    requirements: Prisma.$ProductMeasurementRequirementPayload<ExtArgs>[]
     translations: Prisma.$MeasurementTypeTranslationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1064,7 +1064,7 @@ readonly fields: MeasurementTypeFieldRefs;
  */
 export interface Prisma__MeasurementTypeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  measurements<T extends Prisma.MeasurementType$measurementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MeasurementType$measurementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductMeasurementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  requirements<T extends Prisma.MeasurementType$requirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MeasurementType$requirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductMeasurementRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   translations<T extends Prisma.MeasurementType$translationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MeasurementType$translationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeasurementTypeTranslationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1495,27 +1495,27 @@ export type MeasurementTypeDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
- * MeasurementType.measurements
+ * MeasurementType.requirements
  */
-export type MeasurementType$measurementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MeasurementType$requirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductMeasurement
+   * Select specific fields to fetch from the ProductMeasurementRequirement
    */
-  select?: Prisma.ProductMeasurementSelect<ExtArgs> | null
+  select?: Prisma.ProductMeasurementRequirementSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductMeasurement
+   * Omit specific fields from the ProductMeasurementRequirement
    */
-  omit?: Prisma.ProductMeasurementOmit<ExtArgs> | null
+  omit?: Prisma.ProductMeasurementRequirementOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductMeasurementInclude<ExtArgs> | null
-  where?: Prisma.ProductMeasurementWhereInput
-  orderBy?: Prisma.ProductMeasurementOrderByWithRelationInput | Prisma.ProductMeasurementOrderByWithRelationInput[]
-  cursor?: Prisma.ProductMeasurementWhereUniqueInput
+  include?: Prisma.ProductMeasurementRequirementInclude<ExtArgs> | null
+  where?: Prisma.ProductMeasurementRequirementWhereInput
+  orderBy?: Prisma.ProductMeasurementRequirementOrderByWithRelationInput | Prisma.ProductMeasurementRequirementOrderByWithRelationInput[]
+  cursor?: Prisma.ProductMeasurementRequirementWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ProductMeasurementScalarFieldEnum | Prisma.ProductMeasurementScalarFieldEnum[]
+  distinct?: Prisma.ProductMeasurementRequirementScalarFieldEnum | Prisma.ProductMeasurementRequirementScalarFieldEnum[]
 }
 
 /**
