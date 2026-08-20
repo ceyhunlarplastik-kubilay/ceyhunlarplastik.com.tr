@@ -68,7 +68,7 @@ export type LeadCustomerProfileInput = {
     websiteUrl?: string | null
     fullName: string | null
     phone: string
-    email: string
+    email?: string | null
     note?: string | null
     sectorValueId?: string | null
     productionGroupValueId?: string | null

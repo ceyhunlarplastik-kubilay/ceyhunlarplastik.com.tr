@@ -31,6 +31,9 @@ type Props = {
     allowSalesFilter: boolean
 }
 
+// Her render'da yeni `[]` üretilirse harita efektleri boş yere tetiklenir.
+const EMPTY_POINTS: CustomerMapPoint[] = []
+
 function useDebouncedBounds(bounds: Bounds | null, delayMs: number) {
     const [debouncedBounds, setDebouncedBounds] = useState<Bounds | null>(bounds)
 
@@ -163,7 +166,7 @@ export function CustomerMapPageClient({
             </div>
 
             <ManagedCustomerMap
-                points={mapQuery.data ?? []}
+                points={mapQuery.data ?? EMPTY_POINTS}
                 activePoint={activePoint}
                 onActivePointChange={setActivePoint}
                 onBoundsChange={setBounds}

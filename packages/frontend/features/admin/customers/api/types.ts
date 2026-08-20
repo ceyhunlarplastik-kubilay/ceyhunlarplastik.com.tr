@@ -239,6 +239,7 @@ export type CustomerAddress = {
     geocodingLabel?: string | null
     geocodingRaw?: unknown
     geocodedAt?: string | null
+    geocodingExpiresAt?: string | null
     locationVerifiedAt?: string | null
     locationVerifiedByUserId?: string | null
     isPrimary: boolean

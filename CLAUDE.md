@@ -95,6 +95,17 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   fonksiyonu gösterir. Varsayılanı şemaya değil, tek bir normalize fonksiyonuna koy
   (`normalizeProductModel3dConfig` örneği). Koruma:
   `packages/functions/src/validatorCompilation.test.ts` tüm validator'ları derler.
+- İstek şemasında `.refine()` / `.superRefine()` ile doğrulama KURMA: `validatorWrapper`
+  YALNIZ `z.toJSONSchema` çıktısını üretir, Zod runtime'ı istek yolunda hiç çalışmaz ve
+  refinement JSON Schema'ya çevrilemediği için sessizce DÜŞER (hata da vermez). Ölçüldü:
+  `z.email().max(320)` → `format:"email"` + `pattern`; `z.string().max(320).refine(...)`
+  → yalnız `{type:"string",maxLength:320}` — sunucu her string'i kabul eder. Opsiyonel
+  e-posta gibi durumlarda union yaz: `z.union([z.literal(""), z.email().max(320)])`.
+  Koruma: `packages/functions/src/AdminApi/validators/leadCustomers.test.ts`.
+- Harici HTTP çağrısını (Google Places gibi) `prisma.$transaction` İÇİNDE yapma:
+  varsayılan 5 sn'lik interaktif transaction süresi ağ gecikmesiyle aşılır (P2028) ve
+  tüm iş geri alınır; servis kapalıysa akış hiç tamamlanamaz. Çözümü önce hazırla,
+  transaction'a yalnız yazma bırak (`prepareApprovedBusinessRequestAddresses` örneği).
 - İstek şemasında `z.record(z.enum([...]), …)` KULLANMA: `z.toJSONSchema` her anahtarı
   `required` yapar ve request validator'ın ajv'si (`strict: true`) şemayı hiç derlemez
   (`strictRequired`). Doğrusu `z.partialRecord(...)` — bilinmeyen anahtarı ve değer

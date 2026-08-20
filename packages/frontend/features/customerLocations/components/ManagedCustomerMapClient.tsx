@@ -1,13 +1,14 @@
+/// <reference types="google.maps" />
+
 "use client"
 
 import Link from "next/link"
-import { useMemo, useRef } from "react"
-import { GeolocateControl, Layer, NavigationControl, Popup, Source, Map } from "react-map-gl/maplibre"
-import type { LayerProps, MapRef } from "react-map-gl/maplibre"
-// Eskiden root layout'ta globaldi; artık yalnızca harita içeren sayfalarda yüklenir.
-import "maplibre-gl/dist/maplibre-gl.css"
-import type { FeatureCollection, Point } from "geojson"
+import { useEffect, useRef, useState } from "react"
+import { LocateFixed } from "lucide-react"
+import { MarkerClusterer } from "@googlemaps/markerclusterer"
+import { InfoWindow, Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps"
 import { Button } from "@/components/ui/button"
+import { GoogleMapsApiProvider, googleMapsBrowserApiKey, googleMapsMapId } from "@/features/customerLocations/components/GoogleMapsApiProvider"
 import { buildGoogleMapsDirectionsUrl } from "@/features/customerLocations/lib/buildGoogleMapsDirectionsUrl"
 import type { CustomerMapPoint } from "@/features/customerLocations/types"
 
@@ -18,11 +19,6 @@ type Bounds = {
     west: number
 }
 
-const WORLD_MIN_LATITUDE = -85.051129
-const WORLD_MAX_LATITUDE = 85.051129
-const WORLD_MIN_LONGITUDE = -180
-const WORLD_MAX_LONGITUDE = 180
-
 type Props = {
     points: CustomerMapPoint[]
     activePoint: CustomerMapPoint | null
@@ -32,216 +28,161 @@ type Props = {
     isFetching?: boolean
 }
 
-const clusterLayer: LayerProps = {
-    id: "clusters",
-    type: "circle",
-    source: "customers",
-    filter: ["has", "point_count"],
-    paint: {
-        "circle-color": "#c88b20",
-        "circle-radius": [
-            "step",
-            ["get", "point_count"],
-            18,
-            20,
-            24,
-            50,
-            30,
-        ],
-        "circle-stroke-width": 2,
-        "circle-stroke-color": "#fff7e6",
-    },
-}
+const WORLD_BOUNDS: Bounds = { north: 85, south: -85, east: 180, west: -180 }
 
-const clusterCountLayer: LayerProps = {
-    id: "cluster-count",
-    type: "symbol",
-    source: "customers",
-    filter: ["has", "point_count"],
-    layout: {
-        "text-field": ["get", "point_count_abbreviated"],
-        "text-size": 12,
-        "text-font": ["Open Sans Semibold"],
-    },
-    paint: {
-        "text-color": "#111827",
-    },
-}
+function normalizeBounds(bounds: google.maps.LatLngBounds): Bounds {
+    const northEast = bounds.getNorthEast()
+    const southWest = bounds.getSouthWest()
+    const east = northEast.lng()
+    const west = southWest.lng()
 
-const unclusteredPointLayer: LayerProps = {
-    id: "unclustered-point",
-    type: "circle",
-    source: "customers",
-    filter: ["!", ["has", "point_count"]],
-    paint: {
-        "circle-color": [
-            "match",
-            ["get", "status"],
-            "CUSTOMER",
-            "#0f766e",
-            "#c2410c",
-        ],
-        "circle-radius": 8,
-        "circle-stroke-width": 2,
-        "circle-stroke-color": "#ffffff",
-    },
-}
-
-function clampLatitude(value: number) {
-    return Math.min(Math.max(value, WORLD_MIN_LATITUDE), WORLD_MAX_LATITUDE)
-}
-
-function wrapLongitude(value: number) {
-    const wrapped = ((((value + 180) % 360) + 360) % 360) - 180
-    return wrapped === 180 ? WORLD_MAX_LONGITUDE : wrapped
-}
-
-function normalizeBounds(bounds: Bounds): Bounds {
-    const north = clampLatitude(bounds.north)
-    const south = clampLatitude(bounds.south)
-    const rawSpan = bounds.east - bounds.west
-
-    if (!Number.isFinite(rawSpan) || Math.abs(rawSpan) >= 360) {
-        return {
-            north,
-            south,
-            east: WORLD_MAX_LONGITUDE,
-            west: WORLD_MIN_LONGITUDE,
-        }
-    }
-
-    const east = wrapLongitude(bounds.east)
-    const west = wrapLongitude(bounds.west)
-
-    if (east < west) {
-        return {
-            north,
-            south,
-            east: WORLD_MAX_LONGITUDE,
-            west: WORLD_MIN_LONGITUDE,
-        }
-    }
+    // Antimeridyen kesişiminde backend'in basit dikdörtgen sorgusu yerine dünya
+    // aralığını kullan; böylece görünür noktalar yanlışlıkla elenmez.
+    if (east < west) return WORLD_BOUNDS
 
     return {
-        north,
-        south,
+        north: Math.min(85, northEast.lat()),
+        south: Math.max(-85, southWest.lat()),
         east,
         west,
     }
 }
 
-export function ManagedCustomerMapClient({
+/** Bir pin'in görsel kimliği; değişmediyse marker yeniden yaratılmamalı. */
+function markerKey(point: CustomerMapPoint) {
+    return `${point.customerId}:${point.addressId}:${point.latitude}:${point.longitude}:${point.status}`
+}
+
+/**
+ * Her pan/zoom noktaların bir kısmını değiştirir. Tüm marker'ları söküp yeniden
+ * kurmak yüzlerce PinElement/AdvancedMarkerElement ayırması demek; bunun yerine
+ * yalnız giren ve çıkan pin'ler üzerinde çalışılır.
+ */
+function CustomerMarkerCluster({
+    points,
+    onSelect,
+}: {
+    points: CustomerMapPoint[]
+    onSelect: (point: CustomerMapPoint) => void
+}) {
+    const map = useMap()
+    const markerLibrary = useMapsLibrary("marker")
+    // `Map` adı bu dosyada vis.gl bileşeni tarafından gölgeleniyor.
+    const markersRef = useRef(new globalThis.Map<string, google.maps.marker.AdvancedMarkerElement>())
+    const clustererRef = useRef<MarkerClusterer | null>(null)
+    // Marker'lar yeniden kullanıldığı için click closure'ı taze kalmalı.
+    const onSelectRef = useRef(onSelect)
+
+    useEffect(() => {
+        onSelectRef.current = onSelect
+    }, [onSelect])
+
+    useEffect(() => {
+        if (!map || !markerLibrary) return
+
+        const cache = markersRef.current
+        const clusterer = clustererRef.current ?? new MarkerClusterer({ map })
+        clustererRef.current = clusterer
+
+        const nextKeys = new Set(points.map(markerKey))
+        const removed: google.maps.marker.AdvancedMarkerElement[] = []
+        for (const [key, marker] of cache) {
+            if (nextKeys.has(key)) continue
+            cache.delete(key)
+            marker.map = null
+            removed.push(marker)
+        }
+
+        const added: google.maps.marker.AdvancedMarkerElement[] = []
+        for (const point of points) {
+            const key = markerKey(point)
+            if (cache.has(key)) continue
+
+            const pin = new markerLibrary.PinElement({
+                background: point.status === "CUSTOMER" ? "#0f766e" : "#c2410c",
+                borderColor: "#ffffff",
+                glyphColor: "#ffffff",
+                scale: 0.9,
+            })
+            const marker = new markerLibrary.AdvancedMarkerElement({
+                position: { lat: point.latitude, lng: point.longitude },
+                title: point.companyName || point.fullName,
+                content: pin.element,
+                gmpClickable: true,
+            })
+            marker.addListener("click", () => onSelectRef.current(point))
+            cache.set(key, marker)
+            added.push(marker)
+        }
+
+        if (removed.length) clusterer.removeMarkers(removed, true)
+        if (added.length) clusterer.addMarkers(added, true)
+        if (removed.length || added.length) clusterer.render()
+    }, [map, markerLibrary, points])
+
+    // Yalnız unmount'ta topla: aksi halde her nokta değişiminde her şey sökülür
+    // ve yeniden kullanım anlamsızlaşır.
+    useEffect(() => {
+        const cache = markersRef.current
+
+        return () => {
+            clustererRef.current?.clearMarkers()
+            clustererRef.current?.setMap(null)
+            clustererRef.current = null
+            cache.forEach((marker) => {
+                marker.map = null
+            })
+            cache.clear()
+        }
+    }, [])
+
+    return null
+}
+
+function ManagedCustomerGoogleMap({
     points,
     activePoint,
     onActivePointChange,
     onBoundsChange,
     customerDetailHref,
-    isFetching = false,
+    isFetching,
 }: Props) {
-    const mapRef = useRef<MapRef | null>(null)
+    const map = useMap()
 
-    const geoJson = useMemo<FeatureCollection<Point, Record<string, string | number | boolean | null>>>(
-        () => ({
-            type: "FeatureCollection",
-            features: points.map((point) => ({
-                type: "Feature",
-                geometry: {
-                    type: "Point",
-                    coordinates: [point.longitude, point.latitude],
-                },
-                properties: {
-                    customerId: point.customerId,
-                    addressId: point.addressId,
-                    companyName: point.companyName ?? null,
-                    fullName: point.fullName,
-                    addressLabel: point.addressLabel,
-                    addressSummary: point.addressSummary,
-                    status: point.status,
-                    isPrimary: point.isPrimary,
-                    isShipping: point.isShipping,
-                },
-            })),
-        }),
-        [points],
-    )
-
-    function emitBounds() {
-        const bounds = mapRef.current?.getBounds()
-        if (!bounds) return
-
-        onBoundsChange(normalizeBounds({
-            north: bounds.getNorth(),
-            south: bounds.getSouth(),
-            east: bounds.getEast(),
-            west: bounds.getWest(),
-        }))
+    function goToBrowserLocation() {
+        navigator.geolocation?.getCurrentPosition((position) => {
+            map?.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude })
+            map?.setZoom(13)
+        })
     }
 
     return (
         <div className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
             <Map
-                ref={mapRef}
-                initialViewState={{ latitude: 39.1, longitude: 35.15, zoom: 5.25 }}
-                mapStyle="https://tiles.openfreemap.org/styles/liberty"
+                mapId={googleMapsMapId}
+                defaultCenter={{ lat: 39.1, lng: 35.15 }}
+                defaultZoom={5}
                 style={{ width: "100%", height: 620 }}
-                interactiveLayerIds={["clusters", "unclustered-point"]}
-                onLoad={() => emitBounds()}
-                onMoveEnd={() => emitBounds()}
-                onClick={(event) => {
-                    const feature = event.features?.[0]
-                    if (!feature) {
-                        onActivePointChange(null)
-                        return
-                    }
-
-                    if (feature.layer.id === "clusters") {
-                        const clusterId = feature.properties?.cluster_id as number | undefined
-                        const source = mapRef.current?.getMap().getSource("customers") as {
-                            getClusterExpansionZoom: (clusterId: number) => Promise<number>
-                        } | undefined
-                        if (!source || clusterId === undefined) return
-                        void source.getClusterExpansionZoom(clusterId).then((zoom) => {
-                            mapRef.current?.easeTo({
-                                center: (feature.geometry as Point).coordinates as [number, number],
-                                zoom,
-                                duration: 400,
-                            })
-                        })
-                        return
-                    }
-
-                    const point = points.find((item) =>
-                        item.customerId === feature.properties?.customerId
-                        && item.addressId === feature.properties?.addressId,
-                    ) ?? null
-                    onActivePointChange(point)
+                gestureHandling="cooperative"
+                streetViewControl={false}
+                mapTypeControl={false}
+                fullscreenControl
+                reuseMaps
+                onClick={() => onActivePointChange(null)}
+                onIdle={(event) => {
+                    const bounds = event.map.getBounds()
+                    if (bounds) onBoundsChange(normalizeBounds(bounds))
                 }}
             >
-                <NavigationControl position="top-right" showCompass={false} />
-                <GeolocateControl position="top-right" trackUserLocation={false} />
-                <Source
-                    id="customers"
-                    type="geojson"
-                    data={geoJson}
-                    cluster
-                    clusterMaxZoom={13}
-                    clusterRadius={42}
-                >
-                    <Layer {...clusterLayer} />
-                    <Layer {...clusterCountLayer} />
-                    <Layer {...unclusteredPointLayer} />
-                </Source>
+                <CustomerMarkerCluster points={points} onSelect={onActivePointChange} />
 
                 {activePoint ? (
-                    <Popup
-                        latitude={activePoint.latitude}
-                        longitude={activePoint.longitude}
-                        anchor="bottom"
-                        offset={18}
-                        closeOnClick={false}
-                        onClose={() => onActivePointChange(null)}
+                    <InfoWindow
+                        position={{ lat: activePoint.latitude, lng: activePoint.longitude }}
+                        pixelOffset={[0, -28]}
+                        onCloseClick={() => onActivePointChange(null)}
                     >
-                        <div className="min-w-[220px] max-w-[280px] space-y-3 pr-2">
+                        <div className="min-w-55 max-w-70 space-y-3 pr-2">
                             <div>
                                 <div className="text-sm font-semibold text-neutral-950">
                                     {activePoint.companyName || activePoint.fullName}
@@ -258,9 +199,7 @@ export function ManagedCustomerMapClient({
 
                             <div className="flex flex-col gap-2">
                                 <Button asChild size="sm" variant="outline">
-                                    <Link href={customerDetailHref(activePoint.customerId)}>
-                                        Müşteri Detayını Aç
-                                    </Link>
+                                    <Link href={customerDetailHref(activePoint.customerId)}>Müşteri Detayını Aç</Link>
                                 </Button>
                                 <Button asChild size="sm">
                                     <a
@@ -273,21 +212,65 @@ export function ManagedCustomerMapClient({
                                 </Button>
                             </div>
                         </div>
-                    </Popup>
+                    </InfoWindow>
                 ) : null}
             </Map>
 
+            <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                className="absolute right-3 top-14 z-10 bg-white shadow-md"
+                title="Konumuma git"
+                aria-label="Konumuma git"
+                onClick={goToBrowserLocation}
+            >
+                <LocateFixed className="h-4 w-4" />
+            </Button>
+
             {isFetching ? (
-                <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-neutral-600 shadow-sm">
+                <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-neutral-600 shadow-sm" role="status" aria-live="polite">
                     Harita verisi güncelleniyor...
                 </div>
             ) : null}
 
             {points.length === 0 ? (
                 <div className="pointer-events-none absolute inset-x-4 bottom-4 rounded-2xl border border-dashed border-neutral-200 bg-white/95 px-4 py-3 text-sm text-neutral-500 shadow-sm">
-                    Bu görünümde koordinatlı müşteri bulunmuyor.
+                    Bu görünümde geçerli koordinatlı müşteri bulunmuyor.
                 </div>
             ) : null}
         </div>
+    )
+}
+
+function MissingGoogleConfiguration({ onBoundsChange }: Pick<Props, "onBoundsChange">) {
+    useEffect(() => onBoundsChange(WORLD_BOUNDS), [onBoundsChange])
+
+    return (
+        <div className="flex h-155 items-center justify-center rounded-3xl border border-amber-200 bg-amber-50 p-8 text-center text-sm text-amber-800 shadow-sm" role="alert">
+            Google Maps anahtarı veya Map ID tanımlı değil. Harita dağıtımdan önce SST secret’larıyla yapılandırılmalı.
+        </div>
+    )
+}
+
+export function ManagedCustomerMapClient(props: Props) {
+    const [loadError, setLoadError] = useState(false)
+
+    if (!googleMapsBrowserApiKey || !googleMapsMapId) {
+        return <MissingGoogleConfiguration onBoundsChange={props.onBoundsChange} />
+    }
+
+    if (loadError) {
+        return (
+            <div className="flex h-155 items-center justify-center rounded-3xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-700 shadow-sm" role="alert">
+                Google Maps yüklenemedi veya günlük kota doldu. Daha sonra yeniden deneyin.
+            </div>
+        )
+    }
+
+    return (
+        <GoogleMapsApiProvider onError={() => setLoadError(true)}>
+            <ManagedCustomerGoogleMap {...props} />
+        </GoogleMapsApiProvider>
     )
 }

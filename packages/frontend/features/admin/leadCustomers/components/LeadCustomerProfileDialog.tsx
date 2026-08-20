@@ -67,7 +67,7 @@ type Props = {
     open: boolean
     onOpenChange: (open: boolean) => void
     customer?: LeadCustomer | null
-    /** Yeni kayıt sonrası: sayfa detay panelini açıp adres girişine yönlendirir. */
+    /** Yeni kayıt sonrası kartın listede görünür ve açık hale gelmesini sağlar. */
     onCreated?: (customerId: string) => void
 }
 
@@ -91,6 +91,14 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
         if (!open) return
         form.reset(createLeadCustomerFormDefaults(customer))
     }, [customer, form, open])
+
+    function handleProfileOpenChange(nextOpen: boolean) {
+        if (!nextOpen) {
+            setAddressDraft(null)
+            setAddressDialogOpen(false)
+        }
+        onOpenChange(nextOpen)
+    }
 
     const selectedSectorValueId = useWatch({ control: form.control, name: "sectorValueId" })
     const selectedProductionGroupValueId = useWatch({
@@ -137,8 +145,8 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
             if (customer) {
                 await updateMutation.mutateAsync(payload)
             } else {
-                // Adres girildiyse AYNI istekte gider; girilmediyse kayıt sonrası
-                // detay panelinden eklenir (mevcut otomatik açılma korunur).
+                // Adres girildiyse AYNI istekte gider; girilmediyse kullanıcı
+                // daha sonra açık müşteri kartındaki "Adres Ekle" akışını kullanır.
                 const created = await createMutation.mutateAsync({
                     ...payload,
                     ...(addressDraft ? { address: normalizeAddressPayload(addressDraft) } : {}),
@@ -146,7 +154,7 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                 onCreated?.(created.id)
             }
 
-            onOpenChange(false)
+            handleProfileOpenChange(false)
         } catch {
             // Hata mesajı global axios interceptor'ı tarafından gösteriliyor;
             // dialog açık kalır ki kullanıcı girdisini kaybetmesin.
@@ -156,9 +164,9 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
     })
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleProfileOpenChange}>
             <DialogContent className="max-h-[min(860px,calc(100vh-2rem))] w-[calc(100vw-2rem)] sm:max-w-[min(1120px,calc(100vw-3rem))] overflow-hidden rounded-3xl p-0">
-                <DialogHeader className="border-b border-neutral-100 bg-gradient-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-5 text-white sm:px-6">
+                <DialogHeader className="border-b border-neutral-100 bg-linear-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-5 text-white sm:px-6">
                     <Badge variant="outline" className="w-fit border-white/15 bg-white/10 text-white">
                         Potansiyel Müşteri
                     </Badge>
@@ -232,9 +240,20 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                         name="email"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>E-posta *</FormLabel>
+                                                <FormLabel>
+                                                    E-posta
+                                                    <span className="ml-1 font-normal text-neutral-400">
+                                                        (opsiyonel)
+                                                    </span>
+                                                </FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="ornek@firma.com" {...field} />
+                                                    <Input
+                                                        type="email"
+                                                        inputMode="email"
+                                                        autoComplete="email"
+                                                        placeholder="ornek@firma.com"
+                                                        {...field}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -467,7 +486,7 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                 type="button"
                                 variant="outline"
                                 className="rounded-2xl"
-                                onClick={() => onOpenChange(false)}
+                                onClick={() => handleProfileOpenChange(false)}
                                 disabled={isPending}
                             >
                                 Vazgeç
@@ -494,6 +513,9 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                 open={addressDialogOpen}
                 onOpenChange={setAddressDialogOpen}
                 initialValues={addressDraft}
+                defaultLabel="Merkez"
+                defaultIsPrimary
+                defaultIsShipping={false}
                 title={addressDraft ? "Adresi Düzenle" : "Adres Ekle"}
                 description="Haritadan konum seçin; adres müşteri kaydıyla birlikte oluşturulacak."
                 submitLabel={addressDraft ? "Adresi Güncelle" : "Adresi Ekle"}

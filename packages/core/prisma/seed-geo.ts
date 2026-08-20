@@ -81,11 +81,16 @@ type CityJsonRow = {
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const geoSourceDir = path.join(__dirname, "geo-source")
 
-if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is required to run geo seed")
+// Prisma CLI ile aynı bağlantı önceliğini kullan. Production tüneli DIRECT_URL'i
+// erişilebilir özel IP'ye yönlendirirken DATABASE_URL RDS Proxy hostname'inde
+// kalabilir; macOS bu özel hostname'i çözemediğinde seed P1001 ile düşer.
+const databaseUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL
+
+if (!databaseUrl) {
+    throw new Error("DATABASE_URL or DIRECT_URL is required to run geo seed")
 }
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+const adapter = new PrismaPg({ connectionString: databaseUrl })
 const prisma = new PrismaClient({ adapter, log: ["error"] })
 
 function parseCsvLine(line: string) {

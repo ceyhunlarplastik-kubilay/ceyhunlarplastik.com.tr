@@ -1,6 +1,7 @@
 import { Prisma } from "@/prisma/generated/prisma/client"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
+import { prepareCustomerAddressInput } from "@/core/helpers/crm/customerAddressInput"
 
 type Input = {
     companyName?: string | null
@@ -62,6 +63,18 @@ export async function buildCustomerUpdateData(
         productionGroupValueId: input.productionGroupValueId,
         usageAreaValueIds: input.usageAreaValueIds,
     })
+    const normalizedAddresses = input.addresses
+        ? await Promise.all(input.addresses.map((address) => prepareCustomerAddressInput({
+            ...address,
+            geocodedAt: address.geocodedAt instanceof Date ? address.geocodedAt.toISOString() : address.geocodedAt,
+            locationVerifiedAt: address.locationVerifiedAt instanceof Date
+                ? address.locationVerifiedAt.toISOString()
+                : address.locationVerifiedAt,
+        }, {
+            defaultLocationSource: "MANUAL_PIN",
+            allowVerification: false,
+        })))
+        : undefined
 
     const data: Prisma.CustomerUpdateInput = {
         ...(input.companyName !== undefined ? { companyName: input.companyName } : {}),
@@ -123,7 +136,7 @@ export async function buildCustomerUpdateData(
             ? {
                 addresses: {
                     deleteMany: {},
-                    create: input.addresses.map((address, index) => ({
+                    create: normalizedAddresses!.map((address, index) => ({
                         label: address.label,
                         contactName: address.contactName ?? null,
                         phone: address.phone ?? null,
@@ -146,9 +159,10 @@ export async function buildCustomerUpdateData(
                         geocodingProvider: address.geocodingProvider ?? null,
                         geocodingPlaceId: address.geocodingPlaceId ?? null,
                         geocodingLabel: address.geocodingLabel ?? null,
-                        geocodingRaw: address.geocodingRaw ?? Prisma.JsonNull,
-                        geocodedAt: address.geocodedAt ? new Date(address.geocodedAt) : null,
-                        locationVerifiedAt: address.locationVerifiedAt ? new Date(address.locationVerifiedAt) : null,
+                        geocodingRaw: address.geocodingRaw ?? Prisma.DbNull,
+                        geocodedAt: address.geocodedAt ?? null,
+                        geocodingExpiresAt: address.geocodingExpiresAt ?? null,
+                        locationVerifiedAt: address.locationVerifiedAt ?? null,
                         ...(address.locationVerifiedByUserId
                             ? {
                                 locationVerifiedByUser: {

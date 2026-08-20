@@ -3,6 +3,7 @@ import {
     emptyAddress,
     type AddressDraftFormValues,
 } from "@/features/customerPortal/components/requestComposer/schema"
+import { normalizeCoordinateValue } from "@/features/customerLocations/lib/manualCoordinates"
 
 export function toAddressDraftValues(address?: CustomerAddress | null): AddressDraftFormValues {
     const base = emptyAddress()
@@ -26,8 +27,8 @@ export function toAddressDraftValues(address?: CustomerAddress | null): AddressD
         postalCode: address.postalCode ?? "",
         taxOffice: address.taxOffice ?? "",
         taxNumber: address.taxNumber ?? "",
-        latitude: address.latitude ?? null,
-        longitude: address.longitude ?? null,
+        latitude: normalizeCoordinateValue(address.latitude, -90, 90),
+        longitude: normalizeCoordinateValue(address.longitude, -180, 180),
         locationSource: address.locationSource ?? null,
         locationAccuracy: address.locationAccuracy ?? null,
         geocodingProvider: address.geocodingProvider ?? "",
@@ -41,4 +42,3 @@ export function toAddressDraftValues(address?: CustomerAddress | null): AddressD
         note: address.note ?? "",
     }
 }
-

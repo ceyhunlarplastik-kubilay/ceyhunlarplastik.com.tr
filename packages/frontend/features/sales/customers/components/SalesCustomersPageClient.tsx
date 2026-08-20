@@ -35,7 +35,7 @@ export function SalesCustomersPageClient() {
 
             <div className="grid gap-4 lg:grid-cols-2">
                 {query.isLoading ? (
-                    <div className="flex min-h-[180px] items-center justify-center rounded-3xl border bg-white shadow-sm lg:col-span-2">
+                    <div className="flex min-h-45 items-center justify-center rounded-3xl border bg-white shadow-sm lg:col-span-2">
                         <Spinner className="size-5" />
                     </div>
                 ) : customers.map((customer) => (

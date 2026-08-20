@@ -6,6 +6,7 @@ import { businessApprovalWorkflow } from "./businessWorkflow";
 import { userAccessBus } from "./userAccessLifecycle";
 import { apiCors } from "./cors";
 import { apiRouteLambdaNamer } from "./lambdaNaming";
+import { googleMapsServerApiKey } from "./googleMaps";
 
 const folderPrefix = "packages/functions/src/AdminApi/functions";
 
@@ -111,6 +112,7 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
         BUCKET_NAME: publicBucket.name,
         POWERTOOLS_SERVICE_NAME: "ceyhunlar-admin-api",
         POWERTOOLS_LOG_LEVEL: $app.stage === "prod" ? "INFO" : "DEBUG",
+        GOOGLE_MAPS_SERVER_API_KEY: googleMapsServerApiKey.value,
         ASSET_PUBLIC_BASE_URL:
             $app.stage === "prod"
                 ? `https://cdn.${config.DOMAIN}`

@@ -887,6 +887,7 @@ model CustomerAddress {
   geocodingLabel           String?
   geocodingRaw             Json?
   geocodedAt               DateTime?
+  geocodingExpiresAt        DateTime?
   locationVerifiedAt       DateTime?
   locationVerifiedByUserId String?
   isPrimary                Boolean                          @default(false)
@@ -909,6 +910,7 @@ model CustomerAddress {
   @@index([stateId])
   @@index([cityId])
   @@index([latitude, longitude])
+  @@index([geocodingProvider, geocodingExpiresAt])
   @@index([locationVerifiedByUserId])
 }
 

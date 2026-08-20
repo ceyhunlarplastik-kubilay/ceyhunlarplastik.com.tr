@@ -4562,6 +4562,7 @@ export const CustomerAddressScalarFieldEnum = {
   geocodingLabel: 'geocodingLabel',
   geocodingRaw: 'geocodingRaw',
   geocodedAt: 'geocodedAt',
+  geocodingExpiresAt: 'geocodingExpiresAt',
   locationVerifiedAt: 'locationVerifiedAt',
   locationVerifiedByUserId: 'locationVerifiedByUserId',
   isPrimary: 'isPrimary',

@@ -3,6 +3,7 @@ import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQ
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
+import { GOOGLE_PLACES_PROVIDER } from "@/core/helpers/crm/customerAddressInput"
 import { decimalLikeToNumber } from "@/core/helpers/pricing/productVariantSupplier"
 import {
     CustomerAddressLocationAccuracy,
@@ -104,6 +105,18 @@ const customerBaseInclude = {
         },
     },
 } satisfies Prisma.CustomerInclude
+
+// Neon gibi uzak PostgreSQL bağlantılarında art arda gelen adres yazmaları,
+// Prisma'nın interaktif transaction için varsayılan 5 saniyelik süresini
+// zaman zaman aşabiliyor. Transaction içinde yalnız atomik olması gereken
+// yazmaları tutuyor, yine de ağ dalgalanmaları için sınırlı bir pay bırakıyoruz.
+const addressTransactionOptions = {
+    maxWait: 5_000,
+    timeout: 15_000,
+} as const
+
+/** Harita tek görünümde sınırsız pin çizmez; yakınlaşma zaten daraltır. */
+const MAP_CUSTOMER_LIMIT = 500
 
 export const customerProductInclude = {
     createdByUser: {
@@ -335,6 +348,7 @@ export type CustomerAddressMutationInput = {
     geocodingLabel?: string | null
     geocodingRaw?: Prisma.InputJsonValue | null
     geocodedAt?: Date | null
+    geocodingExpiresAt?: Date | null
     locationVerifiedAt?: Date | null
     locationVerifiedByUserId?: string | null
     isPrimary?: boolean
@@ -473,6 +487,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             geocodingPlaceId: data.geocodingPlaceId ?? null,
             geocodingLabel: data.geocodingLabel ?? null,
             geocodedAt: data.geocodedAt ?? null,
+            geocodingExpiresAt: data.geocodingExpiresAt ?? null,
             locationVerifiedAt: data.locationVerifiedAt ?? null,
             locationVerifiedByUserId: data.locationVerifiedByUserId ?? null,
             isPrimary: Boolean(data.isPrimary),
@@ -484,14 +499,14 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         if (mode === "create") {
             return {
                 ...base,
-                geocodingRaw: data.geocodingRaw ?? Prisma.JsonNull,
+                geocodingRaw: data.geocodingRaw ?? Prisma.DbNull,
             }
         }
 
         return Object.fromEntries(
             Object.entries({
                 ...base,
-                geocodingRaw: data.geocodingRaw === undefined ? undefined : data.geocodingRaw ?? Prisma.JsonNull,
+                geocodingRaw: data.geocodingRaw === undefined ? undefined : data.geocodingRaw ?? Prisma.DbNull,
                 locationVerifiedByUserId: data.locationVerifiedByUserId === undefined ? undefined : data.locationVerifiedByUserId,
             }).filter(([, value]) => value !== undefined),
         ) as Prisma.CustomerAddressUncheckedUpdateInput
@@ -594,9 +609,19 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         const north = Math.max(query.south, query.north)
         const west = Math.min(query.west, query.east)
         const east = Math.max(query.west, query.east)
+        // Görünür pencere SQL'de daraltılır: aksi halde her pan/zoom koordinatlı
+        // TÜM müşterileri ve adreslerini çekip JS'te eler.
         const coordinateWhere: Prisma.CustomerAddressWhereInput = {
-            latitude: { not: null },
-            longitude: { not: null },
+            latitude: { not: null, gte: south, lte: north },
+            longitude: { not: null, gte: west, lte: east },
+            OR: [
+                { geocodingProvider: null },
+                { geocodingProvider: { not: GOOGLE_PLACES_PROVIDER } },
+                {
+                    geocodingProvider: GOOGLE_PLACES_PROVIDER,
+                    geocodingExpiresAt: { gt: new Date() },
+                },
+            ],
         }
         const search = query.search?.trim()
 
@@ -622,6 +647,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                 { companyName: "asc" },
                 { fullName: "asc" },
             ],
+            take: MAP_CUSTOMER_LIMIT,
             select: {
                 id: true,
                 companyName: true,
@@ -653,21 +679,15 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         })
 
         return customers.flatMap((customer) => {
+            // Adresler sorguda zaten pencereye göre süzüldü; buradaki seçim
+            // görünürdeki adresler arasında yapılır.
             const address = customer.addresses.find((item) => item.isPrimary && item.isShipping)
                 ?? customer.addresses.find((item) => item.isPrimary)
                 ?? customer.addresses[0]
             const latitude = decimalLikeToNumber(address?.latitude)
             const longitude = decimalLikeToNumber(address?.longitude)
 
-            if (
-                !address
-                || latitude === undefined
-                || longitude === undefined
-                || latitude < south
-                || latitude > north
-                || longitude < west
-                || longitude > east
-            ) {
+            if (!address || latitude === undefined || longitude === undefined) {
                 return []
             }
 
@@ -692,6 +712,12 @@ export const customerRepository = (): IPrismaCustomerRepository => {
 
     const getCustomer = async (id: string) =>
         prisma.customer.findUnique({
+            where: { id },
+            include: customerDetailInclude,
+        })
+
+    const getCustomerOrThrow = async (id: string) =>
+        prisma.customer.findUniqueOrThrow({
             where: { id },
             include: customerDetailInclude,
         })
@@ -724,8 +750,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
     const createAddress = async (
         customerId: string,
         data: CustomerAddressMutationInput,
-    ) =>
-        prisma.$transaction(async (tx) => {
+    ) => {
+        await prisma.$transaction(async (tx) => {
             const currentMax = await tx.customerAddress.aggregate({
                 where: { customerId },
                 _max: { displayOrder: true },
@@ -745,12 +771,12 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                     displayOrder: (currentMax._max.displayOrder ?? 0) + 1,
                 },
             })
+        }, addressTransactionOptions)
 
-            return tx.customer.findUniqueOrThrow({
-                where: { id: customerId },
-                include: customerDetailInclude,
-            })
-        })
+        // Geniş müşteri detay sorgusu transaction süresine ve commit'e dahil
+        // edilmemeli; commit tamamlandıktan sonra güncel kaydı okuyoruz.
+        return getCustomerOrThrow(customerId)
+    }
 
     const getAddress = async (customerId: string, addressId: string) =>
         prisma.customerAddress.findFirst({
@@ -765,8 +791,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         customerId: string,
         addressId: string,
         data: CustomerAddressMutationInput,
-    ) =>
-        prisma.$transaction(async (tx) => {
+    ) => {
+        await prisma.$transaction(async (tx) => {
             const existing = await tx.customerAddress.findFirst({
                 where: {
                     id: addressId,
@@ -797,15 +823,13 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                 where: { id: existing.id },
                 data: buildAddressWriteData(data, "update") as Prisma.CustomerAddressUncheckedUpdateInput,
             })
+        }, addressTransactionOptions)
 
-            return tx.customer.findUniqueOrThrow({
-                where: { id: customerId },
-                include: customerDetailInclude,
-            })
-        })
+        return getCustomerOrThrow(customerId)
+    }
 
-    const deleteAddress = async (customerId: string, addressId: string) =>
-        prisma.$transaction(async (tx) => {
+    const deleteAddress = async (customerId: string, addressId: string) => {
+        await prisma.$transaction(async (tx) => {
             const existing = await tx.customerAddress.findFirst({
                 where: {
                     id: addressId,
@@ -847,12 +871,10 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                     },
                 })
             }
+        }, addressTransactionOptions)
 
-            return tx.customer.findUniqueOrThrow({
-                where: { id: customerId },
-                include: customerDetailInclude,
-            })
-        })
+        return getCustomerOrThrow(customerId)
+    }
 
     const replaceCompanyContactAssignments = async (
         customerId: string,

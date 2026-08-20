@@ -7,10 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { EditCustomerProfileDialog } from "@/features/admin/customers/components/EditCustomerProfileDialog"
-import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
-import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { ManagedCustomerAddressesSection } from "@/features/customerLocations/components/ManagedCustomerAddressesSection"
+import { useProtectedUsers } from "@/features/customerLocations/hooks/useProtectedUsers"
 import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
+import { useCustomerProfileAttributes } from "@/features/sales/customers/hooks/useCustomerProfileAttributes"
 import { useManagedCustomer } from "@/features/sales/customers/hooks/useManagedCustomer"
 import { useManagedCompanyContacts } from "@/features/sales/customers/hooks/useManagedCompanyContacts"
 import { useUpdateManagedCustomer } from "@/features/sales/customers/hooks/useUpdateManagedCustomer"
@@ -19,30 +19,39 @@ import { getUserDisplayName } from "@/lib/users/displayName"
 
 type Props = {
     customerId: string
+    canListUsers?: boolean
 }
 
 const HIERARCHY_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
 
-export function SalesCustomerOverviewPageClient({ customerId }: Props) {
+export function SalesCustomerOverviewPageClient({ customerId, canListUsers = false }: Props) {
     const customerQuery = useManagedCustomer(customerId)
     const updateMutation = useUpdateManagedCustomer(customerId)
-    const attrsQuery = useAttributesForFilter()
+    const attrsQuery = useCustomerProfileAttributes()
     const companyContactsQuery = useManagedCompanyContacts()
-    const usersQuery = useUsers({ params: { page: 1, limit: 500 } })
+    const usersQuery = useProtectedUsers({ page: 1, limit: 500, accessStatus: "ACTIVE" }, canListUsers)
     const [dialogOpen, setDialogOpen] = useState(false)
 
     const customer = customerQuery.data
     const attributes = useMemo(() => attrsQuery.data ?? [], [attrsQuery.data])
     const companyContacts = companyContactsQuery.data?.data ?? []
-    const salesUsers = useMemo(
-        () => (usersQuery.data?.data ?? [])
+    const salesUsers = useMemo(() => {
+        const listedUsers = (canListUsers ? usersQuery.data?.data ?? [] : [])
             .filter((user) => user.groups.includes("sales") || user.groups.includes("sales_director") || user.groups.includes("admin") || user.groups.includes("owner"))
             .map((user) => ({
                 id: user.id,
                 label: getUserDisplayName(user) || user.email,
-            })),
-        [usersQuery.data?.data],
-    )
+            }))
+
+        if (customer?.assignedSalesUser && !listedUsers.some((user) => user.id === customer.assignedSalesUser?.id)) {
+            listedUsers.push({
+                id: customer.assignedSalesUser.id,
+                label: getUserDisplayName(customer.assignedSalesUser) || customer.assignedSalesUser.email,
+            })
+        }
+
+        return listedUsers
+    }, [canListUsers, customer, usersQuery.data?.data])
     const sectorValues = useMemo(
         () => attributes.find((attribute) => attribute.code === "sector")?.values ?? [],
         [attributes],
@@ -78,7 +87,7 @@ export function SalesCustomerOverviewPageClient({ customerId }: Props) {
 
     if (customerQuery.isLoading) {
         return (
-            <div className="flex min-h-[220px] items-center justify-center rounded-3xl border bg-white shadow-sm">
+            <div className="flex min-h-55 items-center justify-center rounded-3xl border bg-white shadow-sm">
                 <Spinner className="size-5" />
             </div>
         )

@@ -1,8 +1,15 @@
 import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import { isGooglePlacesProvider } from "@/core/helpers/crm/customerAddressInput"
 import { decimalLikeToNumber } from "@/core/helpers/pricing/productVariantSupplier"
 import { normalizeCustomerDiscountPercent } from "@/core/helpers/pricing/customerPricing"
 import { buildUserDisplayName } from "@/core/helpers/users/displayName"
+
+function toDateOrNull(value: unknown) {
+    if (!value) return null
+    const date = value instanceof Date ? value : new Date(value as string)
+    return Number.isNaN(date.getTime()) ? null : date
+}
 
 function resolveCustomerPortalInvitation(user: any) {
     const invitation = Array.isArray(user?.customerInvitations) ? user.customerInvitations[0] : null
@@ -108,13 +115,19 @@ function mapCustomerVisitForApi(visit: any) {
     }
 }
 
-function mapCustomerAddressForApi(address: any) {
+export function mapCustomerAddressForApi(address: any) {
     if (!address) return address
+
+    const isGooglePlace = isGooglePlacesProvider(address.geocodingProvider)
+    const googleExpiry = toDateOrNull(address.geocodingExpiresAt)
+    const googleCoordinatesExpired = isGooglePlace
+        && (!googleExpiry || googleExpiry.getTime() <= Date.now())
 
     return {
         ...address,
-        latitude: decimalLikeToNumber(address.latitude) ?? null,
-        longitude: decimalLikeToNumber(address.longitude) ?? null,
+        latitude: googleCoordinatesExpired ? null : decimalLikeToNumber(address.latitude) ?? null,
+        longitude: googleCoordinatesExpired ? null : decimalLikeToNumber(address.longitude) ?? null,
+        ...(isGooglePlace ? { geocodingLabel: null, geocodingRaw: null } : {}),
         locationVerifiedByUser: mapCustomerUserForApi(address.locationVerifiedByUser),
     }
 }

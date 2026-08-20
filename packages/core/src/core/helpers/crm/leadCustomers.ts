@@ -3,7 +3,7 @@ import createError from "http-errors"
 import { prisma } from "@/core/db/prisma"
 import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
 import {
-    normalizeCustomerAddressInput,
+    prepareCustomerAddressInput,
     type CustomerAddressBody,
 } from "@/core/helpers/crm/customerAddressInput"
 import { CUSTOMER_ATTRIBUTE_CODES, resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
@@ -12,6 +12,7 @@ import {
     buildCustomerProfileProductWhereClauses,
     resolveCustomerProfileHierarchy,
 } from "@/core/helpers/crm/customerProfileMatching"
+import { mapCustomerAddressForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import type { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { AssetRole, Prisma } from "@/prisma/generated/prisma/client"
@@ -79,7 +80,7 @@ export type LeadCustomerProfileInput = {
     /** Yetkili adı sonradan öğrenilebilir. */
     fullName?: string | null
     phone: string
-    email: string
+    email?: string | null
     note?: string | null
     sectorValueId?: string | null
     productionGroupValueId?: string | null
@@ -126,6 +127,7 @@ const leadCustomerAddressSelect = {
     geocodingPlaceId: true,
     geocodingLabel: true,
     geocodedAt: true,
+    geocodingExpiresAt: true,
     locationVerifiedAt: true,
     isPrimary: true,
     isBilling: true,
@@ -139,9 +141,14 @@ const leadCustomerAddressSelect = {
     cityRef: { select: geoRefSelect },
 } satisfies Prisma.CustomerAddressSelect
 
-export type LeadCustomerAddress = Prisma.CustomerAddressGetPayload<{
+type LeadCustomerAddressRecord = Prisma.CustomerAddressGetPayload<{
     select: typeof leadCustomerAddressSelect
 }>
+
+export type LeadCustomerAddress = Omit<LeadCustomerAddressRecord, "latitude" | "longitude"> & {
+    latitude: number | null
+    longitude: number | null
+}
 
 const leadCustomerSelect = {
     id: true,
@@ -351,11 +358,13 @@ async function getMatchedProductPreview(customerId: string) {
 }
 
 async function listLeadCustomerAddresses(customerId: string) {
-    return prisma.customerAddress.findMany({
+    const addresses = await prisma.customerAddress.findMany({
         where: { customerId },
         select: leadCustomerAddressSelect,
         orderBy: [{ isPrimary: "desc" }, { displayOrder: "asc" }, { createdAt: "asc" }],
     })
+
+    return addresses.map((address) => mapCustomerAddressForApi(address) as LeadCustomerAddress)
 }
 
 /** Detay yanıtının TEK üreticisi — dört uç da aynı gövdeyi döndürür. */
@@ -421,7 +430,7 @@ export async function createLeadCustomer({
     // Adres normalizasyonu müşteri yazılmadan ÖNCE yapılır: geçersiz adres
     // yüzünden yarım kayıt (müşteri var, adres yok) oluşmasın.
     const normalizedAddress = address
-        ? normalizeCustomerAddressInput(address, {
+        ? await prepareCustomerAddressInput(address, {
             defaultLocationSource: "MANUAL_PIN",
             verifiedByUserId,
             allowVerification: true,
@@ -434,7 +443,9 @@ export async function createLeadCustomer({
             websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
             fullName: normalizeText(input.fullName),
             phone: input.phone.trim(),
-            email: input.email.trim(),
+            // Customer.email mevcut şemada non-null; bu dar yüzeyde e-posta
+            // opsiyonel olduğunda boş dizeyle temsil edilir.
+            email: input.email?.trim() ?? "",
             note: normalizeText(input.note),
             // Bu yüzey yalnız potansiyel müşteri üretir; dönüşüm ticari bir karar
             // ve /admin · /satis panellerinde kalır.
@@ -511,7 +522,7 @@ export async function updateLeadCustomer({
                 websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
                 fullName: normalizeText(input.fullName),
                 phone: input.phone.trim(),
-                email: input.email.trim(),
+                email: input.email?.trim() ?? "",
                 note: normalizeText(input.note),
                 sectorValue: resolved?.sectorValueId
                     ? { connect: { id: resolved.sectorValueId } }
@@ -558,7 +569,7 @@ export async function createLeadCustomerAddress({
 
     await customerRepository.createAddress(
         customerId,
-        normalizeCustomerAddressInput(body, {
+        await prepareCustomerAddressInput(body, {
             defaultLocationSource: "MANUAL_PIN",
             verifiedByUserId,
             allowVerification: true,
@@ -589,10 +600,12 @@ export async function updateLeadCustomerAddress({
     await customerRepository.updateAddress(
         customerId,
         addressId,
-        normalizeCustomerAddressInput(body, {
+        await prepareCustomerAddressInput(body, {
             defaultLocationSource: "MANUAL_PIN",
             verifiedByUserId,
             allowVerification: true,
+            // Aynı place ID hâlâ taze koordinat taşıyorsa Google'a gidilmez.
+            existing: address,
         }),
     )
 

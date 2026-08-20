@@ -64,6 +64,18 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "GoogleMapsBrowserApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "GoogleMapsMapId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "GoogleMapsServerApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MyPostgres": {
       "type": "sst.sst.Linkable"
       "url": string

@@ -8,7 +8,7 @@ const DynamicManagedCustomerMapClient = dynamic(
     {
         ssr: false,
         loading: () => (
-            <div className="flex h-[620px] items-center justify-center rounded-3xl border border-neutral-200 bg-white text-sm text-neutral-500 shadow-sm">
+            <div className="flex h-155 items-center justify-center rounded-3xl border border-neutral-200 bg-white text-sm text-neutral-500 shadow-sm">
                 Harita yükleniyor...
             </div>
         ),

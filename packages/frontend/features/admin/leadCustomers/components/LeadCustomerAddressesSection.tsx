@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { MapPin, Pencil, Plus } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -19,19 +19,19 @@ import { useLeadCustomerAddressMutations } from "@/features/admin/leadCustomers/
 export function LeadCustomerAddressesSection({
     customerId,
     addresses,
-    autoOpen = false,
-    onAutoOpenConsumed,
 }: {
     customerId: string
     addresses: CustomerAddress[]
-    /** Yeni kayıttan hemen sonra adres formu açık gelsin. */
-    autoOpen?: boolean
-    onAutoOpenConsumed?: () => void
 }) {
-    // Bölüm, kart genişletildiğinde TAZE mount olur; başlangıç değeri yeterli,
-    // effect gerekmez (effect + setState repo lint'inde de yasak).
-    const [dialogOpen, setDialogOpen] = useState(autoOpen)
+    const [dialogOpen, setDialogOpen] = useState(false)
     const [editingAddress, setEditingAddress] = useState<CustomerAddress | null>(null)
+
+    // Her render'da yeni nesne üretilirse dialog'un reset efekti tetiklenir ve
+    // açık formdaki kaydedilmemiş girdi (seçilen koordinat dahil) silinir.
+    const initialValues = useMemo(
+        () => (editingAddress ? toAddressDraftValues(editingAddress) : null),
+        [editingAddress],
+    )
 
     const { create, update, remove } = useLeadCustomerAddressMutations(customerId)
     const isSubmitting = create.isPending || update.isPending
@@ -124,13 +124,11 @@ export function LeadCustomerAddressesSection({
 
             <CustomerAddressFormDialog
                 open={dialogOpen}
-                onOpenChange={(next) => {
-                    setDialogOpen(next)
-                    // Kapandığında bayrak düşer: kullanıcı kartı tekrar açtığında
-                    // form kendiliğinden açılmasın.
-                    if (!next) onAutoOpenConsumed?.()
-                }}
-                initialValues={editingAddress ? toAddressDraftValues(editingAddress) : null}
+                onOpenChange={setDialogOpen}
+                initialValues={initialValues}
+                defaultLabel={addresses.length === 0 ? "Merkez" : ""}
+                defaultIsPrimary={addresses.length === 0}
+                defaultIsShipping={false}
                 isSubmitting={isSubmitting}
                 isDeleting={remove.isPending}
                 title={editingAddress ? "Adresi Düzenle" : "Yeni Adres"}

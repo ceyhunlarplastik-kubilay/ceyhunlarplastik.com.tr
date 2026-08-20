@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, type ReactNode } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -44,6 +43,9 @@ type Props = {
     description: string
     submitLabel?: string
     deleteLabel?: string
+    defaultLabel?: string
+    defaultIsPrimary?: boolean
+    defaultIsShipping?: boolean
 }
 
 function RequiredFormLabel({ children }: { children: ReactNode }) {
@@ -67,30 +69,43 @@ export function CustomerAddressFormDialog({
     description,
     submitLabel = "Kaydet",
     deleteLabel = "Sil",
+    defaultLabel = "",
+    defaultIsPrimary = false,
+    defaultIsShipping = true,
 }: Props) {
+    const newAddressDefaults = useMemo(() => ({
+        ...emptyAddress(),
+        label: defaultLabel,
+        isPrimary: defaultIsPrimary,
+        isShipping: defaultIsShipping,
+    }), [defaultIsPrimary, defaultIsShipping, defaultLabel])
     const form = useForm<AddressDraftFormValues>({
         resolver: zodResolver(addressLocationSchema),
-        defaultValues: initialValues ?? emptyAddress(),
+        defaultValues: initialValues ?? newAddressDefaults,
     })
     const countryId = useWatch({ control: form.control, name: "countryId" })
     const stateId = useWatch({ control: form.control, name: "stateId" })
     const cityId = useWatch({ control: form.control, name: "cityId" })
+    const phone = useWatch({ control: form.control, name: "phone" })
     const latitude = useWatch({ control: form.control, name: "latitude" })
     const longitude = useWatch({ control: form.control, name: "longitude" })
-    const geocodingLabel = useWatch({ control: form.control, name: "geocodingLabel" })
     const line1 = useWatch({ control: form.control, name: "line1" })
     const city = useWatch({ control: form.control, name: "city" })
+    const country = useWatch({ control: form.control, name: "country" })
+    const stateName = useWatch({ control: form.control, name: "stateName" })
+    const geocodingProvider = useWatch({ control: form.control, name: "geocodingProvider" })
+    const geocodingPlaceId = useWatch({ control: form.control, name: "geocodingPlaceId" })
 
     useEffect(() => {
         if (!open) {
-            form.reset(initialValues ?? emptyAddress())
+            form.reset(initialValues ?? newAddressDefaults)
             return
         }
 
-        form.reset(initialValues ?? emptyAddress())
-    }, [form, initialValues, open])
+        form.reset(initialValues ?? newAddressDefaults)
+    }, [form, initialValues, newAddressDefaults, open])
 
-    function applyPatch(patch: Partial<AddressDraftFormValues>) {
+    const applyPatch = useCallback((patch: Partial<AddressDraftFormValues>) => {
         for (const [key, value] of Object.entries(patch) as Array<[keyof AddressDraftFormValues, AddressDraftFormValues[keyof AddressDraftFormValues]]>) {
             form.setValue(key, value as never, {
                 shouldDirty: true,
@@ -98,7 +113,7 @@ export function CustomerAddressFormDialog({
                 shouldValidate: true,
             })
         }
-    }
+    }, [form])
 
     async function handleDelete() {
         if (!onDelete) return
@@ -107,7 +122,12 @@ export function CustomerAddressFormDialog({
         const confirmed = window.confirm(`"${addressLabel}" adresini kalici olarak silmek istediginize emin misiniz?`)
 
         if (!confirmed) return
-        await onDelete()
+        try {
+            await onDelete()
+        } catch {
+            // Ortak HTTP interceptor kullanıcıya API mesajını toast ile gösterir.
+            // Hatanın click event'inden kaçıp Next.js runtime overlay açmasını önleriz.
+        }
     }
 
     return (
@@ -122,7 +142,12 @@ export function CustomerAddressFormDialog({
                     <form
                         className="space-y-5"
                         onSubmit={form.handleSubmit(async (values) => {
-                            await onSubmit(values)
+                            try {
+                                await onSubmit(values)
+                            } catch {
+                                // API hatası ortak interceptor tarafından gösterilir; dialog
+                                // açık kalır ve kullanıcı manuel koordinat fallback'ine dönebilir.
+                            }
                         })}
                     >
                         <div className="grid gap-4 md:grid-cols-2">
@@ -146,7 +171,7 @@ export function CustomerAddressFormDialog({
                                     <FormItem>
                                         <FormLabel>İrtibat Kişisi</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Teslimat veya muhasebe sorumlusu" {...field} />
+                                            <Input autoComplete="name" placeholder="Teslimat veya muhasebe sorumlusu" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -159,7 +184,7 @@ export function CustomerAddressFormDialog({
                                     <FormItem>
                                         <FormLabel>Telefon</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="+90 ..." {...field} />
+                                            <Input type="tel" inputMode="tel" autoComplete="tel" placeholder="+90 ..." {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -170,9 +195,9 @@ export function CustomerAddressFormDialog({
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>E-posta</FormLabel>
+                                        <FormLabel>E-posta <span className="font-normal text-neutral-400">(opsiyonel)</span></FormLabel>
                                         <FormControl>
-                                            <Input type="email" placeholder="depo@firma.com" {...field} />
+                                            <Input type="email" inputMode="email" autoComplete="email" placeholder="depo@firma.com" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -181,7 +206,17 @@ export function CustomerAddressFormDialog({
                         </div>
 
                         <CustomerLocationPicker
-                            value={{ latitude, longitude, geocodingLabel, line1, city }}
+                            value={{
+                                latitude,
+                                longitude,
+                                phone,
+                                line1,
+                                city,
+                                country,
+                                stateName,
+                                geocodingProvider,
+                                geocodingPlaceId,
+                            }}
                             onChange={applyPatch}
                         />
 

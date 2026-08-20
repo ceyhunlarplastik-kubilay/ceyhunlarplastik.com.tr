@@ -1,5 +1,5 @@
 import createError from "http-errors"
-import { normalizeCustomerAddressInput } from "@/core/helpers/crm/customerAddressInput"
+import { prepareCustomerAddressInput } from "@/core/helpers/crm/customerAddressInput"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
@@ -938,7 +938,7 @@ export const createPortalCustomerAddressHandler = ({ customerRepository }: IProt
 
         const updated = await customerRepository.createAddress(
             customer.id,
-            normalizeCustomerAddressInput(event.body, {
+            await prepareCustomerAddressInput(event.body, {
                 defaultLocationSource: "CUSTOMER_SUBMITTED",
                 allowVerification: false,
             }),
@@ -967,9 +967,11 @@ export const updatePortalCustomerAddressHandler = ({ customerRepository }: IProt
         const updated = await customerRepository.updateAddress(
             customer.id,
             address.id,
-            normalizeCustomerAddressInput(event.body, {
+            await prepareCustomerAddressInput(event.body, {
                 defaultLocationSource: "CUSTOMER_SUBMITTED",
                 allowVerification: false,
+                // Aynı place ID hâlâ taze koordinat taşıyorsa Google'a gidilmez.
+                existing: address,
             }),
         )
 
@@ -1014,7 +1016,7 @@ export const createManagedCustomerAddressHandler = ({ customerRepository }: IPro
 
         const updated = await customerRepository.createAddress(
             customer.id,
-            normalizeCustomerAddressInput(event.body, {
+            await prepareCustomerAddressInput(event.body, {
                 defaultLocationSource: "MANUAL_PIN",
                 verifiedByUserId: requester.id,
                 allowVerification: true,
@@ -1066,10 +1068,12 @@ export const updateManagedCustomerAddressHandler = ({ customerRepository }: IPro
         const updated = await customerRepository.updateAddress(
             customer.id,
             address.id,
-            normalizeCustomerAddressInput(event.body, {
+            await prepareCustomerAddressInput(event.body, {
                 defaultLocationSource: "MANUAL_PIN",
                 verifiedByUserId: requester.id,
                 allowVerification: true,
+                // Aynı place ID hâlâ taze koordinat taşıyorsa Google'a gidilmez.
+                existing: address,
             }),
         )
 

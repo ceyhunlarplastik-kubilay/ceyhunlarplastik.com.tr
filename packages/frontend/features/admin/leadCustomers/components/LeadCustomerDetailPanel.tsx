@@ -15,12 +15,8 @@ import { LeadCustomerAddressesSection } from "./LeadCustomerAddressesSection"
  */
 export function LeadCustomerDetailPanel({
     customerId,
-    autoOpenAddress = false,
-    onAutoOpenAddressConsumed,
 }: {
     customerId: string
-    autoOpenAddress?: boolean
-    onAutoOpenAddressConsumed?: () => void
 }) {
     const detailQuery = useLeadCustomer(customerId)
     const detail = detailQuery.data
@@ -127,8 +123,6 @@ export function LeadCustomerDetailPanel({
             <LeadCustomerAddressesSection
                 customerId={customerId}
                 addresses={detail.addresses}
-                autoOpen={autoOpenAddress}
-                onAutoOpenConsumed={onAutoOpenAddressConsumed}
             />
 
             <div className="h-px bg-neutral-200" />

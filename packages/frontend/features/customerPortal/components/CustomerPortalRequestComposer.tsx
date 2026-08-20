@@ -316,6 +316,17 @@ export function CustomerPortalRequestComposer({
                         postalCode: address.postalCode?.trim() || null,
                         taxOffice: address.taxOffice?.trim() || null,
                         taxNumber: address.taxNumber?.trim() || null,
+                        // Google koordinatı talep JSON'unda aylarca kalmasın. Onay
+                        // anında place_id sunucuda yeniden çözülür.
+                        latitude: address.geocodingProvider === "google_places" ? null : address.latitude ?? null,
+                        longitude: address.geocodingProvider === "google_places" ? null : address.longitude ?? null,
+                        locationSource: address.locationSource ?? null,
+                        locationAccuracy: address.locationAccuracy ?? null,
+                        geocodingProvider: address.geocodingProvider || null,
+                        geocodingPlaceId: address.geocodingPlaceId || null,
+                        geocodingLabel: null,
+                        geocodingRaw: null,
+                        geocodedAt: null,
                         isPrimary: address.isPrimary || index === 0,
                         isBilling: address.isBilling,
                         isShipping: address.isShipping,
@@ -384,15 +395,19 @@ export function CustomerPortalRequestComposer({
                                 postalCode: selectedShippingAddress.postalCode || null,
                                 taxOffice: selectedShippingAddress.taxOffice || null,
                                 taxNumber: selectedShippingAddress.taxNumber || null,
-                                latitude: selectedShippingAddress.latitude ?? null,
-                                longitude: selectedShippingAddress.longitude ?? null,
+                                latitude: selectedShippingAddress.geocodingProvider === "google_places"
+                                    ? null
+                                    : selectedShippingAddress.latitude ?? null,
+                                longitude: selectedShippingAddress.geocodingProvider === "google_places"
+                                    ? null
+                                    : selectedShippingAddress.longitude ?? null,
                                 locationSource: selectedShippingAddress.locationSource ?? null,
                                 locationAccuracy: selectedShippingAddress.locationAccuracy ?? null,
                                 geocodingProvider: selectedShippingAddress.geocodingProvider || null,
                                 geocodingPlaceId: selectedShippingAddress.geocodingPlaceId || null,
-                                geocodingLabel: selectedShippingAddress.geocodingLabel || null,
-                                geocodingRaw: selectedShippingAddress.geocodingRaw ?? null,
-                                geocodedAt: selectedShippingAddress.geocodedAt || null,
+                                geocodingLabel: null,
+                                geocodingRaw: null,
+                                geocodedAt: null,
                                 isPrimary: selectedShippingAddress.isPrimary,
                                 isBilling: selectedShippingAddress.isBilling,
                                 isShipping: selectedShippingAddress.isShipping,

@@ -51,15 +51,11 @@ function formatNumber(value: number) {
 function LeadCustomerCard({
     customer,
     isExpanded,
-    autoOpenAddress,
-    onAutoOpenAddressConsumed,
     onToggle,
     onEdit,
 }: {
     customer: LeadCustomer
     isExpanded: boolean
-    autoOpenAddress: boolean
-    onAutoOpenAddressConsumed: () => void
     onToggle: () => void
     onEdit: () => void
 }) {
@@ -91,10 +87,12 @@ function LeadCustomerCard({
                     </div>
 
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
-                        <span className="inline-flex items-center gap-1">
-                            <Mail className="h-3.5 w-3.5" />
-                            {customer.email}
-                        </span>
+                        {customer.email ? (
+                            <span className="inline-flex items-center gap-1">
+                                <Mail className="h-3.5 w-3.5" />
+                                {customer.email}
+                            </span>
+                        ) : null}
                         <span className="inline-flex items-center gap-1">
                             <Phone className="h-3.5 w-3.5" />
                             {customer.phone}
@@ -165,8 +163,6 @@ function LeadCustomerCard({
                 <div className="border-t border-neutral-100 bg-neutral-50/60 p-4">
                     <LeadCustomerDetailPanel
                         customerId={customer.id}
-                        autoOpenAddress={autoOpenAddress}
-                        onAutoOpenAddressConsumed={onAutoOpenAddressConsumed}
                     />
                 </div>
             ) : null}
@@ -181,8 +177,6 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
     const [page, setPage] = useState(1)
     const [limit, setLimit] = useState(20)
     const [expandedId, setExpandedId] = useState<string | null>(null)
-    // Yeni kayıttan sonra adres formunun tek seferlik otomatik açılması.
-    const [addressPromptId, setAddressPromptId] = useState<string | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
     const [editingCustomer, setEditingCustomer] = useState<LeadCustomer | null>(null)
 
@@ -231,7 +225,8 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
      * Kayıttan sonra yeni kayıt MUTLAKA görünür olmalı: aktif filtre veya 2.
      * sayfa yüzünden kart hiç render edilmezse kullanıcıya "hiçbir şey olmadı"
      * gibi görünür. Bu yüzden filtreler temizlenir, ilk sayfaya dönülür,
-     * kart açılır ve adres formu otomatik gelir.
+     * kart görünür ve açık gelir. Adres formu kullanıcı "Adres Ekle" dediğinde
+     * açılır; kayıt sonrası ikinci bir modal akışı başlatılmaz.
      */
     function handleCreated(customerId: string) {
         setSearch("")
@@ -239,7 +234,6 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
         setUsageAreaValueId("")
         setPage(1)
         setExpandedId(customerId)
-        setAddressPromptId(customerId)
     }
 
     function openCreateDialog() {
@@ -260,7 +254,7 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
     return (
         <div className="space-y-6">
             <section className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm">
-                <div className="bg-gradient-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-6 text-white sm:px-7">
+                <div className="bg-linear-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-6 text-white sm:px-7">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-3xl">
                             <Badge className="border-white/15 bg-white/10 text-white" variant="outline">
@@ -401,7 +395,7 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                     ? Array.from({ length: 4 }).map((_, index) => (
                         <div
                             key={index}
-                            className="h-[132px] animate-pulse rounded-2xl border border-neutral-100 bg-neutral-50"
+                            className="h-33 animate-pulse rounded-2xl border border-neutral-100 bg-neutral-50"
                         />
                     ))
                     : leads.map((customer) => (
@@ -409,8 +403,6 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                             key={customer.id}
                             customer={customer}
                             isExpanded={expandedId === customer.id}
-                            autoOpenAddress={addressPromptId === customer.id}
-                            onAutoOpenAddressConsumed={() => setAddressPromptId(null)}
                             onToggle={() =>
                                 setExpandedId((current) => (current === customer.id ? null : customer.id))
                             }

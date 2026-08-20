@@ -12,6 +12,7 @@ export default $config({
   async run() {
     const storage = await import("./infra/storage");
     const db = await import("./infra/db");
+    await import("./infra/googleMaps");
     await import("./infra/businessWorkflow");
     await import("./infra/PublicApi");
     await import("./infra/ProtectedApi");

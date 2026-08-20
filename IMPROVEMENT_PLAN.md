@@ -3488,6 +3488,69 @@ alındı, yoksa sektör filtresi sessizce hiç eşleşmeyecekti.
 **Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 407 ✅ ·
 functions 268 ✅ · frontend 243 ✅ (+10) · `next build` "Compiled successfully" ✅
 
+## 2026-08-20 — Google Maps/Places dilimi kod incelemesi düzeltmeleri
+
+`/code-review xhigh` ile Google Places geçişinin tamamı tarandı; 15 bulgunun
+hepsi uygulandı. Öne çıkanlar:
+
+**1. Google HTTP çağrısı Prisma transaction'ı içindeydi (en kritik).**
+`applyApprovedBusinessRequestTx` müşteri profil değişikliğini uygularken her
+adres için Place Details isteği atıyordu; üç çağrı yeri de `prisma.$transaction`
+varsayılan 5 sn süresiyle çalışıyor. Üç adres × ~2 sn = P2028 ve onayın tamamen
+geri alınması; Google kapalıysa profil değişikliği talebi HİÇ onaylanamazdı.
+Aynı diff'te `repository.ts` düz bir DB okumasını transaction dışına taşımıştı —
+bu onun tersiydi. Çözüm: `prepareApprovedBusinessRequestAddresses()` transaction
+AÇILMADAN önce çalışıyor, sonuç `preparedProfileAddresses` ile içeri veriliyor;
+hazırlanmadan çağrılırsa tx fonksiyonu hata atıyor (sessizce adressiz yazmasın).
+Ayrıca müşterinin kayıtlı adresleri place ID'ye göre eşleştiriliyor: adres
+değişmediyse Google'a hiç gidilmiyor.
+
+**2. Sunucu tarafı e-posta doğrulaması sessizce kaybolmuştu.**
+`z.string().refine(...)` JSON Schema'ya ÇEVRİLMEZ ve `validatorWrapper` yalnız
+şema üretir (Zod runtime'ı istek yolunda hiç çalışmaz). Ölçüldü: eski şema
+`format:"email"` + `pattern` üretiyordu, `.refine()`'lı hâli yalnız
+`{type:"string",maxLength:320}`. API her string'i e-posta olarak kabul ediyordu.
+`z.union([z.literal(""), z.email().max(320)])` ile biçim şemaya geri döndü.
+Yeni `leadCustomers.test.ts` middy'nin ajv ayarlarıyla derleyip sınıyor; düzeltme
+geçici geri alınınca test kırmızıya döndü (kanıtlandı).
+→ CLAUDE.md'ye tuzak notu eklendi.
+
+**3. Boş koordinat alanı (0, 0)'a dönüşüyordu.** `Number("") === 0`. Enlem/boylam
+boşken "Uygula" hata vermeden Gine Körfezi'ne pin atıyordu.
+
+**4. Cron her gün aynı satırları yeniden yazıyordu.** Süresi dolmuş koordinatları
+temizleyen `updateMany`, zaten temizlenmiş satırları da eşleştiriyordu; küme
+yalnız büyüdüğü için günlük ölü tuple birikimi sürekli artacaktı.
+
+**5. Places arama sonuçları her tuş vuruşunda siliniyordu.** `handlePlaceSelect`
+bağımlılığında `searchInput` vardı → `onSelect` kimliği değişiyor →
+`GooglePlacesSearch` efekti elementi söküyor; `textQuery`'yi yazan ikinci efekt
+ise (`requestId` değişmediği için) çalışmıyordu. Bağımlılık `submittedQuery`'ye
+alındı: yalnız arama gönderildiğinde değişir, o an liste zaten yenilenir.
+
+**Diğerleri:** lead adres formunda memoize edilmemiş `initialValues` açık formu
+sıfırlıyordu (kardeş `ManagedCustomerAddressesSection` deseni uygulandı) ·
+Google 4xx artık 503 değil 400 ("konumu yeniden seçin") · Places isteğine 5 sn
+`AbortSignal.timeout` · harita sorgusu bbox'ı artık SQL'de süzüyor + `take: 500`
+(eskiden koordinatlı TÜM müşteriler çekilip JS'te eleniyordu; ayrıca birincil
+adresi pencere dışında kalan müşteri düşüyordu) · cron YALNIZ prod'da kuruluyor
+(her stage aynı Google kotasını harcıyor, secret'sız stage'de her gün hata
+veriyordu) · sağlayıcı adı kanonikleştirildi (`Google_Places` hem sunucu
+doğrulamasını hem TTL kırpmasını atlatıyordu) · marker'lar artık yeniden
+kullanılıyor, pan başına hepsi yeniden yaratılmıyor · `useBrowserLocation` →
+`goToBrowserLocation` (rules-of-hooks tuzağı) · kurulum dokümanındaki referrer
+listesi `DOMAIN`'den türetiliyor ve canlı `.xyz` alan adını da içeriyor (yalnız
+`.com.tr` yazılsaydı canlı sitede tüm Maps istekleri reddedilirdi).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (112 warning) ✅ ·
+core 423 ✅ (+10) · functions 272 ✅ (+4) · frontend 258 ✅ (+1) ·
+`next build` "Compiled successfully" ✅
+
+**Kullanıcıda bekleyen:** kubi'de adres seçme/düzenleme ve harita akışlarının
+doğrulanması; prod deploy'da `GoogleMapsLocationRefresh` cron'unun oluştuğunun ve
+non-prod stage'lerde OLUŞMADIĞININ teyidi; Google Console'da tarayıcı anahtarının
+referrer listesine canlı `.xyz` alan adının eklenmesi.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

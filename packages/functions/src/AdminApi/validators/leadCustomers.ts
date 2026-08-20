@@ -14,7 +14,11 @@ const profileBodySchema = z.object({
     companyName: z.string().trim().min(2).max(255),
     fullName: z.string().trim().max(255).nullable().optional(),
     phone: z.string().trim().min(5).max(50),
-    email: z.email().max(320),
+    // `.refine()` JSON Schema'ya çevrilmez; validatorWrapper yalnız şemayı üretir.
+    // Boş dize + e-posta birleşimi union ile yazılmalı ki `format`/`pattern` korunsun.
+    email: z.union([z.literal(""), z.email().max(320)])
+        .nullable()
+        .optional(),
     /// Ham metin kabul edilir ("acme.com"); sunucuda kanonik biçime indirilir.
     websiteUrl: z.string().trim().max(500).nullable().optional(),
     note: z.string().trim().max(5000).nullable().optional(),
@@ -107,7 +111,7 @@ export const createLeadCustomerValidator = validatorWrapper(
     }),
     {
         requiredRootFields: ["body"],
-        requiredBodyFields: ["companyName", "phone", "email"],
+        requiredBodyFields: ["companyName", "phone"],
     },
 )
 
@@ -120,7 +124,7 @@ export const updateLeadCustomerValidator = validatorWrapper(
     }),
     {
         requiredRootFields: ["pathParameters", "body"],
-        requiredBodyFields: ["companyName", "phone", "email"],
+        requiredBodyFields: ["companyName", "phone"],
     },
 )
 

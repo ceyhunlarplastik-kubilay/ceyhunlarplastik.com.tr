@@ -22,7 +22,13 @@ export const leadCustomerFormSchema = z.object({
     // burada yalnız uzunluk sınırı var ki kural iki yerde ayrışmasın.
     websiteUrl: z.string().trim().max(500).optional().transform((value) => value || ""),
     phone: z.string().trim().min(5, "Telefon çok kısa").max(50),
-    email: z.email("Geçerli bir e-posta adresi girin"),
+    email: z.string()
+        .trim()
+        .max(320)
+        .refine(
+            (value) => !value || z.email().safeParse(value).success,
+            "Geçerli bir e-posta adresi girin",
+        ),
     note: z.string().trim().max(5000).optional().transform((value) => value || ""),
     sectorValueId: z.string().trim().optional().transform((value) => value || ""),
     productionGroupValueId: z.string().trim().optional().transform((value) => value || ""),
@@ -57,7 +63,7 @@ export function buildLeadCustomerPayload(
         fullName: values.fullName || null,
         websiteUrl: values.websiteUrl || null,
         phone: values.phone,
-        email: values.email,
+        email: values.email || null,
         note: values.note || null,
         sectorValueId: values.sectorValueId || null,
         productionGroupValueId: values.productionGroupValueId || null,

@@ -7,6 +7,7 @@ import { adminApi } from "./AdminApi";
 import { protectedApi } from "./ProtectedApi";
 import { userAccessRealtime } from "./userAccessLifecycle";
 import { rds, vpc } from "./db";
+import { googleMapsBrowserApiKey, googleMapsMapId } from "./googleMaps";
 
 /* function parsePositiveIntegerEnv(name: string) {
   const value = process.env[name];
@@ -79,6 +80,8 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
     NEXT_PUBLIC_USER_ACCESS_REALTIME_ENDPOINT: userAccessRealtime.endpoint,
     NEXT_PUBLIC_USER_ACCESS_REALTIME_AUTHORIZER: userAccessRealtime.authorizer,
     NEXT_PUBLIC_BUCKET_NAME: publicBucket.name,
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: googleMapsBrowserApiKey.value,
+    NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID: googleMapsMapId.value,
     // ✅ presign helper public url üretmek için
     // ÖRN: ASSET_PUBLIC_BASE_URL: publicBucket.cdnUrl,
     /* ASSET_PUBLIC_BASE_URL:

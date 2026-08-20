@@ -70,6 +70,7 @@ export type CustomerAddressMinAggregateOutputType = {
   geocodingPlaceId: string | null
   geocodingLabel: string | null
   geocodedAt: Date | null
+  geocodingExpiresAt: Date | null
   locationVerifiedAt: Date | null
   locationVerifiedByUserId: string | null
   isPrimary: boolean | null
@@ -107,6 +108,7 @@ export type CustomerAddressMaxAggregateOutputType = {
   geocodingPlaceId: string | null
   geocodingLabel: string | null
   geocodedAt: Date | null
+  geocodingExpiresAt: Date | null
   locationVerifiedAt: Date | null
   locationVerifiedByUserId: string | null
   isPrimary: boolean | null
@@ -145,6 +147,7 @@ export type CustomerAddressCountAggregateOutputType = {
   geocodingLabel: number
   geocodingRaw: number
   geocodedAt: number
+  geocodingExpiresAt: number
   locationVerifiedAt: number
   locationVerifiedByUserId: number
   isPrimary: number
@@ -202,6 +205,7 @@ export type CustomerAddressMinAggregateInputType = {
   geocodingPlaceId?: true
   geocodingLabel?: true
   geocodedAt?: true
+  geocodingExpiresAt?: true
   locationVerifiedAt?: true
   locationVerifiedByUserId?: true
   isPrimary?: true
@@ -239,6 +243,7 @@ export type CustomerAddressMaxAggregateInputType = {
   geocodingPlaceId?: true
   geocodingLabel?: true
   geocodedAt?: true
+  geocodingExpiresAt?: true
   locationVerifiedAt?: true
   locationVerifiedByUserId?: true
   isPrimary?: true
@@ -277,6 +282,7 @@ export type CustomerAddressCountAggregateInputType = {
   geocodingLabel?: true
   geocodingRaw?: true
   geocodedAt?: true
+  geocodingExpiresAt?: true
   locationVerifiedAt?: true
   locationVerifiedByUserId?: true
   isPrimary?: true
@@ -402,6 +408,7 @@ export type CustomerAddressGroupByOutputType = {
   geocodingLabel: string | null
   geocodingRaw: runtime.JsonValue | null
   geocodedAt: Date | null
+  geocodingExpiresAt: Date | null
   locationVerifiedAt: Date | null
   locationVerifiedByUserId: string | null
   isPrimary: boolean
@@ -463,6 +470,7 @@ export type CustomerAddressWhereInput = {
   geocodingLabel?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   geocodingRaw?: Prisma.JsonNullableFilter<"CustomerAddress">
   geocodedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  geocodingExpiresAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedByUserId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   isPrimary?: Prisma.BoolFilter<"CustomerAddress"> | boolean
@@ -507,6 +515,7 @@ export type CustomerAddressOrderByWithRelationInput = {
   geocodingLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   geocodingRaw?: Prisma.SortOrderInput | Prisma.SortOrder
   geocodedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   locationVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   locationVerifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
@@ -554,6 +563,7 @@ export type CustomerAddressWhereUniqueInput = Prisma.AtLeast<{
   geocodingLabel?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   geocodingRaw?: Prisma.JsonNullableFilter<"CustomerAddress">
   geocodedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  geocodingExpiresAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedByUserId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   isPrimary?: Prisma.BoolFilter<"CustomerAddress"> | boolean
@@ -598,6 +608,7 @@ export type CustomerAddressOrderByWithAggregationInput = {
   geocodingLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   geocodingRaw?: Prisma.SortOrderInput | Prisma.SortOrder
   geocodedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  geocodingExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   locationVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   locationVerifiedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
@@ -644,6 +655,7 @@ export type CustomerAddressScalarWhereWithAggregatesInput = {
   geocodingLabel?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
   geocodingRaw?: Prisma.JsonNullableWithAggregatesFilter<"CustomerAddress">
   geocodedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAddress"> | Date | string | null
+  geocodingExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedByUserId?: Prisma.StringNullableWithAggregatesFilter<"CustomerAddress"> | string | null
   isPrimary?: Prisma.BoolWithAggregatesFilter<"CustomerAddress"> | boolean
@@ -678,6 +690,7 @@ export type CustomerAddressCreateInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -721,6 +734,7 @@ export type CustomerAddressUncheckedCreateInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -756,6 +770,7 @@ export type CustomerAddressUpdateInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -799,6 +814,7 @@ export type CustomerAddressUncheckedUpdateInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -838,6 +854,7 @@ export type CustomerAddressCreateManyInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -872,6 +889,7 @@ export type CustomerAddressUpdateManyMutationInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -909,6 +927,7 @@ export type CustomerAddressUncheckedUpdateManyInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -957,6 +976,7 @@ export type CustomerAddressCountOrderByAggregateInput = {
   geocodingLabel?: Prisma.SortOrder
   geocodingRaw?: Prisma.SortOrder
   geocodedAt?: Prisma.SortOrder
+  geocodingExpiresAt?: Prisma.SortOrder
   locationVerifiedAt?: Prisma.SortOrder
   locationVerifiedByUserId?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
@@ -1003,6 +1023,7 @@ export type CustomerAddressMaxOrderByAggregateInput = {
   geocodingPlaceId?: Prisma.SortOrder
   geocodingLabel?: Prisma.SortOrder
   geocodedAt?: Prisma.SortOrder
+  geocodingExpiresAt?: Prisma.SortOrder
   locationVerifiedAt?: Prisma.SortOrder
   locationVerifiedByUserId?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
@@ -1040,6 +1061,7 @@ export type CustomerAddressMinOrderByAggregateInput = {
   geocodingPlaceId?: Prisma.SortOrder
   geocodingLabel?: Prisma.SortOrder
   geocodedAt?: Prisma.SortOrder
+  geocodingExpiresAt?: Prisma.SortOrder
   locationVerifiedAt?: Prisma.SortOrder
   locationVerifiedByUserId?: Prisma.SortOrder
   isPrimary?: Prisma.SortOrder
@@ -1322,6 +1344,7 @@ export type CustomerAddressCreateWithoutLocationVerifiedByUserInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -1364,6 +1387,7 @@ export type CustomerAddressUncheckedCreateWithoutLocationVerifiedByUserInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -1431,6 +1455,7 @@ export type CustomerAddressScalarWhereInput = {
   geocodingLabel?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   geocodingRaw?: Prisma.JsonNullableFilter<"CustomerAddress">
   geocodedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
+  geocodingExpiresAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedAt?: Prisma.DateTimeNullableFilter<"CustomerAddress"> | Date | string | null
   locationVerifiedByUserId?: Prisma.StringNullableFilter<"CustomerAddress"> | string | null
   isPrimary?: Prisma.BoolFilter<"CustomerAddress"> | boolean
@@ -1465,6 +1490,7 @@ export type CustomerAddressCreateWithoutCustomerInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -1506,6 +1532,7 @@ export type CustomerAddressUncheckedCreateWithoutCustomerInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -1567,6 +1594,7 @@ export type CustomerAddressCreateWithoutCountryRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -1608,6 +1636,7 @@ export type CustomerAddressUncheckedCreateWithoutCountryRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -1669,6 +1698,7 @@ export type CustomerAddressCreateWithoutStateRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -1710,6 +1740,7 @@ export type CustomerAddressUncheckedCreateWithoutStateRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -1771,6 +1802,7 @@ export type CustomerAddressCreateWithoutCityRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -1812,6 +1844,7 @@ export type CustomerAddressUncheckedCreateWithoutCityRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -1873,6 +1906,7 @@ export type CustomerAddressCreateWithoutShippingOrdersInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -1915,6 +1949,7 @@ export type CustomerAddressUncheckedCreateWithoutShippingOrdersInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -1965,6 +2000,7 @@ export type CustomerAddressUpdateWithoutShippingOrdersInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2007,6 +2043,7 @@ export type CustomerAddressUncheckedUpdateWithoutShippingOrdersInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2045,6 +2082,7 @@ export type CustomerAddressCreateManyLocationVerifiedByUserInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   isPrimary?: boolean
   isBilling?: boolean
@@ -2078,6 +2116,7 @@ export type CustomerAddressUpdateWithoutLocationVerifiedByUserInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2120,6 +2159,7 @@ export type CustomerAddressUncheckedUpdateWithoutLocationVerifiedByUserInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2158,6 +2198,7 @@ export type CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserInput
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2194,6 +2235,7 @@ export type CustomerAddressCreateManyCustomerInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -2228,6 +2270,7 @@ export type CustomerAddressUpdateWithoutCustomerInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2269,6 +2312,7 @@ export type CustomerAddressUncheckedUpdateWithoutCustomerInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2307,6 +2351,7 @@ export type CustomerAddressUncheckedUpdateManyWithoutCustomerInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2344,6 +2389,7 @@ export type CustomerAddressCreateManyCountryRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -2378,6 +2424,7 @@ export type CustomerAddressUpdateWithoutCountryRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2419,6 +2466,7 @@ export type CustomerAddressUncheckedUpdateWithoutCountryRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2457,6 +2505,7 @@ export type CustomerAddressUncheckedUpdateManyWithoutCountryRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2494,6 +2543,7 @@ export type CustomerAddressCreateManyStateRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -2528,6 +2578,7 @@ export type CustomerAddressUpdateWithoutStateRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2569,6 +2620,7 @@ export type CustomerAddressUncheckedUpdateWithoutStateRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2607,6 +2659,7 @@ export type CustomerAddressUncheckedUpdateManyWithoutStateRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2644,6 +2697,7 @@ export type CustomerAddressCreateManyCityRefInput = {
   geocodingLabel?: string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Date | string | null
+  geocodingExpiresAt?: Date | string | null
   locationVerifiedAt?: Date | string | null
   locationVerifiedByUserId?: string | null
   isPrimary?: boolean
@@ -2678,6 +2732,7 @@ export type CustomerAddressUpdateWithoutCityRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isBilling?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2719,6 +2774,7 @@ export type CustomerAddressUncheckedUpdateWithoutCityRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2757,6 +2813,7 @@ export type CustomerAddressUncheckedUpdateManyWithoutCityRefInput = {
   geocodingLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   geocodingRaw?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   geocodedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  geocodingExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   locationVerifiedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2826,6 +2883,7 @@ export type CustomerAddressSelect<ExtArgs extends runtime.Types.Extensions.Inter
   geocodingLabel?: boolean
   geocodingRaw?: boolean
   geocodedAt?: boolean
+  geocodingExpiresAt?: boolean
   locationVerifiedAt?: boolean
   locationVerifiedByUserId?: boolean
   isPrimary?: boolean
@@ -2871,6 +2929,7 @@ export type CustomerAddressSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   geocodingLabel?: boolean
   geocodingRaw?: boolean
   geocodedAt?: boolean
+  geocodingExpiresAt?: boolean
   locationVerifiedAt?: boolean
   locationVerifiedByUserId?: boolean
   isPrimary?: boolean
@@ -2914,6 +2973,7 @@ export type CustomerAddressSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   geocodingLabel?: boolean
   geocodingRaw?: boolean
   geocodedAt?: boolean
+  geocodingExpiresAt?: boolean
   locationVerifiedAt?: boolean
   locationVerifiedByUserId?: boolean
   isPrimary?: boolean
@@ -2957,6 +3017,7 @@ export type CustomerAddressSelectScalar = {
   geocodingLabel?: boolean
   geocodingRaw?: boolean
   geocodedAt?: boolean
+  geocodingExpiresAt?: boolean
   locationVerifiedAt?: boolean
   locationVerifiedByUserId?: boolean
   isPrimary?: boolean
@@ -2968,7 +3029,7 @@ export type CustomerAddressSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CustomerAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "label" | "contactName" | "phone" | "email" | "countryId" | "stateId" | "cityId" | "country" | "city" | "district" | "line1" | "line2" | "postalCode" | "taxOffice" | "taxNumber" | "latitude" | "longitude" | "locationSource" | "locationAccuracy" | "geocodingProvider" | "geocodingPlaceId" | "geocodingLabel" | "geocodingRaw" | "geocodedAt" | "locationVerifiedAt" | "locationVerifiedByUserId" | "isPrimary" | "isBilling" | "isShipping" | "note" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAddress"]>
+export type CustomerAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "label" | "contactName" | "phone" | "email" | "countryId" | "stateId" | "cityId" | "country" | "city" | "district" | "line1" | "line2" | "postalCode" | "taxOffice" | "taxNumber" | "latitude" | "longitude" | "locationSource" | "locationAccuracy" | "geocodingProvider" | "geocodingPlaceId" | "geocodingLabel" | "geocodingRaw" | "geocodedAt" | "geocodingExpiresAt" | "locationVerifiedAt" | "locationVerifiedByUserId" | "isPrimary" | "isBilling" | "isShipping" | "note" | "displayOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["customerAddress"]>
 export type CustomerAddressInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   shippingOrders?: boolean | Prisma.CustomerAddress$shippingOrdersArgs<ExtArgs>
@@ -3030,6 +3091,7 @@ export type $CustomerAddressPayload<ExtArgs extends runtime.Types.Extensions.Int
     geocodingLabel: string | null
     geocodingRaw: runtime.JsonValue | null
     geocodedAt: Date | null
+    geocodingExpiresAt: Date | null
     locationVerifiedAt: Date | null
     locationVerifiedByUserId: string | null
     isPrimary: boolean
@@ -3494,6 +3556,7 @@ export interface CustomerAddressFieldRefs {
   readonly geocodingLabel: Prisma.FieldRef<"CustomerAddress", 'String'>
   readonly geocodingRaw: Prisma.FieldRef<"CustomerAddress", 'Json'>
   readonly geocodedAt: Prisma.FieldRef<"CustomerAddress", 'DateTime'>
+  readonly geocodingExpiresAt: Prisma.FieldRef<"CustomerAddress", 'DateTime'>
   readonly locationVerifiedAt: Prisma.FieldRef<"CustomerAddress", 'DateTime'>
   readonly locationVerifiedByUserId: Prisma.FieldRef<"CustomerAddress", 'String'>
   readonly isPrimary: Prisma.FieldRef<"CustomerAddress", 'Boolean'>

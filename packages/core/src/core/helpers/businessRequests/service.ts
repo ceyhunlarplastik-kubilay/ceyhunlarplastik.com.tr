@@ -32,6 +32,11 @@ import type {
 } from "@/prisma/generated/prisma/client"
 import { buildApprovalSteps, getBusinessRequestDefaultTitle, getBusinessRequestDomain, getRequesterApprovalRole } from "@/core/helpers/businessRequests/policy"
 import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
+import {
+    prepareCustomerAddressInput,
+    type CustomerAddressBody,
+} from "@/core/helpers/crm/customerAddressInput"
+import type { CustomerAddressMutationInput } from "@/core/helpers/prisma/customers/repository"
 
 type RequestWithApprovalSteps<TStep> = {
     approvalSteps: TStep[]
@@ -400,12 +405,118 @@ function normalizeVariantMeasurements(
     })
 }
 
+type ApplyApprovedBusinessRequestInput = {
+    approvedByUserId?: string | null
+    /**
+     * Transaction AÇILMADAN ÖNCE çözülmüş adresler. Google Places isteği
+     * transaction içinde beklenemez: varsayılan 5 sn'lik interaktif transaction
+     * süresi ağ gecikmesiyle aşılır (P2028) ve onay tamamen geri alınır.
+     * Profil değişikliği dışındaki taleplerde `null`.
+     */
+    preparedProfileAddresses?: CustomerAddressMutationInput[] | null
+}
+
+/**
+ * `applyApprovedBusinessRequestTx` çağrılmadan ÖNCE, transaction dışında
+ * çalıştırılır. Profil değişikliği değilse Google'a hiç gitmez.
+ */
+export async function prepareApprovedBusinessRequestAddresses(
+    request: BusinessRequestWithRelations,
+    input: { approvedByUserId?: string | null } = {},
+): Promise<CustomerAddressMutationInput[] | null> {
+    if (
+        request.requesterRole !== "CUSTOMER"
+        || request.domain !== "SALES"
+        || request.type !== "CUSTOMER_PROFILE_CHANGE"
+        || !request.customerId
+    ) {
+        return null
+    }
+
+    const requestedData = asRecord(request.requestedData)
+    const proposedProfile = asRecord(requestedData.proposedProfile)
+    const rawAddresses = Array.isArray(proposedProfile.addresses) ? proposedProfile.addresses : []
+    const addressRecords = rawAddresses
+        .map((entry) => asRecord(entry))
+        .filter((address) =>
+            typeof address.label === "string"
+            && address.label.trim()
+            && typeof address.city === "string"
+            && address.city.trim()
+            && typeof address.line1 === "string"
+            && address.line1.trim(),
+        )
+
+    if (addressRecords.length === 0) return []
+
+    // Aynı place ID hâlâ taze koordinat taşıyorsa Google'a gidilmez.
+    const storedAddresses = await prisma.customerAddress.findMany({
+        where: { customerId: request.customerId },
+        select: {
+            geocodingProvider: true,
+            geocodingPlaceId: true,
+            geocodingExpiresAt: true,
+            latitude: true,
+            longitude: true,
+        },
+    })
+    const storedByPlaceId = new Map(
+        storedAddresses
+            .filter((address) => address.geocodingPlaceId)
+            .map((address) => [address.geocodingPlaceId as string, address]),
+    )
+
+    return Promise.all(addressRecords.map((address) => {
+        const placeId = typeof address.geocodingPlaceId === "string"
+            ? address.geocodingPlaceId.trim()
+            : ""
+
+        return prepareCustomerAddressInput({
+            label: String(address.label),
+            contactName: typeof address.contactName === "string" ? address.contactName : null,
+            phone: typeof address.phone === "string" ? address.phone : null,
+            email: typeof address.email === "string" ? address.email : null,
+            countryId: isFiniteNumber(address.countryId) ? Number(address.countryId) : null,
+            stateId: isFiniteNumber(address.stateId) ? Number(address.stateId) : null,
+            cityId: isFiniteNumber(address.cityId) ? Number(address.cityId) : null,
+            country: typeof address.country === "string" ? address.country : null,
+            city: String(address.city),
+            district: typeof address.district === "string" ? address.district : null,
+            line1: String(address.line1),
+            line2: typeof address.line2 === "string" ? address.line2 : null,
+            postalCode: typeof address.postalCode === "string" ? address.postalCode : null,
+            taxOffice: typeof address.taxOffice === "string" ? address.taxOffice : null,
+            taxNumber: typeof address.taxNumber === "string" ? address.taxNumber : null,
+            latitude: isFiniteNumber(address.latitude) ? Number(address.latitude) : null,
+            longitude: isFiniteNumber(address.longitude) ? Number(address.longitude) : null,
+            locationSource: typeof address.locationSource === "string"
+                ? address.locationSource as CustomerAddressBody["locationSource"]
+                : null,
+            locationAccuracy: typeof address.locationAccuracy === "string"
+                ? address.locationAccuracy as CustomerAddressBody["locationAccuracy"]
+                : null,
+            geocodingProvider: typeof address.geocodingProvider === "string" ? address.geocodingProvider : null,
+            geocodingPlaceId: placeId || null,
+            geocodingLabel: null,
+            geocodingRaw: null,
+            geocodedAt: null,
+            isPrimary: Boolean(address.isPrimary),
+            isBilling: Boolean(address.isBilling),
+            isShipping: address.isShipping === undefined ? true : Boolean(address.isShipping),
+            note: typeof address.note === "string" ? address.note : null,
+        }, {
+            defaultLocationSource: "CUSTOMER_SUBMITTED",
+            allowVerification: true,
+            verifiedByUserId: input.approvedByUserId,
+            existing: (placeId && storedByPlaceId.get(placeId)) || null,
+        })
+    }))
+}
+
 async function applyApprovedBusinessRequestTx(
     tx: PrismaTransactionClient,
     request: BusinessRequestWithRelations,
-    input: {
-        approvedByUserId?: string | null
-    } = {},
+    input: ApplyApprovedBusinessRequestInput = {},
 ) {
     const requestedData = asRecord(request.requestedData)
 
@@ -429,7 +540,13 @@ async function applyApprovedBusinessRequestTx(
         }
 
         const proposedProfile = asRecord(requestedData.proposedProfile)
-        const rawAddresses = Array.isArray(proposedProfile.addresses) ? proposedProfile.addresses : []
+        // Adresler transaction dışında çözüldü; burada yalnız yazılır.
+        const normalizedAddresses = input.preparedProfileAddresses
+        if (!normalizedAddresses) {
+            throw new createError.InternalServerError(
+                "Profile change addresses were not prepared before the transaction",
+            )
+        }
 
         await tx.customer.update({
             where: { id: request.customerId },
@@ -441,38 +558,13 @@ async function applyApprovedBusinessRequestTx(
                 ...(typeof proposedProfile.note === "string" ? { note: proposedProfile.note.trim() || null } : {}),
                 addresses: {
                     deleteMany: {},
-                    create: rawAddresses
-                        .map((entry) => asRecord(entry))
-                        .filter((address) =>
-                            typeof address.label === "string"
-                            && address.label.trim()
-                            && typeof address.city === "string"
-                            && address.city.trim()
-                            && typeof address.line1 === "string"
-                            && address.line1.trim(),
-                        )
-                        .map((address, index) => ({
-                            label: String(address.label).trim(),
-                            contactName: typeof address.contactName === "string" ? address.contactName.trim() || null : null,
-                            phone: typeof address.phone === "string" ? address.phone.trim() || null : null,
-                            email: typeof address.email === "string" ? address.email.trim() || null : null,
-                            countryId: isFiniteNumber(address.countryId) ? Number(address.countryId) : null,
-                            stateId: isFiniteNumber(address.stateId) ? Number(address.stateId) : null,
-                            cityId: isFiniteNumber(address.cityId) ? Number(address.cityId) : null,
-                            country: typeof address.country === "string" ? address.country.trim() || "Turkiye" : "Turkiye",
-                            city: String(address.city).trim(),
-                            district: typeof address.district === "string" ? address.district.trim() || null : null,
-                            line1: String(address.line1).trim(),
-                            line2: typeof address.line2 === "string" ? address.line2.trim() || null : null,
-                            postalCode: typeof address.postalCode === "string" ? address.postalCode.trim() || null : null,
-                            taxOffice: typeof address.taxOffice === "string" ? address.taxOffice.trim() || null : null,
-                            taxNumber: typeof address.taxNumber === "string" ? address.taxNumber.trim() || null : null,
-                            isPrimary: Boolean(address.isPrimary) || index === 0,
-                            isBilling: Boolean(address.isBilling),
-                            isShipping: address.isShipping === undefined ? true : Boolean(address.isShipping),
-                            note: typeof address.note === "string" ? address.note.trim() || null : null,
-                            displayOrder: index,
-                        })),
+                    create: normalizedAddresses.map((address, index) => ({
+                        ...address,
+                        country: address.country?.trim() || "Turkiye",
+                        geocodingRaw: address.geocodingRaw ?? Prisma.DbNull,
+                        isPrimary: Boolean(address.isPrimary) || index === 0,
+                        displayOrder: index,
+                    })),
                 },
             },
         })
@@ -813,10 +905,15 @@ async function approveSingleStep(request: BusinessRequestWithRelations, user: IA
     const pendingCount = getPendingSteps(request).length
     const completed = pendingCount <= 1
 
+    const preparedProfileAddresses = completed
+        ? await prepareApprovedBusinessRequestAddresses(request, { approvedByUserId: user.id })
+        : null
+
     await prisma.$transaction(async (tx) => {
         if (completed) {
             await applyApprovedBusinessRequestTx(tx, request, {
                 approvedByUserId: user.id,
+                preparedProfileAddresses,
             })
         }
 
@@ -873,9 +970,14 @@ async function approveWithAdminBypass(request: BusinessRequestWithRelations, use
     const now = new Date()
     const bypassMessage = `Bypassed by ${user.identifier}`
 
+    const preparedProfileAddresses = await prepareApprovedBusinessRequestAddresses(request, {
+        approvedByUserId: user.id,
+    })
+
     await prisma.$transaction(async (tx) => {
         await applyApprovedBusinessRequestTx(tx, request, {
             approvedByUserId: user.id,
+            preparedProfileAddresses,
         })
 
         for (const step of pendingSteps.slice(0, -1)) {
@@ -934,6 +1036,13 @@ async function approveWithSalesDirectorBypass(request: BusinessRequestWithRelati
     }
 
     const now = new Date()
+    const remainingAfterBypass = pendingSteps.filter((step) =>
+        step.id !== currentStep.id && step.id !== salesDirectorStep.id
+    )
+
+    const preparedProfileAddresses = remainingAfterBypass.length === 0
+        ? await prepareApprovedBusinessRequestAddresses(request, { approvedByUserId: user.id })
+        : null
 
     await prisma.$transaction(async (tx) => {
         await tx.businessRequestApprovalStep.update({
@@ -956,13 +1065,12 @@ async function approveWithSalesDirectorBypass(request: BusinessRequestWithRelati
             },
         })
 
-        const remainingPending = pendingSteps.filter((step) =>
-            step.id !== currentStep.id && step.id !== salesDirectorStep.id
-        )
+        const remainingPending = remainingAfterBypass
 
         if (remainingPending.length === 0) {
             await applyApprovedBusinessRequestTx(tx, request, {
                 approvedByUserId: user.id,
+                preparedProfileAddresses,
             })
         }
 
