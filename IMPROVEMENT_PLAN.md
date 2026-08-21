@@ -3766,6 +3766,97 @@ uçlar Dilim 4'teki matris arayüzüyle kullanılabilir hâle gelecek.
 variants` ve `/admin/products/[id]/variants` route'ları; `CreateVariantDialog` (2274
 satır) kaldırılacak.
 
+## Varyant kod sistemi — Dilim 4: matris arayüzü (2026-08-21)
+
+**Ne yapıldı:** Operatörün varyant giriş ekranı, kullanım sırasında çıkan üç eksiğin
+düzeltilmesi ve `AGENTS.md`'nin gerçek duruma çekilmesi.
+
+**Route'lar:** `/admin/products/[id]/variants` yeniden yazıldı, `/veri-girisi/products/[id]/variants`
+eklendi — AYNI bileşen, veri girişinde `canManageCodes={false}` (backend de `["admin"]`
+ile kapatıyor; arayüzdeki gizleme yalnız kolaylık). `ProductsTable`/`ProductsPageClient`
+artık `variantsBasePath` alıyor; varyant linki `/admin/products` diye hardcode'luydu.
+
+**Ekran:** ürün kartı (görsel + teknik resim + kod/ad/kategori/sayaçlar) · kod durumu
+kartı (kilitle / kilidi aç / yeniden numaralandır, her biri kendi uyarısıyla) · kayıtlı
+varyantlar (filtre + yenileme + numaralı sayfalama) · yeni satırlar (şablondan dinamik
+ölçü kolonları, satır çoğaltma, tedarikçi sabitleme).
+
+**`CreateVariantDialog` (2274 satır) SİLİNDİ**, öksüz kalan `ProductVariantsManager` de.
+`SuppliersPageClient` bu dialogu açıyordu; artık varyant matrisine link veriyor.
+
+### Kullanım sırasında çıkan üç hata
+
+**1. Operatör `/product-variants/references`'a erişemiyordu (403).** Uç `["admin"]` ile
+kapalıydı. Yetkiyi genişletmek YANLIŞ olurdu: o uç tedarikçileri ham satır olarak
+döndürüyor (vergi numarası, adres, telefon, varsayılan vade). Dar ve amaca özel bir uç
+eklendi — `GET /product-variant-matrix/references`, tedarikçilerde yalnız id + ad.
+
+**2. Tanımlı ölçü tipleri ekranda görünmüyordu.** Şablon dialogu boş açılıyor, ölçü tipi
+ancak satır eklendikten sonra açılır listeden seçilebiliyordu; sistemde ölçü tipi olup
+olmadığı anlaşılmıyordu. "Tanımlı ölçü tiplerinden ekle" düğmeleri eklendi (tek tıkla,
+ad ve birim tipten dolar). Ayrıca "liste yüklenemedi", "hiç ölçü tipi yok" ve
+"yükleniyor" durumları birbirinden ayrıldı — üçü de aynı boş ekranı gösteriyordu.
+
+**3. Kayıtlı satırlar tamamen salt okunurdu.** Yanlış girilen fiyat düzeltilemiyor,
+hatalı satır silinemiyordu. Eklenenler: `PATCH .../variant-matrix/suppliers/{id}`
+(marj alanları content_editor'da düşürülür), `DELETE .../suppliers/{id}`,
+`DELETE .../variants/{variantId}`; tabloda genişletilebilir satır ve tedarikçi başına
+düzenle/kaldır.
+
+Silme korumaları: sipariş kalemi, iş talebi kalemi, özel fiyat, kampanya kalemi veya
+müşteri ataması varsa varyant SİLİNMEZ (`SetNull`/`Cascade` ilişkileri sessizce veri
+kaybettirirdi); engelleyen kayıtlar mesajda sayılır. Silme sonrası öksüz ölçü/versiyon
+kayıtları temizlenir (yoksa kod numaralarını işgal ederlerdi) ve kodlar yeniden
+hesaplanır. Tedarikçi harfi silinmez — geri eklenirse aynı harfi alır.
+
+### Araç kullanımı: repo standardına çekildi
+
+- **nuqs** — filtre + sayfalama + yenileme aralığı URL'de (`useVariantMatrixFilters`).
+  Ekran paylaşılabiliyor, geri tuşu filtreyi koruyor.
+- **Numaralı sayfalama** — yeni bir bileşen yerine ORTAK `AdminListPagination`
+  genişletildi (`Önceki 1 … 5 [6] 7 … 20 Sonraki`); tüm admin listeleri kazandı.
+  Dizilim saf ve testli: `buildPaginationRange`.
+- **Yenileme** — mevcut `AdminListRefreshBar` yeniden kullanıldı (son güncelleme saati,
+  elle yenile, otomatik yenileme aralığı).
+- **motion/react** — arka plan yenilemesi için bölüm-yerel katman
+  (`AdminSectionLoadingOverlay`): içerik ekranda kalır, `useReducedMotion` ve
+  `role="status"` ile. AGENTS.md'deki refetch-feedback deseninin 2. adımı.
+- **Filtreleme istemcide** — matris ucu tek ürünün tüm satırlarını döndürüyor ve veri
+  zaten ekranda; her filtre için sunucuya gitmek gereksiz gecikme olurdu. Saf ve testli:
+  `filterVariantRows`.
+- **Satır kopyalama** — kayıtlı satırdan taslak satır açılır (`buildDraftFromRow`);
+  katalogda birbirine benzeyen satırlarda yalnız değişen ölçü düzeltiliyor.
+
+### AGENTS.md gerçek duruma çekildi
+
+- **SST "Ion v3" → SST v4** (kurulu 4.17.1; `package.json` `^4`). Next 16, Prisma 7,
+  TanStack Table 8 ve diğer sürümler eklendi.
+- `infra/approvalWorkflow.ts` (yok) → `businessWorkflow.ts`; eksik infra dosyaları
+  (`cors`, `observability`, `googleMaps`, `lambdaNaming`) listelendi.
+- Yeni bölüm: **Admin list surfaces — reuse, do not rebuild** (pagination/refresh/overlay
+  bileşenleri ve "filtreyi nereye koymalı" kuralı).
+- Yeni bölüm: **varyant kodlarına dokunurken** — kod tek kaynaktan üretilir, ölçü ürün
+  modeli başına tekilleştirilir, şablon değişince kodlar yeniden hesaplanır, iki fazlı
+  yazma atlanmaz, kimlik alanları düzenleme yüzeylerinde değiştirilemez.
+- `content_editor`'a yüzey açma kuralı genelleştirildi: mevcut ucun yetkisini
+  genişletmeden önce ne döndürdüğüne bak; marj alanları kapalı, `price` açık.
+
+**Testler:** frontend 258 → **296** (+38: pagination dizilimi 9, filtreleme 11,
+satır kopyalama 7, `buildSaveRows` 11). Validator derlemesi 256 → **278**.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (122 warning) ✅ ·
+core 508 ✅ · functions 278 ✅ · frontend 296 ✅ · `next build` "Compiled successfully" ✅ ·
+i18n tr/en anahtar sayısı eşit (769) ✅.
+
+**Kullanıcıda bekleyen:** kubi'de uçtan uca deneme — şablon tanımla, satır gir, kodların
+oluşmasını gör, ikinci tedarikçiyle aynı ölçüyü gir, araya küçük ölçü ekle, kilitle,
+bir satırı kopyala, bir satırı sil.
+
+**Bilinçli olarak Dilim 5'e kalan:** `ProductVariantsTable` hâlâ kendi elle yazılmış
+tipinde `versionCode`/`supplierCode`/`variantIndex` taşıyor (satış/satınalma/tedarikçi
+fiyat ekranları onu kullanıyor); public katalog ve portal varyant tabloları henüz
+`sizeCode` alanına geçmedi; tedarikçi varyant talebi dialogu eski kod alanlarını soruyor.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -6,20 +6,22 @@ This file defines the engineering rules and architectural expectations for AI ag
 The goal is to preserve the current modular structure, keep the codebase scalable, and ensure new work follows the same patterns already used in the project.
 
 ## Stack
-- SST Ion v3
+Sürümler `package.json`'dan doğrulanmıştır; tahmin etme, gerektiğinde tekrar bak.
+
+- **SST v4** (kurulu: 4.17.x) — "Ion v3" ARTIK GEÇERLİ DEĞİL
 - AWS Lambda + ApiGatewayV2
-- Next.js App Router
+- Next.js 16 App Router
 - React 19
 - TypeScript
-- Prisma + PostgreSQL
-- shadcn/ui
-- motion/react
+- Prisma 7 + PostgreSQL (prod: RDS, non-prod: Neon)
+- shadcn/ui (Radix tabanlı, `packages/frontend/components/ui`)
+- motion/react 12
 - lucide-react
-- TanStack Query
-- Zod
-- React Hook Form
-- nuqs
-- Zustand
+- TanStack Query 5 · TanStack Table 8
+- Zod 4
+- React Hook Form 7
+- nuqs 2
+- Zustand 5
 
 ## Monorepo Layout
 
@@ -41,8 +43,12 @@ The goal is to preserve the current modular structure, keep the codebase scalabl
 - `infra/cognito.ts`
 - `infra/storage.ts`
 - `infra/router.ts`
-- `infra/approvalWorkflow.ts`
+- `infra/cors.ts`
+- `infra/businessWorkflow.ts` (eski adı `approvalWorkflow.ts` DEĞİL)
 - `infra/userAccessLifecycle.ts`
+- `infra/observability.ts`
+- `infra/googleMaps.ts`
+- `infra/lambdaNaming.ts`
 
 Infra files should stay focused on wiring resources, links, permissions, domains, and runtime config. Business logic must not be implemented here.
 
@@ -185,6 +191,26 @@ For multi-flow feature surfaces such as request composers or workflow creation s
 - move type-specific UI into smaller internal feature components
 - do not keep large render trees for unrelated flows inside a single client component
 
+### Admin list surfaces — reuse, do not rebuild
+Operasyonel listelerde (arama + filtre + sayfalama + yenileme) HER ZAMAN mevcut
+parçalar kullanılır:
+- `features/admin/shared/components/AdminListPagination.tsx` — numaralı sayfalama
+  (`Önceki 1 … 5 [6] 7 … 20 Sonraki`) + sayfa boyutu. Numara dizilimi saf ve testli:
+  `features/admin/shared/utils/buildPaginationRange.ts`.
+- `features/admin/shared/components/AdminListRefreshBar.tsx` — son güncelleme saati,
+  elle yenile düğmesi ve otomatik yenileme aralığı.
+- `features/admin/shared/components/AdminSectionLoadingOverlay.tsx` — arka plan
+  yenilemesi için bölüm-yerel katman (aşağıdaki refetch-feedback deseninin 2. adımı).
+
+Bu bileşenlere ihtiyaç duyulan bir davranış eksikse, paralel bir kopya yazmak yerine
+ORTAK bileşeni genişlet: tüm admin listeleri aynı davranışı kazanmalı.
+
+**Filtrelemeyi nereye koymalı:** liste zaten tek bir üst kaydın (ör. bir ürün modelinin)
+tüm satırlarını çekiyorsa filtre + sayfalama İSTEMCİDE yapılır ve saf, testli bir
+yardımcıya çıkarılır (`filterVariantRows` örneği). Sunucuya sayfalanan büyük listelerde
+ise filtre query parametresi olarak gider. Her iki durumda da durum `nuqs` ile URL'de
+tutulur — ekran paylaşılabilir ve geri tuşu filtreyi korur.
+
 ### Tables
 - Prefer simple table composition for small static tables.
 - Prefer TanStack Table for complex operational tables with evolving requirements such as sorting, filtering, expansion, visibility control, or column-level behaviors.
@@ -296,6 +322,23 @@ When extending customer-to-product profile matching:
 - `sector`, `production_group`, and `usage_area` stay in the shared dictionary but must be assigned to products through `ProductIndustrialUsage`, not through `Product.attributeValues`
 - product-specific usage descriptions belong on `ProductIndustrialUsage.usageFunction`, not in `ProductAttributeValue`
 
+When touching product variants or their codes:
+- Varyant kodu (`10.5.8.V1` ve tedarikçili `10.5.8.V1.A`) TEK KAYNAKTAN üretilir:
+  `core/helpers/productVariants/`. Kod şablonunu handler içinde string template ile
+  YENİDEN KURMA — eski sistemde dört ayrı kopya vardı ve sessizce ayrıştılar.
+- `ProductVariant` = ürün + ölçü + versiyon. Tedarikçi varyantın parçası DEĞİLDİR;
+  `ProductVariantSupplier` üzerinde yaşar ve tedarikçili tam kodu oradadır.
+- Ölçüler varyanta değil, ürün modeli başına tekilleştirilmiş `ProductSize`'a bağlıdır.
+  Aynı fiziksel ölçü kaç tedarikçiden girilirse girilsin TEK kod alır (`signature`).
+- Ölçü kodunun sırası ürün modelinin ölçü ŞABLONUNDAN (`ProductMeasurementRequirement`)
+  türer. Şablon değişirse `recalculateProductVariantCodes` çağrılmalı; yoksa `sortKey`
+  bayatlar ve "küçükten büyüğe" kuralı sessizce bozulur.
+- Kod yazan her yol `assignProductVariantCodes` (saf plan) → `writeProductVariantCodes`
+  (iki fazlı yazma) zincirinden geçer. Unique index Postgres'te ertelenemediği için
+  güncellenecek satırların kodları önce "park edilir"; bu fazı atlama.
+- Ölçü/renk/hammadde/tedarikçi kimliği düzenleme yüzeylerinde DEĞİŞTİRİLEMEZ olmalı —
+  varyantın kodunu belirlerler; değişim satırı silip yeniden girmeyi gerektirir.
+
 When extending the content-entry (`content_editor`) workspace toward CRM data:
 - keep `content_editor` out of `/customers` endpoints; those carry commercial fields (discount,
   credit limit, payment terms, sales rep) and the LEAD↔CUSTOMER conversion
@@ -310,6 +353,17 @@ When extending the content-entry (`content_editor`) workspace toward CRM data:
   a "usage_area must belong to the selected sector/production group" constraint
 - reuse `CustomerAddressFormDialog` (map picker + geo fields included) and the shared
   `core/helpers/crm/customerAddressInput.ts` normalizer for any new address surface
+
+`content_editor`'a bir yüzey açarken (CRM dışında da geçerli):
+- Mevcut bir admin ucunun yetkisini GENİŞLETMEDEN önce ne döndürdüğüne bak. Örnek:
+  `/product-variants/references` tedarikçileri ham satır olarak döndürüyor (vergi
+  numarası, adres, telefon, varsayılan vade) — operatörün bunlara ihtiyacı yok.
+  Doğrusu dar, amaca özel bir uçtu: `/product-variant-matrix/references` yalnız
+  id + ad taşır.
+- Ticari/marj alanları (`operationalCostRate`, `netCost`, `profitRate`, `listPrice`)
+  operatöre kapalıdır: yanıtta dönmez, istekte gelirse sessizce düşürülür. Kural tek
+  yerde ve testli: `core/helpers/productVariants/supplierFieldVisibility.ts`.
+  Buna karşılık `price` (tedarikçinin BİZE fiyatı) katalog verisidir ve operatör girer.
 
 When extending customer portal contact surfaces:
 - keep external customer-side portal/contact users as `User` records linked by `User.customerId`
@@ -361,7 +415,7 @@ When implementing selectable address flows for customers or suppliers:
 ## Infrastructure Rules
 
 ### SST
-Use SST v3 patterns already present in the repo.
+Use the SST **v4** patterns already present in the repo.
 
 Infra files should:
 - define resources

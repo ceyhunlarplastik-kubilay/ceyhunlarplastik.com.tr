@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useMemo, useState } from "react"
 import Image from "next/image"
 import { Package, Truck } from "lucide-react"
@@ -29,8 +30,6 @@ import type { Supplier } from "@/features/admin/suppliers/api/types"
 import { SupplierListFilters } from "@/features/admin/suppliers/components/SupplierListFilters"
 import { useSupplierListFilters } from "@/features/admin/suppliers/hooks/useSupplierListFilters"
 import { useCategories } from "@/features/admin/categories/hooks/useCategories"
-import { CreateVariantDialog } from "@/features/admin/productVariants/components/CreateVariantDialog"
-import { useVariantReferences } from "@/features/admin/productVariants/hooks/useVariantReferences"
 import { useProductVariants } from "@/features/admin/productVariants/hooks/useProductVariants"
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
@@ -51,7 +50,6 @@ export function SuppliersPageClient() {
 
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
     const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
-    const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null)
     const supplierWorkspace = useSupplierWorkspaceState()
     const {
         selectedCategoryId,
@@ -72,7 +70,6 @@ export function SuppliersPageClient() {
     })
     const updateSupplierMutation = useUpdateSupplier()
     const bulkUpdatePricingMutation = useBulkUpdateSupplierVariantPricing()
-    const referencesQuery = useVariantReferences()
     const categoriesQuery = useCategories({ params: { limit: 500 } })
     const usersQuery = useUsers({ params: { page: 1, limit: 500 } })
     const productsQuery = useSupplierProducts({
@@ -483,16 +480,14 @@ export function SuppliersPageClient() {
                                             </Badge>
                                         </TableCell> */}
                                         <TableCell className="text-right pr-4">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => {
-                                                    const variant = variantById.get(row.variantId)
-                                                    if (variant) setEditingVariant(variant)
-                                                }}
-                                                disabled={!variantById.get(row.variantId)}
-                                            >
-                                                Güncelle
+                                            {/* Varyantın kimliği (ölçü/versiyon/tedarikçi) artık burada
+                                                değil, ürün modelinin varyant matrisinde düzenlenir —
+                                                kod düzeni ürün geneline bağlı olduğu için tek yerden
+                                                yönetilmesi gerekiyor. */}
+                                            <Button asChild size="sm" variant="outline">
+                                                <Link href={`/admin/products/${row.variant?.productId ?? selectedProductId}/variants`}>
+                                                    Varyantlar
+                                                </Link>
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -533,23 +528,6 @@ export function SuppliersPageClient() {
                 onSubmit={handleSupplierUpdate}
             />
 
-            {editingVariant && referencesQuery.data ? (
-                <CreateVariantDialog
-                    mode="edit"
-                    open
-                    variant={editingVariant}
-                    onOpenChange={(next) => {
-                        if (!next) {
-                            setEditingVariant(null)
-                            void detailQuery.refetch()
-                            void productVariantsQuery.refetch()
-                        }
-                    }}
-                    productId={editingVariant.productId}
-                    productCode={selectedProduct?.code ?? editingVariant.fullCode.split(".").slice(0, 2).join(".")}
-                    references={referencesQuery.data}
-                />
-            ) : null}
         </div>
     )
 }

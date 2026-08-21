@@ -172,3 +172,23 @@ export async function recalculateProductVariantCodes(
             stats.sizeCodes + stats.versionCodes + stats.variantCodes + stats.variantSupplierCodes,
     }
 }
+
+/**
+ * Hiçbir varyantın kullanmadığı ölçü ve versiyon kayıtlarını siler.
+ *
+ * Varyant silindiğinde ölçüsü/versiyonu ortada kalır (`ProductVariant` → `Restrict`
+ * olduğu için önce varyant gider). Bunlar temizlenmezse kod numaralarını işgal
+ * etmeye devam eder: taslakta boşluk açar, kilitli üründe de sonraki ölçünün
+ * gereksiz yere büyük numara almasına yol açar.
+ */
+export async function removeOrphanSizesAndVersions(
+    tx: TransactionClient,
+    productId: string,
+): Promise<{ sizes: number; versions: number }> {
+    const [sizes, versions] = await Promise.all([
+        tx.productSize.deleteMany({ where: { productId, variants: { none: {} } } }),
+        tx.productVersion.deleteMany({ where: { productId, variants: { none: {} } } }),
+    ])
+
+    return { sizes: sizes.count, versions: versions.count }
+}

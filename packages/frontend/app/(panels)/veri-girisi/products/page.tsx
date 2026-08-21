@@ -7,7 +7,8 @@ export default async function ContentEntryProductsPage() {
     return (
         <ProductsPageClient
             categories={categories}
-            showVariantsLink={false}
+            showVariantsLink
+            variantsBasePath="/veri-girisi/products"
         />
     )
 }

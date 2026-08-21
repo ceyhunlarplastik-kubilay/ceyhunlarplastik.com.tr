@@ -238,3 +238,120 @@ export const renumberVariantCodesResponseValidator = z.toJSONSchema(
         }),
     }).loose()
 )
+
+export const variantMatrixReferencesResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                colors: z.array(z.object({
+                    id: z.string(),
+                    code: z.string(),
+                    name: z.string(),
+                    hex: z.string(),
+                    system: z.string(),
+                }).loose()),
+                materials: z.array(z.object({
+                    id: z.string(),
+                    code: z.string().nullable(),
+                    name: z.string(),
+                }).loose()),
+                suppliers: z.array(z.object({
+                    id: z.string(),
+                    name: z.string(),
+                }).loose()),
+                measurementTypes: z.array(z.object({
+                    id: z.string(),
+                    code: z.string(),
+                    name: z.string(),
+                    baseUnit: z.string(),
+                    displayOrder: z.number(),
+                }).loose()),
+            }),
+        }),
+    }).loose()
+)
+
+/**
+ * Tedarikçi satırı güncelleme. Ölçü/renk/hammadde/tedarikçi kimliği şemada YOK:
+ * bunlar varyantın kodunu belirler, değişimleri satırı silip yeniden girmeyi gerektirir.
+ * Marj alanları şemada opsiyonel; kapı rolde (content_editor'da handler düşürür).
+ */
+export const updateVariantMatrixSupplierValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+            supplierRowId: z.uuid(),
+        }),
+        body: z.object({
+            price: z.number().nonnegative().optional(),
+            operationalCostRate: z.number().min(0).max(1000).optional(),
+            netCost: z.number().nonnegative().optional(),
+            profitRate: z.number().min(0).max(1000).optional(),
+            listPrice: z.number().nonnegative().optional(),
+            paymentTermDays: z.number().int().min(0).max(3650).optional(),
+            supplierVariantCode: z.string().max(120).optional(),
+            supplierNote: z.string().max(2000).optional(),
+            minOrderQty: z.number().int().min(0).optional(),
+            stockQty: z.number().int().min(0).optional(),
+            currency: z.string().min(3).max(3).optional(),
+            hasSupplierLogo: z.boolean().optional(),
+            unitsPerPackage: z.number().int().min(0).optional(),
+            packageLengthMm: z.number().nonnegative().optional(),
+            packageWidthMm: z.number().nonnegative().optional(),
+            packageHeightMm: z.number().nonnegative().optional(),
+            packageWeightKg: z.number().nonnegative().optional(),
+            minLeadTimeDays: z.number().int().min(0).max(3650).optional(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+    }
+)
+
+export const variantMatrixSupplierRowValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+            supplierRowId: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
+)
+
+export const variantMatrixVariantValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+            variantId: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    }
+)
+
+export const updateVariantMatrixSupplierResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                supplier: z.object({ id: z.string() }).loose(),
+            }),
+        }),
+    }).loose()
+)
+
+export const deleteVariantMatrixRowResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({ deletedId: z.string() }).loose(),
+        }),
+    }).loose()
+)

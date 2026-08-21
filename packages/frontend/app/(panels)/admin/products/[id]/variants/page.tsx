@@ -2,20 +2,17 @@
 
 import { useParams } from "next/navigation"
 
-import { ProductVariantsManager } from "@/features/admin/productVariants/components/ProductVariantsManager"
+import { ProductVariantMatrixPageClient } from "@/features/admin/productVariantMatrix/components/ProductVariantMatrixPageClient"
 
-export default function ProductVariantsPage() {
-    const params = useParams<{ id: string | string[] }>()
-    const rawId = params?.id
-    const productId = Array.isArray(rawId) ? rawId[0] : rawId
+export default function AdminProductVariantsPage() {
+    const params = useParams()
+    const productId = String(params?.id ?? "")
 
-    if (!productId) {
-        return (
-            <div className="p-6 text-sm text-red-500">
-                Ürün bilgisi bulunamadı.
-            </div>
-        )
-    }
-
-    return <ProductVariantsManager productId={productId} />
+    return (
+        <ProductVariantMatrixPageClient
+            productId={productId}
+            productsBasePath="/admin/products"
+            canManageCodes
+        />
+    )
 }

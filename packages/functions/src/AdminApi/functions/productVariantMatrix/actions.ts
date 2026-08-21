@@ -1,12 +1,20 @@
 import { lambdaHandler } from "@/core/middy"
 import { productVariantMatrixRepository } from "@/core/helpers/prisma/productVariantMatrix/repository"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
+import { colorRepository } from "@/core/helpers/prisma/colors/repository"
+import { materialRepository } from "@/core/helpers/prisma/materials/repository"
+import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
+import { measurementTypeRepository } from "@/core/helpers/prisma/measurementTypes/repository"
 
 import {
     getProductVariantMatrixHandler,
+    getVariantMatrixReferencesHandler,
     saveProductVariantMatrixHandler,
     setVariantCodeLockHandler,
     renumberVariantCodesHandler,
+    updateVariantMatrixSupplierHandler,
+    deleteVariantMatrixSupplierHandler,
+    deleteVariantMatrixVariantHandler,
 } from "@/functions/AdminApi/functions/productVariantMatrix/handlers"
 import {
     idValidator,
@@ -14,16 +22,26 @@ import {
     setVariantCodeLockValidator,
     renumberVariantCodesValidator,
     variantMatrixResponseValidator,
+    variantMatrixReferencesResponseValidator,
     saveVariantMatrixResponseValidator,
     variantCodeLockResponseValidator,
     renumberVariantCodesResponseValidator,
+    updateVariantMatrixSupplierValidator,
+    variantMatrixSupplierRowValidator,
+    variantMatrixVariantValidator,
+    updateVariantMatrixSupplierResponseValidator,
+    deleteVariantMatrixRowResponseValidator,
 } from "@/functions/AdminApi/validators/productVariantMatrix"
 import type {
     IProductVariantMatrixDependencies,
+    IVariantMatrixReferenceDependencies,
     IGetVariantMatrixEvent,
     ISaveVariantMatrixEvent,
     ISetVariantCodeLockEvent,
     IRenumberVariantCodesEvent,
+    IUpdateVariantMatrixSupplierEvent,
+    IDeleteVariantMatrixSupplierEvent,
+    IDeleteVariantMatrixVariantEvent,
 } from "@/functions/AdminApi/types/productVariantMatrix"
 
 // Veri girişi operatörü matrisi okur ve yazar; marj alanları handler seviyesinde
@@ -37,6 +55,21 @@ const getDeps = (): IProductVariantMatrixDependencies => ({
     productVariantMatrixRepository: productVariantMatrixRepository(),
     productRepository: productRepository(),
 })
+
+const getReferenceDeps = (): IVariantMatrixReferenceDependencies => ({
+    colorRepository: colorRepository(),
+    materialRepository: materialRepository(),
+    supplierRepository: supplierRepository(),
+    measurementTypeRepository: measurementTypeRepository(),
+})
+
+export const getVariantMatrixReferences = lambdaHandler(
+    async () => getVariantMatrixReferencesHandler(getReferenceDeps())(),
+    {
+        auth: { requiredPermissionGroups: variantMatrixManagerGroups },
+        responseValidator: variantMatrixReferencesResponseValidator,
+    }
+)
 
 export const getProductVariantMatrix = lambdaHandler(
     async (event) => getProductVariantMatrixHandler(getDeps())(event as IGetVariantMatrixEvent),
@@ -71,5 +104,32 @@ export const renumberVariantCodes = lambdaHandler(
         auth: { requiredPermissionGroups: variantCodeAdminGroups },
         requestValidator: renumberVariantCodesValidator,
         responseValidator: renumberVariantCodesResponseValidator,
+    }
+)
+
+export const updateVariantMatrixSupplier = lambdaHandler(
+    async (event) => updateVariantMatrixSupplierHandler(getDeps())(event as IUpdateVariantMatrixSupplierEvent),
+    {
+        auth: { requiredPermissionGroups: variantMatrixManagerGroups },
+        requestValidator: updateVariantMatrixSupplierValidator,
+        responseValidator: updateVariantMatrixSupplierResponseValidator,
+    }
+)
+
+export const deleteVariantMatrixSupplier = lambdaHandler(
+    async (event) => deleteVariantMatrixSupplierHandler(getDeps())(event as IDeleteVariantMatrixSupplierEvent),
+    {
+        auth: { requiredPermissionGroups: variantMatrixManagerGroups },
+        requestValidator: variantMatrixSupplierRowValidator,
+        responseValidator: deleteVariantMatrixRowResponseValidator,
+    }
+)
+
+export const deleteVariantMatrixVariant = lambdaHandler(
+    async (event) => deleteVariantMatrixVariantHandler(getDeps())(event as IDeleteVariantMatrixVariantEvent),
+    {
+        auth: { requiredPermissionGroups: variantMatrixManagerGroups },
+        requestValidator: variantMatrixVariantValidator,
+        responseValidator: deleteVariantMatrixRowResponseValidator,
     }
 )

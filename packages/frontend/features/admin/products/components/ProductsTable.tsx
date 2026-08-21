@@ -63,6 +63,8 @@ type Props = {
     refreshIntervalSeconds: number
     onRefreshIntervalChange: (seconds: number) => void
     showVariantsLink?: boolean
+    /** Varyant ekranının kök yolu — panel bazında değişir. */
+    variantsBasePath?: string
 }
 
 const MotionRow = motion(TableRow)
@@ -122,6 +124,7 @@ export function ProductsTable({
     refreshIntervalSeconds,
     onRefreshIntervalChange,
     showVariantsLink = true,
+    variantsBasePath = "/admin/products",
 }: Props) {
     const [createOpen, setCreateOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -305,7 +308,7 @@ export function ProductsTable({
                                                         size="sm"
                                                         variant="secondary"
                                                     >
-                                                        <Link href={`/admin/products/${product.id}/variants`}>
+                                                        <Link href={`${variantsBasePath}/${product.id}/variants`}>
                                                             Varyantlar
                                                         </Link>
                                                     </Button>

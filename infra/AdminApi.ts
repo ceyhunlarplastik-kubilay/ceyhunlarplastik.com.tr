@@ -519,6 +519,11 @@ adminApi.route("PUT /products/{id}/measurement-requirements", {
 
 /*----------------------- PRODUCT VARIANT MATRIX -----------------------*/
 // Veri girişi operatörünün varyant giriş yüzeyi (ölçü/renk/hammadde/tedarikçi).
+adminApi.route("GET /product-variant-matrix/references", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.getVariantMatrixReferences`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /products/{id}/variant-matrix", {
     handler: `${folderPrefix}/productVariantMatrix/actions.getProductVariantMatrix`,
     ...defaultRouteOptions,
@@ -526,6 +531,21 @@ adminApi.route("GET /products/{id}/variant-matrix", {
 
 adminApi.route("PUT /products/{id}/variant-matrix", {
     handler: `${folderPrefix}/productVariantMatrix/actions.saveProductVariantMatrix`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PATCH /products/{id}/variant-matrix/suppliers/{supplierRowId}", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.updateVariantMatrixSupplier`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /products/{id}/variant-matrix/suppliers/{supplierRowId}", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.deleteVariantMatrixSupplier`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /products/{id}/variant-matrix/variants/{variantId}", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.deleteVariantMatrixVariant`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 

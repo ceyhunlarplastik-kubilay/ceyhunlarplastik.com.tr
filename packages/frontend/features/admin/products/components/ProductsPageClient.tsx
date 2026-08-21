@@ -9,9 +9,14 @@ import type { Category } from "@/features/public/categories/types"
 type Props = {
     categories: Category[]
     showVariantsLink?: boolean
+    variantsBasePath?: string
 }
 
-export function ProductsPageClient({ categories, showVariantsLink = true }: Props) {
+export function ProductsPageClient({
+    categories,
+    showVariantsLink = true,
+    variantsBasePath = "/admin/products",
+}: Props) {
     const {
         filters,
         params,
@@ -51,6 +56,7 @@ export function ProductsPageClient({ categories, showVariantsLink = true }: Prop
             refreshIntervalSeconds={filters.refreshIntervalSeconds}
             onRefreshIntervalChange={setRefreshIntervalSeconds}
             showVariantsLink={showVariantsLink}
+            variantsBasePath={variantsBasePath}
         />
     )
 }
