@@ -6,7 +6,12 @@ import { ArrowRight, Heart, UserRoundCog } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { CustomerAssignedProduct } from "@/features/admin/customers/api/types"
-import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import {
+    buildMeasurementKey,
+    formatMeasurementValue,
+    resolveMeasurementName,
+    resolveMeasurementUnit,
+} from "@/features/public/products/utils/measurement"
 import { getAssignedProductVariantImageUrl } from "@/lib/customers/assignedProductVariants"
 import { PortalFavoriteVariantButton } from "@/features/customerPortal/components/PortalFavoriteVariantButton"
 import {
@@ -31,14 +36,11 @@ function normalizeMeasurementKeyInput(measurement: NonNullable<CustomerAssignedP
 
 function formatMeasurementPill(measurement: NonNullable<CustomerAssignedProduct["productVariant"]["measurements"]>[number]) {
     const normalized = normalizeMeasurementKeyInput(measurement)
-    const withUnit =
-        normalized.measurementType.baseUnit &&
-        normalized.measurementType.code !== "D" &&
-        normalized.measurementType.code !== "M"
-            ? ` ${normalized.measurementType.baseUnit}`
-            : ""
+    const unit = resolveMeasurementUnit(normalized)
+    const withUnit = unit ? ` ${unit}` : ""
 
-    return `${normalized.measurementType.code}: ${formatMeasurementValue(normalized)}${withUnit}`
+    // Ad ürün modeline özeldir ("Burç Metriği"); kod yalnız ikincil ipucu.
+    return `${resolveMeasurementName(normalized)}: ${formatMeasurementValue(normalized)}${withUnit}`
 }
 
 function buildVariantHref(item: CustomerAssignedProduct) {

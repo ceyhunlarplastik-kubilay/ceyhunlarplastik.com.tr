@@ -1,7 +1,10 @@
 export type VariantMeasurement = {
     id: string
     value: number
+    /** Ürün modeline özel ölçü etiketi ("Kol Çapı") — ölçü TİPİNİN adı değil. */
     label: string
+    /** Şablonda ezilmiş birim; yoksa ölçü tipinin taban birimi. */
+    unit?: string | null
     measurementType: {
         id: string
         code: string
@@ -32,6 +35,17 @@ export type VariantSupplier = {
     supplierNote?: string | null
     minOrderQty?: number | null
     stockQty?: number | null
+    /** Ürün modeli içindeki tedarikçi harfi — kodun 5. segmenti. */
+    supplierCode?: string | null
+    /** Tedarikçili tam kod: "10.5.8.V1.A". */
+    fullCode?: string | null
+    hasSupplierLogo?: boolean
+    unitsPerPackage?: number | null
+    packageLengthMm?: number | string | { s?: number; e?: number; d?: number[] } | null
+    packageWidthMm?: number | string | { s?: number; e?: number; d?: number[] } | null
+    packageHeightMm?: number | string | { s?: number; e?: number; d?: number[] } | null
+    packageWeightKg?: number | string | { s?: number; e?: number; d?: number[] } | null
+    minLeadTimeDays?: number | null
     pricingUpdatedAt?: string | null
     availabilityUpdatedAt?: string | null
     currency?: string
@@ -45,10 +59,12 @@ export type ProductVariant = {
     id: string
     productId: string
     name: string
+    /** "10.5.8.V1" — tedarikçi harfi İÇERMEZ, o variantSuppliers[].fullCode'da. */
     fullCode: string
-    versionCode: string
-    supplierCode: string
-    variantIndex: number
+    /** "V1" — renk + hammadde kombinasyonu. */
+    versionCode: string | null
+    /** Kodun 3. segmenti; eski `variantIndex`'in yerini aldı. */
+    sizeCode: number | null
     createdAt: string
     color?: {
         id: string
@@ -138,14 +154,16 @@ export type ProductVariantResponse = {
     }
 }
 
+/**
+ * Kod alanları YOK: sunucu kodları ölçü/versiyon/tedarikçiden türetiyor.
+ * Ölçüler ürün modelinin ŞABLONUNDAKİ `requirementId` ile gönderilir.
+ */
 export type UpsertVariantInput = {
     productId: string
     name: string
-    versionCode: string
-    supplierCode: string
-    variantIndex: number
     colorId?: string
     materialIds: string[]
+    measurements: Array<{ requirementId: string; value: number }>
     suppliers: Array<{
         id: string
         isActive?: boolean
@@ -160,10 +178,5 @@ export type UpsertVariantInput = {
         minOrderQty?: number
         stockQty?: number
         currency?: string
-    }>
-    measurements: Array<{
-        measurementTypeId: string
-        value: number
-        label: string
     }>
 }

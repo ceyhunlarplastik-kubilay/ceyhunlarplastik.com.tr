@@ -38,6 +38,7 @@ import {
     createSupplierBusinessRequestValidator,
     decideBusinessRequestValidator,
     listBusinessRequestsValidator,
+    supplierVariantRequestReferencesValidator,
 } from "@/functions/AdminApi/validators/businessRequests"
 import {
     updateSupplierProfileValidator,
@@ -133,6 +134,7 @@ export const getSupplierVariantRequestReferences = lambdaHandler(
     async (event) => getSupplierVariantRequestReferencesHandler(deps)(event as IGetSupplierVariantRequestReferencesEvent),
     {
         auth: { requiredPermissionGroups: ["supplier", "admin", "owner"] },
+        requestValidator: supplierVariantRequestReferencesValidator,
     },
 )
 

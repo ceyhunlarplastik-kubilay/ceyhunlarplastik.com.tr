@@ -22,6 +22,8 @@ export type SupplierVariantPrice = {
         id: string
         name: string
         fullCode: string
+        versionCode?: string | null
+        sizeCode?: number | null
         productId: string
         color?: {
             id: string

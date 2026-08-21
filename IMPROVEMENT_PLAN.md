@@ -3857,6 +3857,86 @@ tipinde `versionCode`/`supplierCode`/`variantIndex` taşıyor (satış/satınalm
 fiyat ekranları onu kullanıyor); public katalog ve portal varyant tabloları henüz
 `sizeCode` alanına geçmedi; tedarikçi varyant talebi dialogu eski kod alanlarını soruyor.
 
+## Varyant kod sistemi — Dilim 5: etkilenen yüzeylerin süpürülmesi (2026-08-21)
+
+**Ne yapıldı:** Yeni DTO'ya göre kırık kalan tüm tüketici yüzeyleri. Frontend
+tipleri elle yazıldığı için typecheck bunları YAKALAMIYORDU — kırılma yalnız
+runtime'da görünürdü.
+
+### 🔴 Public katalogda değer yerine ölçü ADI basılıyordu
+
+`formatMeasurementValue` `measurement.label`'ı DEĞER metni sanıyordu (metrik dişte
+"M4" oraya yazılıyordu, diğerlerinde `if (label) return label`). Yeni modelde
+`label` ürün modeline özel ölçü ADI ("Burç Metriği"); yani public varyant
+tablosunda değerin yerine ölçü adı görünürdü. Değer artık yalnız `value`'dan
+üretiliyor, ad ayrı bir fonksiyonda (`resolveMeasurementName`).
+
+### Ölçü gösterimi core'a taşındı — altı kopya vardı
+
+`baseUnit && code !== "D" && code !== "M"` birim hesabı public tablo, public detay
+tablosu, portal detay tablosu, portal favori kartı ve portal özel fiyat
+biçimlendiricisinde AYRI AYRI tekrarlanıyordu ve **hiçbiri şablondaki birim
+ezmesini bilmiyordu**: operatör "cm" tanımlasa bile ekranda "mm" görünürdü.
+Kural tek yerde: `core/helpers/productVariants/measurementDisplay.ts`
+(`formatMeasurementValue`, `resolveMeasurementName`, `resolveMeasurementUnit`,
+`buildMeasurementKey`, `toMeasurementLabel`). Frontend'deki
+`public/products/utils/measurement.ts` artık yalnız yeniden dışa aktarıyor.
+
+`buildMeasurementKey` BİLEREK etiketi kullanmıyor: etiket çevrilebilir olduğu için
+anahtara girseydi dil değişince varyant seçimi sıfırlanırdı — daha önce yaşanmış
+bir hata (bkz. "Varyantlar sayfası i18n bug'ı").
+
+### Ölçü ayrıştırıcısının ikinci kopyası kaldırıldı
+
+Dilim 4'te frontend'e `parseMeasurementValue` yazılmıştı; artık iki feature'da
+gerekince kopyalamak yerine core'daki `parseMeasurementInput`'a bağlandı
+(`@core/*` alias'ı). İki kopya ondalık ayırıcıyı farklı normalize etme riskini
+taşıyordu.
+
+### Ürün modeline özel ad artık public tabloda görünüyor
+
+Kolon başlıkları ölçü tipinin genel adını (yalnız `R`) değil, ürün modelindeki adı
+gösteriyor: **Elcik Çapı** + ikincil `R`. Kullanıcının en baştaki isteği buydu ve
+şablon verisi artık DTO'da olduğu için karşılanabildi.
+
+### Tedarikçi varyant talebi yeni sözleşmeye geçti
+
+Form kod alanlarını (versionCode/supplierCode/variantIndex) soruyordu; kaldırıldı.
+Ölçüler artık ürün modelinin ŞABLONUNDAN sabit alanlar olarak geliyor
+(`requirementId`), serbest ölçü tipi seçimi yok. `GET /supplier/request-references/variant`
+`productId` query'si alıp o modelin şablonunu da döndürüyor — kabul edilen query
+alanı açıkça beyan edildi (CLAUDE.md tuzağı: `queryStringParameters` katı kalır).
+Şablon yoksa form bunu söylüyor. `BusinessRequestDiffPanel`'deki kod alanı
+etiketleri de kaldırıldı.
+
+### 🔴 Atanmış ürün yanıtı response validation'da düşecekti
+
+`AdminApi/validators/customers.ts` `supplierCode` ve `variantIndex`'i ZORUNLU
+beyan ediyordu; bu alanlar DTO'dan kalktığı için müşteriye atanmış ürün yanıtı
+runtime'da response validation hatası verirdi. `sizeCode`/`versionCode` opsiyonele
+çevrildi.
+
+### Uydurma alan dolguları temizlendi
+
+`CustomerAssignedVariantsPageClient` `supplierCode`'a `versionCode` yazıyor,
+`SupplierVariantPricesPageClient` `versionCode`'a `fullCode` ve `variantIndex`'e 0
+koyuyordu — yalnız paylaşılan tipi tatmin etmek için. Artık gerçek değerler var.
+
+**Testler:** core 508 → **520** (+12; ölçü gösterim kuralı). frontend 296 (ölçü
+testleri core'a taşındı). functions 279.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (124 warning) ✅ ·
+core 520 ✅ · functions 279 ✅ · frontend 296 ✅ · `next build` "Compiled successfully" ✅ ·
+i18n tr/en eşit (769) ✅.
+
+**Kullanıcıda bekleyen:** kubi'de public ürün sayfası (`/urun/<slug>`) ve portal
+varyant tablosunda ölçü değerlerinin doğru, kolon başlıklarının ürün modeline özel
+adla göründüğünün teyidi; tedarikçi panelinden varyant talebi açıp şablon
+alanlarının geldiğinin doğrulanması.
+
+**Açık kalan:** ekran yeniden düzenlemesi (tasarım incelemesinde seçilen iki sütun +
+yapışkan kaydet çubuğu) ayrı bir dilim olarak duruyor.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -274,3 +274,23 @@ export const decideBusinessRequestValidator = validatorWrapper(
         requiredBodyFields: [],
     }
 )
+
+/**
+ * Tedarikçi varyant talebi form referansları.
+ *
+ * DİKKAT: `validatorWrapper` `additionalProperties: true`'yu yalnız KÖK şemaya
+ * uygular; `queryStringParameters` KATI kalır. Bu yüzden kabul edilen query alanı
+ * burada açıkça beyan edilir — genel bir validator verilseydi `productId` 400 üretirdi.
+ */
+export const supplierVariantRequestReferencesValidator = validatorWrapper(
+    z.object({
+        queryStringParameters: z.object({
+            productId: z.uuid().optional(),
+        }),
+    }),
+    // GET: gövde yok. `requiredRootFields` varsayılanı ["body"] olduğu için
+    // açıkça boşaltılmalı — aksi hâlde ajv strict mode şemayı hiç derlemez
+    // ("required property body is not defined") ve bu dosyadaki TÜM validator'lar
+    // import anında düşer.
+    { requiredRootFields: [] },
+)

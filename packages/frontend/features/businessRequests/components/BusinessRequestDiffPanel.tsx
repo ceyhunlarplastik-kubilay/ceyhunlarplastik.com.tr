@@ -47,9 +47,8 @@ const FIELD_LABELS: Record<string, string> = {
     productId: "Ürün",
     productCode: "Ürün Kodu",
     productName: "Ürün Adı",
-    versionCode: "Versiyon Kodu",
-    supplierCode: "Tedarikçi Kodu",
-    variantIndex: "Varyant İndeksi",
+    // versionCode / supplierCode / variantIndex KALDIRILDI: kodlar artık talepte
+    // taşınmıyor, onay sırasında sunucuda üretiliyor.
     colorId: "Renk",
     materialIds: "Malzemeler",
     measurements: "Ölçüler",

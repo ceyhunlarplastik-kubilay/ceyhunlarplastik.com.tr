@@ -137,9 +137,10 @@ const assignedProductVariantSchema = z.object({
         productId: z.uuid(),
         name: z.string(),
         fullCode: z.string(),
-        versionCode: z.string(),
-        supplierCode: z.string(),
-        variantIndex: z.number(),
+        // supplierCode/variantIndex KALDIRILDI, versionCode nullable oldu: bunlar
+        // zorunlu kaldıkça atanmış ürün yanıtı response validation'da düşerdi.
+        versionCode: z.string().nullable().optional(),
+        sizeCode: z.number().nullable().optional(),
         color: z.object({
             id: z.uuid(),
             name: z.string(),

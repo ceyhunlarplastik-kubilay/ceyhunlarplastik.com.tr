@@ -1,6 +1,8 @@
 import { SFNClient, SendTaskSuccessCommand, StartExecutionCommand } from "@aws-sdk/client-sfn"
 import createError from "http-errors"
 
+import { prisma } from "@/core/db/prisma"
+
 import { approveBusinessRequestDecision, assertAllowedCustomerRequestType, counterBusinessRequestDecision, createCustomerBusinessRequest, createSupplierBusinessRequest, rejectBusinessRequestDecision } from "@/core/helpers/businessRequests/service"
 import { normalizeSupplierProfileApprovalPayload, normalizeSupplierVariantPricingApprovalPayload, snapshotSupplierProfile, snapshotSupplierVariantPricing } from "@/core/helpers/businessRequests/supplierPayloads"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
@@ -547,13 +549,36 @@ export const createSupplierBusinessRequestHandler =
             })
         }
 
+/**
+ * Tedarikçi varyant talebi formunun seçim listeleri.
+ *
+ * `productId` verilirse o ürün modelinin ÖLÇÜ ŞABLONU da döner. Tedarikçi artık
+ * serbest ölçü tipi seçmiyor: hangi ölçüleri gireceğini ürün modeli belirliyor
+ * (aynı `R` kodu bir modelde "Elcik Çapı", başkasında "Kol Çapı"). Şablon boşsa
+ * o ürüne varyant talebi açılamaz — form bunu söyler.
+ */
 export const getSupplierVariantRequestReferencesHandler =
     ({ colorRepository, materialRepository, measurementTypeRepository }: IProtectedBusinessRequestDependencies) =>
-        async (_event: IGetSupplierVariantRequestReferencesEvent) => {
-            const [colors, materials, measurementTypes] = await Promise.all([
+        async (event: IGetSupplierVariantRequestReferencesEvent) => {
+            const productId = event.queryStringParameters?.productId
+
+            const [colors, materials, measurementTypes, requirements] = await Promise.all([
                 colorRepository.listColors({ limit: 1000 }),
                 materialRepository.listMaterials({ limit: 1000 }),
                 measurementTypeRepository.listMeasurementTypes({ limit: 1000 }),
+                productId
+                    ? prisma.productMeasurementRequirement.findMany({
+                        where: { productId },
+                        orderBy: [{ sortPriority: "asc" }, { displayOrder: "asc" }, { label: "asc" }],
+                        select: {
+                            id: true,
+                            label: true,
+                            unit: true,
+                            isRequired: true,
+                            measurementType: { select: { code: true, baseUnit: true } },
+                        },
+                    })
+                    : Promise.resolve([]),
             ])
 
             return apiResponseDTO({
@@ -562,6 +587,13 @@ export const getSupplierVariantRequestReferencesHandler =
                     colors: colors.data,
                     materials: materials.data,
                     measurementTypes: measurementTypes.data,
+                    requirements: requirements.map((requirement) => ({
+                        id: requirement.id,
+                        label: requirement.label,
+                        measurementCode: requirement.measurementType.code,
+                        unit: requirement.unit ?? requirement.measurementType.baseUnit,
+                        isRequired: requirement.isRequired,
+                    })),
                 },
             })
         }

@@ -28,6 +28,8 @@ import {
 } from "@/components/ui/table"
 import {
     formatMeasurementValue,
+    resolveMeasurementName,
+    resolveMeasurementUnit,
 } from "@/features/public/products/utils/measurement"
 import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupVariantMeasurements"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
@@ -99,7 +101,11 @@ export type VariantSupplier = {
 export type VariantTableData = {
     id: string
     name: string
-    versionCode: string
+    /** "V1" — renk + hammadde kombinasyonu. */
+    versionCode: string | null
+    /** Kodun 3. segmenti; eski `variantIndex`'in yerini aldı. */
+    sizeCode?: number | null
+    /** "10.5.8.V1" — tedarikçi harfi içermez. */
     fullCode: string
     measurements: VariantMeasurement[]
     color?: VariantColor | null
@@ -221,12 +227,27 @@ export default function ProductVariantTable({
     const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
     const canManageVariants = groups.includes("owner") || groups.includes("admin")
     const adminVariantsUrl = `/admin/products/${productId}/variants`
+    // Kolon başlığı ürün modeline ÖZEL adı gösterir ("Elcik Çapı"), ölçü tipinin
+    // genel adını değil: aynı `R` kodu başka bir modelde "Kol Çapı" olabilir.
     const measurementColumns = useMemo(() => {
-        const map = new Map<string, MeasurementTypeDetails>()
+        const map = new Map<string, {
+            id: string
+            code: string
+            name: string
+            displayOrder: number
+        }>()
 
         for (const option of options) {
             for (const measurement of option.measurements) {
-                map.set(measurement.measurementType.id, measurement.measurementType)
+                const type = measurement.measurementType
+                if (!type || map.has(type.id)) continue
+
+                map.set(type.id, {
+                    id: type.id,
+                    code: type.code,
+                    name: resolveMeasurementName(measurement),
+                    displayOrder: type.displayOrder,
+                })
             }
         }
 
@@ -307,7 +328,10 @@ export default function ProductVariantTable({
                                             className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]"
                                         >
                                             <div className="flex items-center gap-1.5">
-                                                <span>{column.code}</span>
+                                                <span className="whitespace-nowrap">{column.name}</span>
+                                                <span className="font-mono text-[10px] font-normal text-neutral-500">
+                                                    {column.code}
+                                                </span>
                                                 <MeasurementHelpDialogButton
                                                     measurementCode={column.code}
                                                     videoUrl={measurementHelpVideoUrl}
@@ -382,10 +406,8 @@ export default function ProductVariantTable({
                                                     )
                                                 }
 
-                                                const hasUnit =
-                                                    measurement.measurementType.baseUnit &&
-                                                    measurement.measurementType.code !== "D" &&
-                                                    measurement.measurementType.code !== "M"
+                                                // Metrik dişte birim gösterilmez ("M4 mm" anlamsız).
+                                                const unit = resolveMeasurementUnit(measurement)
 
                                                 return (
                                                     <TableCell
@@ -398,9 +420,9 @@ export default function ProductVariantTable({
                                                         )}
                                                     >
                                                         {formatMeasurementValue(measurement)}
-                                                        {hasUnit ? (
+                                                        {unit ? (
                                                             <span className="text-[10px] text-neutral-400 font-normal ms-0.5">
-                                                                {measurement.measurementType.baseUnit}
+                                                                {unit}
                                                             </span>
                                                         ) : null}
                                                     </TableCell>
@@ -510,10 +532,7 @@ export default function ProductVariantTable({
                         </div>
                         <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
                             {selected.measurements.map((measurement) => {
-                                const hasUnit =
-                                    measurement.measurementType.baseUnit &&
-                                    measurement.measurementType.code !== "D" &&
-                                    measurement.measurementType.code !== "M"
+                                const unit = resolveMeasurementUnit(measurement)
 
                                 return (
                                     <div
@@ -525,12 +544,12 @@ export default function ProductVariantTable({
                                                 {measurement.measurementType.code}
                                             </span>
                                             <span className="text-xs text-neutral-500 font-medium leading-normal">
-                                                {measurement.measurementType.name}
+                                                {resolveMeasurementName(measurement)}
                                             </span>
                                         </div>
                                         <div className="rounded-lg bg-white border border-neutral-200/60 px-3 py-1 text-sm font-bold text-neutral-900 shadow-sm font-mono">
                                             {formatMeasurementValue(measurement)}
-                                            {hasUnit ? ` ${measurement.measurementType.baseUnit}` : ""}
+                                            {unit ? ` ${unit}` : ""}
                                         </div>
                                     </div>
                                 )

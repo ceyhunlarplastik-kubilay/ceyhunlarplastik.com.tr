@@ -110,7 +110,11 @@ export type ICreateSupplierBusinessRequestEvent = IAPIGatewayProxyEventWithUserG
     {}
 >
 
-export type IGetSupplierVariantRequestReferencesEvent = IAPIGatewayProxyEventWithUserGeneric<{}, {}>
+export type IGetSupplierVariantRequestReferencesEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    {},
+    { productId?: string }
+>
 
 export type IDecideBusinessRequestEvent = IAPIGatewayProxyEventWithUserGeneric<
     {

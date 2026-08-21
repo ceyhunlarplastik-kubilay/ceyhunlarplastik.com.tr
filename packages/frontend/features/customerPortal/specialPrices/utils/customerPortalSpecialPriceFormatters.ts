@@ -1,4 +1,5 @@
 import type { CustomerVariantSpecialPrice } from "@/features/admin/customers/api/types"
+import { resolveMeasurementUnit } from "@core/helpers/productVariants/measurementDisplay"
 
 export function formatPortalSpecialPriceDate(value?: string | null) {
     if (!value) return "Süresiz"
@@ -43,7 +44,8 @@ export function formatPortalSpecialPriceMeasurements(item: CustomerVariantSpecia
 
     return measurements
         .map((measurement) => {
-            const unit = measurement.measurementType.baseUnit ? ` ${measurement.measurementType.baseUnit}` : ""
+            const resolvedUnit = resolveMeasurementUnit(measurement)
+            const unit = resolvedUnit ? ` ${resolvedUnit}` : ""
             return `${measurement.measurementType.code}: ${measurement.value}${unit}`
         })
         .join(" / ")

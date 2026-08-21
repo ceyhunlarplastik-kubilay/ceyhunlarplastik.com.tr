@@ -116,9 +116,8 @@ export type CustomerSpecialPriceProductVariant = {
     productId: string
     name: string
     fullCode: string
-    versionCode: string
-    supplierCode: string
-    variantIndex: number
+    versionCode: string | null
+    sizeCode: number | null
     color?: {
         id: string
         name: string

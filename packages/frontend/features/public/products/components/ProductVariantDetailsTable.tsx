@@ -17,6 +17,7 @@ import type {
     VariantTableData,
 } from "@/features/public/products/components/ProductVariantTable"
 import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { resolveMeasurementUnit } from "@core/helpers/productVariants/measurementDisplay"
 
 interface ProductVariantDetailsTableProps {
     variants: VariantTableData[]
@@ -63,11 +64,7 @@ export default function ProductVariantDetailsTable({
                                     <Badge key={measurement.id} variant="secondary" className="w-full justify-start text-start">
                                         {measurement.measurementType.name} ({measurement.measurementType.code}):{" "}
                                         {formatMeasurementValue(measurement)}
-                                        {measurement.measurementType.baseUnit &&
-                                        measurement.measurementType.code !== "D" &&
-                                        measurement.measurementType.code !== "M"
-                                            ? ` ${measurement.measurementType.baseUnit}`
-                                            : ""}
+                                        {resolveMeasurementUnit(measurement) ? ` ${resolveMeasurementUnit(measurement)}` : ""}
                                     </Badge>
                                 ))
                             )}
@@ -138,11 +135,7 @@ export default function ProductVariantDetailsTable({
                                         }
 
                                         const withUnit =
-                                            measurement.measurementType.baseUnit &&
-                                            measurement.measurementType.code !== "D" &&
-                                            measurement.measurementType.code !== "M"
-                                                ? ` ${measurement.measurementType.baseUnit}`
-                                                : ""
+                                            resolveMeasurementUnit(measurement) ? ` ${resolveMeasurementUnit(measurement)}` : ""
 
                                         return (
                                             <TableCell key={`${variant.id}-${column.id}`} className="text-xs text-neutral-700">

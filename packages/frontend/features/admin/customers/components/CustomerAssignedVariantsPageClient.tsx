@@ -87,9 +87,8 @@ function mapVariantTableDataToAssignedVariant(
         productId: product.id,
         name: variant.name,
         fullCode: variant.fullCode,
-        versionCode: variant.versionCode,
-        supplierCode: variant.versionCode,
-        variantIndex: 0,
+        versionCode: variant.versionCode ?? null,
+        sizeCode: variant.sizeCode ?? null,
         color: variant.color
             ? {
                 id: variant.color.id,

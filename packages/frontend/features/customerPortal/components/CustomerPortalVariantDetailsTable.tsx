@@ -50,6 +50,7 @@ import {
 } from "@/features/customerPortal/hooks/usePortalFavoriteVariant"
 import type { CustomerVariantSpecialPrice } from "@/features/admin/customers/api/types"
 import { formatMoney, resolveCustomerDiscountedPrice } from "@/lib/customers/pricing"
+import { resolveMeasurementUnit } from "@core/helpers/productVariants/measurementDisplay"
 
 interface Props {
     variants: VariantTableData[]
@@ -128,11 +129,7 @@ function formatVariantMeasurementsForMessage(variant: VariantTableData) {
         .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder)
         .map((measurement) => {
             const withUnit =
-                measurement.measurementType.baseUnit &&
-                    measurement.measurementType.code !== "D" &&
-                    measurement.measurementType.code !== "M"
-                    ? ` ${measurement.measurementType.baseUnit}`
-                    : ""
+                resolveMeasurementUnit(measurement) ? ` ${resolveMeasurementUnit(measurement)}` : ""
 
             return `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}${withUnit}`
         })
@@ -615,11 +612,7 @@ export function CustomerPortalVariantDetailsTable({
                                                 }
 
                                                 const withUnit =
-                                                    measurement.measurementType.baseUnit &&
-                                                        measurement.measurementType.code !== "D" &&
-                                                        measurement.measurementType.code !== "M"
-                                                        ? ` ${measurement.measurementType.baseUnit}`
-                                                        : ""
+                                                    resolveMeasurementUnit(measurement) ? ` ${resolveMeasurementUnit(measurement)}` : ""
 
                                                 return (
                                                     <TableCell key={`${variant.id}-${column.id}`} className={`${VARIANT_TABLE_CELL_CLASS} text-xs font-medium text-neutral-700`}>

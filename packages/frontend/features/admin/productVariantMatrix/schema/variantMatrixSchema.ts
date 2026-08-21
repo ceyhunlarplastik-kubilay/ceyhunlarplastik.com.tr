@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { parseMeasurementInput } from "@core/helpers/productVariants/measurementValue"
+
 /**
  * Matris taslak satırı. Ölçü değerleri METİN olarak tutulur: operatör "M4" veya
  * "12,5" yazabilir; sayıya çevirme `parseMeasurementValue` ile yapılır (core'daki
@@ -44,27 +46,16 @@ export function createEmptyDraftRow(defaults?: Partial<VariantMatrixDraftRow>): 
     }
 }
 
-const METRIC_THREAD_CODES = ["D", "M"]
-const METRIC_THREAD_PATTERN = /^M?\s*(\d+(?:[.,]\d+)?)$/i
-
 /**
- * Ölçü girdisini sayıya çevirir. Core'daki `parseMeasurementInput` ile AYNI kuralı
- * uygular: `M`/`D` kodları metrik diş sayılır ("M4" → 4), diğerlerinde virgül
- * ondalık ayırıcı olarak kabul edilir ("12,5" → 12.5).
+ * Ölçü girdisini sayıya çevirir.
+ *
+ * Uygulama CORE'daki `parseMeasurementInput`'tur — burada YENİDEN YAZILMAZ. Kısa
+ * süre iki kopya vardı ve ondalık ayırıcıyı farklı normalize ediyorlardı; aynı
+ * girdi operatörde ve sunucuda farklı değere çözülüyordu. Tek kaynak core'da,
+ * frontend `@core/*` alias'ıyla erişir (bkz. CLAUDE.md).
  */
 export function parseMeasurementValue(raw: string, measurementCode: string): number | null {
-    const normalized = raw.trim()
-    if (!normalized) return null
-
-    if (METRIC_THREAD_CODES.includes(measurementCode)) {
-        const match = normalized.match(METRIC_THREAD_PATTERN)
-        if (!match) return null
-        const parsed = Number(match[1].replace(",", "."))
-        return Number.isFinite(parsed) ? parsed : null
-    }
-
-    const parsed = Number(normalized.replace(",", "."))
-    return Number.isFinite(parsed) ? parsed : null
+    return parseMeasurementInput(raw, measurementCode)?.value ?? null
 }
 
 export function parseOptionalNumber(raw: string | undefined): number | undefined {

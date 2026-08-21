@@ -24,12 +24,18 @@ import { Textarea } from "@/components/ui/textarea"
 import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
 import { useCreateSupplierBusinessRequest } from "@/features/supplier/businessRequests/hooks/useCreateSupplierBusinessRequest"
 import { useSupplierVariantRequestReferences } from "@/features/supplier/businessRequests/hooks/useSupplierVariantRequestReferences"
+import { parseMeasurementInput } from "@core/helpers/productVariants/measurementValue"
 
+/**
+ * Kod alanları (versionCode / supplierCode / variantIndex) BİLİNÇLİ OLARAK YOK.
+ * Kodlar sunucuda ölçü, renk+hammadde ve tedarikçinin ürün modelindeki ilk kullanım
+ * sırasından türetilir; tedarikçinin kod önermesi anlamsızdı ve eski yol admin
+ * tarafındaki regex doğrulamasını da atlıyordu.
+ *
+ * Ölçüler ürün modelinin ŞABLONUNDAN gelir: `measurementTypeId` değil `requirementId`.
+ */
 const schema = z.object({
     name: z.string().min(1, "Varyant adı zorunlu"),
-    versionCode: z.string().regex(/^V[0-9]+$/, "Versiyon kodu V1 formatında olmalı"),
-    supplierCode: z.string().regex(/^[A-Z]$/, "Tedarikçi kodu tek büyük harf olmalı"),
-    variantIndex: z.coerce.number().int().min(1, "Varyant indeksi zorunlu"),
     colorId: z.string().optional(),
     materialIds: z.array(z.string()).default([]),
     price: z.string().optional(),
@@ -40,9 +46,8 @@ const schema = z.object({
     stockQty: z.string().optional(),
     currency: z.string().min(3).max(3),
     measurements: z.array(z.object({
-        measurementTypeId: z.string().min(1, "Ölçü tipi zorunlu"),
-        value: z.string().min(1, "Değer zorunlu"),
-        label: z.string().optional(),
+        requirementId: z.string().min(1),
+        value: z.string(),
     })).default([]),
 })
 
@@ -71,14 +76,12 @@ export function CreateSupplierVariantRequestDialog({
     productName,
 }: Props) {
     const mutation = useCreateSupplierBusinessRequest("Varyant talebi onaya gönderildi")
-    const refsQuery = useSupplierVariantRequestReferences(open)
+    const refsQuery = useSupplierVariantRequestReferences(productId, open)
+    const requirements = refsQuery.data?.requirements ?? []
     const form = useForm<FormInput, unknown, FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
             name: "",
-            versionCode: "V1",
-            supplierCode: "A",
-            variantIndex: 1,
             colorId: "",
             materialIds: [],
             price: "",
@@ -118,9 +121,6 @@ export function CreateSupplierVariantRequestDialog({
                 productCode,
                 productName,
                 name: values.name.trim(),
-                versionCode: values.versionCode.trim(),
-                supplierCode: values.supplierCode.trim().toUpperCase(),
-                variantIndex: values.variantIndex,
                 colorId: values.colorId || undefined,
                 materialIds: values.materialIds,
                 price: parseNumber(values.price),
@@ -130,11 +130,17 @@ export function CreateSupplierVariantRequestDialog({
                 minOrderQty: parseNumber(values.minOrderQty),
                 stockQty: parseNumber(values.stockQty),
                 currency: values.currency.toUpperCase(),
-                measurements: values.measurements.map((measurement) => ({
-                    measurementTypeId: measurement.measurementTypeId,
-                    value: Number(measurement.value.replace(",", ".")),
-                    label: measurement.label?.trim() || measurement.value,
-                })),
+                measurements: values.measurements
+                    .map((measurement) => ({
+                        requirementId: measurement.requirementId,
+                        value: parseMeasurementInput(
+                            measurement.value,
+                            requirements.find((r) => r.id === measurement.requirementId)?.measurementCode,
+                        )?.value ?? null,
+                    }))
+                    .filter((measurement): measurement is { requirementId: string; value: number } =>
+                        measurement.value !== null,
+                    ),
             },
         })
 
@@ -155,23 +161,15 @@ export function CreateSupplierVariantRequestDialog({
                         <div>{productCode}</div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-1.5">
                             <Label>Varyant Adı</Label>
                             <Input {...form.register("name")} />
                         </div>
-                        <div className="space-y-1.5">
-                            <Label>Versiyon Kodu</Label>
-                            <Input {...form.register("versionCode")} />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label>Tedarikçi Kodu</Label>
-                            <Input maxLength={1} {...form.register("supplierCode")} />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label>Varyant İndeksi</Label>
-                            <Input type="number" {...form.register("variantIndex")} />
-                        </div>
+                        <p className="self-end text-xs text-neutral-500">
+                            Varyant kodu onay sonrasında otomatik verilir; ölçü, renk/hammadde ve
+                            tedarikçi sıranıza göre oluşur.
+                        </p>
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -208,37 +206,35 @@ export function CreateSupplierVariantRequestDialog({
                     </div>
 
                     <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                            <Label>Ölçüler</Label>
-                            <Button type="button" variant="outline" size="sm" onClick={() => measurementFields.append({ measurementTypeId: "", value: "", label: "" })}>
-                                Ölçü Ekle
-                            </Button>
-                        </div>
-
-                        {measurementFields.fields.map((field, index) => (
-                            <div key={field.id} className="grid gap-3 rounded-2xl border border-neutral-200 p-3 md:grid-cols-[1.1fr_0.9fr_1fr_auto]">
-                                <Select
-                                    value={measurements?.[index]?.measurementTypeId ?? ""}
-                                    onValueChange={(value) => form.setValue(`measurements.${index}.measurementTypeId`, value, { shouldValidate: true })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Ölçü tipi" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {(refsQuery.data?.measurementTypes ?? []).map((measurementType) => (
-                                            <SelectItem key={measurementType.id} value={measurementType.id}>
-                                                {measurementType.code} · {measurementType.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <Input placeholder="Değer" {...form.register(`measurements.${index}.value`)} />
-                                <Input placeholder="Etiket" {...form.register(`measurements.${index}.label`)} />
-                                <Button type="button" variant="ghost" size="sm" onClick={() => measurementFields.remove(index)}>
-                                    Sil
-                                </Button>
+                        <Label>Ölçüler</Label>
+                        {requirements.length === 0 ? (
+                            <p className="rounded-2xl border border-dashed border-neutral-300 p-4 text-sm text-neutral-500">
+                                Bu ürün modeli için ölçü şablonu tanımlanmamış. Varyant talebi
+                                açılabilmesi için önce şablonun tanımlanması gerekiyor.
+                            </p>
+                        ) : (
+                            <div className="grid gap-3 md:grid-cols-2">
+                                {requirements.map((requirement, index) => (
+                                    <div key={requirement.id} className="space-y-1.5">
+                                        <Label className="text-xs">
+                                            {requirement.label}
+                                            {requirement.unit ? (
+                                                <span className="ml-1 font-normal text-neutral-500">
+                                                    ({requirement.unit})
+                                                </span>
+                                            ) : null}
+                                            {requirement.isRequired ? (
+                                                <span className="ml-0.5 text-red-600">*</span>
+                                            ) : null}
+                                        </Label>
+                                        <Input
+                                            placeholder={requirement.measurementCode}
+                                            {...form.register(`measurements.${index}.value`)}
+                                        />
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-3">

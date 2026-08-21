@@ -93,9 +93,11 @@ function groupVariantPriceRows(rows: SupplierVariantPrice[]) {
             productId: variant.productId,
             name: variant.name,
             fullCode: variant.fullCode,
-            versionCode: variant.fullCode,
-            supplierCode: row.supplierVariantCode ?? "",
-            variantIndex: 0,
+            // Eskiden bu üç alan uydurularak dolduruluyordu (versionCode'a fullCode,
+            // supplierCode'a tedarikçinin kendi kodu, variantIndex'e 0) — yalnız
+            // paylaşılan tipi tatmin etmek için. Artık gerçek değerler geliyor.
+            versionCode: variant.versionCode ?? null,
+            sizeCode: variant.sizeCode ?? null,
             createdAt: row.createdAt,
             color: variant.color ?? null,
             materials: (variant.materials ?? []).map((material) => ({

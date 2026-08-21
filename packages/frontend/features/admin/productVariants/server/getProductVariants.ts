@@ -26,9 +26,8 @@ export type ProductVariant = {
     productId: string;
     name: string;
     fullCode: string;
-    versionCode: string;
-    supplierCode: string;
-    variantIndex: number;
+    versionCode: string | null;
+    sizeCode: number | null;
     createdAt: string;
     color?: {
         id: string;
