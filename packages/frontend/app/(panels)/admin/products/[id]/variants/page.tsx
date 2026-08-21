@@ -13,6 +13,7 @@ export default function AdminProductVariantsPage() {
             productId={productId}
             productsBasePath="/admin/products"
             canManageCodes
+            canDeleteVersions
         />
     )
 }

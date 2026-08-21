@@ -505,6 +505,25 @@ adminApi.route("DELETE /product-variants/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+/*----------------------- VARIANT VERSIONS (GLOBAL SÖZLÜK) -----------------------*/
+// Renk + hammadde kombinasyonunun ÜRÜN MODELİ İÇİNDEKİ numarası ("V1"). Numara
+// append-only'dur; mevcut bir kaydın kodunu değiştirecek bir uç BİLİNÇLİ OLARAK YOK.
+// Varyant girişi tanımsız kombinasyonu reddeder — önce buradan tanımlanır.
+adminApi.route("GET /products/{id}/variant-versions", {
+    handler: `${folderPrefix}/variantVersions/actions.listVariantVersions`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /products/{id}/variant-versions", {
+    handler: `${folderPrefix}/variantVersions/actions.createVariantVersion`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /products/{id}/variant-versions/{versionId}", {
+    handler: `${folderPrefix}/variantVersions/actions.deleteVariantVersion`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- PRODUCT MEASUREMENT REQUIREMENTS -----------------------*/
 // Ürün modeline özel ölçü şablonu: bu modelde hangi ölçüler girilmeli.
 adminApi.route("GET /products/{id}/measurement-requirements", {

@@ -1828,7 +1828,7 @@ export type $ProductVariantPayload<ExtArgs extends runtime.Types.Extensions.Inte
     productSizeId: string
     /**
      * Kodun 4. segmenti buradan gelir (VariantVersion.code → "V1").
-     * GLOBAL sözlüğe bağlanır; aynı renk+hammadde her üründe aynı numarayı taşır.
+     * Versiyon ÜRÜN MODELİ BAŞINA tanımlıdır ve önceden tanımlanmış olmalıdır.
      */
     variantVersionId: string
     /**

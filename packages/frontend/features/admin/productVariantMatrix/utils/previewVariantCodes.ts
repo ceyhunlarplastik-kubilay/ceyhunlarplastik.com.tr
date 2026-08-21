@@ -24,6 +24,11 @@ export type VariantCodePreview = {
     fullCode: string | null
     /** "10.5.8.V1.A" — satırda tedarikçi seçilmemişse null. */
     supplierFullCode: string | null
+    /**
+     * Satırdaki renk + hammadde kombinasyonu ürünün sözlüğünde TANIMLI mı?
+     * Tanımsızsa kod üretilemez ve satır kaydedilemez — sunucu da reddeder.
+     */
+    versionDefined: boolean
 }
 
 const DRAFT_PREFIX = "draft:"
@@ -39,6 +44,10 @@ const DRAFT_PREFIX = "draft:"
  * kaynağı yarıştır (başka biri aynı anda kaydederse). Taslak modda önizleme mevcut
  * satırların kodlarının da kayabileceğini doğru gösterir, çünkü planlayıcı gerçek
  * kilit durumuyla çalıştırılır.
+ *
+ * Versiyon numarası burada UYDURULMAZ: sözlükte tanımlı olmayan bir renk + hammadde
+ * kombinasyonu `versionDefined: false` ile işaretlenir ve kod üretilmez. Sunucu da
+ * aynı satırı reddeder, yani önizleme ile kayıt sonucu ayrışmaz.
  */
 export function previewVariantCodes(input: {
     productCode: string
@@ -49,29 +58,31 @@ export function previewVariantCodes(input: {
     supplierCodes: MatrixSupplierCode[]
     rows: MatrixRow[]
     draftRows: SaveVariantMatrixRowInput[]
-    /** GLOBAL sözlük — bu üründe kullanılmayan kombinasyonlar da burada. */
+    /** Ürün modelinin TANIMLI sözlüğü — henüz kullanılmayan kombinasyonlar dahil. */
     versionDictionary: VariantVersionDictionaryEntry[]
-    nextVersionCode: number
 }): VariantCodePreview[] {
     const {
         productCode, isLocked, requirements, sizes, versions,
-        supplierCodes, rows, draftRows, versionDictionary, nextVersionCode,
+        supplierCodes, rows, draftRows, versionDictionary,
     } = input
 
     if (draftRows.length === 0) return []
 
-    const empty: VariantCodePreview[] = draftRows.map(() => ({ fullCode: null, supplierFullCode: null }))
+    const empty: VariantCodePreview[] = draftRows.map(() => ({
+        fullCode: null,
+        supplierFullCode: null,
+        versionDefined: true,
+    }))
     if (!productCode || requirements.length === 0) return empty
 
-    // Sözlükteki kombinasyonlar imzalarıyla aranır: bu üründe kullanılmayan ama
-    // GLOBAL olarak var olan bir kombinasyon "yeni" sanılmamalı.
+    // Ürünün sözlüğü imzalarıyla aranır: henüz hiçbir varyantta kullanılmamış ama
+    // TANIMLI olan bir kombinasyon "tanımsız" sanılmamalı.
     const dictionaryBySignature = new Map(
         versionDictionary.map((entry) => [
             buildVersionSignature({ colorId: entry.colorId, materialIds: entry.materialIds }),
             entry,
         ]),
     )
-    let nextCode = nextVersionCode
 
     const requirementLikes = requirements.map((requirement) => ({
         id: requirement.id,
@@ -127,7 +138,11 @@ export function previewVariantCodes(input: {
         const variantIdByKey = new Map(plannerVariants.map((v) => [`${v.sizeId}#${v.versionId}`, v.id]))
 
         // ── Taslak satırları ekle ───────────────────────────────────────────────
-        const draftVariantIds: Array<{ variantId: string; supplierRowId: string | null }> = []
+        const draftVariantIds: Array<{
+            variantId: string | null
+            supplierRowId: string | null
+            versionDefined: boolean
+        }> = []
 
         draftRows.forEach((row, index) => {
             const signature = buildSizeSignature(row.measurements, requirementLikes)
@@ -149,11 +164,16 @@ export function previewVariantCodes(input: {
             })
             let versionId = versionIdBySignature.get(versionSignature)
             if (!versionId) {
-                // Önce global sözlüğe bak; yoksa sıradaki numarayla eklenecek.
+                // ÖNCE TANIMLANMALI: sözlükte yoksa numara uydurulmaz, satır
+                // kodsuz kalır ve kaydetme engellenir.
                 const known = dictionaryBySignature.get(versionSignature)
-                versionId = known?.id ?? `${DRAFT_PREFIX}version:${versionSignature}`
+                if (!known) {
+                    draftVariantIds.push({ variantId: null, supplierRowId: null, versionDefined: false })
+                    return
+                }
+                versionId = known.id
                 versionIdBySignature.set(versionSignature, versionId)
-                plannerVersions.push({ id: versionId, code: known?.code ?? nextCode++ })
+                plannerVersions.push({ id: versionId, code: known.code })
             }
 
             if (row.supplier && !supplierCodeIdBySupplier.has(row.supplier.supplierId)) {
@@ -198,7 +218,7 @@ export function previewVariantCodes(input: {
                 }
             }
 
-            draftVariantIds.push({ variantId, supplierRowId })
+            draftVariantIds.push({ variantId, supplierRowId, versionDefined: true })
         })
 
         const plan = assignProductVariantCodes({
@@ -213,7 +233,11 @@ export function previewVariantCodes(input: {
         const fullCodeByVariant = new Map(plan.variantCodeUpdates.map((u) => [u.id, u.fullCode]))
         const supplierFullCodeById = new Map(plan.variantSupplierCodeUpdates.map((u) => [u.id, u.fullCode]))
 
-        return draftVariantIds.map(({ variantId, supplierRowId }) => {
+        return draftVariantIds.map(({ variantId, supplierRowId, versionDefined }) => {
+            if (!versionDefined || !variantId) {
+                return { fullCode: null, supplierFullCode: null, versionDefined: false }
+            }
+
             // Kodu değişmeyen mevcut varyant plana girmez; o zaman satırdaki kod
             // zaten doğrudur ve mevcut değerinden okunur.
             const fullCode =
@@ -224,6 +248,7 @@ export function previewVariantCodes(input: {
             return {
                 fullCode,
                 supplierFullCode: supplierRowId ? supplierFullCodeById.get(supplierRowId) ?? null : null,
+                versionDefined: true,
             }
         })
     } catch {

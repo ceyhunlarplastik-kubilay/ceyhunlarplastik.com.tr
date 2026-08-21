@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 import { MeasurementRequirementsPanel } from "@/features/admin/productMeasurementRequirements/components/MeasurementRequirementsPanel"
 import { VariantAssetPreview } from "@/features/admin/productVariantMatrix/components/VariantAssetPreview"
+import { VariantVersionsPanel } from "@/features/admin/variantVersions/components/VariantVersionsPanel"
 
 type ProductAsset = { role?: string; type?: string; url?: string }
 
@@ -35,6 +36,8 @@ type Props = {
     sizeCount: number
     lockedAt: string | null
     canManageCodes: boolean
+    /** Sözlükten kayıt silme yalnız yöneticide. */
+    canDeleteVersions: boolean
     isLockPending: boolean
     isRenumberPending: boolean
     onToggleLock: (locked: boolean) => void
@@ -55,7 +58,7 @@ function pickAsset(assets: ProductAsset[], role: string) {
 export function VariantMatrixContextRail({
     productId, productsBasePath, code, name, categoryName,
     assets, assetsLoading, variantCount, sizeCount,
-    lockedAt, canManageCodes, isLockPending, isRenumberPending,
+    lockedAt, canManageCodes, canDeleteVersions, isLockPending, isRenumberPending,
     onToggleLock, onRenumber,
 }: Props) {
     const isLocked = Boolean(lockedAt)
@@ -111,6 +114,15 @@ export function VariantMatrixContextRail({
                 productName={name}
                 isDraftMode={!isLocked}
                 sizeCount={sizeCount}
+            />
+
+            <div className="h-px bg-border" />
+
+            <VariantVersionsPanel
+                productId={productId}
+                productCode={code}
+                productName={name}
+                canDelete={canDeleteVersions}
             />
 
             <div className="h-px bg-border" />

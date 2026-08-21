@@ -8,7 +8,7 @@ const req: MatrixRequirement = {
     label: "Uzunluk", unit: "cm", isRequired: true, sortPriority: 0, displayOrder: 0,
 }
 
-/** Global sözlük: Siyah+PP önceden V1 olarak tanımlanmış. */
+/** Ürünün sözlüğü: Siyah+PP bu ürün modelinde V1 olarak tanımlanmış. */
 const versionDictionary = [
     { id: "v-1", code: 1, colorId: "color-black", materialIds: ["mat-pp"] },
 ]
@@ -37,7 +37,6 @@ function preview(draftRows: Parameters<typeof previewVariantCodes>[0]["draftRows
         sizes, versions, supplierCodes, rows,
         draftRows,
         versionDictionary,
-        nextVersionCode: 2,
     })
 }
 
@@ -87,19 +86,33 @@ describe("previewVariantCodes", () => {
         expect(result[1].supplierFullCode).toBe("10.5.3.V1.B")
     })
 
-    it("sözlükte OLMAYAN kombinasyona sıradaki global numarayı verir", () => {
+    it("sözlükte OLMAYAN kombinasyon için numara UYDURMAZ", () => {
+        // Önce tanımlanmalı: numara burada uydurulursa sunucu satırı reddettiğinde
+        // önizleme ile sonuç ayrışırdı. Kod üretilmez ve satır işaretlenir.
         const result = preview([{
             name: "x",
             measurements: [{ requirementId: "req-l", value: 10 }],
             colorId: undefined,
             materialIds: [],
         }], true)
-        expect(result[0].fullCode).toBe("10.5.1.V2")
+        expect(result[0]).toEqual({ fullCode: null, supplierFullCode: null, versionDefined: false })
     })
 
-    it("sözlükte VAR olan ama üründe kullanılmayan kombinasyonu YENİ saymaz", () => {
-        // Global sözlükte Siyah+PP = V1. Bu ürün onu hiç kullanmamış olsa bile
-        // önizleme V1 demeli, "sıradaki numara" değil.
+    it("tanımsız satır, aynı yığındaki tanımlı satırların kodunu bozmaz", () => {
+        const result = preview(
+            [
+                { name: "tanımsız", measurements: [{ requirementId: "req-l", value: 10 }], colorId: undefined, materialIds: [] },
+                draft(20, "sup-x"),
+            ],
+            true,
+        )
+        expect(result[0].versionDefined).toBe(false)
+        expect(result[1]).toMatchObject({ fullCode: "10.5.3.V1", supplierFullCode: "10.5.3.V1.A", versionDefined: true })
+    })
+
+    it("TANIMLI ama henüz kullanılmayan kombinasyonu tanımsız saymaz", () => {
+        // Ürünün sözlüğünde Siyah+PP = V1. Hiçbir varyant onu kullanmıyor olsa
+        // bile önizleme V1 demeli ve satır kaydedilebilir olmalı.
         const result = previewVariantCodes({
             productCode: "10.5",
             isLocked: true,
@@ -110,13 +123,13 @@ describe("previewVariantCodes", () => {
             rows: [],
             draftRows: [draft(10)],
             versionDictionary,
-            nextVersionCode: 2,
         })
         expect(result[0].fullCode).toBe("10.5.1.V1")
     })
 
     it("sözlük numaraları SEYREK olsa da olduğu gibi kullanılır", () => {
-        // Ürün başına 1..N'e sıkıştırma YOK — global numara neyse o.
+        // Silinen numara yeniden kullanılmadığı için boşluk kalabilir; önizleme
+        // numarayı 1..N'e sıkıştırmaz, sözlükte ne yazıyorsa onu kullanır.
         const result = previewVariantCodes({
             productCode: "10.5",
             isLocked: true,
@@ -127,7 +140,6 @@ describe("previewVariantCodes", () => {
             rows: [],
             draftRows: [draft(10)],
             versionDictionary: [{ id: "v-23", code: 23, colorId: "color-black", materialIds: ["mat-pp"] }],
-            nextVersionCode: 24,
         })
         expect(result[0].fullCode).toBe("10.5.1.V23")
     })
@@ -136,13 +148,13 @@ describe("previewVariantCodes", () => {
         const result = previewVariantCodes({
             productCode: "10.5", isLocked: true, requirements: [],
             sizes: [], versions: [], supplierCodes: [], rows: [],
-            draftRows: [draft(10)], versionDictionary: [], nextVersionCode: 1,
+            draftRows: [draft(10)], versionDictionary: [],
         })
-        expect(result).toEqual([{ fullCode: null, supplierFullCode: null }])
+        expect(result).toEqual([{ fullCode: null, supplierFullCode: null, versionDefined: true }])
     })
 
     it("tutarsız girdide çökmez", () => {
         const result = preview([{ name: "x", measurements: [{ requirementId: "yok", value: 1 }], materialIds: [] }])
-        expect(result).toEqual([{ fullCode: null, supplierFullCode: null }])
+        expect(result).toEqual([{ fullCode: null, supplierFullCode: null, versionDefined: true }])
     })
 })

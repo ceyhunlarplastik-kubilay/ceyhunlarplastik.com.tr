@@ -4884,6 +4884,7 @@ export type ProductSizeValueScalarFieldEnum = (typeof ProductSizeValueScalarFiel
 
 export const VariantVersionScalarFieldEnum = {
   id: 'id',
+  productId: 'productId',
   code: 'code',
   colorId: 'colorId',
   signature: 'signature',

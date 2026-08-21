@@ -34,17 +34,16 @@ export interface IPrismaProductVariantMatrixRepository {
             displayOrder: number
         }>
         sizes: Array<{ id: string; code: number; values: Array<{ requirementId: string; value: number }> }>
-        /** Bu üründe KULLANILAN global versiyonlar. */
+        /** Bu üründe KULLANILAN versiyonlar (matris tablosunda gösterilenler). */
         versions: Array<{ id: string; code: string; colorId: string | null; materialIds: string[] }>
         supplierCodes: Array<{ id: string; supplierId: string; supplierName: string; code: string }>
         /**
-         * GLOBAL versiyon sözlüğünün tamamı. İstemci hem kod önizlemesi yapabilsin
-         * (bu üründe kullanılmayan ama sözlükte VAR olan bir kombinasyon "yeni"
-         * sanılmasın) hem de seçim listesi gösterebilsin diye taşınır.
+         * Ürün modelinin TANIMLI versiyon sözlüğünün tamamı — henüz hiçbir varyantta
+         * kullanılmayanlar dahil. İstemci hem kod önizlemesi yapabilsin (tanımlı ama
+         * kullanılmamış kombinasyon "tanımsız" sanılmasın) hem de tanımsız satırı
+         * kaydetmeden önce işaretleyebilsin diye taşınır.
          */
         versionDictionary: Array<{ id: string; code: number; colorId: string | null; materialIds: string[] }>
-        /** Sözlüğe eklenecek bir sonraki numara — önizleme için. */
-        nextVersionCode: number
         rows: Array<{
             variantId: string
             fullCode: string
@@ -88,11 +87,11 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                     values: { select: { requirementId: true, value: true } },
                 },
             }),
-            // Versiyonlar GLOBAL sözlükten gelir; burada yalnız bu ürünün
-            // varyantlarının kullandıkları listelenir (matris tablosunda
-            // gösterilecek olanlar).
+            // Matris tablosunda gösterilecek olanlar: bu ürünün varyantlarının
+            // KULLANDIĞI versiyonlar. Ürünün tanımlı sözlüğünün tamamı ayrıca
+            // `versionDictionary` olarak dönüyor (aşağıda).
             prisma.variantVersion.findMany({
-                where: { variants: { some: { productId } } },
+                where: { productId, variants: { some: { productId } } },
                 orderBy: { code: "asc" },
                 select: {
                     id: true,
@@ -145,7 +144,10 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                     },
                 },
             }),
+            // Ürün modelinin TANIMLI sözlüğü. Giriş ekranı yalnız buradaki
+            // kombinasyonları seçtirir — tanımsız kombinasyon sunucuda reddedilir.
             prisma.variantVersion.findMany({
+                where: { productId },
                 orderBy: { code: "asc" },
                 select: { id: true, code: true, colorId: true, materials: { select: { id: true } } },
             }),
@@ -183,7 +185,6 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                 colorId: version.colorId,
                 materialIds: version.materials.map((material) => material.id),
             })),
-            nextVersionCode: (dictionaryRows.at(-1)?.code ?? 0) + 1,
             rows: variantRows.map((variant) => ({
                 variantId: variant.id,
                 fullCode: variant.fullCode,

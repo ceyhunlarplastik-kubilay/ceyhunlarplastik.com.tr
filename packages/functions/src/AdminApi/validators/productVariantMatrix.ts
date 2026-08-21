@@ -151,7 +151,6 @@ const matrixSchema = z.object({
         colorId: z.string().nullable(),
         materialIds: z.array(z.string()),
     }).loose()),
-    nextVersionCode: z.number(),
     rows: z.array(z.object({
         variantId: z.string(),
         fullCode: z.string(),
@@ -201,7 +200,6 @@ export const saveVariantMatrixResponseValidator = z.toJSONSchema(
                     isLocked: z.boolean(),
                     affectedVariantIds: z.array(z.string()),
                     createdSizes: z.number(),
-                    createdVersions: z.number(),
                     createdSupplierCodes: z.number(),
                     createdVariants: z.number(),
                     createdVariantSuppliers: z.number(),

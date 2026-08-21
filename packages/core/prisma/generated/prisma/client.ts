@@ -203,20 +203,21 @@ export type ProductSizeValue = Prisma.ProductSizeValueModel
  * Ürün modeli içindeki RENK + HAMMADDE kombinasyonu — kodun 4. segmenti ("V1").
  * Ölçüden farklı olarak doğal bir büyüklük sırası yoktur: ilk atamada derli toplu
  * ve deterministik sıralanır, sonrasında append-only'dur.
- * Renk + hammadde kombinasyonu — kodun 4. segmenti ("V1"). **GLOBAL SÖZLÜK.**
+ * Renk + hammadde kombinasyonu — kodun 4. segmenti ("V1"). **ÜRÜN MODELİ BAŞINA.**
  * 
- * Numara TÜM ürünlerde aynıdır: "Siyah + Bakalit" hangi üründe geçerse geçsin V1
- * ise her yerde V1'dir. Satış tarafında kodu okuyan kişi ürün modelini bilmeden
- * rengi ve hammaddeyi çıkarabilsin diye böyle.
+ * Her ürün modelinin kendi V listesi vardır: "10.5" içinde Siyah+Bakalit V1
+ * olabilirken "10.8" içinde aynı kombinasyon başka bir numara taşıyabilir. Ölçü
+ * koduyla aynı mantık — `10.5.1` ile `10.8.1` de farklı ölçülerdir.
  * 
- * Numara APPEND-ONLY'dur ve ASLA yeniden sıralanmaz. Ürün başına numaralandırıldığı
- * sürece yeni bir renk eklemek o üründeki tüm versiyon kodlarını kaydırıyordu —
- * ölçü kodunun aksine versiyonun sıralanması için hiçbir iş kuralı yok, yani o
- * kayma saf zarardı. Global yeniden numaralandırma ise tüm ürünleri birden
- * etkileyeceği için hiç yapılmaz.
+ * Numara APPEND-ONLY'dur ve ASLA yeniden sıralanmaz. Asıl hata ürün başına olması
+ * DEĞİL, her kayıtta renk koduna göre 1..N yeniden numaralandırılmasıydı: bir ürüne
+ * yeni renk eklemek o üründeki tüm versiyon kodlarını kaydırıyor, dışarı çıkmış
+ * kodları (katalog, teklif, tedarikçi siparişi) yanlış varyanta işaret eder hâle
+ * getiriyordu. Ölçünün aksine versiyonun sıralanması için bir iş kuralı yok.
  * 
- * Sonuç olarak numaralar ürün bazında SEYREK görünebilir (bir üründe V1, V7, V23) —
- * bu bilinçli bir kabul.
+ * ÖNCE TANIMLANMALI: varyant girişi sırasında bilinmeyen bir kombinasyon
+ * OTOMATİK EKLENMEZ, reddedilir (bkz. productVariantWriter). Kod ataması bilinçli
+ * bir karar olmalı.
  */
 export type VariantVersion = Prisma.VariantVersionModel
 /**

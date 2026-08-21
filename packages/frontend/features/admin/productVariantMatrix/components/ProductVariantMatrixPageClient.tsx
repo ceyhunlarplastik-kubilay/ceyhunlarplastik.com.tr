@@ -44,9 +44,16 @@ type Props = {
     productsBasePath: string
     /** Kilit/yeniden numaralandırma yalnız yöneticide açık. */
     canManageCodes: boolean
+    /** Versiyon sözlüğünden kayıt silme yalnız yöneticide açık. */
+    canDeleteVersions?: boolean
 }
 
-export function ProductVariantMatrixPageClient({ productId, productsBasePath, canManageCodes }: Props) {
+export function ProductVariantMatrixPageClient({
+    productId,
+    productsBasePath,
+    canManageCodes,
+    canDeleteVersions = false,
+}: Props) {
     const { data: matrix, isLoading, isError, isFetching, refetch, dataUpdatedAt } = useVariantMatrix(productId)
     const {
         filters,
@@ -113,7 +120,6 @@ export function ProductVariantMatrixPageClient({ productId, productsBasePath, ca
             rows: matrix.rows,
             draftRows: validation.rows,
             versionDictionary: matrix.versionDictionary,
-            nextVersionCode: matrix.nextVersionCode,
         })
     }, [matrix, requirements, validation.rows])
 
@@ -125,13 +131,40 @@ export function ProductVariantMatrixPageClient({ productId, productsBasePath, ca
         ])
     }
 
+    /**
+     * Sözlükte tanımlı OLMAYAN kombinasyonlar. Sunucu bu satırları reddediyor;
+     * aynı kuralı burada da uygulayıp kullanıcıyı boşuna kaydetmeye bırakmıyoruz.
+     * `previewVariantCodes` sırası `validation.rows` ile birebir, o da
+     * `validRowIndexes` üzerinden taslak dizisine eşleniyor.
+     */
+    const undefinedVersionDraftIndexes = useMemo(() => {
+        const result = new Set<number>()
+        const validIndexes = drafts
+            .map((_, index) => index)
+            .filter((index) => !validation.errors.some((error) => error.index === index))
+
+        codePreviews.forEach((preview, position) => {
+            if (!preview.versionDefined) {
+                const draftIndex = validIndexes[position]
+                if (draftIndex !== undefined) result.add(draftIndex)
+            }
+        })
+        return result
+    }, [codePreviews, drafts, validation.errors])
+
     const errorsByIndex = useMemo(() => {
         const map = new Map<number, string[]>()
         for (const error of validation.errors) {
             map.set(error.index, [...(map.get(error.index) ?? []), error.message])
         }
+        for (const index of undefinedVersionDraftIndexes) {
+            map.set(index, [
+                ...(map.get(index) ?? []),
+                "Bu renk + hammadde kombinasyonu bu ürün modelinde tanımlı değil. Önce sol taraftaki versiyon sözlüğünden tanımlayın.",
+            ])
+        }
         return map
-    }, [validation.errors])
+    }, [validation.errors, undefinedVersionDraftIndexes])
 
     /** Geçerli satırların taslak dizisindeki sırası — önizlemeyi eşlemek için. */
     const validRowIndexes = useMemo(
@@ -176,7 +209,7 @@ export function ProductVariantMatrixPageClient({ productId, productsBasePath, ca
     }
 
     const handleSave = async () => {
-        if (validation.errors.length > 0 || validation.rows.length === 0) return
+        if (errorsByIndex.size > 0 || validation.rows.length === 0) return
         await saveMutation.mutateAsync(validation.rows)
         setDrafts([])
     }
@@ -214,6 +247,7 @@ export function ProductVariantMatrixPageClient({ productId, productsBasePath, ca
                 sizeCount={matrix.sizes.length}
                 lockedAt={matrix.product.variantCodesLockedAt}
                 canManageCodes={canManageCodes}
+                canDeleteVersions={canDeleteVersions}
                 isLockPending={lockMutation.isPending}
                 isRenumberPending={renumberMutation.isPending}
                 onToggleLock={(locked) => lockMutation.mutate(locked)}

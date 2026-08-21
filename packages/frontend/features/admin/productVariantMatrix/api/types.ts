@@ -105,7 +105,6 @@ export type VariantMatrix = {
     /** Sözlüğün tamamı — bu üründe kullanılmayanlar dahil. */
     versionDictionary: VariantVersionDictionaryEntry[]
     /** Sözlüğe eklenecek sıradaki numara. */
-    nextVersionCode: number
     rows: MatrixRow[]
 }
 
@@ -144,7 +143,6 @@ export type SaveVariantMatrixResult = {
     isLocked: boolean
     affectedVariantIds: string[]
     createdSizes: number
-    createdVersions: number
     createdSupplierCodes: number
     createdVariants: number
     createdVariantSuppliers: number

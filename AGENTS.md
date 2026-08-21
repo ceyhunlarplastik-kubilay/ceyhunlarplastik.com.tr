@@ -326,6 +326,13 @@ When touching product variants or their codes:
 - Varyant kodu (`10.5.8.V1` ve tedarikçili `10.5.8.V1.A`) TEK KAYNAKTAN üretilir:
   `core/helpers/productVariants/`. Kod şablonunu handler içinde string template ile
   YENİDEN KURMA — eski sistemde dört ayrı kopya vardı ve sessizce ayrıştılar.
+- Versiyon (`V1` = renk + hammadde) ÜRÜN MODELİ BAŞINA tanımlıdır ve ÖNCE TANIMLANIR:
+  `productVariantWriter` sözlükte olmayan bir kombinasyonu otomatik EKLEMEZ, satırı
+  reddeder. Numara append-only'dur; mevcut bir kaydın kodunu değiştiren uç bilinçli
+  olarak yoktur (o kombinasyonu kullanan tüm varyantların `fullCode`'unu yeniden
+  yazmak gerekirdi). Ölçünün aksine versiyonun sıralanması için iş kuralı YOK —
+  1..N yeniden numaralandırma geri getirilmemeli: dışarı çıkmış kodları (katalog,
+  teklif, tedarikçi siparişi) yanlış varyanta işaret eder hâle getiriyordu.
 - `ProductVariant` = ürün + ölçü + versiyon. Tedarikçi varyantın parçası DEĞİLDİR;
   `ProductVariantSupplier` üzerinde yaşar ve tedarikçili tam kodu oradadır.
 - Ölçüler varyanta değil, ürün modeli başına tekilleştirilmiş `ProductSize`'a bağlıdır.

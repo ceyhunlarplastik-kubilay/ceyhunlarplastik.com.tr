@@ -4148,6 +4148,97 @@ kullanıcı zaten sıfırlıyor).
 Mevcut bir sözlük kaydının kodunu DEĞİŞTİRMEK bilinçli olarak kapsam dışı — o
 kombinasyonu kullanan tüm ürünlerdeki kodları yeniden yazmayı gerektirir.
 
+## Varyant kod sistemi — Dilim 10: versiyon sözlüğü yönetim yüzeyi (2026-08-21)
+
+Global sözlüğü veri girişine BAŞLAMADAN tanımlayabilmek için. Numara append-only
+olduğu ve sonradan değiştirilemediği için düzeni önden kurmak tek fırsat.
+
+**Uçlar** (`infra/AdminApi.ts`):
+
+| Route | Rol | İş |
+|---|---|---|
+| `GET /variant-versions` | admin + content_editor | Sözlük + sıradaki numara |
+| `POST /variant-versions` | admin + content_editor | Kombinasyon ekle (numara verilebilir) |
+| `DELETE /variant-versions/{id}` | **yalnız admin** | Kullanılmayan kaydı sil |
+
+**Numara verilebilir:** `code` gönderilirse o numara kullanılır ("Siyah + Bakalit = V1"),
+gönderilmezse sıradaki boş numara atanır. Çakışan numara ve zaten tanımlı
+kombinasyon için ayrı ayrı açıklayıcı 409 döner.
+
+**Silme korumalı:** kullanımdaki bir kombinasyon silinmez (kaç varyantın
+kullandığı mesajda). Silinen numara YENİDEN KULLANILMAZ — sözlükte boşluk kalır;
+arayüz bunu silme onayında söylüyor.
+
+**Mevcut kaydın kodunu DEĞİŞTİREN uç bilinçli olarak YOK.** O işlem, kombinasyonu
+kullanan tüm ürünlerdeki varyant kodlarını yeniden yazmayı gerektirir.
+
+**Arayüz:** `/veri-girisi/variant-versions` (tanımlar, silemez) ve
+`/admin/variant-versions` (siler). Tablo: kod, renk, hammadde, kullanım sayısı.
+Üstte numaraların sonradan değiştirilemeyeceğini ve düzenin önden kurulması
+gerektiğini anlatan uyarı. Veri girişi menüsüne "Varyant Versiyonları" eklendi.
+
+Sözlük değişince matris sorgusu da invalidate ediliyor — matris kod önizlemesi
+sözlüğü taşıyor.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (128 warning) ✅ ·
+core 527 ✅ · functions 284 ✅ (+5 validator) · frontend 309 ✅ ·
+`next build` "Compiled successfully" ✅.
+
+## Varyant kod sistemi — Dilim 11: versiyon sözlüğü ürün modeli başına + önce tanımlama (2026-08-21)
+
+Dilim 10 sözlüğü GLOBAL yapmıştı. İş tarafı ürün modeli başına numaralandırma
+istiyor ("10.5 içinde Siyah + Bakalit = V1"), ayrıca tanımsız kombinasyonla
+varyant girişi engellenmeli.
+
+**Kapsam ürüne bağlandı.** `VariantVersion.productId` eklendi; global
+`code`/`signature` tekillikleri `@@unique([productId, code])` ve
+`@@unique([productId, signature])` ile değişti. Ürün silinince sözlüğü de gidiyor
+(cascade). Migration: `20260821140000_variant_version_per_product` — yıkıcı,
+varyantları ve sözlük kayıtlarını siler (global kaydın hangi ürüne ait olduğu
+türetilemez).
+
+**Asıl hatanın ürün başına olmak OLMADIĞI** not olarak koda ve AGENTS.md'ye yazıldı:
+hata her kayıtta 1..N yeniden numaralandırmaktı, o kaldırıldı ve geri gelmiyor.
+Ürün başına + append-only birlikte güvenli.
+
+**Otomatik ekleme kaldırıldı.** `productVariantWriter` tanımsız kombinasyonu artık
+reddediyor; hata mesajı kombinasyonu okunabilir yazıyor ("Siyah + Bakalit").
+Numarayı bir yan etkiyle atamak, operatörün hangi numaranın düştüğünü göremeden
+varyant yazılması demekti.
+
+**Önizleme sunucuyla aynı kuralı uyguluyor.** `previewVariantCodes` artık numara
+uydurmuyor: tanımsız kombinasyon `versionDefined: false` döndürüyor, satır hata
+alıyor ve kaydetme engelleniyor. Aynı yığındaki tanımlı satırların kodu bozulmuyor
+(testli).
+
+**Uçlar ürünün altına indi:** `GET/POST /products/{id}/variant-versions`,
+`DELETE /products/{id}/variant-versions/{versionId}`. Silmede `productId`
+eşleşmesi yetki sınırı — başka ürünün kaydı bu uçtan silinemez. Liste ve ekleme
+admin + content_editor, silme yalnız admin.
+
+**Arayüz ürünün varyant ekranına taşındı.** Ayrı `/veri-girisi/variant-versions`
+ve `/admin/variant-versions` sayfaları ile menü girdisi kaldırıldı; yerine rail'de
+ölçü şablonu paneliyle aynı desende `VariantVersionsPanel` (özet + "Düzenle") ve
+`VariantVersionsDialog`. Sözlük varyant girişinin ön koşulu olduğu için orada duruyor.
+
+**Doğrulama:** migration zinciri tek kullanımlık Postgres 17'de çalıştırıldı,
+`migrate diff --from-config-datasource --to-schema` → "No difference detected".
+Gerçek DB üzerinde 4 davranış kanıtlandı: (1) tanımsız kombinasyon reddediliyor ve
+hiçbir şey yazılmıyor, (2) tanımlandıktan sonra kodu sözlükten alıyor (10.5.1.V1),
+(3) yeni renk eklemek mevcut kodu kaydırmıyor, (4) 10.8 aynı kombinasyona V7
+verebiliyor ve 10.5'inki V1 kalıyor.
+backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 527 ✅ · functions 286 ✅ ·
+frontend 310 ✅ · `next build` ✅.
+
+**Düzeltme (kubi'de yakalandı):** `createdVersions` yazıcının sonucundan kaldırıldı
+ama response şemasından kaldırılmamıştı — kayıt ucu "Response object failed
+validation" ile 500 verdi. TypeScript bunu göremiyor; Zod şeması handler'ın dönüş
+tipine bağlı değil. Aynı sapma `nextVersionCode`'da da vardı. Artık testle bağlı:
+`AdminApi/functions/productVariantMatrix/responseShape.test.ts` yazıcının ve matris
+repository'sinin dönüş TİPLERİYLE yazılmış fixture'ı gerçek `transpileSchema` ile
+doğruluyor; bayat alan geri konularak testin düştüğü teyit edildi. Tuzak CLAUDE.md'ye
+de eklendi (dosya `validators/` altına konulmamalı — derleme testinin glob'una takılıyor).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

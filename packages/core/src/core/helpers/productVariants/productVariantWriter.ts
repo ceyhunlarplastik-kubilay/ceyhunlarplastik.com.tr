@@ -71,7 +71,6 @@ export type UpsertProductVariantRowsResult = {
     /** Bu çağrının dokunduğu varyantlar — yeni oluşanlar ve tedarikçi eklenenler. */
     affectedVariantIds: string[]
     createdSizes: number
-    createdVersions: number
     createdSupplierCodes: number
     createdVariants: number
     createdVariantSuppliers: number
@@ -105,6 +104,25 @@ function toSupplierWriteData(supplier: VariantRowSupplierInput) {
             ? { availabilityUpdatedAt: new Date() }
             : {}),
     }
+}
+
+/**
+ * Reddedilen satır için okunabilir kombinasyon açıklaması ("Siyah + Bakalit").
+ * Yalnız hata yolunda çağrılır — mutlu yolda ek sorgu maliyeti yoktur.
+ */
+async function describeVersion(
+    tx: TransactionClient,
+    row: { colorId: string | null; materialIds: string[] },
+): Promise<string> {
+    const [color, materials] = await Promise.all([
+        row.colorId ? tx.color.findUnique({ where: { id: row.colorId }, select: { name: true } }) : null,
+        row.materialIds.length > 0
+            ? tx.material.findMany({ where: { id: { in: row.materialIds } }, select: { name: true } })
+            : [],
+    ])
+
+    const parts = [color?.name ?? "Renksiz", ...materials.map((material) => material.name)]
+    return parts.join(" + ")
 }
 
 /**
@@ -144,11 +162,10 @@ export async function upsertProductVariantRows(
 
     const [existingSizes, existingVersions, existingSupplierCodes, existingVariants] = await Promise.all([
         tx.productSize.findMany({ where: { productId }, select: { id: true, code: true, signature: true, sortKey: true } }),
-        // Versiyonlar GLOBAL: ürüne bağlı değiller. Burada yalnız bu ürünün
-        // varyantlarının kullandıkları okunur; eksik kombinasyon aşağıda sözlüğe
-        // eklenir.
+        // Ürün modeli için TANIMLI olan versiyonlar — kullanımdakiler değil.
+        // Tanımsız bir kombinasyon aşağıda reddedilir, sessizce eklenmez.
         tx.variantVersion.findMany({
-            where: { variants: { some: { productId } } },
+            where: { productId },
             select: { id: true, code: true, signature: true, colorId: true },
         }),
         tx.productSupplierCode.findMany({ where: { productId }, select: { id: true, supplierId: true, code: true } }),
@@ -173,7 +190,6 @@ export async function upsertProductVariantRows(
 
     // ── Aşama 1: bellekte çözümle / hazırla (henüz hiçbir şey yazılmıyor) ────────
     const newSizes: Array<{ id: string; signature: string; sortKey: string; values: Array<{ requirementId: string; value: number }> }> = []
-    const newVersions: Array<{ id: string; signature: string; colorId: string | null; materialIds: string[]; code: number }> = []
     const newSupplierCodes: Array<{ id: string; supplierId: string; sequence: number }> = []
     const newVariants: Array<{ id: string; name: string; productSizeId: string; variantVersionId: string }> = []
     const newVariantSuppliers: Array<{ id: string; variantId: string; supplier: VariantRowSupplierInput }> = []
@@ -188,16 +204,6 @@ export async function upsertProductVariantRows(
     }))
     const plannerVersions: PlannerVersion[] = []
 
-    /**
-     * Global sözlükteki en büyük numara. Yeni kombinasyonlar bunun üzerine eklenir;
-     * numara ASLA yeniden kullanılmaz ve mevcut kayıtlar yeniden numaralandırılmaz.
-     *
-     * Eşzamanlılık: iki ürün aynı anda kaydedilirse ikisi de aynı "sıradaki" numarayı
-     * hesaplayabilir. `VariantVersion.code` unique olduğu için ikinci yazma P2002 ile
-     * düşer ve transaction geri alınır — sessiz çakışma olmaz, kullanıcı tekrar dener.
-     */
-    let highestVersionCode =
-        (await tx.variantVersion.aggregate({ _max: { code: true } }))._max.code ?? 0
     const plannerSupplierCodes: PlannerSupplierCode[] = existingSupplierCodes.map((entry, index) => ({
         id: entry.id,
         supplierId: entry.supplierId,
@@ -227,34 +233,15 @@ export async function upsertProductVariantRows(
         }
 
         const versionSignature = buildVersionSignature({ colorId: row.colorId, materialIds: row.materialIds })
-        let version = versionBySignature.get(versionSignature)
+        const version = versionBySignature.get(versionSignature)
         if (!version) {
-            // Kombinasyon bu üründe yok — sözlükte var mı?
-            const known = await tx.variantVersion.findUnique({
-                where: { signature: versionSignature },
-                select: { id: true, code: true, signature: true, colorId: true },
-            })
-
-            if (known) {
-                version = known
-            } else {
-                highestVersionCode += 1
-                const staged = {
-                    id: randomUUID(),
-                    code: highestVersionCode,
-                    signature: versionSignature,
-                    colorId: row.colorId,
-                }
-                newVersions.push({
-                    id: staged.id,
-                    signature: versionSignature,
-                    colorId: row.colorId,
-                    materialIds: [...new Set(row.materialIds)],
-                    code: staged.code,
-                })
-                version = staged
-            }
-            versionBySignature.set(versionSignature, version)
+            // ÖNCE TANIMLANMALI. Kombinasyonu burada sessizce numaralandırmak,
+            // kod atamasını bir yan etkiye çevirirdi: operatör hangi numaranın
+            // düştüğünü göremeden varyant yazılmış olurdu. Kod ataması bilinçli
+            // bir karar; tanımı olmayan kombinasyon reddedilir.
+            throw new createError.BadRequest(
+                `Variant version is not defined for this product: ${await describeVersion(tx, row)}. Define it under the product's version dictionary first.`,
+            )
         }
 
         if (row.supplier && !supplierCodeBySupplierId.has(row.supplier.supplierId)) {
@@ -307,7 +294,7 @@ export async function upsertProductVariantRows(
         }
     }
 
-    for (const version of versionBySignature.values()) {
+    for (const version of existingVersions) {
         plannerVersions.push({ id: version.id, code: version.code })
     }
 
@@ -339,7 +326,6 @@ export async function upsertProductVariantRows(
     // en sonda da nihai kod güncellemeleri yazılır.
     const newIds = new Set([
         ...newSizes.map((s) => s.id),
-        ...newVersions.map((v) => v.id),
         ...newSupplierCodes.map((s) => s.id),
         ...newVariants.map((v) => v.id),
         ...newVariantSuppliers.map((v) => v.id),
@@ -373,22 +359,6 @@ export async function upsertProductVariantRows(
                     value: value.value,
                 })),
             ),
-        })
-    }
-
-    // Yeni kombinasyon sayısı düşüktür ve m2m bağı createMany ile kurulamaz —
-    // tek tek create bilinçli.
-    for (const version of newVersions) {
-        await tx.variantVersion.create({
-            data: {
-                id: version.id,
-                code: version.code,
-                signature: version.signature,
-                ...(version.colorId ? { colorId: version.colorId } : {}),
-                ...(version.materialIds.length > 0
-                    ? { materials: { connect: version.materialIds.map((id) => ({ id })) } }
-                    : {}),
-            },
         })
     }
 
@@ -445,7 +415,6 @@ export async function upsertProductVariantRows(
         isLocked: product.variantCodesLockedAt !== null,
         affectedVariantIds: [...affectedVariantIds],
         createdSizes: newSizes.length,
-        createdVersions: newVersions.length,
         createdSupplierCodes: newSupplierCodes.length,
         createdVariants: newVariants.length,
         createdVariantSuppliers: newVariantSuppliers.length,

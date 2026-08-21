@@ -110,6 +110,16 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `required` yapar ve request validator'ın ajv'si (`strict: true`) şemayı hiç derlemez
   (`strictRequired`). Doğrusu `z.partialRecord(...)` — bilinmeyen anahtarı ve değer
   kısıtlarını (max length vb.) yine uygular.
+- Response validator'ı handler'ın çıktısıyla senkron tutmak TypeScript'in İŞİ DEĞİL:
+  Zod şeması bağımsız bir bildirimdir, handler'ın dönüş tipiyle bağlı değildir. Bir
+  alanı helper'ın sonucundan kaldırıp şemadan kaldırmazsan derleme ve tüm testler
+  yeşil kalır, uç ise çalışma zamanında "Response object failed validation" ile 500
+  verir (yaşandı: `createdVersions`, ayrıca customers ve productVariantSuppliers).
+  Koruma: helper'ın dönüş TİPİYLE yazılmış bir fixture'ı `transpileSchema` ile
+  doğrulayan test — `AdminApi/functions/productVariantMatrix/responseShape.test.ts`.
+  Böyle bir testi `validators/` altına KOYMA: `validatorCompilation.test.ts` orayı
+  `import.meta.glob(..., { eager: true })` ile tarıyor ve suite'in o testin içine de
+  kaydolur.
 - Bir handler'a response validator eklerken handler `apiResponseDTO` kullanmalı —
   `apiResponse` Date'leri ISO'ya normalize etmez, validator "must be string" ile
   patlar. Response şemaları `.loose()` olmalı (relation'lar tolere edilir).
