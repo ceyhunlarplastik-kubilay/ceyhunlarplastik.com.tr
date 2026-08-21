@@ -76,9 +76,10 @@ const variantSchema = z.object({
     id: z.uuid(),
     name: z.string(),
     productId: z.uuid(),
-    versionCode: z.string(),
-    supplierCode: z.string(),
-    variantIndex: z.number(),
+    // supplierCode/variantIndex KALDIRILDI, versionCode nullable oldu: zorunlu
+    // kaldıkça bu uç response validation'da düşerdi.
+    versionCode: z.string().nullable().optional(),
+    sizeCode: z.number().nullable().optional(),
     fullCode: z.string(),
     colorId: z.uuid().nullable(),
     product: z.object({

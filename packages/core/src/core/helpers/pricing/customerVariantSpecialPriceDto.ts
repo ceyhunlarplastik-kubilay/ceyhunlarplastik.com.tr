@@ -6,6 +6,7 @@ import {
 } from "@/core/helpers/pricing/customerPricing"
 import { normalizeCustomerVariantPaymentSchedule } from "@/core/helpers/pricing/customerPaymentSchedule"
 import { decimalLikeToNumber } from "@/core/helpers/pricing/productVariantSupplier"
+import { flattenProductVariantStructure } from "@/core/helpers/productVariants/flattenVariantStructure"
 
 function dateToIso(value: Date | string | null | undefined) {
     if (!value) return null
@@ -53,17 +54,21 @@ function mapMeasurement(measurement: any) {
 function mapProductVariantSummary(productVariant: any) {
     if (!productVariant) return null
 
+    // Repository ham ilişki şeklini döndürür (`size` / `version`); okuyan yüzeyler
+    // düz `measurements` / `color` / `materials` bekler. Düzleştirilmezse portal
+    // özel fiyat kartında ölçü, renk ve hammadde SESSİZCE boş görünür.
+    const flat = flattenProductVariantStructure(productVariant)
+
     return {
         id: productVariant.id,
         productId: productVariant.productId,
         name: productVariant.name,
         fullCode: productVariant.fullCode,
-        versionCode: productVariant.versionCode,
-        supplierCode: productVariant.supplierCode,
-        variantIndex: productVariant.variantIndex,
-        color: productVariant.color ?? null,
-        materials: productVariant.materials ?? [],
-        measurements: (productVariant.measurements ?? []).map(mapMeasurement),
+        versionCode: flat.versionCode,
+        sizeCode: flat.sizeCode,
+        color: flat.color,
+        materials: flat.materials,
+        measurements: flat.measurements.map(mapMeasurement),
         assets: (productVariant.assets ?? []).map(mapAsset),
         product: productVariant.product ? mapProductWithAssets(productVariant.product) : null,
     }

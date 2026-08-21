@@ -87,7 +87,7 @@ export function VariantMatrixContextRail({
     const technicalDrawing = pickAsset(assets, "TECHNICAL_DRAWING")
 
     return (
-        <aside className="flex w-full shrink-0 flex-col gap-5 border-b p-5 lg:sticky lg:top-0 lg:h-dvh lg:w-[304px] lg:overflow-y-auto lg:border-b-0 lg:border-r">
+        <aside className="flex w-full shrink-0 flex-col gap-5 border-b p-5 lg:sticky lg:top-0 lg:h-dvh lg:w-76 lg:overflow-y-auto lg:border-b-0 lg:border-r">
             <Button asChild variant="ghost" size="sm" className="-ml-2 self-start">
                 <Link href={productsBasePath}>
                     <ArrowLeft className="mr-1 size-4" />

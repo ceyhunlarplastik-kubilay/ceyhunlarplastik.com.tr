@@ -3998,6 +3998,60 @@ i18n tr/en eşit (769) ✅.
 girerken kod önizlemesinin doğru çıkması, şablon sırası değiştirilince uyarının
 görünmesi ve "hataya git"in çalışması.
 
+## Varyant kod sistemi — Dilim 7: ProductVariantsTable ve düzleştirme boşluğu (2026-08-21)
+
+**Başlangıç niyeti:** `ProductVariantsTable`'ı (satış/satınalma/tedarikçi fiyat
+ekranları) yeni alanlara uydurmak. Dosyayı açınca daha büyük bir boşluk çıktı.
+
+### 🔴 Yedi repository ham şekli döndürüyordu, yalnız bir handler düzleştiriyordu
+
+Dilim 1b'de varyant-tablosu mapper'ları düzleştirilmişti (`size`/`version` →
+düz `measurements`/`color`/`materials`), ama diğer yüzeyler repository'nin HAM
+Prisma yükünü doğrudan frontend'e veriyordu. `productVariantStructureIncludeBasic`
+kullanan yedi repository'ye karşılık `flattenProductVariantStructure`'ı çağıran tek
+bir handler vardı.
+
+Sonuç: aşağıdaki yüzeylerde ölçü, renk ve hammadde SESSİZCE boş görünüyordu —
+hata yok, sadece eksik veri:
+- satış / satınalma / tedarikçi fiyat ekranı (`listSupplierVariantPricesHandler`)
+- müşteri portalı özel fiyat kartı ve talep diyalogu (`customerVariantSpecialPriceDto`)
+- müşteriye atanmış ürün yüzeyleri (`mapCustomerForApi`)
+
+Üçü de sınır noktasında düzleştiriliyor. `flattenVariantStructure` hiç testli
+değildi — bu hata sınıfının kaynağı orasıydı; 7 test eklendi (eksik ilişkide
+çökmeme ve girdiyi mutasyona uğratmama dahil).
+
+### 🔴 İkinci response validator kalıntısı
+
+`AdminApi/validators/productVariantSuppliers.ts` `supplierCode` ve `variantIndex`'i
+ZORUNLU beyan ediyordu; bu alanlar DTO'dan kalktığı için uç runtime'da response
+validation hatası verirdi. (Dilim 5'te `customers.ts`'teki eşi düzeltilmişti;
+bu ikincisi gözden kaçmış.)
+
+### ProductVariantsTable düzeltmeleri
+
+- **Prop mutasyonu:** `variant.measurements.sort(...)` prop dizisini YERİNDE
+  sıralıyordu. `sort` mutasyon yapar; React prop'u değiştirmek render'lar arasında
+  kararsız sıra üretir. Sıralama tamamen kaldırıldı — sunucu zaten ölçü şablonunun
+  `sortPriority` sırasında döndürüyor, alfabetik koda göre yeniden dizmek de yanlıştı.
+- **Ölçü rozeti** `R: 20` yerine `Elcik Çapı: 20 cm` — ürün modeline özel ad, birim
+  ve metrik diş biçimi (`M4`) core'daki gösterim kuralından geliyor.
+- **Tedarikçi harfi ve tam kod** görünür oldu: başlıkta aktif tedarikçinin harfi,
+  fiyat tablosunda `10.5.1.V1.A`. Tedarikçinin referans aldığı kod bu.
+- `SupplierVariantPrice` tipine ve ekranın veri eşlemesine yeni alanlar (
+  `supplierCode`, `fullCode`, `hasSupplierLogo`, `unitsPerPackage`, `minLeadTimeDays`,
+  ölçü `unit`'i) eklendi — eşlemede düşürülen alan ekranda taban birime dönerdi.
+
+**Testler:** core 520 → **527** (+7).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (129 warning) ✅ ·
+core 527 ✅ · functions 279 ✅ · frontend 307 ✅ · `next build` "Compiled successfully" ✅ ·
+i18n tr/en eşit (769) ✅.
+
+**Kullanıcıda bekleyen:** kubi'de `/satis/urunler`, `/satinalma/urunler` ve
+`/tedarikci/urunler` ekranlarında ölçü/renk/hammadde'nin geri geldiğinin, portal
+özel fiyat kartında ölçü satırının dolu olduğunun teyidi.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

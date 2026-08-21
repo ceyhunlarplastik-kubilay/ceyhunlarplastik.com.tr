@@ -4,6 +4,7 @@ import { isGooglePlacesProvider } from "@/core/helpers/crm/customerAddressInput"
 import { decimalLikeToNumber } from "@/core/helpers/pricing/productVariantSupplier"
 import { normalizeCustomerDiscountPercent } from "@/core/helpers/pricing/customerPricing"
 import { buildUserDisplayName } from "@/core/helpers/users/displayName"
+import { flattenProductVariantStructure } from "@/core/helpers/productVariants/flattenVariantStructure"
 
 function toDateOrNull(value: unknown) {
     if (!value) return null
@@ -82,11 +83,16 @@ function mapCustomerVariantMeasurementForApi(measurement: any) {
 function mapCustomerAssignedProductVariantSummaryForApi(productVariant: any) {
     if (!productVariant) return productVariant
 
+    // bkz. customerVariantSpecialPriceDto: ham `size`/`version` şekli düzleştirilir.
+    const flat = flattenProductVariantStructure(productVariant)
+
     return {
         ...productVariant,
-        color: productVariant.color ?? null,
-        materials: productVariant.materials ?? [],
-        measurements: (productVariant.measurements ?? []).map(mapCustomerVariantMeasurementForApi),
+        versionCode: flat.versionCode,
+        sizeCode: flat.sizeCode,
+        color: flat.color,
+        materials: flat.materials,
+        measurements: flat.measurements.map(mapCustomerVariantMeasurementForApi),
         assets: (productVariant.assets ?? []).map((asset: any) => ({
             ...asset,
             url: asset.url ?? buildAssetUrl(asset.key),

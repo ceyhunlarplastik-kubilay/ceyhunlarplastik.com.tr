@@ -13,6 +13,17 @@ export type SupplierVariantPrice = {
     supplierNote?: string | null
     minOrderQty?: number | null
     stockQty?: number | null
+    /** Ürün modeli içindeki tedarikçi harfi — kodun 5. segmenti. */
+    supplierCode?: string | null
+    /** Tedarikçili tam kod: "10.5.8.V1.A" — tedarikçinin referans aldığı kod. */
+    fullCode?: string | null
+    hasSupplierLogo?: boolean
+    unitsPerPackage?: number | null
+    packageLengthMm?: number | string | { s?: number; e?: number; d?: number[] } | null
+    packageWidthMm?: number | string | { s?: number; e?: number; d?: number[] } | null
+    packageHeightMm?: number | string | { s?: number; e?: number; d?: number[] } | null
+    packageWeightKg?: number | string | { s?: number; e?: number; d?: number[] } | null
+    minLeadTimeDays?: number | null
     pricingUpdatedAt?: string | null
     availabilityUpdatedAt?: string | null
     currency: string
@@ -38,6 +49,7 @@ export type SupplierVariantPrice = {
             name: string
         }>
         measurements?: Array<{
+            unit?: string | null
             id: string
             value: number
             label: string

@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
+import { withFlatVariantStructure } from "@/core/helpers/productVariants/flattenVariantStructure"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import {
     ISupplierVariantPriceDependencies,
@@ -54,7 +55,15 @@ export const listSupplierVariantPricesHandler =
             const isSalesRoute = path.startsWith("/sales/")
             const canSeeAllPricing = user.isOwner || user.isAdmin
 
-            const projectedData = result.data.map((item) => {
+            // Repository ham ilişki şeklini döndürür (`variant.size` / `variant.version`);
+            // satış/satınalma/tedarikçi fiyat ekranı düz `measurements`/`color`/
+            // `materials` okur. Düzleştirilmezse ölçü ve renk kolonları boş kalır.
+            const flattenedData = result.data.map((item) => ({
+                ...item,
+                variant: item.variant ? withFlatVariantStructure(item.variant) : item.variant,
+            }))
+
+            const projectedData = flattenedData.map((item) => {
                 if (canSeeAllPricing) return item
 
                 if (isSalesRoute) {

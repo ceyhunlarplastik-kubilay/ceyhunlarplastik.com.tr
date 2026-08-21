@@ -74,6 +74,12 @@ function groupVariantPriceRows(rows: SupplierVariantPrice[]) {
             supplierNote: row.supplierNote,
             minOrderQty: row.minOrderQty,
             stockQty: row.stockQty,
+            // Tedarikçinin referans aldığı kod ve harfi — tabloda gösterilir.
+            supplierCode: row.supplierCode,
+            fullCode: row.fullCode,
+            hasSupplierLogo: row.hasSupplierLogo,
+            unitsPerPackage: row.unitsPerPackage,
+            minLeadTimeDays: row.minLeadTimeDays,
             pricingUpdatedAt: row.pricingUpdatedAt,
             availabilityUpdatedAt: row.availabilityUpdatedAt,
             currency: row.currency,
@@ -108,6 +114,8 @@ function groupVariantPriceRows(rows: SupplierVariantPrice[]) {
                 id: measurement.id,
                 value: measurement.value,
                 label: measurement.label,
+                // Şablonda ezilmiş birim; düşürülürse ekranda taban birime dönerdi.
+                unit: measurement.unit,
                 measurementType: measurement.measurementType,
             })),
             variantSuppliers: [nextSupplier],

@@ -5,6 +5,11 @@ import { AnimatePresence, motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import {
+    formatMeasurementValue,
+    resolveMeasurementName,
+    resolveMeasurementUnit,
+} from "@core/helpers/productVariants/measurementDisplay"
 import { Spinner } from "@/components/ui/spinner"
 import { decimalLikeToFixedText } from "@/lib/utils/decimal"
 import {
@@ -144,7 +149,14 @@ export function ProductVariantsTable({
                                     <div className={`grid ${showActions ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"} items-center gap-3 px-3 py-2`}>
                                         <AccordionTrigger className="py-1 hover:no-underline text-left">
                                             <div>
-                                                <p className="font-mono text-xs text-neutral-500">{variant.fullCode}</p>
+                                                <p className="flex items-center gap-1.5 font-mono text-xs text-neutral-500">
+                                                    {variant.fullCode}
+                                                    {activeSupplier?.supplierCode ? (
+                                                        <Badge variant="outline" className="px-1 py-0 font-mono text-[10px]">
+                                                            {activeSupplier.supplierCode}
+                                                        </Badge>
+                                                    ) : null}
+                                                </p>
                                                 <p className="font-semibold text-sm text-neutral-900">{variant.name}</p>
                                             </div>
                                         </AccordionTrigger>
@@ -154,16 +166,23 @@ export function ProductVariantsTable({
                                                 <span className="text-neutral-400 italic">–</span>
                                             ) : (
                                                 <div className="flex flex-wrap gap-1">
-                                                    {variant.measurements
-                                                        .sort((a, b) => (a.measurementType.code < b.measurementType.code ? -1 : 1))
-                                                        .map((measurement) => (
+                                                    {/* Sıra SUNUCUDAN gelir (ölçü şablonunun sortPriority'si) —
+                                                        burada yeniden sıralanmaz. Eskiden `.sort()` prop dizisini
+                                                        YERİNDE mutasyona uğratıyor ve alfabetik koda göre
+                                                        diziyordu; ikisi de yanlıştı. */}
+                                                    {variant.measurements.map((measurement) => {
+                                                        const unit = resolveMeasurementUnit(measurement)
+                                                        return (
                                                             <span
                                                                 key={measurement.id}
                                                                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-100 text-blue-700 text-[11px] font-medium"
+                                                                title={measurement.measurementType?.code ?? undefined}
                                                             >
-                                                                {measurement.measurementType.code}: {measurement.value}
+                                                                {resolveMeasurementName(measurement)}: {formatMeasurementValue(measurement)}
+                                                                {unit ? ` ${unit}` : ""}
                                                             </span>
-                                                        ))}
+                                                        )
+                                                    })}
                                                 </div>
                                             )}
                                         </div>
@@ -263,8 +282,22 @@ export function ProductVariantsTable({
                                                             {variant.variantSuppliers.map((supplier) => (
                                                                 <TableRow key={supplier.id}>
                                                                     <TableCell className="text-[11px] font-medium text-neutral-700">
-                                                                        {supplier.supplier.name}
-                                                                        {supplier.isActive ? " (Aktif)" : ""}
+                                                                        <span className="flex items-center gap-1.5">
+                                                                            {supplier.supplierCode ? (
+                                                                                <Badge variant="outline" className="px-1 py-0 font-mono text-[10px]">
+                                                                                    {supplier.supplierCode}
+                                                                                </Badge>
+                                                                            ) : null}
+                                                                            {supplier.supplier.name}
+                                                                            {supplier.isActive ? " (Aktif)" : ""}
+                                                                        </span>
+                                                                        {/* Tedarikçinin referans aldığı kod ürün kodu değil,
+                                                                            tedarikçili tam koddur. */}
+                                                                        {supplier.fullCode ? (
+                                                                            <span className="mt-0.5 block font-mono text-[10px] text-neutral-400">
+                                                                                {supplier.fullCode}
+                                                                            </span>
+                                                                        ) : null}
                                                                     </TableCell>
                                                                     {visibility.showPrice ? (
                                                                         <TableCell className="text-[11px]">
