@@ -108,6 +108,7 @@ export function VariantMatrixContextRail({
 
             <MeasurementRequirementsPanel
                 productId={productId}
+                productName={name}
                 isDraftMode={!isLocked}
                 sizeCount={sizeCount}
             />
