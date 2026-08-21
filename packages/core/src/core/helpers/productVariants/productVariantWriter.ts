@@ -144,8 +144,11 @@ export async function upsertProductVariantRows(
 
     const [existingSizes, existingVersions, existingSupplierCodes, existingVariants] = await Promise.all([
         tx.productSize.findMany({ where: { productId }, select: { id: true, code: true, signature: true, sortKey: true } }),
-        tx.productVersion.findMany({
-            where: { productId },
+        // Versiyonlar GLOBAL: ürüne bağlı değiller. Burada yalnız bu ürünün
+        // varyantlarının kullandıkları okunur; eksik kombinasyon aşağıda sözlüğe
+        // eklenir.
+        tx.variantVersion.findMany({
+            where: { variants: { some: { productId } } },
             select: { id: true, code: true, signature: true, colorId: true },
         }),
         tx.productSupplierCode.findMany({ where: { productId }, select: { id: true, supplierId: true, code: true } }),
@@ -155,7 +158,7 @@ export async function upsertProductVariantRows(
                 id: true,
                 fullCode: true,
                 productSizeId: true,
-                productVersionId: true,
+                variantVersionId: true,
                 variantSuppliers: { select: { id: true, supplierId: true, fullCode: true, supplierCode: true } },
             },
         }),
@@ -165,14 +168,14 @@ export async function upsertProductVariantRows(
     const versionBySignature = new Map(existingVersions.map((version) => [version.signature, version]))
     const supplierCodeBySupplierId = new Map(existingSupplierCodes.map((entry) => [entry.supplierId, entry]))
     const variantBySizeVersion = new Map(
-        existingVariants.map((variant) => [`${variant.productSizeId}#${variant.productVersionId}`, variant]),
+        existingVariants.map((variant) => [`${variant.productSizeId}#${variant.variantVersionId}`, variant]),
     )
 
     // ── Aşama 1: bellekte çözümle / hazırla (henüz hiçbir şey yazılmıyor) ────────
     const newSizes: Array<{ id: string; signature: string; sortKey: string; values: Array<{ requirementId: string; value: number }> }> = []
-    const newVersions: Array<{ id: string; signature: string; colorId: string | null; materialIds: string[] }> = []
+    const newVersions: Array<{ id: string; signature: string; colorId: string | null; materialIds: string[]; code: number }> = []
     const newSupplierCodes: Array<{ id: string; supplierId: string; sequence: number }> = []
-    const newVariants: Array<{ id: string; name: string; productSizeId: string; productVersionId: string }> = []
+    const newVariants: Array<{ id: string; name: string; productSizeId: string; variantVersionId: string }> = []
     const newVariantSuppliers: Array<{ id: string; variantId: string; supplier: VariantRowSupplierInput }> = []
     const updatedVariantSuppliers: Array<{ id: string; supplier: VariantRowSupplierInput }> = []
     const affectedVariantIds = new Set<string>()
@@ -184,6 +187,17 @@ export async function upsertProductVariantRows(
         code: size.code,
     }))
     const plannerVersions: PlannerVersion[] = []
+
+    /**
+     * Global sözlükteki en büyük numara. Yeni kombinasyonlar bunun üzerine eklenir;
+     * numara ASLA yeniden kullanılmaz ve mevcut kayıtlar yeniden numaralandırılmaz.
+     *
+     * Eşzamanlılık: iki ürün aynı anda kaydedilirse ikisi de aynı "sıradaki" numarayı
+     * hesaplayabilir. `VariantVersion.code` unique olduğu için ikinci yazma P2002 ile
+     * düşer ve transaction geri alınır — sessiz çakışma olmaz, kullanıcı tekrar dener.
+     */
+    let highestVersionCode =
+        (await tx.variantVersion.aggregate({ _max: { code: true } }))._max.code ?? 0
     const plannerSupplierCodes: PlannerSupplierCode[] = existingSupplierCodes.map((entry, index) => ({
         id: entry.id,
         supplierId: entry.supplierId,
@@ -215,15 +229,32 @@ export async function upsertProductVariantRows(
         const versionSignature = buildVersionSignature({ colorId: row.colorId, materialIds: row.materialIds })
         let version = versionBySignature.get(versionSignature)
         if (!version) {
-            const staged = { id: randomUUID(), code: null as unknown as number, signature: versionSignature, colorId: row.colorId }
-            versionBySignature.set(versionSignature, staged)
-            newVersions.push({
-                id: staged.id,
-                signature: versionSignature,
-                colorId: row.colorId,
-                materialIds: [...new Set(row.materialIds)],
+            // Kombinasyon bu üründe yok — sözlükte var mı?
+            const known = await tx.variantVersion.findUnique({
+                where: { signature: versionSignature },
+                select: { id: true, code: true, signature: true, colorId: true },
             })
-            version = staged
+
+            if (known) {
+                version = known
+            } else {
+                highestVersionCode += 1
+                const staged = {
+                    id: randomUUID(),
+                    code: highestVersionCode,
+                    signature: versionSignature,
+                    colorId: row.colorId,
+                }
+                newVersions.push({
+                    id: staged.id,
+                    signature: versionSignature,
+                    colorId: row.colorId,
+                    materialIds: [...new Set(row.materialIds)],
+                    code: staged.code,
+                })
+                version = staged
+            }
+            versionBySignature.set(versionSignature, version)
         }
 
         if (row.supplier && !supplierCodeBySupplierId.has(row.supplier.supplierId)) {
@@ -249,11 +280,11 @@ export async function upsertProductVariantRows(
                 id: randomUUID(),
                 fullCode: null as unknown as string,
                 productSizeId: size.id,
-                productVersionId: version.id,
+                variantVersionId: version.id,
                 variantSuppliers: [] as Array<{ id: string; supplierId: string; fullCode: string | null; supplierCode: string | null }>,
             }
             variantBySizeVersion.set(variantKey, staged)
-            newVariants.push({ id: staged.id, name: row.name, productSizeId: size.id, productVersionId: version.id })
+            newVariants.push({ id: staged.id, name: row.name, productSizeId: size.id, variantVersionId: version.id })
             variant = staged
         }
 
@@ -276,46 +307,14 @@ export async function upsertProductVariantRows(
         }
     }
 
-    // Versiyon planlayıcısı renk/hammadde künyesine ihtiyaç duyar (ilk atama sırası için).
-    const colorIds = [...new Set([...versionBySignature.values()].map((v) => v.colorId).filter(Boolean) as string[])]
-    const materialIdsByVersion = new Map<string, string[]>(newVersions.map((v) => [v.id, v.materialIds]))
-    const [colors, existingVersionMaterials] = await Promise.all([
-        colorIds.length > 0
-            ? tx.color.findMany({ where: { id: { in: colorIds } }, select: { id: true, system: true, code: true } })
-            : Promise.resolve([]),
-        existingVersions.length > 0
-            ? tx.productVersion.findMany({
-                where: { id: { in: existingVersions.map((v) => v.id) } },
-                select: { id: true, materials: { select: { id: true, code: true, name: true } } },
-            })
-            : Promise.resolve([]),
-    ])
-    const colorById = new Map(colors.map((color) => [color.id, color]))
-    for (const entry of existingVersionMaterials) {
-        materialIdsByVersion.set(entry.id, entry.materials.map((material) => material.id))
-    }
-    const allMaterialIds = [...new Set([...materialIdsByVersion.values()].flat())]
-    const materials = allMaterialIds.length > 0
-        ? await tx.material.findMany({ where: { id: { in: allMaterialIds } }, select: { id: true, code: true, name: true } })
-        : []
-    const materialById = new Map(materials.map((material) => [material.id, material]))
-
     for (const version of versionBySignature.values()) {
-        plannerVersions.push({
-            id: version.id,
-            signature: version.signature,
-            code: version.code ?? null,
-            color: version.colorId ? colorById.get(version.colorId) ?? null : null,
-            materials: (materialIdsByVersion.get(version.id) ?? [])
-                .map((id) => materialById.get(id))
-                .filter((material): material is { id: string; code: string | null; name: string } => Boolean(material)),
-        })
+        plannerVersions.push({ id: version.id, code: version.code })
     }
 
     const plannerVariants: PlannerVariant[] = [...variantBySizeVersion.values()].map((variant) => ({
         id: variant.id,
         sizeId: variant.productSizeId,
-        versionId: variant.productVersionId,
+        versionId: variant.variantVersionId,
         fullCode: variant.fullCode ?? null,
         suppliers: variant.variantSuppliers as PlannerVariantSupplier[],
     }))
@@ -330,7 +329,6 @@ export async function upsertProductVariantRows(
     })
 
     const sizeCodeById = new Map(plan.sizeCodeUpdates.map((update) => [update.id, update.code]))
-    const versionCodeById = new Map(plan.versionCodeUpdates.map((update) => [update.id, update.code]))
     const supplierCodeById = new Map(plan.supplierCodeUpdates.map((update) => [update.id, update.code]))
     const variantFullCodeById = new Map(plan.variantCodeUpdates.map((update) => [update.id, update.fullCode]))
     const variantSupplierCodeById = new Map(plan.variantSupplierCodeUpdates.map((update) => [update.id, update]))
@@ -350,7 +348,6 @@ export async function upsertProductVariantRows(
     const updatePlan = {
         ...plan,
         sizeCodeUpdates: plan.sizeCodeUpdates.filter((update) => !newIds.has(update.id)),
-        versionCodeUpdates: plan.versionCodeUpdates.filter((update) => !newIds.has(update.id)),
         supplierCodeUpdates: plan.supplierCodeUpdates.filter((update) => !newIds.has(update.id)),
         variantCodeUpdates: plan.variantCodeUpdates.filter((update) => !newIds.has(update.id)),
         variantSupplierCodeUpdates: plan.variantSupplierCodeUpdates.filter((update) => !newIds.has(update.id)),
@@ -379,14 +376,13 @@ export async function upsertProductVariantRows(
         })
     }
 
-    // Versiyon sayısı ürün başına düşüktür (renk × hammadde) ve m2m bağı
-    // createMany ile kurulamaz — tek tek create bilinçli.
+    // Yeni kombinasyon sayısı düşüktür ve m2m bağı createMany ile kurulamaz —
+    // tek tek create bilinçli.
     for (const version of newVersions) {
-        await tx.productVersion.create({
+        await tx.variantVersion.create({
             data: {
                 id: version.id,
-                productId,
-                code: versionCodeById.get(version.id) as number,
+                code: version.code,
                 signature: version.signature,
                 ...(version.colorId ? { colorId: version.colorId } : {}),
                 ...(version.materialIds.length > 0
@@ -414,7 +410,7 @@ export async function upsertProductVariantRows(
                 productId,
                 name: variant.name,
                 productSizeId: variant.productSizeId,
-                productVersionId: variant.productVersionId,
+                variantVersionId: variant.variantVersionId,
                 fullCode: variantFullCodeById.get(variant.id) as string,
             })),
         })
@@ -454,6 +450,6 @@ export async function upsertProductVariantRows(
         createdVariants: newVariants.length,
         createdVariantSuppliers: newVariantSuppliers.length,
         rewrittenCodes:
-            writeStats.sizeCodes + writeStats.versionCodes + writeStats.variantCodes + writeStats.variantSupplierCodes,
+            writeStats.sizeCodes + writeStats.variantCodes + writeStats.variantSupplierCodes,
     }
 }

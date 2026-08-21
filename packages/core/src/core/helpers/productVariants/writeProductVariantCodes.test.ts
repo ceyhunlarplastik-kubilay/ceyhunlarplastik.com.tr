@@ -20,12 +20,10 @@ function fakeTx() {
 function plan(overrides: Partial<ProductVariantCodePlan> = {}): ProductVariantCodePlan {
     return {
         sizeCodeUpdates: [],
-        versionCodeUpdates: [],
         supplierCodeUpdates: [],
         variantCodeUpdates: [],
         variantSupplierCodeUpdates: [],
         requiresSizeRenumber: false,
-        requiresVersionRenumber: false,
         stats: { sizes: 0, versions: 0, supplierCodes: 0, variants: 0, variantSuppliers: 0 },
         ...overrides,
     }
@@ -80,16 +78,17 @@ describe("negateProductVariantCodes", () => {
         expect(calls[1].values[1]).toEqual(["vs-existing"])
     })
 
-    it("ölçü ve versiyon park sorgularını ayrı ayrı üretir", async () => {
+    it("VERSİYON kodlarına hiç dokunmaz", async () => {
+        // Versiyon global sözlükte append-only; yeniden numaralandırılmadığı için
+        // park etmeye de gerek yok.
         const { tx, calls } = fakeTx()
 
         await negateProductVariantCodes(tx, plan({
             sizeCodeUpdates: [{ id: "s1", code: 2, previousCode: 1 }],
-            versionCodeUpdates: [{ id: "v1", code: 2, previousCode: 1 }],
         }))
 
-        expect(calls).toHaveLength(2)
+        expect(calls).toHaveLength(1)
         expect(calls[0].sql).toContain('"ProductSize"')
-        expect(calls[1].sql).toContain('"ProductVersion"')
+        expect(calls.some((call) => call.sql.includes("Version"))).toBe(false)
     })
 })

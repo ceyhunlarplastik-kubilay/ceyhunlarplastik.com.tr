@@ -4078,6 +4078,76 @@ gibi bırakıldı (ürün modelinin `sortPriority`'si).
 **Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (129 warning) ✅ ·
 core 527 ✅ · functions 279 ✅ · frontend 307 ✅ · `next build` "Compiled successfully" ✅.
 
+## Varyant kod sistemi — Dilim 9: versiyon kodu global sözlüğe taşındı (2026-08-21)
+
+### 🔴 Bulunan hata
+
+Kullanıcı kubi'de fark etti: bir ürüne yeni renk eklemek o üründeki TÜM versiyon
+kodlarını kaydırıyordu. Siyah V1 iken Açık Gri eklenince Siyah V3 oluyordu —
+çünkü `compareVersionKeys` versiyonları renk sistemine + koduna göre sıralayıp
+yeniden numaralandırıyordu.
+
+Sistem içinde sipariş/talep kalemleri `productVariantId` ile bağlı olduğu için
+kopmuyor; ama `WebRequest.items` snapshot'ı `variantFullCode`'u METİN olarak
+saklıyor ve asıl risk sistem DIŞINDA: katalog, PDF teklif, e-posta, tedarikçi
+siparişi. Dışarı çıkmış bir kod sessizce başka varyanta işaret eder hâle geliyordu.
+
+**Asıl mesele:** ölçü kodunun yeniden sıralanmasının bir iş kuralı var
+("küçükten büyüğe", kullanıcının baştan koyduğu kural). Versiyonun sıralanmasının
+HİÇBİR iş kuralı yok — RAL koduna göre dizmek benim koyduğum bir düzen tercihiydi.
+Yani versiyon tarafındaki kayma saf zarardı. Tedarikçi harfi zaten en baştan
+"bir kez verildi mi değişmez" idi; versiyon tutarsız kalmıştı.
+
+### Çözüm: global sözlük (kullanıcı kararı)
+
+`ProductVersion` (ürün başına) → **`VariantVersion` (global)**. Renk + hammadde
+kombinasyonu tüm ürünlerde AYNI numarayı taşır: "Siyah + Bakalit" nerede geçerse
+geçsin V1. Numara APPEND-ONLY, asla yeniden sıralanmaz — global bir yeniden
+numaralandırma tüm ürünleri birden etkileyeceği için hiç yapılmaz.
+
+Per-product satır tamamen kalktı: satır ürüne bağlıydı ÇÜNKÜ numara ürüne özeldi;
+numara global olunca satırın kendisi de global olmalı, yoksa aynı kombinasyon her
+üründe kopyalanırdı.
+
+**Kabul edilen bedel:** numaralar ürün bazında seyrek görünebilir (V1, V7, V23).
+
+**Eşzamanlılık:** iki ürün aynı anda kaydedilirse ikisi de aynı "sıradaki" numarayı
+hesaplayabilir; `VariantVersion.code` unique olduğu için ikinci yazma P2002 ile düşer
+ve transaction geri alınır — sessiz çakışma yok.
+
+### Kod zinciri
+
+- `assignProductVariantCodes`: versiyon numaralandırması TAMAMEN çıktı
+  (`planVersionCodes`, `versionCodeUpdates`, `requiresVersionRenumber` kalktı).
+  `PlannerVersion` artık yalnız `{ id, code }` — planlayıcı kodu okur, dokunmaz.
+- `writeProductVariantCodes`: versiyon park etme/yazma yolu kalktı.
+- `productVariantMaintenance`: versiyon planlaması kalktı; `removeOrphanSizesAndVersions`
+  → `removeOrphanSizes` (öksüz versiyon SİLİNMEZ, sözlükte kalır — başka ürünler
+  kullanıyor olabilir ve numarası kalıcıdır).
+- `productVariantWriter`: kombinasyon önce ürünün kullandıklarında, sonra GLOBAL
+  sözlükte aranır; yoksa sıradaki numarayla eklenir.
+- Matris yanıtı artık `versionDictionary` (sözlüğün tamamı) ve `nextVersionCode`
+  taşıyor — istemcideki kod önizlemesi, bu üründe kullanılmayan ama sözlükte VAR
+  olan bir kombinasyonu "yeni" sanmasın diye.
+
+**Gerçek Postgres'te doğrulandı:** 75 migration'lık zincir + `migrate diff` boş ✅.
+Senaryo: Siyah→V1, Yosun Yeşili→V2, Açık Gri eklenince **V1/V2 yerinde kaldı**→V3;
+başka üründe aynı Siyah+Bakalit **V1**'i yeniden kullandı.
+
+**Testler:** core 527 (planlayıcı ve yazıcı testleri yeni sözleşmeye taşındı, global
+davranışı kilitleyen testler eklendi) · frontend 307 → **309** (sözlükte var olan
+kombinasyonun yeni sayılmaması, seyrek numaraların olduğu gibi kullanılması).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (126 warning) ✅ ·
+core 527 ✅ · functions 279 ✅ · frontend 309 ✅ · `next build` ✅.
+
+**Kullanıcıda bekleyen:** kubi'de `migrate deploy` (YIKICI — tüm varyantlar silinir,
+kullanıcı zaten sıfırlıyor).
+
+**Sırada:** sözlüğü önden tanımlayabileceğiniz yönetim yüzeyi ("Siyah+Bakalit = V1").
+Mevcut bir sözlük kaydının kodunu DEĞİŞTİRMEK bilinçli olarak kapsam dışı — o
+kombinasyonu kullanan tüm ürünlerdeki kodları yeniden yazmayı gerektirir.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -114,9 +114,9 @@ model Color {
   rgbB     Int?
   isActive Boolean     @default(true)
 
-  // Renk artık varyanta doğrudan değil, ürün modeli içindeki versiyona
+  // Renk varyanta doğrudan değil, GLOBAL versiyon sözlüğüne
   // (renk + hammadde kombinasyonu = "V1") bağlanır.
-  versions     ProductVersion[]
+  versions     VariantVersion[]
   translations ColorTranslation[]
 
   createdAt DateTime @default(now())
@@ -221,7 +221,7 @@ model Product {
   // versiyonlar (4. segment) ve tedarikçi harfleri (5. segment).
   measurementRequirements ProductMeasurementRequirement[]
   sizes                   ProductSize[]
-  versions                ProductVersion[]
+  // versions KALDIRILDI: renk+hammadde artık global VariantVersion sözlüğünde.
   supplierCodes           ProductSupplierCode[]
   assets              Asset[]
   attributeValues     ProductAttributeValue[]
@@ -696,9 +696,10 @@ model ProductVariant {
   productSizeId String
   size          ProductSize @relation(fields: [productSizeId], references: [id], onDelete: Restrict)
 
-  /// Kodun 4. segmenti buradan gelir (ProductVersion.code → "V1").
-  productVersionId String
-  version          ProductVersion @relation(fields: [productVersionId], references: [id], onDelete: Restrict)
+  /// Kodun 4. segmenti buradan gelir (VariantVersion.code → "V1").
+  /// GLOBAL sözlüğe bağlanır; aynı renk+hammadde her üründe aynı numarayı taşır.
+  variantVersionId String
+  version          VariantVersion @relation(fields: [variantVersionId], references: [id], onDelete: Restrict)
 
   /// "10.5.8.V1" — tedarikçi harfi İÇERMEZ.
   fullCode String @unique
@@ -714,10 +715,10 @@ model ProductVariant {
   customerSpecialPrices CustomerVariantSpecialPrice[]
   campaignItems         ProductVariantCampaignItem[]
 
-  @@unique([productId, productSizeId, productVersionId])
+  @@unique([productId, productSizeId, variantVersionId])
   @@index([productId])
   @@index([productSizeId])
-  @@index([productVersionId])
+  @@index([variantVersionId])
 }
 
 /// Ürün modeline özel ölçü şablonu: bu modelde HANGİ ölçülerin girilmesi gerektiği.
@@ -824,30 +825,41 @@ model ProductSizeValue {
 /// Ürün modeli içindeki RENK + HAMMADDE kombinasyonu — kodun 4. segmenti ("V1").
 /// Ölçüden farklı olarak doğal bir büyüklük sırası yoktur: ilk atamada derli toplu
 /// ve deterministik sıralanır, sonrasında append-only'dur.
-model ProductVersion {
+/// Renk + hammadde kombinasyonu — kodun 4. segmenti ("V1"). **GLOBAL SÖZLÜK.**
+///
+/// Numara TÜM ürünlerde aynıdır: "Siyah + Bakalit" hangi üründe geçerse geçsin V1
+/// ise her yerde V1'dir. Satış tarafında kodu okuyan kişi ürün modelini bilmeden
+/// rengi ve hammaddeyi çıkarabilsin diye böyle.
+///
+/// Numara APPEND-ONLY'dur ve ASLA yeniden sıralanmaz. Ürün başına numaralandırıldığı
+/// sürece yeni bir renk eklemek o üründeki tüm versiyon kodlarını kaydırıyordu —
+/// ölçü kodunun aksine versiyonun sıralanması için hiçbir iş kuralı yok, yani o
+/// kayma saf zarardı. Global yeniden numaralandırma ise tüm ürünleri birden
+/// etkileyeceği için hiç yapılmaz.
+///
+/// Sonuç olarak numaralar ürün bazında SEYREK görünebilir (bir üründe V1, V7, V23) —
+/// bu bilinçli bir kabul.
+model VariantVersion {
   id String @id @default(uuid())
 
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  code Int
+  /// 1 → "V1". Global tekil; önden elle tanımlanabilir veya giriş sırasında
+  /// sıradaki boş numarayla otomatik atanır.
+  code Int @unique
 
   colorId String?
   color   Color?  @relation(fields: [colorId], references: [id], onDelete: Restrict)
 
-  /// Hammadde ÇOKLUDUR — eski ProductVariant.materials m2m davranışı korunuyor.
+  /// Hammadde ÇOKLUDUR.
   materials Material[]
 
-  signature String
+  /// "color:<id>|materials:<id>,<id>" — aynı kombinasyon ikinci kez numara almaz.
+  signature String @unique
 
   variants ProductVariant[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([productId, signature])
-  @@unique([productId, code])
-  @@index([productId, code])
   @@index([colorId])
 }
 
@@ -1659,8 +1671,8 @@ model Material {
   name String
   code String? // PP, PE, PVC gibi
 
-  // bkz. Color.versions — hammadde de versiyona bağlanır.
-  versions     ProductVersion[]
+  // bkz. Color.versions — hammadde de global versiyon sözlüğüne bağlanır.
+  versions     VariantVersion[]
   assets       Asset[]
   translations MaterialTranslation[]
 

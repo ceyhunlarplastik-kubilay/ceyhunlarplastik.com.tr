@@ -79,7 +79,7 @@ export const ModelName = {
   ProductMeasurementRequirementTranslation: 'ProductMeasurementRequirementTranslation',
   ProductSize: 'ProductSize',
   ProductSizeValue: 'ProductSizeValue',
-  ProductVersion: 'ProductVersion',
+  VariantVersion: 'VariantVersion',
   ProductSupplierCode: 'ProductSupplierCode',
   MeasurementType: 'MeasurementType',
   MeasurementTypeTranslation: 'MeasurementTypeTranslation',
@@ -525,7 +525,7 @@ export const ProductVariantScalarFieldEnum = {
   name: 'name',
   productId: 'productId',
   productSizeId: 'productSizeId',
-  productVersionId: 'productVersionId',
+  variantVersionId: 'variantVersionId',
   fullCode: 'fullCode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -587,9 +587,8 @@ export const ProductSizeValueScalarFieldEnum = {
 export type ProductSizeValueScalarFieldEnum = (typeof ProductSizeValueScalarFieldEnum)[keyof typeof ProductSizeValueScalarFieldEnum]
 
 
-export const ProductVersionScalarFieldEnum = {
+export const VariantVersionScalarFieldEnum = {
   id: 'id',
-  productId: 'productId',
   code: 'code',
   colorId: 'colorId',
   signature: 'signature',
@@ -597,7 +596,7 @@ export const ProductVersionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type ProductVersionScalarFieldEnum = (typeof ProductVersionScalarFieldEnum)[keyof typeof ProductVersionScalarFieldEnum]
+export type VariantVersionScalarFieldEnum = (typeof VariantVersionScalarFieldEnum)[keyof typeof VariantVersionScalarFieldEnum]
 
 
 export const ProductSupplierCodeScalarFieldEnum = {

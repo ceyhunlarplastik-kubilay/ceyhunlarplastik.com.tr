@@ -3,7 +3,7 @@ import createError, { HttpError } from "http-errors"
 import { prisma } from "@/core/db/prisma"
 import {
     recalculateProductVariantCodes,
-    removeOrphanSizesAndVersions,
+    removeOrphanSizes,
 } from "@/core/helpers/productVariants/productVariantMaintenance"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import {
@@ -96,7 +96,8 @@ export const deleteVariantMatrixVariantHandler = ({ productRepository }: IProduc
 
             const result = await prisma.$transaction(async (tx) => {
                 await tx.productVariant.delete({ where: { id: variantId } })
-                const orphans = await removeOrphanSizesAndVersions(tx, productId)
+                // Versiyonlar global sözlükte kalır; yalnız ölçüler temizlenir.
+                const orphans = await removeOrphanSizes(tx, productId)
                 const recalculated = await recalculateProductVariantCodes(tx, productId)
                 return { orphans, recalculated }
             }, { timeout: 15_000, maxWait: 10_000 })
@@ -106,7 +107,6 @@ export const deleteVariantMatrixVariantHandler = ({ productRepository }: IProduc
                 payload: {
                     deletedId: variantId,
                     removedSizes: result.orphans.sizes,
-                    removedVersions: result.orphans.versions,
                     rewrittenCodes: result.recalculated.rewrittenCodes,
                 },
             })

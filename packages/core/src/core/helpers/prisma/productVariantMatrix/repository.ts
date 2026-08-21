@@ -34,8 +34,17 @@ export interface IPrismaProductVariantMatrixRepository {
             displayOrder: number
         }>
         sizes: Array<{ id: string; code: number; values: Array<{ requirementId: string; value: number }> }>
+        /** Bu üründe KULLANILAN global versiyonlar. */
         versions: Array<{ id: string; code: string; colorId: string | null; materialIds: string[] }>
         supplierCodes: Array<{ id: string; supplierId: string; supplierName: string; code: string }>
+        /**
+         * GLOBAL versiyon sözlüğünün tamamı. İstemci hem kod önizlemesi yapabilsin
+         * (bu üründe kullanılmayan ama sözlükte VAR olan bir kombinasyon "yeni"
+         * sanılmasın) hem de seçim listesi gösterebilsin diye taşınır.
+         */
+        versionDictionary: Array<{ id: string; code: number; colorId: string | null; materialIds: string[] }>
+        /** Sözlüğe eklenecek bir sonraki numara — önizleme için. */
+        nextVersionCode: number
         rows: Array<{
             variantId: string
             fullCode: string
@@ -55,7 +64,7 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
         })
         if (!product) return null
 
-        const [requirementRows, sizeRows, versionRows, supplierCodeRows, variantRows] = await Promise.all([
+        const [requirementRows, sizeRows, versionRows, supplierCodeRows, variantRows, dictionaryRows] = await Promise.all([
             prisma.productMeasurementRequirement.findMany({
                 where: { productId },
                 orderBy: [{ sortPriority: "asc" }, { displayOrder: "asc" }, { label: "asc" }],
@@ -79,8 +88,11 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                     values: { select: { requirementId: true, value: true } },
                 },
             }),
-            prisma.productVersion.findMany({
-                where: { productId },
+            // Versiyonlar GLOBAL sözlükten gelir; burada yalnız bu ürünün
+            // varyantlarının kullandıkları listelenir (matris tablosunda
+            // gösterilecek olanlar).
+            prisma.variantVersion.findMany({
+                where: { variants: { some: { productId } } },
                 orderBy: { code: "asc" },
                 select: {
                     id: true,
@@ -102,7 +114,7 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                     fullCode: true,
                     name: true,
                     productSizeId: true,
-                    productVersionId: true,
+                    variantVersionId: true,
                     variantSuppliers: {
                         orderBy: { supplierCode: "asc" },
                         select: {
@@ -133,6 +145,10 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                     },
                 },
             }),
+            prisma.variantVersion.findMany({
+                orderBy: { code: "asc" },
+                select: { id: true, code: true, colorId: true, materials: { select: { id: true } } },
+            }),
         ])
 
         return {
@@ -161,12 +177,19 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                 supplierName: entry.supplier.name,
                 code: entry.code,
             })),
+            versionDictionary: dictionaryRows.map((version) => ({
+                id: version.id,
+                code: version.code,
+                colorId: version.colorId,
+                materialIds: version.materials.map((material) => material.id),
+            })),
+            nextVersionCode: (dictionaryRows.at(-1)?.code ?? 0) + 1,
             rows: variantRows.map((variant) => ({
                 variantId: variant.id,
                 fullCode: variant.fullCode,
                 name: variant.name,
                 sizeId: variant.productSizeId,
-                versionId: variant.productVersionId,
+                versionId: variant.variantVersionId,
                 suppliers: variant.variantSuppliers as Array<Record<string, unknown>>,
             })),
         }

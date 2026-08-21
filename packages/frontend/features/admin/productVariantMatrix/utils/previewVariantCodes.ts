@@ -16,10 +16,8 @@ import type {
     MatrixSupplierCode,
     MatrixVersion,
     SaveVariantMatrixRowInput,
+    VariantVersionDictionaryEntry,
 } from "@/features/admin/productVariantMatrix/api/types"
-
-type ReferenceColor = { id: string; system: string; code: string }
-type ReferenceMaterial = { id: string; code: string | null; name: string }
 
 export type VariantCodePreview = {
     /** "10.5.8.V1" — kod hesaplanamadıysa null. */
@@ -51,12 +49,13 @@ export function previewVariantCodes(input: {
     supplierCodes: MatrixSupplierCode[]
     rows: MatrixRow[]
     draftRows: SaveVariantMatrixRowInput[]
-    colors: ReferenceColor[]
-    materials: ReferenceMaterial[]
+    /** GLOBAL sözlük — bu üründe kullanılmayan kombinasyonlar da burada. */
+    versionDictionary: VariantVersionDictionaryEntry[]
+    nextVersionCode: number
 }): VariantCodePreview[] {
     const {
         productCode, isLocked, requirements, sizes, versions,
-        supplierCodes, rows, draftRows, colors, materials,
+        supplierCodes, rows, draftRows, versionDictionary, nextVersionCode,
     } = input
 
     if (draftRows.length === 0) return []
@@ -64,8 +63,15 @@ export function previewVariantCodes(input: {
     const empty: VariantCodePreview[] = draftRows.map(() => ({ fullCode: null, supplierFullCode: null }))
     if (!productCode || requirements.length === 0) return empty
 
-    const colorById = new Map(colors.map((color) => [color.id, color]))
-    const materialById = new Map(materials.map((material) => [material.id, material]))
+    // Sözlükteki kombinasyonlar imzalarıyla aranır: bu üründe kullanılmayan ama
+    // GLOBAL olarak var olan bir kombinasyon "yeni" sanılmamalı.
+    const dictionaryBySignature = new Map(
+        versionDictionary.map((entry) => [
+            buildVersionSignature({ colorId: entry.colorId, materialIds: entry.materialIds }),
+            entry,
+        ]),
+    )
+    let nextCode = nextVersionCode
 
     const requirementLikes = requirements.map((requirement) => ({
         id: requirement.id,
@@ -89,14 +95,14 @@ export function previewVariantCodes(input: {
 
         const plannerVersions: PlannerVersion[] = versions.map((version) => ({
             id: version.id,
-            code: parseVersionCode(version.code),
-            signature: buildVersionSignature({ colorId: version.colorId, materialIds: version.materialIds }),
-            color: version.colorId ? colorById.get(version.colorId) ?? null : null,
-            materials: version.materialIds
-                .map((id) => materialById.get(id))
-                .filter((material): material is ReferenceMaterial => Boolean(material)),
+            code: parseVersionCode(version.code) ?? 0,
         }))
-        const versionIdBySignature = new Map(plannerVersions.map((version) => [version.signature, version.id]))
+        const versionIdBySignature = new Map(
+            versions.map((version) => [
+                buildVersionSignature({ colorId: version.colorId, materialIds: version.materialIds }),
+                version.id,
+            ]),
+        )
 
         const plannerSupplierCodes: PlannerSupplierCode[] = supplierCodes.map((entry, index) => ({
             id: entry.id,
@@ -143,17 +149,11 @@ export function previewVariantCodes(input: {
             })
             let versionId = versionIdBySignature.get(versionSignature)
             if (!versionId) {
-                versionId = `${DRAFT_PREFIX}version:${versionSignature}`
+                // Önce global sözlüğe bak; yoksa sıradaki numarayla eklenecek.
+                const known = dictionaryBySignature.get(versionSignature)
+                versionId = known?.id ?? `${DRAFT_PREFIX}version:${versionSignature}`
                 versionIdBySignature.set(versionSignature, versionId)
-                plannerVersions.push({
-                    id: versionId,
-                    code: null,
-                    signature: versionSignature,
-                    color: row.colorId ? colorById.get(row.colorId) ?? null : null,
-                    materials: (row.materialIds ?? [])
-                        .map((id) => materialById.get(id))
-                        .filter((material): material is ReferenceMaterial => Boolean(material)),
-                })
+                plannerVersions.push({ id: versionId, code: known?.code ?? nextCode++ })
             }
 
             if (row.supplier && !supplierCodeIdBySupplier.has(row.supplier.supplierId)) {

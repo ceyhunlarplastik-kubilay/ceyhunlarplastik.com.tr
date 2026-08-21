@@ -272,7 +272,7 @@ export type ColorWhereInput = {
   isActive?: Prisma.BoolFilter<"Color"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Color"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Color"> | Date | string
-  versions?: Prisma.ProductVersionListRelationFilter
+  versions?: Prisma.VariantVersionListRelationFilter
   translations?: Prisma.ColorTranslationListRelationFilter
 }
 
@@ -288,7 +288,7 @@ export type ColorOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  versions?: Prisma.ProductVersionOrderByRelationAggregateInput
+  versions?: Prisma.VariantVersionOrderByRelationAggregateInput
   translations?: Prisma.ColorTranslationOrderByRelationAggregateInput
 }
 
@@ -308,7 +308,7 @@ export type ColorWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"Color"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Color"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Color"> | Date | string
-  versions?: Prisma.ProductVersionListRelationFilter
+  versions?: Prisma.VariantVersionListRelationFilter
   translations?: Prisma.ColorTranslationListRelationFilter
 }, "id" | "system_code">
 
@@ -360,7 +360,7 @@ export type ColorCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  versions?: Prisma.ProductVersionCreateNestedManyWithoutColorInput
+  versions?: Prisma.VariantVersionCreateNestedManyWithoutColorInput
   translations?: Prisma.ColorTranslationCreateNestedManyWithoutColorInput
 }
 
@@ -376,7 +376,7 @@ export type ColorUncheckedCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutColorInput
+  versions?: Prisma.VariantVersionUncheckedCreateNestedManyWithoutColorInput
   translations?: Prisma.ColorTranslationUncheckedCreateNestedManyWithoutColorInput
 }
 
@@ -392,7 +392,7 @@ export type ColorUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  versions?: Prisma.ProductVersionUpdateManyWithoutColorNestedInput
+  versions?: Prisma.VariantVersionUpdateManyWithoutColorNestedInput
   translations?: Prisma.ColorTranslationUpdateManyWithoutColorNestedInput
 }
 
@@ -408,7 +408,7 @@ export type ColorUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutColorNestedInput
+  versions?: Prisma.VariantVersionUncheckedUpdateManyWithoutColorNestedInput
   translations?: Prisma.ColorTranslationUncheckedUpdateManyWithoutColorNestedInput
 }
 
@@ -577,7 +577,7 @@ export type ColorCreateWithoutTranslationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  versions?: Prisma.ProductVersionCreateNestedManyWithoutColorInput
+  versions?: Prisma.VariantVersionCreateNestedManyWithoutColorInput
 }
 
 export type ColorUncheckedCreateWithoutTranslationsInput = {
@@ -592,7 +592,7 @@ export type ColorUncheckedCreateWithoutTranslationsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  versions?: Prisma.ProductVersionUncheckedCreateNestedManyWithoutColorInput
+  versions?: Prisma.VariantVersionUncheckedCreateNestedManyWithoutColorInput
 }
 
 export type ColorCreateOrConnectWithoutTranslationsInput = {
@@ -623,7 +623,7 @@ export type ColorUpdateWithoutTranslationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  versions?: Prisma.ProductVersionUpdateManyWithoutColorNestedInput
+  versions?: Prisma.VariantVersionUpdateManyWithoutColorNestedInput
 }
 
 export type ColorUncheckedUpdateWithoutTranslationsInput = {
@@ -638,7 +638,7 @@ export type ColorUncheckedUpdateWithoutTranslationsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  versions?: Prisma.ProductVersionUncheckedUpdateManyWithoutColorNestedInput
+  versions?: Prisma.VariantVersionUncheckedUpdateManyWithoutColorNestedInput
 }
 
 export type ColorCreateWithoutVersionsInput = {
@@ -746,7 +746,7 @@ export type ColorCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
  * ColorCountOutputType without action
  */
 export type ColorCountOutputTypeCountVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductVersionWhereInput
+  where?: Prisma.VariantVersionWhereInput
 }
 
 /**
@@ -828,7 +828,7 @@ export type ColorIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type $ColorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Color"
   objects: {
-    versions: Prisma.$ProductVersionPayload<ExtArgs>[]
+    versions: Prisma.$VariantVersionPayload<ExtArgs>[]
     translations: Prisma.$ColorTranslationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1237,7 +1237,7 @@ readonly fields: ColorFieldRefs;
  */
 export interface Prisma__ColorClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  versions<T extends Prisma.Color$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Color$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  versions<T extends Prisma.Color$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Color$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VariantVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   translations<T extends Prisma.Color$translationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Color$translationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ColorTranslationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1676,23 +1676,23 @@ export type ColorDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
  */
 export type Color$versionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ProductVersion
+   * Select specific fields to fetch from the VariantVersion
    */
-  select?: Prisma.ProductVersionSelect<ExtArgs> | null
+  select?: Prisma.VariantVersionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ProductVersion
+   * Omit specific fields from the VariantVersion
    */
-  omit?: Prisma.ProductVersionOmit<ExtArgs> | null
+  omit?: Prisma.VariantVersionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductVersionInclude<ExtArgs> | null
-  where?: Prisma.ProductVersionWhereInput
-  orderBy?: Prisma.ProductVersionOrderByWithRelationInput | Prisma.ProductVersionOrderByWithRelationInput[]
-  cursor?: Prisma.ProductVersionWhereUniqueInput
+  include?: Prisma.VariantVersionInclude<ExtArgs> | null
+  where?: Prisma.VariantVersionWhereInput
+  orderBy?: Prisma.VariantVersionOrderByWithRelationInput | Prisma.VariantVersionOrderByWithRelationInput[]
+  cursor?: Prisma.VariantVersionWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ProductVersionScalarFieldEnum | Prisma.ProductVersionScalarFieldEnum[]
+  distinct?: Prisma.VariantVersionScalarFieldEnum | Prisma.VariantVersionScalarFieldEnum[]
 }
 
 /**

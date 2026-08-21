@@ -26,7 +26,6 @@ type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0
 
 export type ProductVariantCodeWriteStats = {
     sizeCodes: number
-    versionCodes: number
     supplierCodes: number
     variantCodes: number
     variantSupplierCodes: number
@@ -38,30 +37,16 @@ export type ProductVariantCodeWriteStats = {
  */
 const CODE_PARK_PREFIX = "~"
 
-async function writeIntCodes(
-    tx: TransactionClient,
-    table: "ProductSize" | "ProductVersion",
-    updates: Array<{ id: string; code: number }>,
-) {
+async function writeSizeCodes(tx: TransactionClient, updates: Array<{ id: string; code: number }>) {
     for (const chunk of chunkForBulkWrite(updates)) {
         const ids = chunk.map((update) => update.id)
         const codes = chunk.map((update) => update.code)
-
-        if (table === "ProductSize") {
-            await tx.$executeRaw`
-                UPDATE "ProductSize" AS target
-                SET "code" = source.code, "updatedAt" = NOW()
-                FROM UNNEST(${ids}::text[], ${codes}::int[]) AS source(id, code)
-                WHERE target."id" = source.id
-            `
-        } else {
-            await tx.$executeRaw`
-                UPDATE "ProductVersion" AS target
-                SET "code" = source.code, "updatedAt" = NOW()
-                FROM UNNEST(${ids}::text[], ${codes}::int[]) AS source(id, code)
-                WHERE target."id" = source.id
-            `
-        }
+        await tx.$executeRaw`
+            UPDATE "ProductSize" AS target
+            SET "code" = source.code, "updatedAt" = NOW()
+            FROM UNNEST(${ids}::text[], ${codes}::int[]) AS source(id, code)
+            WHERE target."id" = source.id
+        `
     }
 }
 
@@ -84,11 +69,6 @@ export async function negateProductVariantCodes(
     const sizeIds = plan.sizeCodeUpdates.filter((u) => u.previousCode !== null).map((u) => u.id)
     if (sizeIds.length > 0) {
         await tx.$executeRaw`UPDATE "ProductSize" SET "code" = -"code" WHERE "id" = ANY(${sizeIds}::text[])`
-    }
-
-    const versionIds = plan.versionCodeUpdates.filter((u) => u.previousCode !== null).map((u) => u.id)
-    if (versionIds.length > 0) {
-        await tx.$executeRaw`UPDATE "ProductVersion" SET "code" = -"code" WHERE "id" = ANY(${versionIds}::text[])`
     }
 
     // fullCode metin ve GLOBAL unique — negatiflenemez, ön ekle park edilir.
@@ -128,8 +108,7 @@ export async function writeProductVariantCodes(
         await negateProductVariantCodes(tx, plan)
     }
 
-    await writeIntCodes(tx, "ProductSize", plan.sizeCodeUpdates)
-    await writeIntCodes(tx, "ProductVersion", plan.versionCodeUpdates)
+    await writeSizeCodes(tx, plan.sizeCodeUpdates)
 
     for (const chunk of chunkForBulkWrite(plan.supplierCodeUpdates)) {
         const ids = chunk.map((update) => update.id)
@@ -170,7 +149,6 @@ export async function writeProductVariantCodes(
 
     return {
         sizeCodes: plan.sizeCodeUpdates.length,
-        versionCodes: plan.versionCodeUpdates.length,
         supplierCodes: plan.supplierCodeUpdates.length,
         variantCodes: plan.variantCodeUpdates.length,
         variantSupplierCodes: plan.variantSupplierCodeUpdates.length,

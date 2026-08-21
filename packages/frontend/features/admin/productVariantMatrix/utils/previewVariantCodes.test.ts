@@ -8,8 +8,10 @@ const req: MatrixRequirement = {
     label: "Uzunluk", unit: "cm", isRequired: true, sortPriority: 0, displayOrder: 0,
 }
 
-const black = { id: "color-black", system: "RAL", code: "9005" }
-const pp = { id: "mat-pp", code: "PP", name: "Polipropilen" }
+/** Global sözlük: Siyah+PP önceden V1 olarak tanımlanmış. */
+const versionDictionary = [
+    { id: "v-1", code: 1, colorId: "color-black", materialIds: ["mat-pp"] },
+]
 
 const sizes: MatrixSize[] = [
     { id: "s-10", code: 1, values: [{ requirementId: "req-l", value: 10 }] },
@@ -34,8 +36,8 @@ function preview(draftRows: Parameters<typeof previewVariantCodes>[0]["draftRows
         requirements: [req],
         sizes, versions, supplierCodes, rows,
         draftRows,
-        colors: [black],
-        materials: [pp],
+        versionDictionary,
+        nextVersionCode: 2,
     })
 }
 
@@ -85,7 +87,7 @@ describe("previewVariantCodes", () => {
         expect(result[1].supplierFullCode).toBe("10.5.3.V1.B")
     })
 
-    it("yeni renk kombinasyonuna yeni versiyon verir", () => {
+    it("sözlükte OLMAYAN kombinasyona sıradaki global numarayı verir", () => {
         const result = preview([{
             name: "x",
             measurements: [{ requirementId: "req-l", value: 10 }],
@@ -95,11 +97,46 @@ describe("previewVariantCodes", () => {
         expect(result[0].fullCode).toBe("10.5.1.V2")
     })
 
+    it("sözlükte VAR olan ama üründe kullanılmayan kombinasyonu YENİ saymaz", () => {
+        // Global sözlükte Siyah+PP = V1. Bu ürün onu hiç kullanmamış olsa bile
+        // önizleme V1 demeli, "sıradaki numara" değil.
+        const result = previewVariantCodes({
+            productCode: "10.5",
+            isLocked: true,
+            requirements: [req],
+            sizes: [],
+            versions: [],
+            supplierCodes: [],
+            rows: [],
+            draftRows: [draft(10)],
+            versionDictionary,
+            nextVersionCode: 2,
+        })
+        expect(result[0].fullCode).toBe("10.5.1.V1")
+    })
+
+    it("sözlük numaraları SEYREK olsa da olduğu gibi kullanılır", () => {
+        // Ürün başına 1..N'e sıkıştırma YOK — global numara neyse o.
+        const result = previewVariantCodes({
+            productCode: "10.5",
+            isLocked: true,
+            requirements: [req],
+            sizes: [],
+            versions: [],
+            supplierCodes: [],
+            rows: [],
+            draftRows: [draft(10)],
+            versionDictionary: [{ id: "v-23", code: 23, colorId: "color-black", materialIds: ["mat-pp"] }],
+            nextVersionCode: 24,
+        })
+        expect(result[0].fullCode).toBe("10.5.1.V23")
+    })
+
     it("şablon yoksa sessizce null döner", () => {
         const result = previewVariantCodes({
             productCode: "10.5", isLocked: true, requirements: [],
             sizes: [], versions: [], supplierCodes: [], rows: [],
-            draftRows: [draft(10)], colors: [], materials: [],
+            draftRows: [draft(10)], versionDictionary: [], nextVersionCode: 1,
         })
         expect(result).toEqual([{ fullCode: null, supplierFullCode: null }])
     })

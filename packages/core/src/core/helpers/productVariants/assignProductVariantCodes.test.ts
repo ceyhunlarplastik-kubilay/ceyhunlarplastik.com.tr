@@ -11,10 +11,6 @@ import {
  * Kullanıcının uçtan uca senaryosu: "10.5" ürün modeli, tek ölçü (Uzunluk),
  * tek versiyon (siyah PP), iki tedarikçi.
  */
-const black: PlannerVersion["color"] = { id: "color-black", system: "RAL", code: "9005" }
-const white: PlannerVersion["color"] = { id: "color-white", system: "RAL", code: "9010" }
-const polypropylene = { id: "mat-pp", code: "PP", name: "Polipropilen" }
-const polyethylene = { id: "mat-pe", code: "PE", name: "Polietilen" }
 
 function size(id: string, lengthCm: number, code: number | null = null): PlannerSize {
     // Tek ölçülü şablonda sortKey doğrudan uzunluktan türer; gerçek anahtar
@@ -27,14 +23,12 @@ function size(id: string, lengthCm: number, code: number | null = null): Planner
     }
 }
 
-function version(id: string, color: PlannerVersion["color"], materials: PlannerVersion["materials"], code: number | null = null): PlannerVersion {
-    return {
-        id,
-        signature: `color:${color?.id ?? "none"}|materials:${materials.map((m) => m.id).sort().join(",")}`,
-        code,
-        color,
-        materials,
-    }
+/**
+ * Versiyon artık GLOBAL sözlükten gelir ve kodu bu planlayıcıdan ÖNCE atanmıştır;
+ * planlayıcı onu yalnız okur.
+ */
+function version(id: string, code: number): PlannerVersion {
+    return { id, code }
 }
 
 function baseInput(overrides: Partial<ProductVariantCodePlanInput> = {}): ProductVariantCodePlanInput {
@@ -78,25 +72,41 @@ describe("assignProductVariantCodes — taslak modu", () => {
     it("hiçbir şey değişmiyorsa boş plan üretir", () => {
         const plan = assignProductVariantCodes(baseInput({
             sizes: [size("s-10", 10, 1), size("s-12", 12, 2)],
-            versions: [version("v-1", black, [polypropylene], 1)],
+            versions: [version("v-1", 1)],
         }))
 
         expect(plan.sizeCodeUpdates).toEqual([])
-        expect(plan.versionCodeUpdates).toEqual([])
         expect(plan.requiresSizeRenumber).toBe(false)
     })
 
-    it("versiyonları renk kodu, sonra hammadde kodu sırasına göre numaralar", () => {
+})
+
+describe("assignProductVariantCodes — versiyon", () => {
+    it("versiyon kodunu OLDUĞU GİBİ kullanır, yeniden numaralandırmaz", () => {
+        // Versiyon global sözlükte append-only; planlayıcı ona hiç dokunmaz.
+        // Ürün başına numaralandırıldığı sürece yeni bir renk eklemek o üründeki
+        // tüm versiyon kodlarını kaydırıyordu.
         const plan = assignProductVariantCodes(baseInput({
-            versions: [
-                version("v-white-pp", white, [polypropylene]),
-                version("v-black-pp", black, [polypropylene]),
-                version("v-black-pe", black, [polyethylene]),
+            sizes: [size("s-10", 10, 1)],
+            versions: [version("v-a", 7), version("v-b", 23)],
+            supplierCodes: [{ id: "psc-1", supplierId: "sup-x", code: "A", sequence: 1 }],
+            variants: [
+                { id: "var-a", sizeId: "s-10", versionId: "v-a", fullCode: null, suppliers: [] },
+                { id: "var-b", sizeId: "s-10", versionId: "v-b", fullCode: null, suppliers: [] },
             ],
         }))
 
-        expect(plan.versionCodeUpdates.map((u) => u.id)).toEqual(["v-black-pe", "v-black-pp", "v-white-pp"])
-        expect(plan.versionCodeUpdates.map((u) => u.code)).toEqual([1, 2, 3])
+        expect(plan.variantCodeUpdates.map((u) => u.fullCode)).toEqual(["10.5.1.V7", "10.5.1.V23"])
+    })
+
+    it("bilinmeyen versiyon referansını reddeder", () => {
+        expect(() =>
+            assignProductVariantCodes(baseInput({
+                sizes: [size("s-10", 10, 1)],
+                versions: [],
+                variants: [{ id: "var-1", sizeId: "s-10", versionId: "yok", fullCode: null, suppliers: [] }],
+            })),
+        ).toThrow(/unknown version/)
     })
 })
 
@@ -121,14 +131,6 @@ describe("assignProductVariantCodes — kilitli mod", () => {
         expect(plan.sizeCodeUpdates).toEqual([{ id: "s-40", code: 6, previousCode: null }])
     })
 
-    it("yeni versiyonu da sona ekler", () => {
-        const plan = assignProductVariantCodes(baseInput({
-            isLocked: true,
-            versions: [version("v-white-pp", white, [polypropylene], 1), version("v-black-pp", black, [polypropylene])],
-        }))
-
-        expect(plan.versionCodeUpdates).toEqual([{ id: "v-black-pp", code: 2, previousCode: null }])
-    })
 })
 
 describe("assignProductVariantCodes — tedarikçi harfleri", () => {
@@ -164,7 +166,7 @@ describe("assignProductVariantCodes — varyant kodları", () => {
         baseInput({
             isLocked,
             sizes: [size("s-10", 10, 1), size("s-12", 12, 2)],
-            versions: [version("v-1", black, [polypropylene], 1)],
+            versions: [version("v-1", 1)],
             supplierCodes: [
                 { id: "psc-1", supplierId: "sup-x", code: "A", sequence: 1 },
                 { id: "psc-2", supplierId: "sup-y", code: "B", sequence: 2 },
@@ -224,7 +226,7 @@ describe("assignProductVariantCodes — tutarsız girdi", () => {
     it("bilinmeyen ölçü referansını reddeder", () => {
         expect(() =>
             assignProductVariantCodes(baseInput({
-                versions: [version("v-1", black, [polypropylene], 1)],
+                versions: [version("v-1", 1)],
                 variants: [{ id: "var-1", sizeId: "yok", versionId: "v-1", fullCode: null, suppliers: [] }],
             })),
         ).toThrow(/unknown size/)
@@ -235,7 +237,7 @@ describe("assignProductVariantCodes — tutarsız girdi", () => {
             assignProductVariantCodes(baseInput({
                 isLocked: true,
                 sizes: [size("s-10", 10, 1)],
-                versions: [version("v-1", black, [polypropylene], 1)],
+                versions: [version("v-1", 1)],
                 variants: [{
                     id: "var-1",
                     sizeId: "s-10",

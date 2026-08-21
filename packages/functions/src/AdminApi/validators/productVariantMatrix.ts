@@ -145,6 +145,13 @@ const matrixSchema = z.object({
         supplierName: z.string(),
         code: z.string(),
     }).loose()),
+    versionDictionary: z.array(z.object({
+        id: z.string(),
+        code: z.number(),
+        colorId: z.string().nullable(),
+        materialIds: z.array(z.string()),
+    }).loose()),
+    nextVersionCode: z.number(),
     rows: z.array(z.object({
         variantId: z.string(),
         fullCode: z.string(),

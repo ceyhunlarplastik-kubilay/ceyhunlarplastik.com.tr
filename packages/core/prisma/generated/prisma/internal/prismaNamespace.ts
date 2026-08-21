@@ -412,7 +412,7 @@ export const ModelName = {
   ProductMeasurementRequirementTranslation: 'ProductMeasurementRequirementTranslation',
   ProductSize: 'ProductSize',
   ProductSizeValue: 'ProductSizeValue',
-  ProductVersion: 'ProductVersion',
+  VariantVersion: 'VariantVersion',
   ProductSupplierCode: 'ProductSupplierCode',
   MeasurementType: 'MeasurementType',
   MeasurementTypeTranslation: 'MeasurementTypeTranslation',
@@ -452,7 +452,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "productVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "variantVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2528,77 +2528,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ProductVersion: {
-      payload: Prisma.$ProductVersionPayload<ExtArgs>
-      fields: Prisma.ProductVersionFieldRefs
+    VariantVersion: {
+      payload: Prisma.$VariantVersionPayload<ExtArgs>
+      fields: Prisma.VariantVersionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ProductVersionFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload> | null
+          args: Prisma.VariantVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ProductVersionFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>
+          args: Prisma.VariantVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>
         }
         findFirst: {
-          args: Prisma.ProductVersionFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload> | null
+          args: Prisma.VariantVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ProductVersionFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>
+          args: Prisma.VariantVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>
         }
         findMany: {
-          args: Prisma.ProductVersionFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>[]
+          args: Prisma.VariantVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>[]
         }
         create: {
-          args: Prisma.ProductVersionCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>
+          args: Prisma.VariantVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>
         }
         createMany: {
-          args: Prisma.ProductVersionCreateManyArgs<ExtArgs>
+          args: Prisma.VariantVersionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ProductVersionCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>[]
+          args: Prisma.VariantVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>[]
         }
         delete: {
-          args: Prisma.ProductVersionDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>
+          args: Prisma.VariantVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>
         }
         update: {
-          args: Prisma.ProductVersionUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>
+          args: Prisma.VariantVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>
         }
         deleteMany: {
-          args: Prisma.ProductVersionDeleteManyArgs<ExtArgs>
+          args: Prisma.VariantVersionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ProductVersionUpdateManyArgs<ExtArgs>
+          args: Prisma.VariantVersionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ProductVersionUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>[]
+          args: Prisma.VariantVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>[]
         }
         upsert: {
-          args: Prisma.ProductVersionUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductVersionPayload>
+          args: Prisma.VariantVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VariantVersionPayload>
         }
         aggregate: {
-          args: Prisma.ProductVersionAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProductVersion>
+          args: Prisma.VariantVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVariantVersion>
         }
         groupBy: {
-          args: Prisma.ProductVersionGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductVersionGroupByOutputType>[]
+          args: Prisma.VariantVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VariantVersionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ProductVersionCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProductVersionCountAggregateOutputType> | number
+          args: Prisma.VariantVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VariantVersionCountAggregateOutputType> | number
         }
       }
     }
@@ -4820,7 +4820,7 @@ export const ProductVariantScalarFieldEnum = {
   name: 'name',
   productId: 'productId',
   productSizeId: 'productSizeId',
-  productVersionId: 'productVersionId',
+  variantVersionId: 'variantVersionId',
   fullCode: 'fullCode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -4882,9 +4882,8 @@ export const ProductSizeValueScalarFieldEnum = {
 export type ProductSizeValueScalarFieldEnum = (typeof ProductSizeValueScalarFieldEnum)[keyof typeof ProductSizeValueScalarFieldEnum]
 
 
-export const ProductVersionScalarFieldEnum = {
+export const VariantVersionScalarFieldEnum = {
   id: 'id',
-  productId: 'productId',
   code: 'code',
   colorId: 'colorId',
   signature: 'signature',
@@ -4892,7 +4891,7 @@ export const ProductVersionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type ProductVersionScalarFieldEnum = (typeof ProductVersionScalarFieldEnum)[keyof typeof ProductVersionScalarFieldEnum]
+export type VariantVersionScalarFieldEnum = (typeof VariantVersionScalarFieldEnum)[keyof typeof VariantVersionScalarFieldEnum]
 
 
 export const ProductSupplierCodeScalarFieldEnum = {
@@ -5982,7 +5981,7 @@ export type GlobalOmitConfig = {
   productMeasurementRequirementTranslation?: Prisma.ProductMeasurementRequirementTranslationOmit
   productSize?: Prisma.ProductSizeOmit
   productSizeValue?: Prisma.ProductSizeValueOmit
-  productVersion?: Prisma.ProductVersionOmit
+  variantVersion?: Prisma.VariantVersionOmit
   productSupplierCode?: Prisma.ProductSupplierCodeOmit
   measurementType?: Prisma.MeasurementTypeOmit
   measurementTypeTranslation?: Prisma.MeasurementTypeTranslationOmit

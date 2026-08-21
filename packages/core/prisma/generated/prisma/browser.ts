@@ -175,12 +175,26 @@ export type ProductSize = Prisma.ProductSizeModel
  */
 export type ProductSizeValue = Prisma.ProductSizeValueModel
 /**
- * Model ProductVersion
+ * Model VariantVersion
  * Ürün modeli içindeki RENK + HAMMADDE kombinasyonu — kodun 4. segmenti ("V1").
  * Ölçüden farklı olarak doğal bir büyüklük sırası yoktur: ilk atamada derli toplu
  * ve deterministik sıralanır, sonrasında append-only'dur.
+ * Renk + hammadde kombinasyonu — kodun 4. segmenti ("V1"). **GLOBAL SÖZLÜK.**
+ * 
+ * Numara TÜM ürünlerde aynıdır: "Siyah + Bakalit" hangi üründe geçerse geçsin V1
+ * ise her yerde V1'dir. Satış tarafında kodu okuyan kişi ürün modelini bilmeden
+ * rengi ve hammaddeyi çıkarabilsin diye böyle.
+ * 
+ * Numara APPEND-ONLY'dur ve ASLA yeniden sıralanmaz. Ürün başına numaralandırıldığı
+ * sürece yeni bir renk eklemek o üründeki tüm versiyon kodlarını kaydırıyordu —
+ * ölçü kodunun aksine versiyonun sıralanması için hiçbir iş kuralı yok, yani o
+ * kayma saf zarardı. Global yeniden numaralandırma ise tüm ürünleri birden
+ * etkileyeceği için hiç yapılmaz.
+ * 
+ * Sonuç olarak numaralar ürün bazında SEYREK görünebilir (bir üründe V1, V7, V23) —
+ * bu bilinçli bir kabul.
  */
-export type ProductVersion = Prisma.ProductVersionModel
+export type VariantVersion = Prisma.VariantVersionModel
 /**
  * Model ProductSupplierCode
  * Ürün modeli içinde tedarikçiye verilen harf — kodun 5. segmenti ("A").

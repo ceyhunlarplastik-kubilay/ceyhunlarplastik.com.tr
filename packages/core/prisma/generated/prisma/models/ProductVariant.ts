@@ -35,7 +35,7 @@ export type ProductVariantMinAggregateOutputType = {
   name: string | null
   productId: string | null
   productSizeId: string | null
-  productVersionId: string | null
+  variantVersionId: string | null
   fullCode: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -46,7 +46,7 @@ export type ProductVariantMaxAggregateOutputType = {
   name: string | null
   productId: string | null
   productSizeId: string | null
-  productVersionId: string | null
+  variantVersionId: string | null
   fullCode: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,7 +57,7 @@ export type ProductVariantCountAggregateOutputType = {
   name: number
   productId: number
   productSizeId: number
-  productVersionId: number
+  variantVersionId: number
   fullCode: number
   createdAt: number
   updatedAt: number
@@ -70,7 +70,7 @@ export type ProductVariantMinAggregateInputType = {
   name?: true
   productId?: true
   productSizeId?: true
-  productVersionId?: true
+  variantVersionId?: true
   fullCode?: true
   createdAt?: true
   updatedAt?: true
@@ -81,7 +81,7 @@ export type ProductVariantMaxAggregateInputType = {
   name?: true
   productId?: true
   productSizeId?: true
-  productVersionId?: true
+  variantVersionId?: true
   fullCode?: true
   createdAt?: true
   updatedAt?: true
@@ -92,7 +92,7 @@ export type ProductVariantCountAggregateInputType = {
   name?: true
   productId?: true
   productSizeId?: true
-  productVersionId?: true
+  variantVersionId?: true
   fullCode?: true
   createdAt?: true
   updatedAt?: true
@@ -176,7 +176,7 @@ export type ProductVariantGroupByOutputType = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt: Date
   updatedAt: Date
@@ -208,13 +208,13 @@ export type ProductVariantWhereInput = {
   name?: Prisma.StringFilter<"ProductVariant"> | string
   productId?: Prisma.StringFilter<"ProductVariant"> | string
   productSizeId?: Prisma.StringFilter<"ProductVariant"> | string
-  productVersionId?: Prisma.StringFilter<"ProductVariant"> | string
+  variantVersionId?: Prisma.StringFilter<"ProductVariant"> | string
   fullCode?: Prisma.StringFilter<"ProductVariant"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   size?: Prisma.XOR<Prisma.ProductSizeScalarRelationFilter, Prisma.ProductSizeWhereInput>
-  version?: Prisma.XOR<Prisma.ProductVersionScalarRelationFilter, Prisma.ProductVersionWhereInput>
+  version?: Prisma.XOR<Prisma.VariantVersionScalarRelationFilter, Prisma.VariantVersionWhereInput>
   assets?: Prisma.AssetListRelationFilter
   variantSuppliers?: Prisma.ProductVariantSupplierListRelationFilter
   assignedToCustomers?: Prisma.CustomerAssignedProductListRelationFilter
@@ -229,13 +229,13 @@ export type ProductVariantOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   productSizeId?: Prisma.SortOrder
-  productVersionId?: Prisma.SortOrder
+  variantVersionId?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   size?: Prisma.ProductSizeOrderByWithRelationInput
-  version?: Prisma.ProductVersionOrderByWithRelationInput
+  version?: Prisma.VariantVersionOrderByWithRelationInput
   assets?: Prisma.AssetOrderByRelationAggregateInput
   variantSuppliers?: Prisma.ProductVariantSupplierOrderByRelationAggregateInput
   assignedToCustomers?: Prisma.CustomerAssignedProductOrderByRelationAggregateInput
@@ -248,19 +248,19 @@ export type ProductVariantOrderByWithRelationInput = {
 export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   fullCode?: string
-  productId_productSizeId_productVersionId?: Prisma.ProductVariantProductIdProductSizeIdProductVersionIdCompoundUniqueInput
+  productId_productSizeId_variantVersionId?: Prisma.ProductVariantProductIdProductSizeIdVariantVersionIdCompoundUniqueInput
   AND?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
   OR?: Prisma.ProductVariantWhereInput[]
   NOT?: Prisma.ProductVariantWhereInput | Prisma.ProductVariantWhereInput[]
   name?: Prisma.StringFilter<"ProductVariant"> | string
   productId?: Prisma.StringFilter<"ProductVariant"> | string
   productSizeId?: Prisma.StringFilter<"ProductVariant"> | string
-  productVersionId?: Prisma.StringFilter<"ProductVariant"> | string
+  variantVersionId?: Prisma.StringFilter<"ProductVariant"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   size?: Prisma.XOR<Prisma.ProductSizeScalarRelationFilter, Prisma.ProductSizeWhereInput>
-  version?: Prisma.XOR<Prisma.ProductVersionScalarRelationFilter, Prisma.ProductVersionWhereInput>
+  version?: Prisma.XOR<Prisma.VariantVersionScalarRelationFilter, Prisma.VariantVersionWhereInput>
   assets?: Prisma.AssetListRelationFilter
   variantSuppliers?: Prisma.ProductVariantSupplierListRelationFilter
   assignedToCustomers?: Prisma.CustomerAssignedProductListRelationFilter
@@ -268,14 +268,14 @@ export type ProductVariantWhereUniqueInput = Prisma.AtLeast<{
   orderItems?: Prisma.OrderItemListRelationFilter
   customerSpecialPrices?: Prisma.CustomerVariantSpecialPriceListRelationFilter
   campaignItems?: Prisma.ProductVariantCampaignItemListRelationFilter
-}, "id" | "fullCode" | "productId_productSizeId_productVersionId">
+}, "id" | "fullCode" | "productId_productSizeId_variantVersionId">
 
 export type ProductVariantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   productSizeId?: Prisma.SortOrder
-  productVersionId?: Prisma.SortOrder
+  variantVersionId?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -292,7 +292,7 @@ export type ProductVariantScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
   productId?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
   productSizeId?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
-  productVersionId?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
+  variantVersionId?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
   fullCode?: Prisma.StringWithAggregatesFilter<"ProductVariant"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductVariant"> | Date | string
@@ -306,7 +306,7 @@ export type ProductVariantCreateInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
@@ -321,7 +321,7 @@ export type ProductVariantUncheckedCreateInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -342,7 +342,7 @@ export type ProductVariantUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
@@ -357,7 +357,7 @@ export type ProductVariantUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -375,7 +375,7 @@ export type ProductVariantCreateManyInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -394,7 +394,7 @@ export type ProductVariantUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -410,10 +410,10 @@ export type ProductVariantOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ProductVariantProductIdProductSizeIdProductVersionIdCompoundUniqueInput = {
+export type ProductVariantProductIdProductSizeIdVariantVersionIdCompoundUniqueInput = {
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
 }
 
 export type ProductVariantCountOrderByAggregateInput = {
@@ -421,7 +421,7 @@ export type ProductVariantCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   productSizeId?: Prisma.SortOrder
-  productVersionId?: Prisma.SortOrder
+  variantVersionId?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -432,7 +432,7 @@ export type ProductVariantMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   productSizeId?: Prisma.SortOrder
-  productVersionId?: Prisma.SortOrder
+  variantVersionId?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -443,7 +443,7 @@ export type ProductVariantMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   productId?: Prisma.SortOrder
   productSizeId?: Prisma.SortOrder
-  productVersionId?: Prisma.SortOrder
+  variantVersionId?: Prisma.SortOrder
   fullCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -696,7 +696,7 @@ export type ProductVariantCreateWithoutProductInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
@@ -710,7 +710,7 @@ export type ProductVariantUncheckedCreateWithoutProductInput = {
   id?: string
   name: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -757,7 +757,7 @@ export type ProductVariantScalarWhereInput = {
   name?: Prisma.StringFilter<"ProductVariant"> | string
   productId?: Prisma.StringFilter<"ProductVariant"> | string
   productSizeId?: Prisma.StringFilter<"ProductVariant"> | string
-  productVersionId?: Prisma.StringFilter<"ProductVariant"> | string
+  variantVersionId?: Prisma.StringFilter<"ProductVariant"> | string
   fullCode?: Prisma.StringFilter<"ProductVariant"> | string
   createdAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductVariant"> | Date | string
@@ -770,7 +770,7 @@ export type ProductVariantCreateWithoutSizeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
@@ -784,7 +784,7 @@ export type ProductVariantUncheckedCreateWithoutSizeInput = {
   id?: string
   name: string
   productId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -891,7 +891,7 @@ export type ProductVariantCreateWithoutAssignedToCustomersInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
@@ -905,7 +905,7 @@ export type ProductVariantUncheckedCreateWithoutAssignedToCustomersInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -941,7 +941,7 @@ export type ProductVariantUpdateWithoutAssignedToCustomersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
@@ -955,7 +955,7 @@ export type ProductVariantUncheckedUpdateWithoutAssignedToCustomersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -975,7 +975,7 @@ export type ProductVariantCreateWithoutVariantSuppliersInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
@@ -989,7 +989,7 @@ export type ProductVariantUncheckedCreateWithoutVariantSuppliersInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1025,7 +1025,7 @@ export type ProductVariantUpdateWithoutVariantSuppliersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
@@ -1039,7 +1039,7 @@ export type ProductVariantUncheckedUpdateWithoutVariantSuppliersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1059,7 +1059,7 @@ export type ProductVariantCreateWithoutCampaignItemsInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
@@ -1073,7 +1073,7 @@ export type ProductVariantUncheckedCreateWithoutCampaignItemsInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1109,7 +1109,7 @@ export type ProductVariantUpdateWithoutCampaignItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
@@ -1123,7 +1123,7 @@ export type ProductVariantUncheckedUpdateWithoutCampaignItemsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1143,7 +1143,7 @@ export type ProductVariantCreateWithoutCustomerSpecialPricesInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
@@ -1157,7 +1157,7 @@ export type ProductVariantUncheckedCreateWithoutCustomerSpecialPricesInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1193,7 +1193,7 @@ export type ProductVariantUpdateWithoutCustomerSpecialPricesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
@@ -1207,7 +1207,7 @@ export type ProductVariantUncheckedUpdateWithoutCustomerSpecialPricesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1227,7 +1227,7 @@ export type ProductVariantCreateWithoutOrderItemsInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
@@ -1241,7 +1241,7 @@ export type ProductVariantUncheckedCreateWithoutOrderItemsInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1277,7 +1277,7 @@ export type ProductVariantUpdateWithoutOrderItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
@@ -1291,7 +1291,7 @@ export type ProductVariantUncheckedUpdateWithoutOrderItemsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1311,7 +1311,7 @@ export type ProductVariantCreateWithoutRequestItemsInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   assets?: Prisma.AssetCreateNestedManyWithoutVariantInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
@@ -1325,7 +1325,7 @@ export type ProductVariantUncheckedCreateWithoutRequestItemsInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1361,7 +1361,7 @@ export type ProductVariantUpdateWithoutRequestItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
@@ -1375,7 +1375,7 @@ export type ProductVariantUncheckedUpdateWithoutRequestItemsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1395,7 +1395,7 @@ export type ProductVariantCreateWithoutAssetsInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutVariantsInput
   size: Prisma.ProductSizeCreateNestedOneWithoutVariantsInput
-  version: Prisma.ProductVersionCreateNestedOneWithoutVariantsInput
+  version: Prisma.VariantVersionCreateNestedOneWithoutVariantsInput
   variantSuppliers?: Prisma.ProductVariantSupplierCreateNestedManyWithoutVariantInput
   assignedToCustomers?: Prisma.CustomerAssignedProductCreateNestedManyWithoutProductVariantInput
   requestItems?: Prisma.BusinessRequestItemCreateNestedManyWithoutProductVariantInput
@@ -1409,7 +1409,7 @@ export type ProductVariantUncheckedCreateWithoutAssetsInput = {
   name: string
   productId: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1445,7 +1445,7 @@ export type ProductVariantUpdateWithoutAssetsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
   requestItems?: Prisma.BusinessRequestItemUpdateManyWithoutProductVariantNestedInput
@@ -1459,7 +1459,7 @@ export type ProductVariantUncheckedUpdateWithoutAssetsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1475,7 +1475,7 @@ export type ProductVariantCreateManyProductInput = {
   id?: string
   name: string
   productSizeId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1488,7 +1488,7 @@ export type ProductVariantUpdateWithoutProductInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   size?: Prisma.ProductSizeUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
@@ -1502,7 +1502,7 @@ export type ProductVariantUncheckedUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1519,7 +1519,7 @@ export type ProductVariantUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1529,7 +1529,7 @@ export type ProductVariantCreateManySizeInput = {
   id?: string
   name: string
   productId: string
-  productVersionId: string
+  variantVersionId: string
   fullCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1542,7 +1542,7 @@ export type ProductVariantUpdateWithoutSizeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutVariantsNestedInput
-  version?: Prisma.ProductVersionUpdateOneRequiredWithoutVariantsNestedInput
+  version?: Prisma.VariantVersionUpdateOneRequiredWithoutVariantsNestedInput
   assets?: Prisma.AssetUpdateManyWithoutVariantNestedInput
   variantSuppliers?: Prisma.ProductVariantSupplierUpdateManyWithoutVariantNestedInput
   assignedToCustomers?: Prisma.CustomerAssignedProductUpdateManyWithoutProductVariantNestedInput
@@ -1556,7 +1556,7 @@ export type ProductVariantUncheckedUpdateWithoutSizeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1573,7 +1573,7 @@ export type ProductVariantUncheckedUpdateManyWithoutSizeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  productVersionId?: Prisma.StringFieldUpdateOperationsInput | string
+  variantVersionId?: Prisma.StringFieldUpdateOperationsInput | string
   fullCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1723,13 +1723,13 @@ export type ProductVariantSelect<ExtArgs extends runtime.Types.Extensions.Intern
   name?: boolean
   productId?: boolean
   productSizeId?: boolean
-  productVersionId?: boolean
+  variantVersionId?: boolean
   fullCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   size?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
-  version?: boolean | Prisma.ProductVersionDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.VariantVersionDefaultArgs<ExtArgs>
   assets?: boolean | Prisma.ProductVariant$assetsArgs<ExtArgs>
   variantSuppliers?: boolean | Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>
   assignedToCustomers?: boolean | Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs>
@@ -1745,13 +1745,13 @@ export type ProductVariantSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   name?: boolean
   productId?: boolean
   productSizeId?: boolean
-  productVersionId?: boolean
+  variantVersionId?: boolean
   fullCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   size?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
-  version?: boolean | Prisma.ProductVersionDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.VariantVersionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productVariant"]>
 
 export type ProductVariantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1759,13 +1759,13 @@ export type ProductVariantSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   name?: boolean
   productId?: boolean
   productSizeId?: boolean
-  productVersionId?: boolean
+  variantVersionId?: boolean
   fullCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   size?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
-  version?: boolean | Prisma.ProductVersionDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.VariantVersionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productVariant"]>
 
 export type ProductVariantSelectScalar = {
@@ -1773,17 +1773,17 @@ export type ProductVariantSelectScalar = {
   name?: boolean
   productId?: boolean
   productSizeId?: boolean
-  productVersionId?: boolean
+  variantVersionId?: boolean
   fullCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductVariantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "productId" | "productSizeId" | "productVersionId" | "fullCode" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
+export type ProductVariantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "productId" | "productSizeId" | "variantVersionId" | "fullCode" | "createdAt" | "updatedAt", ExtArgs["result"]["productVariant"]>
 export type ProductVariantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   size?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
-  version?: boolean | Prisma.ProductVersionDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.VariantVersionDefaultArgs<ExtArgs>
   assets?: boolean | Prisma.ProductVariant$assetsArgs<ExtArgs>
   variantSuppliers?: boolean | Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>
   assignedToCustomers?: boolean | Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs>
@@ -1796,12 +1796,12 @@ export type ProductVariantInclude<ExtArgs extends runtime.Types.Extensions.Inter
 export type ProductVariantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   size?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
-  version?: boolean | Prisma.ProductVersionDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.VariantVersionDefaultArgs<ExtArgs>
 }
 export type ProductVariantIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   size?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
-  version?: boolean | Prisma.ProductVersionDefaultArgs<ExtArgs>
+  version?: boolean | Prisma.VariantVersionDefaultArgs<ExtArgs>
 }
 
 export type $ProductVariantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1809,7 +1809,7 @@ export type $ProductVariantPayload<ExtArgs extends runtime.Types.Extensions.Inte
   objects: {
     product: Prisma.$ProductPayload<ExtArgs>
     size: Prisma.$ProductSizePayload<ExtArgs>
-    version: Prisma.$ProductVersionPayload<ExtArgs>
+    version: Prisma.$VariantVersionPayload<ExtArgs>
     assets: Prisma.$AssetPayload<ExtArgs>[]
     variantSuppliers: Prisma.$ProductVariantSupplierPayload<ExtArgs>[]
     assignedToCustomers: Prisma.$CustomerAssignedProductPayload<ExtArgs>[]
@@ -1827,9 +1827,10 @@ export type $ProductVariantPayload<ExtArgs extends runtime.Types.Extensions.Inte
      */
     productSizeId: string
     /**
-     * Kodun 4. segmenti buradan gelir (ProductVersion.code → "V1").
+     * Kodun 4. segmenti buradan gelir (VariantVersion.code → "V1").
+     * GLOBAL sözlüğe bağlanır; aynı renk+hammadde her üründe aynı numarayı taşır.
      */
-    productVersionId: string
+    variantVersionId: string
     /**
      * "10.5.8.V1" — tedarikçi harfi İÇERMEZ.
      */
@@ -2232,7 +2233,7 @@ export interface Prisma__ProductVariantClient<T, Null = never, ExtArgs extends r
   readonly [Symbol.toStringTag]: "PrismaPromise"
   product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   size<T extends Prisma.ProductSizeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductSizeDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductSizeClient<runtime.Types.Result.GetResult<Prisma.$ProductSizePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  version<T extends Prisma.ProductVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductVersionClient<runtime.Types.Result.GetResult<Prisma.$ProductVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  version<T extends Prisma.VariantVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VariantVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__VariantVersionClient<runtime.Types.Result.GetResult<Prisma.$VariantVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   assets<T extends Prisma.ProductVariant$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   variantSuppliers<T extends Prisma.ProductVariant$variantSuppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$variantSuppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantSupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedToCustomers<T extends Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductVariant$assignedToCustomersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAssignedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2273,7 +2274,7 @@ export interface ProductVariantFieldRefs {
   readonly name: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly productId: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly productSizeId: Prisma.FieldRef<"ProductVariant", 'String'>
-  readonly productVersionId: Prisma.FieldRef<"ProductVariant", 'String'>
+  readonly variantVersionId: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly fullCode: Prisma.FieldRef<"ProductVariant", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProductVariant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductVariant", 'DateTime'>

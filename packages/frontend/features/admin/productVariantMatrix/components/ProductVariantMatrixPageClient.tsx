@@ -112,10 +112,10 @@ export function ProductVariantMatrixPageClient({ productId, productsBasePath, ca
             supplierCodes: matrix.supplierCodes,
             rows: matrix.rows,
             draftRows: validation.rows,
-            colors,
-            materials,
+            versionDictionary: matrix.versionDictionary,
+            nextVersionCode: matrix.nextVersionCode,
         })
-    }, [matrix, requirements, validation.rows, colors, materials])
+    }, [matrix, requirements, validation.rows])
 
     const duplicateToDraft = (row: MatrixRow, supplier?: MatrixRowSupplier) => {
         if (!matrix) return

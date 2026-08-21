@@ -17,6 +17,13 @@
  *    bir tedarikçinin harfi verildikten sonra asla değişmez ve aradan bir tedarikçi
  *    çıkarılsa bile boşluk doldurulmaz (bkz. `nextSupplierCode`).
  *
+ *  - **Versiyon (V1) burada HİÇ numaralandırılmaz.** Renk + hammadde kombinasyonu
+ *    global bir sözlükte (`VariantVersion`) yaşar ve numarası tüm ürünlerde aynıdır;
+ *    tahsis bu planlayıcıdan ÖNCE, `productVariantWriter` içinde yapılır. Ürün başına
+ *    numaralandırıldığı sürece bir ürüne yeni renk eklemek o üründeki tüm versiyon
+ *    kodlarını kaydırıyordu — ölçünün aksine versiyonun sıralanması için hiçbir iş
+ *    kuralı olmadığı için o kayma saf zarardı.
+ *
  * Plan yalnız DEĞİŞEN satırları döndürür; değişmeyen kod boşuna yazılmaz.
  * `previousCode`/`previousFullCode` alanları writer'ın iki fazlı yazma (önce
  * negatifleme) gerekip gerekmediğine karar vermesi içindir — `@@unique([productId,
@@ -31,7 +38,6 @@ import {
     parseSupplierCode,
 } from "./variantCode"
 import { compareSizeKeys } from "./sizeSignature"
-import { compareVersionKeys, type VersionColorLike, type VersionMaterialLike } from "./versionSignature"
 
 export type PlannerSize = {
     id: string
@@ -43,11 +49,8 @@ export type PlannerSize = {
 
 export type PlannerVersion = {
     id: string
-    signature: string
-    /** Mevcut kod; yeni versiyonda null. */
-    code: number | null
-    color: VersionColorLike | null
-    materials: readonly VersionMaterialLike[]
+    /** Global sözlükten gelen kod — burada ASLA değiştirilmez. */
+    code: number
 }
 
 export type PlannerSupplierCode = {
@@ -86,7 +89,6 @@ export type ProductVariantCodePlanInput = {
 }
 
 export type SizeCodeUpdate = { id: string; code: number; previousCode: number | null }
-export type VersionCodeUpdate = { id: string; code: number; previousCode: number | null }
 export type SupplierCodeUpdate = { id: string; code: string }
 export type VariantCodeUpdate = { id: string; fullCode: string; previousFullCode: string | null }
 export type VariantSupplierCodeUpdate = {
@@ -98,13 +100,11 @@ export type VariantSupplierCodeUpdate = {
 
 export type ProductVariantCodePlan = {
     sizeCodeUpdates: SizeCodeUpdate[]
-    versionCodeUpdates: VersionCodeUpdate[]
     supplierCodeUpdates: SupplierCodeUpdate[]
     variantCodeUpdates: VariantCodeUpdate[]
     variantSupplierCodeUpdates: VariantSupplierCodeUpdate[]
     /** Mevcut bir kodun ÜZERİNE yazılıyor mu — writer önce negatifleme fazı çalıştırmalı. */
     requiresSizeRenumber: boolean
-    requiresVersionRenumber: boolean
     stats: {
         sizes: number
         versions: number
@@ -150,36 +150,6 @@ function planSizeCodes(input: ProductVariantCodePlanInput): Map<string, SizeCode
     for (const size of pending) {
         highest += 1
         resolved.set(size.id, { id: size.id, code: highest, previousCode: null })
-    }
-
-    return resolved
-}
-
-function planVersionCodes(input: ProductVariantCodePlanInput): Map<string, VersionCodeUpdate | { code: number }> {
-    assertUniqueCodes(input.versions.map((version) => version.code), "version")
-
-    const resolved = new Map<string, VersionCodeUpdate | { code: number }>()
-
-    if (!input.isLocked) {
-        const ordered = [...input.versions].sort(compareVersionKeys)
-        ordered.forEach((version, index) => {
-            resolved.set(version.id, { id: version.id, code: index + 1, previousCode: version.code })
-        })
-        return resolved
-    }
-
-    let highest = 0
-    for (const version of input.versions) {
-        if (version.code !== null) {
-            resolved.set(version.id, { code: version.code })
-            if (version.code > highest) highest = version.code
-        }
-    }
-
-    const pending = input.versions.filter((version) => version.code === null).sort(compareVersionKeys)
-    for (const version of pending) {
-        highest += 1
-        resolved.set(version.id, { id: version.id, code: highest, previousCode: null })
     }
 
     return resolved
@@ -237,17 +207,13 @@ export function assignProductVariantCodes(input: ProductVariantCodePlanInput): P
     }
 
     const sizeResolution = planSizeCodes(input)
-    const versionResolution = planVersionCodes(input)
+    const versionCodeById = new Map(input.versions.map((version) => [version.id, version.code]))
     const supplierResolution = planSupplierCodes(input)
 
     const sizeCodeUpdates: SizeCodeUpdate[] = []
-    const versionCodeUpdates: VersionCodeUpdate[] = []
 
     for (const entry of sizeResolution.values()) {
         if ("id" in entry && entry.code !== entry.previousCode) sizeCodeUpdates.push(entry)
-    }
-    for (const entry of versionResolution.values()) {
-        if ("id" in entry && entry.code !== entry.previousCode) versionCodeUpdates.push(entry)
     }
 
     const variantCodeUpdates: VariantCodeUpdate[] = []
@@ -259,13 +225,15 @@ export function assignProductVariantCodes(input: ProductVariantCodePlanInput): P
         const size = sizeResolution.get(variant.sizeId)
         if (!size) throw new RangeError(`variant ${variant.id} references unknown size: ${variant.sizeId}`)
 
-        const version = versionResolution.get(variant.versionId)
-        if (!version) throw new RangeError(`variant ${variant.id} references unknown version: ${variant.versionId}`)
+        const versionCode = versionCodeById.get(variant.versionId)
+        if (versionCode === undefined) {
+            throw new RangeError(`variant ${variant.id} references unknown version: ${variant.versionId}`)
+        }
 
         const fullCode = buildVariantFullCode({
             productCode,
             sizeCode: size.code,
-            versionOrder: version.code,
+            versionOrder: versionCode,
         })
 
         if (seenVariantFullCodes.has(fullCode)) {
@@ -301,12 +269,10 @@ export function assignProductVariantCodes(input: ProductVariantCodePlanInput): P
 
     return {
         sizeCodeUpdates,
-        versionCodeUpdates,
         supplierCodeUpdates: supplierResolution.updates,
         variantCodeUpdates,
         variantSupplierCodeUpdates,
         requiresSizeRenumber: sizeCodeUpdates.some((update) => update.previousCode !== null),
-        requiresVersionRenumber: versionCodeUpdates.some((update) => update.previousCode !== null),
         stats: {
             sizes: input.sizes.length,
             versions: input.versions.length,

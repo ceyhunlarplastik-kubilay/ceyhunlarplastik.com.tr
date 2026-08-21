@@ -30,6 +30,18 @@ export type MatrixVersion = {
     materialIds: string[]
 }
 
+/**
+ * GLOBAL versiyon sözlüğü kaydı. Renk + hammadde kombinasyonunun numarası TÜM
+ * ürünlerde aynıdır ve append-only'dur — yeni kombinasyon eklemek mevcut kodları
+ * kaydırmaz.
+ */
+export type VariantVersionDictionaryEntry = {
+    id: string
+    code: number
+    colorId: string | null
+    materialIds: string[]
+}
+
 export type MatrixSupplierCode = {
     id: string
     supplierId: string
@@ -90,6 +102,10 @@ export type VariantMatrix = {
     sizes: MatrixSize[]
     versions: MatrixVersion[]
     supplierCodes: MatrixSupplierCode[]
+    /** Sözlüğün tamamı — bu üründe kullanılmayanlar dahil. */
+    versionDictionary: VariantVersionDictionaryEntry[]
+    /** Sözlüğe eklenecek sıradaki numara. */
+    nextVersionCode: number
     rows: MatrixRow[]
 }
 
