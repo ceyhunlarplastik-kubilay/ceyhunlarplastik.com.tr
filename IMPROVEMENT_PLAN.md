@@ -3937,6 +3937,67 @@ alanlarının geldiğinin doğrulanması.
 **Açık kalan:** ekran yeniden düzenlemesi (tasarım incelemesinde seçilen iki sütun +
 yapışkan kaydet çubuğu) ayrı bir dilim olarak duruyor.
 
+## Varyant kod sistemi — Dilim 6: giriş ekranı yeniden düzenlemesi (2026-08-21)
+
+**Neden:** Ekran kullanımdayken tasarımı gözden geçirildi. Bulgular: altı eşit
+ağırlıkta kutu yığını hiyerarşi kurmuyordu; operatörün asıl işi (satır girişi)
+sayfalanmış kayıtlı tablonun ALTINDAYDI; kaydet düğmesi kaydırınca kayboluyordu;
+ölçü şablonu — tablonun kolonlarını belirlemesine rağmen — diyalogda saklıydı; ve
+satır girilirken hangi kodu alacağı görünmüyordu.
+
+Üç yön çizilip karşılaştırıldı; seçilen bileşim: **iki sütun iskelet + yapışkan
+kaydet çubuğu**. (Üçüncü yön — kayıtlı ve taslak satırları tek tabloda birleştirmek —
+bilinçli olarak ELENDİ: satır = tedarikçi olacağı için aynı fiziksel ürün tedarikçi
+sayısı kadar satıra çıkardı, yani yeni veri modelinin tam da ayırdığı tekrarı geri
+getirirdi.)
+
+### Ne değişti
+
+**Sol sütun sabit** (`VariantMatrixContextRail`): ürün görseli + teknik resim,
+kod/ad/kategori, ölçü şablonu ve kod durumu. `lg:sticky lg:h-dvh` — operatör satır
+girerken bunlara sürekli bakıyor; görsel ve teknik resim birbirine çok benzeyen
+modelleri ayırmanın tek yolu.
+
+**Ölçü şablonu diyalogdan panele** (`MeasurementRequirementsPanel`): okuma modu dar
+ve sessiz, düzenleme yalnız gerektiğinde açılıyor. Sıra değiştiğinde ve ürün taslak
+moddaysa **"N ölçü yeniden numaralanacak"** uyarısı çıkıyor — sunucu bunu zaten doğru
+yapıyordu ama kullanıcı kaydetmeden önce öğrenemiyordu. Kullanımdaki ölçünün silme
+düğmesi kapalı.
+
+**Giriş üstte, kayıtlı liste altta.** Sıra tersine çevrildi.
+
+**Yapışkan kaydet çubuğu** (`VariantMatrixSaveBar`): beş durum (taslak yok / hazır /
+eksik var / kaydediliyor / kilitli). Kaç satırın hazır olduğunu, kaç satırda eksik
+olduğunu ve kaydetmenin NE üreteceğini ("2 yeni ölçü kodu · 1 yeni tedarikçi harfi")
+söylüyor. **"Hataya git"** ekran dışındaki hatalı satıra kaydırıyor — bugüne kadar
+hatalı satır görünmüyorsa fark edilmiyordu.
+
+**Satırda kod önizlemesi.** Taslak satır girildikçe alacağı kod görünüyor
+(`10.5.2.V1.A`). Sunucuya ek uç GEREKMEDİ: `previewVariantCodes` core'daki
+`assignProductVariantCodes` planlayıcısını mevcut sözlüklerin üzerine taslaklar
+eklenmiş hâliyle çalıştırıyor — kural istemcide YENİDEN YAZILMADI, aynı fonksiyondan
+geliyor. Kesin kod yine kaydetme anında sunucuda üretiliyor; önizleme tahmin.
+`signature`/`sortKey` matris yanıtında taşınmadığı için değerlerden aynı core
+yardımcılarıyla yeniden üretiliyor.
+
+Bu sayede önizleme taslak modda dürüst davranıyor: araya giren ölçü mevcut kodları
+kaydıracaksa bunu doğru gösteriyor (planlayıcı gerçek kilit durumuyla çalışıyor).
+
+**Kaldırılanlar:** `VariantCodeStatusCard`, `VariantMatrixProductCard`,
+`MeasurementRequirementsDialog` — üçünün de yerini bağlam sütunu aldı.
+
+**Testler:** frontend 296 → **307** (+11; kod önizlemesi — kilitli/taslak
+numaralandırma, aynı ölçünün iki tedarikçide kod paylaşması, yeni tedarikçi harfi,
+tutarsız girdide çökmeme).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (129 warning) ✅ ·
+core 520 ✅ · functions 279 ✅ · frontend 307 ✅ · `next build` "Compiled successfully" ✅ ·
+i18n tr/en eşit (769) ✅.
+
+**Kullanıcıda bekleyen:** kubi'de ekranın uçtan uca denenmesi — özellikle satır
+girerken kod önizlemesinin doğru çıkması, şablon sırası değiştirilince uyarının
+görünmesi ve "hataya git"in çalışması.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

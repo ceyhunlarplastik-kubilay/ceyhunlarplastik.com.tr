@@ -25,6 +25,8 @@ type Props = {
     materials: ReferenceOption[]
     suppliers: ReferenceOption[]
     errors: string[]
+    /** Satırın alacağı kod (tahmin) — kesin kod kaydetmede sunucuda üretilir. */
+    codePreview?: { fullCode: string | null; supplierFullCode: string | null }
     onChange: (patch: Partial<VariantMatrixDraftRow>) => void
     onDuplicate: () => void
     onRemove: () => void
@@ -45,6 +47,7 @@ export function VariantMatrixDraftRow({
     materials,
     suppliers,
     errors,
+    codePreview,
     onChange,
     onDuplicate,
     onRemove,
@@ -155,6 +158,16 @@ export function VariantMatrixDraftRow({
                     />
                 </TableCell>
 
+                <TableCell className="min-w-28">
+                    {codePreview?.supplierFullCode || codePreview?.fullCode ? (
+                        <span className="font-mono text-xs text-blue-700 dark:text-blue-400">
+                            {codePreview.supplierFullCode ?? codePreview.fullCode}
+                        </span>
+                    ) : (
+                        <span className="text-xs text-neutral-400">—</span>
+                    )}
+                </TableCell>
+
                 <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                         <Button
@@ -183,7 +196,7 @@ export function VariantMatrixDraftRow({
 
             {hasError ? (
                 <TableRow className="bg-red-50/60 dark:bg-red-950/20">
-                    <TableCell colSpan={requirements.length + 6} className="py-1 text-xs text-red-700 dark:text-red-400">
+                    <TableCell colSpan={requirements.length + 7} className="py-1 text-xs text-red-700 dark:text-red-400">
                         Satır {index + 1}: {errors.join(" · ")}
                     </TableCell>
                 </TableRow>
@@ -191,7 +204,7 @@ export function VariantMatrixDraftRow({
 
             {detailOpen ? (
                 <TableRow className="bg-neutral-50/70 dark:bg-neutral-900/40">
-                    <TableCell colSpan={requirements.length + 6} className="py-3">
+                    <TableCell colSpan={requirements.length + 7} className="py-3">
                         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
                             <div className="flex flex-col justify-end gap-2 pb-1">
                                 <Label className="text-xs">Tedarikçi logosu</Label>
