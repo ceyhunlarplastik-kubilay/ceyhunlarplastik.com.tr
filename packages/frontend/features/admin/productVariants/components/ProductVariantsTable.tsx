@@ -1,17 +1,11 @@
 "use client"
 
-import { Box, Pencil, Trash2 } from "lucide-react"
-import { AnimatePresence, motion } from "framer-motion"
+import { Fragment, useMemo, useState } from "react"
+import { Box, ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import {
-    formatMeasurementValue,
-    resolveMeasurementName,
-    resolveMeasurementUnit,
-} from "@core/helpers/productVariants/measurementDisplay"
+import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
-import { decimalLikeToFixedText } from "@/lib/utils/decimal"
 import {
     Table,
     TableBody,
@@ -20,12 +14,12 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { decimalLikeToFixedText } from "@/lib/utils/decimal"
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
+    formatMeasurementValue,
+    resolveMeasurementName,
+    resolveMeasurementUnit,
+} from "@core/helpers/productVariants/measurementDisplay"
 
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 
@@ -68,6 +62,14 @@ function formatPercent(
     return text === "-" ? text : `%${text}`
 }
 
+/**
+ * Satış / satınalma / tedarikçi fiyat ekranlarının varyant listesi.
+ *
+ * Görsel olarak veri girişi matrisindeki kayıtlı varyant tablosuyla AYNI dili
+ * konuşur: satır başına BİR fiziksel ürün, ölçüler dinamik kolonlar, tedarikçiler
+ * harf rozetleri, detay satır içinde açılır. Fark yalnız içerikte — burada
+ * tedarikçi FİYATLARI gösterilir ve hangi fiyat alanının görüneceğini rol belirler.
+ */
 export function ProductVariantsTable({
     variants,
     deletingId = null,
@@ -79,6 +81,8 @@ export function ProductVariantsTable({
     pricingLabels,
     summaryPricingField = "listPrice",
 }: Props) {
+    const [expandedId, setExpandedId] = useState<string | null>(null)
+
     const visibility = {
         showPrice: pricingVisibility?.showPrice ?? true,
         showOperationalCostRate: pricingVisibility?.showOperationalCostRate ?? true,
@@ -95,12 +99,37 @@ export function ProductVariantsTable({
     }
     const showActions = Boolean(onEdit || onDelete)
 
+    /**
+     * Ölçü kolonları varyantlardan türetilir; sıra SUNUCUDAN geldiği gibi korunur
+     * (ürün modelinin ölçü şablonundaki `sortPriority`). Başlık ürün modeline özel
+     * adı gösterir, kod ikincil kalır.
+     */
+    const measurementColumns = useMemo(() => {
+        const map = new Map<string, { id: string; name: string; code: string }>()
+
+        for (const variant of variants) {
+            for (const measurement of variant.measurements ?? []) {
+                const typeId = measurement.measurementType?.id
+                if (!typeId || map.has(typeId)) continue
+                map.set(typeId, {
+                    id: typeId,
+                    name: resolveMeasurementName(measurement),
+                    code: measurement.measurementType?.code ?? "",
+                })
+            }
+        }
+
+        return Array.from(map.values())
+    }, [variants])
+
+    const columnCount = 1 + measurementColumns.length + 4 + (showActions ? 1 : 0)
+
     if (!variants.length) {
         return (
             <div className="rounded-2xl border border-neutral-200/60 bg-white shadow-sm">
-                <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-                    <div className="w-14 h-14 rounded-full bg-neutral-50 border border-neutral-100 flex items-center justify-center">
-                        <Box className="w-7 h-7 text-neutral-300" />
+                <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
+                    <div className="flex size-14 items-center justify-center rounded-full border border-neutral-100 bg-neutral-50">
+                        <Box className="size-7 text-neutral-300" />
                     </div>
                     <p className="font-medium text-neutral-900">{emptyTitle}</p>
                     <p className="text-sm text-neutral-500">{emptyDescription}</p>
@@ -110,19 +139,32 @@ export function ProductVariantsTable({
     }
 
     return (
-        <div className="rounded-2xl border border-neutral-200/60 bg-white shadow-sm p-3 sm:p-4">
-            <div
-                className={`sticky top-[72px] z-20 grid ${showActions ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"} gap-3 border-b border-neutral-200/80 bg-white/95 px-3 py-2 text-[11px] font-semibold text-neutral-500 backdrop-blur supports-[backdrop-filter]:bg-white/85 md:top-[80px]`}
-            >
-                <div>Kod / Ad</div>
-                <div>Ölçüler</div>
-                <div>Tedarikçi Özeti</div>
-                {showActions ? <div>İşlem</div> : null}
-            </div>
-
-            <Accordion type="single" collapsible className="w-full">
-                <AnimatePresence>
+        <div className="overflow-x-auto rounded-md border">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-8" />
+                        <TableHead className="min-w-40">Kod</TableHead>
+                        {measurementColumns.map((column) => (
+                            <TableHead key={column.id} className="min-w-24">
+                                <span className="whitespace-nowrap">{column.name}</span>
+                                {column.code ? (
+                                    <span className="ms-1 font-mono text-[10px] font-normal text-neutral-500">
+                                        {column.code}
+                                    </span>
+                                ) : null}
+                            </TableHead>
+                        ))}
+                        <TableHead>Versiyon</TableHead>
+                        <TableHead>Renk</TableHead>
+                        <TableHead>Hammadde</TableHead>
+                        <TableHead>Tedarikçiler</TableHead>
+                        {showActions ? <TableHead className="text-right">İşlem</TableHead> : null}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
                     {variants.map((variant) => {
+                        const isExpanded = expandedId === variant.id
                         const activeSupplier = variant.variantSuppliers.find((supplier) => supplier.isActive)
                         const summaryValue =
                             summaryPricingField === "netCost"
@@ -138,158 +180,174 @@ export function ProductVariantsTable({
                                     : labels.listPrice
 
                         return (
-                            <motion.div
-                                key={variant.id}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -8 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <AccordionItem value={variant.id} className="border-b border-neutral-100">
-                                    <div className={`grid ${showActions ? "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]"} items-center gap-3 px-3 py-2`}>
-                                        <AccordionTrigger className="py-1 hover:no-underline text-left">
-                                            <div>
-                                                <p className="flex items-center gap-1.5 font-mono text-xs text-neutral-500">
-                                                    {variant.fullCode}
-                                                    {activeSupplier?.supplierCode ? (
-                                                        <Badge variant="outline" className="px-1 py-0 font-mono text-[10px]">
-                                                            {activeSupplier.supplierCode}
-                                                        </Badge>
-                                                    ) : null}
-                                                </p>
-                                                <p className="font-semibold text-sm text-neutral-900">{variant.name}</p>
-                                            </div>
-                                        </AccordionTrigger>
+                            <Fragment key={variant.id}>
+                                <TableRow>
+                                    <TableCell className="w-8">
+                                        <Button
+                                            type="button"
+                                            size="icon"
+                                            variant="ghost"
+                                            className="size-7"
+                                            onClick={() => setExpandedId(isExpanded ? null : variant.id)}
+                                            aria-label={isExpanded ? "Detayı kapat" : "Detayı aç"}
+                                            aria-expanded={isExpanded}
+                                        >
+                                            {isExpanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+                                        </Button>
+                                    </TableCell>
 
-                                        <div className="text-xs text-neutral-700">
-                                            {variant.measurements.length === 0 ? (
-                                                <span className="text-neutral-400 italic">–</span>
+                                    <TableCell>
+                                        <p className="font-mono text-sm font-medium">{variant.fullCode}</p>
+                                        <p className="text-xs text-neutral-500">{variant.name}</p>
+                                    </TableCell>
+
+                                    {measurementColumns.map((column) => {
+                                        const measurement = (variant.measurements ?? []).find(
+                                            (item) => item.measurementType?.id === column.id
+                                        )
+
+                                        if (!measurement) {
+                                            return (
+                                                <TableCell key={`${variant.id}-${column.id}`} className="text-neutral-300">
+                                                    —
+                                                </TableCell>
+                                            )
+                                        }
+
+                                        const unit = resolveMeasurementUnit(measurement)
+                                        return (
+                                            <TableCell key={`${variant.id}-${column.id}`} className="tabular-nums">
+                                                {formatMeasurementValue(measurement)}
+                                                {unit ? (
+                                                    <span className="ms-0.5 text-[10px] font-normal text-neutral-400">{unit}</span>
+                                                ) : null}
+                                            </TableCell>
+                                        )
+                                    })}
+
+                                    <TableCell>
+                                        {variant.versionCode ? (
+                                            <Badge variant="secondary" className="font-mono">{variant.versionCode}</Badge>
+                                        ) : (
+                                            <span className="text-neutral-400">—</span>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        {variant.color ? (
+                                            <span className="flex items-center gap-2 text-sm">
+                                                {variant.color.hex ? (
+                                                    <span
+                                                        className="size-3 shrink-0 rounded-full border"
+                                                        style={{ backgroundColor: variant.color.hex }}
+                                                    />
+                                                ) : null}
+                                                {variant.color.name}
+                                            </span>
+                                        ) : (
+                                            <span className="text-neutral-400">—</span>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell className="text-sm">
+                                        {(variant.materials ?? []).map((material) => material.name).join(", ") || (
+                                            <span className="text-neutral-400">—</span>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <div className="flex flex-wrap items-center gap-1">
+                                            {variant.variantSuppliers.length === 0 ? (
+                                                <span className="text-neutral-400">—</span>
                                             ) : (
-                                                <div className="flex flex-wrap gap-1">
-                                                    {/* Sıra SUNUCUDAN gelir (ölçü şablonunun sortPriority'si) —
-                                                        burada yeniden sıralanmaz. Eskiden `.sort()` prop dizisini
-                                                        YERİNDE mutasyona uğratıyor ve alfabetik koda göre
-                                                        diziyordu; ikisi de yanlıştı. */}
-                                                    {variant.measurements.map((measurement) => {
-                                                        const unit = resolveMeasurementUnit(measurement)
-                                                        return (
-                                                            <span
-                                                                key={measurement.id}
-                                                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-100 text-blue-700 text-[11px] font-medium"
-                                                                title={measurement.measurementType?.code ?? undefined}
-                                                            >
-                                                                {resolveMeasurementName(measurement)}: {formatMeasurementValue(measurement)}
-                                                                {unit ? ` ${unit}` : ""}
-                                                            </span>
-                                                        )
-                                                    })}
-                                                </div>
+                                                variant.variantSuppliers.map((supplier) => (
+                                                    <Badge
+                                                        key={supplier.id}
+                                                        variant="outline"
+                                                        className="font-mono"
+                                                        title={supplier.supplier.name}
+                                                    >
+                                                        {supplier.supplierCode ?? "?"}
+                                                    </Badge>
+                                                ))
                                             )}
+                                            {summaryValue !== undefined && summaryValue !== null ? (
+                                                <span className="ms-1 text-xs text-neutral-500">
+                                                    {summaryLabel}: {formatMoney(summaryValue, activeSupplier?.currency)}
+                                                </span>
+                                            ) : null}
                                         </div>
+                                    </TableCell>
 
-                                        <div className="text-xs text-neutral-700">
-                                            {activeSupplier ? (
-                                                <div className="space-y-0.5">
-                                                    <p className="font-medium">{activeSupplier.supplier.name}</p>
-                                                    {summaryValue !== undefined ? (
-                                                        <p className="text-neutral-500">
-                                                            {summaryLabel}: {formatMoney(summaryValue, activeSupplier.currency)}
-                                                        </p>
-                                                    ) : null}
-                                                </div>
-                                            ) : (
-                                                <span className="text-neutral-400 italic">–</span>
-                                            )}
-                                        </div>
-
-                                        {showActions ? (
+                                    {showActions ? (
+                                        <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
                                                 {onEdit ? (
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
-                                                        className="h-8 w-8 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100"
+                                                        className="size-7"
+                                                        aria-label="Düzenle"
                                                         onClick={() => onEdit(variant)}
                                                     >
-                                                        <Pencil className="h-4 w-4" />
+                                                        <Pencil className="size-4" />
                                                     </Button>
                                                 ) : null}
                                                 {onDelete ? (
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
-                                                        className="h-8 w-8 text-neutral-500 hover:text-red-600 hover:bg-red-50"
-                                                        onClick={() => onDelete(variant)}
+                                                        className="size-7"
+                                                        aria-label="Sil"
                                                         disabled={deletingId === variant.id}
+                                                        onClick={() => onDelete(variant)}
                                                     >
                                                         {deletingId === variant.id ? (
-                                                            <Spinner className="size-4 text-red-600" />
+                                                            <Spinner className="size-4" />
                                                         ) : (
-                                                            <Trash2 className="h-4 w-4" />
+                                                            <Trash2 className="size-4 text-red-600" />
                                                         )}
                                                     </Button>
                                                 ) : null}
                                             </div>
-                                        ) : null}
-                                    </div>
+                                        </TableCell>
+                                    ) : null}
+                                </TableRow>
 
-                                    <AccordionContent className="px-3 pb-3">
-                                        <div className="rounded-xl border bg-neutral-50 p-3">
-                                            <div className="mb-2 text-xs font-semibold text-neutral-600">Varyant Detayları</div>
-                                            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-                                                <div className="rounded-md border bg-white p-2">
-                                                    <p className="text-[11px] text-neutral-500">Renk</p>
-                                                    {variant.color ? (
-                                                        <p className="text-sm font-medium text-neutral-800">
-                                                            {variant.color.system} {variant.color.code} · {variant.color.name}
-                                                        </p>
-                                                    ) : (
-                                                        <p className="text-sm text-neutral-400 italic">–</p>
-                                                    )}
-                                                </div>
-
-                                                <div className="rounded-md border bg-white p-2 md:col-span-2">
-                                                    <p className="text-[11px] text-neutral-500">Materyaller</p>
-                                                    <div className="flex flex-wrap gap-1 mt-1">
-                                                        {variant.materials.length === 0 ? (
-                                                            <span className="text-sm text-neutral-400 italic">–</span>
-                                                        ) : (
-                                                            variant.materials.map((material) => (
-                                                                <Badge key={material.id} variant="secondary" className="text-[11px]">
-                                                                    {material.name}
-                                                                </Badge>
-                                                            ))
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="mt-3 rounded-md border bg-white p-2">
-                                                <p className="text-[11px] text-neutral-500 mb-1">Tedarikçi Fiyat Detayları</p>
-                                                <div className="max-h-[360px] overflow-auto rounded-lg">
+                                {isExpanded ? (
+                                    <TableRow className="bg-neutral-50/70 dark:bg-neutral-900/40">
+                                        <TableCell colSpan={columnCount} className="py-3">
+                                            {variant.variantSuppliers.length === 0 ? (
+                                                <p className="text-sm text-neutral-500">
+                                                    Bu varyanta bağlı tedarikçi yok.
+                                                </p>
+                                            ) : (
+                                                <div className="overflow-x-auto rounded-md border bg-white dark:bg-neutral-950">
                                                     <Table>
-                                                        <TableHeader className="sticky top-0 z-10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+                                                        <TableHeader>
                                                             <TableRow>
-                                                                <TableHead className="text-[11px]">Tedarikçi</TableHead>
-                                                                {visibility.showPrice ? <TableHead className="text-[11px]">{labels.price}</TableHead> : null}
-                                                                {visibility.showOperationalCostRate ? <TableHead className="text-[11px]">{labels.operationalCostRate}</TableHead> : null}
-                                                                {visibility.showNetCost ? <TableHead className="text-[11px]">{labels.netCost}</TableHead> : null}
-                                                                {visibility.showProfitRate ? <TableHead className="text-[11px]">{labels.profitRate}</TableHead> : null}
-                                                                {visibility.showListPrice ? <TableHead className="text-[11px]">{labels.listPrice}</TableHead> : null}
+                                                                <TableHead className="text-xs">Tedarikçi</TableHead>
+                                                                {visibility.showPrice ? <TableHead className="text-xs">{labels.price}</TableHead> : null}
+                                                                {visibility.showOperationalCostRate ? <TableHead className="text-xs">{labels.operationalCostRate}</TableHead> : null}
+                                                                {visibility.showNetCost ? <TableHead className="text-xs">{labels.netCost}</TableHead> : null}
+                                                                {visibility.showProfitRate ? <TableHead className="text-xs">{labels.profitRate}</TableHead> : null}
+                                                                {visibility.showListPrice ? <TableHead className="text-xs">{labels.listPrice}</TableHead> : null}
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
                                                             {variant.variantSuppliers.map((supplier) => (
                                                                 <TableRow key={supplier.id}>
-                                                                    <TableCell className="text-[11px] font-medium text-neutral-700">
-                                                                        <span className="flex items-center gap-1.5">
+                                                                    <TableCell className="text-xs">
+                                                                        <span className="flex items-center gap-1.5 font-medium">
                                                                             {supplier.supplierCode ? (
                                                                                 <Badge variant="outline" className="px-1 py-0 font-mono text-[10px]">
                                                                                     {supplier.supplierCode}
                                                                                 </Badge>
                                                                             ) : null}
                                                                             {supplier.supplier.name}
-                                                                            {supplier.isActive ? " (Aktif)" : ""}
+                                                                            {supplier.isActive ? (
+                                                                                <Badge variant="secondary" className="text-[10px]">Aktif</Badge>
+                                                                            ) : null}
                                                                         </span>
                                                                         {/* Tedarikçinin referans aldığı kod ürün kodu değil,
                                                                             tedarikçili tam koddur. */}
@@ -300,44 +358,34 @@ export function ProductVariantsTable({
                                                                         ) : null}
                                                                     </TableCell>
                                                                     {visibility.showPrice ? (
-                                                                        <TableCell className="text-[11px]">
-                                                                            {formatMoney(supplier.price, supplier.currency)}
-                                                                        </TableCell>
+                                                                        <TableCell className="text-xs">{formatMoney(supplier.price, supplier.currency)}</TableCell>
                                                                     ) : null}
                                                                     {visibility.showOperationalCostRate ? (
-                                                                        <TableCell className="text-[11px]">
-                                                                            {formatPercent(supplier.operationalCostRate)}
-                                                                        </TableCell>
+                                                                        <TableCell className="text-xs">{formatPercent(supplier.operationalCostRate)}</TableCell>
                                                                     ) : null}
                                                                     {visibility.showNetCost ? (
-                                                                        <TableCell className="text-[11px]">
-                                                                            {formatMoney(supplier.netCost, supplier.currency)}
-                                                                        </TableCell>
+                                                                        <TableCell className="text-xs">{formatMoney(supplier.netCost, supplier.currency)}</TableCell>
                                                                     ) : null}
                                                                     {visibility.showProfitRate ? (
-                                                                        <TableCell className="text-[11px]">
-                                                                            {formatPercent(supplier.profitRate)}
-                                                                        </TableCell>
+                                                                        <TableCell className="text-xs">{formatPercent(supplier.profitRate)}</TableCell>
                                                                     ) : null}
                                                                     {visibility.showListPrice ? (
-                                                                        <TableCell className="text-[11px]">
-                                                                            {formatMoney(supplier.listPrice, supplier.currency)}
-                                                                        </TableCell>
+                                                                        <TableCell className="text-xs">{formatMoney(supplier.listPrice, supplier.currency)}</TableCell>
                                                                     ) : null}
                                                                 </TableRow>
                                                             ))}
                                                         </TableBody>
                                                     </Table>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                            </motion.div>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ) : null}
+                            </Fragment>
                         )
                     })}
-                </AnimatePresence>
-            </Accordion>
+                </TableBody>
+            </Table>
         </div>
     )
 }

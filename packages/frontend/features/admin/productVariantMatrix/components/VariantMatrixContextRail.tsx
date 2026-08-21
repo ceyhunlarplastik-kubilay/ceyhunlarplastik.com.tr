@@ -1,9 +1,7 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
-import { AlertTriangle, ArrowLeft, ImageOff, Layers, Lock, LockOpen, Maximize2, RefreshCw } from "lucide-react"
+import { AlertTriangle, ArrowLeft, Layers, Lock, LockOpen, RefreshCw } from "lucide-react"
 
 import {
     AlertDialog,
@@ -21,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import { MeasurementRequirementsPanel } from "@/features/admin/productMeasurementRequirements/components/MeasurementRequirementsPanel"
+import { VariantAssetPreview } from "@/features/admin/productVariantMatrix/components/VariantAssetPreview"
 
 type ProductAsset = { role?: string; type?: string; url?: string }
 
@@ -44,25 +43,6 @@ type Props = {
 
 function pickAsset(assets: ProductAsset[], role: string) {
     return assets.find((asset) => asset.role === role && asset.url)?.url ?? null
-}
-
-function AssetFrame({ src, alt, label }: { src: string | null; alt: string; label: string }) {
-    const [failed, setFailed] = useState(false)
-
-    return (
-        <figure className="m-0 flex-1 space-y-1">
-            <div className="relative aspect-square overflow-hidden rounded-md border bg-neutral-50 dark:bg-neutral-900">
-                {src && !failed ? (
-                    <Image src={src} alt={alt} fill sizes="140px" className="object-contain" onError={() => setFailed(true)} />
-                ) : (
-                    <div className="flex size-full items-center justify-center text-neutral-400">
-                        <ImageOff className="size-5" />
-                    </div>
-                )}
-            </div>
-            <figcaption className="text-center text-[11px] text-neutral-500">{label}</figcaption>
-        </figure>
-    )
 }
 
 /**
@@ -95,16 +75,17 @@ export function VariantMatrixContextRail({
                 </Link>
             </Button>
 
-            <div className="flex gap-2.5">
+            {/* Alt alta: dar sütunda yan yana iki kare çok küçük kalıyordu. */}
+            <div className="flex flex-col gap-3">
                 {assetsLoading ? (
                     <>
-                        <Skeleton className="aspect-square flex-1 rounded-md" />
-                        <Skeleton className="aspect-square flex-1 rounded-md" />
+                        <Skeleton className="aspect-square w-full rounded-md" />
+                        <Skeleton className="aspect-square w-full rounded-md" />
                     </>
                 ) : (
                     <>
-                        <AssetFrame src={primaryImage} alt={`${name} ürün görseli`} label="Ürün" />
-                        <AssetFrame src={technicalDrawing} alt={`${name} teknik resmi`} label="Teknik resim" />
+                        <VariantAssetPreview src={primaryImage} alt={`${name} ürün görseli`} label="Ürün" />
+                        <VariantAssetPreview src={technicalDrawing} alt={`${name} teknik resmi`} label="Teknik resim" />
                     </>
                 )}
             </div>
@@ -120,17 +101,6 @@ export function VariantMatrixContextRail({
                         <Layers className="size-3.5" />
                         {variantCount} varyant
                     </span>
-                    {technicalDrawing ? (
-                        <a
-                            href={technicalDrawing}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-1.5 underline underline-offset-2"
-                        >
-                            <Maximize2 className="size-3.5" />
-                            Teknik resmi büyüt
-                        </a>
-                    ) : null}
                 </div>
             </div>
 

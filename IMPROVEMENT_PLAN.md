@@ -4052,6 +4052,32 @@ i18n tr/en eşit (769) ✅.
 `/tedarikci/urunler` ekranlarında ölçü/renk/hammadde'nin geri geldiğinin, portal
 özel fiyat kartında ölçü satırının dolu olduğunun teyidi.
 
+## Varyant kod sistemi — Dilim 8: görsel düzeltmeler (2026-08-21)
+
+Kullanıcının kubi'deki doğrulaması sonrası iki görsel istek. Davranış değişmedi.
+
+**Bağlam sütununda görseller alt alta ve tıklanınca büyük.** Dar sütunda (304px)
+yan yana iki kare ~130px kalıyordu; teknik resimde ölçü çizgileri seçilmiyordu.
+Görseller alt alta alındı ve yeni `VariantAssetPreview` ile tıklanınca diyalogda
+tam boy açılıyor (kare küçük resim formatı korundu — istenen buydu). Public
+taraftaki `ProductTechnicalDrawingSection` aynı ihtiyacı `InteractiveZoomImage`
+ile çözüyor; burada panel dar olduğu için diyalog tercih edildi. Artık gereksiz
+kalan "Teknik resmi büyüt" metin linki kaldırıldı.
+
+**Fiyat ekranlarındaki varyant listesi matris tablosuna benzetildi.**
+`/satis/urunler`, `/satinalma/urunler` ve `/tedarikci/urunler` akordeon listesi
+kullanıyordu; artık veri girişi matrisindeki kayıtlı varyant tablosuyla aynı dili
+konuşuyor: satır başına bir fiziksel ürün, ölçüler DİNAMİK kolonlar (başlıkta ürün
+modeline özel ad + ikincil kod), versiyon/renk/hammadde kolonları, tedarikçiler
+harf rozeti, detay satır içinde açılıyor.
+
+Davranış korundu: rol bazlı fiyat görünürlüğü (`pricingVisibility`), özet fiyat
+alanı ve düzenle/sil eylemleri aynı. Ölçü kolonlarının sırası sunucudan geldiği
+gibi bırakıldı (ürün modelinin `sortPriority`'si).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error (129 warning) ✅ ·
+core 527 ✅ · functions 279 ✅ · frontend 307 ✅ · `next build` "Compiled successfully" ✅.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
