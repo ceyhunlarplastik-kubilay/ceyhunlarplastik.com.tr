@@ -5,6 +5,7 @@ import {
     IVariantVersionDependencies,
     IListVariantVersionsEvent,
     ICreateVariantVersionEvent,
+    IUpdateVariantVersionEvent,
     IDeleteVariantVersionEvent,
 } from "@/functions/AdminApi/types/variantVersions"
 
@@ -66,6 +67,43 @@ export const deleteVariantVersionHandler = ({ variantVersionRepository }: IVaria
             if (err instanceof HttpError) throw err
             console.error(err)
             throw new createError.InternalServerError("Versiyon silinemedi")
+        }
+    }
+}
+
+/**
+ * Versiyonun renk + hammadde kombinasyonunu değiştirir.
+ *
+ * Kod DEĞİŞMEZ ve hiçbir varyant kodu yeniden yazılmaz — `fullCode` (10.5.8.V1)
+ * içinde renk/hammadde geçmez, yalnız versiyon NUMARASI geçer. Bu yüzden veri
+ * girişinde yapılmış bir seçim hatası (ör. fazladan hammadde) varyantları
+ * silmeden düzeltilebilir.
+ *
+ * Kalan risk anlamsaldır: dışarı çıkmış bir katalogda V1 artık başka bir
+ * kombinasyonu gösterir. Arayüz, kullanımdaki bir versiyon düzenlenirken kaç
+ * varyantı etkilediğini söyleyip onay ister.
+ */
+export const updateVariantVersionHandler = ({ variantVersionRepository }: IVariantVersionDependencies) => {
+    return async (event: IUpdateVariantVersionEvent) => {
+        const { colorId, materialIds } = event.body
+
+        if (!colorId && (!materialIds || materialIds.length === 0)) {
+            throw new createError.BadRequest("En az bir renk veya hammadde seçilmeli")
+        }
+
+        try {
+            const version = await variantVersionRepository.update({
+                productId: event.pathParameters.id,
+                id: event.pathParameters.versionId,
+                colorId: colorId ?? null,
+                materialIds: materialIds ?? [],
+            })
+
+            return apiResponseDTO({ statusCode: 200, payload: { version } })
+        } catch (err: any) {
+            if (err instanceof HttpError) throw err
+            console.error(err)
+            throw new createError.InternalServerError("Versiyon güncellenemedi")
         }
     }
 }

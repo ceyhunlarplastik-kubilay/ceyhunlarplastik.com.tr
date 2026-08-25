@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Info, Loader2, Lock, Plus, Trash2 } from "lucide-react"
+import { Check, Info, Loader2, Lock, Pencil, Plus, Trash2, X } from "lucide-react"
 
 import {
     AlertDialog,
@@ -34,6 +34,7 @@ import { useVariantMatrixReferences } from "@/features/admin/productVariantMatri
 import {
     useCreateVariantVersion,
     useDeleteVariantVersion,
+    useUpdateVariantVersion,
     useVariantVersions,
 } from "@/features/admin/variantVersions/hooks/useVariantVersions"
 
@@ -69,11 +70,15 @@ export function VariantVersionsDialog({
     const { data, isLoading, isError } = useVariantVersions(productId)
     const { data: references } = useVariantMatrixReferences()
     const createMutation = useCreateVariantVersion(productId)
+    const updateMutation = useUpdateVariantVersion(productId)
     const deleteMutation = useDeleteVariantVersion(productId)
 
     const [colorId, setColorId] = useState("")
     const [materialIds, setMaterialIds] = useState<string[]>([])
     const [code, setCode] = useState("")
+
+    /** Düzenlenen satır — null ise tablo salt okunur. */
+    const [editing, setEditing] = useState<{ id: string; colorId: string; materialIds: string[] } | null>(null)
 
     const colors = references?.colors ?? []
     const materials = references?.materials ?? []
@@ -112,10 +117,17 @@ export function VariantVersionsDialog({
                         <p className="font-medium">Önce tanımlayın, numara sonradan değiştirilemez.</p>
                         <p>
                             Varyant girişinde burada tanımlı olmayan bir kombinasyon kullanılamaz.
-                            Numara verildikten sonra sabittir — değiştirmek, o kombinasyonu kullanan
-                            tüm varyantların kodunu yeniden yazmak demek olurdu. İstediğiniz düzeni
-                            (ör. <span className="font-mono">Siyah + Bakalit = V1</span>) giriş
-                            yapmadan önce kurun.
+                            <b> Numara</b> verildikten sonra sabittir — değiştirmek, o kombinasyonu
+                            kullanan tüm varyantların kodunu yeniden yazmak demek olurdu. İstediğiniz
+                            düzeni (ör. <span className="font-mono">Siyah + Bakalit = V1</span>)
+                            giriş yapmadan önce kurun.
+                        </p>
+                        <p className="mt-2">
+                            <b>Renk ve hammadde</b> düzenlenebilir: kod
+                            (<span className="font-mono">10.5.8.V1</span>) içinde geçmedikleri için
+                            değiştirmek hiçbir varyant kodunu bozmaz. Kullanımdaki bir versiyonu
+                            düzenlerseniz o numaranın ANLAMI değişir — dışarı çıkmış katalog veya
+                            tekliflerde V1 artık başka bir kombinasyonu gösterir.
                         </p>
                     </div>
                 </div>
@@ -205,6 +217,99 @@ export function VariantVersionsDialog({
                             <TableBody>
                                 {data.versions.map((version) => {
                                     const inUse = version.variantCount > 0
+                                    const isEditing = editing?.id === version.id
+
+                                    if (isEditing) {
+                                        return (
+                                            <TableRow key={version.id} className="bg-neutral-50 dark:bg-neutral-900/40">
+                                                <TableCell>
+                                                    <Badge variant="secondary" className="font-mono">
+                                                        V{version.code}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Select
+                                                        value={editing.colorId || "none"}
+                                                        onValueChange={(value) =>
+                                                            setEditing({ ...editing, colorId: value === "none" ? "" : value })
+                                                        }
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Renksiz" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="none">Renksiz</SelectItem>
+                                                            {colors.map((color) => (
+                                                                <SelectItem key={color.id} value={color.id}>
+                                                                    <span className="flex items-center gap-2">
+                                                                        <span
+                                                                            className="size-3 rounded-full border"
+                                                                            style={{ backgroundColor: color.hex }}
+                                                                        />
+                                                                        {color.code} — {color.name}
+                                                                    </span>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <MaterialMultiSelect
+                                                        materials={materials}
+                                                        value={editing.materialIds}
+                                                        onChange={(value) => setEditing({ ...editing, materialIds: value })}
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="text-xs text-neutral-500">
+                                                    {inUse ? `${version.variantCount} varyantın anlamı değişir` : "kullanılmıyor"}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <Button
+                                                            type="button"
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            className="size-8"
+                                                            aria-label="Vazgeç"
+                                                            onClick={() => setEditing(null)}
+                                                            disabled={updateMutation.isPending}
+                                                        >
+                                                            <X className="size-4" />
+                                                        </Button>
+                                                        <Button
+                                                            type="button"
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            className="size-8"
+                                                            aria-label="Kaydet"
+                                                            disabled={
+                                                                updateMutation.isPending ||
+                                                                (!editing.colorId && editing.materialIds.length === 0)
+                                                            }
+                                                            onClick={async () => {
+                                                                await updateMutation.mutateAsync({
+                                                                    versionId: version.id,
+                                                                    input: {
+                                                                        colorId: editing.colorId || undefined,
+                                                                        materialIds: editing.materialIds.length > 0
+                                                                            ? editing.materialIds
+                                                                            : undefined,
+                                                                    },
+                                                                })
+                                                                setEditing(null)
+                                                            }}
+                                                        >
+                                                            {updateMutation.isPending ? (
+                                                                <Loader2 className="size-4 animate-spin" />
+                                                            ) : (
+                                                                <Check className="size-4 text-green-600" />
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    }
 
                                     return (
                                         <TableRow key={version.id}>
@@ -242,6 +347,23 @@ export function VariantVersionsDialog({
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-right">
+                                                <Button
+                                                    type="button"
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="size-8"
+                                                    aria-label="Düzenle"
+                                                    title="Renk ve hammaddeyi düzenle"
+                                                    onClick={() =>
+                                                        setEditing({
+                                                            id: version.id,
+                                                            colorId: version.colorId ?? "",
+                                                            materialIds: version.materials.map((material) => material.id),
+                                                        })
+                                                    }
+                                                >
+                                                    <Pencil className="size-4" />
+                                                </Button>
                                                 {canDelete ? (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>

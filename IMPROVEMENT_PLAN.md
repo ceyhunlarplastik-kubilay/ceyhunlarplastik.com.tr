@@ -4315,6 +4315,66 @@ sağlayıcıyı söylüyor (Neon URL ile, RDS host/port ile).
 **Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 538 ✅ ·
 functions 293 ✅ · frontend 310 ✅ · `next build` ✅ · i18n 773 = 773 ✅.
 
+## Varyantlarda toplu silme + versiyon sözlüğünde düzenleme (2026-08-25)
+
+Veri girişi sırasında yapılan seçim hatasını (bir versiyona fazladan hammadde
+eklenmesi) düzeltebilmek için iki yüzey.
+
+### Versiyon düzenleme — "kod değişmez" kuralı yanlış anlaşılmasın
+
+Sözlük append-only kurulmuş ve "mevcut kaydın kodunu değiştiren uç bilinçli
+olarak yok" denmişti. Bu **numara** için geçerli, kombinasyon için değil:
+
+`fullCode` = `10.5.8.V1` — içinde renk/hammadde GEÇMEZ, yalnız versiyon NUMARASI
+geçer. Dolayısıyla V1'in hangi renk+hammaddeye karşılık geldiğini değiştirmek
+hiçbir varyant kodunu yeniden yazmayı gerektirmiyor; yalnız `signature` yeniden
+hesaplanıyor. Numara ise değiştirilemez kalıyor (şemada `code` HİÇ beyan
+edilmiyor) çünkü onu değiştirmek tüm `fullCode`'ları yeniden yazardı.
+
+Kalan risk yapısal değil ANLAMSAL: dışarı çıkmış bir katalogda V1 artık başka bir
+kombinasyonu gösterir. Arayüz kullanımdaki bir versiyonu düzenlerken kaç varyantın
+anlamının değiştiğini söylüyor.
+
+`PATCH /products/{id}/variant-versions/{versionId}` — admin + content_editor
+(hatayı yapan operatör düzeltebilmeli). Aynı kombinasyon o üründe zaten tanımlıysa
+409, hangi numaraya ait olduğu mesajda. Arayüz: sözlük diyaloğunda satır içi
+düzenleme (kalem → renk/hammadde alanları → onay).
+
+**Not:** `materials` güncellemesinde `set` kullanılıyor, `connect` DEĞİL —
+`connect` yalnız ekler, kaldırılan hammadde bağlı kalırdı.
+
+### Toplu silme
+
+`POST /products/{id}/variant-matrix/bulk-delete`. Tek tek çağırmak YANLIŞ olurdu:
+her silme `recalculateProductVariantCodes` çalıştırır ve ölçü kodlarını yeniden
+numaralar; N çağrıda kodlar aralarda kayar, istemcinin listesi bayatlar. Burada
+silme toplu, hesaplama sonda bir kez.
+
+**Engelli satır işlemi düşürmez** (kullanıcı kararı): silinebilenler silinir,
+engelliler kodu ve sebebiyle döner ve arayüzde SEÇİLİ KALIR — kullanıcı hangilerini
+seçimden çıkaracağını görür. Engel listesi tekil silmeyle ortak tek kaynaktan
+geliyor: `core/helpers/productVariants/variantDeletionBlockers.ts` (mevcut tekil
+handler da oraya bağlandı, mesaj artık iki yerde ayrışamaz).
+
+`OrderItem`/`BusinessRequestItem` şemada `SetNull`, `CustomerAssignedProduct`
+`Cascade` — yani DB silmeyi ENGELLEMEZ, bağ sessizce kopar. Engel bu yüzden
+uygulama katmanında.
+
+**Arayüz:** tabloya onay kutusu sütunu + başlıkta üç durumlu "tümünü seç"
+(görünen sayfa için), seçim varken beliren `VariantSelectionBar` (onay diyaloğu
+neyin silinmeyeceğini açıkça yazıyor). Seçim durumu tabloda değil ORKESTRATÖRDE:
+sayfa değişince korunuyor ve şerit tablonun dışında duruyor. Tablo, kancalar
+verilmezse salt okunur kalıyor.
+
+**Doğrulama:** `variantDeletionBlockers` için 6 birim test · gerçek Postgres'te
+7 davranış testi (fazladan hammadde kaldırma, düzenlemenin `fullCode`'a
+dokunmaması, imza çakışmasında 409, no-op düzenleme, başka ürünün kaydına erişim,
+engelli satırın batch'i düşürmemesi + öksüz ölçü temizliği + yeniden numaralama,
+versiyon tanımının kalıcılığı) · toplu silme yanıtı için şekil testi.
+
+backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 544 ✅ · functions 297 ✅ ·
+frontend 310 ✅ · `next build` ✅.
+
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 
 `SUPPLIER_VARIANT_CREATE` onayı [service.ts:734](packages/core/src/core/helpers/businessRequests/service.ts:734)

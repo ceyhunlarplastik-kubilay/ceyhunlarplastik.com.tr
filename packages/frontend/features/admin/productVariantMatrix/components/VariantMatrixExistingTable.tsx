@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 import { EditVariantSupplierDialog } from "@/features/admin/productVariantMatrix/components/EditVariantSupplierDialog"
@@ -47,6 +48,14 @@ type Props = {
     /** Satırı taslak olarak yeniden açar — benzer varyantları hızlı girmek için. */
     onDuplicateToDraft: (row: MatrixRow, supplier?: MatrixRowSupplier) => void
     emptyMessage?: string
+    /**
+     * Toplu seçim. Seçim durumu ÜST bileşende tutulur: seçim tablodan bağımsız
+     * yaşamalı (sayfa değişince korunur, işlem çubuğu tablonun dışında durur).
+     */
+    selectedIds?: ReadonlySet<string>
+    onToggleSelect?: (variantId: string) => void
+    /** Görünen satırların tamamını seçer/bırakır. */
+    onToggleSelectAll?: () => void
 }
 
 /**
@@ -67,6 +76,9 @@ export function VariantMatrixExistingTable({
     supplierCodes,
     onDuplicateToDraft,
     emptyMessage,
+    selectedIds,
+    onToggleSelect,
+    onToggleSelectAll,
 }: Props) {
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const [editing, setEditing] = useState<{ supplier: MatrixRowSupplier; name: string } | null>(null)
@@ -81,6 +93,15 @@ export function VariantMatrixExistingTable({
     const materialById = new Map(materials.map((material) => [material.id, material]))
     const supplierNameById = new Map(supplierCodes.map((entry) => [entry.supplierId, entry.supplierName]))
 
+    // Seçim yalnız üst bileşen kancaları verdiğinde açılır — tablo başka
+    // yerlerde salt okunur kalabilsin.
+    const selectionEnabled = Boolean(selectedIds && onToggleSelect && onToggleSelectAll)
+    const selectedVisibleCount = selectedIds
+        ? rows.reduce((count, row) => count + (selectedIds.has(row.variantId) ? 1 : 0), 0)
+        : 0
+    const allVisibleSelected = rows.length > 0 && selectedVisibleCount === rows.length
+    const someVisibleSelected = selectedVisibleCount > 0 && !allVisibleSelected
+
     if (rows.length === 0) {
         return (
             <p className="rounded-md border border-dashed p-8 text-center text-sm text-neutral-500">
@@ -94,6 +115,15 @@ export function VariantMatrixExistingTable({
             <Table>
                 <TableHeader>
                     <TableRow>
+                        {selectionEnabled ? (
+                            <TableHead className="w-10">
+                                <Checkbox
+                                    checked={allVisibleSelected ? true : someVisibleSelected ? "indeterminate" : false}
+                                    onCheckedChange={() => onToggleSelectAll?.()}
+                                    aria-label="Görünen varyantların tümünü seç"
+                                />
+                            </TableHead>
+                        ) : null}
                         <TableHead className="w-8" />
                         <TableHead className="min-w-40">Kod</TableHead>
                         {requirements.map((requirement) => (
@@ -126,7 +156,16 @@ export function VariantMatrixExistingTable({
 
                         return (
                             <Fragment key={row.variantId}>
-                            <TableRow>
+                            <TableRow data-state={selectedIds?.has(row.variantId) ? "selected" : undefined}>
+                                {selectionEnabled ? (
+                                    <TableCell className="w-10">
+                                        <Checkbox
+                                            checked={selectedIds?.has(row.variantId) ?? false}
+                                            onCheckedChange={() => onToggleSelect?.(row.variantId)}
+                                            aria-label={`${row.fullCode} seç`}
+                                        />
+                                    </TableCell>
+                                ) : null}
                                 <TableCell className="w-8">
                                     <Button
                                         type="button"

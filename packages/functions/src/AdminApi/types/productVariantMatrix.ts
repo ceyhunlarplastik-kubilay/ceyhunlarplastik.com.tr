@@ -95,3 +95,7 @@ export type IDeleteVariantMatrixSupplierEvent =
 
 export type IDeleteVariantMatrixVariantEvent =
     IAPIGatewayProxyEventWithUserGeneric<{}, { id: string; variantId: string }>
+
+/** Toplu silme — engelli satırlar işlemi düşürmez, ayrı raporlanır. */
+export type IBulkDeleteVariantMatrixVariantsEvent =
+    IAPIGatewayProxyEventWithUserGeneric<{ variantIds: string[] }, { id: string }>

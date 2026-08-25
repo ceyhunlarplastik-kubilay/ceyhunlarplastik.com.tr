@@ -360,3 +360,37 @@ export const deleteVariantMatrixRowResponseValidator = z.toJSONSchema(
         }),
     }).loose()
 )
+
+/** Toplu silme isteği. Üst sınır: tek transaction'da makul kalması için. */
+export const bulkDeleteVariantMatrixValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        body: z.object({
+            variantIds: z.array(z.uuid()).min(1).max(500),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+    }
+)
+
+export const bulkDeleteVariantMatrixResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                deletedIds: z.array(z.string()),
+                blocked: z.array(z.object({
+                    id: z.string(),
+                    fullCode: z.string(),
+                    reason: z.string(),
+                }).loose()),
+                removedSizes: z.number(),
+                rewrittenCodes: z.number(),
+            }).loose(),
+        }).loose(),
+    }).loose()
+)

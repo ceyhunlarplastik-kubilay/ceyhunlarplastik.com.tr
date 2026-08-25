@@ -326,6 +326,10 @@ When touching product variants or their codes:
 - Varyant kodu (`10.5.8.V1` ve tedarikçili `10.5.8.V1.A`) TEK KAYNAKTAN üretilir:
   `core/helpers/productVariants/`. Kod şablonunu handler içinde string template ile
   YENİDEN KURMA — eski sistemde dört ayrı kopya vardı ve sessizce ayrıştılar.
+- Versiyonda KOD ile KOMBİNASYON ayrı şeylerdir: `fullCode` (`10.5.8.V1`) içinde
+  renk/hammadde geçmez, yalnız NUMARA geçer. Numara değiştirilemez (tüm kodları
+  yeniden yazmak gerekir); renk/hammadde `PATCH` ile düzenlenebilir ve hiçbir kodu
+  bozmaz — veri girişi hatası varyant silmeden düzeltilebilsin diye.
 - Versiyon (`V1` = renk + hammadde) ÜRÜN MODELİ BAŞINA tanımlıdır ve ÖNCE TANIMLANIR:
   `productVariantWriter` sözlükte olmayan bir kombinasyonu otomatik EKLEMEZ, satırı
   reddeder. Numara append-only'dur; mevcut bir kaydın kodunu değiştiren uç bilinçli

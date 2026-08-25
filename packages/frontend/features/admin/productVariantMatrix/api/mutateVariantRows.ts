@@ -46,3 +46,26 @@ export async function deleteVariantRow(input: { productId: string; variantId: st
 
     return res.data.payload.deletedId
 }
+
+export type BulkDeleteVariantsResult = {
+    deletedIds: string[]
+    /** Silinemeyenler — kodu ve sebebiyle (ör. "2 sipariş kalemi"). */
+    blocked: Array<{ id: string; fullCode: string; reason: string }>
+    removedSizes: number
+    rewrittenCodes: number
+}
+
+/**
+ * Toplu silme. Tek tek `deleteVariantRow` çağırmak YANLIŞ olurdu: her silme
+ * ölçü kodlarını yeniden hesaplatır ve kodlar çağrılar arasında kayar.
+ */
+export async function bulkDeleteVariantRows(
+    input: { productId: string; variantIds: string[] },
+): Promise<BulkDeleteVariantsResult> {
+    const res = await adminApiClient.post<{ statusCode: number; payload: BulkDeleteVariantsResult }>(
+        `/products/${input.productId}/variant-matrix/bulk-delete`,
+        { variantIds: input.variantIds },
+    )
+
+    return res.data.payload
+}

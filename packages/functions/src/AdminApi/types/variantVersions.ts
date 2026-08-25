@@ -17,6 +17,15 @@ export type ICreateVariantVersionEvent = IAPIGatewayProxyEventWithUserGeneric<
     { id: string }
 >
 
+/** Kombinasyon düzenleme. Kod (`code`) BİLİNÇLİ olarak alınmaz — değiştirilemez. */
+export type IUpdateVariantVersionEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {
+        colorId?: string
+        materialIds?: string[]
+    },
+    { id: string; versionId: string }
+>
+
 export type IDeleteVariantVersionEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     { id: string; versionId: string }

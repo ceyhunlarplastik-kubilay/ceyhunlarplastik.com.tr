@@ -12,8 +12,17 @@ import { buildVersionSignature } from "@/core/helpers/productVariants/versionSig
  * içinde Siyah + Bakalit = V1" denebilsin. `productVariantWriter` tanımsız bir
  * kombinasyonu OTOMATİK EKLEMEZ, satırı reddeder — kod ataması bilinçli bir karar.
  *
- * Mevcut bir kaydın KODUNU değiştiren işlem bilinçli olarak yoktur: kombinasyonu
- * kullanan tüm varyantların `fullCode`'unu yeniden yazmayı gerektirir.
+ * KOD ile KOMBİNASYON ayrı şeylerdir:
+ *  - **Kod (V1) değiştirilemez.** `fullCode` = `10.5.8.V1` — numarayı değiştirmek
+ *    o versiyonu kullanan tüm varyantların kodunu yeniden yazmayı gerektirir.
+ *  - **Kombinasyon (renk + hammadde) düzenlenebilir.** Kodun içinde renk/hammadde
+ *    GEÇMEZ, yani düzenleme hiçbir `fullCode`'u değiştirmez; yalnız `signature`
+ *    yeniden hesaplanır. Veri girişinde yapılan seçim hatası (ör. fazladan
+ *    hammadde) böylece varyantları silmeden düzeltilebilir.
+ *
+ * Düzenlemenin kalan riski yapısal değil ANLAMSALDIR: dışarı çıkmış bir katalogda
+ * V1 artık başka bir kombinasyonu gösterir. Bu yüzden arayüz, kullanımdaki bir
+ * versiyon düzenlenirken kaç varyantı etkilediğini söyleyip onay ister.
  */
 
 export type VariantVersionRow = {
@@ -35,6 +44,16 @@ export interface IPrismaVariantVersionRepository {
         materialIds: string[]
         /** Verilmezse ürün içindeki sıradaki boş numara atanır. */
         code?: number
+    }): Promise<VariantVersionRow>
+    /**
+     * Kombinasyonu değiştirir. Kod DEĞİŞMEZ — bkz. modül başlığı.
+     * Yeni kombinasyon o üründe zaten tanımlıysa 409.
+     */
+    update(input: {
+        productId: string
+        id: string
+        colorId: string | null
+        materialIds: string[]
     }): Promise<VariantVersionRow>
     remove(input: { productId: string; id: string }): Promise<{ id: string }>
 }
@@ -139,6 +158,52 @@ export const variantVersionRepository = (): IPrismaVariantVersionRepository => {
         })
     }
 
+    const update = async (input: {
+        productId: string
+        id: string
+        colorId: string | null
+        materialIds: string[]
+    }) => {
+        const materialIds = [...new Set(input.materialIds)]
+        const signature = buildVersionSignature({ colorId: input.colorId, materialIds })
+
+        return prisma.$transaction(async (tx) => {
+            const existing = await tx.variantVersion.findUnique({
+                where: { id: input.id },
+                select: { id: true, code: true, productId: true, signature: true },
+            })
+            // productId eşleşmesi yetki sınırıdır: başka ürünün kaydı bu uçtan düzenlenemez.
+            if (!existing || existing.productId !== input.productId) {
+                throw new createError.NotFound("Versiyon bulunamadı")
+            }
+
+            if (existing.signature !== signature) {
+                const clash = await tx.variantVersion.findUnique({
+                    where: { productId_signature: { productId: input.productId, signature } },
+                    select: { code: true },
+                })
+                if (clash) {
+                    throw new createError.Conflict(
+                        `Bu renk ve hammadde kombinasyonu bu üründe zaten tanımlı: V${clash.code}`,
+                    )
+                }
+            }
+
+            const updated = await tx.variantVersion.update({
+                where: { id: input.id },
+                data: {
+                    signature,
+                    // `set` şart: connect yalnız EKLER, kaldırılan hammadde bağlı kalırdı.
+                    colorId: input.colorId,
+                    materials: { set: materialIds.map((id) => ({ id })) },
+                },
+                select: rowSelect,
+            })
+
+            return toRow(updated)
+        })
+    }
+
     const remove = async (input: { productId: string; id: string }) => {
         const existing = await prisma.variantVersion.findUnique({
             where: { id: input.id },
@@ -160,5 +225,5 @@ export const variantVersionRepository = (): IPrismaVariantVersionRepository => {
         return { id: input.id }
     }
 
-    return { list, create, remove }
+    return { list, create, update, remove }
 }

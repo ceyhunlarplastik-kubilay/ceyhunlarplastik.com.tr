@@ -4,11 +4,13 @@ import { variantVersionRepository } from "@/core/helpers/prisma/variantVersions/
 import {
     listVariantVersionsHandler,
     createVariantVersionHandler,
+    updateVariantVersionHandler,
     deleteVariantVersionHandler,
 } from "@/functions/AdminApi/functions/variantVersions/handlers"
 import {
     listVariantVersionsValidator,
     createVariantVersionValidator,
+    updateVariantVersionValidator,
     variantVersionIdValidator,
     listVariantVersionsResponseValidator,
     variantVersionResponseValidator,
@@ -18,6 +20,7 @@ import type {
     IVariantVersionDependencies,
     IListVariantVersionsEvent,
     ICreateVariantVersionEvent,
+    IUpdateVariantVersionEvent,
     IDeleteVariantVersionEvent,
 } from "@/functions/AdminApi/types/variantVersions"
 
@@ -44,6 +47,17 @@ export const createVariantVersion = lambdaHandler(
     {
         auth: { requiredPermissionGroups: variantVersionManagerGroups },
         requestValidator: createVariantVersionValidator,
+        responseValidator: variantVersionResponseValidator,
+    }
+)
+
+// Düzenleme HİÇBİR varyant kodunu değiştirmez (kod = numara, renk/hammadde
+// kodda geçmez), bu yüzden hatayı yapan operatör de düzeltebilmeli.
+export const updateVariantVersion = lambdaHandler(
+    async (event) => updateVariantVersionHandler(getDeps())(event as IUpdateVariantVersionEvent),
+    {
+        auth: { requiredPermissionGroups: variantVersionManagerGroups },
+        requestValidator: updateVariantVersionValidator,
         responseValidator: variantVersionResponseValidator,
     }
 )

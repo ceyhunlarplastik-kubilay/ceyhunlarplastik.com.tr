@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest"
 import { transpileSchema } from "@middy/validator/transpile"
 import type { ValidateFunction } from "ajv"
 
-import { saveVariantMatrixResponseValidator } from "@/functions/AdminApi/validators/productVariantMatrix"
+import {
+    saveVariantMatrixResponseValidator,
+    bulkDeleteVariantMatrixResponseValidator,
+} from "@/functions/AdminApi/validators/productVariantMatrix"
+import { planVariantDeletion } from "@/core/helpers/productVariants/variantDeletionBlockers"
 import type { ProductVariantMatrix } from "@/core/helpers/prisma/productVariantMatrix/repository"
 import type { UpsertProductVariantRowsResult } from "@/core/helpers/productVariants/productVariantWriter"
 
@@ -100,6 +104,47 @@ describe("saveVariantMatrixResponseValidator", () => {
         const valid = validate({
             statusCode: 200,
             body: { statusCode: 200, payload: { result: writerResult, matrix } },
+        })
+
+        expect(validate.errors ?? []).toEqual([])
+        expect(valid).toBe(true)
+    })
+})
+
+describe("bulkDeleteVariantMatrixResponseValidator", () => {
+    it("planlayıcının gerçek çıktısını kabul eder", () => {
+        // `blocked` doğrudan planlayıcıdan geliyor — şema onunla senkron kalmalı.
+        const plan = planVariantDeletion([
+            {
+                id: "11111111-1111-1111-1111-111111111111",
+                fullCode: "10.5.1.V1",
+                counts: {
+                    orderItems: 0, requestItems: 0, customerSpecialPrices: 0,
+                    campaignItems: 0, assignedToCustomers: 0,
+                },
+            },
+            {
+                id: "22222222-2222-2222-2222-222222222222",
+                fullCode: "10.5.2.V1",
+                counts: {
+                    orderItems: 2, requestItems: 0, customerSpecialPrices: 0,
+                    campaignItems: 0, assignedToCustomers: 0,
+                },
+            },
+        ])
+
+        const validate = transpileSchema(bulkDeleteVariantMatrixResponseValidator) as unknown as ValidateFunction
+        const valid = validate({
+            statusCode: 200,
+            body: {
+                statusCode: 200,
+                payload: {
+                    deletedIds: plan.deletableIds,
+                    blocked: plan.blocked,
+                    removedSizes: 1,
+                    rewrittenCodes: 3,
+                },
+            },
         })
 
         expect(validate.errors ?? []).toEqual([])

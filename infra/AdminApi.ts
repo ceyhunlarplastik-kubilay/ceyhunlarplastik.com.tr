@@ -519,6 +519,13 @@ adminApi.route("POST /products/{id}/variant-versions", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+// Kombinasyon düzenlenebilir, NUMARA değil: kod değişimi tüm fullCode'ları
+// yeniden yazmayı gerektirir, kombinasyon değişimi hiçbirini.
+adminApi.route("PATCH /products/{id}/variant-versions/{versionId}", {
+    handler: `${folderPrefix}/variantVersions/actions.updateVariantVersion`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("DELETE /products/{id}/variant-versions/{versionId}", {
     handler: `${folderPrefix}/variantVersions/actions.deleteVariantVersion`,
     ...defaultRouteOptions,
@@ -545,6 +552,13 @@ adminApi.route("GET /product-variant-matrix/references", {
 
 adminApi.route("GET /products/{id}/variant-matrix", {
     handler: `${folderPrefix}/productVariantMatrix/actions.getProductVariantMatrix`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Toplu silme: tek tek çağırmak kod yeniden hesaplamasını N kez tetikler ve
+// kodlar aralarda kayar. Burada silme toplu, hesaplama sonda bir kez.
+adminApi.route("POST /products/{id}/variant-matrix/bulk-delete", {
+    handler: `${folderPrefix}/productVariantMatrix/actions.bulkDeleteVariantMatrixVariants`,
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 

@@ -5,11 +5,17 @@ import {
     recalculateProductVariantCodes,
     removeOrphanSizes,
 } from "@/core/helpers/productVariants/productVariantMaintenance"
+import {
+    VARIANT_DELETION_COUNT_SELECT,
+    describeVariantDeletionBlockers,
+    planVariantDeletion,
+} from "@/core/helpers/productVariants/variantDeletionBlockers"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import {
     IProductVariantMatrixDependencies,
     IDeleteVariantMatrixSupplierEvent,
     IDeleteVariantMatrixVariantEvent,
+    IBulkDeleteVariantMatrixVariantsEvent,
 } from "@/functions/AdminApi/types/productVariantMatrix"
 
 /** Varyantın bir tedarikçi satırını kaldırır; varyantın kendisi durur. */
@@ -66,28 +72,14 @@ export const deleteVariantMatrixVariantHandler = ({ productRepository }: IProduc
                     id: true,
                     productId: true,
                     fullCode: true,
-                    _count: {
-                        select: {
-                            orderItems: true,
-                            requestItems: true,
-                            customerSpecialPrices: true,
-                            campaignItems: true,
-                            assignedToCustomers: true,
-                        },
-                    },
+                    _count: { select: VARIANT_DELETION_COUNT_SELECT },
                 },
             })
             if (!existing || existing.productId !== productId) {
                 throw new createError.NotFound("Variant not found for this product")
             }
 
-            const blockers: string[] = []
-            if (existing._count.orderItems > 0) blockers.push(`${existing._count.orderItems} sipariş kalemi`)
-            if (existing._count.requestItems > 0) blockers.push(`${existing._count.requestItems} iş talebi kalemi`)
-            if (existing._count.customerSpecialPrices > 0) blockers.push(`${existing._count.customerSpecialPrices} özel fiyat`)
-            if (existing._count.campaignItems > 0) blockers.push(`${existing._count.campaignItems} kampanya kalemi`)
-            if (existing._count.assignedToCustomers > 0) blockers.push(`${existing._count.assignedToCustomers} müşteri ataması`)
-
+            const blockers = describeVariantDeletionBlockers(existing._count)
             if (blockers.length > 0) {
                 throw new createError.Conflict(
                     `${existing.fullCode} silinemez — şunlarda kullanılıyor: ${blockers.join(", ")}.`,
@@ -114,6 +106,86 @@ export const deleteVariantMatrixVariantHandler = ({ productRepository }: IProduc
             if (err instanceof HttpError) throw err
             console.error(err)
             throw new createError.InternalServerError("Failed to delete variant")
+        }
+    }
+}
+
+/**
+ * Birden çok varyantı TEK işlemde siler.
+ *
+ * Tek tek çağırmak yerine toplu uç olmasının sebebi doğruluk: her silme
+ * `recalculateProductVariantCodes` çalıştırır ve ölçü kodlarını yeniden
+ * numaralayabilir. N ayrı çağrıda kodlar aralarda kayar, istemcinin elindeki
+ * liste bayatlar. Burada silme toplu yapılır, kodlar SONDA bir kez hesaplanır.
+ *
+ * Engelli satır tüm işlemi düşürmez (kullanıcı kararı, 2026-08-25): silinebilenler
+ * silinir, engelliler kodu ve sebebiyle döner.
+ */
+export const bulkDeleteVariantMatrixVariantsHandler = ({ productRepository }: IProductVariantMatrixDependencies) => {
+    return async (event: IBulkDeleteVariantMatrixVariantsEvent) => {
+        const { id: productId } = event.pathParameters
+        const variantIds = [...new Set(event.body.variantIds)]
+
+        try {
+            const product = await productRepository.getProduct(productId)
+            if (!product) throw new createError.NotFound("Product not found")
+
+            const candidates = await prisma.productVariant.findMany({
+                where: { id: { in: variantIds }, productId },
+                select: {
+                    id: true,
+                    fullCode: true,
+                    _count: { select: VARIANT_DELETION_COUNT_SELECT },
+                },
+            })
+
+            // Başka ürünün varyantı ya da silinmiş id gönderilmişse sessizce
+            // yutmuyoruz: kullanıcı neyin işlenmediğini görmeli.
+            if (candidates.length !== variantIds.length) {
+                const found = new Set(candidates.map((candidate) => candidate.id))
+                const missing = variantIds.filter((id) => !found.has(id))
+                throw new createError.NotFound(
+                    `Bu ürüne ait olmayan veya bulunamayan varyant: ${missing.length} kayıt`,
+                )
+            }
+
+            const plan = planVariantDeletion(
+                candidates.map((candidate) => ({
+                    id: candidate.id,
+                    fullCode: candidate.fullCode,
+                    counts: candidate._count,
+                })),
+            )
+
+            if (plan.deletableIds.length === 0) {
+                return apiResponseDTO({
+                    statusCode: 200,
+                    payload: { deletedIds: [], blocked: plan.blocked, removedSizes: 0, rewrittenCodes: 0 },
+                })
+            }
+
+            const result = await prisma.$transaction(async (tx) => {
+                await tx.productVariant.deleteMany({ where: { id: { in: plan.deletableIds } } })
+                // Versiyon tanımları sözlükte kalır (numaraları kalıcı); yalnız
+                // öksüz ölçüler temizlenir ve kodlar BİR KEZ yeniden hesaplanır.
+                const orphans = await removeOrphanSizes(tx, productId)
+                const recalculated = await recalculateProductVariantCodes(tx, productId)
+                return { orphans, recalculated }
+            }, { timeout: 15_000, maxWait: 10_000 })
+
+            return apiResponseDTO({
+                statusCode: 200,
+                payload: {
+                    deletedIds: plan.deletableIds,
+                    blocked: plan.blocked,
+                    removedSizes: result.orphans.sizes,
+                    rewrittenCodes: result.recalculated.rewrittenCodes,
+                },
+            })
+        } catch (err: any) {
+            if (err instanceof HttpError) throw err
+            console.error(err)
+            throw new createError.InternalServerError("Varyantlar silinemedi")
         }
     }
 }

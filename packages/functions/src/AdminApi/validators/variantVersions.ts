@@ -49,6 +49,26 @@ export const createVariantVersionValidator = validatorWrapper(
     }
 )
 
+/**
+ * Kombinasyon düzenleme. `code` şemada HİÇ BEYAN EDİLMEZ: numara değiştirmek o
+ * versiyonu kullanan tüm varyantların `fullCode`'unu yeniden yazmayı gerektirir.
+ */
+export const updateVariantVersionValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+            versionId: z.uuid(),
+        }),
+        body: z.object({
+            colorId: z.uuid().optional(),
+            materialIds: z.array(z.uuid()).max(12).optional(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+    }
+)
+
 export const variantVersionIdValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({

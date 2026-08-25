@@ -19,6 +19,7 @@ import { VariantMatrixContextRail } from "@/features/admin/productVariantMatrix/
 import { VariantMatrixSaveBar } from "@/features/admin/productVariantMatrix/components/VariantMatrixSaveBar"
 import { VariantMatrixDraftRow } from "@/features/admin/productVariantMatrix/components/VariantMatrixDraftRow"
 import { VariantMatrixExistingTable } from "@/features/admin/productVariantMatrix/components/VariantMatrixExistingTable"
+import { VariantSelectionBar } from "@/features/admin/productVariantMatrix/components/VariantSelectionBar"
 import { VariantMatrixFilters } from "@/features/admin/productVariantMatrix/components/VariantMatrixFilters"
 import { useVariantMatrixFilters } from "@/features/admin/productVariantMatrix/hooks/useVariantMatrixFilters"
 import { useSaveVariantMatrix } from "@/features/admin/productVariantMatrix/hooks/useSaveVariantMatrix"
@@ -28,6 +29,7 @@ import {
     useSetVariantCodeLock,
 } from "@/features/admin/productVariantMatrix/hooks/useVariantCodeActions"
 import { useVariantMatrixReferences } from "@/features/admin/productVariantMatrix/hooks/useVariantMatrixReferences"
+import { useBulkDeleteVariantRows } from "@/features/admin/productVariantMatrix/hooks/useVariantRowActions"
 import { buildSaveRows } from "@/features/admin/productVariantMatrix/utils/buildSaveRows"
 import { buildDraftFromRow } from "@/features/admin/productVariantMatrix/utils/buildDraftFromRow"
 import { filterVariantRows, paginateVariantRows } from "@/features/admin/productVariantMatrix/utils/filterVariantRows"
@@ -122,6 +124,42 @@ export function ProductVariantMatrixPageClient({
             versionDictionary: matrix.versionDictionary,
         })
     }, [matrix, requirements, validation.rows])
+
+    const bulkDelete = useBulkDeleteVariantRows(productId)
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
+
+    const toggleSelect = (variantId: string) => {
+        setSelectedIds((current) => {
+            const next = new Set(current)
+            if (next.has(variantId)) next.delete(variantId)
+            else next.add(variantId)
+            return next
+        })
+    }
+
+    /** Görünen sayfadaki satırların tamamını seçer; hepsi seçiliyse bırakır. */
+    const toggleSelectAllVisible = () => {
+        const visibleIds = visibleRows.pageRows.map((row) => row.variantId)
+        setSelectedIds((current) => {
+            const allSelected = visibleIds.length > 0 && visibleIds.every((id) => current.has(id))
+            const next = new Set(current)
+            for (const id of visibleIds) {
+                if (allSelected) next.delete(id)
+                else next.add(id)
+            }
+            return next
+        })
+    }
+
+    const handleBulkDelete = async () => {
+        const ids = [...selectedIds]
+        if (ids.length === 0) return
+
+        const result = await bulkDelete.mutateAsync(ids)
+        // Engelliler SEÇİLİ KALIR: kullanıcı hangi satırların kaldığını görüp
+        // seçimden çıkarabilsin (silinenler zaten listeden düşüyor).
+        setSelectedIds(new Set(result.blocked.map((row) => row.id)))
+    }
 
     const duplicateToDraft = (row: MatrixRow, supplier?: MatrixRowSupplier) => {
         if (!matrix) return
@@ -414,9 +452,19 @@ export function ProductVariantMatrixPageClient({
                             katman biner (AGENTS.md refetch-feedback deseni). */}
                         <div className="relative" aria-busy={isFetching}>
                             <AdminSectionLoadingOverlay isVisible={isFetching && !isLoading} />
+                            <VariantSelectionBar
+                                selectedCount={selectedIds.size}
+                                isDeleting={bulkDelete.isPending}
+                                onClear={() => setSelectedIds(new Set())}
+                                onDelete={handleBulkDelete}
+                            />
+
                             <VariantMatrixExistingTable
                                 productId={productId}
                                 rows={visibleRows.pageRows}
+                                selectedIds={selectedIds}
+                                onToggleSelect={toggleSelect}
+                                onToggleSelectAll={toggleSelectAllVisible}
                                 sizes={matrix.sizes}
                                 versions={matrix.versions}
                                 requirements={requirements}

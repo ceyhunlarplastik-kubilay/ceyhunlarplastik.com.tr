@@ -15,6 +15,7 @@ import {
     updateVariantMatrixSupplierHandler,
     deleteVariantMatrixSupplierHandler,
     deleteVariantMatrixVariantHandler,
+    bulkDeleteVariantMatrixVariantsHandler,
 } from "@/functions/AdminApi/functions/productVariantMatrix/handlers"
 import {
     idValidator,
@@ -29,6 +30,8 @@ import {
     updateVariantMatrixSupplierValidator,
     variantMatrixSupplierRowValidator,
     variantMatrixVariantValidator,
+    bulkDeleteVariantMatrixValidator,
+    bulkDeleteVariantMatrixResponseValidator,
     updateVariantMatrixSupplierResponseValidator,
     deleteVariantMatrixRowResponseValidator,
 } from "@/functions/AdminApi/validators/productVariantMatrix"
@@ -42,6 +45,7 @@ import type {
     IUpdateVariantMatrixSupplierEvent,
     IDeleteVariantMatrixSupplierEvent,
     IDeleteVariantMatrixVariantEvent,
+    IBulkDeleteVariantMatrixVariantsEvent,
 } from "@/functions/AdminApi/types/productVariantMatrix"
 
 // Veri girişi operatörü matrisi okur ve yazar; marj alanları handler seviyesinde
@@ -122,6 +126,15 @@ export const deleteVariantMatrixSupplier = lambdaHandler(
         auth: { requiredPermissionGroups: variantMatrixManagerGroups },
         requestValidator: variantMatrixSupplierRowValidator,
         responseValidator: deleteVariantMatrixRowResponseValidator,
+    }
+)
+
+export const bulkDeleteVariantMatrixVariants = lambdaHandler(
+    async (event) => bulkDeleteVariantMatrixVariantsHandler(getDeps())(event as IBulkDeleteVariantMatrixVariantsEvent),
+    {
+        auth: { requiredPermissionGroups: variantMatrixManagerGroups },
+        requestValidator: bulkDeleteVariantMatrixValidator,
+        responseValidator: bulkDeleteVariantMatrixResponseValidator,
     }
 )
 

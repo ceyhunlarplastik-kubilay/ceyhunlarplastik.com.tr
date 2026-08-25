@@ -33,6 +33,23 @@ export async function createVariantVersion(
     return res.data.payload.version
 }
 
+/**
+ * Kombinasyonu değiştirir. NUMARA gönderilmez — değiştirilemez; kod (10.5.8.V1)
+ * içinde renk/hammadde geçmediği için bu düzenleme hiçbir varyant kodunu
+ * yeniden yazmaz.
+ */
+export async function updateVariantVersion(
+    productId: string,
+    versionId: string,
+    input: CreateVariantVersionInput,
+): Promise<VariantVersionEntry> {
+    const res = await adminApiClient.patch<{ statusCode: number; payload: { version: VariantVersionEntry } }>(
+        `/products/${productId}/variant-versions/${versionId}`,
+        { colorId: input.colorId, materialIds: input.materialIds },
+    )
+    return res.data.payload.version
+}
+
 export async function deleteVariantVersion(productId: string, versionId: string): Promise<string> {
     const res = await adminApiClient.delete<{ statusCode: number; payload: { deletedId: string } }>(
         `/products/${productId}/variant-versions/${versionId}`

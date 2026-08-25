@@ -7,6 +7,7 @@ import {
     createVariantVersion,
     deleteVariantVersion,
     getVariantVersions,
+    updateVariantVersion,
 } from "@/features/admin/variantVersions/api/variantVersions"
 import type { CreateVariantVersionInput } from "@/features/admin/variantVersions/api/types"
 
@@ -40,6 +41,24 @@ export function useCreateVariantVersion(productId: string) {
         },
         onError(error: any) {
             toast.error(error?.response?.data?.message ?? "Versiyon oluşturulamadı")
+        },
+    })
+}
+
+export function useUpdateVariantVersion(productId: string) {
+    const invalidate = useDictionaryInvalidation(productId)
+
+    return useMutation({
+        mutationFn: ({ versionId, input }: { versionId: string; input: CreateVariantVersionInput }) =>
+            updateVariantVersion(productId, versionId, input),
+        onSuccess(version) {
+            toast.success(`V${version.code} güncellendi`)
+            invalidate()
+        },
+        onError(error: any) {
+            // Aynı kombinasyon bu üründe zaten tanımlıysa sunucu hangi numaraya
+            // ait olduğunu mesajda söylüyor.
+            toast.error(error?.response?.data?.message ?? "Versiyon güncellenemedi")
         },
     })
 }
