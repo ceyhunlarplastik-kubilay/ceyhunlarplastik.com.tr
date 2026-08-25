@@ -169,7 +169,7 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - **C — Multi-AZ ertelendi (iş/maliyet kararı):** Instance ücretini ~ikiye katlar (t4g.micro+20GB için kabaca ~+15-25 USD/ay tahmini — **doğrulanmadı**, Cost Explorer/Pricing Calculator + RDS Proxy vCPU ücretiyle netleştirilmeli). Yalnız ALTYAPI arızasında otomatik failover verir; kötü migration/DELETE/bozulmaya karşı KORUMAZ (standby'a anında replike olur). B2B katalog+portal için "birkaç saatlik kesinti aylık ~20 USD'den pahalı mı?" sorusu genelde "hayır" → ertelendi, ihtiyaç doğarsa geri-dönülebilir açılır.
 - **~~⚠️ DEPLOY EDİLMEDİ~~ → ✅ DEPLOY EDİLDİ, canlıda doğrulandı (2026-08-07):** Not eskimişti; kullanıcı bu dilimi araya giren prod deploy'larından biriyle çıkarmış. Kanıt: `aws rds describe-db-instances` → `DeletionProtection: True`, `BackupRetentionPeriod: 7`, `MultiAZ: False`, `db.t4g.micro`. Ayrıca 2026-08-07 `sst diff --stage prod` çıktısında **`MyPostgres` hiç görünmüyor** (değişiklik yok = state eşleşiyor). `skipFinalSnapshot`/`finalSnapshotIdentifier` RDS API'sinde okunabilir alan değil (provider-side), diff'te fark çıkmaması state'in eşleştiğini gösterir. **Açık iş kalanı:** RPO/RTO onayı + ilk restore drill'i (gerçek RTO'yu öğren) + C (Multi-AZ) maliyet kararı.
 
-**P2.5 — API throttle'larını sınıra göre ayrıştır** · kapsam: küçük · **⏸️ Büyük ölçüde KAPATILDI; yalnız dar bir Public sigortası açık (2026-07-23 analizi)**
+**P2.5 — API throttle'larını sınıra göre ayrıştır** · kapsam: küçük · **✅ Uygulandı (2026-08-25) — throttle'lar sınıra göre ayrıştı, OwnerApi'ye eklendi, reserved concurrency aktifleştirildi. DEPLOY EDİLMEDİ.** ⚠️ 2026-07-23 notunun öncülü YANLIŞTI (throttle'lar aslında tanımlıydı) — detay aşağıda.
 - **Önceki not yanlış öncüle dayanıyordu:** "Public/Protected/Admin üçünde de 100 rps / 200 burst aynı" deniyordu. Kodda **hiçbir API'de throttle tanımı YOK** (grep boş); o 100/200 değerleri AWS'nin hesap-seviyesi örtük default'u. SST `ApiGatewayV2` throttle'ı `args`'ta sunmuyor; ancak stage `transform`'u ile `defaultRouteSettings.throttlingRateLimit/BurstLimit` verilebilir. AdminApi'deki WAF rate-limit bloğu tamamen yorumda (~100$/ay diye kapatılmış).
 - **İç API'lerde throttle gereksiz — JWT authorizer zaten kapıda:** Protected/Admin/Owner gateway seviyesinde `jwt` authorizer arkasında ([ProtectedApi.ts:45](infra/ProtectedApi.ts) `addAuthorizer`, route'larda `defaultAuthOptions`). Yetkisiz istek **Lambda'yı tetiklemeden** 401 alır → maliyet yok, DB'ye dokunmaz. Geriye yalnız "çalınmış token" senaryosu kalır; orada da rps tavanı ciddi koruma sağlamaz. Dolayısıyla 4 boundary'lik throttle tablosu **dekorasyon olurdu → yapılmadı.**
 - **Açık kalan dar iş (opsiyonel sigorta, acil değil):** Yalnız **PublicApi** anonim ve DB'ye dokunuyor (36 route). Hesap eşzamanlılık kotası **1000** (doğrulandı) olduğundan sistem gerçekten binlerce rps'e çıkabilir → sürekli bir anonim sel hem Lambda maliyeti hem **t4g.micro RDS** baskısı yaratır. İstenirse yalnız PublicApi stage'ine bir tavan konabilir. Gözlenmiş bir sorun değil; öncelik düşük.
@@ -4374,6 +4374,74 @@ versiyon tanımının kalıcılığı) · toplu silme yanıtı için şekil test
 
 backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 544 ✅ · functions 297 ✅ ·
 frontend 310 ✅ · `next build` ✅.
+
+## P2.5 — API sınırları sınıra göre ayrıştırıldı (2026-08-25)
+
+Branch `perf/api-limits`.
+
+### Planın öncülü bayattı — düzeltildi
+
+2026-07-23 notu "Kodda **hiçbir API'de throttle tanımı YOK** (grep boş); o 100/200
+değerleri AWS'nin hesap-seviyesi örtük default'u" diyordu. **Yanlış.** Üç API'de
+throttle AÇIKÇA set edilmişti ve ilk commit'lerden (`c7f7b3a`) beri oradaydı:
+
+| API | Önce | Sonra |
+|---|---|---|
+| Public | 100 / 200 | **200 / 400** |
+| Protected | 100 / 200 | 100 / 200 (aynı) |
+| Admin | 100 / 200 | **50 / 100** |
+| Owner | **HİÇ YOK** | **20 / 40** |
+
+Yani asıl (2026-07-07) not doğruydu: üç sınırda aynı değer vardı, hiçbiri kendi
+yüzeyine göre ayarlanmamıştı. OwnerApi ise sınırsızdı — throttle tanımlanmayan bir
+API hesabın API Gateway default'una düşer (binlerce rps), yani **en yetkili yüzey
+en gevşek olandı.**
+
+**Public YÜKSELTİLDİ, düşürülmedi.** Sebebi SSR çarpanı: `urun/[slug]` bir sayfa
+render'ı için üç public çağrı yapıyor. 100 rps ~33 sayfa görüntülemeye denk
+düşerdi ve 429 alan bir SSR çağrısı sayfayı hata durumuna düşürür.
+
+Değerler tek yerde ve gerekçeleriyle: [infra/apiLimits.ts](infra/apiLimits.ts).
+Hepsi env ile ezilebilir (`PUBLIC_API_THROTTLE_RATE` vb.) — ayarlamak için kod
+değiştirmek gerekmesin.
+
+### Reserved concurrency "set edilmemiş" değil, YORUMDAYMIŞ
+
+Not "mekanizma env-driven kurulu ama SET EDİLMEMİŞ" diyordu; gerçekte
+`PublicApi.ts` ve `frontend.ts`'teki blok **yorum içindeydi**, hiç aktif değildi.
+
+Aktifleştirildi ve DB'ye dokunan dört public ürün route'una uygulandı
+(`GET /products`, `/products/slug/{slug}`, `/products/{id}/variant-table`,
+`/products/{id}/variant-measurements`), route başına **100** (kullanıcı kararı).
+
+**Bütçe:** hesap kotası 1000 → 4 × 100 = 400 rezerve, panellere 600 kalır (AWS en
+az 100 ayrılmamış ister). Route sayısı artarsa aritmetik yeniden yapılmalı; toplam
+rezervasyon 900'ü aşarsa deploy REDDEDİLİR.
+
+**Neden yalnız bu dördü:** prod RDS t4g.micro, asıl darboğaz veritabanı. Diğer 29
+public route hafif (geo lookup, kategori listesi) ve hepsi rezerve edilseydi kota
+yetmezdi. `GET /products/{id}` bilinçli dışarıda: SSR onu kullanmıyor (sayfalar
+slug üzerinden gidiyor).
+
+**Neden throttle tek başına yetmiyor:** `defaultRouteSettings` AWS'de ROUTE BAŞINA
+uygulanır — 33 public route × 200 rps, toplamda 200 değil. Hesabın eşzamanlılık
+kotasını asıl koruyan reserved concurrency.
+
+### Alarm boşluğu kapatıldı
+
+Üç ağır route'un Lambda `Throttles` + p95 alarmı zaten vardı; yeni
+`variant-measurements` route'u eksikti. Kap koyup alarm koymamak sessiz 429
+üretirdi — [observability.ts](infra/observability.ts) listesine eklendi.
+
+**Kapatılmayan:** gateway seviyesindeki 429'lar (Lambda hiç tetiklenmeden
+reddedilenler) görünmüyor. HTTP API'de bunun için adanmış metrik yok; access log
+kurulumu gerekir. Ayrı ve opsiyonel bir iş.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 544 ✅ ·
+functions 297 ✅ · frontend 310 ✅ · dokunulan infra dosyalarında root tsc 0 hata ✅.
+
+**Kullanıcıda:** `npx sst diff --stage prod` (READ-ONLY) ile prod'a gidecek
+değişikliğin gösterilmesi, sonra deploy.
 
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 

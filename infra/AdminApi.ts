@@ -7,6 +7,7 @@ import { userAccessBus } from "./userAccessLifecycle";
 import { apiCors } from "./cors";
 import { apiRouteLambdaNamer } from "./lambdaNaming";
 import { googleMapsServerApiKey } from "./googleMaps";
+import { adminApiThrottle } from "./apiLimits";
 
 const folderPrefix = "packages/functions/src/AdminApi/functions";
 
@@ -14,10 +15,7 @@ export const adminApi = new sst.aws.ApiGatewayV2("CeyhunlarAdminApi", {
     cors: apiCors,
     transform: {
         stage: (args) => {
-            args.defaultRouteSettings = {
-                throttlingRateLimit: 100,
-                throttlingBurstLimit: 200,
-            };
+            args.defaultRouteSettings = { ...adminApiThrottle };
         },
         route: {
             handler: apiRouteLambdaNamer("admin"),

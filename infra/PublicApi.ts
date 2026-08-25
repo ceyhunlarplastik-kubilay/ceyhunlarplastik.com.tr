@@ -4,16 +4,14 @@ import { userPool } from "./cognito";
 import { publicBucket } from "./storage";
 import { apiCors } from "./cors";
 import { apiRouteLambdaNamer } from "./lambdaNaming";
+import { publicApiThrottle, publicProductReservedConcurrency } from "./apiLimits";
 const folderPrefix = 'packages/functions/src/PublicApi/functions';
 
 export const publicApi = new sst.aws.ApiGatewayV2("CeyhunlarPublicApi", {
     cors: apiCors,
     transform: {
         stage: (args) => {
-            args.defaultRouteSettings = {
-                throttlingRateLimit: 100,
-                throttlingBurstLimit: 200,
-            };
+            args.defaultRouteSettings = { ...publicApiThrottle };
         },
         route: {
             handler: apiRouteLambdaNamer("public"),
@@ -67,23 +65,21 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
     }
 }
 
-/* function parsePositiveIntegerEnv(name: string) {
-    const value = process.env[name];
-    if (!value) return undefined;
-
-    const parsed = Number(value);
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
-}
-
-const publicProductReservedConcurrency = parsePositiveIntegerEnv("PUBLIC_PRODUCT_ROUTE_RESERVED_CONCURRENCY");
-
+/**
+ * DB'ye dokunan public ÜRÜN route'ları.
+ *
+ * Reserved concurrency yalnız buraya uygulanır: prod RDS t4g.micro ve asıl
+ * darboğaz veritabanı. Rezervasyon hem TAVAN (bir anonim sel burada takılır)
+ * hem GARANTİ (bu kadarı her zaman ayrılmış). Bütçe aritmetiği apiLimits.ts'te.
+ *
+ * Diğer 29 public route bilinçli olarak rezervasyonsuz: hafifler (geo lookup,
+ * kategori listesi) ve dördü de rezerve edilseydi hesap kotası yetmezdi.
+ */
 const publicProductRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultOptions,
     memory: "1536 MB",
-    ...(publicProductReservedConcurrency
-        ? { concurrency: { reserved: publicProductReservedConcurrency } }
-        : {}),
-}; */
+    concurrency: { reserved: publicProductReservedConcurrency },
+};
 
 const customerInvitationRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultOptions,
@@ -190,50 +186,32 @@ publicApi.route("GET /product-variants/{id}", {
 /*----------------------- PRODUCTS -----------------------*/
 export const listProductsRoute = publicApi.route("GET /products", {
     handler: `${folderPrefix}/products/actions.listProducts`,
-    ...defaultOptions,
+    ...publicProductRouteOptions,
 });
 
-/* export const listProductsRoute = publicApi.route("GET /products", {
-    handler: `${folderPrefix}/products/actions.listProducts`,
-    ...publicProductRouteOptions,
-}); */
-
+// `GET /products/{id}` rezervasyonsuz: SSR bu ucu kullanmıyor (sayfalar slug
+// üzerinden gidiyor), yani bütçeden pay ayırmaya değmez.
 publicApi.route("GET /products/{id}", {
     handler: `${folderPrefix}/products/actions.getProduct`,
     ...defaultOptions,
 });
 
-/* publicApi.route("GET /products/{id}", {
-    handler: `${folderPrefix}/products/actions.getProduct`,
-    ...publicProductRouteOptions,
-}); */
-
 export const getProductBySlugRoute = publicApi.route("GET /products/slug/{slug}", {
     handler: `${folderPrefix}/products/actions.getProductBySlug`,
-    ...defaultOptions,
-})
-
-/* export const getProductBySlugRoute = publicApi.route("GET /products/slug/{slug}", {
-    handler: `${folderPrefix}/products/actions.getProductBySlug`,
     ...publicProductRouteOptions,
-}) */
+})
 
 export const getProductVariantTableRoute = publicApi.route("GET /products/{id}/variant-table", {
     handler: `${folderPrefix}/products/actions.getProductVariantTable`,
-    ...defaultOptions,
+    ...publicProductRouteOptions,
 })
 
 // Tek ölçünün varyantları (`?m=` ölçü anahtarı). Varyant detay sayfası eskiden
 // tablo ucundan 500 satır çekip istemcide filtreliyordu (P1.8 F1.1).
 export const getProductVariantsByMeasurementRoute = publicApi.route("GET /products/{id}/variant-measurements", {
     handler: `${folderPrefix}/products/actions.getProductVariantsByMeasurement`,
-    ...defaultOptions,
-})
-
-/* export const getProductVariantTableRoute = publicApi.route("GET /products/{id}/variant-table", {
-    handler: `${folderPrefix}/products/actions.getProductVariantTable`,
     ...publicProductRouteOptions,
-}) */
+})
 /*----------------------- MATERIALS -----------------------*/
 /*----------------------- ASSETS -----------------------*/
 
