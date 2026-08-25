@@ -3,6 +3,13 @@ node_modules
 
 # sst
 .sst
+# SST'nin ürettiği tip dosyası — `sst dev`/`sst types` her çalıştığında yeniden
+# üretilir, repoda tutmaya gerek yok.
+sst-env.d.ts
+# `sst diff`/`sst deploy` çıktısını dosyaya yönlendirirken oluşan geçici kayıtlar.
+# ARN ve hesap numarası içerirler; repoda durmasınlar.
+sst-diff-*.txt
+sst-deploy-*.txt
 
 # tmp files
 .#*
