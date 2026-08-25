@@ -138,6 +138,15 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   kuralı değiştiriyorsan İKİSİNİ birden güncelle, yoksa portalın gösterdiği fiyat
   ile sunucunun hesapladığı fiyat ayrışır. Zincir: özel fiyat → kampanya/genel
   iskonto (büyük olan) → liste.
+- Stage'ler FARKLI BÖLGELERE gidiyor ve hesap kotaları bölge başınadır: prod
+  `eu-central-1` (Lambda eşzamanlılık kotası 1000), kubi/dev `eu-west-1` (kota
+  **10**, üstelik başka projelerle paylaşılıyor). `.env`'de `eu-central-1`
+  yorumlanmış, aktif olan `eu-west-1`. Kota/limit doğrularken HANGİ BÖLGEYE
+  baktığını yaz — IMPROVEMENT_PLAN'daki "kota 1000 (doğrulandı)" notu
+  eu-central-1'e bakmıştı ve reserved concurrency'yi tüm stage'lere uygulayınca
+  kubi deploy'u `UnreservedConcurrentExecution below its minimum value of [10]`
+  ile düştü. Eşzamanlılık rezervasyonu gibi kota tüketen ayarları stage'e göre
+  koşullandır (`$app.stage === "prod"`).
 - Repoda prettier config'i YOK ve kod elle 4 boşluk girintiyle yazılmış. `npx prettier --write`
   çalıştırma: varsayılan 2 boşluğa çevirip küçük bir değişikliği yüzlerce satırlık diff'e dönüştürür.
 - shadcn `SelectTrigger` varsayılanı `w-fit`'tir; ızgara/flex sütununu doldurması gerektiğinde

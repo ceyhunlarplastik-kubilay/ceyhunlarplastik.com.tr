@@ -61,7 +61,7 @@ const defaultRouteOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
         // resources: ["arn:aws:dynamodb:eu-central-1:657914290529:table/portfolio-kubilay-kubilay-PortfolioTable-wzcszuuz"]
       }
     ] */
-    runtime: 'nodejs22.x',
+    runtime: 'nodejs24.x',
     vpc: vpc,
     link: [rds, userPool, publicBucket],
     // P1.6 — structured logging (Powertools). retention "1 month" = SST varsayılanı (30gün).

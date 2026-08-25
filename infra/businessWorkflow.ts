@@ -106,7 +106,7 @@ export const businessWorkflowBus = new sst.aws.Bus("BusinessWorkflowBus")
 
 const registerTaskToken = new sst.aws.Function("BusinessWorkflowRegisterTaskToken", {
     handler: `${workflowFolderPrefix}/registerTaskToken.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     timeout: "2 minutes",
     vpc,
     link: [rds],
@@ -114,7 +114,7 @@ const registerTaskToken = new sst.aws.Function("BusinessWorkflowRegisterTaskToke
 
 const resolveNextPendingStep = new sst.aws.Function("BusinessWorkflowResolveNextPendingStep", {
     handler: `${workflowFolderPrefix}/resolveNextPendingStep.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     timeout: "2 minutes",
     vpc,
     link: [rds],
@@ -332,7 +332,7 @@ const businessWorkflowEventPattern = {
 
 businessWorkflowBus.subscribe("PersistBusinessRequestActivityLog", {
     handler: `${workflowFolderPrefix}/persistBusinessRequestActivityLog.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     vpc,
     link: [rds],
 }, {
@@ -341,7 +341,7 @@ businessWorkflowBus.subscribe("PersistBusinessRequestActivityLog", {
 
 businessWorkflowBus.subscribe("PersistBusinessRequestNotification", {
     handler: `${workflowFolderPrefix}/persistBusinessRequestNotification.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     vpc,
     link: [rds],
 }, {
@@ -350,7 +350,7 @@ businessWorkflowBus.subscribe("PersistBusinessRequestNotification", {
 
 businessWorkflowBus.subscribe("PublishBusinessRequestRealtime", {
     handler: `${workflowFolderPrefix}/publishBusinessRequestRealtime.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     link: [userAccessRealtime],
     environment: {
         BUSINESS_WORKFLOW_REALTIME_TOPIC_PREFIX: `${$app.name}/${$app.stage}/notifications/users`,
@@ -367,7 +367,7 @@ businessWorkflowBus.subscribe("PublishBusinessRequestRealtime", {
 
 businessWorkflowBus.subscribe("SendBusinessRequestEmail", {
     handler: `${workflowFolderPrefix}/sendBusinessRequestEmail.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     vpc,
     link: [rds],
     environment: {

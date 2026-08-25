@@ -15,7 +15,7 @@ export const googleMapsLocationRefresh = isProd
         schedule: "cron(30 0 * * ? *)",
         function: {
             handler: "packages/functions/src/GoogleMapsLocationRefresh/actions.handler",
-            runtime: "nodejs22.x",
+            runtime: "nodejs24.x",
             timeout: "5 minutes",
             vpc,
             link: [rds],

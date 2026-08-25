@@ -206,7 +206,7 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 
 - **Dilim B (asıl P2.6, SST 4) — eski not, yukarıdaki uygulama notuyla kapandı:** artık prod-runtime güvenliği için bloklayıcı DEĞİL; geriye kalan gerekçe 4 CLI high'ı (`sst`/`opencontrol`/`hono`/`@modelcontextprotocol/sdk`) + P2.7'yi (Node 24) açması + SST'nin destek ömrü. **Bilinçli risk kaydı:** SST'nin test ettiği eşleşme 3.9.14; 4.0.3'e geçmekle SST'nin resmen denemediği bir kombinasyona giriyoruz — sözleşme yüzeyi yukarıda kanıtlandı ama garanti SST'den gelmiyor.
 
-**P2.7 — Node 22 → 24 LTS geçişi** · kapsam: orta · **🔓 AÇIK (2026-08-25)** — P2.6 tamamlandığı için blok kalktı. Bugün bir şey kazandırmıyor; Node 22'nin destek takvimi yaklaşınca ele alınmalı. Etkilenen: Lambda runtime, `engines` (`>=22 <23`), CI matrisi.
+**P2.7 — Node 22 → 24 LTS geçişi** · kapsam: orta · **✅ Uygulandı (2026-08-25), DEPLOY EDİLMEDİ.** Frontend zaten nodejs24.x'teymiş (SST Nextjs component sabiti); iş, API Lambda'larını ona hizalamaktı. Detay aşağıda. ~~🔓 AÇIK~~ — P2.6 tamamlandığı için blok kalktı. Bugün bir şey kazandırmıyor; Node 22'nin destek takvimi yaklaşınca ele alınmalı. Etkilenen: Lambda runtime, `engines` (`>=22 <23`), CI matrisi.
 - **Bloke gerekçesi (2026-07-17 kod incelemesi, "izole adım" varsayımı YANLIŞ çıktı):** (1) `nodejs24.x` SST 3.19.3'ün runtime union'ında **yok** — [.sst/platform/src/components/aws/function.ts:356-366](.sst/platform/src/components/aws/function.ts) yalnız `nodejs18.x|nodejs20.x|nodejs22.x|go|rust|provided.al2023|python3.9-3.12` kabul ediyor; `runtime: "nodejs24.x"` infra'da tip hatası verir (Pulumi `transform` ile union by-pass edilebilir ama 15 çağrı noktasında hack olur — bilinçli reddedildi). (2) Frontend Next.js Lambda'larının runtime'ı **SST'nin Nextjs component'i içinde `nodejs20.x` olarak hardcoded** ([nextjs.ts:679, 762, 899, 984](.sst/platform/src/components/aws/nextjs.ts): server, image optimizer, revalidation, warmer) → `infra/frontend.ts`'ten değiştirilemiyor. **Bulgu: prod frontend server bugün Node 20'de çalışıyor, 22'de değil.** Dolayısıyla P2.7 ancak P2.6 (SST 4) tamamlandıktan sonra ele alınabilir.
 - **Bekleyen küçük iş (P2.6'yı beklemez, ayrı dilim olarak yapılabilir):** [cognito.ts:37](infra/cognito.ts) `postConfirmation` trigger'ı hâlâ `nodejs20.x` (diğer 14 Lambda `nodejs22.x`) ve Node 20 EOL'ü geçti → `nodejs22.x`'e normalize edilmeli; ayrıca [frontend/package.json](packages/frontend/package.json) `@types/node: ^20` runtime'ın (22) gerisinde. `postConfirmation` auth-kritik (VPC+RDS linkli, kayıt sonrası DB kullanıcısı oluşturur) → kubi'de uçtan uca signup testi şart. `.nvmrc` (22.22.2) + `engines` (`>=22 <23`) zaten doğru, değişmez.
 - Ne: `.nvmrc` (22.22.2) + root `engines` (`>=22 <23`) + Lambda runtime'ları `nodejs24.x`'e taşı. ARCHITECTURE'a göre bazı Cognito trigger Lambda'ları hâlâ `nodejs20.x` — bu işte hepsi normalize edilmeli. CI, `node-version-file: .nvmrc` okuduğu için otomatik uyar.
@@ -4414,9 +4414,17 @@ Aktifleştirildi ve DB'ye dokunan dört public ürün route'una uygulandı
 (`GET /products`, `/products/slug/{slug}`, `/products/{id}/variant-table`,
 `/products/{id}/variant-measurements`), route başına **100** (kullanıcı kararı).
 
-**Bütçe:** hesap kotası 1000 → 4 × 100 = 400 rezerve, panellere 600 kalır (AWS en
-az 100 ayrılmamış ister). Route sayısı artarsa aritmetik yeniden yapılmalı; toplam
-rezervasyon 900'ü aşarsa deploy REDDEDİLİR.
+**Bütçe:** prod kotası 1000 → 4 × 100 = 400 rezerve, geriye 600 kalır. Canlıda
+doğrulandı: `UnreservedConcurrentExecutions = 595`.
+
+**🔴 DÜZELTME (2026-08-25, kubi deploy'u düştü):** Rezervasyon başta TÜM
+stage'lere uygulanıyordu. Eşzamanlılık kotası HESAP + BÖLGE başınadır ve bu
+projede stage'ler farklı bölgelere gidiyor: **prod → eu-central-1 (kota 1000)**,
+**kubi/dev → eu-west-1 (kota 10, başka projelerle paylaşımlı)**. kubi deploy'u
+`InvalidParameterValueException: ... below its minimum value of [10]` ile düştü.
+Bu maddedeki "hesap eşzamanlılık kotası 1000 (doğrulandı)" notu eu-central-1'e
+bakmıştı; `.env`'de aktif bölge eu-west-1. Rezervasyon artık
+`$app.stage === "prod"` ile koşullu. Tuzak CLAUDE.md'ye eklendi.
 
 **Neden yalnız bu dördü:** prod RDS t4g.micro, asıl darboğaz veritabanı. Diğer 29
 public route hafif (geo lookup, kategori listesi) ve hepsi rezerve edilseydi kota
@@ -4506,6 +4514,55 @@ panel SAYFALARINI görebilir. Veriye erişemez — backend `authMiddleware` her 
 functions 298 ✅ · frontend 310 ✅ · `next build` ✅ · frontend'de `prisma`
 importu: **HİÇ YOK** ✅.
 
+## P2.7 — Node 22 → 24 LTS (2026-08-25)
+
+Branch `chore/node-24`.
+
+### Risk sanılandan çok düşüktü — sebebi iki bulgu
+
+**1. Frontend Lambda'sı ZATEN `nodejs24.x` çalışıyordu.** SST 4.17.1'in Nextjs
+component'i runtime'ı dört yerde SABİT KODLUYOR
+([nextjs.ts:663/746/883/968](.sst/platform/src/components/aws/nextjs.ts)) ve
+`infra/frontend.ts`'te zaten runtime pin'i yoktu. Yani Node 24 prod'da en ağır iş
+yükünü (Next SSR + sharp + tüm frontend bundle'ı) bir süredir taşıyor. Bugüne
+kadarki durum aslında bir AYRIŞMAYDI: frontend 24, API'ler 22.
+
+`infra/frontend.ts`'teki "optimizer nodejs20.x → uyumlu" yorumu bu yüzden
+bayattı — SST 4'e geçişte component sabitini 24'e taşımış.
+
+**2. Bağımlılıklar açıkça destekliyor.** Prisma 7.8 `engines.node`:
+`^20.19 || ^22.12 || >=24.0`. Next 16.3 ve sharp 0.35.3: `>=20.9.0`.
+
+Node 24.19.0 zaten makinede kuruluydu ve güncel LTS (`lts/krypton`).
+
+### Değişen
+
+| Yer | Önce | Sonra |
+|---|---|---|
+| `.nvmrc` (CI bunu okuyor: `node-version-file`) | 22.22.2 | **24.19.0** |
+| root `package.json` engines | `>=22 <23` | `>=24 <25` |
+| 7 infra dosyası, 15 pin | `nodejs22.x` | `nodejs24.x` |
+
+Dosya dağılımı: businessWorkflow 6, userAccessLifecycle 4, googleMaps/ProtectedApi/
+AdminApi/OwnerApi/PublicApi 1'er.
+
+### Doğrulama — HEPSİ Node 24.19.0 altında
+
+backend tsc ✅ · frontend tsc ✅ · lint 0 error (133 warning) ✅ ·
+core 544 ✅ · functions 298 ✅ · frontend 310 ✅ · `next build` "Compiled
+successfully" ✅ · `prisma generate` ✅ (native engine).
+
+**Ayrıca gerçek Postgres 17'ye karşı Node 24 ile uçtan uca:** migration zinciri
+uygulandı, Prisma 7.8 + pg adapter ile yazma / okuma / transaction / `$queryRaw`
++ `UNNEST` (toplu yazma yolunun temeli) çalıştı. Node major yükseltmesinde en
+kırılgan bileşen native Prisma engine'idir; o yüzden mock değil gerçek DB.
+
+### Kullanıcıda
+
+- Lokal geliştirmede `nvm use` (`.nvmrc` 24.19.0'a bakar). `nvm alias default 24.19.0`
+  yapılması önerilir; aksi hâlde yeni kabuk 22'ye düşer ve `sst dev` runtime'la
+  ayrışır.
+- `npx sst diff --stage prod` → 15 Lambda'da runtime değişimi beklenir.
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 
 `SUPPLIER_VARIANT_CREATE` onayı [service.ts:734](packages/core/src/core/helpers/businessRequests/service.ts:734)

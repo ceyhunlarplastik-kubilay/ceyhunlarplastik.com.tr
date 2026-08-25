@@ -60,20 +60,38 @@ export const adminApiThrottle = throttle("ADMIN_API", 50, 100);
 export const ownerApiThrottle = throttle("OWNER_API", 20, 40);
 
 /**
- * DB'ye dokunan public ürün route'ları için Lambda tavanı.
+ * DB'ye dokunan public ürün route'ları için Lambda tavanı — YALNIZ PROD.
  *
  * Prod RDS **t4g.micro**: asıl darboğaz Lambda değil veritabanı. Bir anonim sel
  * bu route'larda takılıp kalsın, panelleri aç bırakmasın.
  *
- * Bütçe: hesap kotası 1000. Dört ağır route × 100 = 400 rezerve, panellere 600
- * kalır (AWS en az 100 ayrılmamış eşzamanlılık ister). Route sayısı artarsa bu
- * aritmetiği yeniden yapın — toplam rezervasyon 900'ü aşarsa deploy REDDEDİLİR.
+ * ## Neden yalnız prod — pahalıya öğrenildi (2026-08-25)
+ * Eşzamanlılık kotası HESAP + BÖLGE başınadır ve bu projede stage'ler FARKLI
+ * BÖLGELERE gidiyor:
+ *
+ * | Stage | Bölge | Kota |
+ * |---|---|---|
+ * | prod | eu-central-1 | 1000 |
+ * | kubi/dev | eu-west-1 | **10** (üstelik başka projelerle paylaşılıyor) |
+ *
+ * İlk sürüm rezervasyonu TÜM stage'lere uygulayıp kubi deploy'unu düşürdü:
+ * `InvalidParameterValueException: ... decreases account's
+ * UnreservedConcurrentExecution below its minimum value of [10]`.
+ * IMPROVEMENT_PLAN'daki "kota 1000 (doğrulandı)" notu eu-central-1'e bakmıştı;
+ * `.env`'de aktif olan bölge ise eu-west-1.
+ *
+ * Non-prod'un rezervasyona ihtiyacı da yok: anonim sel senaryosu prod'a özgü.
+ *
+ * ## Bütçe (prod)
+ * Dört ağır route × 100 = 400 rezerve, geriye ~600 kalır. Route sayısı artarsa
+ * aritmetiği yeniden yapın; ayrılmamış eşzamanlılık minimumun altına inerse
+ * deploy REDDEDİLİR.
  *
  * DİKKAT: rezervasyon aynı zamanda TAVANDIR. Aşılırsa o route 429 verir; sayfa
  * `{ variants, error }` kontratı sayesinde hata durumu gösterir, sessizce boş
  * kalmaz (bkz. P1.8f).
  */
-export const publicProductReservedConcurrency = parsePositiveIntegerEnv(
-    "PUBLIC_PRODUCT_ROUTE_RESERVED_CONCURRENCY",
-    100,
-);
+export const publicProductReservedConcurrency =
+    $app.stage === "prod"
+        ? parsePositiveIntegerEnv("PUBLIC_PRODUCT_ROUTE_RESERVED_CONCURRENCY", 100)
+        : undefined;
