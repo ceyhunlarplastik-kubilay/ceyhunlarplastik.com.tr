@@ -2,6 +2,7 @@ import { frontend } from "./frontend";
 import {
     getProductBySlugRoute,
     getProductVariantTableRoute,
+    getProductVariantsByMeasurementRoute,
     listProductsRoute,
 } from "./PublicApi";
 import { adminListProductsRoute } from "./AdminApi";
@@ -146,6 +147,13 @@ if (isProd) {
             id: "ProductVariantTable",
             name: "product-variant-table",
             functionName: getProductVariantTableRoute.nodes.function.apply((fn) => fn.name),
+        },
+        {
+            // P2.5: bu route'a da reserved concurrency verildi; tavana çarpması
+            // görünür olmalı. Kap koyup alarm koymamak sessiz 429 üretirdi.
+            id: "ProductVariantsByMeasurement",
+            name: "product-variants-by-measurement",
+            functionName: getProductVariantsByMeasurementRoute.nodes.function.apply((fn) => fn.name),
         },
     ];
 

@@ -4,12 +4,19 @@ import { userPool, userPoolClient } from "./cognito";
 import { userAccessBus } from "./userAccessLifecycle";
 import { apiCors } from "./cors";
 import { apiRouteLambdaNamer } from "./lambdaNaming";
+import { ownerApiThrottle } from "./apiLimits";
 
 const folderPrefix = "packages/functions/src/OwnerApi/functions";
 
 export const ownerApi = new sst.aws.ApiGatewayV2("CeyhunlarOwnerApi", {
     cors: apiCors,
     transform: {
+        // Öncesinde HİÇ throttle yoktu: throttle tanımlanmayan bir API hesabın
+        // API Gateway default'una düşer (binlerce rps). En yetkili yüzeyin en
+        // gevşek olması tersti.
+        stage: (args) => {
+            args.defaultRouteSettings = { ...ownerApiThrottle };
+        },
         route: {
             handler: apiRouteLambdaNamer("owner"),
         },

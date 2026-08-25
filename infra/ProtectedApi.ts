@@ -6,6 +6,7 @@ import { businessApprovalWorkflow } from "./businessWorkflow";
 import { apiCors } from "./cors";
 import { apiRouteLambdaNamer } from "./lambdaNaming";
 import { googleMapsServerApiKey } from "./googleMaps";
+import { protectedApiThrottle } from "./apiLimits";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
@@ -16,10 +17,7 @@ export const protectedApi = new sst.aws.ApiGatewayV2("CeyhunlarProtectedApi", {
     cors: apiCors,
     transform: {
         stage: (args) => {
-            args.defaultRouteSettings = {
-                throttlingRateLimit: 100,
-                throttlingBurstLimit: 200,
-            };
+            args.defaultRouteSettings = { ...protectedApiThrottle };
         },
         route: {
             handler: apiRouteLambdaNamer("protected"),
