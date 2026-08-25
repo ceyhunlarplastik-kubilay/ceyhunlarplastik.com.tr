@@ -8,6 +8,7 @@ import { Prisma, ProductVariant } from "@/prisma/generated/prisma/client"
 import { colorTranslationSelect } from "@/core/helpers/prisma/colors/repository"
 import { materialTranslationSelect } from "@/core/helpers/prisma/materials/repository"
 import { measurementTypeTranslationSelect } from "@/core/helpers/prisma/measurementTypes/repository"
+import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
 
 /**
  * Varyantın YAPISAL include'u: ölçü (size) ve versiyon (renk + hammadde).
@@ -130,7 +131,10 @@ export interface IPrismaProductVariantRepository {
     createProductVariant(data: Prisma.ProductVariantCreateInput): Promise<ProductVariant>
     updateProductVariant(id: string, data: Prisma.ProductVariantUpdateInput): Promise<ProductVariant>
     deleteProductVariant(id: string): Promise<ProductVariant>
-    getProductVariantTableData(productId: string, options?: { includeListPrice?: boolean }): Promise<any[]>
+    getProductVariantTableData(
+        productId: string,
+        options?: VariantTableQueryOptions,
+    ): Promise<{ rows: any[]; total: number; columns: string[] }>
 }
 
 const defaultInclude = {
@@ -156,10 +160,33 @@ const publicInclude = {
 } satisfies Prisma.ProductVariantInclude
 
 /** Varyant tablosu her yerde ölçü kodu, sonra versiyon sırasıyla gösterilir. */
-const variantTableOrderBy = [
-    { size: { code: "asc" as const } },
-    { version: { code: "asc" as const } },
+export type VariantTableQueryOptions = {
+    includeListPrice?: boolean
+    /** Çeviriler bu dile + varsayılana daraltılır (bkz. translationLocaleFilter). */
+    locale?: SupportedLocale
+    page?: number
+    limit?: number
+    /** `fullCode` içinde arar. */
+    search?: string
+    order?: "asc" | "desc"
+}
+
+const buildVariantTableOrderBy = (order: "asc" | "desc") => [
+    { size: { code: order } },
+    { version: { code: order } },
 ]
+
+/**
+ * Çeviri satırlarını isteğin diline + varsayılana daraltır.
+ *
+ * 14 dil destekleniyor ve bu sorgu her ölçü/renk/hammadde için HEPSİNİ çekiyordu;
+ * DTO sonra tek dili seçip gerisini atıyordu. Tek dile daraltmak fallback'i bozar
+ * (`localizeNamedDictionaryEntity` isteneni bulamazsa DEFAULT_LOCALE'e düşer), bu
+ * yüzden iki dil çekilir: 14 → 2.
+ */
+const translationLocaleFilter = (locale: SupportedLocale) => ({
+    locale: { in: locale === DEFAULT_LOCALE ? [DEFAULT_LOCALE] : [locale, DEFAULT_LOCALE] },
+})
 
 export const productVariantRepository = (): IPrismaProductVariantRepository => {
 
@@ -266,88 +293,136 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             include: defaultInclude,
         })
 
-    const getProductVariantTableData = async (productId: string, options: { includeListPrice?: boolean } = {}) => {
-        return prisma.productVariant.findMany({
-            where: { productId },
-            orderBy: variantTableOrderBy,
-            include: {
-                size: {
-                    include: {
-                        values: {
-                            orderBy: [
-                                { requirement: { sortPriority: "asc" } },
-                                { requirement: { displayOrder: "asc" } },
-                            ],
-                            include: {
-                                requirement: {
-                                    include: {
-                                        measurementType: {
-                                            include: {
-                                                translations: {
-                                                    orderBy: { locale: "asc" },
-                                                    select: measurementTypeTranslationSelect,
+    /**
+     * Public + müşteri varyant tablosunun okuma yolu.
+     *
+     * Arama, sıralama ve SAYFALAMA SQL'de yapılır. Eskiden bir ürünün TÜM
+     * varyantları belleğe çekilip orada sayfalanıyordu; bu, varyant sayısı
+     * büyüdükçe Lambda bellek/süresini doğrusal büyütüyordu (P1.8(d)).
+     *
+     * `columns` sayfadaki satırlardan DEĞİL, ürün modelinin ölçü ŞABLONUNDAN
+     * türetilir: kolon listesi sayfadan sayfaya değişmemeli (eski davranışta
+     * 2. sayfada farklı kolonlar çıkabiliyordu) ve şablon zaten tek doğru kaynak.
+     */
+    const getProductVariantTableData = async (
+        productId: string,
+        options: VariantTableQueryOptions = {},
+    ) => {
+        const locale = options.locale ?? DEFAULT_LOCALE
+        const order = options.order === "desc" ? "desc" as const : "asc" as const
+        const page = options.page && options.page > 0 ? options.page : 1
+        const limit = options.limit && options.limit > 0 ? options.limit : 100
+        const localeFilter = translationLocaleFilter(locale)
+
+        const where: Prisma.ProductVariantWhereInput = {
+            productId,
+            ...(options.search
+                ? { fullCode: { contains: options.search, mode: "insensitive" as const } }
+                : {}),
+        }
+
+        const [rows, total, requirements] = await Promise.all([
+            prisma.productVariant.findMany({
+                where,
+                orderBy: buildVariantTableOrderBy(order),
+                skip: (page - 1) * limit,
+                take: limit,
+                include: {
+                    size: {
+                        include: {
+                            values: {
+                                orderBy: [
+                                    { requirement: { sortPriority: "asc" } },
+                                    { requirement: { displayOrder: "asc" } },
+                                ],
+                                include: {
+                                    requirement: {
+                                        include: {
+                                            measurementType: {
+                                                include: {
+                                                    translations: {
+                                                        where: localeFilter,
+                                                        orderBy: { locale: "asc" },
+                                                        select: measurementTypeTranslationSelect,
+                                                    },
                                                 },
                                             },
-                                        },
-                                        translations: {
-                                            orderBy: { locale: "asc" },
+                                            translations: {
+                                                where: localeFilter,
+                                                orderBy: { locale: "asc" },
+                                            },
                                         },
                                     },
                                 },
                             },
                         },
                     },
-                },
-                version: {
-                    include: {
-                        color: {
-                            include: {
-                                translations: {
-                                    orderBy: { locale: "asc" },
-                                    select: colorTranslationSelect,
+                    version: {
+                        include: {
+                            color: {
+                                include: {
+                                    translations: {
+                                        where: localeFilter,
+                                        orderBy: { locale: "asc" },
+                                        select: colorTranslationSelect,
+                                    },
                                 },
                             },
-                        },
-                        materials: {
-                            include: {
-                                assets: {
-                                    where: {
-                                        type: "PDF",
-                                        role: "CERTIFICATE",
+                            materials: {
+                                include: {
+                                    assets: {
+                                        where: {
+                                            type: "PDF",
+                                            role: "CERTIFICATE",
+                                        },
+                                        orderBy: {
+                                            createdAt: "desc",
+                                        },
                                     },
-                                    orderBy: {
-                                        createdAt: "desc",
+                                    translations: {
+                                        where: localeFilter,
+                                        orderBy: { locale: "asc" },
+                                        select: materialTranslationSelect,
                                     },
-                                },
-                                translations: {
-                                    orderBy: { locale: "asc" },
-                                    select: materialTranslationSelect,
                                 },
                             },
                         },
                     },
-                },
-                // P1.8(B0): variantSuppliers YALNIZ customer varyant-tablosu için
-                // (liste fiyatı overlay'i). Public yanıta HİÇ dahil edilmez —
-                // listPrice + tedarikçi kimliği public'e çıkmamalı. Customer'da da
-                // yalnız fiyat alanları seçilir (resolveMinListPrice'ın kullandığı):
-                // tedarikçi maliyeti (price/netCost/profitRate/...) ve tedarikçi
-                // künyesi (id/name/adres/vergiNo) DB'den HİÇ çekilmez.
-                ...(options.includeListPrice
-                    ? {
-                        variantSuppliers: {
-                            select: {
-                                listPrice: true,
-                                currency: true,
-                                pricingUpdatedAt: true,
-                                updatedAt: true,
+                    // P1.8(B0): variantSuppliers YALNIZ customer varyant-tablosu için
+                    // (liste fiyatı overlay'i). Public yanıta HİÇ dahil edilmez —
+                    // listPrice + tedarikçi kimliği public'e çıkmamalı. Customer'da da
+                    // yalnız fiyat alanları seçilir (resolveMinListPrice'ın kullandığı):
+                    // tedarikçi maliyeti (price/netCost/profitRate/...) ve tedarikçi
+                    // künyesi (id/name/adres/vergiNo) DB'den HİÇ çekilmez.
+                    ...(options.includeListPrice
+                        ? {
+                            variantSuppliers: {
+                                select: {
+                                    listPrice: true,
+                                    currency: true,
+                                    pricingUpdatedAt: true,
+                                    updatedAt: true,
+                                },
+                                orderBy: [{ isActive: "desc" as const }],
                             },
-                            orderBy: [{ isActive: "desc" as const }],
-                        },
-                    }
-                    : {}),
-            }
-        })
+                        }
+                        : {}),
+                },
+            }),
+            prisma.productVariant.count({ where }),
+            // Kolonlar şablondan: sayfadan bağımsız ve tek doğru kaynak.
+            prisma.productMeasurementRequirement.findMany({
+                where: { productId },
+                orderBy: [{ sortPriority: "asc" }, { displayOrder: "asc" }],
+                select: { measurementType: { select: { code: true } } },
+            }),
+        ])
+
+        const columns = [
+            ...new Set(requirements.map((requirement) => requirement.measurementType.code)),
+        ]
+
+        return { rows, total, columns }
     }
 
     return {

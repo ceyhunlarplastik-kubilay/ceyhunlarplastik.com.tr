@@ -2,7 +2,7 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
-import { paginateVariantTable } from "@/core/helpers/products/paginateVariantTable"
+import { buildVariantTableMeta } from "@/core/helpers/products/buildVariantTableMeta"
 import { mapCustomerProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
 import { normalizeCustomerDiscountPercent } from "@/core/helpers/pricing/customerPricing"
 import { IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
@@ -11,7 +11,7 @@ import { ICustomerProductVariantTableDependencies } from "@/functions/ProtectedA
 /**
  * CUSTOMER varyant tablosu (P1.8 B0 + P2.8a).
  *
- * Public handler ile AYNI yapısal mantığı (paginateVariantTable)
+ * Public handler ile AYNI yapısal mantığı (buildVariantTableMeta)
  * paylaşır; farkı: repository `includeListPrice:true` ile çağrılır ve customer
  * DTO'su liste fiyatı alanlarını taşır. Tedarikçi kimliği/maliyeti taşınmaz.
  * ProtectedApi (giriş yapmış) olduğundan fiyat public'e sızmaz.
@@ -37,22 +37,25 @@ export const getCustomerProductVariantTableHandler = ({ productVariantRepository
         const customerId = event.user?.customerId
 
         try {
-            const [rawVariants, pricingContext] = await Promise.all([
-                productVariantRepository.getProductVariantTableData(productId, { includeListPrice: true }),
+            const [table, pricingContext] = await Promise.all([
+                productVariantRepository.getProductVariantTableData(productId, {
+                    includeListPrice: true,
+                    locale, page, limit, search, order,
+                }),
                 customerId
                     ? customerRepository.getCustomerPricingContext(customerId)
                     : Promise.resolve(null),
             ])
 
-            const { paginated, meta } = paginateVariantTable(rawVariants, { page, limit, search, order })
-
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: paginated.map((variant) =>
+                    data: table.rows.map((variant) =>
                         mapCustomerProductVariantTableRow(variant, locale),
                     ),
-                    meta,
+                    meta: buildVariantTableMeta({
+                        page, limit, total: table.total, columns: table.columns,
+                    }),
                     customerDiscountPercent: normalizeCustomerDiscountPercent(pricingContext?.generalDiscountPercent),
                 },
             })
