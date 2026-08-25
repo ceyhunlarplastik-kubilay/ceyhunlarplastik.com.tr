@@ -2,8 +2,8 @@ import createError from "http-errors"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
-import { paginateVariantTable } from "@/core/helpers/products/paginateVariantTable"
 import { mapPublicProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
+import { buildVariantTableMeta } from "@/core/helpers/products/buildVariantTableMeta"
 import { IProductVariantTableDependencies, IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
 
 export const getProductVariantTableHandler = ({ productVariantRepository }: IProductVariantTableDependencies) => {
@@ -19,23 +19,25 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
                 // P1.8(e): frontend tabloyu tek seferde çeker (limit=500, client-side
                 // sayfalama yok). Default maxLimit=100 100+ varyantlı üründe sessiz
                 // kesme yapıyordu; payload güvenli DTO olduğu için 500'e çıkarıldı.
+                // P1.8(d): bu sınır artık SQL'e iniyor — 500'den fazlası belleğe
+                // hiç çekilmiyor.
                 maxLimit: 500,
             })
 
         try {
             // P1.8(B0): PUBLIC — fiyat/tedarikçi çekilmez (includeListPrice yok).
-            const rawVariants = await productVariantRepository.getProductVariantTableData(productId)
-
-            const { paginated, meta } = paginateVariantTable(rawVariants, { page, limit, search, order })
+            // P1.8(d): arama/sıralama/sayfalama ve çeviri daraltması SQL'de.
+            const { rows, total, columns } = await productVariantRepository.getProductVariantTableData(
+                productId,
+                { locale, page, limit, search, order },
+            )
 
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
                     // Public DTO: yapı yalnız (variantSuppliers/fiyat YOK).
-                    data: paginated.map((variant) =>
-                        mapPublicProductVariantTableRow(variant, locale),
-                    ),
-                    meta,
+                    data: rows.map((variant) => mapPublicProductVariantTableRow(variant, locale)),
+                    meta: buildVariantTableMeta({ page, limit, total, columns }),
                 },
             })
         } catch (err) {
