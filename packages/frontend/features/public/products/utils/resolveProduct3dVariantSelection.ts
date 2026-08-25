@@ -1,4 +1,4 @@
-import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupVariantMeasurements"
+import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption"
 
 export type Product3dVariantQuerySelection = {
     measurementKey?: string | null

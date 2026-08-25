@@ -16,7 +16,7 @@ import ProductAssemblyVideoSection from "@/features/public/products/components/P
 import ProductPromoVideoSection from "@/features/public/products/components/ProductPromoVideoSection"
 import ProductCertificateSection from "@/features/public/products/components/ProductCertificateSection"
 import ProductVariantTable from "@/features/public/products/components/ProductVariantTable"
-import { groupVariantMeasurements } from "@/features/public/products/utils/groupVariantMeasurements"
+import { VariantTableFooter } from "@/features/public/products/components/VariantTableFooter"
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 import { toSimilarProductItems } from "@/features/public/products/utils/similarProducts"
@@ -106,13 +106,17 @@ export default async function ProductPage({ params }: PageProps) {
     }
 
     const [variantTable, productsByCategory] = await Promise.all([
-        getProductVariantTable(product.id, { locale }),
+        // Satır = ÖLÇÜ; 500 ölçü pratikte ulaşılmaz bir tavan. Sayfalama YOK:
+        // bu sayfa ISR'de (generateStaticParams + revalidate) ve `searchParams`
+        // okumak onu dinamik render'a düşürürdü. Sınır aşılırsa alt bilgi uyarır.
+        getProductVariantTable(product.id, { locale, limit: 500 }),
         // 13 = 12 benzer ürün + ürünün kendisi ilk sayfadaysa yedek.
         getProductsByCategory(product.categoryId, "id", { locale, limit: 13 }),
     ])
 
     const similarProducts = toSimilarProductItems(productsByCategory, product.id)
-    const groupedVariantOptions = groupVariantMeasurements(variantTable.variants)
+    // Gruplama SUNUCUDA yapılıyor (P1.8(d)); satırlar hazır geliyor.
+    const groupedVariantOptions = variantTable.options
 
     return (
         <main>
@@ -157,6 +161,10 @@ export default async function ProductPage({ params }: PageProps) {
                                 <ProductTechnicalDrawingSection product={product} compact />
                             </div>
                         }
+                    />
+                    <VariantTableFooter
+                        meta={variantTable.meta}
+                        shownCount={groupedVariantOptions.length}
                     />
                 </div>
                 <ProductUsageAreasTable product={product} collapsible/>

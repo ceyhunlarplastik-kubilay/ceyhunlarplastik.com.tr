@@ -4,7 +4,7 @@ import { Box } from "lucide-react"
 import { useTranslations } from "next-intl"
 import ProductAssetFeatureSection from "@/features/public/products/components/ProductAssetFeatureSection"
 import Product3DConfigurator from "@/features/public/products/components/Product3DConfigurator"
-import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupVariantMeasurements"
+import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption"
 import type { ProductModel3dConfig } from "@core/helpers/products/model3dConfig"
 
 type Asset = {

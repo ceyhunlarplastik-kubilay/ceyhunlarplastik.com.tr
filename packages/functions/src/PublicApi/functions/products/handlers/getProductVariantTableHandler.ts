@@ -4,6 +4,7 @@ import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { mapPublicProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
 import { buildVariantTableMeta } from "@/core/helpers/products/buildVariantTableMeta"
+import { groupVariantTableRows } from "@/core/helpers/products/groupVariantTableRows"
 import { IProductVariantTableDependencies, IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
 
 export const getProductVariantTableHandler = ({ productVariantRepository }: IProductVariantTableDependencies) => {
@@ -16,17 +17,15 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
             normalizeListQuery(event.queryStringParameters, {
                 allowedSortFields: ["id"], // Custom sorting handled in memory
                 defaultSort: "id",
-                // P1.8(e): frontend tabloyu tek seferde çeker (limit=500, client-side
-                // sayfalama yok). Default maxLimit=100 100+ varyantlı üründe sessiz
-                // kesme yapıyordu; payload güvenli DTO olduğu için 500'e çıkarıldı.
-                // P1.8(d): bu sınır artık SQL'e iniyor — 500'den fazlası belleğe
-                // hiç çekilmiyor.
+                // Sınır artık ÖLÇÜ sayısına uygulanır (satır = ölçü), ham varyanta
+                // değil — bir ürün modelinde ölçü sayısı varyant sayısından kat kat
+                // azdır. 500 fazlasıyla yeterli ve sayfalama arayüzü de var.
                 maxLimit: 500,
             })
 
         try {
             // P1.8(B0): PUBLIC — fiyat/tedarikçi çekilmez (includeListPrice yok).
-            // P1.8(d): arama/sıralama/sayfalama ve çeviri daraltması SQL'de.
+            // P1.8(d): sayfalama ÖLÇÜ üzerinde; satır = ölçü, ham varyant değil.
             const { rows, total, columns } = await productVariantRepository.getProductVariantTableData(
                 productId,
                 { locale, page, limit, search, order },
@@ -35,8 +34,13 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    // Public DTO: yapı yalnız (variantSuppliers/fiyat YOK).
-                    data: rows.map((variant) => mapPublicProductVariantTableRow(variant, locale)),
+                    // Satırlar ölçüye göre gruplanır: aynı ölçünün tüm versiyonları
+                    // (renk + hammadde) tek satırda toplanır. Gruplama eskiden RSC
+                    // sayfa katmanındaydı; sunucuya inince sayfalama da doğru birime
+                    // oturdu (bkz. groupVariantTableRows).
+                    data: groupVariantTableRows(
+                        rows.map((variant) => mapPublicProductVariantTableRow(variant, locale)),
+                    ),
                     meta: buildVariantTableMeta({ page, limit, total, columns }),
                 },
             })

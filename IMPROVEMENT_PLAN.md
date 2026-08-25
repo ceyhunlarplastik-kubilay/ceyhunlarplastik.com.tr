@@ -139,7 +139,7 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - (a) **Admin ürün listesi hâlâ full include** — ✅ **Uygulandı (2026-07-15):** [listProductsHandler.ts](packages/functions/src/AdminApi/functions/products/handlers/listProductsHandler.ts) artık `listProducts(query, { view: "card" })` çağırıyor → repository'nin mevcut `listCardInclude`'u ağır `industrialUsages` derin zincirini listeden düşürür (`category`/`assets`/`attributeValues` kalır; bu include public listeyle paylaşıldığı için DEĞİŞTİRİLMEDİ). Mapper `industrialUsages: []` üretir; list response validator'da `industrialUsages` optional + `.loose()` → runtime güvenli. **Edit dialog artık tam ürünü açılışta fetch ediyor:** yeni [useProduct.ts](packages/frontend/features/admin/products/hooks/useProduct.ts) hook'u (React Query, mevcut `getProduct` api → `GET /products/{id}` full detay); [EditProductDialog.tsx](packages/frontend/features/admin/products/components/EditProductDialog.tsx) shell (fetch + loading/error state) + iç `EditProductForm` (tam veriyle mount-anı defaultValues — effect-reset yok). Admin liste tablosu (`ProductsTable`/`Filters`) zaten `industrialUsages`/`attributeValues` okumuyordu. Doğrulama: backend+frontend tsc + lint 0 error. **✅ prod'a deploy edildi (2026-07-23).**
 - (b) **Portal fiyat verisi public endpoint'te** — ✅ **Çözüldü (B0 3a+3b, 2026-07-14)**: public yanıttan `variantSuppliers` tamamen çıkarıldı; müşteri fiyatı yeni ProtectedApi endpoint'ine taşındı. Detay aşağıda B0 notunda.
 - (c) **`RequestEntityTooLarge` alarmı yok** — ✅ **Uygulandı (2026-07-17):** İki parça. **(1) observability modülü aktive edildi:** [sst.config.ts:21](sst.config.ts) `await import("./infra/observability")` yorumdan çıkarıldı → modülün tamamı (P0.5 SNS topic + email aboneliği + concurrency/throttle/p95-duration alarmları, hepsi `isProd` gated) bir sonraki `deploy --stage prod`'da canlıya gelir. **(2) 6MB response-payload alarmı:** [observability.ts](infra/observability.ts)'e `LogMetricFilter` + `MetricAlarm` döngüsü eklendi — Lambda senkron yanıtı 6MB'ı aşınca yazdığı `"Response payload size exceeded maximum allowed payload size"` log satırını custom metriğe (`Ceyhunlarweb/Prod`) çevirir, ≥1 olayda mevcut SNS topic'e bildirir. **Hedef: yalnız BUFFERED API Gateway Lambda'ları** — 3 public ürün route'u (listProducts/getProductBySlug/getProductVariantTable) + admin ürün listesi ([AdminApi.ts](infra/AdminApi.ts)'te `adminListProductsRoute` export edildi). **Frontend server bilinçli HARİÇ** — `aws-lambda-streaming` (open-next.config.ts) kullandığı için 6MB senkron-response limitine tabi değil. Log group'a `route.nodes.function.nodes.logGroup` üzerinden doğrudan referans (create-ordering race'i yok; fallback `$interpolate`/aws/lambda/{name}). Doğrulama: root `tsc`'de dokunulan 3 dosyada (observability/AdminApi/sst.config) tek hata yok (platform @types/node kaskadı hariç). **✅ prod'a deploy edildi (2026-07-23)** → SNS topic + alarmlar canlıda. ⚠️ **Açık aksiyon (kullanıcı):** SNS email aboneliği, `kubilayuysal.ceyhunlarplastik@gmail.com` adresine gelen AWS onay linkine tıklanana kadar **Pending** kalır ve alarm tetiklense bile bildirim GÖNDERMEZ. Onaylandığı teyit edilene kadar bu izleme fiilen sessizdir.
-- (d) **Variant-table in-memory sayfalama** — ✅ **Uygulandı (2026-08-25, branch `perf/variant-table-payload`).** Not: "latent" gerekçesi (prod'da varyant yok) veri girişi başlamadan önce kapatıldı. Üç bağımsız iş: **(1) çeviri daraltması** — 14 dil destekleniyor ve sorgu her ölçü/renk/hammadde için HEPSİNİ çekip DTO'da tek dili seçiyordu; artık `where: { locale: { in: [istenen, tr] } }` (tek dile daraltmak `localizeNamedDictionaryEntity`'nin DEFAULT_LOCALE fallback'ini bozardı — iki dil şart). **(2) kolonlar şablondan** — `columns` sayfadaki satırlardan türetiliyordu, yani 2. sayfa 1. sayfadan farklı kolonlar gösterebiliyordu; artık `ProductMeasurementRequirement`'tan (sortPriority/displayOrder sırasıyla) geliyor. **(3) sayfalama SQL'e indi** — `getProductVariantTableData(productId, {locale,page,limit,search,order})` artık `where`+`take`/`skip`+`orderBy` ile çalışıp `{rows,total,columns}` döner; arama `fullCode` üzerinde SQL'de. Engel kalkmıştı: `dedupeVariantTable` yeni veri modeliyle silinmişti (varyant kurgu gereği tekil) ve sıralama zaten SQL'deydi. `paginateVariantTable.ts` silindi → yerine saf [buildVariantTableMeta.ts](packages/core/src/core/helpers/products/buildVariantTableMeta.ts) (4 test). **Ölçüm** (tek kullanımlık Postgres 17, 40 varyant × 2 ölçü × 14 dil): eski yol 2880 iç satır, yeni yol 130 → **22×**; kazanç varyant sayısıyla büyür, çünkü eski sorgu toplam varyantla doğrusaldı, yenisi sayfa boyutuyla sınırlı. **Doğrulama:** gerçek DB üzerinde 9 davranış testi (sayfalama sınırları, desc, arama+total, kolon kararlılığı, son sayfa taşması, çeviri daraltması, eksik çeviride tr fallback'inin korunması). Ayrıca [variantTableResponseShape.test.ts](packages/functions/src/PublicApi/functions/products/variantTableResponseShape.test.ts) `meta` helper'ını iki response şemasıyla senkron tutuyor. **Kalan:** >500 varyantta tablo hâlâ sessizce kesiliyor — frontend tek seferde `limit=500` çekip client-side sayfalama yapmıyor; gerçek çözüm sayfalama UI'ı (bkz. (e) kalanı). Artık ucuz: sunucu tarafı zaten sayfalı.
+- (d) **Variant-table in-memory sayfalama** — ✅ **Uygulandı (2026-08-25, branch `perf/variant-table-payload`).** Not: "latent" gerekçesi (prod'da varyant yok) veri girişi başlamadan önce kapatıldı. Üç bağımsız iş: **(1) çeviri daraltması** — 14 dil destekleniyor ve sorgu her ölçü/renk/hammadde için HEPSİNİ çekip DTO'da tek dili seçiyordu; artık `where: { locale: { in: [istenen, tr] } }` (tek dile daraltmak `localizeNamedDictionaryEntity`'nin DEFAULT_LOCALE fallback'ini bozardı — iki dil şart). **(2) kolonlar şablondan** — `columns` sayfadaki satırlardan türetiliyordu, yani 2. sayfa 1. sayfadan farklı kolonlar gösterebiliyordu; artık `ProductMeasurementRequirement`'tan (sortPriority/displayOrder sırasıyla) geliyor. **(3) sayfalama SQL'e indi** — `getProductVariantTableData(productId, {locale,page,limit,search,order})` artık `where`+`take`/`skip`+`orderBy` ile çalışıp `{rows,total,columns}` döner; arama `fullCode` üzerinde SQL'de. Engel kalkmıştı: `dedupeVariantTable` yeni veri modeliyle silinmişti (varyant kurgu gereği tekil) ve sıralama zaten SQL'deydi. `paginateVariantTable.ts` silindi → yerine saf [buildVariantTableMeta.ts](packages/core/src/core/helpers/products/buildVariantTableMeta.ts) (4 test). **Ölçüm** (tek kullanımlık Postgres 17, 40 varyant × 2 ölçü × 14 dil): eski yol 2880 iç satır, yeni yol 130 → **22×**; kazanç varyant sayısıyla büyür, çünkü eski sorgu toplam varyantla doğrusaldı, yenisi sayfa boyutuyla sınırlı. **Doğrulama:** gerçek DB üzerinde 9 davranış testi (sayfalama sınırları, desc, arama+total, kolon kararlılığı, son sayfa taşması, çeviri daraltması, eksik çeviride tr fallback'inin korunması). Ayrıca [variantTableResponseShape.test.ts](packages/functions/src/PublicApi/functions/products/variantTableResponseShape.test.ts) `meta` helper'ını iki response şemasıyla senkron tutuyor. **Kalan iş yok** — sessiz kesilme aynı gün kapatıldı (bkz. "Varyant tablosu: sayfalama doğru birime oturdu"): satır birimi ölçüye çevrildi, portal'da gerçek sayfalama, public ISR sayfasında açık uyarı. (e) kalanı da bununla kapandı; F1.1 (detay ucuna sunucu filtresi) uygulandı.
 - (e) **Sessiz truncation** — ✅ **Uygulandı (2026-07-14)**: [getProductVariantTableHandler.ts](packages/functions/src/PublicApi/functions/products/handlers/getProductVariantTableHandler.ts) `normalizeListQuery` çağrısına `maxLimit: 500` eklendi (paylaşılan default 100 değişmedi → başka endpoint etkilenmez). Frontend hem public katalog hem müşteri portalı bu endpoint'i `limit=500` ile, client-side sayfalama olmadan çağırıyor; default clamp 100+ varyantlı üründe tabloyu sessizce kesiyordu. Payload güvenli DTO (`mapPublicProductVariantTableRow`) olduğu için 500 payload-safe. Doğrulama: backend tsc temiz. AdminApi varyant-tablo handler'ı ayrı kod yolu (`normalizeListQuery` kullanmıyor) → kapsam dışı. **Kalan:** >500 varyant için gerçek çözüm sayfalama UI'ı, (d) ile birlikte.
 - (f) **`unstable_cache` "sonsuz stale" / sessiz hata** — ✅ **Uygulandı (2026-07-14, #2)**: [getProductVariantTable.ts](packages/frontend/features/public/products/server/getProductVariantTable.ts) `catch → []` hatayı "varyant yok"tan ayırt edilemez kılıyordu (kullanıcı yanıltıcı "ölçü bulunamadı" görüyordu). Return `VariantTableData[]` → `{ variants, error }` discriminated result'a çevrildi (resilience için `[]` fallback korunur ama `error:true` işareti taşınır). `ProductVariantTable`'a `loadError?` prop'u + boş dalında hata state'i (`table.loadError` katalog anahtarı, tr/en) — boş liste artık "yüklenemedi" olarak gösterilir. 4 sayfa çağıranı `.variants`'a güncellendi (varyant-detay sayfaları ölçü-bazlı empty'yi koruyor). Not: `unstable_cache` hatayı zaten cache'lemiyor (catch cache dışında); sıcak cache'te revalidation hatası Next SWR ile son iyi değeri servis eder → `error` bayrağı yalnız SOĞUK cache hatasında true. **Error-handling kontratı #3'ün shape değişikliğinden bağımsız (ayrı eksen) → #3 bunu korur.** Doğrulama: frontend tsc + parity 750 + lint 0 error.
 - **Variant-table derin analiz + yeniden önceliklendirme (2026-07-14):** Kullanıcı domain kurallarını netleştirdi → 3 kitle, 3 hassasiyet: **public** ölçü→renk/hammadde/kod (fiyat/tedarikçi YOK), **customer** + liste fiyatı (min listPrice), **admin/sales** tam tedarikçi+variantSuppliers ama **yalnız tıklanan ölçü için, anlık fetch**. Backend: indeksler zaten optimal (`@@unique([productId,supplierCode,versionCode,variantIndex])` WHERE+ORDER BY'ı birebir karşılıyor; ilişki FK indeksleri mevcut; Prisma include N+1 yapmaz) → sorgu yavaşlığı yok. **B1 ✅ Uygulandı (2026-07-14):** [repository.ts](packages/core/src/core/helpers/prisma/productVariants/repository.ts) `getProductVariantTableData`'da `variantSuppliers` `include→select` (yalnız id/isActive/currency/listPrice/pricingUpdatedAt/updatedAt + supplier{id,name}) → cost alanları (`price`/`netCost`/`profitRate`/...) + supplier'ın 12 fazladan alanı DB'den Lambda'ya HİÇ çekilmiyor (defense-in-depth + transfer↓); DTO çıktısı birebir aynı, tek çağıran public handler (admin `listProductVariants` ayrı metod). B3 (root orderBy) bilinçli bırakıldı — dedup "ilk kazanır" determinizmini besliyor. **B0 (yeni, coupled — #3 mini-planı bekliyor):** public'i fiyat/tedarikçisiz shape'e daralt + customer fiyatını ProtectedApi overlay'e taşı (P1.8(b)'yi kapsar; public+customer AYNI değişiklikte, çünkü ikisi de bugün aynı endpoint'i kullanıyor). **B0-admin:** ProtectedApi `getVariantSuppliersForMeasurement` + tıkla-getir. Frontend: çift cache (ISR+React.cache+unstable_cache) origin'i koruyor; **F1** 500-satır DTO RSC prop olarak client'a gidip client'ta grupleniyor → gruplamayı server'a taşımak HTML↓ (varyant verisi büyüyünce). **B2/(d)** additive fingerprint kolonu **veri kaybettirmez** (ALTER ADD COLUMN, backfill; ölçüler güvende) ama migration onaylı + latent. Sıra: #1(B1)✅ → #2(f)✅ → #3(B0 3a+3b)✅ → #4(B0-admin) ✅ **mevcut altyapıyla karşılandı, yeni kod yok** → #5(F1.2)✅ → #6(F1.1 opsiyonel)/(B2 latent).
@@ -4241,6 +4241,79 @@ tipine bağlı değil. Aynı sapma `nextVersionCode`'da da vardı. Artık testle
 repository'sinin dönüş TİPLERİYLE yazılmış fixture'ı gerçek `transpileSchema` ile
 doğruluyor; bayat alan geri konularak testin düştüğü teyit edildi. Tuzak CLAUDE.md'ye
 de eklendi (dosya `validators/` altına konulmamalı — derleme testinin glob'una takılıyor).
+
+## Varyant tablosu: sayfalama doğru birime oturdu + Neon soğuk başlangıç (2026-08-25)
+
+Branch `fix/neon-cold-start-and-variant-pagination`.
+
+### 1) Sessiz kesilme — çerçeve yanlıştı
+
+"500 varyant sınırı" için sayfalama arayüzü yazmaya başlamadan önce tablonun ne
+gösterdiğine bakıldı: **tablonun satırı varyant değil ÖLÇÜ.** `groupVariantMeasurements`
+varyantları ölçü anahtarına göre grupluyordu — 25 ölçü × 4 versiyon = 100 varyant,
+ekranda 25 satır. Yani sayfalama yanlış birim üzerindeydi.
+
+Üstelik iki sayfa da 500 varyantın tamamına ihtiyaç duymuyordu:
+- `urun/[slug]` → ölçülerin listesi (gruplanmış)
+- `urun/[slug]/varyantlar` → **tek bir ölçünün** varyantları (`?m=`), 500 çekip
+  istemcide filtreliyordu (planda F1.1 olarak duruyordu, "opsiyonel, yapılmadı")
+
+**Gruplama sunucuya indi** (`core/helpers/products/groupVariantTableRows.ts`, 8 test);
+sayfalama `ProductSize` üzerinde `take`/`skip` ile yapılıyor, `total` = ölçü sayısı.
+**Ölçü detayı için ayrı uç** eklendi: `getProductVariantsByMeasurementKey`.
+
+**URL sözleşmesi korundu.** `?m=<measurementKey>` 16 yerde link kuruluyor (3D
+konfigüratör, atanmış-varyant kartları) ve dışarı çıkmış bağlantılarda geçiyor.
+`?size=<kod>`'a geçmek hepsini dolaşmayı gerektirirdi; bunun yerine sunucu anahtarı
+kabul edip ölçüye çözüyor (`resolveSizeByMeasurementKey.ts`, aynı `buildMeasurementKey`
+kaynağı). Çözüm ölçü tablosu üzerinde — ürün başına onlarca kayıt.
+
+**Bileşenlere dokunulmadı.** `ProductVariantTable` zaten `options: GroupedMeasurementOption[]`
+alıyordu; detay tabloları tek ölçünün varyantlarını alıyordu. 636 + 178 + 857 satırlık
+üç bileşen değişmedi.
+
+**Ölü kod taşınmadı.** Gruplamadaki tedarikçi/`minPrice` toplaması P1.8(B0)'dan beri
+ölüydü (public DTO'da `variantSuppliers` yok, portalda tedarikçi kimliği yok). `suppliers`
+alanı boş dizi olarak korunuyor çünkü `ProductVariantTable` onu KAPI olarak okuyor
+(`hasSupplierData`); `minPrice` kaldırıldı.
+
+**Uçlar:** `GET /products/{id}/variant-measurements` (public) ve
+`GET /portal/customer/products/{id}/variant-measurements` (portal).
+
+**Sayfalama arayüzü:** `VariantTableFooter` — bağlantı tabanlı, `getPaginationItems`
+yeniden kullanılıyor (`ProductFilterPagination` kullanılamadı, `useFilterStore`'a bağlı).
+Portal sayfası dinamik olduğu için orada GERÇEK sayfalama var. **Public ürün detay
+sayfasında sayfalama YOK** ve bu bilinçli: sayfa `generateStaticParams` + `revalidate`
+ile ISR'de; `searchParams` okumak onu tamamen dinamik render'a düşürürdü (AGENTS.md
+public SSR/SEO kuralı). Orada limit 500 ÖLÇÜ (varyant değil — çok yüksek bir tavan) ve
+sınır aşılırsa alt bilgi açıkça uyarıyor. Kesilme artık hiçbir yerde sessiz değil.
+
+**Test bir hata yakaladı:** `order: "desc"` satır içindeki VERSİYONLARI da ters
+çeviriyordu (V4, V3, V2, V1). `order` yalnız ölçü sırası içindir; versiyon kodu her
+zaman artan olmalı — düzeltildi.
+
+**Ölçüm** (Postgres 17, 25 ölçü × 4 versiyon = 100 varyant, 14 dil):
+detay sayfası 400 → 16 iç satır (**25×**); tablo sayfası 10 satır için 160 iç satır,
+sayfalama 25 ölçü üzerinde.
+
+**Doğrulama:** gerçek DB'de 12 davranış testi (total'ın ölçü sayısı olması, sayfa
+sınırları, satırın tüm versiyonları taşıması, desc, arama, `m` filtresi, bilinmeyen
+anahtar, istemci-sunucu anahtar eşleşmesi, çeviri daraltması + tr fallback) ·
+gruplayıcı için 8 birim test · dört ucu kapsayan şekil testi.
+
+### 2) Neon soğuk başlangıç
+
+kubi'de varyant matrisi "Connection terminated due to connection timeout" veriyordu
+(tam `+5.102s`'de; sonraki çağrı 1.5 sn'de geçti). Neon serverless boşta kalınca
+compute'u askıya alıyor, askıdan sonraki ilk bağlantı uyanmayı bekliyor ve 5 sn'lik
+eşiğe takılıyordu. Eşik hiçbir yerde ezilmemişti.
+
+Eşik sağlayıcıya göre ayrıldı: Neon 20 sn, prod RDS 5 sn (orada uyanma yok, RDS Proxy
+havuzluyor — gerçek arıza hızlı görünsün). Ek env'e gerek olmadı, bağlantı biçimi zaten
+sağlayıcıyı söylüyor (Neon URL ile, RDS host/port ile).
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 538 ✅ ·
+functions 293 ✅ · frontend 310 ✅ · `next build` ✅ · i18n 773 = 773 ✅.
 
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 

@@ -1,14 +1,21 @@
 import { cache } from "react";
 import { protectedServerClient } from "@/lib/http/serverClient";
-import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable";
-import type { ProductVariantTableResult } from "@/features/public/products/server/getProductVariantTable";
+import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption";
+import type {
+    ProductVariantTableResult,
+    VariantTableMeta,
+} from "@/features/public/products/server/getProductVariantTable";
 import type { ApiEnvelope } from "@/lib/http/types";
 
 type CustomerVariantTablePayload = {
-    data: VariantTableData[];
+    /** Satır = ÖLÇÜ; gruplama sunucuda yapılır (P1.8(d)). */
+    data: GroupedMeasurementOption[];
+    meta: VariantTableMeta;
     /** P2.8(a): müşterinin normalize edilmiş genel indirim yüzdesi (0-100). */
     customerDiscountPercent: number | null;
 };
+
+const EMPTY_META: VariantTableMeta = { page: 1, limit: 0, total: 0, totalPages: 0, columns: [] };
 type CustomerVariantTableResponse = ApiEnvelope<CustomerVariantTablePayload>;
 
 export type CustomerProductVariantTableResult = ProductVariantTableResult & {
@@ -26,16 +33,23 @@ export type CustomerProductVariantTableResult = ProductVariantTableResult & {
  */
 export const getCustomerProductVariantTable = cache(async (
     productId: string,
-    options: { limit?: number; locale?: string } = {},
+    options: { page?: number; limit?: number; locale?: string } = {},
 ): Promise<CustomerProductVariantTableResult> => {
     try {
         const client = await protectedServerClient();
         const res = await client.get<CustomerVariantTableResponse>(
             `/portal/customer/products/${productId}/variant-table`,
-            { params: { limit: options.limit ?? 500, locale: options.locale ?? "tr" } },
+            {
+                params: {
+                    page: options.page ?? 1,
+                    limit: options.limit ?? 100,
+                    locale: options.locale ?? "tr",
+                },
+            },
         );
         return {
-            variants: res.data.payload.data ?? [],
+            options: res.data.payload.data ?? [],
+            meta: res.data.payload.meta ?? EMPTY_META,
             customerDiscountPercent: res.data.payload.customerDiscountPercent ?? null,
             error: false,
         };
@@ -54,6 +68,6 @@ export const getCustomerProductVariantTable = cache(async (
             `message=${error?.message ?? String(error)} ` +
             `body=${JSON.stringify(error?.response?.data ?? null)}`,
         );
-        return { variants: [], customerDiscountPercent: null, error: true };
+        return { options: [], meta: EMPTY_META, customerDiscountPercent: null, error: true };
     }
 });

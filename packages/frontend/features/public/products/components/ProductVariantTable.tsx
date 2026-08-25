@@ -31,7 +31,7 @@ import {
     resolveMeasurementName,
     resolveMeasurementUnit,
 } from "@/features/public/products/utils/measurement"
-import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupVariantMeasurements"
+import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import ProductVariantNavigationOverlay from "@/features/public/products/components/ProductVariantNavigationOverlay"
 import type { SupportedLocale } from "@core/i18n/locales"
@@ -114,9 +114,9 @@ export type VariantTableData = {
 }
 
 interface ProductVariantTableProps {
-    // F1.2: Artık ham satır (`VariantTableData[]`) yerine önceden GRUPLANMIŞ
-    // option'lar alınır. Gruplama RSC sayfa katmanında (groupVariantMeasurements)
-    // yapılır → client'a ~500 satır değil grup sayısı kadar veri serialize edilir.
+    // Önceden GRUPLANMIŞ satırlar (satır = ölçü). Gruplama artık SUNUCUDA yapılır
+    // (P1.8(d)) — hem tarayıcıya inen payload küçülür hem de sayfalama doğru birime
+    // (ölçüye) oturur; eskiden 500 ham varyant sınırı fazlasını sessizce düşürüyordu.
     options: GroupedMeasurementOption[]
     productSlug: string
     technicalDrawing?: React.ReactNode

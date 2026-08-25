@@ -9,7 +9,7 @@ import ProductVariantDetailsTable from "@/features/public/products/components/Pr
 import ProductVariantHeaderActions from "@/features/public/products/components/ProductVariantHeaderActions"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
-import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
+import { getProductVariantsByMeasurement } from "@/features/public/products/server/getProductVariantsByMeasurement"
 
 export const revalidate = 60
 
@@ -93,15 +93,15 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
         })
     }
 
-    const [tb, t, variantTable] = await Promise.all([
+    const [tb, t, variantResult] = await Promise.all([
         getTranslations({ locale, namespace: "shared.breadcrumbs" }),
         getTranslations({ locale, namespace: "public.productVariant" }),
-        getProductVariantTable(product.id, { locale }),
+        // P1.8 F1.1: sunucu ölçüye göre filtreliyor. Eskiden tablo ucundan 500
+        // varyant çekilip burada istemci tarafında filtreleniyordu.
+        getProductVariantsByMeasurement(product.id, measurementKey ?? "", { locale }),
     ])
 
-    const filtered = measurementKey
-        ? variantTable.variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
-        : []
+    const filtered = variantResult.variants
 
     const selectedMeasurements =
         filtered[0]?.measurements

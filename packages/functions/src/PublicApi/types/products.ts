@@ -48,3 +48,14 @@ export type IGetProductVariantTableEvent =
             locale?: string
         }
     >
+
+/** Tek ölçünün varyantları — `m` ölçü anahtarı (bkz. buildMeasurementKey). */
+export type IGetProductVariantsByMeasurementEvent =
+    IAPIGatewayProxyEventWithUserGeneric<
+        {},
+        { id: string },
+        {
+            m?: string
+            locale?: string
+        }
+    >

@@ -4,7 +4,7 @@ import ProductAssemblyVideoSection from "@/features/public/products/components/P
 import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
-import { getCustomerProductVariantTable } from "@/features/customerPortal/server/getCustomerProductVariantTable"
+import { getCustomerProductVariantsByMeasurement } from "@/features/customerPortal/server/getCustomerProductVariantsByMeasurement"
 import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/products/utils/measurement"
 import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
@@ -25,10 +25,10 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
     const product = await getProductBySlug(slug)
     if (!product) notFound()
 
-    const variantTable = await getCustomerProductVariantTable(product.id)
-    const filtered = measurementKey
-        ? variantTable.variants.filter((variant) => buildMeasurementKey(variant.measurements) === measurementKey)
-        : []
+    // P1.8 F1.1: sunucu ölçüye göre filtreliyor (eskiden 500 satır çekilip
+    // istemcide filtreleniyordu).
+    const variantResult = await getCustomerProductVariantsByMeasurement(product.id, measurementKey ?? "")
+    const filtered = variantResult.variants
 
     const selectedMeasurements =
         filtered[0]?.measurements
@@ -166,7 +166,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                 productCode={product.code}
                 productCategoryId={product.categoryId}
                 categoryName={product.category?.name}
-                customerDiscountPercent={variantTable.customerDiscountPercent}
+                customerDiscountPercent={variantResult.customerDiscountPercent}
                 productImageUrl={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
             />
         </div>

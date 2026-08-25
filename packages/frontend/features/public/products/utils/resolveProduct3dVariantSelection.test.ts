@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import type { GroupedMeasurementOption } from "./groupVariantMeasurements"
+import type { GroupedMeasurementOption } from "./groupedMeasurementOption"
 import { resolveProduct3dVariantSelection } from "./resolveProduct3dVariantSelection"
 
 const option = {

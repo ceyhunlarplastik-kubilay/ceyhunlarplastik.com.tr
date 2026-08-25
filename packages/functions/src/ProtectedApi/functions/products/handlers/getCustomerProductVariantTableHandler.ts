@@ -3,6 +3,7 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { getSupportedLocale } from "@/core/i18n/locales"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { buildVariantTableMeta } from "@/core/helpers/products/buildVariantTableMeta"
+import { groupVariantTableRows } from "@/core/helpers/products/groupVariantTableRows"
 import { mapCustomerProductVariantTableRow } from "@/core/helpers/products/mapPublicProductVariantTableRow"
 import { normalizeCustomerDiscountPercent } from "@/core/helpers/pricing/customerPricing"
 import { IGetProductVariantTableEvent } from "@/functions/PublicApi/types/products"
@@ -50,8 +51,9 @@ export const getCustomerProductVariantTableHandler = ({ productVariantRepository
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    data: table.rows.map((variant) =>
-                        mapCustomerProductVariantTableRow(variant, locale),
+                    // Public tarafla AYNI gruplama: satır = ölçü (bkz. groupVariantTableRows).
+                    data: groupVariantTableRows(
+                        table.rows.map((variant) => mapCustomerProductVariantTableRow(variant, locale)),
                     ),
                     meta: buildVariantTableMeta({
                         page, limit, total: table.total, columns: table.columns,

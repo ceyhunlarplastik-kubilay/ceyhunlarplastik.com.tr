@@ -223,6 +223,13 @@ export const getProductVariantTableRoute = publicApi.route("GET /products/{id}/v
     ...defaultOptions,
 })
 
+// Tek ölçünün varyantları (`?m=` ölçü anahtarı). Varyant detay sayfası eskiden
+// tablo ucundan 500 satır çekip istemcide filtreliyordu (P1.8 F1.1).
+export const getProductVariantsByMeasurementRoute = publicApi.route("GET /products/{id}/variant-measurements", {
+    handler: `${folderPrefix}/products/actions.getProductVariantsByMeasurement`,
+    ...defaultOptions,
+})
+
 /* export const getProductVariantTableRoute = publicApi.route("GET /products/{id}/variant-table", {
     handler: `${folderPrefix}/products/actions.getProductVariantTable`,
     ...publicProductRouteOptions,

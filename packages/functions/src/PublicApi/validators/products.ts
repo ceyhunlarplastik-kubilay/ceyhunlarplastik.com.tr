@@ -179,6 +179,35 @@ export const productVariantTableRequestValidator = validatorWrapper(
     }
 )
 
+/** Tek ölçünün varyantları — `m` zorunlu (ölçü anahtarı). */
+export const productVariantsByMeasurementRequestValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        queryStringParameters: z.object({
+            m: z.string().min(1).max(2000),
+            locale: localeSchema.optional(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters", "queryStringParameters"],
+    }
+)
+
+export const productVariantsByMeasurementResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(z.any()),
+                columns: z.array(z.string()),
+            }).loose(),
+        }).loose(),
+    }).loose()
+)
+
 export const slugValidator = validatorWrapper(
     z.object({
         pathParameters: z.object({

@@ -342,6 +342,13 @@ protectedApi.route('GET /portal/customer/products/{id}/variant-table', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Tek ölçünün varyantları (`?m=`). Detay sayfası eskiden tablo ucundan 500 satır
+// çekip istemcide filtreliyordu (P1.8 F1.1).
+protectedApi.route('GET /portal/customer/products/{id}/variant-measurements', {
+    handler: `${folderPrefix}/products/actions.getCustomerProductVariantsByMeasurement`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/orders', {
     handler: `${folderPrefix}/orders/actions.listSalesOrders`,
     ...defaultRouteOptions

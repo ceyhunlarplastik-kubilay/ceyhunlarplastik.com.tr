@@ -13,7 +13,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import Product3DModelViewer from "@/features/public/products/components/Product3DModelViewer"
-import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupVariantMeasurements"
+import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption"
 import { resolveProduct3dVariantSelection } from "@/features/public/products/utils/resolveProduct3dVariantSelection"
 import type { ProductModel3dConfig } from "@core/helpers/products/model3dConfig"
 

@@ -30,3 +30,21 @@ export const customerProductVariantTableResponseValidator = z.toJSONSchema(
         }).loose(),
     }).loose()
 )
+
+/**
+ * Tek ölçünün varyantları (portal). Public muadiliyle aynı yapı + fiyat overlay'i
+ * için `customerDiscountPercent`.
+ */
+export const customerProductVariantsByMeasurementResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(z.any()),
+                columns: z.array(z.string()),
+                customerDiscountPercent: z.number().nullable(),
+            }).loose(),
+        }).loose(),
+    }).loose()
+)
