@@ -169,7 +169,7 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - **C — Multi-AZ ertelendi (iş/maliyet kararı):** Instance ücretini ~ikiye katlar (t4g.micro+20GB için kabaca ~+15-25 USD/ay tahmini — **doğrulanmadı**, Cost Explorer/Pricing Calculator + RDS Proxy vCPU ücretiyle netleştirilmeli). Yalnız ALTYAPI arızasında otomatik failover verir; kötü migration/DELETE/bozulmaya karşı KORUMAZ (standby'a anında replike olur). B2B katalog+portal için "birkaç saatlik kesinti aylık ~20 USD'den pahalı mı?" sorusu genelde "hayır" → ertelendi, ihtiyaç doğarsa geri-dönülebilir açılır.
 - **~~⚠️ DEPLOY EDİLMEDİ~~ → ✅ DEPLOY EDİLDİ, canlıda doğrulandı (2026-08-07):** Not eskimişti; kullanıcı bu dilimi araya giren prod deploy'larından biriyle çıkarmış. Kanıt: `aws rds describe-db-instances` → `DeletionProtection: True`, `BackupRetentionPeriod: 7`, `MultiAZ: False`, `db.t4g.micro`. Ayrıca 2026-08-07 `sst diff --stage prod` çıktısında **`MyPostgres` hiç görünmüyor** (değişiklik yok = state eşleşiyor). `skipFinalSnapshot`/`finalSnapshotIdentifier` RDS API'sinde okunabilir alan değil (provider-side), diff'te fark çıkmaması state'in eşleştiğini gösterir. **Açık iş kalanı:** RPO/RTO onayı + ilk restore drill'i (gerçek RTO'yu öğren) + C (Multi-AZ) maliyet kararı.
 
-**P2.5 — API throttle'larını sınıra göre ayrıştır** · kapsam: küçük · **✅ Uygulandı (2026-08-25) — throttle'lar sınıra göre ayrıştı, OwnerApi'ye eklendi, reserved concurrency aktifleştirildi. DEPLOY EDİLMEDİ.** ⚠️ 2026-07-23 notunun öncülü YANLIŞTI (throttle'lar aslında tanımlıydı) — detay aşağıda.
+**P2.5 — API throttle'larını sınıra göre ayrıştır** · kapsam: küçük · **✅ Uygulandı (2026-08-25) — throttle'lar sınıra göre ayrıştı, OwnerApi'ye eklendi, reserved concurrency aktifleştirildi. ✅ prod'a deploy edildi (2026-08-25).** ⚠️ 2026-07-23 notunun öncülü YANLIŞTI (throttle'lar aslında tanımlıydı) — detay aşağıda.
 - **Önceki not yanlış öncüle dayanıyordu:** "Public/Protected/Admin üçünde de 100 rps / 200 burst aynı" deniyordu. Kodda **hiçbir API'de throttle tanımı YOK** (grep boş); o 100/200 değerleri AWS'nin hesap-seviyesi örtük default'u. SST `ApiGatewayV2` throttle'ı `args`'ta sunmuyor; ancak stage `transform`'u ile `defaultRouteSettings.throttlingRateLimit/BurstLimit` verilebilir. AdminApi'deki WAF rate-limit bloğu tamamen yorumda (~100$/ay diye kapatılmış).
 - **İç API'lerde throttle gereksiz — JWT authorizer zaten kapıda:** Protected/Admin/Owner gateway seviyesinde `jwt` authorizer arkasında ([ProtectedApi.ts:45](infra/ProtectedApi.ts) `addAuthorizer`, route'larda `defaultAuthOptions`). Yetkisiz istek **Lambda'yı tetiklemeden** 401 alır → maliyet yok, DB'ye dokunmaz. Geriye yalnız "çalınmış token" senaryosu kalır; orada da rps tavanı ciddi koruma sağlamaz. Dolayısıyla 4 boundary'lik throttle tablosu **dekorasyon olurdu → yapılmadı.**
 - **Açık kalan dar iş (opsiyonel sigorta, acil değil):** Yalnız **PublicApi** anonim ve DB'ye dokunuyor (36 route). Hesap eşzamanlılık kotası **1000** (doğrulandı) olduğundan sistem gerçekten binlerce rps'e çıkabilir → sürekli bir anonim sel hem Lambda maliyeti hem **t4g.micro RDS** baskısı yaratır. İstenirse yalnız PublicApi stage'ine bir tavan konabilir. Gözlenmiş bir sorun değil; öncelik düşük.
@@ -4440,8 +4440,10 @@ kurulumu gerekir. Ayrı ve opsiyonel bir iş.
 **Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 544 ✅ ·
 functions 297 ✅ · frontend 310 ✅ · dokunulan infra dosyalarında root tsc 0 hata ✅.
 
-**Kullanıcıda:** `npx sst diff --stage prod` (READ-ONLY) ile prod'a gidecek
-değişikliğin gösterilmesi, sonra deploy.
+**✅ prod'a deploy edildi (2026-08-25), kullanıcı sorunsuz teyit etti.**
+
+**Açık kalan (kullanıcıda):** SNS e-posta aboneliği Pending ise bu alarmlar
+tetiklense de bildirim GİTMEZ — bkz. P1.8(c) notu.
 
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 
