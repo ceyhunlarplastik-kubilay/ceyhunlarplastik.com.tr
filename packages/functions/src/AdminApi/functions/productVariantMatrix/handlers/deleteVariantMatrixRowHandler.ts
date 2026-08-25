@@ -96,7 +96,7 @@ export const deleteVariantMatrixVariantHandler = ({ productRepository }: IProduc
 
             const result = await prisma.$transaction(async (tx) => {
                 await tx.productVariant.delete({ where: { id: variantId } })
-                // Versiyonlar global sözlükte kalır; yalnız ölçüler temizlenir.
+                // Versiyon tanımı sözlükte kalır (numarası kalıcı); yalnız ölçüler temizlenir.
                 const orphans = await removeOrphanSizes(tx, productId)
                 const recalculated = await recalculateProductVariantCodes(tx, productId)
                 return { orphans, recalculated }

@@ -79,7 +79,7 @@ describe("negateProductVariantCodes", () => {
     })
 
     it("VERSİYON kodlarına hiç dokunmaz", async () => {
-        // Versiyon global sözlükte append-only; yeniden numaralandırılmadığı için
+        // Versiyon sözlükte append-only; yeniden numaralandırılmadığı için
         // park etmeye de gerek yok.
         const { tx, calls } = fakeTx()
 

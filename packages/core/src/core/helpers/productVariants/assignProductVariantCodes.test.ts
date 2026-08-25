@@ -24,7 +24,7 @@ function size(id: string, lengthCm: number, code: number | null = null): Planner
 }
 
 /**
- * Versiyon artık GLOBAL sözlükten gelir ve kodu bu planlayıcıdan ÖNCE atanmıştır;
+ * Versiyon ürün modelinin sözlüğünden gelir ve kodu bu planlayıcıdan ÖNCE atanmıştır;
  * planlayıcı onu yalnız okur.
  */
 function version(id: string, code: number): PlannerVersion {
@@ -83,7 +83,7 @@ describe("assignProductVariantCodes — taslak modu", () => {
 
 describe("assignProductVariantCodes — versiyon", () => {
     it("versiyon kodunu OLDUĞU GİBİ kullanır, yeniden numaralandırmaz", () => {
-        // Versiyon global sözlükte append-only; planlayıcı ona hiç dokunmaz.
+        // Versiyon sözlükte append-only; planlayıcı ona hiç dokunmaz.
         // Ürün başına numaralandırıldığı sürece yeni bir renk eklemek o üründeki
         // tüm versiyon kodlarını kaydırıyordu.
         const plan = assignProductVariantCodes(baseInput({

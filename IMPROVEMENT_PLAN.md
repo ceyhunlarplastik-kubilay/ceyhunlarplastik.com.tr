@@ -4080,6 +4080,9 @@ core 527 ✅ · functions 279 ✅ · frontend 307 ✅ · `next build` "Compiled 
 
 ## Varyant kod sistemi — Dilim 9: versiyon kodu global sözlüğe taşındı (2026-08-21)
 
+> **SÜPERSEDE EDİLDİ — Dilim 11 (aynı gün).** Sözlük global DEĞİL, ürün modeli
+> başına. Aşağısı tarihsel kayıt; güncel kural için Dilim 11'e bakın.
+
 ### 🔴 Bulunan hata
 
 Kullanıcı kubi'de fark etti: bir ürüne yeni renk eklemek o üründeki TÜM versiyon

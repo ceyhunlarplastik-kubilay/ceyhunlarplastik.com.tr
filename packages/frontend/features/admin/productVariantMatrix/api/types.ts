@@ -31,9 +31,10 @@ export type MatrixVersion = {
 }
 
 /**
- * GLOBAL versiyon sözlüğü kaydı. Renk + hammadde kombinasyonunun numarası TÜM
- * ürünlerde aynıdır ve append-only'dur — yeni kombinasyon eklemek mevcut kodları
- * kaydırmaz.
+ * Ürün modelinin versiyon sözlüğündeki bir kayıt. Renk + hammadde kombinasyonunun
+ * numarası ÜRÜN MODELİ İÇİNDE tekildir ve append-only'dur — yeni kombinasyon
+ * eklemek mevcut kodları kaydırmaz. Sözlükte olmayan kombinasyonla varyant
+ * kaydedilemez.
  */
 export type VariantVersionDictionaryEntry = {
     id: string

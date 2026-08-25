@@ -104,10 +104,10 @@ export async function recalculateProductVariantCodes(
 
     // 2) Kodları yeniden planla.
     const [versionRows, supplierCodeRows, variantRows] = await Promise.all([
-        // Versiyonlar GLOBAL sözlükten; ürüne bağlı değiller ve yeniden
-        // numaralandırılmazlar — yalnız varyantların kullandıkları okunur.
+        // Versiyonlar ürün modelinin sözlüğünden okunur ve ASLA yeniden
+        // numaralandırılmaz — burada yalnız id → kod eşlemesi için gerekliler.
         tx.variantVersion.findMany({
-            where: { variants: { some: { productId } } },
+            where: { productId },
             select: { id: true, code: true },
         }),
         tx.productSupplierCode.findMany({
@@ -171,8 +171,10 @@ export async function recalculateProductVariantCodes(
  * Varyant silindiğinde ölçüsü ortada kalır (`ProductVariant` → `Restrict` olduğu
  * için önce varyant gider). Temizlenmezse kod numarasını işgal etmeye devam eder.
  *
- * VERSİYON kayıtları SİLİNMEZ: global sözlüktedirler, başka ürünler kullanıyor
- * olabilir ve numaraları kalıcıdır — öksüz kalan bir kombinasyon da sözlükte durur.
+ * VERSİYON kayıtları SİLİNMEZ. Sözlük operatörün bilinçli olarak kurduğu bir
+ * tanımdır ve numaraları kalıcıdır: kullanılmayan bir kombinasyon da sözlükte
+ * durur, çünkü ileride kullanılacak olabilir ve numarası korunmalıdır. Silme
+ * yalnız açık bir yönetici eylemidir (`DELETE /products/{id}/variant-versions/{id}`).
  */
 export async function removeOrphanSizes(
     tx: TransactionClient,
