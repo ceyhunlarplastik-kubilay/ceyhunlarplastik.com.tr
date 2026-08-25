@@ -2,7 +2,7 @@ import { InitiateAuthCommand } from "@aws-sdk/client-cognito-identity-provider"
 import { getCognitoClient } from "@/features/auth/server/cognito-client"
 import { CognitoAuthError, getAuthErrorLogDetails, toCognitoAuthError } from "@/features/auth/server/errors"
 import { computeSecretHash } from "@/features/auth/server/secret-hash"
-import { getAuthUserAccessStateByCognitoSub } from "@/features/auth/server/user-access"
+import { fetchAuthUserAccessState } from "@/features/auth/server/user-access"
 import { getCognitoProfileFromIdToken } from "@/lib/auth/cognito-tokens"
 
 export type SignInResult = {
@@ -65,9 +65,10 @@ export async function signInWithCognito(email: string, password: string): Promis
     let accessState = null
 
     try {
-        accessState = profile.sub
-            ? await getAuthUserAccessStateByCognitoSub(profile.sub)
-            : null
+        // Hata burada YUTULMAZ: girişte henüz hiçbir erişim durumu yok ve
+        // sessizce boş yetkiyle devam etmek tehlikeli olurdu. Token yenileme
+        // yolunda ise yutulur — orada elde bir önceki (geçerli) durum var.
+        accessState = await fetchAuthUserAccessState(idToken)
     } catch (error) {
         console.error("Auth user access lookup failed", getAuthErrorLogDetails(error))
         throw new CognitoAuthError("UNKNOWN_AUTH_ERROR", "Kullanıcı erişim kaydı doğrulanamadı.", 500)

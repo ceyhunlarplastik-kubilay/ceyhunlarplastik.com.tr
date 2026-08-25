@@ -213,7 +213,7 @@ Her madde: ne / neden / etkilenen katmanlar / kapsam. Sıra, "önce güvenlik ve
 - Neden: Node 24 LTS Nisan 2028'e kadar destekli ve AWS Lambda'da mevcut; Node 22 bakımı Nisan 2027'de bitiyor. Acil değil ama planlı yapılmalı.
 - Etki: **root config + infra (runtime'lar) + CI + lokal geliştirme**. Kural: başka hiçbir değişiklikle birleştirilmeden, tek başına, kubi'de uçtan uca doğrulanarak (özellikle Prisma native binding'leri ve `next build`).
 
-**P2.8 — Frontend'den core'a doğrudan prisma importlarını kaldır** · kapsam: orta · **Import hijyeni ✅ Uygulandı (2026-07-17); mimari devam işi açık**
+**P2.8 — Frontend'den core'a doğrudan prisma importlarını kaldır** · kapsam: orta · **✅ TAMAMLANDI (2026-08-25)** — frontend'de `prisma` importu HİÇ kalmadı, `link: [rds]` kaldırıldı, session hot-path'i I/O'suz. Detay aşağıda. **Kalan opsiyonel:** frontend'i VPC'den çıkarma (ayrı dilim, ölçüm gerekir).
 - Uygulama notları (2026-07-17): Kırılgan relative path'ler (`../../../../core/src/...`, biri 8 seviye) tsconfig alias'larıyla değiştirildi — **3 dosya, 5 import satırı** (plan 4 diyordu; `geocodingService.ts`'te ayrıca `../../../../core/prisma/generated/prisma/client` importu vardı, o da kapsama alındı). [frontend/tsconfig.json](packages/frontend/tsconfig.json)'a iki alias: `@core/*` → `../core/src/core/*` ve `@core-prisma/*` → `../core/prisma/*` (backend root tsconfig'indeki `@/core/*` + `@/prisma/*` konvansiyonunun aynası; ayrı prefix'ler çakışmaz). **Önce plandaki workspace paket importu (`@ceyhunlarweb/core/...`) denendi ve BAŞARISIZ oldu:** core build step'siz ham TS yayınlıyor (`exports: { "./*": ["./src/*/index.ts", "./src/*.ts"] }`); `tsc` (`moduleResolution: "bundler"`) bunu çözüyor ama **Turbopack çözemedi** → `next build` "Module not found" verdi. `transpilePackages` + package.json bağımlılığı denendi, yetmedi; ikisi de geri alındı (paket-adı importu çalışmadığı için bağımlılığı bırakmak yanıltıcı olurdu). Kazanç: dizin taşımasında bir daha kırılmaz (bir kez kırılmıştı). **Davranış değişmedi.** Doğrulama: frontend tsc ✅ + lint 0 error ✅ + `next build` **"Compiled successfully"** (modül çözümleme kanıtlandı; build sonrasında yalnız SST links hatası veriyor — AWS creds'siz beklenen, değişiklikle ilgisiz). **kubi runtime doğrulaması kullanıcıda.**
 - **(a) ✅ Uygulandı (2026-07-17) — varyant sayfasından doğrudan DB erişimi kaldırıldı:** Naif çözüm (`GET /portal/customer` çağırmak) **bilinçli reddedildi**: `mapCustomerForApi` çok sayıda relation'lı ağır yanıt döndürüyor (assignedSalesUser, attributeValueAssignments, companyContactAssignments, addresses…) → tek bir sayı için ekstra round-trip + ağır sorgu = müşteriye bakan sayfada verimlilik kaybı. Yerine: **sayfanın zaten çağırdığı** B0 endpoint'i (`GET /portal/customer/products/{id}/variant-table`) müşterinin genel indirimini de döndürüyor → **ek round-trip YOK**, sorgu yalnız API sınırının arkasına taşındı. **Backend:** customer repository'e DAR metod `getCustomerPricingContext(id)` (`select: { generalDiscountPercent: true }` — `getCustomer`'ın tüm relation'larını çekmemek için); handler `event.user.customerId` ile bunu `Promise.all` içinde paralel çeker, `normalizeCustomerDiscountPercent`'ten geçirip `customerDiscountPercent` olarak döndürür (customer olmayan admin/sales çağrısında `null`); yeni deps tipi [ProtectedApi/types/products.ts](packages/functions/src/ProtectedApi/types/products.ts) (public deps bilinçli dar bırakıldı). **Yakalanan tuzak:** public `productVariantTableResponseValidator`'ın `payload` objesi KATI (`.loose()` yalnız en dış objede) → `z.toJSONSchema` `additionalProperties:false` üretiyor ve yeni alan **500'e dönüşürdü**; public sözleşmeyi gevşetmek yerine endpoint'e kendi şeması verildi ([ProtectedApi/validators/products.ts](packages/functions/src/ProtectedApi/validators/products.ts), iç objeler `.loose()`). **Frontend:** server fn dönüş tipi `customerDiscountPercent` taşır; [sayfadan](packages/frontend/app/(panels)/musteri/tum-urunler/urun/[slug]/varyantlar/page.tsx) `prisma`, `normalizeCustomerDiscountPercent` **ve** `auth()` importları kalktı (session yalnız bu sorgu içindi → sayfa başına bir `auth()` çağrısı da eksildi). `CustomerPortalVariantDetailsTable` DEĞİŞMEDİ. Doğrulama: backend tsc ✅ frontend tsc ✅ lint 0 error ✅ core 110 + functions 4 + frontend 16 test ✅ `next build` "Compiled successfully" ✅. **✅ prod'a deploy edildi (2026-07-23).**
 - **🔴 PRODUCTION BUG bulundu ve düzeltildi (2026-07-17) — variant-table endpoint'leri 400 dönüyordu:** P2.8(a) test edilirken müşteri portalı varyant sayfası hata verdi; teşhis, sorunun P2.8(a) ile ilgisiz ve **canlıda mevcut** olduğunu gösterdi. **Kök neden:** Category Translation pilotu (2026-07-16) `idValidator`'a `queryStringParameters: z.object({ locale })` ekledi; bu obje KATI olduğu için (`.loose()` yok) `z.toJSONSchema` `additionalProperties: false` üretiyor ve [validatorWrapper](packages/core/src/core/helpers/validation/validatorWrapper.ts) `additionalProperties: true`'yu **yalnız KÖK şemaya** uyguluyor → `limit` gönderen her istek `400 "must NOT have additional properties: limit"` alıyordu. **Etki:** variant-table'ı çağıran DÖRT yol da `limit=500` gönderiyor → public SSR ürün sayfası, public client api, workspaceProducts ve müşteri portalı. Yani **SEO-kritik public ürün sayfasındaki varyant tablosu da bozuktu** ve P1.8f'te eklenen "Varyant bilgisi yüklenemedi" mesajını gösteriyordu (hata sessiz kalmadı ama sebebi görünmüyordu). **Düzeltme:** yeni `productVariantTableRequestValidator` ([PublicApi/validators/products.ts](packages/functions/src/PublicApi/validators/products.ts)) — `pathParameters.id` + `queryStringParameters { locale, page, limit, search, sort, order }` (query değerleri string gelir; sayısal ayrıştırmayı `normalizeListQuery` yapar); public ve customer variant-table action'ları bu validator'a geçirildi. **AJV ile kanıtlandı:** eski validator `limit`'i kullanıcının gördüğü hatayla reddediyor, yenisi kabul ediyor; `locale`+`limit` birlikte geçiyor, query'siz istek geçiyor, bilinmeyen param hâlâ reddediliyor. **Ayrıca:** [getCustomerProductVariantTable.ts](packages/frontend/features/customerPortal/server/getCustomerProductVariantTable.ts) `catch` bloğu Next.js kontrol-akışı hatalarını (`digest` taşıyanlar: redirect/notFound/dinamik bailout) artık YUTMUYOR ve log tek-satır string (obje loglanınca Next overlay `{}` gösteriyordu → gerçek sebep görünmüyordu). **Ders (CLAUDE.md'ye eklendi):** `validatorWrapper` `additionalProperties:true`'yu yalnız kök şemaya uygular; iç `queryStringParameters`/`body` objeleri katıdır — query param gönderen bir route'a `idValidator` verme. **Deploy gerektirir** (prod'daki public bug ancak deploy'la kapanır).
@@ -4444,6 +4444,67 @@ functions 297 ✅ · frontend 310 ✅ · dokunulan infra dosyalarında root tsc 
 
 **Açık kalan (kullanıcıda):** SNS e-posta aboneliği Pending ise bu alarmlar
 tetiklense de bildirim GİTMEZ — bkz. P1.8(c) notu.
+
+## P2.8 — frontend'in DB bağı koptu, session hot-path'i I/O'suz kaldı (2026-08-25)
+
+Branch `refactor/auth-access-state`.
+
+### Naif plan yanlış olurdu
+
+Kalan tek doğrudan `prisma` kullanıcısı `features/auth/server/user-access.ts`'ti.
+"prisma yerine bir uç çağır" demek en sıcak yolu YAVAŞLATIRDI: bu fonksiyon
+next-auth **`session` callback'inden** çağrılıyordu, yani her `getServerSession()`
+(sekiz panel layout guard'ının her biri dahil) ve her `/api/auth/session`
+isteğinde. VPC içi bir DB sorgusu, her session okumasında HTTP round-trip'e
+dönüşürdü.
+
+### Yapılan: durum token'a taşındı
+
+- `jwt` callback erişim durumunu token'a yazıyor; `session` callback token'dan
+  okuyor → **session okumalarında sıfır I/O** (öncesinde her okumada bir sorgu).
+- Tazeleme kendi ekseninde: `accessCheckedAt` damgası + `ACCESS_STATE_MAX_AGE_MS`
+  (**5 dk**, kullanıcı kararı). Cognito token ömrüne (1 saat) bağlı DEĞİL —
+  askıya alınan kullanıcı için bir saat beklemek istenmedi.
+- Hata politikası iki yolda FARKLI ve bilinçli: token yenilemede yutulur (elde
+  bir önceki geçerli durum var, API geçici arızası oturumu düşürmemeli); girişte
+  yutulmaz (henüz durum yok, sessizce boş yetkiyle devam etmek tehlikeli).
+- Erişim durumu hiç yazılamazsa `PENDING_REVIEW`'a düşülüyor — panel kapıları
+  `!== "ACTIVE"` kontrolü yapıyor, yani belirsizlik erişim VERMİYOR.
+
+### Dar uç: `GET /me/auth-state`
+
+`/me/access` kullanılmadı. O uç dört ilişki taşıyor ve `assignedSalesCustomers`
+SINIRSIZ — bir satış temsilcisinin tüm müşteri listesini 5 dakikada bir taşımak
+israf olurdu. Daraltılamadı da: iki istemci tüketicisi (`useMyAccess`,
+`useMyProfile`) tam `AdminUser` şeklini okuyor.
+
+Yeni uç yalnız oturumun okuduğu 11 alanı döndürüyor, ilişkisiz
+(`userRepository.getAuthStateById`). AGENTS.md'nin kendi kuralı:
+"dar, amaca özel uç" (`/product-variant-matrix/references` emsali).
+`allowInactive: true` — askıya alınmış kullanıcı da kendi durumunu öğrenebilmeli,
+yoksa `/hesabim` çalışmazdı.
+
+### `link: [rds]` kaldırıldı
+
+Frontend Lambda'sı artık DB'ye dokunmuyor, dolayısıyla ihtiyacı olmayan DB
+kimlik bilgilerini de taşımıyor (defense in depth).
+
+Doğrulandı: frontend hiçbir yerde `Resource.*` okumuyor ve import ettiği sekiz
+`@core/*` modülünün hepsi saf (prisma/SST çekmiyor).
+
+**VPC KORUNDU.** Frontend teknik olarak artık VPC'siz çalışabilir ve soğuk
+başlangıcı iyileşir — ama bu ağ yolunu değiştiren ayrı bir karar (NAT üzerinden
+egress → doğrudan egress), ölçülerek yapılmalı. **Ayrı dilim.**
+
+### Bedeli
+
+Erişim durumu 5 dakikaya kadar bayat kalabilir: askıya alınan kullanıcı o süre
+panel SAYFALARINI görebilir. Veriye erişemez — backend `authMiddleware` her API
+çağrısında erişimi yeniden kontrol ediyor.
+
+**Doğrulama:** backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 544 ✅ ·
+functions 298 ✅ · frontend 310 ✅ · `next build` ✅ · frontend'de `prisma`
+importu: **HİÇ YOK** ✅.
 
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 

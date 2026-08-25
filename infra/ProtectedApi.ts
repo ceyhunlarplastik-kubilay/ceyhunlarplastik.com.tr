@@ -174,6 +174,15 @@ protectedApi.route('GET /me/permissions', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Oturumun okuduğu DAR erişim durumu — /me/access'ten ayrı, çünkü o uç dört
+// ilişki taşıyor (assignedSalesCustomers sınırsız) ve iki istemci tüketicisi
+// tam AdminUser şeklini okuduğu için daraltılamıyor. Bu uç auth yolunda: her
+// girişte, token yenilemede ve oturum başına birkaç dakikada bir çalışıyor.
+protectedApi.route('GET /me/auth-state', {
+    handler: `${folderPrefix}/users/actions.getMyAuthState`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /me/access', {
     handler: `${folderPrefix}/users/actions.getMyAccess`,
     ...defaultRouteOptions

@@ -8,6 +8,7 @@ import {
     getUserHandler,
     getMeHandler,
     getMyAccessHandler,
+    getMyAuthStateHandler,
     listMyNotificationsHandler,
     markMyNotificationReadHandler,
     mePermissionsHandler,
@@ -36,6 +37,7 @@ import {
     userResponseValidator,
     listUsersResponseValidator,
     myAccessResponseValidator,
+    myAuthStateResponseValidator,
     listMyNotificationsResponseValidator,
     notificationResponseValidator,
     mePermissionsResponseValidator,
@@ -116,6 +118,20 @@ export const getMyAccess = lambdaHandler(
             allowInactive: true,
         },
         responseValidator: myAccessResponseValidator,
+    }
+)
+
+export const getMyAuthState = lambdaHandler(
+    async (event) =>
+        getMyAuthStateHandler({
+            userRepository: userRepository(),
+        })(event as IGetMyAccessEvent),
+    {
+        auth: {
+            // Askıya alınmış kullanıcı da kendi durumunu öğrenebilmeli.
+            allowInactive: true,
+        },
+        responseValidator: myAuthStateResponseValidator,
     }
 )
 

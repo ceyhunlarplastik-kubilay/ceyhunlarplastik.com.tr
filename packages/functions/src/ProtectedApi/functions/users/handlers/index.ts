@@ -1,6 +1,7 @@
 export * from './getUserHandler'
 export * from './getMeHandler'
 export * from './getMyAccessHandler'
+export * from './getMyAuthStateHandler'
 export * from './listUsersHandler'
 export * from './listMyNotificationsHandler'
 export * from './markMyNotificationReadHandler'
