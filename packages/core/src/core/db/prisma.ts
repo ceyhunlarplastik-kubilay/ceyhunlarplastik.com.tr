@@ -40,16 +40,32 @@ const buildConnectionString = (resource: LinkedPostgres) => {
     )
 }
 
-const connectionString = buildConnectionString(
-    Resource.MyPostgres as unknown as LinkedPostgres,
-)
+const linkedPostgres = Resource.MyPostgres as unknown as LinkedPostgres
+const connectionString = buildConnectionString(linkedPostgres)
+
+/**
+ * Bağlantı zaman aşımı sağlayıcıya göre değişir.
+ *
+ * Neon (non-prod) SERVERLESS'tır ve boşta kalınca compute'u askıya alır; askıdan
+ * sonraki İLK bağlantı compute'un uyanmasını bekler. Bu birkaç saniye sürer ve
+ * 5 sn'lik eşiğe takılıyordu — operatör bir mola sonrası paneli açtığında
+ * "Connection terminated due to connection timeout" görüyor, sayfayı yenileyince
+ * geçiyordu (yaşandı: kubi, varyant matrisi, 2026-08-25).
+ *
+ * Prod RDS'te böyle bir uyanma yok (üstelik RDS Proxy bağlantıyı havuzluyor), o
+ * yüzden orada eşik dar tutulur: gerçek bir arıza hızlı görünsün.
+ *
+ * Ayrım için ek bir env'e gerek yok — bağlantı biçimi zaten sağlayıcıyı söylüyor:
+ * Neon URL ile, RDS host/port/kullanıcı ile bağlanır (bkz. buildConnectionString).
+ */
+const isServerlessPostgres = hasConnectionUrl(linkedPostgres)
 
 const adapter = new PrismaPg({
     connectionString,
     max: parsePositiveInteger(process.env.DATABASE_POOL_MAX, isDevelopment ? 10 : 1),
     connectionTimeoutMillis: parsePositiveInteger(
         process.env.DATABASE_CONNECTION_TIMEOUT_MS,
-        5_000,
+        isServerlessPostgres ? 20_000 : 5_000,
     ),
     idleTimeoutMillis: parsePositiveInteger(
         process.env.DATABASE_IDLE_TIMEOUT_MS,
