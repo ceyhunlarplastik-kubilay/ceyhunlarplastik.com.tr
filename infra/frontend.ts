@@ -6,7 +6,7 @@ import { publicApi } from "./PublicApi";
 import { adminApi } from "./AdminApi";
 import { protectedApi } from "./ProtectedApi";
 import { userAccessRealtime } from "./userAccessLifecycle";
-import { rds, vpc } from "./db";
+import { vpc } from "./db";
 import { googleMapsBrowserApiKey, googleMapsMapId } from "./googleMaps";
 
 /* function parsePositiveIntegerEnv(name: string) {
@@ -21,8 +21,17 @@ const frontendServerReservedConcurrency = parsePositiveIntegerEnv("FRONTEND_SERV
 
 export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
   path: "packages/frontend",
+  // VPC KORUNUYOR. Frontend artık DB'ye dokunmuyor (P2.8), yani teknik olarak
+  // VPC'siz de çalışabilir ve soğuk başlangıcı iyileşir — ama bu ağ yolunu
+  // değiştiren ayrı bir karar (NAT üzerinden egress → doğrudan egress) ve
+  // ölçülerek yapılmalı. Ayrı dilim.
   vpc,
-  link: [rds],
+  // `link: [rds]` KALDIRILDI (P2.8): frontend'de tek `@core/db/prisma` kullanıcısı
+  // olan `user-access.ts` artık `GET /me/auth-state` ucunu çağırıyor. Bağ ölüydü
+  // ve frontend Lambda'sına ihtiyacı olmayan DB kimlik bilgilerini taşıyordu.
+  //
+  // Doğrulandı: frontend hiçbir yerde `Resource.*` okumuyor ve import ettiği
+  // sekiz `@core/*` modülünün hepsi saf (prisma/SST çekmiyor).
 
   // SST 3.19.3'ün default'u 3.9.14 (SST 4.17.1'de de aynı — yükseltmek bunu
   // değiştirmez). 3.9.14 `fetchInternalImage`'i sabit 4 argümanla çağırıyor;

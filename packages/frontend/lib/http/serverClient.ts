@@ -56,3 +56,14 @@ export async function protectedServerClient() {
     const idToken = await getServerAuthToken()
     return createServerClient(endpoints.protectedApi, idToken ?? undefined);
 }
+
+/**
+ * Token'ı AÇIKÇA alan protected istemci.
+ *
+ * `protectedServerClient()` token'ı oturumdan okur; auth callback'lerinin İÇİNDE
+ * bu döngüsel olur (oturum daha kurulmamıştır). Giriş ve token yenileme
+ * yollarında elde zaten taze bir idToken var, o doğrudan verilir.
+ */
+export function protectedServerClientWithToken(idToken: string) {
+    return createServerClient(endpoints.protectedApi, idToken);
+}

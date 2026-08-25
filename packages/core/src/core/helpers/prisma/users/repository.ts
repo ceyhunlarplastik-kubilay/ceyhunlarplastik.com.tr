@@ -11,6 +11,35 @@ export type UserListQuery = IPaginationQuery & {
     accessStatus?: UserAccessStatus
 }
 
+/** Oturumun okuduğu alanlar — ilişki YOK (bkz. getAuthStateById). */
+const authStateSelect = {
+    id: true,
+    email: true,
+    identifier: true,
+    firstName: true,
+    lastName: true,
+    imageKey: true,
+    groups: true,
+    accessStatus: true,
+    customerId: true,
+    supplierId: true,
+    isActive: true,
+} as const
+
+export type AuthUserState = {
+    id: string
+    email: string
+    identifier: string
+    firstName: string | null
+    lastName: string | null
+    imageKey: string | null
+    groups: string[]
+    accessStatus: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
+    customerId: string | null
+    supplierId: string | null
+    isActive: boolean
+}
+
 const userInclude = {
     supplier: {
         select: {
@@ -73,6 +102,14 @@ export interface IPrismaUserRepository {
         }
     }>
     getUserById(id: string): Promise<UserWithRelations | null>
+    /**
+     * Oturum için gereken DAR erişim durumu — ilişkisiz.
+     *
+     * `getUserById` dört ilişki taşıyor (`assignedSalesCustomers` sınırsız).
+     * Bu okuma auth yolunda: her girişte ve oturum başına birkaç dakikada bir
+     * çalışıyor, o yüzden yalnız oturumun okuduğu alanları çeker.
+     */
+    getAuthStateById(id: string): Promise<AuthUserState | null>
     getUserByCognitoSub(sub: string): Promise<IUser | null>
     getUserByEmail(email: string): Promise<IUser | null>
     getDeletionBlockers(id: string): Promise<UserDeletionBlockers>
@@ -153,6 +190,12 @@ export const userRepository = (): IPrismaUserRepository => {
             totalPages: Math.ceil(total / limit),
         })
     }
+
+    const getAuthStateById = async (id: string) =>
+        prisma.user.findUnique({
+            where: { id },
+            select: authStateSelect,
+        })
 
     const getUserById = async (id: string) =>
         prisma.user.findUnique({
@@ -406,6 +449,7 @@ export const userRepository = (): IPrismaUserRepository => {
     return {
         listUsers,
         getUserById,
+        getAuthStateById,
         getUserByCognitoSub,
         getUserByEmail,
         getDeletionBlockers,

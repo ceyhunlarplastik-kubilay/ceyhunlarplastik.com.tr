@@ -199,3 +199,31 @@ export const mePermissionsResponseValidator = z.toJSONSchema(
         }),
     }).loose()
 )
+
+/**
+ * Oturumun okuduğu DAR erişim durumu. `myAccessResponseValidator`'dan ayrı:
+ * o uç tam `AdminUser` (ilişkilerle) döndürüyor, bu yalnız auth alanlarını.
+ */
+export const myAuthStateResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                user: z.object({
+                    id: z.string(),
+                    email: z.string(),
+                    identifier: z.string(),
+                    firstName: z.string().nullable(),
+                    lastName: z.string().nullable(),
+                    imageUrl: z.string().nullable(),
+                    groups: z.array(z.string()),
+                    accessStatus: z.string(),
+                    customerId: z.string().nullable(),
+                    supplierId: z.string().nullable(),
+                    isActive: z.boolean(),
+                }).loose(),
+            }).loose(),
+        }).loose(),
+    }).loose()
+)
