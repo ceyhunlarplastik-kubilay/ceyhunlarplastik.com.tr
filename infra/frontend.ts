@@ -59,7 +59,8 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
     // sharp'ını kurar ve default'u `0.32.6`'dır; yani prod'daki sharp
     // lockfile'daki sharp DEĞİLDİR ve `next` yükseltmesi ona dokunmaz.
     // 0.35.3 = libvips CVE-2026-33327/33328/35590/35591 düzeltmesi.
-    // Node ≥20.9 ister; optimizer nodejs20.x → uyumlu.
+    // Node ≥20.9 ister. NOT: SST 4'ün Nextjs component'i runtime'ı nodejs24.x
+    // olarak sabit kodluyor (bu yorum yazıldığında optimizer nodejs20.x'ti).
     SHARP_VERSION: "0.35.3",
     STAGE: $app.stage,
     DOMAIN: config.DOMAIN,

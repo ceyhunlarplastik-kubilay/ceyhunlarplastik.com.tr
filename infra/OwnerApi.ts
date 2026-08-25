@@ -55,7 +55,7 @@ const jwtAuthorizer = ownerApi.addAuthorizer({
  * Default Lambda Route options
  * ------------------------ */
 const defaultRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     vpc: vpc,
     link: [rds, userPool, userAccessBus],
     // P1.6 — structured logging (Powertools). retention "1 month" = SST varsayılanı (30gün).

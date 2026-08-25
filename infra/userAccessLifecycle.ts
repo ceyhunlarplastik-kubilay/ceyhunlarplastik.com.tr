@@ -14,7 +14,7 @@ export const userAccessBus = new sst.aws.Bus("UserAccessBus")
 export const userAccessRealtime = new sst.aws.Realtime("UserAccessRealtime", {
     authorizer: {
         handler: `${folderPrefix}/userAccessRealtimeAuthorizer.handler`,
-        runtime: "nodejs22.x",
+        runtime: "nodejs24.x",
         vpc,
         link: [rds],
         environment: {
@@ -28,7 +28,7 @@ export const userAccessRealtime = new sst.aws.Realtime("UserAccessRealtime", {
 
 userAccessBus.subscribe("PersistUserAccessNotification", {
     handler: `${folderPrefix}/persistUserAccessNotification.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     vpc,
     link: [rds],
 }, {
@@ -37,7 +37,7 @@ userAccessBus.subscribe("PersistUserAccessNotification", {
 
 userAccessBus.subscribe("SendUserAccessEmail", {
     handler: `${folderPrefix}/sendUserAccessEmail.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     environment: {
         USER_ACCESS_FROM_EMAIL: config.DOMAIN ? `noreply@${config.DOMAIN}` : "noreply@example.com",
     },
@@ -53,7 +53,7 @@ userAccessBus.subscribe("SendUserAccessEmail", {
 
 userAccessBus.subscribe("PublishUserAccessRealtime", {
     handler: `${folderPrefix}/publishUserAccessRealtime.handler`,
-    runtime: "nodejs22.x",
+    runtime: "nodejs24.x",
     link: [userAccessRealtime],
     environment: {
         USER_ACCESS_REALTIME_TOPIC_PREFIX: `${$app.name}/${$app.stage}/users`,

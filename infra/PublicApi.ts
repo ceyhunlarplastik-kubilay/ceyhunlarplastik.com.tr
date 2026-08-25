@@ -44,7 +44,7 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
         // resources: ["arn:aws:dynamodb:eu-west-1:657914290529:table/portfolio-kubilay-kubilay-PortfolioTable-wzcszuuz"]
       }
     ] */
-    runtime: 'nodejs22.x',
+    runtime: 'nodejs24.x',
     vpc: vpc,
     link: [rds, publicBucket],
     // P1.6 pilot — structured logging (Powertools). Yalnız PublicApi'de deneniyor;
@@ -78,7 +78,11 @@ const defaultOptions: Omit<sst.aws.FunctionArgs, 'handler'> = {
 const publicProductRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
     ...defaultOptions,
     memory: "1536 MB",
-    concurrency: { reserved: publicProductReservedConcurrency },
+    // Non-prod'da UNDEFINED: kubi/dev eu-west-1'e gidiyor ve oradaki kota 10.
+    // Rezervasyon istemek deploy'u düşürüyordu (bkz. apiLimits.ts).
+    ...(publicProductReservedConcurrency
+        ? { concurrency: { reserved: publicProductReservedConcurrency } }
+        : {}),
 };
 
 const customerInvitationRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
