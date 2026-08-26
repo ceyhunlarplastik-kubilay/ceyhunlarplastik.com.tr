@@ -46,6 +46,16 @@ export type ListLeadCustomersParams = {
     search?: string
     sectorValueId?: string
     usageAreaValueId?: string
+    /** Adres filtresi — normalize geo FK'ları (ülke → il → ilçe). */
+    countryId?: number
+    stateId?: number
+    cityId?: number
+}
+
+export type DeleteLeadCustomersResult = {
+    deletedIds: string[]
+    /** Silinemeyenler — adı ve sebebiyle ("2 sipariş", "cari müşteriye dönüştürülmüş"). */
+    blocked: Array<{ id: string; name: string; reason: string }>
 }
 
 export type ListLeadCustomersPayload = {

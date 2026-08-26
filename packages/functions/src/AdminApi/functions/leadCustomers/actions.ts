@@ -4,7 +4,9 @@ import { productAttributeValueRepository } from "@/core/helpers/prisma/productAt
 import {
     createLeadCustomerAddressHandler,
     createLeadCustomerHandler,
+    bulkDeleteLeadCustomersHandler,
     deleteLeadCustomerAddressHandler,
+    deleteLeadCustomerHandler,
     getLeadCustomerHandler,
     listLeadCustomersHandler,
     updateLeadCustomerAddressHandler,
@@ -13,7 +15,10 @@ import {
 import {
     createLeadCustomerAddressValidator,
     createLeadCustomerValidator,
+    bulkDeleteLeadCustomersValidator,
     deleteLeadCustomerAddressValidator,
+    deleteLeadCustomerValidator,
+    deleteLeadCustomersResponseValidator,
     getLeadCustomerValidator,
     leadCustomerDetailResponseValidator,
     listLeadCustomersResponseValidator,
@@ -24,7 +29,9 @@ import {
 import type {
     ICreateLeadCustomerAddressEvent,
     ICreateLeadCustomerEvent,
+    IBulkDeleteLeadCustomersEvent,
     IDeleteLeadCustomerAddressEvent,
+    IDeleteLeadCustomerEvent,
     IGetLeadCustomerEvent,
     IListLeadCustomersEvent,
     IUpdateLeadCustomerAddressEvent,
@@ -37,6 +44,8 @@ import type {
  * `admin`+`owner` ile sınırlı. Buradaki şema ticari alanı hiç tanımaz.
  */
 const leadCustomerManagerGroups = ["admin", "content_editor"]
+// Toplu silme geri alınamaz ve tek tıkla çok kayıt gider — yalnız yönetici.
+const leadCustomerBulkDeleteGroups = ["admin"]
 
 const deps = () => ({
     productAttributeValueRepository: productAttributeValueRepository(),
@@ -111,5 +120,23 @@ export const deleteLeadCustomerAddress = lambdaHandler(
         auth: { requiredPermissionGroups: leadCustomerManagerGroups },
         requestValidator: deleteLeadCustomerAddressValidator,
         responseValidator: leadCustomerDetailResponseValidator,
+    },
+)
+
+export const deleteLeadCustomer = lambdaHandler(
+    async (event) => deleteLeadCustomerHandler()(event as IDeleteLeadCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: leadCustomerManagerGroups },
+        requestValidator: deleteLeadCustomerValidator,
+        responseValidator: deleteLeadCustomersResponseValidator,
+    },
+)
+
+export const bulkDeleteLeadCustomers = lambdaHandler(
+    async (event) => bulkDeleteLeadCustomersHandler()(event as IBulkDeleteLeadCustomersEvent),
+    {
+        auth: { requiredPermissionGroups: leadCustomerBulkDeleteGroups },
+        requestValidator: bulkDeleteLeadCustomersValidator,
+        responseValidator: deleteLeadCustomersResponseValidator,
     },
 )

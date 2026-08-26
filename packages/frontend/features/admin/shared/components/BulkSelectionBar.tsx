@@ -3,36 +3,54 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { Loader2, Trash2, X } from "lucide-react"
 
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { ConfirmDeleteDialog } from "@/features/admin/shared/components/ConfirmDeleteDialog"
 
 type Props = {
     selectedCount: number
     isDeleting: boolean
     onClear: () => void
     onDelete: () => void
+    /** "3 varyant seçildi" / "3 potansiyel müşteri seçildi" */
+    itemLabel: string
+    /** Onay diyaloğunun gövdesi — neyin silinmeyeceğini yüzeye özel anlatır. */
+    confirmDescription: React.ReactNode
+    /**
+     * Silinecek kayıtların adları. Verilirse onayda LİSTELENİR: kullanıcı sayıya
+     * değil, gerçekte neyin gideceğine bakarak onaylamalı.
+     */
+    itemNames?: string[]
+    /**
+     * Verilirse kullanıcı bu ifadeyi HARFİ HARFİNE yazmadan silme düğmesi açılmaz
+     * (AWS'in kaynak silmede istediği onay deseni). Geri alınamaz ve toplu olan
+     * işlemlerde kaza eseri tıklamayı engeller.
+     */
+    confirmationPhrase?: string
 }
 
 /**
  * Toplu seçim işlem çubuğu — seçim varken beliren, tablonun ÜSTÜNDE duran şerit.
  *
+ * Varyant matrisi ve potansiyel müşteri listesi ORTAK kullanıyor; yeni bir toplu
+ * seçim yüzeyi eklenirse paralel kopya yazmak yerine buraya bağlanmalı
+ * (AGENTS.md: ortak bileşeni genişlet).
+ *
  * Tablonun içine gömülmedi: seçim sayfa değiştirince korunuyor ve şeridin
  * kaydırmadan bağımsız görünür kalması gerekiyor.
  *
  * Silme geri alınamaz olduğu için onay diyaloğu şart; onayda kaç kaydın gideceği
- * ve engelli satırların ayrıca bildirileceği açıkça yazıyor.
+ * ve engellilerin ayrıca bildirileceği açıkça yazıyor.
  */
-export function VariantSelectionBar({ selectedCount, isDeleting, onClear, onDelete }: Props) {
+export function BulkSelectionBar({
+    selectedCount,
+    isDeleting,
+    onClear,
+    onDelete,
+    itemLabel,
+    confirmDescription,
+    itemNames,
+    confirmationPhrase,
+}: Props) {
     const reduceMotion = useReducedMotion()
 
     return (
@@ -48,7 +66,7 @@ export function VariantSelectionBar({ selectedCount, isDeleting, onClear, onDele
                     aria-live="polite"
                 >
                     <span className="text-sm font-medium">
-                        {selectedCount} varyant seçildi
+                        {selectedCount} {itemLabel} seçildi
                     </span>
 
                     <div className="flex items-center gap-2">
@@ -57,8 +75,8 @@ export function VariantSelectionBar({ selectedCount, isDeleting, onClear, onDele
                             Seçimi temizle
                         </Button>
 
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
+                        <ConfirmDeleteDialog
+                            trigger={
                                 <Button type="button" size="sm" variant="destructive" disabled={isDeleting}>
                                     {isDeleting ? (
                                         <Loader2 className="mr-1 size-4 animate-spin" />
@@ -67,29 +85,13 @@ export function VariantSelectionBar({ selectedCount, isDeleting, onClear, onDele
                                     )}
                                     Sil
                                 </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                        {selectedCount} varyant silinsin mi?
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Bu işlem geri alınamaz. Siparişte, iş talebinde, özel fiyatta,
-                                        kampanyada veya müşteri atamasında kullanılan varyantlar
-                                        silinmez — hangileri olduğu işlem sonunda bildirilir ve
-                                        seçili kalırlar.
-                                        <br />
-                                        <br />
-                                        Kullanılmayan ölçüler temizlenir ve ürünün varyant kodları
-                                        yeniden hesaplanır.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Vazgeç</AlertDialogCancel>
-                                    <AlertDialogAction onClick={onDelete}>Sil</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                            }
+                            title={`${selectedCount} ${itemLabel} silinsin mi?`}
+                            description={confirmDescription}
+                            itemNames={itemNames}
+                            confirmationPhrase={confirmationPhrase}
+                            onConfirm={onDelete}
+                        />
                     </div>
                 </motion.div>
             ) : null}

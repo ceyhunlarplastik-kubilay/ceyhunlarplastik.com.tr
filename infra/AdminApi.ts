@@ -652,6 +652,18 @@ adminApi.route("PUT /lead-customers/{id}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions })
 
+// Toplu silme YALNIZ admin (bkz. actions.ts). Rota adres rotalarından ÖNCE
+// gelmeli değil — path'ler çakışmıyor, ama okunurluk için silmeler bir arada.
+adminApi.route("POST /lead-customers/bulk-delete", {
+    handler: `${folderPrefix}/leadCustomers/actions.bulkDeleteLeadCustomers`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /lead-customers/{id}", {
+    handler: `${folderPrefix}/leadCustomers/actions.deleteLeadCustomer`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 adminApi.route("POST /lead-customers/{id}/addresses", {
     handler: `${folderPrefix}/leadCustomers/actions.createLeadCustomerAddress`,
     ...defaultRouteOptions,
