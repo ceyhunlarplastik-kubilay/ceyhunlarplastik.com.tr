@@ -13,8 +13,6 @@ import { useVariantMatrixReferences } from "@/features/admin/productVariantMatri
 type Props = {
     productId: string
     productName: string
-    /** Taslak modda sıra değişikliği mevcut kodları yeniden numaralar. */
-    isDraftMode: boolean
     /** Uyarıda kaç ölçünün etkileneceğini söylemek için. */
     sizeCount: number
 }
@@ -26,7 +24,7 @@ type Props = {
  * girerken hangi ölçüyü neden girdiğini görebilmeli. Düzenleme diyalogda yapılır:
  * sütun 304px ve satır başına dört alan + sıralama düğmeleri buraya sığmıyor.
  */
-export function MeasurementRequirementsPanel({ productId, productName, isDraftMode, sizeCount }: Props) {
+export function MeasurementRequirementsPanel({ productId, productName, sizeCount }: Props) {
     const { data: requirements, isLoading } = useMeasurementRequirements(productId)
     const { data: references, isLoading: referencesLoading, isError: referencesError } = useVariantMatrixReferences()
     const [editorOpen, setEditorOpen] = useState(false)
@@ -118,7 +116,6 @@ export function MeasurementRequirementsPanel({ productId, productName, isDraftMo
                 productName={productName}
                 requirements={requirements}
                 measurementTypes={measurementTypes}
-                isDraftMode={isDraftMode}
                 sizeCount={sizeCount}
             />
         </>

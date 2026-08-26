@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { AlertTriangle, Plus } from "lucide-react"
+import { AlertTriangle, Plus, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -24,10 +24,6 @@ import { VariantMatrixFilters } from "@/features/admin/productVariantMatrix/comp
 import { useVariantMatrixFilters } from "@/features/admin/productVariantMatrix/hooks/useVariantMatrixFilters"
 import { useSaveVariantMatrix } from "@/features/admin/productVariantMatrix/hooks/useSaveVariantMatrix"
 import { useVariantMatrix } from "@/features/admin/productVariantMatrix/hooks/useVariantMatrix"
-import {
-    useRenumberVariantCodes,
-    useSetVariantCodeLock,
-} from "@/features/admin/productVariantMatrix/hooks/useVariantCodeActions"
 import { useVariantMatrixReferences } from "@/features/admin/productVariantMatrix/hooks/useVariantMatrixReferences"
 import { useBulkDeleteVariantRows } from "@/features/admin/productVariantMatrix/hooks/useVariantRowActions"
 import { buildSaveRows } from "@/features/admin/productVariantMatrix/utils/buildSaveRows"
@@ -77,23 +73,83 @@ export function ProductVariantMatrixPageClient({
     })
     const { data: references, isError: referencesError } = useVariantMatrixReferences()
     const saveMutation = useSaveVariantMatrix(productId)
-    const lockMutation = useSetVariantCodeLock(productId)
-    const renumberMutation = useRenumberVariantCodes(productId)
 
     const [drafts, setDrafts] = useState<DraftRow[]>([])
     const [pinnedSupplierId, setPinnedSupplierId] = useState<string>("")
+    const [pinnedVersionId, setPinnedVersionId] = useState<string>("")
     const draftSectionRef = useRef<HTMLDivElement | null>(null)
 
     const requirements = matrix?.requirements ?? []
     const colors = references?.colors ?? []
     const materials = references?.materials ?? []
-    const suppliers = references?.suppliers ?? []
+
+    /**
+     * Versiyon seçim listesi: "V1 · Siyah + Bakalit".
+     *
+     * Sözlük yalnız id/kod/renk-id/hammadde-id taşır; okunabilir etiket burada
+     * referans listelerinden kurulur — operatör V1'in ne olduğunu ezberlemek
+     * zorunda kalmasın.
+     */
+    const versionOptions = useMemo(() => {
+        const colorById = new Map(colors.map((color) => [color.id, color]))
+        const materialById = new Map(materials.map((material) => [material.id, material]))
+
+        return (matrix?.versionDictionary ?? []).map((version) => {
+            const color = version.colorId ? colorById.get(version.colorId) : null
+            const materialNames = version.materialIds
+                .map((id) => materialById.get(id)?.name)
+                .filter((name): name is string => Boolean(name))
+
+            return {
+                id: version.id,
+                code: version.code,
+                label: [color?.name ?? "Renksiz", ...materialNames].join(" + "),
+                colorHex: color?.hex ?? null,
+            }
+        })
+    }, [colors, materials, matrix])
+    /**
+     * Tedarikçi seçim listesi harfiyle birlikte: "A · Özgen".
+     *
+     * Operatör kataloğu eline aldığında hangi harfin hangi firma olduğunu
+     * listede görmeli — harf ürün modeline özel, ezberlenebilir değil.
+     * Henüz harfi olmayan tedarikçi adıyla görünür; harfi ilk kayıtta alır.
+     */
+    /**
+     * Seçilebilir tedarikçiler: YALNIZ bu ürünün tedarikçi SÖZLÜĞÜNDE olanlar.
+     *
+     * Tüm tedarikçi listesi gösterilmiyor — harf ürün modeline özeldir ve önce
+     * sözlükte tanımlanmalıdır (versiyon sözlüğüyle aynı "önce tanımla" kuralı).
+     * Aksi hâlde operatör sözlükte olmayan bir firma seçer, harf sessizce
+     * otomatik atanır ve sözlüğü kurmanın anlamı kalmazdı.
+     *
+     * Kaynak doğrudan sözlük: ad ve harf aynı kayıttan gelir, ayrı bir referans
+     * listesiyle eşleştirmeye gerek yok.
+     *
+     * Aynı liste kayıtlı varyant FİLTRESİNDE de kullanılır: bu üründe sözlükte
+     * olmayan bir tedarikçiye ait satır zaten bulunamaz, o yüzden tüm tedarikçi
+     * listesini göstermek boş sonuç veren seçenekler üretirdi.
+     */
+    const supplierOptions = useMemo(
+        () =>
+            (matrix?.supplierCodes ?? []).map((entry) => ({
+                id: entry.supplierId,
+                name: entry.supplierName,
+                letter: entry.code,
+            })),
+        [matrix],
+    )
 
     const validation = useMemo(() => {
         if (drafts.length === 0 || requirements.length === 0) {
             return { rows: [], errors: [] as Array<{ index: number; message: string }> }
         }
-        return buildSaveRows({ rows: drafts, requirements, productName: matrix?.product.name ?? "" })
+        return buildSaveRows({
+            rows: drafts,
+            requirements,
+            productName: matrix?.product.name ?? "",
+            versionDictionary: matrix?.versionDictionary ?? [],
+        })
     }, [drafts, requirements, matrix?.product.name])
 
     const visibleRows = useMemo(() => {
@@ -114,7 +170,6 @@ export function ProductVariantMatrixPageClient({
         if (!matrix || validation.rows.length === 0) return []
         return previewVariantCodes({
             productCode: matrix.product.code,
-            isLocked: Boolean(matrix.product.variantCodesLockedAt),
             requirements,
             sizes: matrix.sizes,
             versions: matrix.versions,
@@ -248,7 +303,10 @@ export function ProductVariantMatrixPageClient({
     const addRow = () => {
         setDrafts((current) => [
             ...current,
-            createEmptyDraftRow({ supplierId: pinnedSupplierId || undefined }),
+            createEmptyDraftRow({
+                supplierId: pinnedSupplierId || undefined,
+                versionId: pinnedVersionId || undefined,
+            }),
         ])
     }
 
@@ -289,13 +347,7 @@ export function ProductVariantMatrixPageClient({
                 assetsLoading={productLoading}
                 variantCount={matrix.rows.length}
                 sizeCount={matrix.sizes.length}
-                lockedAt={matrix.product.variantCodesLockedAt}
-                canManageCodes={canManageCodes}
                 canDeleteVersions={canDeleteVersions}
-                isLockPending={lockMutation.isPending}
-                isRenumberPending={renumberMutation.isPending}
-                onToggleLock={(locked) => lockMutation.mutate(locked)}
-                onRenumber={() => renumberMutation.mutate()}
             />
 
             <div className="flex min-w-0 flex-1 flex-col">
@@ -334,22 +386,97 @@ export function ProductVariantMatrixPageClient({
                                     </p>
                                 </div>
 
-                                <div className="flex items-end gap-2">
+                                {/* SABİTLEME: operatör bir tedarikçinin kataloğunu
+                                    eline alıp sırayla giriyor. Tedarikçi ve versiyon
+                                    sabitlenince satırlarda DEĞİŞTİRİLEMEZ olur ve
+                                    odak yalnız ölçülerde kalır. */}
+                                <div className="flex flex-wrap items-end gap-2">
                                     <div className="space-y-1">
                                         <Label className="text-xs">Tedarikçi sabitle</Label>
-                                        <Select value={pinnedSupplierId} onValueChange={setPinnedSupplierId}>
-                                            <SelectTrigger className="w-52">
-                                                <SelectValue placeholder="Yok" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {suppliers.map((supplier) => (
-                                                    <SelectItem key={supplier.id} value={supplier.id}>
-                                                        {supplier.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <div className="flex items-center gap-1">
+                                            <Select
+                                                value={pinnedSupplierId}
+                                                onValueChange={setPinnedSupplierId}
+                                                disabled={supplierOptions.length === 0}
+                                            >
+                                                <SelectTrigger className="w-52">
+                                                    <SelectValue
+                                                        placeholder={
+                                                            supplierOptions.length === 0
+                                                                ? "Önce sözlüğe ekleyin"
+                                                                : "Yok"
+                                                        }
+                                                    />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {supplierOptions.map((supplier) => (
+                                                        <SelectItem key={supplier.id} value={supplier.id}>
+                                                            <span className="flex items-center gap-2">
+                                                                {supplier.letter ? (
+                                                                    <span className="font-mono font-medium">{supplier.letter}</span>
+                                                                ) : null}
+                                                                <span className={supplier.letter ? "text-neutral-500" : undefined}>
+                                                                    {supplier.letter ? "· " : ""}{supplier.name}
+                                                                </span>
+                                                            </span>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {pinnedSupplierId ? (
+                                                <Button
+                                                    type="button"
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="size-9 shrink-0"
+                                                    aria-label="Tedarikçi sabitlemesini kaldır"
+                                                    onClick={() => setPinnedSupplierId("")}
+                                                >
+                                                    <X className="size-4" />
+                                                </Button>
+                                            ) : null}
+                                        </div>
                                     </div>
+
+                                    <div className="space-y-1">
+                                        <Label className="text-xs">Versiyon sabitle</Label>
+                                        <div className="flex items-center gap-1">
+                                            <Select value={pinnedVersionId} onValueChange={setPinnedVersionId}>
+                                                <SelectTrigger className="w-56">
+                                                    <SelectValue placeholder="Yok" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {versionOptions.map((version) => (
+                                                        <SelectItem key={version.id} value={version.id}>
+                                                            <span className="flex items-center gap-2">
+                                                                {version.colorHex ? (
+                                                                    <span
+                                                                        className="size-3 shrink-0 rounded-full border"
+                                                                        style={{ backgroundColor: version.colorHex }}
+                                                                    />
+                                                                ) : null}
+                                                                <span className="font-mono font-medium">V{version.code}</span>
+                                                                <span className="text-neutral-500">· {version.label}</span>
+                                                            </span>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {pinnedVersionId ? (
+                                                <Button
+                                                    type="button"
+                                                    size="icon"
+                                                    variant="ghost"
+                                                    className="size-9 shrink-0"
+                                                    aria-label="Versiyon sabitlemesini kaldır"
+                                                    onClick={() => setPinnedVersionId("")}
+                                                >
+                                                    <X className="size-4" />
+                                                </Button>
+                                            ) : null}
+                                        </div>
+                                    </div>
+
                                     <Button type="button" variant="outline" onClick={addRow}>
                                         <Plus className="mr-2 size-4" />
                                         Satır ekle
@@ -392,9 +519,10 @@ export function ProductVariantMatrixPageClient({
                                                     row={row}
                                                     index={index}
                                                     requirements={requirements}
-                                                    colors={colors}
-                                                    materials={materials}
-                                                    suppliers={suppliers}
+                                                    versions={versionOptions}
+                                                    isVersionPinned={Boolean(pinnedVersionId)}
+                                                    isSupplierPinned={Boolean(pinnedSupplierId)}
+                                                    suppliers={supplierOptions}
                                                     errors={errorsByIndex.get(index) ?? []}
                                                     codePreview={codePreviews[validRowIndexes.indexOf(index)]}
                                                     onChange={(patch) =>
@@ -439,7 +567,7 @@ export function ProductVariantMatrixPageClient({
                             onSupplierIdChange={setSupplierId}
                             colorId={filters.colorId}
                             onColorIdChange={setColorId}
-                            suppliers={suppliers}
+                            suppliers={supplierOptions}
                             colors={colors}
                             hasActiveFilters={hasActiveFilters}
                             onClear={clearFilters}
@@ -520,7 +648,6 @@ export function ProductVariantMatrixPageClient({
                         readyCount={readyCount}
                         errorCount={errorCount}
                         isSaving={saveMutation.isPending}
-                        isLocked={Boolean(matrix.product.variantCodesLockedAt)}
                         newSizeCount={saveEffects.newSizeCount}
                         newSupplierCount={saveEffects.newSupplierCount}
                         onAddRow={addRow}

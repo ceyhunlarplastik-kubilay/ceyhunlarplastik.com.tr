@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TableCell, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
-import { MaterialMultiSelect } from "@/features/admin/productVariantMatrix/components/MaterialMultiSelect"
 import type { MatrixRequirement } from "@/features/admin/productVariantMatrix/api/types"
 import type { VariantMatrixDraftRow } from "@/features/admin/productVariantMatrix/schema/variantMatrixSchema"
 
@@ -21,9 +20,13 @@ type Props = {
     row: VariantMatrixDraftRow
     index: number
     requirements: MatrixRequirement[]
-    colors: Array<ReferenceOption & { hex?: string }>
-    materials: ReferenceOption[]
-    suppliers: ReferenceOption[]
+    /** Ürün modelinin versiyon sözlüğü — "V1 · Siyah + Bakalit" biçiminde. */
+    versions: Array<{ id: string; code: number; label: string; colorHex?: string | null }>
+    /** Tedarikçiler harfiyle: "A · Özgen". Harfi olmayan yalnız adıyla görünür. */
+    suppliers: Array<{ id: string; name: string; letter?: string | null }>
+    /** Sabitlenmiş alanlar satırda DEĞİŞTİRİLEMEZ (bkz. sabitleme). */
+    isVersionPinned?: boolean
+    isSupplierPinned?: boolean
     errors: string[]
     /** Satırın alacağı kod (tahmin) — kesin kod kaydetmede sunucuda üretilir. */
     codePreview?: { fullCode: string | null; supplierFullCode: string | null }
@@ -43,9 +46,10 @@ export function VariantMatrixDraftRow({
     row,
     index,
     requirements,
-    colors,
-    materials,
+    versions,
     suppliers,
+    isVersionPinned = false,
+    isSupplierPinned = false,
     errors,
     codePreview,
     onChange,
@@ -87,25 +91,30 @@ export function VariantMatrixDraftRow({
                     </TableCell>
                 ))}
 
-                <TableCell className="min-w-36">
+                {/* Renk + hammadde AYRI seçilmiyor: ikisi de versiyon sözlüğünde
+                    tanımlı ve satırda yalnız o versiyon seçiliyor. Sözlükte
+                    olmayan kombinasyon böylece hiç kurulamıyor. */}
+                <TableCell className="min-w-56">
                     <Select
-                        value={row.colorId ?? ""}
-                        onValueChange={(value) => onChange({ colorId: value })}
+                        value={row.versionId ?? ""}
+                        onValueChange={(value) => onChange({ versionId: value })}
+                        disabled={isVersionPinned}
                     >
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Renk" />
+                            <SelectValue placeholder={versions.length > 0 ? "Versiyon" : "Sözlük boş"} />
                         </SelectTrigger>
                         <SelectContent>
-                            {colors.map((color) => (
-                                <SelectItem key={color.id} value={color.id}>
+                            {versions.map((version) => (
+                                <SelectItem key={version.id} value={version.id}>
                                     <span className="flex items-center gap-2">
-                                        {color.hex ? (
+                                        {version.colorHex ? (
                                             <span
-                                                className="size-3 rounded-full border"
-                                                style={{ backgroundColor: color.hex }}
+                                                className="size-3 shrink-0 rounded-full border"
+                                                style={{ backgroundColor: version.colorHex }}
                                             />
                                         ) : null}
-                                        {color.code ? `${color.code} — ` : ""}{color.name}
+                                        <span className="font-mono font-medium">V{version.code}</span>
+                                        <span className="text-neutral-500">· {version.label}</span>
                                     </span>
                                 </SelectItem>
                             ))}
@@ -114,17 +123,10 @@ export function VariantMatrixDraftRow({
                 </TableCell>
 
                 <TableCell className="min-w-40">
-                    <MaterialMultiSelect
-                        materials={materials}
-                        value={row.materialIds}
-                        onChange={(materialIds) => onChange({ materialIds })}
-                    />
-                </TableCell>
-
-                <TableCell className="min-w-40">
                     <Select
                         value={row.supplierId ?? ""}
                         onValueChange={(value) => onChange({ supplierId: value })}
+                        disabled={isSupplierPinned}
                     >
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Tedarikçi" />
@@ -132,7 +134,14 @@ export function VariantMatrixDraftRow({
                         <SelectContent>
                             {suppliers.map((supplier) => (
                                 <SelectItem key={supplier.id} value={supplier.id}>
-                                    {supplier.name}
+                                    <span className="flex items-center gap-2">
+                                        {supplier.letter ? (
+                                            <span className="font-mono font-medium">{supplier.letter}</span>
+                                        ) : null}
+                                        <span className={supplier.letter ? "text-neutral-500" : undefined}>
+                                            {supplier.letter ? "· " : ""}{supplier.name}
+                                        </span>
+                                    </span>
                                 </SelectItem>
                             ))}
                         </SelectContent>

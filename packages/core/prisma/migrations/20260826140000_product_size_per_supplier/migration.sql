@@ -1,0 +1,24 @@
+-- Ölçü kaydı artık imzayla TEKİL DEĞİL
+--
+-- Önceki davranış: `ProductSize` ürün içinde `signature` (ölçü değerleri) ile
+-- tekildi. Özgen 20×20 girip `4.1.1` aldıktan sonra Esersan aynı 20×20'yi
+-- girdiğinde o da `4.1.1`'i kullanıyordu.
+--
+-- İstenen: her giriş satırı SIRADAKİ numarayı alır — 4.1.1 Özgen, 4.1.7 Esersan.
+-- Kod, veri girişi sırasının sayacıdır; ölçünün büyüklüğüyle de, benzersizliğiyle
+-- de bağı yoktur.
+--
+-- Tekilleştirme kalkmıyor, ANAHTARI değişiyor: "ölçü + tedarikçi". Aynı tedarikçi
+-- aynı ölçüyü ikinci kez girdiğinde (katalog güncellemesi, kazara tekrar) yeni kod
+-- üretilmez, mevcut satır güncellenir. Bu kontrol UYGULAMA katmanındadır
+-- (productVariantWriter), çünkü tedarikçi ProductSize üzerinde değil
+-- ProductVariantSupplier üzerinde yaşıyor — DB kısıtıyla ifade edilemez.
+--
+-- Public/portal listeleri ölçüleri zaten ölçü anahtarına göre gruplayıp
+-- tekilleştiriyor, yani müşteriye aynı ölçü iki kez görünmez.
+--
+-- YIKICI DEĞİL: yalnız bir unique index düşer. Mevcut satırlar aynen kalır;
+-- bundan önce yazılmış ve birden çok tedarikçiye bağlı ölçüler de çalışmaya
+-- devam eder (writer hepsini o ölçüye çözer).
+
+DROP INDEX "ProductSize_productId_signature_key";

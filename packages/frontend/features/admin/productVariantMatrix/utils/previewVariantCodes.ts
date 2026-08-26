@@ -51,7 +51,6 @@ const DRAFT_PREFIX = "draft:"
  */
 export function previewVariantCodes(input: {
     productCode: string
-    isLocked: boolean
     requirements: MatrixRequirement[]
     sizes: MatrixSize[]
     versions: MatrixVersion[]
@@ -62,7 +61,7 @@ export function previewVariantCodes(input: {
     versionDictionary: VariantVersionDictionaryEntry[]
 }): VariantCodePreview[] {
     const {
-        productCode, isLocked, requirements, sizes, versions,
+        productCode, requirements, sizes, versions,
         supplierCodes, rows, draftRows, versionDictionary,
     } = input
 
@@ -223,7 +222,6 @@ export function previewVariantCodes(input: {
 
         const plan = assignProductVariantCodes({
             productCode,
-            isLocked,
             sizes: plannerSizes,
             versions: plannerVersions,
             supplierCodes: plannerSupplierCodes,

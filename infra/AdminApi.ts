@@ -504,6 +504,29 @@ adminApi.route("DELETE /product-variants/{id}", {
 }, { ...defaultAuthOptions });
 
 /*----------------------- VARIANT VERSIONS (GLOBAL SÖZLÜK) -----------------------*/
+// Tedarikçi harfi ("A") ÜRÜN MODELİNE ÖZELDİR: 1.2.3.V1.A Özgen'i gösterirken
+// 10.11.2.V1.A Aparat Toptan'ı gösterebilir. Harf append-only; değiştirecek bir
+// uç BİLİNÇLİ OLARAK YOK — yalnız hangi tedarikçiye ait olduğu düzenlenir.
+adminApi.route("GET /products/{id}/supplier-codes", {
+    handler: `${folderPrefix}/productSupplierCodes/actions.listProductSupplierCodes`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("POST /products/{id}/supplier-codes", {
+    handler: `${folderPrefix}/productSupplierCodes/actions.createProductSupplierCode`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("PATCH /products/{id}/supplier-codes/{codeId}", {
+    handler: `${folderPrefix}/productSupplierCodes/actions.updateProductSupplierCode`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+adminApi.route("DELETE /products/{id}/supplier-codes/{codeId}", {
+    handler: `${folderPrefix}/productSupplierCodes/actions.deleteProductSupplierCode`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 // Renk + hammadde kombinasyonunun ÜRÜN MODELİ İÇİNDEKİ numarası ("V1"). Numara
 // append-only'dur; mevcut bir kaydın kodunu değiştirecek bir uç BİLİNÇLİ OLARAK YOK.
 // Varyant girişi tanımsız kombinasyonu reddeder — önce buradan tanımlanır.
@@ -580,15 +603,7 @@ adminApi.route("DELETE /products/{id}/variant-matrix/variants/{variantId}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
-adminApi.route("POST /products/{id}/variant-codes/lock", {
-    handler: `${folderPrefix}/productVariantMatrix/actions.setVariantCodeLock`,
-    ...defaultRouteOptions,
-}, { ...defaultAuthOptions });
 
-adminApi.route("POST /products/{id}/variant-codes/renumber", {
-    handler: `${folderPrefix}/productVariantMatrix/actions.renumberVariantCodes`,
-    ...defaultRouteOptions,
-}, { ...defaultAuthOptions });
 
 /*----------------------- PRODUCTS -----------------------*/
 // P1.8(c): observability RequestEntityTooLarge alarmı için route referansı export edilir.

@@ -28,8 +28,13 @@ const bushingMetric: MatrixRequirement = {
 
 const requirements = [armDiameter, bushingMetric]
 
+/** V1 = Siyah + PP. Satırlar artık renk/hammadde değil BU versiyonu taşır. */
+const versionDictionary = [
+    { id: "ver-1", code: 1, colorId: "color-1", materialIds: ["mat-pp"] },
+]
+
 function build(rows: Parameters<typeof buildSaveRows>[0]["rows"]) {
-    return buildSaveRows({ rows, requirements, productName: "10.5 Serisi Tapa" })
+    return buildSaveRows({ rows, requirements, productName: "10.5 Serisi Tapa", versionDictionary })
 }
 
 describe("parseMeasurementValue", () => {
@@ -58,8 +63,7 @@ describe("buildSaveRows", () => {
         const { rows, errors } = build([
             createEmptyDraftRow({
                 measurements: { "req-r": "10", "req-m": "M4" },
-                colorId: "color-1",
-                materialIds: ["mat-pp"],
+                versionId: "ver-1",
                 supplierId: "sup-x",
                 price: "12,50",
                 minOrderQty: "500",
@@ -83,14 +87,14 @@ describe("buildSaveRows", () => {
 
     it("varyant adını ölçülerden üretir", () => {
         const { rows } = build([
-            createEmptyDraftRow({ measurements: { "req-r": "10" } }),
+            createEmptyDraftRow({ measurements: { "req-r": "10" }, versionId: "ver-1" }),
         ])
         expect(rows[0].name).toBe("10.5 Serisi Tapa — Kol Çapı 10 cm")
     })
 
     it("zorunlu ölçü boşsa hata verir", () => {
         const { rows, errors } = build([
-            createEmptyDraftRow({ measurements: { "req-m": "M4" } }),
+            createEmptyDraftRow({ measurements: { "req-m": "M4" }, versionId: "ver-1" }),
         ])
         expect(rows).toHaveLength(1)
         expect(errors).toEqual([{ index: 0, message: '"Kol Çapı" değeri geçersiz veya boş' }])
@@ -98,7 +102,7 @@ describe("buildSaveRows", () => {
 
     it("opsiyonel ölçü boşsa hata VERMEZ", () => {
         const { rows, errors } = build([
-            createEmptyDraftRow({ measurements: { "req-r": "10" } }),
+            createEmptyDraftRow({ measurements: { "req-r": "10" }, versionId: "ver-1" }),
         ])
         expect(errors).toEqual([])
         expect(rows[0].measurements).toEqual([{ requirementId: "req-r", value: 10 }])
@@ -112,7 +116,7 @@ describe("buildSaveRows", () => {
 
     it("tedarikçi seçilmemişse supplier göndermez", () => {
         const { rows } = build([
-            createEmptyDraftRow({ measurements: { "req-r": "10" } }),
+            createEmptyDraftRow({ measurements: { "req-r": "10" }, versionId: "ver-1" }),
         ])
         expect(rows[0].supplier).toBeUndefined()
     })
@@ -121,6 +125,7 @@ describe("buildSaveRows", () => {
         const { rows } = build([
             createEmptyDraftRow({
                 measurements: { "req-r": "10" },
+                versionId: "ver-1",
                 supplierId: "sup-x",
                 price: "",
                 minOrderQty: "   ",
@@ -132,8 +137,8 @@ describe("buildSaveRows", () => {
 
     it("hata indeksleri satır sırasını korur", () => {
         const { errors } = build([
-            createEmptyDraftRow({ measurements: { "req-r": "10" } }),
-            createEmptyDraftRow({ measurements: { "req-r": "" } }),
+            createEmptyDraftRow({ measurements: { "req-r": "10" }, versionId: "ver-1" }),
+            createEmptyDraftRow({ measurements: { "req-r": "" }, versionId: "ver-1" }),
         ])
         expect(errors.every((error) => error.index === 1)).toBe(true)
     })

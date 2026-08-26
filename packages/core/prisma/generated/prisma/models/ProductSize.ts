@@ -259,7 +259,6 @@ export type ProductSizeOrderByWithRelationInput = {
 
 export type ProductSizeWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  productId_signature?: Prisma.ProductSizeProductIdSignatureCompoundUniqueInput
   productId_code?: Prisma.ProductSizeProductIdCodeCompoundUniqueInput
   AND?: Prisma.ProductSizeWhereInput | Prisma.ProductSizeWhereInput[]
   OR?: Prisma.ProductSizeWhereInput[]
@@ -273,7 +272,7 @@ export type ProductSizeWhereUniqueInput = Prisma.AtLeast<{
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   values?: Prisma.ProductSizeValueListRelationFilter
   variants?: Prisma.ProductVariantListRelationFilter
-}, "id" | "productId_signature" | "productId_code">
+}, "id" | "productId_code">
 
 export type ProductSizeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -393,11 +392,6 @@ export type ProductSizeOrderByRelationAggregateInput = {
 export type ProductSizeScalarRelationFilter = {
   is?: Prisma.ProductSizeWhereInput
   isNot?: Prisma.ProductSizeWhereInput
-}
-
-export type ProductSizeProductIdSignatureCompoundUniqueInput = {
-  productId: string
-  signature: string
 }
 
 export type ProductSizeProductIdCodeCompoundUniqueInput = {

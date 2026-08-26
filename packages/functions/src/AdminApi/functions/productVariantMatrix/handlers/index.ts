@@ -1,7 +1,5 @@
 export * from "./getProductVariantMatrixHandler"
 export * from "./saveProductVariantMatrixHandler"
-export * from "./setVariantCodeLockHandler"
-export * from "./renumberVariantCodesHandler"
 export * from "./getVariantMatrixReferencesHandler"
 export * from "./updateVariantMatrixSupplierHandler"
 export * from "./deleteVariantMatrixRowHandler"

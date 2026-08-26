@@ -50,8 +50,8 @@ describe("buildDraftFromRow", () => {
 
     it("renk ve hammaddeleri taşır", () => {
         const draft = buildDraftFromRow({ row, sizes, versions })
-        expect(draft.colorId).toBe("black")
-        expect(draft.materialIds).toEqual(["pp", "pe"])
+        // Renk/hammadde artık satırda taşınmıyor; kopyalanan satır versiyonu taşır.
+        expect(draft.versionId).toBe("v1")
     })
 
     it("tedarikçinin ticari ve lojistik alanlarını taşır", () => {

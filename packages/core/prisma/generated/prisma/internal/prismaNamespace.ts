@@ -4522,8 +4522,6 @@ export const ProductScalarFieldEnum = {
   assemblyVideoUrl: 'assemblyVideoUrl',
   promoVideoUrl: 'promoVideoUrl',
   categoryId: 'categoryId',
-  variantCodesLockedAt: 'variantCodesLockedAt',
-  variantCodesLockedByUserId: 'variantCodesLockedByUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

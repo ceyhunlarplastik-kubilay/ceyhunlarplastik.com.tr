@@ -34,7 +34,6 @@ function version(id: string, code: number): PlannerVersion {
 function baseInput(overrides: Partial<ProductVariantCodePlanInput> = {}): ProductVariantCodePlanInput {
     return {
         productCode: "10.5",
-        isLocked: false,
         sizes: [],
         versions: [],
         supplierCodes: [],
@@ -43,8 +42,10 @@ function baseInput(overrides: Partial<ProductVariantCodePlanInput> = {}): Produc
     }
 }
 
-describe("assignProductVariantCodes — taslak modu", () => {
-    it("ölçüleri küçükten büyüğe 1..N numaralar", () => {
+describe("assignProductVariantCodes — ölçü numaraları", () => {
+    it("aynı kayıttaki yeni ölçüleri sortKey sırasıyla numaralar", () => {
+        // Tek seferde 30/10/12 girildi: küçüğün küçük numara alması daha okunur.
+        // Bu bir TERCİH, sıralama garantisi değil — sıralama sortKey ile yapılır.
         const plan = assignProductVariantCodes(baseInput({
             sizes: [size("s-30", 30), size("s-10", 10), size("s-12", 12)],
         }))
@@ -56,17 +57,28 @@ describe("assignProductVariantCodes — taslak modu", () => {
         ])
     })
 
-    it("araya giren ölçüde mevcut kodları YENİDEN sıralar", () => {
-        // 10/12/30 girilmiş (1/2/3), sonra 11 cm ekleniyor.
+    it("ARAYA GİREN ölçü mevcut kodlara DOKUNMAZ — sona eklenir", () => {
+        // 10/12/30 girilmiş (1/2/3), sonra 11 mm ekleniyor. Eski "taslak" kipinde
+        // 11 → 2 olur ve 12/30 kayardı; artık kaymıyor. Dışarı çıkmış kodların
+        // yanlış varyanta işaret etmesini engelleyen asıl değişiklik bu.
         const plan = assignProductVariantCodes(baseInput({
             sizes: [size("s-10", 10, 1), size("s-12", 12, 2), size("s-30", 30, 3), size("s-11", 11)],
         }))
 
-        const byId = Object.fromEntries(plan.sizeCodeUpdates.map((u) => [u.id, u.code]))
-        expect(byId).toEqual({ "s-11": 2, "s-12": 3, "s-30": 4 })
-        // 10 cm zaten 1'di — değişmediği için plana HİÇ girmez.
-        expect(byId["s-10"]).toBeUndefined()
-        expect(plan.requiresSizeRenumber).toBe(true)
+        expect(plan.sizeCodeUpdates).toEqual([
+            { id: "s-11", code: 4, previousCode: null },
+        ])
+        expect(plan.requiresSizeRenumber).toBe(false)
+    })
+
+    it("kod boşluğunu DOLDURMAZ", () => {
+        // 2 numara silinmiş; yeni ölçü 4 alır, boşluğa girmez.
+        const plan = assignProductVariantCodes(baseInput({
+            sizes: [size("s-10", 10, 1), size("s-30", 30, 3), size("s-40", 40)],
+        }))
+        expect(plan.sizeCodeUpdates).toEqual([
+            { id: "s-40", code: 4, previousCode: null },
+        ])
     })
 
     it("hiçbir şey değişmiyorsa boş plan üretir", () => {
@@ -114,7 +126,6 @@ describe("assignProductVariantCodes — kilitli mod", () => {
     it("yeni ölçüyü SONA ekler, mevcut kodlara dokunmaz", () => {
         // Kilitten sonra 11 cm ekleniyor: araya girmez, 4 numarasını alır.
         const plan = assignProductVariantCodes(baseInput({
-            isLocked: true,
             sizes: [size("s-10", 10, 1), size("s-12", 12, 2), size("s-30", 30, 3), size("s-11", 11)],
         }))
 
@@ -124,7 +135,6 @@ describe("assignProductVariantCodes — kilitli mod", () => {
 
     it("kod boşluğunu doldurmaz", () => {
         const plan = assignProductVariantCodes(baseInput({
-            isLocked: true,
             sizes: [size("s-10", 10, 1), size("s-30", 30, 5), size("s-40", 40)],
         }))
 
@@ -148,9 +158,8 @@ describe("assignProductVariantCodes — tedarikçi harfleri", () => {
         ])
     })
 
-    it("kilit AÇIKKEN bile mevcut harfi değiştirmez", () => {
+    it("mevcut harfi asla değiştirmez", () => {
         const plan = assignProductVariantCodes(baseInput({
-            isLocked: false,
             supplierCodes: [
                 { id: "psc-1", supplierId: "sup-x", code: "B", sequence: 1 },
                 { id: "psc-2", supplierId: "sup-y", code: null, sequence: 2 },
@@ -162,9 +171,8 @@ describe("assignProductVariantCodes — tedarikçi harfleri", () => {
 })
 
 describe("assignProductVariantCodes — varyant kodları", () => {
-    const scenario = (isLocked: boolean) =>
+    const scenario = () =>
         baseInput({
-            isLocked,
             sizes: [size("s-10", 10, 1), size("s-12", 12, 2)],
             versions: [version("v-1", 1)],
             supplierCodes: [
@@ -193,7 +201,7 @@ describe("assignProductVariantCodes — varyant kodları", () => {
         })
 
     it("yeni biçimde kod üretir", () => {
-        const plan = assignProductVariantCodes(scenario(true))
+        const plan = assignProductVariantCodes(scenario())
 
         expect(plan.variantCodeUpdates).toEqual([
             { id: "var-10", fullCode: "10.5.1.V1", previousFullCode: null },
@@ -202,7 +210,7 @@ describe("assignProductVariantCodes — varyant kodları", () => {
     })
 
     it("aynı ölçüyü paylaşan iki tedarikçi TEK ölçü kodu alır, yalnız harf değişir", () => {
-        const plan = assignProductVariantCodes(scenario(true))
+        const plan = assignProductVariantCodes(scenario())
 
         expect(plan.variantSupplierCodeUpdates).toEqual([
             { id: "vs-10-x", supplierCode: "A", fullCode: "10.5.1.V1.A", previousFullCode: null },
@@ -212,7 +220,7 @@ describe("assignProductVariantCodes — varyant kodları", () => {
     })
 
     it("stats sayımları doğrudur", () => {
-        expect(assignProductVariantCodes(scenario(true)).stats).toEqual({
+        expect(assignProductVariantCodes(scenario()).stats).toEqual({
             sizes: 2,
             versions: 1,
             supplierCodes: 2,
@@ -235,7 +243,6 @@ describe("assignProductVariantCodes — tutarsız girdi", () => {
     it("harfsiz tedarikçiyle varyant kodunu üretmeye kalkmaz", () => {
         expect(() =>
             assignProductVariantCodes(baseInput({
-                isLocked: true,
                 sizes: [size("s-10", 10, 1)],
                 versions: [version("v-1", 1)],
                 variants: [{
@@ -252,7 +259,6 @@ describe("assignProductVariantCodes — tutarsız girdi", () => {
     it("çakışan mevcut ölçü kodunu reddeder", () => {
         expect(() =>
             assignProductVariantCodes(baseInput({
-                isLocked: true,
                 sizes: [size("s-10", 10, 1), size("s-12", 12, 1)],
             })),
         ).toThrow(/duplicate size code/)

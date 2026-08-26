@@ -102,6 +102,15 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   → yalnız `{type:"string",maxLength:320}` — sunucu her string'i kabul eder. Opsiyonel
   e-posta gibi durumlarda union yaz: `z.union([z.literal(""), z.email().max(320)])`.
   Koruma: `packages/functions/src/AdminApi/validators/leadCustomers.test.ts`.
+- `$transaction(async (tx) => …)` İÇİNDE **global `prisma` istemcisini KULLANMA** —
+  yalnız `tx`. Global istemciyle yapılan sorgu transaction'ın bağlantısını
+  kullanmaz, AYRI bir bağlantı açar; Neon'da o el sıkışma 5 sn'lik interaktif
+  transaction sınırını aşıp P2028 verir (yaşandı: tedarikçi sözlüğü `create`,
+  kubi 2026-08-26 — `toRow` içindeki kullanım sayımı global `prisma` ile
+  yapılıyordu). Gösterim amaçlı sayım/okumaları transaction DIŞINA al; transaction
+  yalnız tekillik kontrolü + yazma içersin. Ayrıca transaction içindeki
+  gidiş-dönüş sayısını düşük tut: yüksek gecikmeli bağlantıda her sorgu süreye
+  eklenir.
 - Harici HTTP çağrısını (Google Places gibi) `prisma.$transaction` İÇİNDE yapma:
   varsayılan 5 sn'lik interaktif transaction süresi ağ gecikmesiyle aşılır (P2028) ve
   tüm iş geri alınır; servis kapalıysa akış hiç tamamlanamaz. Çözümü önce hazırla,

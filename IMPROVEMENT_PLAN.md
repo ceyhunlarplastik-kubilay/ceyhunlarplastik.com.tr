@@ -4645,6 +4645,104 @@ olanın silinmesi, cari kaydın reddi, adres cascade'i, bulunamayan id.
 backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 551 ✅ · functions 301 ✅ ·
 frontend 310 ✅ · `next build` ✅.
 
+## Varyant kod sistemi sadeleştirmesi (2026-08-26)
+
+Branch `feat/variant-code-simplification`. Dört değişiklik + iki düzeltme.
+
+### 1. Ölçü kodu APPEND-ONLY, sıralama ayrı eksene taşındı
+
+İstenen davranış zaten "kilitli" dalında vardı; TASLAK dalı kaldırıldı. Ürünün
+tüm ölçülerini her kayıtta `sortKey`'e göre 1..N yeniden numaralayan kip yok
+artık: yeni ölçü sıradaki numarayı alır, mevcut hiçbir kod kaymaz.
+
+`variantCodesLockedAt`/`variantCodesLockedByUserId` şemadan düştü; kilit ve
+yeniden-numaralandırma uçları, hook'ları ve rail'deki "Kod durumu" bölümü silindi.
+Migration `20260826120000_variant_codes_append_only` — yıkıcı değil, iki
+kullanılmayan kolon.
+
+**Kritik yan etki:** kod artık ölçü büyüklüğüyle ilgisiz, dolayısıyla `size.code`'a
+göre sıralayan her yer SESSİZCE bozulurdu (hata vermez, yanlış sıra gösterir).
+Üç yerde `size.sortKey`'e taşındı: public/portal varyant tablosu, ölçü sayfalaması
+ve matris. `@@index([productId, sortKey])` zaten vardı.
+
+Ölçü şablonu diyaloğundaki "kodlar yeniden numaralanacak" uyarısı da gerçeğe
+uyduruldu: artık yalnız LİSTELEME SIRASI değişiyor.
+
+### 2. Satırda versiyon seçimi
+
+Renk ve hammadde ayrı ayrı seçilmiyor; tek listeden `V1 · Siyah + Bakalit`.
+Taslak satır `colorId`/`materialIds` yerine `versionId` tutuyor, renk/hammadde
+kaydetme anında sözlükten türetiliyor. Yan fayda: sözlükte olmayan kombinasyon
+artık KURULAMIYOR, yani "tanımsız kombinasyon" hata sınıfı ortadan kalktı.
+
+### 3. Tedarikçi sözlüğü
+
+`ProductSupplierCode` şemada ZATEN ürün başınaydı (`@@unique([productId, code])`);
+eksik olan yönetim yüzeyiydi — harfler ilk kullanım sırasına göre otomatik
+veriliyordu. Versiyon sözlüğünün birebir ikizi eklendi:
+`GET/POST/PATCH/DELETE /products/{id}/supplier-codes`, rail'de panel + diyalog.
+
+HARF sabit (değiştirmek o tedarikçinin tüm kodlarını yeniden yazar), TEDARİKÇİ
+ataması düzenlenebilir (kodda firma kimliği geçmez). Silme yalnız admin ve
+kullanımdaki harf silinemez.
+
+**Seçim listeleri sözlükle sınırlı:** "Tedarikçi sabitle", satırdaki tedarikçi
+seçimi ve kayıtlı varyant filtresi artık TÜM tedarikçileri değil yalnız bu ürünün
+sözlüğündekileri listeliyor. Aksi hâlde operatör sözlükte olmayan bir firma seçer,
+harf sessizce otomatik atanır ve sözlüğü kurmanın anlamı kalmazdı. Harf seçim
+listelerinde adla birlikte görünüyor: `A · Özgen`.
+
+### 4. Versiyon sabitleme + sabitlenen alanların kilitlenmesi
+
+Tedarikçi sabitlemenin yanına versiyon sabitleme eklendi. Sabitlenen alan artık
+satırda DEĞİŞTİRİLEMEZ (öncesinde yalnız yeni satıra varsayılan koyuyordu).
+Amaç: operatör bir tedarikçinin kataloğunu eline alıp yalnız ölçülere odaklansın.
+
+### 🔴 Düzeltme A: ölçü tekilleştirmesi (kubi'de yakalandı)
+
+Numaralandırmayı append-only yaptım ama ölçülerin `signature` ile
+tekilleştirilmesini bıraktım. Özgen 20×20 girip `4.1.1` aldıktan sonra Esersan
+aynı 20×20'yi girince o da `4.1.1`'i kullanıyordu; beklenen `4.1.7`.
+
+Tekilleştirme kalkmadı, ANAHTARI değişti: **ölçü imzası + TEDARİKÇİ**. Aynı
+tedarikçi aynı ölçüyü tekrar girerse yeni kod üretilmez (katalog güncellemesi,
+kazara tekrar), farklı tedarikçi kendi kodunu alır. Kontrol UYGULAMA katmanında
+(`productVariantWriter`) çünkü tedarikçi `ProductSize` üzerinde değil
+`ProductVariantSupplier` üzerinde — DB kısıtıyla ifade edilemez.
+`@@unique([productId, signature])` düştü (migration
+`20260826140000_product_size_per_supplier`, yalnız bir index).
+
+Public/portal listeleri ölçüleri zaten gruplayıp tekilleştirdiği için müşteriye
+aynı ölçü iki kez görünmez.
+
+### 🔴 Düzeltme B: P2028 (kubi'de yakalandı)
+
+Tedarikçi harfi oluşturma `Transaction API error: A commit cannot be executed on
+an expired transaction` veriyordu. Sebep: `toRow` içindeki kullanım sayımı GLOBAL
+`prisma` istemcisiyle yapılıyor ve `$transaction` callback'i İÇİNDEN çağrılıyordu.
+Global istemci transaction'ın bağlantısını kullanmaz, ayrı bağlantı açar; Neon'da
+o el sıkışma 5 sn'lik sınırı aşıyordu. Okuma çalıştığı için `list` sorunsuzdu,
+yalnız yazma patlıyordu.
+
+Transaction artık yalnız tekillik kontrolü + yazma içeriyor; sayım commit'ten
+sonra. Ayrıca `list`'teki N+1 (satır başına `count`) tek `groupBy`'a indi ve
+`create`'teki gidiş-dönüş 4'ten 3'e düştü. Tuzak CLAUDE.md'ye eklendi.
+
+### Doğrulama
+
+Gerçek Postgres 17'de (Node 24) toplam **20 davranış testi**: append-only
+numaralandırma, koda rağmen doğru sıralama, desc, kullanıcının kubi senaryosu
+(Özgen 1..6 → Esersan 20×20 = `4.1.7.V1.B`, `4.1.1.V1.B` DEĞİL), aynı tedarikçinin
+tekrarında kod üretilmemesi, tedarikçi sözlüğünün tamamı (elle harf, çakışma
+reddi, otomatik sıradaki harf, tedarikçi değişiminde harfin sabit kalması,
+kullanımdaki harfin silinememesi, sayımın doğruluğu).
+
+Her iki migration `migrate diff --from-config-datasource --to-schema` ile
+şemayla karşılaştırıldı → "No difference detected".
+
+backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 552 ✅ · functions 308 ✅ ·
+frontend 310 ✅ · `next build` ✅.
+
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 
 `SUPPLIER_VARIANT_CREATE` onayı [service.ts:734](packages/core/src/core/helpers/businessRequests/service.ts:734)

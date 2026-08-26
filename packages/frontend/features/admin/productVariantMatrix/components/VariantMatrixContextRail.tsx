@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { MeasurementRequirementsPanel } from "@/features/admin/productMeasurementRequirements/components/MeasurementRequirementsPanel"
 import { VariantAssetPreview } from "@/features/admin/productVariantMatrix/components/VariantAssetPreview"
 import { VariantVersionsPanel } from "@/features/admin/variantVersions/components/VariantVersionsPanel"
+import { ProductSupplierCodesPanel } from "@/features/admin/productSupplierCodes/components/ProductSupplierCodesPanel"
 
 type ProductAsset = { role?: string; type?: string; url?: string }
 
@@ -34,14 +35,8 @@ type Props = {
     assetsLoading: boolean
     variantCount: number
     sizeCount: number
-    lockedAt: string | null
-    canManageCodes: boolean
     /** Sözlükten kayıt silme yalnız yöneticide. */
     canDeleteVersions: boolean
-    isLockPending: boolean
-    isRenumberPending: boolean
-    onToggleLock: (locked: boolean) => void
-    onRenumber: () => void
 }
 
 function pickAsset(assets: ProductAsset[], role: string) {
@@ -58,10 +53,8 @@ function pickAsset(assets: ProductAsset[], role: string) {
 export function VariantMatrixContextRail({
     productId, productsBasePath, code, name, categoryName,
     assets, assetsLoading, variantCount, sizeCount,
-    lockedAt, canManageCodes, canDeleteVersions, isLockPending, isRenumberPending,
-    onToggleLock, onRenumber,
+    canDeleteVersions,
 }: Props) {
-    const isLocked = Boolean(lockedAt)
     const primaryImage =
         pickAsset(assets, "PRIMARY") ??
         pickAsset(assets, "ANIMATION") ??
@@ -112,7 +105,6 @@ export function VariantMatrixContextRail({
             <MeasurementRequirementsPanel
                 productId={productId}
                 productName={name}
-                isDraftMode={!isLocked}
                 sizeCount={sizeCount}
             />
 
@@ -127,81 +119,13 @@ export function VariantMatrixContextRail({
 
             <div className="h-px bg-border" />
 
-            <section className="space-y-2">
-                <h2 className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Kod durumu</h2>
-                <div className="flex items-center gap-2">
-                    <Badge variant={isLocked ? "default" : "secondary"} className="gap-1">
-                        {isLocked ? <Lock className="size-3" /> : <LockOpen className="size-3" />}
-                        {isLocked ? "Kilitli" : "Taslak"}
-                    </Badge>
-                    <span className="text-xs text-neutral-500">{sizeCount} ölçü</span>
-                </div>
-                <p className="text-[11px] leading-relaxed text-neutral-500">
-                    {isLocked
-                        ? "Yeni ölçüler araya girmez, sona eklenir."
-                        : "Her kayıtta ölçüler küçükten büyüğe yeniden numaralanır. Giriş bitince kilitleyin."}
-                </p>
+            <ProductSupplierCodesPanel
+                productId={productId}
+                productCode={code}
+                productName={name}
+                canDelete={canDeleteVersions}
+            />
 
-                {canManageCodes ? (
-                    <div className="space-y-2 pt-1">
-                        {isLocked ? (
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button variant="outline" size="sm" className="w-full" disabled={isLockPending}>
-                                        <LockOpen className="mr-2 size-4" />
-                                        Kilidi aç
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Kod kilidini aç</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Kilidi açmak mevcut kodları hemen değiştirmez. Ancak bundan sonraki her
-                                            kayıtta ölçüler yeniden sıralanabilir; katalog veya tekliflerde geçen
-                                            kodlar bu üründe artık kalıcı sayılmaz.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Vazgeç</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => onToggleLock(false)}>Kilidi aç</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        ) : (
-                            <Button size="sm" className="w-full" onClick={() => onToggleLock(true)} disabled={isLockPending}>
-                                <Lock className="mr-2 size-4" />
-                                Kodları kilitle
-                            </Button>
-                        )}
-
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="sm" className="w-full text-neutral-500" disabled={isRenumberPending}>
-                                    <RefreshCw className="mr-2 size-4" />
-                                    Yeniden numaralandır
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle className="flex items-center gap-2">
-                                        <AlertTriangle className="size-4 text-amber-600" />
-                                        Tüm kodları baştan ver
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Bu ürünün TÜM ölçü ve versiyon kodları küçükten büyüğe yeniden verilir ve
-                                        kilit yok sayılır. Kodlar katalog, teklif veya siparişlerde geçtiyse
-                                        geçmişle uyum bozulur. Bu işlem geri alınamaz.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Vazgeç</AlertDialogCancel>
-                                    <AlertDialogAction onClick={onRenumber}>Yine de yeniden numaralandır</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                ) : null}
-            </section>
         </aside>
     )
 }

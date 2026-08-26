@@ -1,4 +1,8 @@
-import type { MatrixRequirement, SaveVariantMatrixRowInput } from "@/features/admin/productVariantMatrix/api/types"
+import type {
+    MatrixRequirement,
+    SaveVariantMatrixRowInput,
+    VariantVersionDictionaryEntry,
+} from "@/features/admin/productVariantMatrix/api/types"
 import {
     parseMeasurementValue,
     parseOptionalInteger,
@@ -21,8 +25,11 @@ export function buildSaveRows(input: {
     rows: VariantMatrixDraftRow[]
     requirements: MatrixRequirement[]
     productName: string
+    /** Satırdaki `versionId` renk/hammaddeye buradan çözülür. */
+    versionDictionary: VariantVersionDictionaryEntry[]
 }): { rows: SaveVariantMatrixRowInput[]; errors: DraftRowValidation[] } {
-    const { rows, requirements, productName } = input
+    const { rows, requirements, productName, versionDictionary } = input
+    const versionById = new Map(versionDictionary.map((entry) => [entry.id, entry]))
 
     const result: SaveVariantMatrixRowInput[] = []
     const errors: DraftRowValidation[] = []
@@ -51,11 +58,19 @@ export function buildSaveRows(input: {
             return
         }
 
+        // Versiyon ZORUNLU: renk/hammadde artık satırda seçilmiyor, sözlükten
+        // geliyor. Seçilmemişse hangi kombinasyonun yazılacağı belirsiz olurdu.
+        const version = row.versionId ? versionById.get(row.versionId) : undefined
+        if (!version) {
+            errors.push({ index, message: "Versiyon seçilmeli" })
+            return
+        }
+
         result.push({
             name: [productName, labelParts.join(" · ")].filter(Boolean).join(" — ").slice(0, 240),
             measurements,
-            colorId: row.colorId || undefined,
-            materialIds: row.materialIds.length > 0 ? row.materialIds : undefined,
+            colorId: version.colorId ?? undefined,
+            materialIds: version.materialIds.length > 0 ? version.materialIds : undefined,
             supplier: row.supplierId
                 ? {
                     supplierId: row.supplierId,

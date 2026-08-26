@@ -9,8 +9,16 @@ import { parseMeasurementInput } from "@core/helpers/productVariants/measurement
  */
 export const variantMatrixDraftRowSchema = z.object({
     measurements: z.record(z.string(), z.string()),
-    colorId: z.string().optional(),
-    materialIds: z.array(z.string()).default([]),
+    /**
+     * Ürün modelinin versiyon SÖZLÜĞÜNDEN seçilen kayıt (V1, V2…).
+     *
+     * Öncesinde satırda renk ve hammadde AYRI AYRI seçiliyordu; operatör
+     * sözlükte tanımlı kombinasyonu elle yeniden kurmak zorunda kalıyordu ve
+     * tanımsız bir kombinasyon seçerse kayıt sunucuda reddediliyordu. Artık
+     * yalnız tanımlı versiyonlar seçilebiliyor, yani o hata sınıfı ortadan
+     * kalktı. Renk/hammadde kaydetme anında sözlükten türetilir.
+     */
+    versionId: z.string().optional(),
     supplierId: z.string().optional(),
     supplierVariantCode: z.string().max(120).optional(),
     hasSupplierLogo: z.boolean().default(false),
@@ -29,8 +37,7 @@ export type VariantMatrixDraftRow = z.infer<typeof variantMatrixDraftRowSchema>
 export function createEmptyDraftRow(defaults?: Partial<VariantMatrixDraftRow>): VariantMatrixDraftRow {
     return {
         measurements: {},
-        colorId: undefined,
-        materialIds: [],
+        versionId: undefined,
         supplierId: undefined,
         supplierVariantCode: undefined,
         hasSupplierLogo: false,

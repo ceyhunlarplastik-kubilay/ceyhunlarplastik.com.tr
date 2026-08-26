@@ -97,7 +97,6 @@ export type VariantMatrix = {
         code: string
         name: string
         /** null = taslak: kodlar her kayıtta yeniden sıralanır */
-        variantCodesLockedAt: string | null
     }
     requirements: MatrixRequirement[]
     sizes: MatrixSize[]
@@ -141,7 +140,6 @@ export type SaveVariantMatrixRowInput = {
 
 export type SaveVariantMatrixResult = {
     productId: string
-    isLocked: boolean
     affectedVariantIds: string[]
     createdSizes: number
     createdSupplierCodes: number
@@ -153,27 +151,4 @@ export type SaveVariantMatrixResult = {
 export type SaveVariantMatrixResponse = {
     statusCode: number
     payload: { result: SaveVariantMatrixResult; matrix: VariantMatrix | null }
-}
-
-export type VariantCodeLockResponse = {
-    statusCode: number
-    payload: {
-        product: {
-            id: string
-            variantCodesLockedAt: string | null
-            variantCodesLockedByUserId: string | null
-        }
-    }
-}
-
-export type RenumberVariantCodesResponse = {
-    statusCode: number
-    payload: {
-        result: {
-            productId: string
-            isLocked: boolean
-            resortedSizes: number
-            rewrittenCodes: number
-        }
-    }
 }

@@ -2,18 +2,25 @@
  * Varyant kod atamasının SAF planlayıcısı — I/O yok, Prisma yok, tamamen test edilebilir.
  * Prisma'ya dokunan yüzey `writeProductVariantCodes.ts` içindedir ve bu modülü kullanır.
  *
- * Numaralandırma politikası ("taslak + kilitle"):
+ * Numaralandırma politikası: HER ŞEY APPEND-ONLY.
  *
- *  - **Taslak** (`Product.variantCodesLockedAt == null`): ürünün TÜM ölçüleri
- *    `sortKey`'e göre yeniden sıralanıp 1..N numaralanır, versiyonlar da
- *    deterministik sırayla V1..VN olur. Operatör veri girerken kodlar kendiliğinden
- *    düzelir — araya 11 cm eklendiğinde 12 cm bir sonraki numaraya kayar.
+ *  - **Ölçü kodu (3. segment)**: mevcut hiçbir kod DEĞİŞMEZ. Yeni ölçü `max + 1`
+ *    alıp sona eklenir. Kod ile ölçünün BÜYÜKLÜĞÜ arasında bir bağ YOKTUR —
+ *    `10.11.3` ölçüsü `10.11.1`'den küçük olabilir.
  *
- *  - **Kilitli**: mevcut hiçbir kod DEĞİŞMEZ. Yeni ölçü/versiyon `max + 1` alıp
- *    sona eklenir. Kilit, kodlar katalog/teklif/sipariş üzerinden dışarı çıktıktan
- *    sonra geçmişi bozmamak içindir.
+ *    Eskiden bir "taslak" kipi vardı: ürünün tüm ölçüleri her kayıtta `sortKey`'e
+ *    göre 1..N yeniden numaralanıyordu, yani araya 11 cm eklemek 12 cm'i bir
+ *    sonraki numaraya kaydırıyordu. Kaldırıldı — kodların kayabildiği her yol
+ *    dışarı çıkmış kodları (katalog, teklif, tedarikçi siparişi) yanlış varyanta
+ *    işaret eder hâle getiriyordu. Aynı gerekçeyle versiyon numaralandırması da
+ *    kaldırılmıştı.
  *
- *  - **Tedarikçi harfleri kilitten BAĞIMSIZ olarak her zaman append-only**'dır:
+ *    **SIRALAMA AYRI BİR EKSEN**: listeler ölçüyü küçükten büyüğe göstermeye devam
+ *    eder, ama bunu koda değil `ProductSize.sortKey`'e bakarak yapar
+ *    (`@@index([productId, sortKey])`). Kodu sıralama anahtarı sanan her yer bu
+ *    değişiklikle SESSİZCE bozulur — bkz. repository'deki orderBy.
+ *
+ *  - **Tedarikçi harfleri** her zaman append-only'dır:
  *    bir tedarikçinin harfi verildikten sonra asla değişmez ve aradan bir tedarikçi
  *    çıkarılsa bile boşluk doldurulmaz (bkz. `nextSupplierCode`).
  *
@@ -80,8 +87,6 @@ export type PlannerVariant = {
 export type ProductVariantCodePlanInput = {
     /** `Product.code` — "10.5" */
     productCode: string
-    /** `Product.variantCodesLockedAt != null` */
-    isLocked: boolean
     sizes: readonly PlannerSize[]
     versions: readonly PlannerVersion[]
     supplierCodes: readonly PlannerSupplierCode[]
@@ -130,14 +135,6 @@ function planSizeCodes(input: ProductVariantCodePlanInput): Map<string, SizeCode
 
     const resolved = new Map<string, SizeCodeUpdate | { code: number }>()
 
-    if (!input.isLocked) {
-        const ordered = [...input.sizes].sort(compareSizeKeys)
-        ordered.forEach((size, index) => {
-            resolved.set(size.id, { id: size.id, code: index + 1, previousCode: size.code })
-        })
-        return resolved
-    }
-
     let highest = 0
     for (const size of input.sizes) {
         if (size.code !== null) {
@@ -146,6 +143,9 @@ function planSizeCodes(input: ProductVariantCodePlanInput): Map<string, SizeCode
         }
     }
 
+    // Aynı kayıtta gelen YENİ ölçüler `sortKey` sırasıyla numaralanır: tek seferde
+    // 10/12/8 mm girildiyse 8'in küçük numara alması daha okunur. Bu yalnız bir
+    // tercih — mevcut kodlara dokunmaz ve sıralama garantisi DEĞİLDİR.
     const pending = input.sizes.filter((size) => size.code === null).sort(compareSizeKeys)
     for (const size of pending) {
         highest += 1

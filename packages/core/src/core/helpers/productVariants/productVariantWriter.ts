@@ -67,7 +67,6 @@ export type VariantRowInput = {
 
 export type UpsertProductVariantRowsResult = {
     productId: string
-    isLocked: boolean
     /** Bu çağrının dokunduğu varyantlar — yeni oluşanlar ve tedarikçi eklenenler. */
     affectedVariantIds: string[]
     createdSizes: number
@@ -137,7 +136,7 @@ export async function upsertProductVariantRows(
 
     const product = await tx.product.findUnique({
         where: { id: productId },
-        select: { id: true, code: true, variantCodesLockedAt: true },
+        select: { id: true, code: true },
     })
     if (!product) throw new createError.NotFound("Product not found")
 
@@ -181,7 +180,43 @@ export async function upsertProductVariantRows(
         }),
     ])
 
-    const sizeBySignature = new Map(existingSizes.map((size) => [size.signature, size]))
+    /**
+     * Ölçü tekilleştirme anahtarı: **ölçü imzası + TEDARİKÇİ**.
+     *
+     * Ölçüler eskiden yalnız imzayla tekilleştiriliyordu: Özgen 20×20 girip
+     * `4.1.1` aldıktan sonra Esersan aynı 20×20'yi girince o da `4.1.1`'i
+     * kullanıyordu. İstenen davranış her giriş satırının SIRADAKİ numarayı
+     * alması (`4.1.7`) — kod, veri girişi sırasının sayacıdır.
+     *
+     * Tedarikçi anahtara dahil ki aynı tedarikçi aynı ölçüyü ikinci kez
+     * girdiğinde (katalog güncellemesi, kazara tekrar) yeni kod ÜRETİLMESİN,
+     * mevcut satır güncellensin.
+     *
+     * Tedarikçisiz satırlar kendi aralarında imzayla tekilleşir (anahtarın
+     * tedarikçi kısmı boş kalır).
+     */
+    const sizeSupplierKey = (signature: string, supplierId?: string) => `${signature}#${supplierId ?? ""}`
+
+    const supplierIdsBySizeId = new Map<string, Set<string>>()
+    for (const variant of existingVariants) {
+        const set = supplierIdsBySizeId.get(variant.productSizeId) ?? new Set<string>()
+        for (const link of variant.variantSuppliers) set.add(link.supplierId)
+        supplierIdsBySizeId.set(variant.productSizeId, set)
+    }
+
+    const sizeByKey = new Map<string, { id: string; code: number; signature: string; sortKey: string }>()
+    for (const size of existingSizes) {
+        const supplierIds = supplierIdsBySizeId.get(size.id)
+        if (!supplierIds || supplierIds.size === 0) {
+            sizeByKey.set(sizeSupplierKey(size.signature), size)
+            continue
+        }
+        // Bir ölçü BİRDEN ÇOK tedarikçiye bağlı olabilir (bu değişiklikten önce
+        // yazılmış kayıtlar). Hepsi o ölçüye çözülür; eski veri bozulmaz.
+        for (const supplierId of supplierIds) {
+            sizeByKey.set(sizeSupplierKey(size.signature, supplierId), size)
+        }
+    }
     const versionBySignature = new Map(existingVersions.map((version) => [version.signature, version]))
     const supplierCodeBySupplierId = new Map(existingSupplierCodes.map((entry) => [entry.supplierId, entry]))
     const variantBySizeVersion = new Map(
@@ -223,10 +258,11 @@ export async function upsertProductVariantRows(
         const signature = buildSizeSignature(row.measurements, requirements)
         const sortKey = buildSizeSortKey(row.measurements, requirements)
 
-        let size = sizeBySignature.get(signature)
+        const sizeKey = sizeSupplierKey(signature, row.supplier?.supplierId)
+        let size = sizeByKey.get(sizeKey)
         if (!size) {
             const staged = { id: randomUUID(), code: null as unknown as number, signature, sortKey }
-            sizeBySignature.set(signature, staged)
+            sizeByKey.set(sizeKey, staged)
             newSizes.push({ id: staged.id, signature, sortKey, values: [...row.measurements] })
             plannerSizes.push({ id: staged.id, signature, sortKey, code: null })
             size = staged
@@ -308,7 +344,6 @@ export async function upsertProductVariantRows(
 
     const plan = assignProductVariantCodes({
         productCode: product.code,
-        isLocked: product.variantCodesLockedAt !== null,
         sizes: plannerSizes,
         versions: plannerVersions,
         supplierCodes: plannerSupplierCodes,
@@ -412,7 +447,6 @@ export async function upsertProductVariantRows(
 
     return {
         productId,
-        isLocked: product.variantCodesLockedAt !== null,
         affectedVariantIds: [...affectedVariantIds],
         createdSizes: newSizes.length,
         createdSupplierCodes: newSupplierCodes.length,

@@ -21,7 +21,6 @@ export interface IPrismaProductVariantMatrixRepository {
             id: string
             code: string
             name: string
-            variantCodesLockedAt: Date | null
         }
         requirements: Array<{
             id: string
@@ -59,7 +58,7 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
     const getMatrix = async (productId: string) => {
         const product = await prisma.product.findUnique({
             where: { id: productId },
-            select: { id: true, code: true, name: true, variantCodesLockedAt: true },
+            select: { id: true, code: true, name: true },
         })
         if (!product) return null
 
@@ -80,7 +79,9 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
             }),
             prisma.productSize.findMany({
                 where: { productId },
-                orderBy: { code: "asc" },
+                // Ölçü KODU append-only, sıralı değil — küçükten büyüğe sıra
+                // `sortKey` ile gelir.
+                orderBy: { sortKey: "asc" },
                 select: {
                     id: true,
                     code: true,
@@ -107,7 +108,9 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
             }),
             prisma.productVariant.findMany({
                 where: { productId },
-                orderBy: [{ size: { code: "asc" } }, { version: { code: "asc" } }],
+                // Matris de ölçüyü küçükten büyüğe gösterir; koda göre sıralamak
+                // append-only numaralarda yanlış sıra üretir.
+                orderBy: [{ size: { sortKey: "asc" } }, { version: { code: "asc" } }],
                 select: {
                     id: true,
                     fullCode: true,

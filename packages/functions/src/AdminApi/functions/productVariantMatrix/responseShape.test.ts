@@ -34,7 +34,6 @@ import type { UpsertProductVariantRowsResult } from "@/core/helpers/productVaria
 // Yazıcının sonucuyla AYNI tipte — alan listesi buradan sapamaz.
 const writerResult: UpsertProductVariantRowsResult = {
     productId: "11111111-1111-1111-1111-111111111111",
-    isLocked: false,
     affectedVariantIds: ["22222222-2222-2222-2222-222222222222"],
     createdSizes: 1,
     createdSupplierCodes: 1,
@@ -50,7 +49,6 @@ const matrix: ProductVariantMatrix = {
         id: "11111111-1111-1111-1111-111111111111",
         code: "10.5",
         name: "Kol",
-        variantCodesLockedAt: null,
     },
     requirements: [{
         id: "33333333-3333-3333-3333-333333333333",

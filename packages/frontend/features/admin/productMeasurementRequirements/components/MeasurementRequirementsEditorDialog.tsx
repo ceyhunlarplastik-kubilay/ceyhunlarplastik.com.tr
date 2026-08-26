@@ -38,8 +38,6 @@ type Props = {
     productName: string
     requirements: MeasurementRequirement[]
     measurementTypes: MeasurementTypeOption[]
-    /** Taslak modda sıra değişikliği mevcut kodları yeniden numaralar. */
-    isDraftMode: boolean
     sizeCount: number
 }
 
@@ -95,7 +93,7 @@ export function MeasurementRequirementsEditorDialog(props: Props) {
 }
 
 function EditorForm({
-    onOpenChange, productId, requirements, measurementTypes, isDraftMode, sizeCount,
+    onOpenChange, productId, requirements, measurementTypes, sizeCount,
 }: Props) {
     const replaceMutation = useReplaceMeasurementRequirements(productId)
     const [drafts, setDrafts] = useState<DraftRequirement[]>(() => requirements.map(toDraft))
@@ -120,7 +118,11 @@ function EditorForm({
     const hasIncomplete = drafts.some((d) => !d.measurementTypeId || !d.label.trim())
     const usedTypeIds = new Set(drafts.map((d) => d.measurementTypeId))
     const quickAdd = measurementTypes.filter((type) => !usedTypeIds.has(type.id))
-    const willRenumber = isDraftMode && sizeCount > 0 && !sameOrder(drafts, requirements)
+    // Sıra değişikliği artık KODLARI değiştirmiyor (kodlar append-only), ama
+    // `sortKey`'i yeniden üretiyor — yani listelerde ölçülerin GÖRÜNME SIRASI
+    // değişir. Kullanıcı bunu bilmeli, ama eskisi gibi "kodlar bozulacak"
+    // uyarısı vermek artık yanlış olurdu.
+    const willResort = sizeCount > 0 && !sameOrder(drafts, requirements)
 
     const handleSave = async () => {
         await replaceMutation.mutateAsync(
@@ -276,12 +278,13 @@ function EditorForm({
                     <p className="text-sm text-red-600">Aynı ölçü tipi ve adı birden fazla kez tanımlanamaz.</p>
                 ) : null}
 
-                {willRenumber ? (
+                {willResort ? (
                     <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950/30">
                         <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                         <span>
-                            Sıra değişti. Ürün taslak modda olduğu için kaydedince{" "}
-                            <b>{sizeCount} ölçü yeniden numaralanacak</b> — mevcut varyant kodları değişir.
+                            Sıra değişti. Kaydedince <b>{sizeCount} ölçünün listeleme sırası</b> bu
+                            yeni önceliğe göre yeniden hesaplanır. <b>Varyant kodları DEĞİŞMEZ</b> —
+                            kodlar sıradan bağımsızdır.
                         </span>
                     </div>
                 ) : null}

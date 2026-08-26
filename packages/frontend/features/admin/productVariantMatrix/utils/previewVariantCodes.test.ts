@@ -29,10 +29,9 @@ const rows: MatrixRow[] = [
     { variantId: "var-30", fullCode: "10.5.2.V1", name: "", sizeId: "s-30", versionId: "v-1", suppliers: [] },
 ]
 
-function preview(draftRows: Parameters<typeof previewVariantCodes>[0]["draftRows"], isLocked = false) {
+function preview(draftRows: Parameters<typeof previewVariantCodes>[0]["draftRows"]) {
     return previewVariantCodes({
         productCode: "10.5",
-        isLocked,
         requirements: [req],
         sizes, versions, supplierCodes, rows,
         draftRows,
@@ -54,12 +53,13 @@ describe("previewVariantCodes", () => {
     })
 
     it("kilitli üründe yeni ölçüyü sona ekler", () => {
-        expect(preview([draft(40)], true)[0].fullCode).toBe("10.5.3.V1")
+        expect(preview([draft(40)])[0].fullCode).toBe("10.5.3.V1")
     })
 
-    it("taslak modda araya giren ölçüyü doğru numaralar", () => {
-        // 10 ve 30 var; 20 araya girince 2 numarayı alır, 30 üçe kayar.
-        expect(preview([draft(20)])[0].fullCode).toBe("10.5.2.V1")
+    it("araya giren ölçü SONA eklenir, mevcut kodlar kaymaz", () => {
+        // 10 (kod 1) ve 30 (kod 2) var; 20 araya girse de sıradaki numarayı alır.
+        // Kod ile ölçü büyüklüğü arasında bağ YOK — sıralama sortKey ile yapılır.
+        expect(preview([draft(20)])[0].fullCode).toBe("10.5.3.V1")
     })
 
     it("mevcut ölçüyü tekrar girince YENİ kod üretmez", () => {
@@ -67,19 +67,19 @@ describe("previewVariantCodes", () => {
     })
 
     it("tedarikçili tam kodu üretir", () => {
-        expect(preview([draft(40, "sup-x")], true)[0].supplierFullCode).toBe("10.5.3.V1.A")
+        expect(preview([draft(40, "sup-x")])[0].supplierFullCode).toBe("10.5.3.V1.A")
     })
 
     it("yeni tedarikçiye sıradaki harfi verir", () => {
-        expect(preview([draft(40, "sup-y")], true)[0].supplierFullCode).toBe("10.5.3.V1.B")
+        expect(preview([draft(40, "sup-y")])[0].supplierFullCode).toBe("10.5.3.V1.B")
     })
 
     it("tedarikçi seçilmemişse tedarikçili kod null", () => {
-        expect(preview([draft(40)], true)[0].supplierFullCode).toBeNull()
+        expect(preview([draft(40)])[0].supplierFullCode).toBeNull()
     })
 
     it("aynı ölçüyü iki tedarikçiyle girince ölçü kodu paylaşılır", () => {
-        const result = preview([draft(40, "sup-x"), draft(40, "sup-y")], true)
+        const result = preview([draft(40, "sup-x"), draft(40, "sup-y")])
         expect(result[0].fullCode).toBe("10.5.3.V1")
         expect(result[1].fullCode).toBe("10.5.3.V1")
         expect(result[0].supplierFullCode).toBe("10.5.3.V1.A")
@@ -94,7 +94,7 @@ describe("previewVariantCodes", () => {
             measurements: [{ requirementId: "req-l", value: 10 }],
             colorId: undefined,
             materialIds: [],
-        }], true)
+        }])
         expect(result[0]).toEqual({ fullCode: null, supplierFullCode: null, versionDefined: false })
     })
 
@@ -104,7 +104,6 @@ describe("previewVariantCodes", () => {
                 { name: "tanımsız", measurements: [{ requirementId: "req-l", value: 10 }], colorId: undefined, materialIds: [] },
                 draft(20, "sup-x"),
             ],
-            true,
         )
         expect(result[0].versionDefined).toBe(false)
         expect(result[1]).toMatchObject({ fullCode: "10.5.3.V1", supplierFullCode: "10.5.3.V1.A", versionDefined: true })
@@ -115,7 +114,6 @@ describe("previewVariantCodes", () => {
         // bile önizleme V1 demeli ve satır kaydedilebilir olmalı.
         const result = previewVariantCodes({
             productCode: "10.5",
-            isLocked: true,
             requirements: [req],
             sizes: [],
             versions: [],
@@ -132,7 +130,6 @@ describe("previewVariantCodes", () => {
         // numarayı 1..N'e sıkıştırmaz, sözlükte ne yazıyorsa onu kullanır.
         const result = previewVariantCodes({
             productCode: "10.5",
-            isLocked: true,
             requirements: [req],
             sizes: [],
             versions: [],
@@ -146,7 +143,7 @@ describe("previewVariantCodes", () => {
 
     it("şablon yoksa sessizce null döner", () => {
         const result = previewVariantCodes({
-            productCode: "10.5", isLocked: true, requirements: [],
+            productCode: "10.5", requirements: [],
             sizes: [], versions: [], supplierCodes: [], rows: [],
             draftRows: [draft(10)], versionDictionary: [],
         })
