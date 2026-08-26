@@ -27,28 +27,26 @@ type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0
 
 export type ProductVariantMaintenanceResult = {
     productId: string
-    isLocked: boolean
     resortedSizes: number
     rewrittenCodes: number
 }
 
 /**
- * @param forceRenumber Kilidi YOK SAYAR ve tüm kodları baştan verir. Yalnız açık,
- * uyarılı bir yönetici eyleminden çağrılmalıdır — kodlar katalog/teklif/sipariş
- * üzerinden dışarı çıkmışsa geçmişi bozar.
+ * Ürünün kodlarını yeniden HESAPLAR — yeniden NUMARALAMAZ.
+ *
+ * Ölçü/versiyon/tedarikçi numaraları append-only olduğu için burada değişmez.
+ * Yapılan iş, ölçü şablonu değişmişse `sortKey`'i tazelemek ve `fullCode`
+ * metinlerini (ürün kodu değişmiş olabilir) yeniden yazmaktır.
  */
 export async function recalculateProductVariantCodes(
     tx: TransactionClient,
     productId: string,
-    options: { forceRenumber?: boolean } = {},
 ): Promise<ProductVariantMaintenanceResult> {
     const product = await tx.product.findUnique({
         where: { id: productId },
-        select: { id: true, code: true, variantCodesLockedAt: true },
+        select: { id: true, code: true },
     })
     if (!product) throw new createError.NotFound("Product not found")
-
-    const isLocked = options.forceRenumber ? false : product.variantCodesLockedAt !== null
 
     const requirementRows = await tx.productMeasurementRequirement.findMany({
         where: { productId },
@@ -147,7 +145,6 @@ export async function recalculateProductVariantCodes(
 
     const plan = assignProductVariantCodes({
         productCode: product.code,
-        isLocked,
         sizes: plannerSizes,
         versions,
         supplierCodes,
@@ -159,7 +156,6 @@ export async function recalculateProductVariantCodes(
 
     return {
         productId,
-        isLocked: product.variantCodesLockedAt !== null,
         resortedSizes: resorted.length,
         rewrittenCodes: stats.sizeCodes + stats.variantCodes + stats.variantSupplierCodes,
     }

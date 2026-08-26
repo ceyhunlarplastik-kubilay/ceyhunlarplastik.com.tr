@@ -113,7 +113,6 @@ const matrixSchema = z.object({
         id: z.string(),
         code: z.string(),
         name: z.string(),
-        variantCodesLockedAt: z.string().nullable(),
     }).loose(),
     requirements: z.array(z.object({
         id: z.string(),
@@ -197,7 +196,6 @@ export const saveVariantMatrixResponseValidator = z.toJSONSchema(
             payload: z.object({
                 result: z.object({
                     productId: z.string(),
-                    isLocked: z.boolean(),
                     affectedVariantIds: z.array(z.string()),
                     createdSizes: z.number(),
                     createdSupplierCodes: z.number(),
@@ -219,8 +217,6 @@ export const variantCodeLockResponseValidator = z.toJSONSchema(
             payload: z.object({
                 product: z.object({
                     id: z.string(),
-                    variantCodesLockedAt: z.string().nullable(),
-                    variantCodesLockedByUserId: z.string().nullable(),
                 }).loose(),
             }),
         }),
@@ -235,7 +231,6 @@ export const renumberVariantCodesResponseValidator = z.toJSONSchema(
             payload: z.object({
                 result: z.object({
                     productId: z.string(),
-                    isLocked: z.boolean(),
                     resortedSizes: z.number(),
                     rewrittenCodes: z.number(),
                 }).loose(),

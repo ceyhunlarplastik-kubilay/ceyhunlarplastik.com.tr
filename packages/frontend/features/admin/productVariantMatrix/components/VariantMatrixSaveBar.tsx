@@ -10,7 +10,6 @@ type Props = {
     readyCount: number
     errorCount: number
     isSaving: boolean
-    isLocked: boolean
     /** Kaydedince kaç YENİ ölçü kodu ve tedarikçi harfi oluşacak. */
     newSizeCount: number
     newSupplierCount: number
@@ -29,7 +28,7 @@ type Props = {
  * Ayrıca kaydetmenin NE üreteceğini önceden söyler — kod oluşumu sürpriz olmasın.
  */
 export function VariantMatrixSaveBar({
-    draftCount, readyCount, errorCount, isSaving, isLocked,
+    draftCount, readyCount, errorCount, isSaving,
     newSizeCount, newSupplierCount,
     onAddRow, onClear, onSave, onFocusFirstError,
 }: Props) {
@@ -78,13 +77,6 @@ export function VariantMatrixSaveBar({
                                     hataya git
                                 </Button>
                             </span>
-                        ) : null}
-
-                        {isLocked ? (
-                            <Badge variant="secondary" className="gap-1">
-                                <Lock className="size-3" />
-                                Kilitli — yeni ölçü sona eklenir
-                            </Badge>
                         ) : null}
 
                         {!hasErrors && effects.length > 0 ? (

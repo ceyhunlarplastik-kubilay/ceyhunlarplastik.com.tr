@@ -18,8 +18,6 @@ function makeProduct(translations: Array<{
         description: "Türkçe açıklama",
         assemblyVideoUrl: null,
         promoVideoUrl: null,
-        variantCodesLockedAt: null,
-        variantCodesLockedByUserId: null,
         categoryId: "category-1",
         createdAt: now,
         updatedAt: now,

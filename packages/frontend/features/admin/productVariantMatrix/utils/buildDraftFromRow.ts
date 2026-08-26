@@ -52,8 +52,9 @@ export function buildDraftFromRow(input: {
 
     return createEmptyDraftRow({
         measurements,
-        colorId: version?.colorId ?? undefined,
-        materialIds: version?.materialIds ?? [],
+        // Kopyalanan satır aynı VERSİYONU taşır; renk/hammadde artık satırda
+        // değil sözlükte yaşıyor.
+        versionId: version?.id,
         supplierId: supplier?.supplierId,
         supplierVariantCode: supplier?.supplierVariantCode ?? undefined,
         hasSupplierLogo: supplier?.hasSupplierLogo ?? false,

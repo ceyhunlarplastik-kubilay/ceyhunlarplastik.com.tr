@@ -207,12 +207,18 @@ const sizeKeySelect = {
 } as const
 
 /**
+ * Sıralama `sortKey` ile yapılır, ölçü KODUYLA DEĞİL.
+ *
+ * Kod artık append-only: `10.11.3` ölçüsü `10.11.1`'den küçük olabilir. Koda göre
+ * sıralamak "küçükten büyüğe" kuralını SESSİZCE bozar — hata vermez, sadece
+ * yanlış sıra gösterir. `sortKey` ölçü değerlerinden sıfır-dolgulu üretilir ve
+ * `@@index([productId, sortKey])` ile indekslidir.
+ *
  * `order` YALNIZ satır (ölçü) sırasını çevirir. Versiyon kodu HER ZAMAN artan:
- * satır içindeki versiyonlar kullanıcıya V1, V2, V3… diye görünmeli — ters
- * çevirmek kodların okunuşunu bozardı (testle yakalandı).
+ * satır içindeki versiyonlar kullanıcıya V1, V2, V3… diye görünmeli.
  */
 const buildVariantTableOrderBy = (order: "asc" | "desc") => [
-    { size: { code: order } },
+    { size: { sortKey: order } },
     { version: { code: "asc" as const } },
 ]
 
@@ -468,7 +474,9 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
         const [sizePage, total, columns] = await Promise.all([
             prisma.productSize.findMany({
                 where: sizeWhere,
-                orderBy: { code: order },
+                // Sayfalama da sortKey ile: sayfa sınırı ölçü BÜYÜKLÜĞÜNE göre
+                // olmalı, koda göre değil (kod append-only, sıralı değil).
+                orderBy: { sortKey: order },
                 skip: (page - 1) * limit,
                 take: limit,
                 select: { id: true },

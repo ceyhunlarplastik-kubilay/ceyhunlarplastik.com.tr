@@ -33,8 +33,6 @@ export type ProductMinAggregateOutputType = {
   assemblyVideoUrl: string | null
   promoVideoUrl: string | null
   categoryId: string | null
-  variantCodesLockedAt: Date | null
-  variantCodesLockedByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,8 +46,6 @@ export type ProductMaxAggregateOutputType = {
   assemblyVideoUrl: string | null
   promoVideoUrl: string | null
   categoryId: string | null
-  variantCodesLockedAt: Date | null
-  variantCodesLockedByUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -63,8 +59,6 @@ export type ProductCountAggregateOutputType = {
   assemblyVideoUrl: number
   promoVideoUrl: number
   categoryId: number
-  variantCodesLockedAt: number
-  variantCodesLockedByUserId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -80,8 +74,6 @@ export type ProductMinAggregateInputType = {
   assemblyVideoUrl?: true
   promoVideoUrl?: true
   categoryId?: true
-  variantCodesLockedAt?: true
-  variantCodesLockedByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -95,8 +87,6 @@ export type ProductMaxAggregateInputType = {
   assemblyVideoUrl?: true
   promoVideoUrl?: true
   categoryId?: true
-  variantCodesLockedAt?: true
-  variantCodesLockedByUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -110,8 +100,6 @@ export type ProductCountAggregateInputType = {
   assemblyVideoUrl?: true
   promoVideoUrl?: true
   categoryId?: true
-  variantCodesLockedAt?: true
-  variantCodesLockedByUserId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -198,8 +186,6 @@ export type ProductGroupByOutputType = {
   assemblyVideoUrl: string | null
   promoVideoUrl: string | null
   categoryId: string
-  variantCodesLockedAt: Date | null
-  variantCodesLockedByUserId: string | null
   createdAt: Date
   updatedAt: Date
   _count: ProductCountAggregateOutputType | null
@@ -234,8 +220,6 @@ export type ProductWhereInput = {
   assemblyVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
-  variantCodesLockedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
-  variantCodesLockedByUserId?: Prisma.StringNullableFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
@@ -260,8 +244,6 @@ export type ProductOrderByWithRelationInput = {
   assemblyVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  variantCodesLockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  variantCodesLockedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.CategoryOrderByWithRelationInput
@@ -289,8 +271,6 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   assemblyVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
-  variantCodesLockedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
-  variantCodesLockedByUserId?: Prisma.StringNullableFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
@@ -315,8 +295,6 @@ export type ProductOrderByWithAggregationInput = {
   assemblyVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  variantCodesLockedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  variantCodesLockedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
@@ -336,8 +314,6 @@ export type ProductScalarWhereWithAggregatesInput = {
   assemblyVideoUrl?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   categoryId?: Prisma.StringWithAggregatesFilter<"Product"> | string
-  variantCodesLockedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
-  variantCodesLockedByUserId?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
 }
@@ -350,8 +326,6 @@ export type ProductCreateInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -376,8 +350,6 @@ export type ProductUncheckedCreateInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -400,8 +372,6 @@ export type ProductUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -426,8 +396,6 @@ export type ProductUncheckedUpdateInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -451,8 +419,6 @@ export type ProductCreateManyInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -465,8 +431,6 @@ export type ProductUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -480,8 +444,6 @@ export type ProductUncheckedUpdateManyInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -505,8 +467,6 @@ export type ProductCountOrderByAggregateInput = {
   assemblyVideoUrl?: Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  variantCodesLockedAt?: Prisma.SortOrder
-  variantCodesLockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -520,8 +480,6 @@ export type ProductMaxOrderByAggregateInput = {
   assemblyVideoUrl?: Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  variantCodesLockedAt?: Prisma.SortOrder
-  variantCodesLockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -535,8 +493,6 @@ export type ProductMinOrderByAggregateInput = {
   assemblyVideoUrl?: Prisma.SortOrder
   promoVideoUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  variantCodesLockedAt?: Prisma.SortOrder
-  variantCodesLockedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -767,8 +723,6 @@ export type ProductCreateWithoutCategoryInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantCreateNestedManyWithoutProductInput
@@ -791,8 +745,6 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -845,8 +797,6 @@ export type ProductScalarWhereInput = {
   assemblyVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   promoVideoUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
-  variantCodesLockedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
-  variantCodesLockedByUserId?: Prisma.StringNullableFilter<"Product"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
 }
@@ -859,8 +809,6 @@ export type ProductCreateWithoutTranslationsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -884,8 +832,6 @@ export type ProductUncheckedCreateWithoutTranslationsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -923,8 +869,6 @@ export type ProductUpdateWithoutTranslationsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -948,8 +892,6 @@ export type ProductUncheckedUpdateWithoutTranslationsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -971,8 +913,6 @@ export type ProductCreateWithoutAttributeValuesInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -996,8 +936,6 @@ export type ProductUncheckedCreateWithoutAttributeValuesInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1040,8 +978,6 @@ export type ProductCreateWithoutIndustrialUsagesInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1065,8 +1001,6 @@ export type ProductUncheckedCreateWithoutIndustrialUsagesInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1104,8 +1038,6 @@ export type ProductUpdateWithoutIndustrialUsagesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1129,8 +1061,6 @@ export type ProductUncheckedUpdateWithoutIndustrialUsagesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1152,8 +1082,6 @@ export type ProductCreateWithoutVariantsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1177,8 +1105,6 @@ export type ProductUncheckedCreateWithoutVariantsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedCreateNestedManyWithoutProductInput
@@ -1216,8 +1142,6 @@ export type ProductUpdateWithoutVariantsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1241,8 +1165,6 @@ export type ProductUncheckedUpdateWithoutVariantsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   measurementRequirements?: Prisma.ProductMeasurementRequirementUncheckedUpdateManyWithoutProductNestedInput
@@ -1264,8 +1186,6 @@ export type ProductCreateWithoutMeasurementRequirementsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1289,8 +1209,6 @@ export type ProductUncheckedCreateWithoutMeasurementRequirementsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1328,8 +1246,6 @@ export type ProductUpdateWithoutMeasurementRequirementsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1353,8 +1269,6 @@ export type ProductUncheckedUpdateWithoutMeasurementRequirementsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1376,8 +1290,6 @@ export type ProductCreateWithoutSizesInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1401,8 +1313,6 @@ export type ProductUncheckedCreateWithoutSizesInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1440,8 +1350,6 @@ export type ProductUpdateWithoutSizesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1465,8 +1373,6 @@ export type ProductUncheckedUpdateWithoutSizesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1488,8 +1394,6 @@ export type ProductCreateWithoutVersionsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1513,8 +1417,6 @@ export type ProductUncheckedCreateWithoutVersionsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1552,8 +1454,6 @@ export type ProductUpdateWithoutVersionsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1577,8 +1477,6 @@ export type ProductUncheckedUpdateWithoutVersionsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1600,8 +1498,6 @@ export type ProductCreateWithoutSupplierCodesInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1625,8 +1521,6 @@ export type ProductUncheckedCreateWithoutSupplierCodesInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1664,8 +1558,6 @@ export type ProductUpdateWithoutSupplierCodesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1689,8 +1581,6 @@ export type ProductUncheckedUpdateWithoutSupplierCodesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1712,8 +1602,6 @@ export type ProductCreateWithoutFeaturedByCustomersInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1737,8 +1625,6 @@ export type ProductUncheckedCreateWithoutFeaturedByCustomersInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1776,8 +1662,6 @@ export type ProductUpdateWithoutFeaturedByCustomersInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1801,8 +1685,6 @@ export type ProductUncheckedUpdateWithoutFeaturedByCustomersInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1824,8 +1706,6 @@ export type ProductCreateWithoutAssetsInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -1849,8 +1729,6 @@ export type ProductUncheckedCreateWithoutAssetsInput = {
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
   categoryId: string
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutProductInput
@@ -1888,8 +1766,6 @@ export type ProductUpdateWithoutAssetsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -1913,8 +1789,6 @@ export type ProductUncheckedUpdateWithoutAssetsInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1936,8 +1810,6 @@ export type ProductCreateManyCategoryInput = {
   description?: string | null
   assemblyVideoUrl?: string | null
   promoVideoUrl?: string | null
-  variantCodesLockedAt?: Date | string | null
-  variantCodesLockedByUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1950,8 +1822,6 @@ export type ProductUpdateWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUpdateManyWithoutProductNestedInput
@@ -1974,8 +1844,6 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -1998,8 +1866,6 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2012,8 +1878,6 @@ export type ProductUpdateWithoutAttributeValuesInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -2037,8 +1901,6 @@ export type ProductUncheckedUpdateWithoutAttributeValuesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutProductNestedInput
@@ -2061,8 +1923,6 @@ export type ProductUncheckedUpdateManyWithoutAttributeValuesInput = {
   assemblyVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promoVideoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  variantCodesLockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  variantCodesLockedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2188,8 +2048,6 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
-  variantCodesLockedAt?: boolean
-  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -2215,8 +2073,6 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
-  variantCodesLockedAt?: boolean
-  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -2231,8 +2087,6 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
-  variantCodesLockedAt?: boolean
-  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -2247,13 +2101,11 @@ export type ProductSelectScalar = {
   assemblyVideoUrl?: boolean
   promoVideoUrl?: boolean
   categoryId?: boolean
-  variantCodesLockedAt?: boolean
-  variantCodesLockedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "slug" | "description" | "assemblyVideoUrl" | "promoVideoUrl" | "categoryId" | "variantCodesLockedAt" | "variantCodesLockedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "slug" | "description" | "assemblyVideoUrl" | "promoVideoUrl" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   variants?: boolean | Prisma.Product$variantsArgs<ExtArgs>
@@ -2299,15 +2151,6 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     assemblyVideoUrl: string | null
     promoVideoUrl: string | null
     categoryId: string
-    /**
-     * Varyant kodları kilitlendi mi. null = TASLAK: ürüne her varyant kaydında
-     * ölçüler yeniden sıralanıp 1..N numaralanır, kodlar kendiliğinden düzelir.
-     * Dolu = KİLİTLİ: mevcut hiçbir kod değişmez, yeni ölçü sona eklenir (max+1).
-     * Kilit, kodlar katalog/teklif/sipariş üzerinden dışarı çıktıktan sonra
-     * geçmişin bozulmaması içindir.
-     */
-    variantCodesLockedAt: Date | null
-    variantCodesLockedByUserId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["product"]>
@@ -2752,8 +2595,6 @@ export interface ProductFieldRefs {
   readonly assemblyVideoUrl: Prisma.FieldRef<"Product", 'String'>
   readonly promoVideoUrl: Prisma.FieldRef<"Product", 'String'>
   readonly categoryId: Prisma.FieldRef<"Product", 'String'>
-  readonly variantCodesLockedAt: Prisma.FieldRef<"Product", 'DateTime'>
-  readonly variantCodesLockedByUserId: Prisma.FieldRef<"Product", 'String'>
   readonly createdAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Product", 'DateTime'>
 }

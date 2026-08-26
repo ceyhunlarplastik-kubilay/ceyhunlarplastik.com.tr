@@ -207,14 +207,6 @@ model Product {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  /// Varyant kodları kilitlendi mi. null = TASLAK: ürüne her varyant kaydında
-  /// ölçüler yeniden sıralanıp 1..N numaralanır, kodlar kendiliğinden düzelir.
-  /// Dolu = KİLİTLİ: mevcut hiçbir kod değişmez, yeni ölçü sona eklenir (max+1).
-  /// Kilit, kodlar katalog/teklif/sipariş üzerinden dışarı çıktıktan sonra
-  /// geçmişin bozulmaması içindir.
-  variantCodesLockedAt       DateTime?
-  variantCodesLockedByUserId String?
-
   variants            ProductVariant[]
   // Varyant kod sisteminin ürün-modeli başına tutulan sözlükleri:
   // ölçü şablonu (hangi ölçüler zorunlu), ölçü kayıtları (kodun 3. segmenti),
@@ -797,7 +789,12 @@ model ProductSize {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([productId, signature])
+  // `signature` ARTIK TEKİL DEĞİL: aynı fiziksel ölçü farklı tedarikçilerden
+  // girildiğinde her giriş kendi kodunu alır (4.1.1 Özgen, 4.1.7 Esersan) —
+  // kod, veri girişi sırasının sayacıdır. Tekilleştirme "ölçü + tedarikçi"
+  // anahtarıyla UYGULAMA katmanında yapılır (bkz. productVariantWriter), çünkü
+  // tedarikçi `ProductSize` üzerinde değil `ProductVariantSupplier` üzerinde.
+  // Public/portal listeleri ölçüleri zaten gruplayıp tekilleştiriyor.
   @@unique([productId, code])
   @@index([productId, sortKey])
 }

@@ -339,8 +339,23 @@ When touching product variants or their codes:
   teklif, tedarikçi siparişi) yanlış varyanta işaret eder hâle getiriyordu.
 - `ProductVariant` = ürün + ölçü + versiyon. Tedarikçi varyantın parçası DEĞİLDİR;
   `ProductVariantSupplier` üzerinde yaşar ve tedarikçili tam kodu oradadır.
-- Ölçüler varyanta değil, ürün modeli başına tekilleştirilmiş `ProductSize`'a bağlıdır.
-  Aynı fiziksel ölçü kaç tedarikçiden girilirse girilsin TEK kod alır (`signature`).
+- Ölçü kodu (3. segment) APPEND-ONLY'dir: yeni ölçü sıradaki numarayı alır, kod ile
+  ölçünün BÜYÜKLÜĞÜ arasında bağ YOKTUR (`10.11.3` ölçüsü `10.11.1`'den küçük
+  olabilir). Eski "taslak" kipi her kayıtta 1..N yeniden numaralıyordu; kaldırıldı.
+  **SIRALAMA AYRI EKSEN**: listeler `ProductSize.sortKey` ile küçükten büyüğe sıralar
+  (`@@index([productId, sortKey])`). Koda göre sıralayan her yer SESSİZCE bozulur —
+  hata vermez, yalnız yanlış sıra gösterir.
+- Tedarikçi harfi (5. segment) ÜRÜN MODELİNE ÖZELDİR: `1.2.3.V1.A` Özgen iken
+  `10.11.2.V1.A` Aparat Toptan olabilir. Versiyon sözlüğüyle aynı desen: HARF sabit
+  (değiştirmek tüm kodları yeniden yazar), TEDARİKÇİ ataması düzenlenebilir.
+- Ölçü tekilleştirme anahtarı **ölçü imzası + TEDARİKÇİ**'dir: aynı fiziksel ölçü
+  farklı tedarikçilerden girilirse her giriş KENDİ kodunu alır (`4.1.1` Özgen,
+  `4.1.7` Esersan) — kod, veri girişi sırasının sayacıdır. Aynı tedarikçi aynı
+  ölçüyü tekrar girerse yeni kod ÜRETİLMEZ, mevcut satır güncellenir. Kontrol
+  UYGULAMA katmanındadır (`productVariantWriter`), DB kısıtı değil: tedarikçi
+  `ProductSize` üzerinde değil `ProductVariantSupplier` üzerinde yaşıyor.
+  Public/portal listeleri ölçüleri gruplayıp tekilleştirdiği için müşteriye aynı
+  ölçü iki kez görünmez.
 - Ölçü kodunun sırası ürün modelinin ölçü ŞABLONUNDAN (`ProductMeasurementRequirement`)
   türer. Şablon değişirse `recalculateProductVariantCodes` çağrılmalı; yoksa `sortKey`
   bayatlar ve "küçükten büyüğe" kuralı sessizce bozulur.

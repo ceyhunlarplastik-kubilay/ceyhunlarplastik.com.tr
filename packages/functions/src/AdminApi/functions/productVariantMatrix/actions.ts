@@ -10,8 +10,6 @@ import {
     getProductVariantMatrixHandler,
     getVariantMatrixReferencesHandler,
     saveProductVariantMatrixHandler,
-    setVariantCodeLockHandler,
-    renumberVariantCodesHandler,
     updateVariantMatrixSupplierHandler,
     deleteVariantMatrixSupplierHandler,
     deleteVariantMatrixVariantHandler,
@@ -21,12 +19,9 @@ import {
     idValidator,
     saveVariantMatrixValidator,
     setVariantCodeLockValidator,
-    renumberVariantCodesValidator,
     variantMatrixResponseValidator,
     variantMatrixReferencesResponseValidator,
     saveVariantMatrixResponseValidator,
-    variantCodeLockResponseValidator,
-    renumberVariantCodesResponseValidator,
     updateVariantMatrixSupplierValidator,
     variantMatrixSupplierRowValidator,
     variantMatrixVariantValidator,
@@ -40,8 +35,6 @@ import type {
     IVariantMatrixReferenceDependencies,
     IGetVariantMatrixEvent,
     ISaveVariantMatrixEvent,
-    ISetVariantCodeLockEvent,
-    IRenumberVariantCodesEvent,
     IUpdateVariantMatrixSupplierEvent,
     IDeleteVariantMatrixSupplierEvent,
     IDeleteVariantMatrixVariantEvent,
@@ -93,23 +86,7 @@ export const saveProductVariantMatrix = lambdaHandler(
     }
 )
 
-export const setVariantCodeLock = lambdaHandler(
-    async (event) => setVariantCodeLockHandler(getDeps())(event as ISetVariantCodeLockEvent),
-    {
-        auth: { requiredPermissionGroups: variantCodeAdminGroups },
-        requestValidator: setVariantCodeLockValidator,
-        responseValidator: variantCodeLockResponseValidator,
-    }
-)
 
-export const renumberVariantCodes = lambdaHandler(
-    async (event) => renumberVariantCodesHandler(getDeps())(event as IRenumberVariantCodesEvent),
-    {
-        auth: { requiredPermissionGroups: variantCodeAdminGroups },
-        requestValidator: renumberVariantCodesValidator,
-        responseValidator: renumberVariantCodesResponseValidator,
-    }
-)
 
 export const updateVariantMatrixSupplier = lambdaHandler(
     async (event) => updateVariantMatrixSupplierHandler(getDeps())(event as IUpdateVariantMatrixSupplierEvent),
