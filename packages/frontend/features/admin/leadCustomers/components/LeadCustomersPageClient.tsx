@@ -37,12 +37,33 @@ import type { LeadCustomer } from "@/features/admin/leadCustomers/api/types"
 import { useLeadCustomers } from "@/features/admin/leadCustomers/hooks/useLeadCustomers"
 import { LeadCustomerDetailPanel } from "./LeadCustomerDetailPanel"
 import { LeadCustomerProfileDialog } from "./LeadCustomerProfileDialog"
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs"
+import { Checkbox } from "@/components/ui/checkbox"
+import { BulkSelectionBar } from "@/features/admin/shared/components/BulkSelectionBar"
+import { GeoAddressFilterFields } from "@/features/geo/components/GeoAddressFilterFields"
+import { Trash2 } from "lucide-react"
+import { ConfirmDeleteDialog } from "@/features/admin/shared/components/ConfirmDeleteDialog"
+import { useSession } from "next-auth/react"
+import {
+    useBulkDeleteLeadCustomers,
+    useDeleteLeadCustomer,
+} from "@/features/admin/leadCustomers/hooks/useLeadCustomers"
 
 const ALL_VALUE = "__all__"
 
 type Props = {
     workspaceLabel: string
 }
+
+// Ülke varsayılanı (Türkiye) `GeoAddressFilterFields` içinde ISO kodundan
+// çözülür — veri kümesinin sayısal id'si sabit kodlanmaz.
+
+/**
+ * Silme geri alınamaz; AWS'in kaynak silmede istediği gibi kullanıcı bu ifadeyi
+ * harfi harfine yazmadan düğme açılmaz. TEKİL ve TOPLU silmede aynı ifade
+ * (kullanıcı kararı): potansiyel müşteri silmek her iki durumda da kritik.
+ */
+const DELETE_CONFIRMATION = "KALICI OLARAK SİL"
 
 function formatNumber(value: number) {
     return new Intl.NumberFormat("tr-TR").format(value)
@@ -53,11 +74,24 @@ function LeadCustomerCard({
     isExpanded,
     onToggle,
     onEdit,
+    isSelected,
+    onToggleSelect,
+    onDelete,
+    isDeleting,
+    canDelete,
+    canSelect,
 }: {
     customer: LeadCustomer
     isExpanded: boolean
     onToggle: () => void
     onEdit: () => void
+    isSelected: boolean
+    onToggleSelect: () => void
+    onDelete: () => void
+    isDeleting: boolean
+    canDelete: boolean
+    /** Toplu seçim kutusu yalnız toplu silme yetkisi varken görünür. */
+    canSelect: boolean
 }) {
     const usageAreaCount = customer.usageAreaValues.length
     const hasProfile = Boolean(customer.sectorValue) || usageAreaCount > 0
@@ -66,8 +100,21 @@ function LeadCustomerCard({
     const websiteLabel = formatWebsiteLabel(customer.websiteUrl)
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        <div
+            className={cn(
+                "overflow-hidden rounded-2xl border bg-white transition-colors",
+                isSelected ? "border-brand/60 bg-brand/[0.03]" : "border-neutral-200",
+            )}
+        >
             <div className="flex flex-col gap-3 p-4 lg:flex-row lg:items-start lg:justify-between">
+                {canSelect ? (
+                    <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={onToggleSelect}
+                        aria-label={`${resolveCustomerNameParts(customer).title} seç`}
+                        className="mt-1 shrink-0"
+                    />
+                ) : null}
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-neutral-950">
@@ -156,6 +203,32 @@ function LeadCustomerCard({
                     <Button type="button" className="rounded-2xl" onClick={onEdit}>
                         Profili Düzenle
                     </Button>
+                    {canDelete ? (
+                        <ConfirmDeleteDialog
+                            trigger={
+                                <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="ghost"
+                                    className="size-9 rounded-2xl"
+                                    aria-label="Sil"
+                                    disabled={isDeleting}
+                                >
+                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                </Button>
+                            }
+                            title={`${resolveCustomerNameParts(customer).title} silinsin mi?`}
+                            description={
+                                <>
+                                    Bu işlem geri alınamaz. Kaydın adresleri, ziyaretleri ve profil
+                                    atamaları da silinir. Siparişi, portal kullanıcısı veya iş talebi
+                                    olan kayıtlar silinmez.
+                                </>
+                            }
+                            confirmationPhrase={DELETE_CONFIRMATION}
+                            onConfirm={onDelete}
+                        />
+                    ) : null}
                 </div>
             </div>
 
@@ -171,11 +244,24 @@ function LeadCustomerCard({
 }
 
 export function LeadCustomersPageClient({ workspaceLabel }: Props) {
-    const [search, setSearch] = useState("")
-    const [sectorValueId, setSectorValueId] = useState("")
-    const [usageAreaValueId, setUsageAreaValueId] = useState("")
-    const [page, setPage] = useState(1)
-    const [limit, setLimit] = useState(20)
+    // TOPLU silme yalnız yöneticide: geri alınamaz ve tek tıkla çok kayıt gider.
+    // Uç de aynı kuralı uyguluyor (`leadCustomerBulkDeleteGroups`), buradaki
+    // kontrol yalnız arayüzü sunucuyla tutarlı tutmak için.
+    // TEKİL silme veri girişi operatöründe de açık — asıl talep buydu.
+    const { data: session } = useSession()
+    const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
+    const canBulkDelete = groups.includes("admin") || groups.includes("owner")
+    // Filtreler URL'de (nuqs): ekran paylaşılabilir olsun ve geri tuşu filtreyi
+    // korusun (AGENTS.md URL query state kuralı). Öncesinde `useState`'teydiler.
+    const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
+    const [sectorValueId, setSectorValueId] = useQueryState("sector", parseAsString.withDefault(""))
+    const [usageAreaValueId, setUsageAreaValueId] = useQueryState("usage", parseAsString.withDefault(""))
+    const [countryId, setCountryId] = useQueryState("country", parseAsInteger)
+    const [stateId, setStateId] = useQueryState("state", parseAsInteger)
+    const [cityId, setCityId] = useQueryState("city", parseAsInteger)
+    const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1))
+    const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(20))
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
     const [expandedId, setExpandedId] = useState<string | null>(null)
     const [dialogOpen, setDialogOpen] = useState(false)
     const [editingCustomer, setEditingCustomer] = useState<LeadCustomer | null>(null)
@@ -190,8 +276,11 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
             ...(deferredSearch.trim() ? { search: deferredSearch.trim() } : {}),
             ...(sectorValueId ? { sectorValueId } : {}),
             ...(usageAreaValueId ? { usageAreaValueId } : {}),
+            ...(countryId ? { countryId } : {}),
+            ...(stateId ? { stateId } : {}),
+            ...(cityId ? { cityId } : {}),
         }),
-        [deferredSearch, limit, page, sectorValueId, usageAreaValueId],
+        [cityId, countryId, deferredSearch, limit, page, sectorValueId, stateId, usageAreaValueId],
     )
 
     const leadsQuery = useLeadCustomers(params)
@@ -212,13 +301,66 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
         (lead) => !lead.sectorValue && lead.usageAreaValues.length === 0,
     ).length
 
-    const hasFilters = Boolean(search.trim() || sectorValueId || usageAreaValueId)
+    // Ülke varsayılanı Türkiye olduğu için "filtre var mı" sayımına GİRMEZ:
+    // aksi hâlde sayfa her açılışta "filtreli" görünür ve boş sonuçta kullanıcıya
+    // yanlışlıkla "filtreleri temizle" önerilirdi.
+    const hasFilters = Boolean(
+        search.trim() || sectorValueId || usageAreaValueId || stateId || cityId,
+    )
 
     function clearFilters() {
         setSearch("")
         setSectorValueId("")
         setUsageAreaValueId("")
+        setStateId(null)
+        setCityId(null)
         setPage(1)
+    }
+
+    const deleteMutation = useDeleteLeadCustomer()
+    const bulkDeleteMutation = useBulkDeleteLeadCustomers()
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds((current) => {
+            const next = new Set(current)
+            if (next.has(id)) next.delete(id)
+            else next.add(id)
+            return next
+        })
+    }
+
+    /** Görünen sayfadaki kayıtların tamamını seçer; hepsi seçiliyse bırakır. */
+    const toggleSelectAllVisible = () => {
+        const visibleIds = leads.map((lead) => lead.id)
+        setSelectedIds((current) => {
+            const allSelected = visibleIds.length > 0 && visibleIds.every((id) => current.has(id))
+            const next = new Set(current)
+            for (const id of visibleIds) {
+                if (allSelected) next.delete(id)
+                else next.add(id)
+            }
+            return next
+        })
+    }
+
+    /**
+     * Onayda listelenecek adlar. Seçim sayfa değişince korunuyor; görünen
+     * sayfada olmayan bir kaydın adı elde olmayabilir, o yüzden id'ye düşülür —
+     * kullanıcı yine de kaç kaydın gideceğini ve bulunanların adını görür.
+     */
+    const selectedNames = useMemo(() => {
+        const byId = new Map(leads.map((lead) => [lead.id, resolveCustomerNameParts(lead).title]))
+        return [...selectedIds].map((id) => byId.get(id) ?? id)
+    }, [leads, selectedIds])
+
+    const handleBulkDelete = async () => {
+        const ids = [...selectedIds]
+        if (ids.length === 0) return
+
+        const result = await bulkDeleteMutation.mutateAsync(ids)
+        // Engelliler SEÇİLİ KALIR: kullanıcı hangilerinin kaldığını görüp
+        // seçimden çıkarabilsin (silinenler zaten listeden düşüyor).
+        setSelectedIds(new Set(result.blocked.map((row) => row.id)))
     }
 
     /**
@@ -322,7 +464,7 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
 
                 <Separator className="my-5" />
 
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_240px_auto] lg:items-center">
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_240px] lg:items-center">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                         <Input
@@ -376,6 +518,23 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                         </SelectContent>
                     </Select>
 
+                </div>
+
+                {/* Adres filtresi kendi satırında: üstteki ızgara dört sütuna göre
+                    kurulmuş, üç alan daha eklemek sarmayı bozuyordu. */}
+                <div className="mt-3 grid gap-3 lg:grid-cols-[repeat(3,minmax(0,1fr))_auto] lg:items-center">
+                    <GeoAddressFilterFields
+                        countryId={countryId}
+                        stateId={stateId}
+                        cityId={cityId}
+                        onChange={(patch) => {
+                            if (patch.countryId !== undefined) setCountryId(patch.countryId)
+                            if (patch.stateId !== undefined) setStateId(patch.stateId)
+                            if (patch.cityId !== undefined) setCityId(patch.cityId)
+                            setPage(1)
+                        }}
+                    />
+
                     {hasFilters ? (
                         <Button
                             type="button"
@@ -389,6 +548,45 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                     ) : null}
                 </div>
             </section>
+
+            {canBulkDelete ? (
+                <div className="space-y-2">
+                    <BulkSelectionBar
+                        selectedCount={selectedIds.size}
+                        isDeleting={bulkDeleteMutation.isPending}
+                        onClear={() => setSelectedIds(new Set())}
+                        onDelete={handleBulkDelete}
+                        itemLabel="potansiyel müşteri"
+                        itemNames={selectedNames}
+                        confirmationPhrase={DELETE_CONFIRMATION}
+                        confirmDescription={
+                            <>
+                                Bu işlem geri alınamaz. Kayıtların adresleri, ziyaretleri ve profil
+                                atamaları da silinir.
+                                <br />
+                                <br />
+                                Siparişi, portal kullanıcısı veya iş talebi olan kayıtlar silinmez —
+                                hangileri olduğu işlem sonunda bildirilir ve seçili kalırlar.
+                            </>
+                        }
+                    />
+                    {leads.length > 0 ? (
+                        <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-neutral-600">
+                            <Checkbox
+                                checked={
+                                    leads.every((lead) => selectedIds.has(lead.id))
+                                        ? true
+                                        : leads.some((lead) => selectedIds.has(lead.id))
+                                            ? "indeterminate"
+                                            : false
+                                }
+                                onCheckedChange={toggleSelectAllVisible}
+                            />
+                            Bu sayfadaki {leads.length} kaydı seç
+                        </label>
+                    ) : null}
+                </div>
+            ) : null}
 
             <div aria-busy={leadsQuery.isFetching} className="space-y-3">
                 {isInitialLoading
@@ -407,6 +605,12 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                                 setExpandedId((current) => (current === customer.id ? null : customer.id))
                             }
                             onEdit={() => openEditDialog(customer)}
+                            isSelected={selectedIds.has(customer.id)}
+                            onToggleSelect={() => toggleSelect(customer.id)}
+                            onDelete={() => deleteMutation.mutate(customer.id)}
+                            isDeleting={deleteMutation.isPending}
+                            canDelete
+                            canSelect={canBulkDelete}
                         />
                     ))}
 

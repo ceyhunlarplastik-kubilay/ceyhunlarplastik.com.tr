@@ -4563,6 +4563,88 @@ kırılgan bileşen native Prisma engine'idir; o yüzden mock değil gerçek DB.
   yapılması önerilir; aksi hâlde yeni kabuk 22'ye düşer ve `sst dev` runtime'la
   ayrışır.
 - `npx sst diff --stage prod` → 15 Lambda'da runtime değişimi beklenir.
+## Potansiyel müşteri: silme + adres filtresi (2026-08-25)
+
+Branch `feat/lead-customer-delete-and-address-filter`.
+
+### Silme
+
+Uç HİÇ YOKTU — `/lead-customers` altında yalnız adres silme vardı.
+
+`DELETE /lead-customers/{id}` (admin + content_editor) ve
+`POST /lead-customers/bulk-delete` (**yalnız admin**, kullanıcı kararı: geri
+alınamaz ve tek tıkla çok kayıt gider). İkisi de aynı core fonksiyonundan geçiyor
+(`deleteLeadCustomers`, tekil uç `ids` uzunluğu 1 ile çağırır) — engel listesi,
+LEAD kilidi ve cascade davranışı tek yerde.
+
+**Engel neden uygulama katmanında:** şemada üç grup var —
+`Order` **Restrict** (DB engeller), `User`(portal) ve `BusinessRequest`
+**SetNull** (DB ENGELLEMEZ, bağ sessizce kopar: portal kullanıcısı sahipsiz kalır,
+iş talebi kimin olduğu bilinmez), kalan 9 ilişki **Cascade**. Tehlikeli olan
+SetNull olduğu için engel `leadCustomerDeletion.ts`'te kuruldu. Cascade olanlar
+bilinçli engel DEĞİL: bir adayı silmek zaten adreslerini ve profil atamalarını
+silmek demek.
+
+**LEAD kilidi:** cari müşteriye dönüşmüş kayıt bu yüzeyden silinemez
+("cari müşteriye dönüştürülmüş"). AGENTS.md'nin lead sınırı kuralı.
+
+Engelli kayıt işlemi düşürmez (varyant toplu silmesiyle aynı karar): silinebilenler
+silinir, engelliler ADIYLA bildirilir ve arayüzde seçili kalır.
+
+### Adres filtresi
+
+`CustomerAddress` hem görüntü metni (`country`/`city`) hem normalize FK
+(`countryId`/`stateId`/`cityId`) tutuyor. Filtre **FK'lar** üzerinden: indeksliler
+(`@@index([countryId])`, `@@index([stateId])`) ve metnin nasıl yazıldığından
+bağımsızlar. Hiyerarşi ülke → il (`GeoState`) → ilçe (`GeoCity`).
+
+`addresses: { some: … }` — birden çok adresi olan bir aday, şubelerinden biri o
+ildeyse listeye girmeli.
+
+**Ülke varsayılanı Türkiye ISO kodundan çözülür** (`iso2 === "TR"`), sayısal id
+SABİT KODLANMAZ: geo verisi dışarıdan içe aktarılıyor ve id'leri veri kümesine
+bağlı. Varsayılan ülke "filtre var mı" sayımına girmez — aksi hâlde sayfa her
+açılışta "filtreli" görünür ve boş sonuçta yanlışlıkla "filtreleri temizle"
+önerilirdi.
+
+### Arayüz
+
+- `VariantSelectionBar` → ortak **`BulkSelectionBar`**'a çıkarıldı (metinler
+  parametreli); varyant matrisi ve bu sayfa aynı bileşeni kullanıyor. Yeni bir
+  toplu seçim yüzeyi paralel kopya yazmamalı (AGENTS.md).
+- Yeni **`GeoAddressFilterFields`** — adres FORMUNDAKİ `GeoAddressFields`'tan
+  bilinçli ayrı: form alanları zorunlu/doğrulamalı ve harita seçiciye bağlı,
+  filtrede ise her seviye "tümü" olabilmeli.
+- Kartlarda seçim kutusu + tekil sil; seçim çubuğu ve "bu sayfadaki N kaydı seç"
+  yalnız toplu yetki varken.
+
+**Yetki arayüzde ikiye ayrıldı:** tekil silme herkeste (asıl talep buydu), toplu
+silme `useSession` ile admin/owner'da. Uç zaten aynı kuralı uyguluyor; arayüz
+kontrolü yalnız tutarlılık için.
+
+**Yan düzeltme:** sayfadaki filtreler `useState`'teydi, `nuqs`'a taşındı —
+AGENTS.md URL query state kuralı (ekran paylaşılabilir, geri tuşu filtreyi korur).
+
+**Silme onayı sertleştirildi (kullanıcı talebi, kubi denemesi sonrası):** onay
+diyaloğu silinecek kayıtları ADIYLA listeliyor ve `KALICI OLARAK SİL` ifadesi
+harfi harfine yazılmadan düğme açılmıyor (AWS'in kaynak silme deseni) — TEKİL ve
+TOPLU silmede aynı. İfade eşleşmezse tıklama diyaloğu kapatmıyor; her açılışta
+yazılan sıfırlanıyor. Mantık ortak `ConfirmDeleteDialog`'ta: üçüncü bir kopya
+çıkmasın diye `BulkSelectionBar` da ona bağlandı.
+
+**Filtre hizası düzeltildi:** eklenen geo alanları sayfanın filtre stiline
+uymuyordu (etiketli, farklı yükseklik/yuvarlaklık) ve dört sütunluk ızgaraya üç
+alan eklemek sarmayı bozuyordu. Etiketler kaldırıldı (diğer filtreler gibi
+açıklayıcı placeholder), adres filtresi kendi satırına alındı.
+
+**Doğrulama:** planlayıcı için 8 birim test · gerçek Postgres 17'de (Node 24)
+9 davranış testi: il/ilçe/ülke filtresi, adressiz adayların filtresiz listede
+kalması, cari müşterinin hiç görünmemesi, siparişli adayın engellenmesi + temiz
+olanın silinmesi, cari kaydın reddi, adres cascade'i, bulunamayan id.
+
+backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 551 ✅ · functions 301 ✅ ·
+frontend 310 ✅ · `next build` ✅.
+
 ## Tedarikçi varyant talebi × versiyon sözlüğü — A kararı (2026-08-25)
 
 `SUPPLIER_VARIANT_CREATE` onayı [service.ts:734](packages/core/src/core/helpers/businessRequests/service.ts:734)

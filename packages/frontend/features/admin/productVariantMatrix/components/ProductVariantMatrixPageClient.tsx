@@ -19,7 +19,7 @@ import { VariantMatrixContextRail } from "@/features/admin/productVariantMatrix/
 import { VariantMatrixSaveBar } from "@/features/admin/productVariantMatrix/components/VariantMatrixSaveBar"
 import { VariantMatrixDraftRow } from "@/features/admin/productVariantMatrix/components/VariantMatrixDraftRow"
 import { VariantMatrixExistingTable } from "@/features/admin/productVariantMatrix/components/VariantMatrixExistingTable"
-import { VariantSelectionBar } from "@/features/admin/productVariantMatrix/components/VariantSelectionBar"
+import { BulkSelectionBar } from "@/features/admin/shared/components/BulkSelectionBar"
 import { VariantMatrixFilters } from "@/features/admin/productVariantMatrix/components/VariantMatrixFilters"
 import { useVariantMatrixFilters } from "@/features/admin/productVariantMatrix/hooks/useVariantMatrixFilters"
 import { useSaveVariantMatrix } from "@/features/admin/productVariantMatrix/hooks/useSaveVariantMatrix"
@@ -150,6 +150,12 @@ export function ProductVariantMatrixPageClient({
             return next
         })
     }
+
+    /** Onayda listelenecek varyant kodları — sayı değil, gerçekte ne gideceği. */
+    const selectedVariantCodes = useMemo(() => {
+        const byId = new Map(matrix?.rows.map((row) => [row.variantId, row.fullCode]) ?? [])
+        return [...selectedIds].map((id) => byId.get(id) ?? id)
+    }, [matrix, selectedIds])
 
     const handleBulkDelete = async () => {
         const ids = [...selectedIds]
@@ -452,11 +458,25 @@ export function ProductVariantMatrixPageClient({
                             katman biner (AGENTS.md refetch-feedback deseni). */}
                         <div className="relative" aria-busy={isFetching}>
                             <AdminSectionLoadingOverlay isVisible={isFetching && !isLoading} />
-                            <VariantSelectionBar
+                            <BulkSelectionBar
                                 selectedCount={selectedIds.size}
                                 isDeleting={bulkDelete.isPending}
                                 onClear={() => setSelectedIds(new Set())}
                                 onDelete={handleBulkDelete}
+                                itemLabel="varyant"
+                                itemNames={selectedVariantCodes}
+                                confirmDescription={
+                                    <>
+                                        Bu işlem geri alınamaz. Siparişte, iş talebinde, özel fiyatta,
+                                        kampanyada veya müşteri atamasında kullanılan varyantlar
+                                        silinmez — hangileri olduğu işlem sonunda bildirilir ve
+                                        seçili kalırlar.
+                                        <br />
+                                        <br />
+                                        Kullanılmayan ölçüler temizlenir ve ürünün varyant kodları
+                                        yeniden hesaplanır.
+                                    </>
+                                }
                             />
 
                             <VariantMatrixExistingTable

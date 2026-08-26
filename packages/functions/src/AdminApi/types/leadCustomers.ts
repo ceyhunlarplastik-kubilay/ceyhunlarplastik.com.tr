@@ -23,7 +23,19 @@ export type IListLeadCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
         search?: string
         sectorValueId?: string
         usageAreaValueId?: string
+        // Adres filtresi — normalize geo FK'ları, query string olduğu için metin.
+        countryId?: string
+        stateId?: string
+        cityId?: string
     }
+>
+
+export type IDeleteLeadCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>
+
+/** Toplu silme — engelli kayıtlar işlemi düşürmez, ayrı raporlanır. */
+export type IBulkDeleteLeadCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
+    { ids: string[] },
+    {}
 >
 
 export type IGetLeadCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<{}, { id: string }>

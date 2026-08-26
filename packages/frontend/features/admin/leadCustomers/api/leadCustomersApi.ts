@@ -1,5 +1,6 @@
 import { adminApiClient } from "@/lib/http/client"
 import type {
+    DeleteLeadCustomersResult,
     LeadCustomerDetailResponse,
     LeadCustomerProfileInput,
     ListLeadCustomersParams,
@@ -62,4 +63,23 @@ export async function deleteLeadCustomerAddress(customerId: string, addressId: s
         `/lead-customers/${customerId}/addresses/${addressId}`,
     )
     return res.data.payload.customer
+}
+
+export async function deleteLeadCustomer(id: string): Promise<DeleteLeadCustomersResult> {
+    const res = await adminApiClient.delete<{ statusCode: number; payload: DeleteLeadCustomersResult }>(
+        `/lead-customers/${id}`,
+    )
+    return res.data.payload
+}
+
+/**
+ * Toplu silme. Tek tek `deleteLeadCustomer` çağırmak yerine tek uç: engelli
+ * kayıtların raporu tek yerden gelsin ve N ayrı istek atılmasın.
+ */
+export async function bulkDeleteLeadCustomers(ids: string[]): Promise<DeleteLeadCustomersResult> {
+    const res = await adminApiClient.post<{ statusCode: number; payload: DeleteLeadCustomersResult }>(
+        "/lead-customers/bulk-delete",
+        { ids },
+    )
+    return res.data.payload
 }

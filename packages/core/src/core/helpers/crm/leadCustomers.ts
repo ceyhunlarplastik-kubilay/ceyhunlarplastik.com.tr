@@ -16,6 +16,10 @@ import { mapCustomerAddressForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import type { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { AssetRole, Prisma } from "@/prisma/generated/prisma/client"
+import {
+    LEAD_CUSTOMER_DELETION_COUNT_SELECT,
+    planLeadCustomerDeletion,
+} from "@/core/helpers/crm/leadCustomerDeletion"
 
 /**
  * Veri girişi panelinin POTANSİYEL MÜŞTERİ yüzeyi.
@@ -202,18 +206,52 @@ function buildSearchWhere(search?: string): Prisma.CustomerWhereInput {
     }
 }
 
+/**
+ * Adres filtresi.
+ *
+ * Normalize FK'lar (`countryId`/`stateId`/`cityId`) kullanılır, görüntü metinleri
+ * (`country`/`city`/`district`) DEĞİL: FK'lar indekslidir
+ * (`@@index([countryId])`, `@@index([stateId])`) ve metnin nasıl yazıldığından
+ * bağımsızdır. Hiyerarşi ülke → il (`GeoState`) → ilçe (`GeoCity`).
+ *
+ * `some`: müşterinin HERHANGİ bir adresi eşleşiyorsa kayıt listeye girer —
+ * birden çok adresi olan bir aday, şubelerinden biri o ildeyse bulunmalı.
+ */
+function buildAddressWhere(filter: {
+    countryId?: number
+    stateId?: number
+    cityId?: number
+}): Prisma.CustomerWhereInput {
+    const address: Prisma.CustomerAddressWhereInput = {
+        ...(filter.countryId ? { countryId: filter.countryId } : {}),
+        ...(filter.stateId ? { stateId: filter.stateId } : {}),
+        ...(filter.cityId ? { cityId: filter.cityId } : {}),
+    }
+
+    if (Object.keys(address).length === 0) return {}
+
+    return { addresses: { some: address } }
+}
+
 export async function listLeadCustomers({
     page,
     limit,
     search,
     sectorValueId,
     usageAreaValueId,
+    countryId,
+    stateId,
+    cityId,
 }: {
     page: number
     limit: number
     search?: string
     sectorValueId?: string
     usageAreaValueId?: string
+    /** Adres filtresi — normalize FK'lar üzerinden (bkz. buildAddressWhere). */
+    countryId?: number
+    stateId?: number
+    cityId?: number
 }) {
     const safePage = Math.max(1, page)
     const safeLimit = Math.min(Math.max(1, limit), 100)
@@ -225,6 +263,7 @@ export async function listLeadCustomers({
         ...(usageAreaValueId && {
             usageAreaValues: { some: { id: usageAreaValueId } },
         }),
+        ...buildAddressWhere({ countryId, stateId, cityId }),
     }
 
     const [data, total] = await Promise.all([
@@ -629,4 +668,60 @@ export async function deleteLeadCustomerAddress({
     await customerRepository.deleteAddress(customerId, addressId)
 
     return buildLeadCustomerDetail(customerId)
+}
+
+/**
+ * Potansiyel müşterileri siler.
+ *
+ * Tekil ve toplu silme AYNI yoldan geçer: engel listesi, LEAD kilidi ve
+ * cascade davranışı tek yerde kalsın (tekil uç `ids` uzunluğu 1 ile çağırır).
+ *
+ * Engelli kayıt işlemi düşürmez — silinebilenler silinir, engelliler adıyla
+ * döner. Gerekçe ve şema davranışları: `leadCustomerDeletion.ts`.
+ */
+export async function deleteLeadCustomers(ids: readonly string[]): Promise<{
+    deletedIds: string[]
+    blocked: Array<{ id: string; name: string; reason: string }>
+}> {
+    const uniqueIds = [...new Set(ids)]
+    if (uniqueIds.length === 0) return { deletedIds: [], blocked: [] }
+
+    const rows = await prisma.customer.findMany({
+        where: { id: { in: uniqueIds } },
+        select: {
+            id: true,
+            status: true,
+            fullName: true,
+            companyName: true,
+            _count: { select: LEAD_CUSTOMER_DELETION_COUNT_SELECT },
+        },
+    })
+
+    // Bulunamayan id sessizce yutulmaz: çağıran neyin işlenmediğini görmeli.
+    if (rows.length !== uniqueIds.length) {
+        const found = new Set(rows.map((row) => row.id))
+        const missing = uniqueIds.filter((id) => !found.has(id))
+        throw new createError.NotFound(`Kayıt bulunamadı: ${missing.length} adet`)
+    }
+
+    const plan = planLeadCustomerDeletion(
+        rows.map((row) => ({
+            id: row.id,
+            name: row.companyName || row.fullName || row.id,
+            isLead: row.status === "LEAD",
+            counts: {
+                orders: row._count.orders,
+                portalUsers: row._count.portalUsers,
+                businessRequests: row._count.businessRequests,
+            },
+        })),
+    )
+
+    if (plan.deletableIds.length > 0) {
+        // Cascade ilişkiler (adres, nitelik ataması, ziyaret…) DB tarafında
+        // birlikte gider; bir potansiyel müşteriyi silmek zaten bunu kapsar.
+        await prisma.customer.deleteMany({ where: { id: { in: plan.deletableIds } } })
+    }
+
+    return { deletedIds: plan.deletableIds, blocked: plan.blocked }
 }

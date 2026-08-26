@@ -5,8 +5,10 @@ import { resolveCustomerDisplayName } from "@core/helpers/crm/customerDisplayNam
 import { toast } from "sonner"
 
 import {
+    bulkDeleteLeadCustomers,
     createLeadCustomer,
     createLeadCustomerAddress,
+    deleteLeadCustomer,
     deleteLeadCustomerAddress,
     getLeadCustomer,
     leadCustomerKeys,
@@ -96,4 +98,57 @@ export function useLeadCustomerAddressMutations(customerId: string) {
     })
 
     return { create, update, remove }
+}
+
+/**
+ * Silme sonucunu kullanıcıya bildirir — tekil ve toplu için ORTAK.
+ *
+ * Engelliler adıyla gösterilir: kullanıcı hangisini seçimden çıkaracağını
+ * bilmeli. İlk üçü yazılır, gerisi sayıyla özetlenir.
+ */
+function reportDeletion(result: { deletedIds: string[]; blocked: Array<{ name: string; reason: string }> }) {
+    if (result.deletedIds.length > 0) {
+        toast.success(`${result.deletedIds.length} potansiyel müşteri silindi`)
+    }
+
+    if (result.blocked.length > 0) {
+        const preview = result.blocked.slice(0, 3).map((row) => `${row.name} (${row.reason})`)
+        const rest = result.blocked.length - preview.length
+        toast.warning(
+            `${result.blocked.length} kayıt silinemedi: ${preview.join(" · ")}` +
+            (rest > 0 ? ` ve ${rest} tane daha` : ""),
+            { duration: 8000 },
+        )
+    }
+}
+
+export function useDeleteLeadCustomer() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: string) => deleteLeadCustomer(id),
+        onSuccess(result) {
+            reportDeletion(result)
+            queryClient.invalidateQueries({ queryKey: leadCustomerKeys.all })
+        },
+        onError(error: any) {
+            // Engellenen tekil silme 409 döner; sunucu sebebi mesajda söylüyor.
+            toast.error(error?.response?.data?.message ?? "Potansiyel müşteri silinemedi")
+        },
+    })
+}
+
+export function useBulkDeleteLeadCustomers() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (ids: string[]) => bulkDeleteLeadCustomers(ids),
+        onSuccess(result) {
+            reportDeletion(result)
+            queryClient.invalidateQueries({ queryKey: leadCustomerKeys.all })
+        },
+        onError(error: any) {
+            toast.error(error?.response?.data?.message ?? "Potansiyel müşteriler silinemedi")
+        },
+    })
 }

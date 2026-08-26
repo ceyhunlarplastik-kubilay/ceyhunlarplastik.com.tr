@@ -83,6 +83,10 @@ export const listLeadCustomersValidator = validatorWrapper(
             search: z.string().optional(),
             sectorValueId: z.uuid().optional(),
             usageAreaValueId: z.uuid().optional(),
+            // Geo id'leri sayısaldır ama query string metin taşır; handler parse eder.
+            countryId: z.string().optional(),
+            stateId: z.string().optional(),
+            cityId: z.string().optional(),
         }).optional(),
     }),
     {
@@ -230,4 +234,44 @@ export const leadCustomerDetailResponseValidator = z.toJSONSchema(
             }),
         }),
     }).loose(),
+)
+
+export const deleteLeadCustomerValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+    }),
+    {
+        requiredRootFields: ["pathParameters"],
+    },
+)
+
+/** Toplu silme. Üst sınır: tek istekte makul kalması için. */
+export const bulkDeleteLeadCustomersValidator = validatorWrapper(
+    z.object({
+        body: z.object({
+            ids: z.array(z.uuid()).min(1).max(200),
+        }),
+    }),
+    {
+        requiredRootFields: ["body"],
+    },
+)
+
+export const deleteLeadCustomersResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                deletedIds: z.array(z.string()),
+                blocked: z.array(z.object({
+                    id: z.string(),
+                    name: z.string(),
+                    reason: z.string(),
+                }).loose()),
+            }).loose(),
+        }).loose(),
+    }).loose()
 )
