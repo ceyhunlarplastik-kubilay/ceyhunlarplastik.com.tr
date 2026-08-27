@@ -4835,10 +4835,29 @@ dolmuşsa koordinat düşer, adres metni kalır. Adres özeti tek yere alındı
 Response şekli değişti (`counts` + `address`); tipli fixture derleme anında yakaladı
 ve validator'la birlikte güncellendi — korumanın çalıştığı ilk gerçek vaka.
 
+### Üçüncü tur — admin paneli (aynı gün)
+`GET /products/{id}/matched-customers` (AdminApi). İkinci bir handler YAZILMADI:
+handler, event tipi ve şemalar `packages/functions/src/shared/**` altına taşındı,
+iki boundary de oradan besleniyor. Boundary'ler arasındaki TEK fark kapsam ve o da
+`resolveScope` ile dışarıdan veriliyor — kopyalanan bir handler iki panelin aynı
+ürün için farklı müşteri listesi göstermesiyle biterdi.
+
+Şemalar da bilinçli olarak `shared/validators/` altında: uç iki yerde yayınlanıyor,
+biri güncellenip diğeri unutulmamalı. `validatorCompilation.test.ts` globu
+(`**/validators/*.ts`) orayı da tarıyor, koruma sürüyor.
+
+Admin kapsamı: TÜM müşteriler (istenirse `assignedSalesUserId` ile daraltılır).
+Satış kapsamı değişmedi.
+
+Arayüzde `ProductsTable` + `ProductsPageClient` opsiyonel `onViewCustomers` /
+`showMatchedCustomers` aldı; panel aynı bileşen (`scope="admin"`, müşteri detay
+kökü `/admin/customers`). Varsayılan KAPALI, çünkü aynı bileşen
+`/veri-girisi/products`'ta da kullanılıyor ve `content_editor` ticari CRM verisi
+görmemeli — orada düğme çıkmıyor.
+
 ### Kalan
-Diğer paneller (`/admin`, `/satinalma`, `/veri-girisi`) henüz bağlanmadı — feature
-paylaşılan olarak yazıldı, her panel için gereken tek şey kendi boundary'sinde bir
-uç + `onViewCustomers` prop'u. Kullanıcı önce satışta görmek istedi.
+`/satinalma` bağlanmadı (satın almanın müşteri listesine ihtiyacı görünmüyor;
+istenirse ProtectedApi'de tek route + prop yeter).
 
 backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 563 ✅ · functions 311 ✅ ·
 frontend 310 ✅ · `next build` ✅. Migration YOK.

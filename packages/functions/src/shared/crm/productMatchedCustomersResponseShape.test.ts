@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { transpileSchema } from "@middy/validator/transpile"
 import type { ValidateFunction } from "ajv"
 
-import { productMatchedCustomersResponseValidator } from "@/functions/ProtectedApi/validators/crm"
+import { productMatchedCustomersResponseValidator } from "@/functions/shared/validators/productMatchedCustomers"
 import type { ProductMatchedCustomersResult } from "@/core/helpers/crm/getProductMatchedCustomers"
 
 /**

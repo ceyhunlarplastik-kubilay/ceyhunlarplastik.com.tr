@@ -507,6 +507,13 @@ adminApi.route("DELETE /product-variants/{id}", {
 // Tedarikçi harfi ("A") ÜRÜN MODELİNE ÖZELDİR: 1.2.3.V1.A Özgen'i gösterirken
 // 10.11.2.V1.A Aparat Toptan'ı gösterebilir. Harf append-only; değiştirecek bir
 // uç BİLİNÇLİ OLARAK YOK — yalnız hangi tedarikçiye ait olduğu düzenlenir.
+// Ürün → müşteri eşleşmesi: satış panelindeki uçla aynı handler, admin kapsamı
+// (tüm müşteriler). Kural core/helpers/crm/customerProfileMatching.ts'te.
+adminApi.route("GET /products/{id}/matched-customers", {
+    handler: `${folderPrefix}/customers/actions.listProductMatchedCustomers`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 adminApi.route("GET /products/{id}/supplier-codes", {
     handler: `${folderPrefix}/productSupplierCodes/actions.listProductSupplierCodes`,
     ...defaultRouteOptions,

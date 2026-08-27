@@ -14,6 +14,7 @@ import { GeoAddressFilterFields } from "@/features/geo/components/GeoAddressFilt
 import { ManagedCustomerMap } from "@/features/customerLocations/components/ManagedCustomerMap"
 import type { CustomerMapPoint } from "@/features/customerLocations/types"
 import { useProductMatchedCustomers } from "@/features/productMatchedCustomers/hooks/useProductMatchedCustomers"
+import type { ProductMatchedCustomersScope } from "@/features/productMatchedCustomers/api/getProductMatchedCustomers"
 import { ProductMatchedCustomersTable } from "@/features/productMatchedCustomers/components/ProductMatchedCustomersTable"
 import type { ProductProfileReachLabel } from "@/features/productMatchedCustomers/api/types"
 
@@ -48,6 +49,8 @@ type Props = {
     productCode: string
     productName: string
     onClose: () => void
+    /** Hangi boundary çağrılacak — satış paneli mi, admin mi. */
+    scope?: ProductMatchedCustomersScope
     /** Müşteri detayına giden yolun kökü — panel başına değişir. */
     customerBasePath?: string
 }
@@ -85,7 +88,8 @@ export function ProductMatchedCustomersPanel({
     productCode,
     productName,
     onClose,
-    customerBasePath = "/satis/musteriler",
+    scope = "sales",
+    customerBasePath = scope === "admin" ? "/admin/customers" : "/satis/musteriler",
 }: Props) {
     const [searchInput, setSearchInput] = useState("")
     const [search, setSearch] = useState("")
@@ -107,6 +111,7 @@ export function ProductMatchedCustomersPanel({
 
     const query = useProductMatchedCustomers({
         productId,
+        scope,
         page: view === "map" ? 1 : page,
         limit: view === "map" ? MAP_LIMIT : limit,
         ...(search ? { search } : {}),

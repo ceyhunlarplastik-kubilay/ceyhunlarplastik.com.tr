@@ -6,10 +6,6 @@ import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets
 import { createCustomerPortalUserInvitation } from "@/core/helpers/customerPortalInvitations/service"
 import { mapCustomerAssignedProductForApi, mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { getCustomerFeaturedAndMatchedProducts } from "@/core/helpers/crm/getCustomerFeaturedAndMatchedProducts"
-import {
-    PRODUCT_MATCHED_CUSTOMER_SORT_FIELDS,
-    listProductMatchedCustomers,
-} from "@/core/helpers/crm/getProductMatchedCustomers"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import {
@@ -39,7 +35,6 @@ import {
     IListManagedCustomerSpecialPricesEvent,
     IListManagedCustomersEvent,
     IListManagedCustomersMapEvent,
-    IListProductMatchedCustomersEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerFavoriteVariantEvent,
@@ -223,64 +218,6 @@ export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCr
                 data: result.data.map((customer) => mapCustomerForApi(customer)),
                 meta: result.meta,
             },
-        })
-    }
-}
-
-/**
- * ÜRÜN → MÜŞTERİ. Müşteri portalındaki "İlgili Ürünler"in tersi: temsilci
- * elindeki ürün modeli için gidebileceği müşteri/potansiyel müşteri listesini
- * görür. Eşleşme kuralı `customerProfileMatching.ts`'te tek yerde.
- *
- * Kapsam: satış temsilcisi KENDİ müşterileri + HENÜZ ATANMAMIŞ kayıtları görür.
- * `listManagedCustomers`'taki katı "yalnız kendi portföyü" kuralı burada işe
- * yaramazdı: potansiyel müşteriler veri girişi panelinden temsilcisiz giriliyor,
- * o kural listenin LEAD tarafını tamamen boşaltırdı. Başkasının müşterisi yine
- * görünmez. Yönetici rolleri tümünü görür, istenirse temsilciye filtreler.
- */
-export const listProductMatchedCustomersHandler = () => {
-    return async (event: IListProductMatchedCustomersEvent) => {
-        const requester = event.user
-        if (!requester) throw new createError.Unauthorized("Authentication required")
-
-        const productId = event.pathParameters?.id
-        if (!productId) throw new createError.BadRequest("Product id is required")
-
-        // maxLimit 100 değil 200: harita görünümü sayfalanmaz, görünen tüm
-        // eşleşmeleri tek seferde pin'ler. Satır DAR olduğu için payload küçük.
-        const { page, limit, search, sort, order } = normalizeListQuery(event.queryStringParameters, {
-            allowedSortFields: PRODUCT_MATCHED_CUSTOMER_SORT_FIELDS,
-            defaultSort: "companyName",
-            maxLimit: 200,
-        })
-
-        const toPositiveInt = (raw?: string) => {
-            const parsed = Number(raw)
-            return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
-        }
-
-        const result = await listProductMatchedCustomers({
-            productIds: [productId],
-            page,
-            limit,
-            search,
-            sort,
-            order,
-            status: event.queryStringParameters?.status,
-            countryId: toPositiveInt(event.queryStringParameters?.countryId),
-            stateId: toPositiveInt(event.queryStringParameters?.stateId),
-            cityId: toPositiveInt(event.queryStringParameters?.cityId),
-            salesScopeUserId: requester.isSales ? requester.id : undefined,
-            assignedSalesUserId: requester.isSales
-                ? undefined
-                : requester.isOwner || requester.isAdmin || requester.isSalesDirector
-                    ? event.queryStringParameters?.assignedSalesUserId
-                    : undefined,
-        })
-
-        return apiResponseDTO({
-            statusCode: 200,
-            payload: result,
         })
     }
 }

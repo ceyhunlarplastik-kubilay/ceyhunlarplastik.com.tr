@@ -33,6 +33,7 @@ import {
     Box,
     Loader2,
     Hash,
+    Users,
 } from "lucide-react"
 
 import { AnimatePresence, motion } from "motion/react"
@@ -65,6 +66,14 @@ type Props = {
     showVariantsLink?: boolean
     /** Varyant ekranının kök yolu — panel bazında değişir. */
     variantsBasePath?: string
+    /**
+     * Verilirse satırda "Müşteriler" düğmesi çıkar (ürün → müşteri eşleşmesi).
+     * Opsiyonel: bu tablo veri girişi panelinde de kullanılıyor ve `content_editor`
+     * ticari CRM verisi görmemeli.
+     */
+    onViewCustomers?: (product: Product) => void
+    /** Müşteri paneli açık olan ürün — satır vurgusu için. */
+    customersProductId?: string
 }
 
 const MotionRow = motion(TableRow)
@@ -125,6 +134,8 @@ export function ProductsTable({
     onRefreshIntervalChange,
     showVariantsLink = true,
     variantsBasePath = "/admin/products",
+    onViewCustomers,
+    customersProductId,
 }: Props) {
     const [createOpen, setCreateOpen] = useState(false)
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -210,7 +221,7 @@ export function ProductsTable({
                             <TableHead className="w-[140px]">
                                 Eklenme
                             </TableHead>
-                            <TableHead className="text-right w-[120px]">
+                            <TableHead className={onViewCustomers ? "text-right w-[260px]" : "text-right w-[120px]"}>
                                 İşlemler
                             </TableHead>
                         </TableRow>
@@ -302,6 +313,17 @@ export function ProductsTable({
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
+                                                {onViewCustomers ? (
+                                                    <Button
+                                                        size="sm"
+                                                        variant={customersProductId === product.id ? "default" : "outline"}
+                                                        className="gap-1.5"
+                                                        onClick={() => onViewCustomers(product)}
+                                                    >
+                                                        <Users className="h-3.5 w-3.5" />
+                                                        Müşteriler
+                                                    </Button>
+                                                ) : null}
                                                 {showVariantsLink ? (
                                                     <Button
                                                         asChild
