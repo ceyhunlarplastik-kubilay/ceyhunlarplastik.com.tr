@@ -15,6 +15,8 @@ import { useSupplierProducts } from "@/features/supplier/variantPrices/hooks/use
 import { useSupplierVariantPrices } from "@/features/supplier/variantPrices/hooks/useSupplierVariantPrices"
 import type { SupplierVariantPrice } from "@/features/supplier/variantPrices/api/types"
 import { WorkspaceProductsTable } from "@/features/workspaceProducts/components/WorkspaceProductsTable"
+import type { WorkspaceProductRow } from "@/features/workspaceProducts/components/WorkspaceProductsTable"
+import { ProductMatchedCustomersPanel } from "@/features/productMatchedCustomers/components/ProductMatchedCustomersPanel"
 import { getProductFilterCategories } from "@/features/workspaceProducts/api/getProductFilterCategories"
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 
@@ -132,6 +134,9 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
     const [variantLimit, setVariantLimit] = useState(20)
     const [editingRow, setEditingRow] = useState<SupplierVariantPrice | null>(null)
     const [variantRequestOpen, setVariantRequestOpen] = useState(false)
+    // Ürün → müşteri eşleşmesi şimdilik yalnız satış panelinde; ürünün kimliğini
+    // tutuyoruz ki liste sayfa değiştiğinde de başlık doğru kalsın.
+    const [customersProduct, setCustomersProduct] = useState<WorkspaceProductRow | null>(null)
 
     const {
         filters,
@@ -250,7 +255,17 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
                     setSelectedProductId(productId)
                     setVariantPage(1)
                 }}
+                onViewCustomers={mode === "sales" ? setCustomersProduct : undefined}
             />
+
+            {mode === "sales" && customersProduct ? (
+                <ProductMatchedCustomersPanel
+                    productId={customersProduct.id}
+                    productCode={customersProduct.code}
+                    productName={customersProduct.name}
+                    onClose={() => setCustomersProduct(null)}
+                />
+            ) : null}
 
             <div className="space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">

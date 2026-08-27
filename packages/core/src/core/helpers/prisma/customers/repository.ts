@@ -5,6 +5,7 @@ import type { IPaginationQuery } from "@/core/helpers/pagination/types"
 import { normalizeCompanyContactAssignments } from "@/core/helpers/crm/companyContactAssignments"
 import { GOOGLE_PLACES_PROVIDER } from "@/core/helpers/crm/customerAddressInput"
 import { decimalLikeToNumber } from "@/core/helpers/pricing/productVariantSupplier"
+import { buildCustomerAddressSummary } from "@/core/helpers/crm/customerAddressSummary"
 import {
     CustomerAddressLocationAccuracy,
     CustomerAddressLocationSource,
@@ -501,13 +502,6 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         ) as Prisma.CustomerAddressUncheckedUpdateInput
     }
 
-    const buildMapAddressSummary = (address: {
-        line1: string
-        district?: string | null
-        city: string
-        country: string
-    }) => [address.line1, address.district, address.city, address.country].filter(Boolean).join(", ")
-
     const sortAddressesForDisplay = <T extends {
         displayOrder: number
         createdAt: Date
@@ -690,7 +684,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                 assignedSalesUserId: customer.assignedSalesUserId,
                 addressId: address.id,
                 addressLabel: address.label,
-                addressSummary: buildMapAddressSummary(address),
+                addressSummary: buildCustomerAddressSummary(address),
                 latitude,
                 longitude,
                 isPrimary: address.isPrimary,

@@ -4758,6 +4758,91 @@ düğmeye bastıktan sonra öğreniyor ve mesaj İngilizce.
 operatör matrisi; tedarikçi talebi ikincil kanal. Aktifleşirse seçenekler:
 **B** onay ekranında önceden uyarı rozeti · **C** onay sırasında inline versiyon tanımı.
 
+## Ürün → müşteri eşleşmesi — satış paneli (2026-08-27)
+
+Müşteri portalındaki "İlgili Ürünler"in TERSİ: temsilci satmak istediği ürün modeli
+için gidebileceği müşteri/potansiyel müşteri listesini görüyor.
+
+### Kural tek kaynakta, iki yönlü
+[customerProfileMatching.ts](packages/core/src/core/helpers/crm/customerProfileMatching.ts)
+zaten müşteri → ürün yönünü taşıyordu; ters yön aynı dosyaya eklendi:
+`collectProductProfileReach` (ürünün `industrialUsages`'ından erişim kümesi) +
+`buildProductProfileCustomerWhereClauses` (kümeden müşteri WHERE'i) +
+`collectMatchedProfileValues` ("neden eşleşti?" rozetleri).
+
+Sessiz ayrışma riski burada: ileri yöndeki WHERE, attribute kodunu YALNIZ hiyerarşide
+YUKARI TIRMANAN dallarda kontrol ediyor (üretim grubunun ebeveyni, kullanım alanının
+dedesi), doğrudan eşleşen dallarda etmiyor. Ters yön bunu birebir taklit etmezse iki
+ekran birbirini yalanlar ve hiçbir hata çıkmaz. Simetri
+[customerProfileMatching.test.ts](packages/core/src/core/helpers/crm/customerProfileMatching.test.ts)
+ile kilitlendi (11 yeni test).
+
+Kolon önceliği de korundu: sektör/üretim grubu kolonu DOLUYSA atama satırına
+bakılmaz (`sectorValueId: null` koşulu), kullanım alanı iki kaynağın birleşimi
+olduğu için koşulsuz OR.
+
+### Uç
+`GET /sales/products/{id}/matched-customers` —
+[getProductMatchedCustomers.ts](packages/core/src/core/helpers/crm/getProductMatchedCustomers.ts).
+DTO bilinçli DAR: `getCustomerFeaturedAndMatchedProducts` kayıt başına üç seviyeli
+taksonomi ağacı taşıyor, bu ekranda o ağırlık gereksiz. Çekirdek `productIds: string[]`
+alıyor — çoklu ürün seçimi geldiğinde uç değişir, kural değişmez.
+
+**Kapsam kararı:** satış temsilcisi kendi müşterileri + HENÜZ ATANMAMIŞ kayıtları
+görür. `listManagedCustomers`'taki katı "yalnız kendi portföyü" kuralı burada
+kopyalanmadı: potansiyel müşteriler veri girişi panelinden temsilcisiz giriliyor,
+o kural listenin LEAD tarafını tamamen boşaltırdı. Başkasının müşterisi görünmez.
+
+Response validator ile helper çıktısı arasındaki sapmaya karşı
+[productMatchedCustomersResponseShape.test.ts](packages/functions/src/ProtectedApi/functions/crm/productMatchedCustomersResponseShape.test.ts)
+(`validators/` altında DEĞİL — orayı `validatorCompilation.test.ts` eager glob'luyor).
+
+### Arayüz
+Paylaşılan feature: `features/productMatchedCustomers/**` (api + hook + panel + tablo).
+[WorkspaceProductsTable](packages/frontend/features/workspaceProducts/components/WorkspaceProductsTable.tsx)
+"Eklenme" kolonu opsiyonel `onViewCustomers` prop'u verildiğinde "Müşteriler"
+düğmesine dönüşüyor; tedarikçi/satın alma panelleri tarihi görmeye devam ediyor.
+Panel eşleşmenin TEMELİNİ (sektör / üretim grubu / kullanım alanı rozetleri) boş
+sonuçta bile gösteriyor — ürünün endüstriyel kullanımı yoksa bunu açıkça söylüyor.
+Refetch-feedback deseni uygulandı: ilk yükte skeleton, arka planda
+`AdminSectionLoadingOverlay` + `placeholderData: (prev) => prev`.
+
+### İkinci tur — diyalog kaldırıldı, filtre + harita eklendi (aynı gün)
+**Diyalog → inline kart.** Varyantlar bölümüyle aynı iskelette, ürün tablosunun
+hemen altında. Modal her geçişte bağlamı kapatıyordu; temsilci ürün listesi ↔
+varyantlar ↔ müşteriler arasında gidip geliyor.
+
+**Sekmeler** (Tüm / Cari / Potansiyel) shadcn `Tabs` ile, portal favori varyantlar
+ekranındaki desende. Sayaçlar SUNUCUDAN geliyor: liste sayfalandığı için sayfadaki
+satırlardan sayılamaz. Bunun için `groupBy(status)` "durum filtresi HARİÇ diğer tüm
+filtreler uygulanmış" where ile çalışıyor — yoksa aktif olmayan sekmeler hep 0 görünürdü.
+
+**Adres filtresi** `GeoAddressFilterFields` ile (Türkiye varsayılan, ISO kodundan
+çözülüyor). Filtre normalize FK'lar üzerinden; `leadCustomers.ts`'teki
+`buildAddressWhere` ile aynı kural. Filtre varsa satırda GÖSTERİLEN adres de o
+filtreye uyan olarak seçiliyor — aksi hâlde "Bursa" filtresinde İstanbul adresi yazardı.
+
+**Harita görünümü** mevcut `ManagedCustomerMap`'i yeniden kullanıyor (kendi Google
+provider'ı + 620px yüksekliği var). Pencereye göre yeniden sorgu YOK: liste zaten
+eşleşme + filtrelerle daraltılmış. Harita modunda `limit: 200` (uç `maxLimit` 200'e
+çıkarıldı; satır dar). Koordinatı olmayan müşteri sayısı ayrıca yazılıyor.
+
+Google Places koordinatı için TTL kuralı `mapCustomerForApi` ile aynı: süresi
+dolmuşsa koordinat düşer, adres metni kalır. Adres özeti tek yere alındı
+([customerAddressSummary.ts](packages/core/src/core/helpers/crm/customerAddressSummary.ts))
+— müşteri haritası ile bu harita aynı kaydı aynı metinle yazmalı.
+
+Response şekli değişti (`counts` + `address`); tipli fixture derleme anında yakaladı
+ve validator'la birlikte güncellendi — korumanın çalıştığı ilk gerçek vaka.
+
+### Kalan
+Diğer paneller (`/admin`, `/satinalma`, `/veri-girisi`) henüz bağlanmadı — feature
+paylaşılan olarak yazıldı, her panel için gereken tek şey kendi boundary'sinde bir
+uç + `onViewCustomers` prop'u. Kullanıcı önce satışta görmek istedi.
+
+backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 563 ✅ · functions 311 ✅ ·
+frontend 310 ✅ · `next build` ✅. Migration YOK.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { AnimatePresence, motion } from "motion/react"
-import { Box, Film, Hash, Image as ImageIcon, Tag } from "lucide-react"
+import { Box, Film, Hash, Image as ImageIcon, Tag, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -69,6 +69,12 @@ type Props = {
     onRefreshIntervalChange: (seconds: number) => void
     selectedProductId?: string
     onViewVariants: (productId: string) => void
+    /**
+     * Verilirse "Eklenme" kolonu yerine "Müşteriler" düğmesi çıkar (ürün → müşteri
+     * eşleşmesi). Opsiyonel: tablo tedarikçi/satın alma panellerinde de kullanılıyor
+     * ve orada müşteri listesinin işi yok.
+     */
+    onViewCustomers?: (product: WorkspaceProductRow) => void
 }
 
 const MotionRow = motion(TableRow)
@@ -115,6 +121,7 @@ export function WorkspaceProductsTable({
     onRefreshIntervalChange,
     selectedProductId,
     onViewVariants,
+    onViewCustomers,
 }: Props) {
     return (
         <div className="space-y-6">
@@ -149,7 +156,9 @@ export function WorkspaceProductsTable({
                             <TableHead>Ürün Adı</TableHead>
                             <TableHead className="w-[240px]">Medya</TableHead>
                             <TableHead className="w-[180px]">Kategori</TableHead>
-                            <TableHead className="w-[140px]">Eklenme</TableHead>
+                            <TableHead className="w-[150px]">
+                                {onViewCustomers ? "Müşteriler" : "Eklenme"}
+                            </TableHead>
                             <TableHead className="w-[120px] text-right">İşlemler</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -214,9 +223,21 @@ export function WorkspaceProductsTable({
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <span className="text-xs text-neutral-500">
-                                                {new Date(product.createdAt).toLocaleDateString("tr-TR")}
-                                            </span>
+                                            {onViewCustomers ? (
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="gap-1.5"
+                                                    onClick={() => onViewCustomers(product)}
+                                                >
+                                                    <Users className="h-3.5 w-3.5" />
+                                                    Müşteriler
+                                                </Button>
+                                            ) : (
+                                                <span className="text-xs text-neutral-500">
+                                                    {new Date(product.createdAt).toLocaleDateString("tr-TR")}
+                                                </span>
+                                            )}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button

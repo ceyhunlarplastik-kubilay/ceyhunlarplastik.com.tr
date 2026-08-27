@@ -292,6 +292,13 @@ protectedApi.route('GET /sales/products', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Ürün → müşteri eşleşmesi: temsilci elindeki ürün modeli için gidebileceği
+// müşteri/potansiyel müşteri listesini görür (müşteri → ürün yönünün tersi).
+protectedApi.route('GET /sales/products/{id}/matched-customers', {
+    handler: `${folderPrefix}/crm/actions.listProductMatchedCustomers`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/customers', {
     handler: `${folderPrefix}/crm/actions.listManagedCustomers`,
     ...defaultRouteOptions

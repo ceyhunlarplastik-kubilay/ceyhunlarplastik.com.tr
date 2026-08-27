@@ -38,6 +38,7 @@ import {
     listManagedCustomerAssignedProductsHandler,
     listManagedCustomerFeaturedProductsHandler,
     listManagedCustomersHandler,
+    listProductMatchedCustomersHandler,
     listManagedCustomerVisitsHandler,
     listManagedSuppliersHandler,
     listPortalCustomerSpecialPricesHandler,
@@ -61,6 +62,7 @@ import type {
     IListManagedCustomerSpecialPricesEvent,
     IListManagedCustomersEvent,
     IListManagedCustomersMapEvent,
+    IListProductMatchedCustomersEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerFavoriteVariantEvent,
@@ -102,6 +104,8 @@ import {
     deletePortalCustomerAddressValidator,
     customerMapPointsResponseValidator,
     listManagedCustomersMapValidator,
+    listProductMatchedCustomersValidator,
+    productMatchedCustomersResponseValidator,
     updateManagedCustomerAddressValidator,
     updatePortalCustomerAddressValidator,
     createPortalCustomerFavoriteVariantValidator,
@@ -145,6 +149,15 @@ export const listManagedCustomers = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         responseValidator: listCustomersResponseValidator,
+    },
+)
+
+export const listProductMatchedCustomers = lambdaHandler(
+    async (event) => listProductMatchedCustomersHandler()(event as IListProductMatchedCustomersEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: listProductMatchedCustomersValidator,
+        responseValidator: productMatchedCustomersResponseValidator,
     },
 )
 

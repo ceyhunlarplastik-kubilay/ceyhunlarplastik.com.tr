@@ -55,6 +55,27 @@ export type IListManagedCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
     }
 >
 
+/**
+ * Ürün → müşteri eşleşmesi. Yol parametresi ürün modeli; kapsam daraltması
+ * `listManagedCustomers` ile aynı (satış temsilcisi yalnız kendi portföyü).
+ */
+export type IListProductMatchedCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    { id: string },
+    {
+        page?: string
+        limit?: string
+        search?: string
+        sort?: string
+        order?: "asc" | "desc"
+        status?: CustomerStatus
+        assignedSalesUserId?: string
+        countryId?: string
+        stateId?: string
+        cityId?: string
+    }
+>
+
 export type IManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     { id: string }

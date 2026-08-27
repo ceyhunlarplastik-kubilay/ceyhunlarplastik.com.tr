@@ -316,6 +316,13 @@ When extending customer-to-product profile matching:
 - customer assignability should be driven by attribute metadata such as `isCustomerAssignable`, not by scattered UI allowlists
 - treat `sector`, `production_group`, and `usage_area` as system customer-profile attributes; they are customer-assignable by default and should not depend on an editable checkbox
 - keep product matching logic in repository/service helpers, not in UI components
+- matching is BIDIRECTIONAL and both directions must come from `customerProfileMatching.ts`:
+  `buildCustomerProfileProductWhereClauses` (customer → products, portal "İlgili Ürünler")
+  and `collectProductProfileReach` + `buildProductProfileCustomerWhereClauses`
+  (product → customers, sales panel "Müşteriler"). The forward rule checks the attribute
+  code only on the branches that CLIMB the hierarchy; the inverse must mirror that exactly,
+  or the two screens contradict each other without erroring. `customerProfileMatching.test.ts`
+  locks the symmetry
 - treat “customer profilinde seçilebilir” and “ürün eşleştirmede kullanılır” as separate concerns so future customer attributes do not accidentally change matching behavior
 - keep category-scoped product filters and industrial usage taxonomy separate
 - `model_type`, `connection_type`, `profile_type`, `material_type`, `usage_type`, and `hat_type` stay on `Product.attributeValues` and may be constrained by `Category.allowedAttributeValueIds`
