@@ -30,6 +30,15 @@ import {
     IUpdateCustomerVisitEvent,
 } from "@/functions/AdminApi/types/customers"
 import {
+    adminProductMatchedCustomersScope,
+    productMatchedCustomersHandler,
+    type IListProductMatchedCustomersEvent,
+} from "@/functions/shared/crm/productMatchedCustomers"
+import {
+    listProductMatchedCustomersValidator,
+    productMatchedCustomersResponseValidator,
+} from "@/functions/shared/validators/productMatchedCustomers"
+import {
     createCustomerVisitValidator,
     customerAssignedProductsResponseValidator,
     customerFeaturedProductsResponseValidator,
@@ -57,6 +66,23 @@ export const listCustomers = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["admin", "owner"] },
         responseValidator: listCustomersResponseValidator,
+    },
+)
+
+/**
+ * ÜRÜN → MÜŞTERİ. Satış panelindeki uçla AYNI handler ve AYNI şemalar
+ * (`shared/crm/productMatchedCustomers`); tek fark kapsam: admin/owner tüm
+ * müşterileri görür, satış temsilcisi kendi portföyü + atanmamışlarla sınırlıdır.
+ */
+export const listProductMatchedCustomers = lambdaHandler(
+    async (event) =>
+        productMatchedCustomersHandler(adminProductMatchedCustomersScope)(
+            event as IListProductMatchedCustomersEvent,
+        ),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: listProductMatchedCustomersValidator,
+        responseValidator: productMatchedCustomersResponseValidator,
     },
 )
 

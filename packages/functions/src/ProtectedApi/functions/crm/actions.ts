@@ -38,7 +38,6 @@ import {
     listManagedCustomerAssignedProductsHandler,
     listManagedCustomerFeaturedProductsHandler,
     listManagedCustomersHandler,
-    listProductMatchedCustomersHandler,
     listManagedCustomerVisitsHandler,
     listManagedSuppliersHandler,
     listPortalCustomerSpecialPricesHandler,
@@ -62,7 +61,6 @@ import type {
     IListManagedCustomerSpecialPricesEvent,
     IListManagedCustomersEvent,
     IListManagedCustomersMapEvent,
-    IListProductMatchedCustomersEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerFavoriteVariantEvent,
@@ -104,8 +102,6 @@ import {
     deletePortalCustomerAddressValidator,
     customerMapPointsResponseValidator,
     listManagedCustomersMapValidator,
-    listProductMatchedCustomersValidator,
-    productMatchedCustomersResponseValidator,
     updateManagedCustomerAddressValidator,
     updatePortalCustomerAddressValidator,
     createPortalCustomerFavoriteVariantValidator,
@@ -126,6 +122,15 @@ import {
     supplierResponseValidator,
 } from "@/functions/AdminApi/validators/suppliers"
 import { sendCustomerPortalInvitationEmail } from "@/functions/shared/mail/sendCustomerPortalInvitationEmail"
+import {
+    productMatchedCustomersHandler,
+    salesProductMatchedCustomersScope,
+    type IListProductMatchedCustomersEvent,
+} from "@/functions/shared/crm/productMatchedCustomers"
+import {
+    listProductMatchedCustomersValidator,
+    productMatchedCustomersResponseValidator,
+} from "@/functions/shared/validators/productMatchedCustomers"
 
 const deps = {
     customerRepository: customerRepository(),
@@ -153,7 +158,10 @@ export const listManagedCustomers = lambdaHandler(
 )
 
 export const listProductMatchedCustomers = lambdaHandler(
-    async (event) => listProductMatchedCustomersHandler()(event as IListProductMatchedCustomersEvent),
+    async (event) =>
+        productMatchedCustomersHandler(salesProductMatchedCustomersScope)(
+            event as IListProductMatchedCustomersEvent,
+        ),
     {
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: listProductMatchedCustomersValidator,

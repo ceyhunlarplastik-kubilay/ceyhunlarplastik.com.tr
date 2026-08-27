@@ -147,19 +147,19 @@ export function WorkspaceProductsTable({
             />
 
             <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-                {isFetching ? <div className="h-1 w-full animate-pulse bg-[var(--color-brand)]" /> : null}
+                {isFetching ? <div className="h-1 w-full animate-pulse bg-(--color-brand)" /> : null}
 
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[140px]">Ürün Kodu</TableHead>
+                            <TableHead className="w-35">Ürün Kodu</TableHead>
                             <TableHead>Ürün Adı</TableHead>
-                            <TableHead className="w-[240px]">Medya</TableHead>
-                            <TableHead className="w-[180px]">Kategori</TableHead>
-                            <TableHead className="w-[150px]">
+                            <TableHead className="w-60">Medya</TableHead>
+                            <TableHead className="w-45">Kategori</TableHead>
+                            <TableHead className="w-37.5">
                                 {onViewCustomers ? "Müşteriler" : "Eklenme"}
                             </TableHead>
-                            <TableHead className="w-[120px] text-right">İşlemler</TableHead>
+                            <TableHead className="w-30 text-right">İşlemler</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

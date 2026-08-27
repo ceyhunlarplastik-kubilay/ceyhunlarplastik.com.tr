@@ -8,6 +8,7 @@ export default async function Page() {
     return (
         <ProductsPageClient
             categories={categories}
+            showMatchedCustomers
         />
     )
 
