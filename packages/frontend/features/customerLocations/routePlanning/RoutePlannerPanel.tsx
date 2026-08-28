@@ -153,9 +153,10 @@ export function RoutePlannerPanel({
                 />
             </div>
 
+            {/* Buton metni kullanıcı için "Rota Oluştur" — asıl davranış hâlâ optimize çağrısı. */}
             <Button type="button" className="w-full" disabled={!canOptimize || optimizeMutation.isPending} onClick={handleOptimize}>
                 {optimizeMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Rotayı Optimize Et
+                Rota Oluştur
             </Button>
 
             {state.result ? (
