@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "motion/react"
 import { ArrowRight, ShoppingBag, Sparkles } from "lucide-react"
+import { CartShortcutKbd } from "@/features/customerPortal/components/CartShortcutKbd"
 import { useCartDrawerStore } from "@/features/customerPortal/stores/useCartDrawerStore"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { buildCurrencySummary, resolveCustomerPortalCartCta } from "@/features/customerPortal/components/requestComposer/helpers"
@@ -112,6 +113,10 @@ export function CustomerPortalCartDock({ mode }: Props) {
                                         </div>
                                     ) : null}
                                 </div>
+
+                                {hasItems && mode === "topbar" ? (
+                                    <CartShortcutKbd className="hidden [&>kbd]:bg-white/16 [&>kbd]:text-white/90 lg:flex" />
+                                ) : null}
 
                                 <ArrowRight className={cn(
                                     "h-4 w-4 transition group-hover:translate-x-0.5",

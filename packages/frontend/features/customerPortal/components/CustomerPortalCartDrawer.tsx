@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ import {
     DrawerTitle,
 } from "@/components/ui/drawer"
 import { Input } from "@/components/ui/input"
+import { CartShortcutKbd } from "@/features/customerPortal/components/CartShortcutKbd"
 import { buildCurrencySummary, normalizeDraftQuantity, resolveDraftPreviewImageUrl } from "@/features/customerPortal/components/requestComposer/helpers"
 import { useCartDrawerStore } from "@/features/customerPortal/stores/useCartDrawerStore"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
@@ -30,6 +31,7 @@ import { formatMoney } from "@/lib/customers/pricing"
 export function CustomerPortalCartDrawer() {
     const isOpen = useCartDrawerStore((state) => state.isOpen)
     const setOpen = useCartDrawerStore((state) => state.setOpen)
+    const toggle = useCartDrawerStore((state) => state.toggle)
     const items = usePortalRequestDraftStore((state) => state.items)
     const updateQuantity = usePortalRequestDraftStore((state) => state.updateQuantity)
     const removeItem = usePortalRequestDraftStore((state) => state.removeItem)
@@ -39,15 +41,34 @@ export function CustomerPortalCartDrawer() {
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0)
     const currencySummary = useMemo(() => buildCurrencySummary(items), [items])
 
+    // Claude Desktop'ın sidebar kısayolu örnek alındı (Mac: ⌘⌥B). `event.code`
+    // kullanılıyor: Mac'te Option basılıyken `event.key` harfi değiştirir
+    // (Option+B → "∫"), `code` fiziksel tuşu ("KeyB") her zaman doğru verir.
+    useEffect(() => {
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.code !== "KeyB") return
+            if (!event.altKey) return
+            if (!event.metaKey && !event.ctrlKey) return
+            event.preventDefault()
+            toggle()
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [toggle])
+
     return (
         <Drawer direction="right" open={isOpen} onOpenChange={setOpen}>
             <DrawerContent className="flex w-full flex-col sm:max-w-md">
                 <DrawerHeader>
-                    <DrawerTitle className="flex items-center gap-2">
-                        <ShoppingBag className="h-4 w-4 text-brand" />
-                        Sepetim
-                        <Badge variant="secondary">{items.length} kalem</Badge>
-                    </DrawerTitle>
+                    <div className="flex items-center justify-between gap-2">
+                        <DrawerTitle className="flex items-center gap-2">
+                            <ShoppingBag className="h-4 w-4 text-brand" />
+                            Sepetim
+                            <Badge variant="secondary">{items.length} kalem</Badge>
+                        </DrawerTitle>
+                        <CartShortcutKbd />
+                    </div>
                     <DrawerDescription>
                         Sipariş veya fiyat talebine dönüştürmeden önce kalemleri buradan hızlıca gözden geçirin.
                     </DrawerDescription>
@@ -93,6 +114,29 @@ export function CustomerPortalCartDrawer() {
                                             {item.productName}
                                         </div>
                                         <div className="text-xs text-neutral-500">{item.variantFullCode}</div>
+                                        {item.colorName || item.materialSummary || item.measurementSummary ? (
+                                            <div className="flex items-center gap-1 truncate text-[11px] text-neutral-500">
+                                                {item.colorName ? (
+                                                    <span className="inline-flex shrink-0 items-center gap-1">
+                                                        <span
+                                                            className="size-2 shrink-0 rounded-full border border-neutral-300"
+                                                            style={{ backgroundColor: item.colorHex || "#ddd" }}
+                                                        />
+                                                        {item.colorName}
+                                                    </span>
+                                                ) : null}
+                                                {item.materialSummary ? (
+                                                    <span className="truncate">
+                                                        {item.colorName ? "· " : ""}{item.materialSummary}
+                                                    </span>
+                                                ) : null}
+                                                {item.measurementSummary ? (
+                                                    <span className="shrink-0">
+                                                        {item.colorName || item.materialSummary ? "· " : ""}{item.measurementSummary}
+                                                    </span>
+                                                ) : null}
+                                            </div>
+                                        ) : null}
 
                                         <div className="flex items-center justify-between gap-2">
                                             <div className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-50">

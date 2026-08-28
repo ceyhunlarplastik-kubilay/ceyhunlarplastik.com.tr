@@ -19,6 +19,11 @@ export type PortalRequestDraftItem = {
     variantName?: string
     variantKey: string
     variantFullCode: string
+    /** Sepet drawer'ında kompakt gösterim için — canlı varyant verisine dönmeden. */
+    measurementSummary?: string | null
+    colorName?: string | null
+    colorHex?: string | null
+    materialSummary?: string | null
     quantity: number
     listUnitPrice?: number | null
     customerUnitPrice?: number | null

@@ -137,6 +137,27 @@ function formatVariantMeasurementsForMessage(variant: VariantTableData) {
         .join(" / ")
 }
 
+/**
+ * Sepet drawer'ının dar satırına sığması için etiketsiz, yalnız değer bazlı
+ * özet — tam ölçü adı/kodu için varyantFullCode ve tam sayfa tablo yeterli.
+ */
+function buildCompactMeasurementSummary(variant: VariantTableData) {
+    return variant.measurements
+        .slice()
+        .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder)
+        .map((measurement) => {
+            const unit = resolveMeasurementUnit(measurement)
+            return `${formatMeasurementValue(measurement)}${unit ? ` ${unit}` : ""}`
+        })
+        .join(" × ")
+}
+
+function buildCompactMaterialSummary(variant: VariantTableData) {
+    return variant.materials
+        .map((material) => material.code ? `${material.name} (${material.code})` : material.name)
+        .join(", ")
+}
+
 type PreparedVariant = {
     variant: VariantTableData
     minListPrice: ReturnType<typeof resolveMinListPrice>
@@ -393,6 +414,10 @@ export function CustomerPortalVariantDetailsTable({
             variantName: variant.name,
             variantKey: selectedMeasurements.map((measurement) => `${measurement.measurementType.code}:${measurement.value}`).join("|"),
             variantFullCode: variant.fullCode,
+            measurementSummary: buildCompactMeasurementSummary(variant) || null,
+            colorName: variant.color?.name ?? null,
+            colorHex: variant.color?.hex ?? null,
+            materialSummary: buildCompactMaterialSummary(variant) || null,
             quantity,
             listUnitPrice: pricing.listUnitPrice,
             customerUnitPrice: pricing.customerUnitPrice,
