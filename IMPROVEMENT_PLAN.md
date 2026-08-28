@@ -4862,6 +4862,70 @@ istenirse ProtectedApi'de tek route + prop yeter).
 backend tsc ✅ · frontend tsc ✅ · lint 0 error ✅ · core 563 ✅ · functions 311 ✅ ·
 frontend 310 ✅ · `next build` ✅. Migration YOK.
 
+## Panel sidebar'ı: tek kabuk + Claude Desktop davranışı (2026-08-28, Dilim 1/2)
+
+### Neden
+Altı panelin hepsi aynı iskeleti (sidebar + üst çubuk + içerik) kuruyordu ama ÜÇ
+ayrı sidebar bileşeniyle: `AdminSidebar` (433 satır, nav listesi bileşenin içinde
+gömülü), `RoleWorkspaceSidebar` (249, prop'la beslenen) ve `CustomerPortalSidebar`
+(575, içinde 230 satırlık Türkçe takvim kartı). Daraltma, mobil menü ve aktiflik
+kuralları üç yerde ayrı yazılmıştı ve ayrışmıştı.
+
+### Ne yapıldı
+`components/panels/**` altında tek kabuk: `PanelShell` (provider + üst çubuk +
+mobil çubuk + içerik) ve `PanelSidebar`. Nav tanımları VERİ olarak ayrıldı
+(`components/panels/navigation/*.ts`). İkon adı string taşınıyor — nav tanımları
+sunucu bileşeni olan layout'larda duruyor ve bir `LucideIcon` sunucu→istemci
+sınırından geçemez.
+
+**Davranış (Claude Desktop benzeri):** `⌘/Ctrl+B` gizler/gösterir, cookie'de
+kalıcı, mobilde Sheet — üçü de shadcn `SidebarProvider`'da hazır. GİZLİYKEN sol
+kenarda ince şerit: üzerine gelince sidebar İÇERİĞİ İTMEDEN üstte beliriyor,
+imleç uzaklaşınca kayboluyor.
+
+Önizleme (peek) shadcn'de YOK ama `components/ui/sidebar.tsx`'e DOKUNULMADI:
+`Sidebar` kendi prop'larını fixed konteynere yaydığı için `className` +
+`data-peek` dışarıdan geçirilerek çözüldü. İleride `shadcn add sidebar` ile dosya
+tazelenirse bu davranış bozulmaz.
+
+Kapanma `mouseleave` ile DEĞİL global `mousemove` ile: şeritten girildiğinde
+sidebar imlecin altına doğru kayıyor, kullanıcı bu sırada uzaklaşırsa panele hiç
+girilmediği için `mouseleave` tetiklenmez ve panel açık kalırdı.
+
+### Yol boyunca çıkan gerçek kusurlar
+- **Önizleme üst çubuğun altında kalıyordu.** Üst çubuk `z-30` ve daraltılmış
+  durumda tüm genişliği kapsıyor; konteyner `z-10`'daydı. Önizlemede `z-40`.
+- **`inert` mobil Sheet'e sızıyordu.** `Sidebar` mobilde aynı prop'ları Sheet
+  içeriğine yayıyor ve `state` masaüstü durumundan türüyor; masaüstünde gizliyken
+  açılan mobil menü ERİŞİLMEZ olurdu. `!isMobile` koşulu eklendi.
+- **`SidebarMenuSkeleton` `Math.random()` kullanıyordu** — render sırasında saf
+  olmayan çağrı VE sunucu/istemci farklı genişlik üretiyor (hydration uyuşmazlığı).
+  `useId`'den deterministik türetildi.
+- **`use-mobile.ts` efekt içinde senkron `setState` yapıyordu** (lint hatası +
+  fazladan render turu). `useSyncExternalStore` ile yeniden yazıldı.
+- **RTL kapısı yeni shadcn dosyalarını yakaladı.** `sidebar.tsx` ve `sheet.tsx`
+  fiziksel yön yardımcılarıyla geliyor; mantıksal karşılıklarına çevrildi
+  (`components/logicalProperties.test.ts`). `transition-[left,right,width]` de
+  mantıksal özellik adlarına çevrildi, yoksa kayma animasyonu ölürdü.
+
+Üç sapma da ilgili dosyaların başında yorumla işaretlendi — `shadcn add --overwrite`
+bunları geri alırsa testler düşer ve gerekçe orada durur.
+
+`TooltipProvider` ayrıca sarılmadı: `SidebarProvider` kendi içinde zaten kuruyor.
+
+### Kapsam
+Bu dilimde `/admin` ve `/veri-girisi` (kullanıcı kararı: biri gömülü nav listeli,
+biri prop'la beslenen — iki uç da denenmiş olur). `AdminSidebar` silindi.
+
+### Kalan (Dilim 2)
+`/satis`, `/satinalma`, `/tedarikci` (üçü de `RoleWorkspaceSidebar` kullanıyor,
+düz geçiş) ve `/musteri` (takvim kartı `sidebarFooterSlot`'a, sepet chrome'u
+`actionSlot`'a taşınacak). Sonra `RoleWorkspaceSidebar` + `CustomerPortalSidebar`
+silinir ve `AdminTopbar` yalnız `PanelShell` içinde kalır.
+
+frontend tsc ✅ · lint 0 error ✅ · frontend 310 ✅ · `next build` ✅. Backend'e
+dokunulmadı, migration YOK.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

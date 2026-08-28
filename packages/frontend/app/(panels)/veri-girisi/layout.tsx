@@ -1,67 +1,8 @@
-import { RoleWorkspaceSidebar } from "@/components/admin/RoleWorkspaceSidebar"
-import { AdminTopbar } from "@/components/admin/AdminTopbar"
 import { auth } from "@/lib/auth/auth"
 import { redirect } from "next/navigation"
 
-const navItems = [
-    {
-        href: "/veri-girisi/categories",
-        label: "Kategoriler",
-        icon: "boxes" as const,
-        match: "prefix" as const,
-    },
-    {
-        href: "/veri-girisi/products",
-        label: "Ürünler",
-        icon: "package" as const,
-        match: "prefix" as const,
-    },
-    {
-        href: "/veri-girisi/industrial-usage-assignments",
-        label: "Kullanım Alanı Ürün Atamaları",
-        icon: "clipboard" as const,
-        match: "prefix" as const,
-    },
-    {
-        href: "/veri-girisi/industrial-usage-functions",
-        label: "Kullanım Fonksiyonu Aktarımı",
-        icon: "sheet" as const,
-        match: "prefix" as const,
-    },
-    {
-        href: "/veri-girisi/potansiyel-musteriler",
-        label: "Potansiyel Müşteriler",
-        icon: "users" as const,
-        match: "prefix" as const,
-    },
-    {
-        href: "/veri-girisi/productAttributes",
-        label: "Özellikler",
-        icon: "settings" as const,
-        match: "prefix" as const,
-    },
-    // Varyant sözlükleri: adları ve çevirileri buradan girilir. Eskiden yalnız
-    // /admin altındaydılar, dolayısıyla içerik editörü bu üç sözlüğün çevirisini
-    // hiç giremiyordu.
-    {
-        href: "/veri-girisi/colors",
-        label: "Renkler",
-        icon: "palette" as const,
-        match: "prefix" as const,
-    },
-    {
-        href: "/veri-girisi/materials",
-        label: "Ham Maddeler",
-        icon: "layers" as const,
-        match: "prefix" as const,
-    },
-    {
-        href: "/veri-girisi/measurement-types",
-        label: "Ölçü Tipleri",
-        icon: "ruler" as const,
-        match: "prefix" as const,
-    },
-]
+import { PanelShell } from "@/components/panels/PanelShell"
+import { contentEntryNavGroups } from "@/components/panels/navigation/contentEntryNav"
 
 export default async function ContentEntryLayout({
     children,
@@ -83,31 +24,18 @@ export default async function ContentEntryLayout({
     if (!allowed) redirect("/?error=unauthorized")
 
     return (
-        <div className="min-h-screen flex flex-col bg-neutral-50 md:flex-row">
-            <RoleWorkspaceSidebar
-                panelTitle="Veri Girişi Paneli"
-                panelSubtitle="İçerik"
-                navItems={navItems}
-                name={session.user?.name}
-                email={session.user?.email}
-                image={session.user?.image}
-                groups={groups}
-            />
-
-            <div className="flex-1 flex min-w-0 flex-col">
-                <div className="hidden md:block">
-                    <AdminTopbar
-                        title="Veri Girişi Paneli"
-                        subtitle="İçerik"
-                        name={session.user?.name}
-                        email={session.user?.email}
-                        image={session.user?.image}
-                        groups={groups}
-                    />
-                </div>
-
-                <main className="flex-1 p-4 sm:p-5 md:p-8">{children}</main>
-            </div>
-        </div>
+        <PanelShell
+            title="Veri Girişi Paneli"
+            subtitle="İçerik"
+            navGroups={contentEntryNavGroups}
+            user={{
+                name: session.user?.name,
+                email: session.user?.email,
+                image: session.user?.image,
+                groups,
+            }}
+        >
+            {children}
+        </PanelShell>
     )
 }
