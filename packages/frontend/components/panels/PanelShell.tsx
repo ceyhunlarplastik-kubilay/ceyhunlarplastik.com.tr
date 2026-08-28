@@ -7,6 +7,7 @@ import { AdminUserMenu } from "@/components/admin/AdminUserMenu"
 import { PanelSidebar } from "@/components/panels/PanelSidebar"
 import { resolveActivePanelNavLabel } from "@/components/panels/panelNavigationState"
 import { PANEL_SIDEBAR_WIDTH } from "@/components/panels/panelSidebarConfig"
+import { SidebarShortcutKbd } from "@/components/panels/SidebarShortcutKbd"
 import type { PanelNavGroup, PanelUser } from "@/components/panels/types"
 import { Button } from "@/components/ui/button"
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
@@ -72,7 +73,10 @@ function PanelTopbar({
                             <TooltipTrigger asChild>
                                 <SidebarTrigger className="size-8 text-neutral-500" />
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">Navigasyonu göster · ⌘B</TooltipContent>
+                            <TooltipContent side="bottom" className="flex items-center gap-1.5">
+                                Navigasyonu göster
+                                <SidebarShortcutKbd />
+                            </TooltipContent>
                         </Tooltip>
                     ) : null}
 

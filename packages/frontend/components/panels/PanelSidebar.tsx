@@ -27,6 +27,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { panelNavIcons } from "@/components/panels/panelNavIcons"
 import { isPanelNavItemActive } from "@/components/panels/panelNavigationState"
 import { PANEL_SIDEBAR_PEEK_CLOSE_X } from "@/components/panels/panelSidebarConfig"
+import { SidebarShortcutKbd } from "@/components/panels/SidebarShortcutKbd"
 import type { PanelNavGroup, PanelNavItem } from "@/components/panels/types"
 import { cn } from "@/lib/utils"
 
@@ -211,7 +212,10 @@ export function PanelSidebar({ title, subtitle, navGroups, footerSlot }: Props) 
                                     <PanelLeftClose className="size-4" />
                                 </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="right">Gizle · ⌘B</TooltipContent>
+                            <TooltipContent side="right" className="flex items-center gap-1.5">
+                                Gizle
+                                <SidebarShortcutKbd />
+                            </TooltipContent>
                         </Tooltip>
                     </div>
                 </SidebarHeader>

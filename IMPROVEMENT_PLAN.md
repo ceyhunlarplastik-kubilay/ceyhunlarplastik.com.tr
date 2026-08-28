@@ -5013,17 +5013,57 @@ API key'ine (`GoogleMapsServerApiKey`) izin verdi.
 ### Kullanıcıda kalan (kubi doğrulaması)
 1. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` ile deploy.
 2. `/admin/musteriler/harita`'da: rota planlayıcıyı aç → başlangıç/bitiş seç
-   (üç yöntemi de dene) → 2-3 işletme pin'ine tıkla → "Rotayı Optimize Et" →
+   (üç yöntemi de dene) → 2-3 işletme pin'ine tıkla → "Rota Oluştur" →
    rota çizgisi + sıralı durak listesi + toplam mesafe/süre görünmeli.
 3. "Google Maps'te Aç" linkinin doğru sırayla açıldığını kontrol et.
 4. Google Cloud Console'da Routes API çağrısının gerçekten kota/billing'e
    yansıdığını (ilk gerçek istek) doğrula.
 
 ### Kalan
-- Diğer paneller (satış workspace vb.) — kullanıcı "önce burada çalışsın,
-  sonra bakarız" dedi, kapsam dışı bırakıldı.
 - "Rotayı temizle" dışında origin/destination için ayrı bir "seçimi kaldır"
   butonu yok (yeniden seçmek üzerine yazıyor) — MVP kapsamında bilinçli atlandı.
+
+### Görsel cila + satış paneline yayılma (2026-08-28, aynı gün)
+- **Satış paneli ek kod gerektirmedi**: `/satis/harita`
+  ([page.tsx](<packages/frontend/app/(panels)/satis/harita/page.tsx>)) zaten
+  aynı paylaşılan `CustomerMapPageClient` → `ManagedCustomerMapClient`
+  zincirini kullanıyor; rota planlayıcı state'i tamamen
+  `ManagedCustomerMapClient` içinde yaşadığı için satış/satış müdürü
+  kullanıcılar özelliği otomatik olarak aldı. Backend yetkisi de zaten
+  örtüşüyordu (`optimizeManagedCustomerRoute` → sales/sales_director/admin/
+  owner, `/sales/customers/map` ile birebir aynı liste). Purchasing/tedarikçi/
+  müşteri portalında haritayı kullanan başka bir yüzey yok — genişletilecek
+  bir şey kalmadı.
+- Kullanıcı geri bildirimiyle üç görsel düzeltme: buton metni "Rotayı
+  Optimize Et" → **"Rota Oluştur"** (eski isim koddaki yorumda kaldı);
+  [RouteEndpointPicker.tsx](packages/frontend/features/customerLocations/routePlanning/RouteEndpointPicker.tsx)'daki
+  ikon butonlarına `Tooltip` eklendi (repoda `components/ui/tooltip.tsx`
+  kuruluydu ama hiç kullanılmamıştı — ilk kullanım burada); adres arama
+  `Popover` (popup-içinde-popup hissi) yerine tek satırlık `InputGroup`'a
+  gömüldü — sonuçlar panelin normal akışında input'un altında açılıyor.
+- Doğrulama: `typecheck -w frontend` ✅ `lint -w frontend` 0 error ✅
+  `test -w frontend` 324/324 ✅.
+
+## Sidebar kısayolu: platform-duyarlı `Kbd` göstergesi (2026-08-28) *(kullanıcı talebiyle eklendi)*
+- Ne: `components/ui/sidebar.tsx`'teki `SIDEBAR_KEYBOARD_SHORTCUT = "b"`
+  (`event.metaKey || event.ctrlKey` — Mac'te ⌘B, Windows/Linux'ta Ctrl+B)
+  daha önce iki yerde düz metin olarak sabit "⌘B" gösteriyordu:
+  [PanelShell.tsx](packages/frontend/components/panels/PanelShell.tsx)
+  (sidebar daraltılmışken üst çubuktaki tetikleyici) ve
+  [PanelSidebar.tsx](packages/frontend/components/panels/PanelSidebar.tsx)
+  (sidebar içindeki gizle butonu) — Windows kullanıcısına klavyesinde
+  olmayan bir sembol gösteriyordu.
+- Kullanıcının kurduğu shadcn `Kbd`/`KbdGroup`
+  ([components/ui/kbd.tsx](packages/frontend/components/ui/kbd.tsx)) yeni bir
+  ortak bileşene sarıldı:
+  [SidebarShortcutKbd.tsx](packages/frontend/components/panels/SidebarShortcutKbd.tsx).
+  Platform tespiti `useSyncExternalStore` ile yapılıyor (`useEffect`+`setState`
+  DEĞİL): server snapshot "Ctrl", client snapshot `navigator.userAgent`'a göre
+  ⌘/Ctrl — hydration mismatch veya "setState in effect" lint hatası olmadan.
+  Her iki tooltip de artık aynı bileşeni kullanıyor.
+- Doğrulama: `typecheck -w frontend` ✅ `lint -w frontend` 0 error ✅
+  `test -w frontend` 324/324 ✅. Görsel doğrulama (tooltip'te doğru sembolün
+  çıkması) kubi'de yapılmalı.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
