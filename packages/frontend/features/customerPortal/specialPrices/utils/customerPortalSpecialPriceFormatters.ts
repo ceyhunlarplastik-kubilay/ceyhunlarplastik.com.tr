@@ -50,3 +50,25 @@ export function formatPortalSpecialPriceMeasurements(item: CustomerVariantSpecia
         })
         .join(" / ")
 }
+
+/**
+ * Sepet drawer'ının dar satırına sığması için etiketsiz, yalnız değer bazlı
+ * özet — `CustomerPortalVariantDetailsTable`'daki `buildCompactMeasurementSummary`
+ * ile aynı desen, farklı varyant şekli (`CustomerSpecialPriceProductVariant`) için.
+ */
+export function buildCompactSpecialPriceMeasurementSummary(item: CustomerVariantSpecialPrice) {
+    return (item.productVariant?.measurements ?? [])
+        .slice()
+        .sort((a, b) => (a.measurementType.displayOrder ?? 0) - (b.measurementType.displayOrder ?? 0))
+        .map((measurement) => {
+            const unit = resolveMeasurementUnit(measurement)
+            return `${measurement.value}${unit ? ` ${unit}` : ""}`
+        })
+        .join(" × ")
+}
+
+export function buildCompactSpecialPriceMaterialSummary(item: CustomerVariantSpecialPrice) {
+    return (item.productVariant?.materials ?? [])
+        .map((material) => material.code ? `${material.name} (${material.code})` : material.name)
+        .join(", ")
+}

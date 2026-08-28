@@ -5175,6 +5175,25 @@ Kullanıcı bare "C"yi yetersiz buldu, Claude Desktop'ın sidebar kısayolunu
   `test -w frontend` 324/324 ✅. Gerçek Mac/Windows klavyesinde tuş
   kombinasyonunun tetiklendiği kubi'de doğrulanmalı.
 
+### Düzeltme — ikinci "Sepete Ekle" giriş noktası özet alanlarını doldurmuyordu (2026-08-28)
+`codex/cart-load-visualizer` main'e merge edildikten sonra kullanıcı drawer'da
+renk/ham madde/ölçünün hâlâ görünmediğini bildirdi. Kök neden:
+`usePortalRequestDraftStore.addItem`'ı çağıran İKİ yer vardı, yalnız biri
+(`CustomerPortalVariantDetailsTable.tsx`) özet alanlarını dolduruyordu.
+[CustomerPortalSpecialPriceCard.tsx](packages/frontend/features/customerPortal/specialPrices/components/CustomerPortalSpecialPriceCard.tsx)
+(müşterinin özel fiyat sayfasındaki "Sepete Ekle") bu alanları hiç
+göndermiyordu. [customerPortalSpecialPriceFormatters.ts](packages/frontend/features/customerPortal/specialPrices/utils/customerPortalSpecialPriceFormatters.ts)'e
+`buildCompactSpecialPriceMeasurementSummary`/`buildCompactSpecialPriceMaterialSummary`
+eklendi (farklı varyant şekli — `CustomerSpecialPriceProductVariant` —
+`CustomerPortalVariantDetailsTable`'daki `VariantTableData` ile aynı desende
+ama ayrı tip, o yüzden ayrı fonksiyon; `formatPortalSpecialPriceMeasurements`
+ile karıştırılmasın, o KOD ÖNEKLİ tam sürüm, bu drawer için ETİKETSİZ kompakt
+sürüm). **Ders:** bir store action'ına birden fazla çağıran varsa yeni alan
+eklerken `grep -rn "addItem("` ile TÜMÜNÜ bulup güncellemek gerekiyor — tek
+çağırana bakıp "bitti" denmemeli.
+- Doğrulama: `typecheck -w frontend` ✅ `lint -w frontend` 0 error ✅
+  `test -w frontend` 336/336 ✅ (codex merge'i testleri de getirdi).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

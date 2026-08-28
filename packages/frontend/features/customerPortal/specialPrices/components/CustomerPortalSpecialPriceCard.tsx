@@ -19,6 +19,8 @@ import {
 } from "@/features/customerPortal/pricing/portalDraftPricing"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import {
+    buildCompactSpecialPriceMaterialSummary,
+    buildCompactSpecialPriceMeasurementSummary,
     buildPortalSpecialPriceVariantKey,
     formatPortalPaymentSchedule,
     formatPortalSpecialPriceDate,
@@ -70,6 +72,10 @@ export function CustomerPortalSpecialPriceCard({ item, index }: Props) {
             variantName: variant.name,
             variantKey: buildPortalSpecialPriceVariantKey(item),
             variantFullCode: variant.fullCode,
+            measurementSummary: buildCompactSpecialPriceMeasurementSummary(item) || null,
+            colorName: variant.color?.name ?? null,
+            colorHex: variant.color?.hex ?? null,
+            materialSummary: buildCompactSpecialPriceMaterialSummary(item) || null,
             quantity,
             listUnitPrice: resolvedPricing.listUnitPrice,
             customerUnitPrice: resolvedPricing.customerUnitPrice,
