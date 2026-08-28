@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth/auth"
 import { redirect } from "next/navigation"
 
-import { AdminSidebar } from "@/components/admin/AdminSidebar"
-import { AdminTopbar } from "@/components/admin/AdminTopbar"
+import { PanelShell } from "@/components/panels/PanelShell"
+import { adminNavGroups } from "@/components/panels/navigation/adminNav"
 import { NotificationBell } from "@/features/notifications/components/NotificationBell"
 
 export default async function AdminLayout({
@@ -22,32 +22,20 @@ export default async function AdminLayout({
     if (!allowed) redirect("/?error=unauthorized")
 
     return (
-        <div className="min-h-screen flex flex-col bg-neutral-50 md:flex-row">
-            <AdminSidebar
-                name={session.user?.name}
-                email={session.user?.email}
-                image={session.user?.image}
-                groups={groups}
-                mobileActionSlot={<NotificationBell viewport="mobile" requestsHref="/admin/onaylar" />}
-            />
-
-            <div className="flex-1 flex flex-col min-w-0">
-                <div className="hidden md:block">
-                    <AdminTopbar
-                        title="Admin Console"
-                        subtitle="Ceyhunlar"
-                        name={session.user?.name}
-                        email={session.user?.email}
-                        image={session.user?.image}
-                        groups={groups}
-                        actionSlot={<NotificationBell viewport="desktop" requestsHref="/admin/onaylar" />}
-                    />
-                </div>
-
-                <main className="flex-1 p-4 sm:p-5 md:p-8">
-                    {children}
-                </main>
-            </div>
-        </div>
+        <PanelShell
+            title="Admin Console"
+            subtitle="Ceyhunlar"
+            navGroups={adminNavGroups}
+            user={{
+                name: session.user?.name,
+                email: session.user?.email,
+                image: session.user?.image,
+                groups,
+            }}
+            actionSlot={<NotificationBell viewport="desktop" requestsHref="/admin/onaylar" />}
+            mobileActionSlot={<NotificationBell viewport="mobile" requestsHref="/admin/onaylar" />}
+        >
+            {children}
+        </PanelShell>
     )
 }
