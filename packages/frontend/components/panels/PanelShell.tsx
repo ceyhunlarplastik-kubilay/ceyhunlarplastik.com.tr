@@ -1,9 +1,11 @@
 "use client"
 
+import { usePathname } from "next/navigation"
 import { PanelLeft } from "lucide-react"
 
 import { AdminUserMenu } from "@/components/admin/AdminUserMenu"
 import { PanelSidebar } from "@/components/panels/PanelSidebar"
+import { resolveActivePanelNavLabel } from "@/components/panels/panelNavigationState"
 import { PANEL_SIDEBAR_WIDTH } from "@/components/panels/panelSidebarConfig"
 import type { PanelNavGroup, PanelUser } from "@/components/panels/types"
 import { Button } from "@/components/ui/button"
@@ -25,6 +27,9 @@ const PANEL_SIDEBAR_STYLE = {
     "--sidebar-width": PANEL_SIDEBAR_WIDTH,
 } as React.CSSProperties
 
+/** Panellerin ortak içerik dolgusu. `contentClassName` ile tamamen değiştirilebilir. */
+const DEFAULT_CONTENT_CLASS = "p-4 sm:p-5 md:p-8"
+
 type Props = {
     title: string
     subtitle: string
@@ -36,7 +41,12 @@ type Props = {
     mobileActionSlot?: React.ReactNode
     /** Sidebar'ın altına eklenen panel-özel içerik. */
     sidebarFooterSlot?: React.ReactNode
-    /** `main` öğesinin sınıfı — portal gibi kendi yerleşimi olan paneller için. */
+    /**
+     * `main` öğesinin dolgu sınıfları. Verilirse varsayılanın YERİNE geçer
+     * (üstüne eklenmez): müşteri portalı kendi dikey ritmine ve mobil sepet
+     * çubuğu için alt boşluğa ihtiyaç duyuyor, iki sınıf setini üst üste
+     * bindirmek çözülmesi zor bir kural yığını üretirdi.
+     */
     contentClassName?: string
     children: React.ReactNode
 }
@@ -90,13 +100,22 @@ function PanelTopbar({
     )
 }
 
+/**
+ * Mobil üst çubuk. Kalın satırda panel adı DEĞİL, açık olan sayfanın adı yazar:
+ * dar ekranda sidebar kapalı olduğu için kullanıcının nerede olduğunu gösteren
+ * tek işaret bu. (Müşteri portalının eski sidebar'ı bunu yapıyordu; davranış
+ * korunup tüm panellere yayıldı.)
+ */
 function PanelMobileBar({
     title,
     subtitle,
+    navGroups,
     user,
     mobileActionSlot,
-}: Pick<Props, "title" | "subtitle" | "user" | "mobileActionSlot">) {
+}: Pick<Props, "title" | "subtitle" | "navGroups" | "user" | "mobileActionSlot">) {
     const { setOpenMobile } = useSidebar()
+    const pathname = usePathname()
+    const activeLabel = resolveActivePanelNavLabel(navGroups, pathname)
 
     return (
         <div className="flex items-center justify-between gap-3 border-b border-slate-200/70 bg-white/90 px-4 py-3 backdrop-blur-xl md:hidden">
@@ -116,7 +135,9 @@ function PanelMobileBar({
                     <div className="text-[10px] font-medium tracking-[0.22em] text-neutral-400 uppercase">
                         {subtitle}
                     </div>
-                    <h2 className="truncate text-sm font-semibold text-neutral-900">{title}</h2>
+                    <h2 className="truncate text-sm font-semibold text-neutral-900">
+                        {activeLabel ?? title}
+                    </h2>
                 </div>
             </div>
 
@@ -165,6 +186,7 @@ export function PanelShell({
                 <PanelMobileBar
                     title={title}
                     subtitle={subtitle}
+                    navGroups={navGroups}
                     user={user}
                     mobileActionSlot={mobileActionSlot}
                 />
@@ -176,7 +198,9 @@ export function PanelShell({
                     actionSlot={actionSlot}
                 />
 
-                <main className={cn("flex-1 p-4 sm:p-5 md:p-8", contentClassName)}>{children}</main>
+                <main className={cn("min-w-0 flex-1", contentClassName ?? DEFAULT_CONTENT_CLASS)}>
+                    {children}
+                </main>
             </SidebarInset>
         </SidebarProvider>
     )

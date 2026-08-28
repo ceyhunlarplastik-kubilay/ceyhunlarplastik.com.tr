@@ -25,17 +25,13 @@ import {
 } from "@/components/ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { panelNavIcons } from "@/components/panels/panelNavIcons"
+import { isPanelNavItemActive } from "@/components/panels/panelNavigationState"
 import { PANEL_SIDEBAR_PEEK_CLOSE_X } from "@/components/panels/panelSidebarConfig"
 import type { PanelNavGroup, PanelNavItem } from "@/components/panels/types"
 import { cn } from "@/lib/utils"
 
 /** Kapalıyken sol kenardaki yakalama şeridinin genişliği. */
 const PEEK_STRIP_CLASS = "w-3"
-
-function isItemActive(item: PanelNavItem, pathname: string) {
-    if (item.match === "exact") return pathname === item.href
-    return pathname === item.href || pathname.startsWith(`${item.href}/`)
-}
 
 /**
  * Aktif hap MARKA rengiyle boyanır. shadcn'in varsayılanı `--sidebar-accent`
@@ -51,7 +47,7 @@ function PanelNavEntry({ item }: { item: PanelNavItem }) {
     const searchParams = useSearchParams()
     const { isMobile, setOpenMobile } = useSidebar()
     const Icon = panelNavIcons[item.icon]
-    const isActive = isItemActive(item, pathname)
+    const isActive = isPanelNavItemActive(item, pathname)
     const [open, setOpen] = useState(isActive)
     const [wasActive, setWasActive] = useState(isActive)
 

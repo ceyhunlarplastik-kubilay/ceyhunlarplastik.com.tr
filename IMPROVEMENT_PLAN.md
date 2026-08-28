@@ -4917,13 +4917,47 @@ bunları geri alırsa testler düşer ve gerekçe orada durur.
 Bu dilimde `/admin` ve `/veri-girisi` (kullanıcı kararı: biri gömülü nav listeli,
 biri prop'la beslenen — iki uç da denenmiş olur). `AdminSidebar` silindi.
 
-### Kalan (Dilim 2)
-`/satis`, `/satinalma`, `/tedarikci` (üçü de `RoleWorkspaceSidebar` kullanıyor,
-düz geçiş) ve `/musteri` (takvim kartı `sidebarFooterSlot`'a, sepet chrome'u
-`actionSlot`'a taşınacak). Sonra `RoleWorkspaceSidebar` + `CustomerPortalSidebar`
-silinir ve `AdminTopbar` yalnız `PanelShell` içinde kalır.
+frontend tsc ✅ · lint 0 error ✅ · frontend 310 ✅ · `next build` ✅.
 
-frontend tsc ✅ · lint 0 error ✅ · frontend 310 ✅ · `next build` ✅. Backend'e
+## Panel sidebar'ı: kalan dört panel (2026-08-28, Dilim 2/2)
+
+`/satis`, `/satinalma`, `/tedarikci` ve `/musteri` de `PanelShell`'e geçti.
+`RoleWorkspaceSidebar` (249 satır), `CustomerPortalSidebar` (575) ve
+`AdminTopbar` (46) silindi — artık altı panelin de tek kabuğu var.
+
+### Taşınırken korunanlar
+- **Takvim kartı** `CustomerPortalCalendarCard` olarak kendi dosyasına çıkıp
+  `sidebarFooterSlot`'a bağlandı. Eskiden de yalnız masaüstünde görünüyordu;
+  `hidden md:block` ile aynı sınır korundu.
+- **Sepet** iki modda da yerinde: `topbar` → `actionSlot`, `mobile-sticky` →
+  içerik ağacında (`fixed inset-x-0 bottom-0` olduğu için ağaçtaki yeri
+  görünümü etkilemiyor).
+- **Portal dolgusu** `contentClassName` ile. Prop artık varsayılanın YERİNE
+  geçiyor, üstüne eklenmiyor: iki dolgu setini bindirmek çözülmesi zor bir
+  kural yığını üretiyordu.
+- **Kampanya yönetimi** yine yalnız `sales_director/admin/owner`'da
+  (`buildSalesNavGroups`); temsilciye gösterilseydi tıklayınca 403 alırdı.
+
+### Aktiflik kuralı ortaklandı ve testlendi
+[panelNavigationState.ts](packages/frontend/components/panels/panelNavigationState.ts):
+`isPanelNavItemActive` + `resolveActivePanelNavLabel`. İki tüketicisi var —
+sidebar vurgusu ve mobil üst çubuktaki sayfa adı — ayrışsalardı menüde bir madde
+vurguluyken başlıkta başka sayfa yazardı. 7 test.
+
+Kural bu arada **düzeldi**: eski `pathname.startsWith(href)` ayırıcı kontrolü
+yapmıyordu, `/admin/users` ön eki `/admin/users-archive`'ı da yakalardı.
+
+### Bilinçli davranış değişiklikleri
+- Mobil üst çubukta artık panel adı değil AÇIK SAYFANIN adı yazıyor. Portalın
+  eski sidebar'ı bunu yapıyordu; dar ekranda sidebar kapalı olduğu için
+  kullanıcının nerede olduğunu gösteren tek işaret bu — tüm panellere yayıldı.
+- Portalın mobil menüsündeki "Portal ekranları mobil kullanım için
+  sadeleştirildi…" bilgi notu düştü (dekoratif metindi).
+- `match` varsayılanı `exact` → `prefix` oldu; taşınan her maddede eski davranış
+  tek tek karşılaştırılıp korundu (panel kökleri ve `/tedarikci/onay-talepleri`
+  açıkça `exact`).
+
+frontend tsc ✅ · lint 0 error ✅ · frontend 317 ✅ · `next build` ✅. Backend'e
 dokunulmadı, migration YOK.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
