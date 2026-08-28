@@ -1,5 +1,7 @@
 import type { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import type { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
+import type { IPrismaCartLogisticsRepository } from "@/core/helpers/prisma/cartLogistics/repository"
+import type { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 
 /**
  * P2.8(a): Customer varyant tablosu, public muadilinden farklı olarak müşterinin
@@ -11,3 +13,11 @@ export interface ICustomerProductVariantTableDependencies {
     productVariantRepository: IPrismaProductVariantRepository
     customerRepository: IPrismaCustomerRepository
 }
+
+export interface IPortalCartLogisticsDependencies {
+    cartLogisticsRepository: IPrismaCartLogisticsRepository
+}
+
+export type IPortalCartLogisticsEvent = IAPIGatewayProxyEventWithUserGeneric<{
+    variantIds: string[]
+}>

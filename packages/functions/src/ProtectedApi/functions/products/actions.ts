@@ -1,13 +1,15 @@
 import { lambdaHandler } from "@/core/middy"
 import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { customerRepository } from "@/core/helpers/prisma/customers/repository"
-import { getCustomerProductVariantTableHandler, getCustomerProductVariantsByMeasurementHandler } from "@/functions/ProtectedApi/functions/products/handlers"
+import { cartLogisticsRepository } from "@/core/helpers/prisma/cartLogistics/repository"
+import { getCustomerProductVariantTableHandler, getCustomerProductVariantsByMeasurementHandler, getPortalCartLogisticsHandler } from "@/functions/ProtectedApi/functions/products/handlers"
 // Request validator public tarafla aynı (yapı özdeş). Response validator ise
 // P2.8(a)'da ayrıldı: yanıt artık `customerDiscountPercent` de taşıyor ve public
 // şemanın katı `payload` objesi bu alanı reddederdi.
 import { productVariantTableRequestValidator, productVariantsByMeasurementRequestValidator } from "@/functions/PublicApi/validators/products"
-import { customerProductVariantTableResponseValidator, customerProductVariantsByMeasurementResponseValidator } from "@/functions/ProtectedApi/validators/products"
+import { customerProductVariantTableResponseValidator, customerProductVariantsByMeasurementResponseValidator, portalCartLogisticsRequestValidator, portalCartLogisticsResponseValidator } from "@/functions/ProtectedApi/validators/products"
 import type { IGetProductVariantTableEvent, IGetProductVariantsByMeasurementEvent } from "@/functions/PublicApi/types/products"
+import type { IPortalCartLogisticsEvent } from "@/functions/ProtectedApi/types/products"
 
 export const getCustomerProductVariantTable = lambdaHandler(
     async (event) =>
@@ -34,4 +36,16 @@ export const getCustomerProductVariantsByMeasurement = lambdaHandler(
         requestValidator: productVariantsByMeasurementRequestValidator,
         responseValidator: customerProductVariantsByMeasurementResponseValidator,
     }
+)
+
+export const getPortalCartLogistics = lambdaHandler(
+    async (event) =>
+        getPortalCartLogisticsHandler({
+            cartLogisticsRepository: cartLogisticsRepository(),
+        })(event as IPortalCartLogisticsEvent),
+    {
+        auth: { requiredPermissionGroups: ["customer"] },
+        requestValidator: portalCartLogisticsRequestValidator,
+        responseValidator: portalCartLogisticsResponseValidator,
+    },
 )

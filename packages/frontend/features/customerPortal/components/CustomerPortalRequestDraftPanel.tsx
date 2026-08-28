@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { buildCurrencySummary, normalizeDraftQuantity, resolveDraftPreviewImageUrl } from "@/features/customerPortal/components/requestComposer/helpers"
+import { CustomerPortalLoadPlanner } from "@/features/customerPortal/components/CustomerPortalLoadPlanner"
 import type { PortalDraftCommercialTermGroup } from "@/features/customerPortal/pricing/portalDraftPricing"
 import type { PortalRequestDraftItem } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import {
@@ -130,6 +131,8 @@ export function CustomerPortalRequestDraftPanel({
                 </div>
             ) : (
                 <div className="space-y-4">
+                    <CustomerPortalLoadPlanner items={items} />
+
                     {showCommercialTermWarning && commercialTermGroups.length > 1 ? (
                         <div className="rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
                             <div className="font-semibold">Sepetinizde farklı ödeme koşulları olan ürünler bulunuyor.</div>

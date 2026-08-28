@@ -1,4 +1,49 @@
 import { z } from "zod"
+import { CART_LOGISTICS_PROFILE_STATUSES } from "@/core/helpers/logistics/cartLogistics"
+import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+
+export const portalCartLogisticsBodySchema = z.object({
+    variantIds: z.array(z.uuid()).min(1).max(500),
+})
+
+export const portalCartLogisticsRequestValidator = validatorWrapper(
+    z.object({ body: portalCartLogisticsBodySchema }),
+    {
+        requiredRootFields: ["body"],
+        requiredBodyFields: ["variantIds"],
+    },
+)
+
+const readyCartLogisticsProfileSchema = z.object({
+    productVariantId: z.uuid(),
+    status: z.literal("READY"),
+    logistics: z.object({
+        unitsPerPackage: z.number().int().positive(),
+        packageVolumeM3: z.number().positive(),
+        packageWeightKg: z.number().positive().nullable(),
+    }),
+})
+
+const unavailableCartLogisticsProfileSchema = z.object({
+    productVariantId: z.uuid(),
+    status: z.enum(CART_LOGISTICS_PROFILE_STATUSES.filter((status) => status !== "READY")),
+    logistics: z.null(),
+})
+
+export const portalCartLogisticsResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                profiles: z.array(z.union([
+                    readyCartLogisticsProfileSchema,
+                    unavailableCartLogisticsProfileSchema,
+                ])),
+            }),
+        }).loose(),
+    }).loose(),
+)
 
 /**
  * P2.8(a): Customer varyant tablosunun kendi response validator'ı.
