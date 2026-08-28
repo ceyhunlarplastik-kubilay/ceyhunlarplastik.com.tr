@@ -368,6 +368,11 @@ protectedApi.route('GET /portal/customer/products/{id}/variant-measurements', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('POST /portal/customer/cart/logistics', {
+    handler: `${folderPrefix}/products/actions.getPortalCartLogistics`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/orders', {
     handler: `${folderPrefix}/orders/actions.listSalesOrders`,
     ...defaultRouteOptions
