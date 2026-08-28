@@ -2,11 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion, useReducedMotion } from "motion/react"
 import { ArrowRight, ShoppingBag, Sparkles } from "lucide-react"
+import { motion, useReducedMotion } from "motion/react"
 
+import { CartShortcutKbd } from "@/features/customerPortal/components/CartShortcutKbd"
 import { buildCurrencySummary, resolveCustomerPortalCartCta } from "@/features/customerPortal/components/requestComposer/helpers"
 import { usePortalCartLoad } from "@/features/customerPortal/hooks/usePortalCartLoad"
+import { useCartDrawerStore } from "@/features/customerPortal/stores/useCartDrawerStore"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { formatMoney } from "@/lib/customers/pricing"
 import { cn } from "@/lib/utils"
@@ -27,6 +29,7 @@ export function CustomerPortalCartDock({ mode }: Props) {
     const pathname = usePathname()
     const shouldReduceMotion = useReducedMotion()
     const items = usePortalRequestDraftStore((state) => state.items)
+    const openCartDrawer = useCartDrawerStore((state) => state.open)
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0)
     const hasItems = items.length > 0
     const currencySummary = buildCurrencySummary(items)
@@ -119,9 +122,21 @@ export function CustomerPortalCartDock({ mode }: Props) {
                     </div>
                 </div>
 
-                <ArrowRight className="h-4 w-4 shrink-0 text-neutral-500 transition group-hover:translate-x-0.5 motion-reduce:transform-none motion-reduce:transition-none" aria-hidden="true" />
+                {hasItems && mode === "topbar" ? (
+                    <CartShortcutKbd className="hidden [&>kbd]:bg-brand/10 [&>kbd]:text-brand lg:flex" />
+                ) : null}
+
+                <ArrowRight
+                    className="h-4 w-4 shrink-0 text-neutral-500 transition group-hover:translate-x-0.5 motion-reduce:transform-none motion-reduce:transition-none"
+                    aria-hidden="true"
+                />
             </div>
         </motion.div>
+    )
+
+    const wrapperClassName = cn(
+        "block w-full text-left",
+        mode === "mobile-sticky" && "mx-auto max-w-[124rem]",
     )
 
     return (
@@ -133,24 +148,17 @@ export function CustomerPortalCartDock({ mode }: Props) {
             )}
         >
             {cta.mode === "link" ? (
-                <Link
-                    href={cta.href}
-                    className={cn(
-                        "block",
-                        mode === "mobile-sticky" && "mx-auto w-full max-w-[124rem]",
-                    )}
-                >
-                    {card}
-                </Link>
+                hasItems ? (
+                    <button type="button" onClick={openCartDrawer} className={wrapperClassName}>
+                        {card}
+                    </button>
+                ) : (
+                    <Link href={cta.href} className={wrapperClassName}>
+                        {card}
+                    </Link>
+                )
             ) : (
-                <button
-                    type="button"
-                    onClick={handleOrderPageScroll}
-                    className={cn(
-                        "block w-full text-left",
-                        mode === "mobile-sticky" && "mx-auto max-w-[124rem]",
-                    )}
-                >
+                <button type="button" onClick={handleOrderPageScroll} className={wrapperClassName}>
                     {card}
                 </button>
             )}

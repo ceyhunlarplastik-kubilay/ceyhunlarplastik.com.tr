@@ -5065,6 +5065,116 @@ API key'ine (`GoogleMapsServerApiKey`) izin verdi.
   `test -w frontend` 324/324 ✅. Görsel doğrulama (tooltip'te doğru sembolün
   çıkması) kubi'de yapılmalı.
 
+## Müşteri portalı: sepet drawer'ı + Türkçe takvim (2026-08-28) *(kullanıcı talebiyle eklendi)*
+
+**Önce düzeltilen yanlış anlama:** "Sepete Ekle" ve "Özel Fiyat Talep Et" İKİ AYRI
+sepet DEĞİL — "Sepete Ekle" TEK bir paylaşılan taslağa
+(`usePortalRequestDraftStore`, localStorage'da persist) ekliyor; bu taslak hem
+`/musteri/talepler/siparis-talebi` hem `/musteri/talepler/fiyat-talebi`
+sayfalarında AYNI kalemleri gösterir — hangi sayfadan gönderirsen o tipte talep
+oluşur. "Özel Fiyat Talep Et" ise sepete hiç dokunmaz;
+`CustomerPortalSpecialPriceRequestDialog` adlı ayrı bir modal açıp tek varyant
+için anında `CUSTOMER_PRICING_REQUEST` gönderir.
+
+**Codex eşzamanlılık notu:** `codex/cart-load-visualizer` branch'i bu iş
+başlarken main ile birebir aynı commit'teydi (henüz değişikliği yoktu).
+Kullanıcı yine de doğrudan main'de ilerlemeyi tercih etti (kısa ömürlü branch
+yerine) — isim benzerliği nedeniyle ileride bir merge çakışması olursa bu not
+hatırlatma amaçlı.
+
+### Sepet drawer'ı (sağdan açılan mini-sepet)
+- Yeni, PERSIST OLMAYAN ui store:
+  [useCartDrawerStore.ts](packages/frontend/features/customerPortal/stores/useCartDrawerStore.ts) —
+  sadece aç/kapa sinyali taşır; kalemler hâlâ `usePortalRequestDraftStore`'da.
+- Yeni [CustomerPortalCartDrawer.tsx](packages/frontend/features/customerPortal/components/CustomerPortalCartDrawer.tsx):
+  kullanıcının kurduğu shadcn `Drawer` (vaul) ile sağdan açılan kompakt kalem
+  listesi (görsel, adet stepper, kaldır, ara toplam) + alt kısımda "Sipariş
+  Talebi Oluştur" / "Fiyat Talebi Oluştur" / "Sepeti Temizle". Mevcut GENİŞ
+  masaüstü tablosu (`CustomerPortalRequestDraftPanel`, min-width 1320px) drawer'a
+  sıkıştırılmadı — o hâlâ tam sayfalarda (vade/KDV/pazarlık notu dahil) duruyor;
+  drawer yalnız hızlı bir "sepetim" bakışı.
+  [musteri/layout.tsx](<packages/frontend/app/(panels)/musteri/layout.tsx>)'a
+  tek seferlik mount edildi.
+- [CustomerPortalCartDock.tsx](packages/frontend/features/customerPortal/components/CustomerPortalCartDock.tsx):
+  kalem varken artık sayfa değiştirmiyor, drawer açıyor; kalem YOKKEN hâlâ
+  gerçek bir `Link` (katalog sayfasına). Sipariş sayfasındaki eski "scroll to
+  full panel" davranışı DOKUNULMADI.
+- [CustomerPortalVariantDetailsTable.tsx](packages/frontend/features/customerPortal/components/CustomerPortalVariantDetailsTable.tsx):
+  "Sepete Ekle" artık toast'a ek olarak drawer'ı da açıyor.
+
+### Takvim Türkçeleştirme
+- [CustomerPortalCalendarCard.tsx](packages/frontend/features/customerPortal/components/CustomerPortalCalendarCard.tsx)
+  (312 satırlık elle yazılmış ay ızgarası) kullanıcının kurduğu shadcn `Calendar`
+  (react-day-picker) + `date-fns/locale/tr` ile değiştirildi. Kart görünümü
+  ("Bugün" butonu, "Seçili: ..." satırı, marka renkli ikon rozeti) korundu;
+  gün/yıl `Select` dropdown'ları kaldırıldı (artık ay içi gezinme + hücreye
+  tıklama yeterli — bu bileşen zaten dekoratif bir "bugün'e bakış" widget'ıydı,
+  ağır bir zamanlama aracı değil).
+
+### Yan etki: RTL mantıksal sınıf testi kırıldı, düzeltildi
+`components/logicalProperties.test.ts` `components/ui/**`'yi fiziksel yön
+sınıfına (`pr-`, `left-`, `rounded-l-` vb.) karşı tarıyor — kullanıcının kurduğu
+`calendar.tsx`/`drawer.tsx` upstream shadcn kaynağı bunlardan içeriyordu.
+- `calendar.tsx`: `pr-1 pl-2` → `pe-1 ps-2`, tüm `rounded-l-md`/`rounded-r-md`
+  (range start/end, seçili gün köşeleri) → `rounded-s-md`/`rounded-e-md`. Bunlar
+  gerçek "unutulmuş çeviri" idi, davranış RTL'de DE doğru hâle geldi.
+  `md:text-left` → `md:text-start` (drawer.tsx, gerçek metin hizası).
+- `drawer.tsx`'teki `direction="left"/"right"` konumlama sınıfları (`right-0`,
+  `border-l`, `left-0`, `border-r`) BİLEREK fiziksel bırakıldı ve
+  `logicalProperties.test.ts`'in `ALLOWED` listesine gerekçeyle eklendi: vaul'ün
+  `direction` prop'u yazı yönünden bağımsız, çağıranın seçtiği bir ekran kenarı
+  (`top`/`bottom` ile aynı aile) — mantıksala çevrilirse `direction="right"` bir
+  drawer RTL'de sessizce sol kenardan açılmaya başlar, bu çağıran kodun kararını
+  görünmez biçimde tersine çevirir.
+
+### Doğrulama
+`typecheck -w frontend` ✅ `lint -w frontend` 0 error (157 mevcut warning
+değişmedi) ✅ `test -w frontend` 324/324 ✅ (logicalProperties testi dahil).
+Görsel doğrulama (drawer animasyonu, takvimin Türkçe ay/gün adları, mobil sepet
+çubuğunun drawer açması) kubi'de yapılmalı.
+
+### Ek tur — klavye kısayolu + kompakt varyant bilgisi (aynı gün)
+- Sidebar'daki `⌘/Ctrl+B` deseninden farklı olarak sepet için düz **"C"** tuşu
+  seçildi (modifier'sız): `useCartDrawerStore`'a `toggle()` eklendi,
+  `CustomerPortalCartDrawer.tsx`'te global keydown dinleyici input/textarea/
+  select/contenteditable hedeflerinde devre dışı kalıyor (yazarken sepeti
+  açıp kapatmasın diye). Kısayol kurulan `Kbd` bileşeniyle hem drawer
+  başlığında hem masaüstü sepet göstergesinde (`CustomerPortalCartDock`,
+  yalnız `lg:` ve üzeri) gösteriliyor. Modifier'lı bir kombinasyon yerine
+  bare "C" tercih edildi çünkü `Ctrl/⌘+Shift+<harf>` kombinasyonlarının çoğu
+  tarayıcı/devtools tarafından zaten rezerve (ör. Ctrl+Shift+C = inspect
+  element) — sayfa hiç göremeden yutulurdu.
+- `PortalRequestDraftItem`'a dört opsiyonel alan eklendi
+  (`measurementSummary`, `colorName`, `colorHex`, `materialSummary`) —
+  localStorage şeması aynı (`v4`), yeni alanlar opsiyonel olduğu için eski
+  kayıtlarla geriye dönük uyumlu. `CustomerPortalVariantDetailsTable.tsx`
+  sepete eklerken bunları dolduruyor (`buildCompactMeasurementSummary`:
+  etiketsiz, yalnız değer — "110 mm × 3.2 mm"; `buildCompactMaterialSummary`:
+  "PVC (PVC-01)"). Drawer'da ürün adı/kodunun altında TEK satırlık, `truncate`
+  ile taşmayan bir özet satırında (renk noktası + isim · ham madde · ölçü)
+  gösteriliyor — tam ölçü adı/kodu hâlâ yalnız tam sayfa tabloda.
+- Doğrulama: `typecheck -w frontend` ✅ `lint -w frontend` 0 error ✅
+  `test -w frontend` 324/324 ✅.
+
+### Düzeltme — bare "C" yerine Claude Desktop tarzı modifier'lı kombinasyon (aynı gün)
+Kullanıcı bare "C"yi yetersiz buldu, Claude Desktop'ın sidebar kısayolunu
+(Mac: `⌘⌥B`) örnek gösterdi. `Cmd/Ctrl+Alt+B`'ye geçildi:
+- Paylaşılan `useIsMacPlatform` hook'u [SidebarShortcutKbd.tsx](packages/frontend/components/panels/SidebarShortcutKbd.tsx)'ten
+  [lib/hooks/useIsMacPlatform.ts](packages/frontend/lib/hooks/useIsMacPlatform.ts)'a çıkarıldı (iki yerde birden
+  `useSyncExternalStore` kopyalamak yerine).
+- Yeni [CartShortcutKbd.tsx](packages/frontend/features/customerPortal/components/CartShortcutKbd.tsx):
+  Mac'te `⌘ ⌥ B`, diğerlerinde `Ctrl Alt B` — hem drawer başlığında hem
+  masaüstü sepet göstergesinde kullanılıyor.
+- **Kritik detay:** `CustomerPortalCartDrawer.tsx`'teki keydown kontrolü
+  `event.key` DEĞİL `event.code === "KeyB"` kullanıyor. Mac'te Option basılıyken
+  `event.key` harfi değiştirir (Option+B → "∫"), `code` fiziksel tuşu her zaman
+  doğru verir — `event.key === "b"` ile yazılsaydı Mac'te asla tetiklenmezdi.
+  Artık modifier'lı bir kombinasyon olduğu için input/textarea guard'ı kaldırıldı
+  (modifier'lı kısayollar metin alanlarında da çalışması beklenen bir davranış).
+- Doğrulama: `typecheck -w frontend` ✅ `lint -w frontend` 0 error ✅
+  `test -w frontend` 324/324 ✅. Gerçek Mac/Windows klavyesinde tuş
+  kombinasyonunun tetiklendiği kubi'de doğrulanmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

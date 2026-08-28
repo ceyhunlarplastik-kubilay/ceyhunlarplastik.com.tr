@@ -5,6 +5,7 @@ import { PanelShell } from "@/components/panels/PanelShell"
 import { customerPortalNavGroups } from "@/components/panels/navigation/customerPortalNav"
 import { CustomerPortalCalendarCard } from "@/features/customerPortal/components/CustomerPortalCalendarCard"
 import { CustomerPortalCartDock } from "@/features/customerPortal/components/CustomerPortalCartDock"
+import { CustomerPortalCartDrawer } from "@/features/customerPortal/components/CustomerPortalCartDrawer"
 
 export default async function CustomerPortalLayout({
     children,
@@ -49,6 +50,7 @@ export default async function CustomerPortalLayout({
 
             {/* `fixed inset-x-0 bottom-0` — ağaçtaki yeri görünümü etkilemiyor. */}
             <CustomerPortalCartDock mode="mobile-sticky" />
+            <CustomerPortalCartDrawer />
         </PanelShell>
     )
 }
