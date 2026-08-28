@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "motion/react"
 import { ArrowRight, ShoppingBag, Sparkles } from "lucide-react"
+import { useCartDrawerStore } from "@/features/customerPortal/stores/useCartDrawerStore"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { buildCurrencySummary, resolveCustomerPortalCartCta } from "@/features/customerPortal/components/requestComposer/helpers"
 import { formatMoney } from "@/lib/customers/pricing"
@@ -16,6 +17,7 @@ type Props = {
 export function CustomerPortalCartDock({ mode }: Props) {
     const pathname = usePathname()
     const items = usePortalRequestDraftStore((state) => state.items)
+    const openCartDrawer = useCartDrawerStore((state) => state.open)
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0)
     const hasItems = items.length > 0
     const currencySummary = buildCurrencySummary(items)
@@ -46,78 +48,91 @@ export function CustomerPortalCartDock({ mode }: Props) {
             )}
         >
             {cta.mode === "link" ? (
-                <Link
-                    href={cta.href}
-                    className={cn(
+                (() => {
+                    const wrapperClassName = cn(
                         "block",
                         mode === "mobile-sticky" && "mx-auto w-full max-w-[124rem]",
-                    )}
-                >
-                    <motion.div
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        whileHover={{ y: -2 }}
-                        className={cn(
-                            "group overflow-hidden border backdrop-blur-xl transition",
-                            mode === "topbar"
-                                ? "rounded-[22px] px-4 py-3 shadow-sm"
-                                : "rounded-[24px] px-4 py-3 shadow-xl",
-                            hasItems
-                                ? "border-brand/30 bg-brand text-white"
-                                : "border-neutral-200 bg-white/95 text-neutral-900",
-                        )}
-                    >
-                        <div className="flex items-center gap-3">
-                            <motion.div
-                                animate={hasItems ? { scale: [1, 1.08, 1] } : { scale: 1 }}
-                                transition={hasItems ? { duration: 1.8, repeat: Infinity } : { duration: 0.2 }}
-                                className={cn(
-                                    "inline-flex size-11 items-center justify-center rounded-2xl",
-                                    hasItems ? "bg-white/16" : "bg-brand/10 text-brand",
-                                )}
-                            >
-                                <ShoppingBag className="h-5 w-5" />
-                            </motion.div>
+                        hasItems && "text-left",
+                    )
+                    const card = (
+                        <motion.div
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            whileHover={{ y: -2 }}
+                            className={cn(
+                                "group overflow-hidden border backdrop-blur-xl transition",
+                                mode === "topbar"
+                                    ? "rounded-[22px] px-4 py-3 shadow-sm"
+                                    : "rounded-[24px] px-4 py-3 shadow-xl",
+                                hasItems
+                                    ? "border-brand/30 bg-brand text-white"
+                                    : "border-neutral-200 bg-white/95 text-neutral-900",
+                            )}
+                        >
+                            <div className="flex items-center gap-3">
+                                <motion.div
+                                    animate={hasItems ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                                    transition={hasItems ? { duration: 1.8, repeat: Infinity } : { duration: 0.2 }}
+                                    className={cn(
+                                        "inline-flex size-11 items-center justify-center rounded-2xl",
+                                        hasItems ? "bg-white/16" : "bg-brand/10 text-brand",
+                                    )}
+                                >
+                                    <ShoppingBag className="h-5 w-5" />
+                                </motion.div>
 
-                            <div className="min-w-0 flex-1">
-                                <div className={cn(
-                                    "text-[11px] font-medium uppercase tracking-[0.22em]",
-                                    hasItems ? "text-white/72" : "text-neutral-500",
-                                )}>
-                                    {hasItems ? "Siparis Sepeti" : "Hazir Sepet"}
-                                </div>
-                                <div className="mt-0.5 flex items-center gap-2">
-                                    <div className="truncate text-sm font-semibold">
-                                        {hasItems ? `${items.length} kalem • ${totalQuantity} adet` : "Urun secerek siparis akisinizi baslatin"}
+                                <div className="min-w-0 flex-1">
+                                    <div className={cn(
+                                        "text-[11px] font-medium uppercase tracking-[0.22em]",
+                                        hasItems ? "text-white/72" : "text-neutral-500",
+                                    )}>
+                                        {hasItems ? "Siparis Sepeti" : "Hazir Sepet"}
                                     </div>
-                                    {totalLabel ? (
-                                        <div className={cn(
-                                            "rounded-full px-2 py-0.5 text-[11px] font-medium",
-                                            hasItems ? "bg-white/14 text-white/90" : "bg-brand/10 text-brand",
-                                        )}>
-                                            {totalLabel}
+                                    <div className="mt-0.5 flex items-center gap-2">
+                                        <div className="truncate text-sm font-semibold">
+                                            {hasItems ? `${items.length} kalem • ${totalQuantity} adet` : "Urun secerek siparis akisinizi baslatin"}
+                                        </div>
+                                        {totalLabel ? (
+                                            <div className={cn(
+                                                "rounded-full px-2 py-0.5 text-[11px] font-medium",
+                                                hasItems ? "bg-white/14 text-white/90" : "bg-brand/10 text-brand",
+                                            )}>
+                                                {totalLabel}
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                    {hasItems && currencySummary.length > 1 ? (
+                                        <div className="mt-1 text-[11px] text-white/72">
+                                            {currencySummary.map((summary) => `${summary.currency} ${formatMoney(summary.customerTotal, summary.currency)}`).join(" • ")}
+                                        </div>
+                                    ) : null}
+                                    {!hasItems ? (
+                                        <div className="mt-1 text-[11px] text-neutral-500">
+                                            Katalogdan varyant eklediginizde sepet burada canli gorunur.
                                         </div>
                                     ) : null}
                                 </div>
-                                {hasItems && currencySummary.length > 1 ? (
-                                    <div className="mt-1 text-[11px] text-white/72">
-                                        {currencySummary.map((summary) => `${summary.currency} ${formatMoney(summary.customerTotal, summary.currency)}`).join(" • ")}
-                                    </div>
-                                ) : null}
-                                {!hasItems ? (
-                                    <div className="mt-1 text-[11px] text-neutral-500">
-                                        Katalogdan varyant eklediginizde sepet burada canli gorunur.
-                                    </div>
-                                ) : null}
-                            </div>
 
-                            <ArrowRight className={cn(
-                                "h-4 w-4 transition group-hover:translate-x-0.5",
-                                hasItems ? "text-white/90" : "text-neutral-500",
-                            )} />
-                        </div>
-                    </motion.div>
-                </Link>
+                                <ArrowRight className={cn(
+                                    "h-4 w-4 transition group-hover:translate-x-0.5",
+                                    hasItems ? "text-white/90" : "text-neutral-500",
+                                )} />
+                            </div>
+                        </motion.div>
+                    )
+
+                    // Sepette kalem varsa artık sayfa değiştirmiyor, sağdan drawer açıyor
+                    // (mini-cart deseni); boş sepette hâlâ katalog sayfasına gerçek bir link.
+                    return hasItems ? (
+                        <button type="button" onClick={openCartDrawer} className={wrapperClassName}>
+                            {card}
+                        </button>
+                    ) : (
+                        <Link href={cta.href} className={wrapperClassName}>
+                            {card}
+                        </Link>
+                    )
+                })()
             ) : (
                 <button
                     type="button"

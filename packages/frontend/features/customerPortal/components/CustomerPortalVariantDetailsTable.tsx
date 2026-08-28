@@ -40,6 +40,7 @@ import {
     normalizeVariantPriceRange,
     type AppliedVariantFilters,
 } from "@/features/customerPortal/schema/customerPortalVariantFilters"
+import { useCartDrawerStore } from "@/features/customerPortal/stores/useCartDrawerStore"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { PortalFavoriteVariantButton } from "@/features/customerPortal/components/PortalFavoriteVariantButton"
 import { usePortalCampaigns } from "@/features/customerPortal/hooks/usePortalCampaigns"
@@ -162,6 +163,7 @@ export function CustomerPortalVariantDetailsTable({
     const shouldReduceMotion = useReducedMotion()
     const addItem = usePortalRequestDraftStore((state) => state.addItem)
     const draftItems = usePortalRequestDraftStore((state) => state.items)
+    const openCartDrawer = useCartDrawerStore((state) => state.open)
     const specialPricesQuery = usePortalSpecialPrices()
     const favoriteVariantIds = usePortalFavoriteVariantIds()
     const { toggleFavorite, pendingVariantId } = usePortalFavoriteVariants()
@@ -412,9 +414,10 @@ export function CustomerPortalVariantDetailsTable({
         }
         if (pricing.priceSource === "CUSTOMER_SPECIAL_PRICE") {
             toast.success("Özel fiyat koşulu sağlandı ve sepete uygulandı.")
-            return
+        } else {
+            toast.success("Varyant talep taslağına eklendi.")
         }
-        toast.success("Varyant talep taslağına eklendi.")
+        openCartDrawer()
     }
 
     function handleOpenSpecialPriceRequest(variant: VariantTableData) {

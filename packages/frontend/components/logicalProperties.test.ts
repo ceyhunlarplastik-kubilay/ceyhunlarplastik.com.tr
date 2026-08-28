@@ -45,6 +45,18 @@ const SCANNED_DIRS = [
 const PLAY_ICON_REASON =
     "Oynat üçgeninin optik ortalaması — oynat ikonu RTL'de aynalanmaz, itiş de aynalanmamalı."
 
+/**
+ * vaul'ün `direction="left" | "right"` prop'u yazı yönünden BAĞIMSIZ, çağıranın
+ * bilinçli seçtiği bir ekran kenarıdır (`top`/`bottom` ile aynı ailede) —
+ * mantıksala çevrilirse `direction="right"` bir drawer, Arapça (RTL) altında
+ * sessizce sol kenardan açılmaya başlar; bu, çağıran kodun kararını görünmez
+ * biçimde tersine çevirir. RTL'de yön mirror'lamak istenirse bilinçli bir ürün
+ * kararı olarak çağıran taraf `direction`'ı kendisi seçmeli.
+ */
+const DRAWER_DIRECTION_REASON =
+    "vaul'ün direction=\"left\"/\"right\" prop'u ekran kenarıdır (top/bottom ile aynı aile), "
+    + "yazı yönü değil — mantıksala çevrilirse RTL'de çağıranın seçtiği kenar sessizce değişir."
+
 const ALLOWED: ReadonlyArray<{ file: string; pattern: string; reason: string }> = [
     {
         file: "components/ui/dialog.tsx",
@@ -79,6 +91,26 @@ const ALLOWED: ReadonlyArray<{ file: string; pattern: string; reason: string }> 
         reason:
             "45° döndürülmüş baklava gösterge. Döndürme sonrası bu köşe görsel olarak " +
             "ÜST uçtur; mantıksala çevrilirse RTL'de yanlış köşe yuvarlanır.",
+    },
+    {
+        file: "components/ui/drawer.tsx",
+        pattern: "right-0",
+        reason: DRAWER_DIRECTION_REASON,
+    },
+    {
+        file: "components/ui/drawer.tsx",
+        pattern: "border-l",
+        reason: DRAWER_DIRECTION_REASON,
+    },
+    {
+        file: "components/ui/drawer.tsx",
+        pattern: "left-0",
+        reason: DRAWER_DIRECTION_REASON,
+    },
+    {
+        file: "components/ui/drawer.tsx",
+        pattern: "border-r",
+        reason: DRAWER_DIRECTION_REASON,
     },
 ]
 
