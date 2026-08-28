@@ -1,5 +1,6 @@
 import createError from "http-errors"
 import { prepareCustomerAddressInput } from "@/core/helpers/crm/customerAddressInput"
+import { GoogleRoutesRequestError, optimizeCustomerRoute } from "@/core/helpers/googleMaps/routeOptimization"
 import { CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
@@ -36,6 +37,7 @@ import {
     IListManagedCustomersEvent,
     IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
+    IOptimizeManagedCustomerRouteEvent,
     IManagedCustomerSpecialPriceEvent,
     ICreatePortalCustomerFavoriteVariantEvent,
     IPortalProductVariantCampaignsEvent,
@@ -254,6 +256,58 @@ export const listManagedCustomersMapHandler = ({ customerRepository }: IProtecte
         return apiResponseDTO({
             statusCode: 200,
             payload: { data },
+        })
+    }
+}
+
+/**
+ * Koordinatlar zaten `/sales/customers/map`'ten gelen doğrulanmış noktalar;
+ * bu uç yalnız Google Routes API'ye vekillik eder, DB'ye gitmez.
+ */
+export const optimizeManagedCustomerRouteHandler = (_deps: IProtectedCrmDependencies) => {
+    return async (event: IOptimizeManagedCustomerRouteEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+        if (!requester.isSales && !requester.isSalesDirector && !requester.isAdmin && !requester.isOwner) {
+            throw new createError.Forbidden("Route optimization access denied")
+        }
+
+        const apiKey = process.env.GOOGLE_MAPS_SERVER_API_KEY
+        if (!apiKey?.trim()) {
+            throw new createError.InternalServerError("GOOGLE_MAPS_SERVER_API_KEY is not configured")
+        }
+
+        const { origin, destination, waypoints } = event.body
+
+        let route
+        try {
+            route = await optimizeCustomerRoute({ origin, destination, waypoints, apiKey })
+        } catch (error) {
+            if (error instanceof GoogleRoutesRequestError) {
+                throw new createError.BadGateway(error.googleMessage ?? error.message)
+            }
+            throw error
+        }
+
+        const finalLeg = route.legs[route.legs.length - 1]
+        const orderedWaypoints = route.orderedWaypoints.map((waypoint, index) => ({
+            ...waypoint,
+            legDistanceMeters: route.legs[index]?.distanceMeters ?? 0,
+            legDurationSeconds: route.legs[index]?.durationSeconds ?? 0,
+        }))
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                data: {
+                    orderedWaypoints,
+                    finalLegDistanceMeters: finalLeg?.distanceMeters ?? 0,
+                    finalLegDurationSeconds: finalLeg?.durationSeconds ?? 0,
+                    totalDistanceMeters: route.totalDistanceMeters,
+                    totalDurationSeconds: route.totalDurationSeconds,
+                    encodedPolyline: route.encodedPolyline,
+                },
+            },
         })
     }
 }

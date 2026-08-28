@@ -4960,6 +4960,71 @@ yapmıyordu, `/admin/users` ön eki `/admin/users-archive`'ı da yakalardı.
 frontend tsc ✅ · lint 0 error ✅ · frontend 317 ✅ · `next build` ✅. Backend'e
 dokunulmadı, migration YOK.
 
+## Müşteri haritası: rota optimizasyonu (2026-08-28) *(kullanıcı talebiyle eklendi)*
+
+Admin müşteri haritasında (`/admin/musteriler/harita`) satış/admin kullanıcısının
+başlangıç + bitiş noktası ve ziyaret edilecek işletmeleri seçip Google Routes
+API (`optimizeWaypointOrder: true`) ile en uygun ziyaret sırasını hesaplaması,
+haritada rotayı görmesi ve isterse Google Maps'e (aynı sırayla) yönlenebilmesi.
+Ön koşul olarak kullanıcı Google Cloud'da Routes API'yi enable etti ve server
+API key'ine (`GoogleMapsServerApiKey`) izin verdi.
+
+### Dilim 1 — backend (2026-08-28)
+- [routeOptimization.ts](packages/core/src/core/helpers/googleMaps/routeOptimization.ts):
+  `computeRoutes` çağrısı, `optimizedIntermediateWaypointIndex`'e göre durak
+  yeniden sıralama, `GoogleRoutesRequestError`. DB'ye gitmiyor — koordinatlar
+  zaten `/sales/customers/map`'ten doğrulanmış geliyor.
+- `POST /sales/customers/route/optimize` (ProtectedApi, `crm` boundary, yetki
+  `/sales/customers/map` ile aynı: sales/sales_director/admin/owner). Request/
+  response validator [crm.ts](packages/functions/src/ProtectedApi/validators/crm.ts)'e
+  eklendi (waypoints 1-25 arası).
+- Doğrulama: `typecheck:backend` ✅, core 567 test ✅ (yeni helper testi dahil),
+  functions 313 test ✅ (validator compilation dahil). **Kullanıcı henüz gerçek
+  bir POST isteğiyle Google'a karşı canlı doğrulama yapamadı** — kubi'de
+  yapılması gereken adım aşağıda.
+
+### Dilim 2 — frontend (2026-08-28)
+- `features/customerLocations/routePlanning/` altında yeni bir alt-özellik:
+  `useRoutePlanner` (saf `useReducer`, testli) durumu yönetiyor — aktif/pasif,
+  başlangıç/bitiş, seçili duraklar, `pickingTarget` (haritadan seçim modu),
+  optimize sonucu. Tüm state `ManagedCustomerGoogleMap` içinde yaşıyor;
+  `CustomerMapPageClient` hiç değişmedi.
+- Başlangıç/bitiş üç yöntemle seçilebiliyor: adres arama (mevcut
+  `GooglePlacesSearch`'i bir Popover içinde yeniden kullanan
+  `RouteEndpointPicker`), "Konumumu Kullan" (tarayıcı geolocation), veya
+  "Haritada Seç" (bir sonraki pin click'i o role atar).
+- Rota modundayken müşteri pin'ine tıklamak durak ekler/çıkarır; `markerKey`
+  artık rota rolünü de içeriyor (`CustomerMarkerCluster` bu sayede yalnız rolü
+  değişen pin'i söküp yeniden kuruyor — pan/zoom performans deseni korundu).
+  Seçili duraklar mavi + optimize sonrası ziyaret numarası (`PinElement.glyph`)
+  gösteriyor; başlangıç/bitiş ayrı A/B pin'leri (`AdvancedMarker`+`Pin`).
+- Rota çizgisi `@vis.gl/react-google-maps`'in `<Polyline encodedPath=…>`'ı ile
+  — Google'ın döndürdüğü encoded polyline'ı manuel decode etmeye gerek yok.
+- Sonuç paneli: sıralı durak listesi (mesafe/süre bacak bazlı), toplam
+  mesafe/süre, "Google Maps'te Aç" (`buildGoogleMapsMultiStopDirectionsUrl` —
+  sırayı koruyan `waypoints=` parametresi; Google'ın tüketici arayüzü ~10
+  duraktan fazlasını güvenilir açmayabileceği için bu eşiği aşan rotalarda
+  uyarı gösteriliyor).
+- Doğrulama: `typecheck -w frontend` ✅, `lint -w frontend` 0 error (157
+  mevcut warning değişmedi) ✅, `test -w frontend` 324/324 ✅ (yeni reducer +
+  URL builder testleri dahil). **Tarayıcıda henüz denenmedi** — kubi'de
+  yapılması gereken adım aşağıda.
+
+### Kullanıcıda kalan (kubi doğrulaması)
+1. `export AWS_PROFILE=ceyhunlar-prod && npx sst dev --stage kubi` ile deploy.
+2. `/admin/musteriler/harita`'da: rota planlayıcıyı aç → başlangıç/bitiş seç
+   (üç yöntemi de dene) → 2-3 işletme pin'ine tıkla → "Rotayı Optimize Et" →
+   rota çizgisi + sıralı durak listesi + toplam mesafe/süre görünmeli.
+3. "Google Maps'te Aç" linkinin doğru sırayla açıldığını kontrol et.
+4. Google Cloud Console'da Routes API çağrısının gerçekten kota/billing'e
+   yansıdığını (ilk gerçek istek) doğrula.
+
+### Kalan
+- Diğer paneller (satış workspace vb.) — kullanıcı "önce burada çalışsın,
+  sonra bakarız" dedi, kapsam dışı bırakıldı.
+- "Rotayı temizle" dışında origin/destination için ayrı bir "seçimi kaldır"
+  butonu yok (yeniden seçmek üzerine yazıyor) — MVP kapsamında bilinçli atlandı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

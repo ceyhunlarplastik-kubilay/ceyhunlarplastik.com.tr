@@ -222,3 +222,51 @@ export const customerMapPointsResponseValidator = z.toJSONSchema(
         }),
     }).loose(),
 )
+
+const routeLatLngSchema = z.object({
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+})
+
+const routeWaypointSchema = routeLatLngSchema.extend({
+    refId: z.string().trim().min(1).max(120),
+})
+
+export const optimizeManagedCustomerRouteValidator = validatorWrapper(
+    z.object({
+        body: z.object({
+            origin: routeLatLngSchema,
+            destination: routeLatLngSchema,
+            waypoints: z.array(routeWaypointSchema).min(1).max(25),
+        }),
+    }),
+    {
+        requiredRootFields: ["body"],
+        requiredBodyFields: ["origin", "destination", "waypoints"],
+    },
+)
+
+const optimizedRouteWaypointSchema = routeLatLngSchema.extend({
+    refId: z.string(),
+    legDistanceMeters: z.number(),
+    legDurationSeconds: z.number(),
+})
+
+export const optimizedCustomerRouteResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.object({
+                    orderedWaypoints: z.array(optimizedRouteWaypointSchema),
+                    finalLegDistanceMeters: z.number(),
+                    finalLegDurationSeconds: z.number(),
+                    totalDistanceMeters: z.number(),
+                    totalDurationSeconds: z.number(),
+                    encodedPolyline: z.string(),
+                }),
+            }),
+        }),
+    }).loose(),
+)

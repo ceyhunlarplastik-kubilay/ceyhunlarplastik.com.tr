@@ -225,6 +225,16 @@ export type IListManagedCustomersMapEvent = IAPIGatewayProxyEventWithUserGeneric
     }
 >
 
+export type IOptimizeManagedCustomerRouteEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {
+        origin: { lat: number; lng: number }
+        destination: { lat: number; lng: number }
+        waypoints: Array<{ refId: string; lat: number; lng: number }>
+    },
+    {},
+    {}
+>
+
 export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     {
         companyName?: string | null

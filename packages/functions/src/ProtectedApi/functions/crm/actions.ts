@@ -33,6 +33,7 @@ import {
     getPortalCustomerHandler,
     getPortalCustomerOverviewHandler,
     listManagedCustomersMapHandler,
+    optimizeManagedCustomerRouteHandler,
     listManagedCustomerSpecialPricesHandler,
     listManagedCompanyContactsHandler,
     listManagedCustomerAssignedProductsHandler,
@@ -63,6 +64,7 @@ import type {
     IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
     IManagedCustomerSpecialPriceEvent,
+    IOptimizeManagedCustomerRouteEvent,
     ICreatePortalCustomerFavoriteVariantEvent,
     IPortalProductVariantCampaignsEvent,
     IDeletePortalCustomerFavoriteVariantEvent,
@@ -102,6 +104,8 @@ import {
     deletePortalCustomerAddressValidator,
     customerMapPointsResponseValidator,
     listManagedCustomersMapValidator,
+    optimizeManagedCustomerRouteValidator,
+    optimizedCustomerRouteResponseValidator,
     updateManagedCustomerAddressValidator,
     updatePortalCustomerAddressValidator,
     createPortalCustomerFavoriteVariantValidator,
@@ -175,6 +179,15 @@ export const listManagedCustomersMap = lambdaHandler(
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: listManagedCustomersMapValidator,
         responseValidator: customerMapPointsResponseValidator,
+    },
+)
+
+export const optimizeManagedCustomerRoute = lambdaHandler(
+    async (event) => optimizeManagedCustomerRouteHandler(deps)(event as IOptimizeManagedCustomerRouteEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: optimizeManagedCustomerRouteValidator,
+        responseValidator: optimizedCustomerRouteResponseValidator,
     },
 )
 

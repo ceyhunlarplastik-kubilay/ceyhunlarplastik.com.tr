@@ -3,13 +3,15 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { LocateFixed } from "lucide-react"
 import { MarkerClusterer } from "@googlemaps/markerclusterer"
-import { InfoWindow, Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps"
+import { AdvancedMarker, InfoWindow, Map, Pin, Polyline, useMap, useMapsLibrary } from "@vis.gl/react-google-maps"
 import { Button } from "@/components/ui/button"
 import { GoogleMapsApiProvider, googleMapsBrowserApiKey, googleMapsMapId } from "@/features/customerLocations/components/GoogleMapsApiProvider"
 import { buildGoogleMapsDirectionsUrl } from "@/features/customerLocations/lib/buildGoogleMapsDirectionsUrl"
+import { RoutePlannerPanel } from "@/features/customerLocations/routePlanning/RoutePlannerPanel"
+import { useRoutePlanner } from "@/features/customerLocations/routePlanning/useRoutePlanner"
 import type { CustomerMapPoint } from "@/features/customerLocations/types"
 
 type Bounds = {
@@ -48,9 +50,18 @@ function normalizeBounds(bounds: google.maps.LatLngBounds): Bounds {
     }
 }
 
-/** Bir pin'in görsel kimliği; değişmediyse marker yeniden yaratılmamalı. */
-function markerKey(point: CustomerMapPoint) {
-    return `${point.customerId}:${point.addressId}:${point.latitude}:${point.longitude}:${point.status}`
+export function customerPointRefId(point: Pick<CustomerMapPoint, "customerId" | "addressId">) {
+    return `${point.customerId}:${point.addressId}`
+}
+
+/**
+ * Bir pin'in görsel kimliği; değişmediyse marker yeniden yaratılmamalı. Rota
+ * seçim durumu (`routeOrder`) da anahtara dahil — seçim değişince ilgili pin
+ * otomatik sökülüp yeni renk/glyph ile yeniden kurulur.
+ */
+function markerKey(point: CustomerMapPoint, routeOrder: number | null | undefined) {
+    const role = routeOrder === undefined ? "" : routeOrder === null ? "route" : `route:${routeOrder}`
+    return `${point.customerId}:${point.addressId}:${point.latitude}:${point.longitude}:${point.status}:${role}`
 }
 
 /**
@@ -61,9 +72,12 @@ function markerKey(point: CustomerMapPoint) {
 function CustomerMarkerCluster({
     points,
     onSelect,
+    routeSelection,
 }: {
     points: CustomerMapPoint[]
     onSelect: (point: CustomerMapPoint) => void
+    /** refId (`customerId:addressId`) → ziyaret sırası; sıra henüz optimize edilmediyse `null`. */
+    routeSelection: Map<string, number | null>
 }) {
     const map = useMap()
     const markerLibrary = useMapsLibrary("marker")
@@ -84,7 +98,8 @@ function CustomerMarkerCluster({
         const clusterer = clustererRef.current ?? new MarkerClusterer({ map })
         clustererRef.current = clusterer
 
-        const nextKeys = new Set(points.map(markerKey))
+        const keyOf = (point: CustomerMapPoint) => markerKey(point, routeSelection.get(customerPointRefId(point)))
+        const nextKeys = new Set(points.map(keyOf))
         const removed: google.maps.marker.AdvancedMarkerElement[] = []
         for (const [key, marker] of cache) {
             if (nextKeys.has(key)) continue
@@ -95,14 +110,17 @@ function CustomerMarkerCluster({
 
         const added: google.maps.marker.AdvancedMarkerElement[] = []
         for (const point of points) {
-            const key = markerKey(point)
+            const key = keyOf(point)
             if (cache.has(key)) continue
 
+            const routeOrder = routeSelection.get(customerPointRefId(point))
+            const isRouteSelected = routeSelection.has(customerPointRefId(point))
             const pin = new markerLibrary.PinElement({
-                background: point.status === "CUSTOMER" ? "#0f766e" : "#c2410c",
+                background: isRouteSelected ? "#1d4ed8" : (point.status === "CUSTOMER" ? "#0f766e" : "#c2410c"),
                 borderColor: "#ffffff",
                 glyphColor: "#ffffff",
-                scale: 0.9,
+                scale: isRouteSelected ? 1.05 : 0.9,
+                glyph: routeOrder != null ? String(routeOrder) : undefined,
             })
             const marker = new markerLibrary.AdvancedMarkerElement({
                 position: { lat: point.latitude, lng: point.longitude },
@@ -118,7 +136,7 @@ function CustomerMarkerCluster({
         if (removed.length) clusterer.removeMarkers(removed, true)
         if (added.length) clusterer.addMarkers(added, true)
         if (removed.length || added.length) clusterer.render()
-    }, [map, markerLibrary, points])
+    }, [map, markerLibrary, points, routeSelection])
 
     // Yalnız unmount'ta topla: aksi halde her nokta değişiminde her şey sökülür
     // ve yeniden kullanım anlamsızlaşır.
@@ -148,6 +166,32 @@ function ManagedCustomerGoogleMap({
     isFetching,
 }: Props) {
     const map = useMap()
+    const routePlanner = useRoutePlanner()
+
+    const routeSelection = useMemo(() => {
+        // `Map` adı bu dosyada vis.gl bileşeni tarafından gölgeleniyor.
+        const selection = new globalThis.Map<string, number | null>()
+        if (routePlanner.state.result) {
+            for (const stop of routePlanner.state.result.orderedStops) selection.set(stop.refId, stop.order)
+        } else {
+            for (const stop of routePlanner.state.stops) selection.set(stop.refId, null)
+        }
+        return selection
+    }, [routePlanner.state.result, routePlanner.state.stops])
+
+    function handleMarkerSelect(point: CustomerMapPoint) {
+        if (routePlanner.state.active) {
+            routePlanner.handleMarkerClick({
+                refId: customerPointRefId(point),
+                lat: point.latitude,
+                lng: point.longitude,
+                label: point.companyName || point.fullName,
+                source: "CUSTOMER_PIN",
+            })
+            return
+        }
+        onActivePointChange(point)
+    }
 
     function goToBrowserLocation() {
         navigator.geolocation?.getCurrentPosition((position) => {
@@ -174,7 +218,36 @@ function ManagedCustomerGoogleMap({
                     if (bounds) onBoundsChange(normalizeBounds(bounds))
                 }}
             >
-                <CustomerMarkerCluster points={points} onSelect={onActivePointChange} />
+                <CustomerMarkerCluster points={points} onSelect={handleMarkerSelect} routeSelection={routeSelection} />
+
+                {routePlanner.state.result ? (
+                    <Polyline
+                        encodedPath={routePlanner.state.result.encodedPolyline}
+                        strokeColor="#1d4ed8"
+                        strokeOpacity={0.85}
+                        strokeWeight={4}
+                    />
+                ) : null}
+
+                {routePlanner.state.origin ? (
+                    <AdvancedMarker
+                        position={{ lat: routePlanner.state.origin.lat, lng: routePlanner.state.origin.lng }}
+                        title={routePlanner.state.origin.label}
+                        zIndex={10}
+                    >
+                        <Pin background="#16a34a" borderColor="#14532d" glyphColor="#ffffff" glyph="A" />
+                    </AdvancedMarker>
+                ) : null}
+
+                {routePlanner.state.destination ? (
+                    <AdvancedMarker
+                        position={{ lat: routePlanner.state.destination.lat, lng: routePlanner.state.destination.lng }}
+                        title={routePlanner.state.destination.label}
+                        zIndex={10}
+                    >
+                        <Pin background="#dc2626" borderColor="#7f1d1d" glyphColor="#ffffff" glyph="B" />
+                    </AdvancedMarker>
+                ) : null}
 
                 {activePoint ? (
                     <InfoWindow
@@ -227,6 +300,18 @@ function ManagedCustomerGoogleMap({
             >
                 <LocateFixed className="h-4 w-4" />
             </Button>
+
+            <RoutePlannerPanel
+                state={routePlanner.state}
+                toggleActive={routePlanner.toggleActive}
+                armPicking={routePlanner.armPicking}
+                disarmPicking={routePlanner.disarmPicking}
+                setOrigin={routePlanner.setOrigin}
+                setDestination={routePlanner.setDestination}
+                removeStop={routePlanner.removeStop}
+                setResult={routePlanner.setResult}
+                reset={routePlanner.reset}
+            />
 
             {isFetching ? (
                 <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-neutral-600 shadow-sm" role="status" aria-live="polite">

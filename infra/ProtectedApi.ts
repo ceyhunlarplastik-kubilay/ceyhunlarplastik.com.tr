@@ -309,6 +309,11 @@ protectedApi.route('GET /sales/customers/map', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('POST /sales/customers/route/optimize', {
+    handler: `${folderPrefix}/crm/actions.optimizeManagedCustomerRoute`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/customers/{id}', {
     handler: `${folderPrefix}/crm/actions.getManagedCustomer`,
     ...defaultRouteOptions
