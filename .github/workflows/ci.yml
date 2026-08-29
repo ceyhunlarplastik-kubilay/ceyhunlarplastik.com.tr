@@ -1,20 +1,36 @@
-# CI kalite kapısı (IMPROVEMENT_PLAN.md P0.1 + P1.7)
+# CI kalite kapısı (tarihçe: IMPROVEMENT_LOG.md § P0.1 + P1.7)
 # Yalnızca kalite kontrolü yapar; hiçbir stage'e deploy ETMEZ ve AWS erişimi gerektirmez.
+# Node sürümü .nvmrc'den gelir (şu an 24.19.0).
 #
-# Kapsam (P1.7 ile genişletildi):
-# - Backend typecheck bloklayıcı: tsconfig.backend.json core+functions'ı .sst'siz denetler
-#   (root tsconfig CI'da kullanılamaz: infra/** global sst.* tiplerini .sst/platform'dan alır,
-#   .sst gitignored; frontend'i jsx flag'siz kapsayıp sahte hata üretir).
-# - Lint bloklayıcı: .open-next/** ignore edildi (on binlerce sahte hatanın kaynağıydı);
-#   mevcut borç 3 kuralda warn'a indirildi (bkz. packages/frontend/eslint.config.mjs).
-# - Audit: critical seviyesi bloklayıcı; high seviyesi advisory — kalan 4 high tamamen
-#   sst CLI zincirinde (Lambda bundle'ına girmez), bloklayıcı olması P2.6 SST 4'e bağlı.
+# Bloklayıcı adımlar:
+# - Backend typecheck: tsconfig.backend.json core+functions'ı .sst'siz denetler
+#   (root tsconfig CI'da kullanılamaz: infra/** global sst.* tiplerini .sst/platform'dan
+#   alır, .sst gitignored; frontend'i jsx flag'siz kapsayıp sahte hata üretir).
+# - Frontend typecheck + üç test paketi (core / functions / frontend).
+# - Lint: 0 error şart. .open-next/** ignore'lu; hook kuralları (set-state-in-effect,
+#   refs) bloklayıcı; yalnız @typescript-eslint/no-explicit-any warn olarak tolere
+#   edilir (~157 mevcut kullanım — bkz. packages/frontend/eslint.config.mjs).
+# - Audit: yalnız `critical` seviyesi bloklayıcı.
+#
+# Advisory (job'u kırmaz): `npm audit --audit-level=high`. Kalan high'lar ya dev-only
+# tooling'de (prisma CLI + @prisma/dev dev-server; deepl-node -> adm-zip translate CLI)
+# ya da major bump'sız düzeltilemeyen düşük-pratik-riskli transitive'lerde
+# (fast-uri <- @middy/validator; ip-address <- mqtt lazy chunk; nanoid <- next).
+# Deploy edilen Lambda'ya yalnız fast-uri giriyor; host-confusion pratik riski düşük
+# (bkz. IMPROVEMENT_LOG.md P0.3).
 name: CI
 
 on:
   pull_request:
   push:
     branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -64,6 +80,6 @@ jobs:
           cache: npm
       - name: Audit (critical — bloklayıcı)
         run: npm audit --omit=dev --audit-level=critical
-      - name: Audit (high — advisory; bloklayıcı olması P2.6 SST 4 yükseltmesine bağlı)
+      - name: "Audit (high — advisory; kalan high'lar dev-only tooling + düşük-riskli transitive)"
         continue-on-error: true
         run: npm audit --omit=dev --audit-level=high

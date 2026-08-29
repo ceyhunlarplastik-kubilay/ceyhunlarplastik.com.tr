@@ -7,8 +7,8 @@ arşiv, projenin hafızası. Bir dilim bitince: maddesi buradan çıkar, uygulam
 
 **Son güncelleme:** 2026-08-29 (PLAN/LOG ayrımı). Çıkış noktası 2026-07-07 denetimi;
 o günden bugüne **P0 6/6** ve **P1 8/8** kapandı, **P2'nin çoğu** tamam (P2.1/2.6
-tamam+deploy, P2.4-A/B ve P2.7 kod tamam). Aşağıdakiler kalan iştir. Detaylı
-tarihçe ve kapanmış maddeler için LOG'a bak.
+tamam+deploy; P2.4-A/B deploy edildi; P2.7 kod commit'li, API Lambda deploy'u kaldı).
+Aşağıdakiler kalan iştir. Detaylı tarihçe ve kapanmış maddeler için LOG'a bak.
 
 Çalışma düzeni değişmedi: işler dilim dilim yürür, her dilim öncesi kısa plan +
 onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
@@ -36,11 +36,10 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   - **İlk restore drill'i** — hiç koşulmadı. Gerçek RTO'yu öğren; ayrıca SST stack'inin restore edilmiş yeni instance'ı benimsemesi (RDS Proxy target + `DIRECT_RDS_HOST` yeniden bağlama) kanıtlanmış prosedür değil — drill netleştirecek.
   - **C — Multi-AZ** (iş/maliyet kararı): instance ücretini ~ikiye katlar (t4g.micro+20GB için kabaca **~+15-25 USD/ay tahmini, doğrulanmadı**). Yalnız altyapı arızasında otomatik failover verir; kötü migration/DELETE/bozulmaya karşı KORUMAZ. İhtiyaç doğarsa geri-dönülebilir açılır.
 
-### P2.7 — Node 22 → 24 LTS · kapsam: orta · ✅ kod hazır (2026-08-25), ⚠️ HİÇBİR STAGE'E DEPLOY EDİLMEDİ
-- P2.6 (SST 4) tamamlandığı için blok kalktı; frontend Lambda'ları zaten `nodejs24.x` (SST Nextjs component sabiti). İş: API Lambda'larını hizalamak.
-- **Kural:** başka hiçbir değişiklikle birleştirilmeden, tek başına, **kubi'de uçtan uca doğrulanarak** (özellikle Prisma native binding'leri ve `sst shell` içinde tam `next build`) deploy edilmeli.
-- Ayrıca [cognito.ts](infra/cognito.ts) `postConfirmation` trigger'ı hâlâ `nodejs20.x` (diğer Lambda'lar node22/24, Node 20 EOL geçti) → bu işte normalize edilmeli. `postConfirmation` auth-kritik (VPC+RDS linkli, kayıt sonrası DB kullanıcısı oluşturur) → kubi'de uçtan uca signup testi şart.
-- Etki: **infra** (runtime'lar) + **root config** (`.nvmrc` 22.22.2 + `engines >=22 <23` zaten doğru, deploy sonrası güncellenir) + **CI** (`node-version-file: .nvmrc` okur, otomatik uyar).
+### P2.7 — Node 22 → 24 LTS · kapsam: orta · ✅ kod commit'li (75e1b82, 2026-08-26), ⚠️ API Lambda'ları henüz prod'a DEPLOY EDİLMEDİ
+- Commit'lenen: `.nvmrc` → `24.19.0`, `engines` → `>=24 <25`, 7 infra dosyasında 15 runtime pin → `nodejs24.x`. Node 24.19.0 + gerçek Postgres 17 + Prisma 7.8 altında lokalde doğrulandı (detay LOG). CI zaten `.nvmrc`'yi okuduğu için Node 24'te koşuyor.
+- Frontend Lambda'ları **prod'da zaten `nodejs24.x`** (P2.6 ile, 2026-08-07). Kalan iş: `sst deploy --stage prod` ile **API Lambda'larının** (Admin/Public/Protected/Owner + `businessWorkflow`/`userAccessLifecycle`/`googleMaps`) `nodejs22.x` → `nodejs24.x` geçişini canlıya almak — tek başına, başka değişiklikle birleştirmeden; deploy sonrası duman testi (özellikle Prisma native binding'leri).
+- Kalan loose end: [cognito.ts](infra/cognito.ts) `postConfirmation` trigger'ı hâlâ `nodejs20.x` (75e1b82 buna dokunmadı; Node 20 EOL geçti) → `nodejs24.x`'e normalize edilmeli. Auth-kritik (VPC+RDS linkli, kayıt sonrası DB kullanıcısı oluşturur) → kubi'de uçtan uca signup testi şart.
 
 ### P2.8 opsiyonel kalanı — frontend'i VPC'den çıkarma · ana iş ✅ (2026-08-25)
 - Frontend'de `prisma` importu HİÇ kalmadı (yalnız `@core/*` alias ile saf helper/type importları — CLAUDE.md'ye uygun), `link: [rds]` kaldırıldı, session hot-path'i I/O'suz. `user-access.ts` HTTP client'a geçti; `geocodingService.ts` (Nominatim proxy) tamamen silinip Google Places'e taşındı (b8230f3). Detay LOG'da.
@@ -77,7 +76,7 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 - **SNS e-posta aboneliği onayı** — `kubilayuysal.ceyhunlarplastik@gmail.com` adresine gelen AWS "Subscription Confirmation" linkine tıklanmalı. Tıklanana kadar 6MB payload alarmı + concurrency/throttle alarmları tetiklense de **bildirim gönderilmez** (istek 3 günde düşer). Teyit: `aws sns list-subscriptions-by-topic` → `SubscriptionArn` "PendingConfirmation" değil.
 - **`.env` temizliği** — `RDS_PASSWORD`, `GMAIL_SMTP_USER`, `GMAIL_SMTP_APP_PASSWORD`, `DEEPL_API_KEY` satırları silinebilir; kod artık SST Secret'tan okuyor (P1.3). `.env`'de KALMASI gerekenler: `AWS_REGION`, `HOSTED_ZONE_ID`, `DOMAIN`, `DOMAIN_CERTIFICATE_ARN`, `DEEPL_GLOSSARY_ID`, `DIRECT_RDS_HOST`.
 - **Müşteri haritası rota optimizasyonu** (2026-08-28) — kubi doğrulaması bekliyor. Adımlar LOG'daki "Müşteri haritası: rota optimizasyonu" notunun "Kullanıcıda kalan" bölümünde.
-- **P2.7 deploy** (yukarıda) — Node 24 kodu hazır, kubi'de uçtan uca doğrulanıp deploy edilmeli.
+- **P2.7 deploy** (yukarıda) — API Lambda'larının `nodejs24.x` geçişi commit'li ama prod'a deploy edilmedi; `sst deploy --stage prod` + duman testi. `postConfirmation` node20→24 normalizasyonu ayrı küçük iş.
 
 ---
 

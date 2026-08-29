@@ -813,8 +813,7 @@ Use infra-level wiring for:
 Keep workflow Lambdas thin and move reusable business rules into `packages/core`.
 
 ## Current Implementation Notes
-- The project currently targets Node `>=22 <23` at the workspace level. API Lambdas run `nodejs22.x`; the frontend Lambdas run `nodejs24.x` (SST Nextjs component default). A Node 22 → 24 alignment for the API Lambdas is code-ready but not yet deployed (IMPROVEMENT_PLAN.md P2.7).
-- The Cognito `postConfirmation` trigger Lambda still uses `nodejs20.x` runtime in infra.
+- The workspace targets Node `>=24 <25` (`.nvmrc` `24.19.0`; CI reads it via `node-version-file`). Every infra Lambda `runtime` pin is `nodejs24.x` **except** the Cognito `postConfirmation` trigger, still `nodejs20.x`. Frontend Lambdas already run `nodejs24.x` in prod; the API-Lambda `nodejs22.x → nodejs24.x` change is committed but not yet deployed to prod (IMPROVEMENT_PLAN.md P2.7).
 - `/supplier` is currently an alias route and supplier-facing work lives under `/tedarikci`.
 - Public assets are routed through infra, not directly through ad hoc frontend path logic.
 - Response validation is used **per handler**, not globally — `lambdaHandler`'s `responseValidator` is optional. When adding or changing an endpoint, verify what that specific `actions.ts` wires, and keep the Zod schema in sync with the handler's actual output.

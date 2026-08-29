@@ -8,7 +8,10 @@
     //   (frontend'in kendi tsconfig'i + `typecheck -w frontend` script'i ayrıca var).
     // - packages/scripts/example.ts template kalıntısı Resource.MyBucket'a referans verir (kırık).
     //
-    // Bu config yalnız Lambda'ya giden kodu kapsar; `sst-env.d.ts` Resource tiplerini sağlar.
+    // Bu config yalnız Lambda'ya giden kodu kapsar; `sst-env.d.ts` Resource tiplerini
+    // sağlar. O dosya REPODA TUTULUR (`.gitignore`'da DEĞİL) — CI'da `sst dev`
+    // çalışmadığı için tek `Resource` tip kaynağı odur. Git'ten çıkarılırsa CI'daki
+    // bu adım "Property 'MyPostgres' does not exist on type 'Resource'" ile kırılır.
     "extends": "./tsconfig.json",
     "compilerOptions": {
         // node_modules .d.ts hataları bizim kapımız değil (@middy'nin opsiyonel
