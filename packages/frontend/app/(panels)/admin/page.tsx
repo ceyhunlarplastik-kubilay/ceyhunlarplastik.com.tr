@@ -159,7 +159,7 @@ export default async function AdminPage() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="group rounded-[24px] border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md"
+                            className="group rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md"
                         >
                             <div className="flex items-start justify-between gap-4">
                                 <div className="space-y-3">

@@ -71,7 +71,7 @@ function ContactRow({
                                 {value}
                             </a>
                         ) : (
-                            <div className="max-w-full break-words text-[13px] font-medium leading-5 text-slate-900" title={value}>
+                            <div className="max-w-full wrap-break-word text-[13px] font-medium leading-5 text-slate-900" title={value}>
                                 {value}
                             </div>
                         )}
@@ -164,7 +164,7 @@ export function UserContactCard({
                 <div className={cn("flex items-start gap-4", compact && "gap-3")}>
                     <div
                         className={cn(
-                            "relative shrink-0 overflow-hidden rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)] shadow-inner",
+                            "relative shrink-0 overflow-hidden rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,#f8fafc_0%,#eef2f7_100%)] shadow-inner",
                             compact ? "h-16 w-16" : "h-20 w-20",
                         )}
                     >
