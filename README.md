@@ -1,29 +1,37 @@
-# Ceyhunlar Plastik — SST v3 Monorepo
+# Ceyhunlar Plastik — SST v4 Monorepo
 
-An SST v3 monorepo application built with AWS Lambda, API Gateway V2, Cognito, PostgreSQL via Prisma, and stage-aware infrastructure. Production uses AWS RDS inside a VPC; non-production stages use Neon Postgres to keep local development lightweight. [Learn more about SST monorepos](https://sst.dev/docs/set-up-a-monorepo).
+An SST v4 monorepo application built with AWS Lambda, API Gateway V2, Cognito, PostgreSQL via Prisma, and stage-aware infrastructure. Production uses AWS RDS inside a VPC; non-production stages use Neon Postgres to keep local development lightweight. [Learn more about SST monorepos](https://sst.dev/docs/set-up-a-monorepo).
+
+> **Project docs:** [AGENTS.md](AGENTS.md) (engineering rules) · [ARCHITECTURE.md](ARCHITECTURE.md) (system design) · [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) (doc index + verified surfaces) · [IMPROVEMENT_PLAN.md](IMPROVEMENT_PLAN.md) (open work only) · [IMPROVEMENT_LOG.md](IMPROVEMENT_LOG.md) (dated implementation archive)
 
 ---
 
 ## Project Structure
 
-This template uses [npm Workspaces](https://docs.npmjs.com/cli/v8/using-npm/workspaces) with 3 packages:
+This project uses [npm Workspaces](https://docs.npmjs.com/cli/v8/using-npm/workspaces) with 4 packages:
 
 | Package | Description |
 |---|---|
-| `packages/core/` | Shared code: Prisma client, repositories, helpers, validators |
-| `packages/functions/` | Lambda handler functions (AdminApi, PublicApi, Cognito triggers, etc.) |
+| `packages/core/` | Shared backend/core code: Prisma client, repositories, helpers, validators, pricing/approval domain logic |
+| `packages/functions/` | Lambda handlers grouped by boundary (AdminApi, PublicApi, ProtectedApi, OwnerApi) + Cognito triggers + workflows |
+| `packages/frontend/` | Next.js 16 App Router app: public catalog, customer portal, admin/sales/purchasing panels, `/veri-girisi` workspace |
 | `packages/scripts/` | One-off scripts that can be run via `sst shell` with `tsx` |
 
-The `infra/` directory splits AWS infrastructure into logical files:
+The `infra/` directory splits AWS infrastructure into logical files (16 total):
 
 | File | Description |
 |---|---|
-| `infra/db.ts` | Stage-aware database wiring: prod VPC/RDS, non-prod Neon, Prisma DevCommand |
-| `infra/cognito.ts` | Cognito User Pool, Groups (owner/admin/user), OAuth client |
-| `infra/AdminApi.ts` | Admin API Gateway (JWT-protected) |
-| `infra/PublicApi.ts` | Public-facing API |
-| `infra/ProtectedApi.ts` | Protected API |
-| `infra/OwnerApi.ts` | Owner-level API |
+| `infra/db.ts` | Stage-aware database wiring: prod VPC/RDS (+ RDS Proxy & bastion, prod-only), non-prod Neon, Prisma DevCommand |
+| `infra/cognito.ts` | Cognito User Pool, 9 groups (see Authentication below), OAuth client, post-confirmation trigger |
+| `infra/PublicApi.ts` · `ProtectedApi.ts` · `AdminApi.ts` · `OwnerApi.ts` | The four API-Gateway-V2 boundaries — routes live in these files |
+| `infra/apiLimits.ts` | Per-boundary throttle + reserved-concurrency values (single source, env-overridable) |
+| `infra/cors.ts` | Stage-aware CORS origin allowlist |
+| `infra/frontend.ts` | Next.js site via OpenNext, CDN, image optimizer |
+| `infra/router.ts` · `infra/storage.ts` | Shared Router (domains) · S3 buckets |
+| `infra/businessWorkflow.ts` | Generic `BusinessRequest` approval state machine + EventBridge bus + subscribers |
+| `infra/userAccessLifecycle.ts` | Role/access-change fan-out (Bus + Realtime + SES) |
+| `infra/observability.ts` | Prod SNS alarms: account concurrency, Lambda throttles, p95 duration, 6MB response payload |
+| `infra/googleMaps.ts` · `infra/lambdaNaming.ts` | Google Places key wiring · searchable physical Lambda names |
 
 ---
 
@@ -49,7 +57,7 @@ AWS_REGION="eu-central-1" => for prod   # required — config.ts throws if missi
 HOSTED_ZONE_ID="your-route53-hosted-zone-id"
 DOMAIN_CERTIFICATE_ARN="arn:aws:acm:..."
 DOMAIN="yourdomain.com"
-DIRECT_RDS_HOST="your-rds-instance-endpoint"   # prod DIRECT_URL (migrations bypass the proxy)
+DIRECT_RDS_HOST="10.0.x.x"   # prod DIRECT_URL host (migrations bypass the RDS Proxy) — instance endpoint hostname OR its private IP; use the IP to avoid a macOS DNS issue, see "Production RDS" below
 DEEPL_GLOSSARY_ID="optional-glossary-id"
 ```
 
@@ -227,51 +235,41 @@ npx sst tunnel --stage prod
 
 > This requires `bastion: true` on the VPC (already configured in `infra/db.ts`).
 
-#### Step 3 — Prepare Prisma commands (in a new terminal)
+#### Step 3 — Point `DIRECT_RDS_HOST` at the instance private IP
 
-With `proxy: true`, SST exposes the RDS Proxy hostname through `prodRds.host`. On
-some macOS DNS configurations that hostname does not resolve through the system
-resolver even though the tunnel routes its private `10.0.x.x` addresses. Define
-this helper once in the second terminal. It resolves the current private IP at
-runtime, so no RDS hostname, IP address, or `DIRECT_URL` secret is hardcoded.
+`DIRECT_URL` (used only for migrations — it bypasses the RDS Proxy) is built from
+`DIRECT_RDS_HOST` in `infra/db.ts`. The RDS instance endpoint hostname often does
+**not** resolve on macOS even with the tunnel up, so set `DIRECT_RDS_HOST` to the
+instance's **private IP** in the root `.env` (a `10.0.x.x` address):
 
 ```bash
-export AWS_PROFILE=ceyhunlar-prod
-
-prod_prisma() {
-  AWS_PROFILE=ceyhunlar-prod npx sst shell --stage prod --target Prisma -- bash -lc '
-    set -euo pipefail
-    cd packages/core
-
-    db_host="$(node -p "new URL(process.env.DIRECT_URL).hostname")"
-    db_ip="$(dig +time=2 +tries=1 +short @1.1.1.1 "$db_host" A | grep -m 1 "^10\\." || true)"
-    test -n "$db_ip" || {
-      echo "RDS private IP could not be resolved"
-      exit 1
-    }
-
-    db_url="${DIRECT_URL/$db_host/$db_ip}"
-    separator="?"
-    [[ "$db_url" == *"?"* ]] && separator="&"
-
-    export DIRECT_URL="${db_url}${separator}uselibpqcompat=true&sslmode=require"
-    export DATABASE_URL="$DIRECT_URL"
-    exec "$@"
-  ' bash "$@"
-}
+DIRECT_RDS_HOST="10.0.x.x"
 ```
 
-The helper only exists in the terminal where it is defined. `sst shell` still
-provides the credentials; the helper only replaces the unresolvable hostname
-for the child command. `uselibpqcompat=true&sslmode=require` keeps TLS enabled
-without hostname verification, which is required when the production tunnel
-connects through `localhost` or a private IP while the RDS Proxy certificate is
-issued for the AWS proxy hostname.
+Find the IP once, with the Step 2 tunnel running (endpoint from
+`aws rds describe-db-instances … Endpoint.Address`):
+
+```bash
+dig +short @1.1.1.1 <instance-endpoint>.<region>.rds.amazonaws.com A | grep '^10\.'
+```
+
+This IP is stable — it only changes if the instance is **replaced** (a restore, or
+a major-version upgrade that swaps the instance). If migrations start timing out,
+re-run the `dig` and update `.env`.
+
+With that set, run prod Prisma / CLI commands with the **same shape as the Neon
+flow** — no wrapper function. The rest of this guide abbreviates it as
+`prod_prisma <command>`; if you want the shorthand, it is now a trivial one-liner
+(define it in your shell, or just expand it inline):
+
+```bash
+prod_prisma() { npx sst shell --stage prod --target Prisma -- bash -lc "cd packages/core && $*"; }
+```
 
 #### Step 4 — Check migration status
 
 ```bash
-prod_prisma npx prisma migrate status
+npx sst shell --stage prod --target Prisma -- bash -lc 'cd packages/core && npx prisma migrate status'
 ```
 
 Prisma returns exit code `1` when pending migrations exist. Review the listed
@@ -280,7 +278,7 @@ migrations before continuing.
 #### Step 5 — Run migrations
 
 ```bash
-prod_prisma npx prisma migrate deploy
+npx sst shell --stage prod --target Prisma -- bash -lc 'cd packages/core && npx prisma migrate deploy'
 ```
 
 > Use `migrate deploy` (not `migrate dev`) for deployed stages. It applies existing migration files without resetting or creating new ones.
@@ -289,9 +287,7 @@ prod_prisma npx prisma migrate deploy
 
 ```bash
 # Terminal 1 must still be running the tunnel.
-# Run this in Terminal 2 after defining the prod_prisma helper from Step 3.
-export AWS_PROFILE=ceyhunlar-prod
-prod_prisma npx prisma studio --browser none
+npx sst shell --stage prod --target Prisma -- bash -lc 'cd packages/core && npx prisma studio --browser none'
 ```
 ---
 
@@ -384,8 +380,8 @@ restore you must re-point both:
 1. **RDS Proxy target** → the new instance. In the AWS console: RDS → Proxies →
    the ceyhunlarweb proxy → Target groups → deregister old, register the restored
    instance. (Same master password, since PITR/snapshot preserves it.)
-2. **`DIRECT_RDS_HOST`** (used for migrations that bypass the proxy) → the new
-   instance endpoint, if the old one is gone.
+2. **`DIRECT_RDS_HOST`** in `.env` (used for migrations that bypass the proxy) →
+   the new instance's private IP (`dig` it as in "Production RDS" Step 3).
 
 > ⚠️ **Open item the drill must resolve:** making the **SST stack itself** adopt a
 > restored instance (so future `sst deploy` manages it) is not yet a proven
@@ -397,9 +393,9 @@ restore you must re-point both:
 ### Step 5 — Verify before declaring recovery complete
 
 ```bash
-# Row counts on critical tables + migration state (uses the prod_prisma helper
-# from "Production RDS" above, pointed at the restored instance):
-prod_prisma npx prisma migrate status
+# Row counts on critical tables + migration state (DIRECT_RDS_HOST pointed at the
+# restored instance, tunnel open — see "Production RDS" above):
+npx sst shell --stage prod --target Prisma -- bash -lc 'cd packages/core && npx prisma migrate status'
 # Spot-check: Customer, Product, ProductVariant, Order row counts vs expectations.
 ```
 
@@ -433,13 +429,18 @@ Authentication is managed via **AWS Cognito** (`infra/cognito.ts`).
 
 - Sign-in method: **email**
 - Email verification is sent on registration
-- Three user groups with role precedence:
+- **9 groups** (`infra/cognito.ts`). After Cognito auth succeeds the DB (`User.groups`) is the source of truth for access; derived role flags (`isOwner`, `isAdmin`, `isSales`, `isSalesDirector`, `isPurchasing`, `isSupplier`, `isContentEditor`, …) come from `authMiddleware.ts`.
 
-| Group | Precedence | Description |
-|---|---|---|
-| `owner` | 1 | Full access |
-| `admin` | 2 | Admin panel access |
-| `user` | 3 | Regular users |
+| Group | Role |
+|---|---|
+| `owner` | Full access |
+| `admin` | Admin panel |
+| `user` | Default no-panel role — new signups land here as `PENDING_REVIEW`, routed to `/hesabim` |
+| `content_editor` | Internal data-entry workspace (`/veri-girisi`) — category/product/attribute taxonomy content only |
+| `sales` / `sales_director` | Sales workspace (`/satis`) |
+| `purchasing` | Purchasing workspace (`/satinalma`) |
+| `supplier` | Supplier workspace |
+| `customer` | Customer portal (`/musteri`) — external users linked by `User.customerId` |
 
 ### OAuth Client
 
@@ -485,123 +486,50 @@ The Admin API (`infra/AdminApi.ts`) is an AWS API Gateway V2 protected by a **Co
 
 ### Throttling
 
-- Rate limit: 100 req/s
-- Burst limit: 200 req/s
+Per-boundary, defined once in [`infra/apiLimits.ts`](infra/apiLimits.ts) (each value env-overridable, e.g. `ADMIN_API_THROTTLE_RATE`):
+
+| Boundary | Rate / Burst (req/s) |
+|---|---|
+| Public | 200 / 400 |
+| Protected | 100 / 200 |
+| Admin | 50 / 100 |
+| Owner | 20 / 40 |
+
+> `defaultRouteSettings` applies **per route**, not per API. Account Lambda concurrency is guarded separately by reserved concurrency on the four heavy public product routes (prod only). AdminApi also carries a (currently commented-out) WAF rate-limit rule.
 
 ### API Routes
 
-#### Users
-| Method | Path | Description |
-|---|---|---|
-| GET | `/users` | List all users |
+The Admin API has ~106 routes and grows often — an inline endpoint table here rots
+immediately. **The source of truth is the boundary files themselves:**
+[`infra/AdminApi.ts`](infra/AdminApi.ts), [`infra/PublicApi.ts`](infra/PublicApi.ts),
+[`infra/ProtectedApi.ts`](infra/ProtectedApi.ts), [`infra/OwnerApi.ts`](infra/OwnerApi.ts).
+See [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) § "API Sınırları" for the boundary map and
+§ "Nereye Bakılır?" for where each surface's handlers live.
 
-#### Categories
-| Method | Path | Description |
-|---|---|---|
-| POST | `/categories` | Create category |
-| GET | `/categories` | List categories |
-| GET | `/categories/{id}` | Get category |
-| PUT | `/categories/{id}` | Update category |
-| DELETE | `/categories/{id}` | Delete category |
-
-#### Colors
-| Method | Path | Description |
-|---|---|---|
-| POST | `/colors` | Create color |
-| GET | `/colors` | List colors |
-| GET | `/colors/{id}` | Get color |
-| PUT | `/colors/{id}` | Update color |
-| DELETE | `/colors/{id}` | Delete color |
-
-#### Suppliers
-| Method | Path | Description |
-|---|---|---|
-| POST | `/suppliers` | Create supplier |
-| GET | `/suppliers` | List suppliers |
-| GET | `/suppliers/{id}` | Get supplier |
-| PUT | `/suppliers/{id}` | Update supplier |
-| DELETE | `/suppliers/{id}` | Delete supplier |
-
-#### Products
-| Method | Path | Description |
-|---|---|---|
-| POST | `/products` | Create product |
-| GET | `/products` | List products |
-| GET | `/products/{id}` | Get product |
-| PUT | `/products/{id}` | Update product |
-| DELETE | `/products/{id}` | Delete product |
-
-#### Product Variants
-| Method | Path | Description |
-|---|---|---|
-| POST | `/product-variants` | Create variant |
-| GET | `/product-variants` | List variants |
-| GET | `/product-variants/{id}` | Get variant |
-| PUT | `/product-variants/{id}` | Update variant |
-| DELETE | `/product-variants/{id}` | Delete variant |
-
-#### Product Variant Suppliers
-| Method | Path | Description |
-|---|---|---|
-| POST | `/product-variant-suppliers` | Link supplier to variant |
-| GET | `/product-variant-suppliers` | List variant-supplier links |
-| GET | `/product-variant-suppliers/{id}` | Get link |
-| PUT | `/product-variant-suppliers/{id}` | Update link |
-| DELETE | `/product-variant-suppliers/{id}` | Remove link |
-
-#### Measurement Types
-| Method | Path | Description |
-|---|---|---|
-| POST | `/measurement-types` | Create measurement type |
-| GET | `/measurement-types` | List measurement types |
-| GET | `/measurement-types/{id}` | Get measurement type |
-| PUT | `/measurement-types/{id}` | Update measurement type |
-
-> Available measurement codes: `D` (Diameter), `L` (Length), `T` (Thickness), `A` (Angle), `W` (Width), `H` (Height)
-
-#### Product Measurements
-| Method | Path | Description |
-|---|---|---|
-| POST | `/product-measurements` | Add measurement to variant |
-| GET | `/product-measurements` | List measurements |
-| GET | `/product-measurements/{id}` | Get measurement |
-| PUT | `/product-measurements/{id}` | Update measurement |
-| DELETE | `/product-measurements/{id}` | Delete measurement |
-
-#### Materials
-| Method | Path | Description |
-|---|---|---|
-| POST | `/materials` | Create material |
-| GET | `/materials` | List materials |
-| GET | `/materials/{id}` | Get material |
-| PUT | `/materials/{id}` | Update material |
-| DELETE | `/materials/{id}` | Delete material |
-
-#### Assets
-| Method | Path | Description |
-|---|---|---|
-| POST | `/assets` | Create asset (IMAGE, VIDEO, PDF, TECHNICAL_DRAWING, CERTIFICATE) |
-| GET | `/assets` | List assets |
-| GET | `/assets/{id}` | Get asset |
-| PUT | `/assets/{id}` | Update asset |
-| DELETE | `/assets/{id}` | Delete asset |
+Beyond the original template surfaces (users, categories, colors, suppliers, products,
+product variants, product-variant-suppliers, measurement types, product measurements,
+materials, assets) the Admin API now also covers: customers & lead↔customer conversion,
+company contacts, orders, approval/web requests, product attributes + values, industrial-usage
+assignments, the product-variant matrix, campaigns, and customer-specific special prices.
 
 ---
 
 ## Product Variant Full Code
 
-Variant codes follow the format: **`{ProductCode}.{SupplierCode}.{VersionCode}.{VariantIndex}`**
+Codes come from a **single source** — `packages/core/src/core/helpers/productVariants/` —
+and must never be rebuilt with string interpolation in a handler.
 
-| Segment | Example | Description |
+| Code | Shape | Example |
 |---|---|---|
-| `ProductCode` | `1.9` | Category.Product number |
-| `SupplierCode` | `A` | Catalog supplier code (assigned per variant) |
-| `VersionCode` | `V1` | Version of the variant |
-| `VariantIndex` | `1` | Auto-incremented index per product+version group |
+| `fullCode` | `{Category}.{Product}.{Size}.{Version}` — number only, no colour/material | `10.5.8.V1` |
+| supplier full code | `fullCode` + `.{SupplierLetter}`, stored on `ProductVariantSupplier` (not the variant) | `10.5.8.V1.A` |
 
-**Example:** `1.9.A.V1.1`, `1.9.A.V1.2`, `1.24.A.V1.59`
+- `ProductVariant` = product + size + version. The supplier is **not** part of the variant.
+- **Size code** (3rd segment) and the **version number** are append-only counters — not magnitudes. There is no ordering meaning in the code; lists sort by `ProductSize.sortKey`.
+- A **version** (`V1` = colour + material) is defined per product model, up front; the writer rejects an unknown combination instead of auto-adding it.
+- The **supplier letter** (5th segment) is per product model. Size / colour / material / supplier identity is immutable once a code exists — fixing a mistake means deleting the row and re-entering.
 
-> Note: Multiple suppliers can be linked to the same variant (the `SupplierCode` is a catalog-level code, not tied to a single supplier record). The `VariantIndex` is automatically assigned on creation.
+Full ruleset: CLAUDE.md § "When touching product variants or their codes".
 
 ---
 
@@ -738,8 +666,11 @@ export AWS_PROFILE=ceyhunlar-prod
 npx sst tunnel --stage prod
 ```
 
-3. In Terminal 2, export the same profile and define the `prod_prisma` helper
-documented in **Database Migrations on a Deployed Stage** above.
+3. In Terminal 2, export the same profile. Make sure `DIRECT_RDS_HOST` in `.env`
+points at the prod instance's private IP (see **Database Migrations on a Deployed
+Stage → Step 3** above). Commands below use the optional `prod_prisma` shorthand
+from that section — `prod_prisma <cmd>` is just
+`npx sst shell --stage prod --target Prisma -- bash -lc 'cd packages/core && <cmd>'`.
 
 4. Check, deploy, and re-check the additive migration.
 
@@ -865,8 +796,9 @@ npm --workspace packages/core run translate:product-taxonomy-translations -- --p
 
 ### Production sequence
 
-Use the same production tunnel and `prod_prisma` helper documented in
-**Database Migrations on a Deployed Stage**.
+Use the same production tunnel and `DIRECT_RDS_HOST` setup documented in
+**Database Migrations on a Deployed Stage** (`prod_prisma <cmd>` below is the
+optional shorthand from Step 3 there).
 
 ```bash
 # Terminal 1
@@ -874,7 +806,7 @@ export AWS_PROFILE=ceyhunlar-prod
 npx sst tunnel --stage prod
 ```
 
-In Terminal 2, define `prod_prisma`, then run:
+In Terminal 2 (with `DIRECT_RDS_HOST` set), run:
 
 ```bash
 prod_prisma npx prisma migrate status

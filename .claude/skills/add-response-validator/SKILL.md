@@ -87,5 +87,5 @@ Testing rule for this repo: verify ONLY against `npx sst dev --stage kubi` with 
 ### 5. Keep the change reviewable
 One domain (one actions.ts) per commit/PR. Update the validator and the actions wiring in the same change — never land an exported validator that nothing uses.
 
-## Known backlog
-The 9 validator-less `actions.ts` files (and 2 missing requestValidators) are listed in IMPROVEMENT_PLAN.md § P1.2. When asked to "continue validator work", pick the next unfinished one from that list.
+## History
+The original 9 validator-less `actions.ts` files (+ 2 missing requestValidators) — P1.2 — were all completed on 2026-07-09; the batch notes are in IMPROVEMENT_LOG.md § P1.2. Use this skill now when adding or fixing request/response validation on **any** endpoint (new or existing), following the same recipe.

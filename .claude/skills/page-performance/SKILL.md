@@ -262,5 +262,6 @@ CLAUDE.md "Bilinen tuzaklar" geçerli; bu iş özelinde en kritikleri:
    AYNI hook/endpoint/component'i kullanan DİĞER yüzeyleri dahil et (tüketici listesini
    grep'le çıkar — ör. slim DTO sonrası `/urunler/filtre` hâlâ tüm filtreleri
    gösteriyor mu).
-4. IMPROVEMENT_PLAN.md'ye tarihli uygulama notu ekle: ne yapıldı, neden, ölçülen
-   önce/sonra sayıları, ne kaldı (plan projenin hafızasıdır).
+4. IMPROVEMENT_LOG.md'ye tarihli uygulama notu ekle: ne yapıldı, neden, ölçülen
+   önce/sonra sayıları, ne kaldı (LOG projenin hafızasıdır; açık kalan iş varsa
+   IMPROVEMENT_PLAN.md'ye madde olarak yaz).

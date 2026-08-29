@@ -44,6 +44,7 @@ Sürümler `package.json`'dan doğrulanmıştır; tahmin etme, gerektiğinde tek
 - `infra/storage.ts`
 - `infra/router.ts`
 - `infra/cors.ts`
+- `infra/apiLimits.ts` (sınır-başına throttle + reserved concurrency; tek kaynak, env ile ezilir)
 - `infra/businessWorkflow.ts` (eski adı `approvalWorkflow.ts` DEĞİL)
 - `infra/userAccessLifecycle.ts`
 - `infra/observability.ts`
@@ -227,7 +228,7 @@ Group them by execution boundary:
 - `ProtectedApi`
 - `AdminApi`
 - `OwnerApi`
-- workflow-specific folders like `SupplierApprovalWorkflow`
+- workflow-specific folders like `BusinessWorkflow` (the generic `BusinessRequest` engine; the older `SupplierApprovalWorkflow/` folder is legacy and no longer the active wiring)
 
 ### Actions pattern
 Follow the existing pattern:
@@ -254,6 +255,12 @@ Use Zod-based validators consistently for:
 - response payloads where the project already validates responses
 
 Keep validation close to the API boundary.
+
+`lambdaHandler`'s `responseValidator` is **optional and wired per handler** — not every
+endpoint has one. When adding or changing an endpoint, check what that specific
+`actions.ts` wires, and keep the response schema in sync with the handler's real
+output: TypeScript will not catch drift between them, but the running endpoint will
+500 with "Response object failed validation".
 
 ### Error handling
 - Use typed error responses and consistent backend error shapes.
@@ -602,6 +609,8 @@ When implementing new work:
 - Backend request orchestration: handler factory + deps pattern
 - Shared domain logic: `packages/core`
 - Reusable UI primitives: shadcn/ui
+- i18n / localization: next-intl (catalogs in `packages/frontend/messages/*.json`, one namespace per page/feature; see `.claude/skills/i18n-migrate` and ARCHITECTURE.md § Internationalization)
+- Structured logging: AWS Lambda Powertools logger via the shared Middy pipeline
 
 ## What Not To Do
 - Do not replace the feature-based structure with a flat folder layout.

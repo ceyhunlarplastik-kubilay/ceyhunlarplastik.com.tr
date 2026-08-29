@@ -5,9 +5,9 @@ description: Migrate a page or feature's hardcoded Turkish strings to next-intl 
 
 # i18n Migrate
 
-Migrate one page/feature at a time from hardcoded Turkish strings to next-intl catalogs. This skill exists because the migration spans ~70-90 files in Phase 1 alone — consistency across all of them matters more than any single file. The strategy, phases, and constraints are defined in IMPROVEMENT_PLAN.md § i18n; this skill is the per-unit execution recipe.
+Migrate one page/feature at a time from hardcoded Turkish strings to next-intl catalogs. This skill exists because the migration spans ~70-90 files in Phase 1 alone — consistency across all of them matters more than any single file. The strategy and constraints are defined in IMPROVEMENT_PLAN.md § i18n (detailed phase-by-phase progress lives in IMPROVEMENT_LOG.md); this skill is the per-unit execution recipe.
 
-## Non-negotiable project decisions (from IMPROVEMENT_PLAN.md)
+## Non-negotiable project decisions (from IMPROVEMENT_PLAN.md § i18n)
 
 - Library is **next-intl**, routing is `[locale]` segment with `localePrefix: "as-needed"` — Turkish URLs stay unprefixed (`/hakkimizda`), English lives under `/en/...`. Never change an existing TR URL.
 - **Do not translate DB content** (product/category names, descriptions, `usageFunction`) in Phase 1. English pages showing Turkish product data is an accepted interim state.

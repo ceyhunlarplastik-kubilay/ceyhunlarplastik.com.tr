@@ -23,9 +23,22 @@ type Props = {
 }
 
 export function RouteEndpointPicker({ roleLabel, point, picking, onArmPicking, onDisarmPicking, onSelect }: Props) {
-    const [searchInput, setSearchInput] = useState("")
+    const [searchInput, setSearchInput] = useState(point?.label ?? "")
     const [submittedQuery, setSubmittedQuery] = useState("")
     const [requestId, setRequestId] = useState(0)
+    const [syncedPointRefId, setSyncedPointRefId] = useState(point?.refId ?? null)
+
+    // Nokta arama sonucundan, mevcut konumdan veya haritadan seçilerek belirlenince
+    // (üçü de sonunda `point` prop'unu değiştiriyor) arama kutusu seçilen noktanın
+    // adını göstermeli — aksi halde kutu boşmuş gibi görünüp seçim yapılmamış izlenimi
+    // veriyordu. useEffect+setState yerine render sırasında state ayarlıyoruz (React'ın
+    // "prop değişince state'i uyarla" deseni) — repo'nun eslint kuralı efekt içinde
+    // senkron setState'i hata sayıyor.
+    if ((point?.refId ?? null) !== syncedPointRefId) {
+        setSyncedPointRefId(point?.refId ?? null)
+        setSearchInput(point?.label ?? "")
+        setSubmittedQuery("")
+    }
 
     function submitSearch() {
         const query = searchInput.trim()
@@ -47,7 +60,8 @@ export function RouteEndpointPicker({ roleLabel, point, picking, onArmPicking, o
             label: selection.displayName?.trim() || submittedQuery.trim(),
             source: "SEARCH",
         })
-        clearSearch()
+        // searchInput'u burada temizlemiyoruz: `point` değişince yukarıdaki effect
+        // arama kutusuna seçilen noktanın adını yazacak.
     }
 
     function goToBrowserLocation() {
@@ -97,7 +111,7 @@ export function RouteEndpointPicker({ roleLabel, point, picking, onArmPicking, o
                         }}
                     />
                     <InputGroupAddon align="inline-end">
-                        {submittedQuery ? (
+                        {searchInput ? (
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <InputGroupButton size="icon-xs" aria-label="Aramayı temizle" onClick={clearSearch}>

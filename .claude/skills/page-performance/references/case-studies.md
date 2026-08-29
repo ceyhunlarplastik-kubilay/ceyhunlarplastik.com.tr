@@ -2,7 +2,8 @@
 
 Yeni bir performans sorununda önce buraya bak: aynı sınıftan bir vaka çözülmüş
 olabilir — helper'ı/deseni yeniden kullan, yeniden icat etme. Ayrıntılı tarihçe
-IMPROVEMENT_PLAN.md'de (P1.8 bölümü + panel ilk-yük notları).
+IMPROVEMENT_LOG.md'de (P1.8 bölümü + panel ilk-yük notları + "Ana sayfa / Kategori
+sayfası / Ürün detay sayfası performansı" başlıkları).
 
 ## Vaka 1 — Lambda 6MB payload sınıfı (prod 502 ailesi, P1.8)
 

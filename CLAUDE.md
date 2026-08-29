@@ -12,14 +12,19 @@ izleyen bir ajan, önceki konuşmaları bilmeden aynı kalitede iş çıkarabilm
   kalabilir.
 
 ## Çalışma düzeni — kim ne yapar
-- İş listesi [IMPROVEMENT_PLAN.md](IMPROVEMENT_PLAN.md). İşler dilim dilim (slice)
-  yürür: her dilim öncesi kısa plan sun, onay al, sonra uygula. Onaysız dilime başlama.
+- **İki dosya:** [IMPROVEMENT_PLAN.md](IMPROVEMENT_PLAN.md) YALNIZCA açık (henüz
+  yapılmamış) işleri tutar; [IMPROVEMENT_LOG.md](IMPROVEMENT_LOG.md) tamamlanan
+  dilimlerin tarihli uygulama notlarının kronolojik arşividir — **projenin hafızası
+  LOG'dur** (2026-08-29 ayrımı; PLAN token maliyetini düşürmek için yalın tutulur).
+- İşler dilim dilim (slice) yürür: her dilim öncesi kısa plan sun, onay al, sonra
+  uygula. Onaysız dilime başlama.
 - Kod değişikliğini sen yaparsın; **commit, push ve deploy'u KULLANICI yapar.**
   Sen dilim sonunda hazır `git add` (dosya listesiyle) + `git commit` komutu verirsin.
 - Commit mesajı sonuna trailer: `Co-Authored-By: Claude <model adı> <noreply@anthropic.com>`
-- Tamamlanan her dilimden sonra IMPROVEMENT_PLAN.md'deki ilgili maddeye tarihli
-  uygulama notu ekle: ne yapıldı, neden, nasıl doğrulandı, ne kaldı (kullanıcıda
-  bekleyen kubi/deploy adımları dahil). Plan, projenin hafızasıdır.
+- **Bir dilim bitince:** (1) maddeyi IMPROVEMENT_PLAN.md'den ÇIKAR; (2) tarihli
+  uygulama notunu IMPROVEMENT_LOG.md'nin sonuna EKLE — ne yapıldı, neden, nasıl
+  doğrulandı, ne kaldı (kullanıcıda bekleyen kubi/deploy adımları dahil). Yeni açık
+  iş çıktıysa PLAN'a madde olarak yaz. Tamamlanan notu PLAN'a geri yazma.
 
 ## Stage ve test disiplini (KESİN KURAL)
 - Deneme/test/doğrulama YALNIZCA kişisel stage'de:
@@ -151,7 +156,7 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   `eu-central-1` (Lambda eşzamanlılık kotası 1000), kubi/dev `eu-west-1` (kota
   **10**, üstelik başka projelerle paylaşılıyor). `.env`'de `eu-central-1`
   yorumlanmış, aktif olan `eu-west-1`. Kota/limit doğrularken HANGİ BÖLGEYE
-  baktığını yaz — IMPROVEMENT_PLAN'daki "kota 1000 (doğrulandı)" notu
+  baktığını yaz — IMPROVEMENT_LOG'daki (P2.5) "kota 1000 (doğrulandı)" notu
   eu-central-1'e bakmıştı ve reserved concurrency'yi tüm stage'lere uygulayınca
   kubi deploy'u `UnreservedConcurrentExecution below its minimum value of [10]`
   ile düştü. Eşzamanlılık rezervasyonu gibi kota tüketen ayarları stage'e göre

@@ -9,7 +9,7 @@ Use `AGENTS.md` for general engineering rules and implementation conventions.
 This is a living document. Keep it aligned with the actual codebase instead of treating it as an aspirational design.
 
 ## System Overview
-The system is a monorepo built around SST Ion v3 on AWS.
+The system is a monorepo built around SST v4 on AWS.
 
 High-level responsibilities:
 - `infra/` defines cloud resources and connects services.
@@ -55,6 +55,16 @@ Key modules:
   Generic Step Functions + EventBridge business request workflow resources.
 - `infra/userAccessLifecycle.ts`
   User access lifecycle bus, realtime authorizer/subscribers, and email notification fan-out.
+- `infra/apiLimits.ts`
+  Per-boundary API Gateway throttle values and Lambda reserved-concurrency values (single source, env-overridable, concurrency reservations `prod`-only).
+- `infra/cors.ts`
+  Stage-aware CORS origin allowlist applied to all four API boundaries.
+- `infra/observability.ts`
+  `prod`-only SNS alarm topic + email subscription and CloudWatch alarms (account concurrency, Lambda throttles, p95 duration, 6MB response-payload log-metric).
+- `infra/googleMaps.ts`
+  Google Maps / Places API keys (browser + server) and Map ID as SST secrets, plus the `prod`-only coordinate-refresh cron.
+- `infra/lambdaNaming.ts`
+  Deterministic searchable physical names for API-route Lambdas.
 
 Infra files should only wire resources, permissions, links, domains, and runtime configuration.
 Business logic belongs in `packages/functions` or `packages/core`.
@@ -258,21 +268,21 @@ Route separation is a UX and layout concern only. Access control is enforced in 
 - `customer`
   Cannot access the customer map listing endpoint.
 
-Map architecture boundaries:
-- OpenFreeMap provides the hosted basemap style URL.
-- `react-map-gl/maplibre` renders markers, clusters, popup interactions, navigation controls, and user geolocation inside Next.js client components.
-- the shared frontend feature lives under `packages/frontend/features/customerLocations`
-- geocoding is proxied through Next.js route handlers at `/geocoding/search` and `/geocoding/reverse`, not through VPC-backed Lambdas
-- backend customer map data remains in `ProtectedApi` as `GET /sales/customers/map`
-- customer address coordinates and geocoding metadata are stored on `CustomerAddress`
-- `GeocodingCache` stores server-side provider responses with TTL so the frontend never calls Nominatim directly
+Map architecture boundaries (migrated to Google Maps, 2026-08 — see IMPROVEMENT_LOG.md):
+- the map renders through the Google Maps JS SDK via `@vis.gl/react-google-maps` (`GoogleMapsApiProvider` wrapper), with marker clustering via `@googlemaps/markerclusterer`, inside Next.js client components. The previous OpenFreeMap / `react-map-gl/maplibre` / `maplibre-gl` stack has been removed.
+- place search and address autocomplete use **Google Places**, called client-side with a browser API key (`GoogleMapsBrowserApiKey` secret). The old Next.js `/geocoding/search` · `/geocoding/reverse` route handlers and the Nominatim proxy (`geocodingService.ts`) have been deleted.
+- the shared frontend feature lives under `packages/frontend/features/customerLocations` (map, picker, and `routePlanning/` route optimizer).
+- backend customer map data remains in `ProtectedApi` as `GET /sales/customers/map`.
+- customer address coordinates and geocoding metadata are stored on `CustomerAddress`.
+- `GeocodingCache` is still the server-side coordinate cache, but it is now populated by the `prod`-only `GoogleMapsLocationRefresh` cron (`infra/googleMaps.ts` → `packages/core/src/core/helpers/crm/googlePlacesCoordinateRefresh.ts`), not by a request-time proxy.
+- Google Maps / Places keys and Map ID are SST secrets wired in `infra/googleMaps.ts` (browser key for the client SDK, server key for the cron).
 
 Current V1 location rules:
 - one map pin is exposed per customer
 - canonical address selection priority is:
   `isPrimary && isShipping` -> `isPrimary` -> first coordinate-bearing address by `displayOrder`
 - portal users may geocode and pin their own addresses, but they do not receive a customer-list map screen
-- route navigation for turn-by-turn directions is delegated to external Google Maps URLs instead of first-party routing
+- the admin/sales map has a first-party multi-stop **route planner** (`features/customerLocations/routePlanning`, endpoint picker + optimization); turn-by-turn navigation itself is still handed off to external Google Maps URLs
 - `Category.allowedAttributeValueIds` remains only for real category-scoped product filters such as `model_type`, `connection_type`, `profile_type`, `material_type`, `usage_type`, and `hat_type`
 - public and customer product filters should present category-scoped product filters separately from industrial usage filters
 - `/musteri/tanimli-urunler` profile matching uses customer assignments against `ProductIndustrialUsage`; `usageFunction` is display and SEO content only, not a matching criterion
@@ -370,12 +380,12 @@ Current design split:
   `business-request.pending-approval`
   `business-request.step-approved`
   `business-request.rejected`
+  `business-request.completed`
 
 Supplier-specific usage rules:
 - Supplier profile, pricing, category create, product create, and variant create intents should all be represented as `BusinessRequest` rows in the `PURCHASING` domain.
 - Supplier review chains can have multiple assigned purchasing users. Any assigned purchasing user may approve the purchasing step.
 - Review UIs should keep the diff-first presentation style by comparing `currentSnapshot` and `requestedData`.
-  `business-request.completed`
 - EventBridge subscribers persist activity logs, user notifications, workflow emails, and realtime notification messages.
 - Browser realtime topics must be namespaced by app and stage because AWS IoT is shared across apps/stages in an account. The user notification topic shape is `${appName}/${stage}/notifications/users/${dbUserId}`.
 
@@ -418,10 +428,9 @@ Current target model:
 - These requests should be represented as `BusinessRequest` rows under the `PURCHASING` domain.
 - Review surfaces should emphasize `currentSnapshot` vs `requestedData` differences, preserving the existing diff-first review style from the old supplier approval UI.
 
-Current limitation:
-- the schema still keeps a single `assignedPurchasingUserId` on `Supplier`, so true multi-purchasing approval assignment is not implemented yet.
-- if multiple purchasing users must be able to approve the same supplier workflow interchangeably, that requires a follow-up schema change and approval-step assignment strategy update.
-- Step Functions answers “what approval step comes next?”
+Purchasing assignment:
+- multi-purchasing assignment is implemented: `Supplier.assignedPurchasingSuppliers` ↔ `User.assignedPurchasingSuppliers` is a many-to-many relation (`@relation("SupplierPurchasingAssignments")`). There is no single `assignedPurchasingUserId` scalar on `Supplier`.
+- any assigned purchasing user may approve the purchasing step of that supplier's workflow interchangeably.
 
 The generic workflow currently supports the following approval defaults:
 - Sales domain:
@@ -436,36 +445,44 @@ Do not add direct portal mutations for customer/supplier operational requests if
 ## Frontend Architecture
 
 ### App Router structure
-The frontend uses route groups and persona-specific sections.
+The frontend uses route groups and persona-specific sections. The tree has two roots:
+locale-aware public/auth pages under `app/[locale]/`, and the internal panels under
+`app/(panels)/` (outside `[locale]` — see Internationalization below).
 
 Important route segments currently include:
-- `app/(public)`
-  Public SEO-facing pages
-- `app/(auth)/auth`
+- `app/[locale]/(public)`
+  Public SEO-facing pages (locale-prefixed for non-`tr`)
+- `app/[locale]/(auth)/auth`
   Custom authentication routes rendered without the public marketing shell
-- `app/admin`
-  Admin panel
-- `app/admin/potansiyel-musteriler`
-  Lead-focused CRM list for `Customer.status = LEAD`
-- `app/admin/cari-musteriler`
-  Active account list for `Customer.status = CUSTOMER`
-- `app/musteri`
+- `app/(panels)/admin`
+  Admin panel (`potansiyel-musteriler` = `Customer.status = LEAD` list, `cari-musteriler` = `CUSTOMER` list)
+- `app/(panels)/musteri`
   Customer portal
-- `app/satinalma`
+- `app/(panels)/satinalma`
   Purchasing-facing routes
-- `app/satis`
+- `app/(panels)/satis`
   Sales-facing routes
-- `app/veri-girisi`
+- `app/(panels)/veri-girisi`
   Internal content/data-entry workspace for `content_editor`
-- `app/tedarikci`
-  Supplier-facing workspace
-- `app/supplier`
-  Redirect/alias route currently pointing to supplier pages
+- `app/(panels)/tedarikci`
+  Supplier-facing workspace (`app/(panels)/supplier` is a redirect/alias)
+- `app/(panels)/hesabim`
+  Authenticated account-status screen for pending/suspended/rejected users
 - `app/api/auth`
   NextAuth route handlers
 
 Keep SEO-critical public pages server-rendered whenever possible.
 Use client components as leaf nodes rather than converting entire public routes to client rendering.
+
+### Internationalization (i18n)
+The frontend is fully localized with **`next-intl`**. Key decisions (full history in IMPROVEMENT_LOG.md § i18n):
+- **14 published locales** (`packages/frontend/i18n/routing.ts`): `tr`, `en`, then `de fr es it pt pl` (wave 1), `ru` (2), `ar` (3, RTL), `ko ja zh hi` (4). System-recognized locales live in `packages/core/src/core/i18n/locales.ts` (`SUPPORTED_LOCALES`).
+- **`localePrefix: "as-needed"`** — Turkish URLs stay unprefixed (`/hakkimizda`); other locales live under a prefix (`/en/hakkimizda`). **`localeDetection: false`** — locale changes only by explicit user choice, never by `Accept-Language`.
+- **Panels are outside `[locale]`** (`app/(panels)/`) because `proxy.ts`'s `withAuth` matcher must keep protecting them; they render with a `tr`-fixed `NextIntlClientProvider` so shared components still resolve.
+- **Message catalogs**: `packages/frontend/messages/<locale>.json`, one namespace per feature/page. `tr.json` is the source of truth; `en.json` (and the rest) must have equal key counts. Zod schemas that need translated messages use the `buildXSchema(t)` factory pattern.
+- **DB content** is translated per-model through additive `XTranslation` tables (`CategoryTranslation`, `ColorTranslation`, `MaterialTranslation`, `MeasurementTypeTranslation`, …) with a TR backfill + DeepL-assisted draft/apply CLI. Legacy `name`/`slug` columns are kept until a model's readers/writers have all moved over. Missing translations fall back to the TR source and mark the page `noindex` + out of the sitemap.
+- SEO: locale-aware `generateMetadata` with `alternates.languages` (hreflang) and a locale-aware `app/sitemap.ts`.
+- Backend notification/email text is **not** localized yet (still persisted as TR at production time) — that is a planned phase, see IMPROVEMENT_PLAN.md § i18n.
 
 ### Feature structure
 Feature code lives under `packages/frontend/features`.
@@ -552,7 +569,7 @@ Current shared pipeline includes:
 - security headers and CORS
 - response serialization
 - optional response validation
-- logging
+- structured logging: AWS Lambda Powertools logger (`packages/core/src/core/logger.ts`) with a per-request `correlationId` (from `requestContext.requestId`), `POWERTOOLS_SERVICE_NAME` set per boundary; `userSub` / `userGroups` are appended after auth. `logEvent` is off; PII claims (email) are not logged.
 - error handling
 
 New HTTP Lambdas should use `lambdaHandler` unless there is a strong reason not to.
@@ -614,6 +631,7 @@ Derived booleans currently include:
 - `isSupplier`
 - `isPurchasing`
 - `isSales`
+- `isSalesDirector`
 - `isCustomer`
 - `isContentEditor`
 
@@ -650,7 +668,7 @@ Current CRM structure includes:
 - `Customer.status` with `LEAD` and `CUSTOMER`
 - `Customer.assignedSalesUserId`
 - `Customer.convertedAt` and `Customer.convertedByUserId`
-- `Supplier.assignedPurchasingUserId`
+- `Supplier.assignedPurchasingSuppliers` ↔ `User.assignedPurchasingSuppliers` (many-to-many purchasing assignment)
 - `User.customerId` for customer portal users
 - `CustomerFeaturedProduct` for manually curated customer-facing products
 - `CustomerVisit` for planned/completed/canceled visit tracking
@@ -665,7 +683,7 @@ Important distinction:
 - `User.customerId` and `User.supplierId` are portal-account bindings for external customer/supplier users
 - operational ownership for internal staff is modeled on the business entities:
   - `Customer.assignedSalesUserId`
-  - `Supplier.assignedPurchasingUserId`
+  - `Supplier.assignedPurchasingSuppliers` (many-to-many)
 - do not confuse those two concepts in UI or API design
 
 ### Mapping and DTO helpers
@@ -795,17 +813,24 @@ Use infra-level wiring for:
 Keep workflow Lambdas thin and move reusable business rules into `packages/core`.
 
 ## Current Implementation Notes
-- The project currently targets Node `>=22 <23` at the workspace level.
-- Some Cognito trigger Lambdas still use `nodejs20.x` runtime in infra.
+- The project currently targets Node `>=22 <23` at the workspace level. API Lambdas run `nodejs22.x`; the frontend Lambdas run `nodejs24.x` (SST Nextjs component default). A Node 22 → 24 alignment for the API Lambdas is code-ready but not yet deployed (IMPROVEMENT_PLAN.md P2.7).
+- The Cognito `postConfirmation` trigger Lambda still uses `nodejs20.x` runtime in infra.
 - `/supplier` is currently an alias route and supplier-facing work lives under `/tedarikci`.
 - Public assets are routed through infra, not directly through ad hoc frontend path logic.
-- Response validation is actively used in parts of the backend, so response shapes must match their validators.
+- Response validation is used **per handler**, not globally — `lambdaHandler`'s `responseValidator` is optional. When adding or changing an endpoint, verify what that specific `actions.ts` wires, and keep the Zod schema in sync with the handler's actual output.
+- Open technical work is tracked in IMPROVEMENT_PLAN.md; completed slices and their rationale are archived in IMPROVEMENT_LOG.md.
 
 ## Documentation Strategy
 - `AGENTS.md`
   General implementation rules for contributors and coding agents.
 - `ARCHITECTURE.md`
   Project-specific system structure, request flows, and boundaries.
+- `PROJECT_OVERVIEW.md`
+  Short cross-index of the above plus a table of code-verified surfaces.
+- `IMPROVEMENT_PLAN.md`
+  Open (not-yet-done) technical work only.
+- `IMPROVEMENT_LOG.md`
+  Dated archive of completed slices — what changed, why, how it was verified.
 
 If this file grows too large, split deeper topics into focused documents such as:
 - `docs/authentication.md`
