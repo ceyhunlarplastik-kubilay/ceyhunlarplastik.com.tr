@@ -63,7 +63,7 @@ function UsersBulkActions({
     if (selectedCount === 0) return null
 
     return (
-        <div className="flex flex-col gap-3 rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
             <div className="text-sm text-neutral-600">
                 <span className="font-semibold text-neutral-950">{selectedCount}</span> kullanıcı seçildi.
                 {dirtySelectedCount > 0 ? (

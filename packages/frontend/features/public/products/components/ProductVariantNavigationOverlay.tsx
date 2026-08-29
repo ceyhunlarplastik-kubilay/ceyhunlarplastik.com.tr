@@ -29,7 +29,7 @@ export default function ProductVariantNavigationOverlay({
                     </div>
                 </div>
 
-                <div className="mx-auto flex w-full max-w-md flex-col items-center rounded-[24px] border border-white/80 bg-white/90 px-5 py-5 text-center shadow-[0_20px_44px_-28px_rgba(15,23,42,0.3)]">
+                <div className="mx-auto flex w-full max-w-md flex-col items-center rounded-3xl border border-white/80 bg-white/90 px-5 py-5 text-center shadow-[0_20px_44px_-28px_rgba(15,23,42,0.3)]">
                     <div className="mb-3 inline-flex size-11 items-center justify-center rounded-2xl bg-brand/10 text-brand">
                         <Loader2 className="h-5 w-5 animate-spin" />
                     </div>

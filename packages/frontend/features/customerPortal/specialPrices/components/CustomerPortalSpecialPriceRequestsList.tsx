@@ -102,7 +102,7 @@ export function CustomerPortalSpecialPriceRequestsList() {
                 onValueChange={(value) => setIsOpen(value === "special-price-requests")}
             >
                 <AccordionItem value="special-price-requests" className="border-b-0">
-                    <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-neutral-900 transition-colors duration-200 hover:bg-brand/[0.02] hover:no-underline">
+                    <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-neutral-900 transition-colors duration-200 hover:bg-brand/2 hover:no-underline">
                         <div className="flex flex-1 items-center justify-between">
                             <div className="flex min-w-0 items-center gap-3">
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
@@ -154,11 +154,11 @@ export function CustomerPortalSpecialPriceRequestsList() {
                             transition={{ duration: 0.3 }}
                         >
                             {requestsQuery.isLoading ? (
-                                <div className="rounded-[24px] border border-neutral-200 bg-white p-5 text-sm text-neutral-500 shadow-sm">
+                                <div className="rounded-3xl border border-neutral-200 bg-white p-5 text-sm text-neutral-500 shadow-sm">
                                     Özel fiyat talepleri yükleniyor...
                                 </div>
                             ) : requests.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center gap-3 rounded-[24px] border border-dashed border-neutral-200 bg-white px-6 py-12 text-center shadow-sm">
+                                <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-neutral-200 bg-white px-6 py-12 text-center shadow-sm">
                                     <PackageSearch className="h-8 w-8 text-neutral-400" />
                                     <div>
                                         <h3 className="text-base font-semibold text-neutral-950">Henüz özel fiyat talebiniz yok</h3>
@@ -178,7 +178,7 @@ export function CustomerPortalSpecialPriceRequestsList() {
                                         const currency = typeof specialPrice.currency === "string" ? specialPrice.currency : "TRY"
 
                                         return (
-                                            <article key={request.id} className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm">
+                                            <article key={request.id} className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm">
                                                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                                     <div className="min-w-0 space-y-2">
                                                         <div className="flex flex-wrap items-center gap-2">
@@ -203,7 +203,7 @@ export function CustomerPortalSpecialPriceRequestsList() {
                                                         </div>
                                                     </div>
 
-                                                    <div className="grid gap-2 text-sm sm:grid-cols-2 lg:min-w-[360px]">
+                                                    <div className="grid gap-2 text-sm sm:grid-cols-2 lg:min-w-90">
                                                         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2">
                                                             <div className="text-[11px] uppercase tracking-[0.14em] text-neutral-400">Talep edilen fiyat</div>
                                                             <div className="mt-1 font-semibold text-neutral-950">

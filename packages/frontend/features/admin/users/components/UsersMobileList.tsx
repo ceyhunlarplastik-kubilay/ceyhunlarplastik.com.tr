@@ -43,10 +43,10 @@ export function UsersMobileList({
         <div className="space-y-3 lg:hidden">
             {isLoading ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="h-44 animate-pulse rounded-[24px] border border-neutral-200 bg-neutral-50" />
+                    <div key={index} className="h-44 animate-pulse rounded-3xl border border-neutral-200 bg-neutral-50" />
                 ))
             ) : users.length === 0 ? (
-                <div className="rounded-[24px] border border-neutral-200 bg-white p-8 text-center text-sm text-neutral-500">
+                <div className="rounded-3xl border border-neutral-200 bg-white p-8 text-center text-sm text-neutral-500">
                     Filtrelere uygun kullanıcı bulunamadı.
                 </div>
             ) : (

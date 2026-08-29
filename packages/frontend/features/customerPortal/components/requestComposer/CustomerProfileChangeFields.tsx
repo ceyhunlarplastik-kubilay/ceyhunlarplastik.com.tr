@@ -121,7 +121,7 @@ export function CustomerProfileChangeFields({
                 ) : (
                     <div className="space-y-4">
                         {addressFields.map((field, index) => (
-                            <div key={field.id} className="rounded-[24px] border border-neutral-200 bg-white p-4 md:p-5 shadow-sm">
+                            <div key={field.id} className="rounded-3xl border border-neutral-200 bg-white p-4 md:p-5 shadow-sm">
                                 <div className="mb-4 flex items-center justify-between gap-3">
                                     <div className="text-sm font-semibold text-neutral-900">
                                         {form.watch(`addresses.${index}.label`) || `Adres ${index + 1}`}

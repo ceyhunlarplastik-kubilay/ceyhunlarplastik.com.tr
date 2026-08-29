@@ -92,7 +92,7 @@ export function UsersToolbar({
     onReset,
 }: Props) {
     return (
-        <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm">
+        <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <UserListFilters

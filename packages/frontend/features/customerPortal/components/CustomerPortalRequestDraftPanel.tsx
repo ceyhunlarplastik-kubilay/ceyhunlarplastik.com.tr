@@ -118,7 +118,7 @@ export function CustomerPortalRequestDraftPanel({
             </div>
 
             {items.length === 0 ? (
-                <div className="rounded-[24px] border border-dashed border-neutral-200 bg-gradient-to-br from-neutral-50 via-white to-brand/[0.04] p-6">
+                <div className="rounded-3xl border border-dashed border-neutral-200 bg-linear-to-br from-neutral-50 via-white to-brand/4 p-6">
                     <div className="max-w-2xl space-y-3">
                         <h4 className="text-base font-semibold text-neutral-950">Sepetiniz boş</h4>
                         <p className="text-sm leading-6 text-neutral-500">
@@ -150,18 +150,18 @@ export function CustomerPortalRequestDraftPanel({
                         </div>
                     ) : null}
 
-                    <div className="overflow-hidden rounded-[24px] border border-neutral-200 bg-neutral-50">
-                        <Table className="min-w-[1320px]">
+                    <div className="overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-50">
+                        <Table className="min-w-330">
                             <TableHeader className="bg-white/90">
                                 <TableRow className="hover:bg-transparent">
-                                    <TableHead className="w-[340px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Ürün</TableHead>
-                                    <TableHead className="w-[110px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Miktar</TableHead>
-                                    <TableHead className="w-[170px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Liste Fiyatı</TableHead>
-                                    <TableHead className="w-[190px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Müşteri Fiyatı</TableHead>
-                                    <TableHead className="w-[190px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Koşullar</TableHead>
-                                    <TableHead className="w-[180px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Ara Toplam</TableHead>
-                                    <TableHead className="w-[180px] px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">{isPricing ? "Pazarlık Notu" : "Not"}</TableHead>
-                                    <TableHead className="w-[88px] px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">İşlem</TableHead>
+                                    <TableHead className="w-85 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Ürün</TableHead>
+                                    <TableHead className="w-27.5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Miktar</TableHead>
+                                    <TableHead className="w-42.5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Liste Fiyatı</TableHead>
+                                    <TableHead className="w-47.5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Müşteri Fiyatı</TableHead>
+                                    <TableHead className="w-47.5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Koşullar</TableHead>
+                                    <TableHead className="w-45 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Ara Toplam</TableHead>
+                                    <TableHead className="w-45 px-4 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">{isPricing ? "Pazarlık Notu" : "Not"}</TableHead>
+                                    <TableHead className="w-22 px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">İşlem</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -207,7 +207,7 @@ export function CustomerPortalRequestDraftPanel({
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 align-middle">
-                                            <div className="flex min-h-[92px] items-center">
+                                            <div className="flex min-h-23 items-center">
                                                 <Input
                                                     type="text"
                                                     inputMode="numeric"
@@ -225,13 +225,13 @@ export function CustomerPortalRequestDraftPanel({
                                                         }
                                                     }}
                                                     onBlur={() => handleQuantityCommit(item.variantId)}
-                                                    className="h-11 w-[92px] rounded-xl bg-white text-center text-sm font-semibold"
+                                                    className="h-11 w-23 rounded-xl bg-white text-center text-sm font-semibold"
                                                 />
                                             </div>
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 align-middle">
-                                            <div className="flex min-h-[76px] flex-col justify-center rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm font-medium text-neutral-900">
+                                            <div className="flex min-h-19 flex-col justify-center rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm font-medium text-neutral-900">
                                                 {item.customerUnitPrice !== null
                                                     && item.customerUnitPrice !== undefined
                                                     && item.appliedDiscountPercent
@@ -249,7 +249,7 @@ export function CustomerPortalRequestDraftPanel({
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 align-middle">
-                                            <div className={`flex min-h-[76px] flex-col justify-center rounded-2xl border px-3 py-3 text-sm font-medium ${item.priceSource === "CUSTOMER_SPECIAL_PRICE"
+                                            <div className={`flex min-h-19 flex-col justify-center rounded-2xl border px-3 py-3 text-sm font-medium ${item.priceSource === "CUSTOMER_SPECIAL_PRICE"
                                                 ? "border-amber-200 bg-amber-50 text-amber-950"
                                                 : item.appliedDiscountPercent && item.appliedDiscountPercent > 0
                                                     ? "border-sky-200 bg-sky-50 text-sky-950"
@@ -276,7 +276,7 @@ export function CustomerPortalRequestDraftPanel({
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 align-middle">
-                                            <div className="flex min-h-[76px] flex-col justify-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-xs text-neutral-600">
+                                            <div className="flex min-h-19 flex-col justify-center gap-1.5 rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-xs text-neutral-600">
                                                 <div className="font-semibold text-neutral-900">
                                                     {formatCommercialPaymentTerm(item.pricingSnapshot)}
                                                 </div>
@@ -286,7 +286,7 @@ export function CustomerPortalRequestDraftPanel({
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 align-middle">
-                                            <div className="flex min-h-[76px] flex-col justify-center rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm font-semibold text-neutral-950">
+                                            <div className="flex min-h-19 flex-col justify-center rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm font-semibold text-neutral-950">
                                                 {item.customerUnitPrice !== null
                                                     && item.customerUnitPrice !== undefined
                                                     && item.listUnitPrice !== null
@@ -309,7 +309,7 @@ export function CustomerPortalRequestDraftPanel({
                                                 <PopoverTrigger asChild>
                                                     <button
                                                         type="button"
-                                                        className="group flex w-[150px] items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-left text-sm transition hover:border-neutral-300 hover:bg-neutral-50"
+                                                        className="group flex w-37.5 items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-left text-sm transition hover:border-neutral-300 hover:bg-neutral-50"
                                                     >
                                                         <MessageSquareText className="h-4 w-4 shrink-0 text-neutral-400 group-hover:text-neutral-700" />
                                                         <span className="min-w-0 flex-1 truncate text-neutral-600">
@@ -341,7 +341,7 @@ export function CustomerPortalRequestDraftPanel({
                                         </TableCell>
 
                                         <TableCell className="px-4 py-4 text-right align-middle">
-                                            <div className="flex min-h-[92px] items-center justify-end">
+                                            <div className="flex min-h-23 items-center justify-end">
                                                 <Button
                                                     type="button"
                                                     size="icon"
@@ -408,7 +408,7 @@ export function CustomerPortalRequestDraftPanel({
                             </div>
                         ) : null}
 
-                        <div className="rounded-2xl border border-brand/20 bg-brand/[0.04] p-4">
+                        <div className="rounded-2xl border border-brand/20 bg-brand/4 p-4">
                             <div className="text-sm font-semibold text-neutral-950">
                                 {isPricing ? "Teklif Ozeti" : "Siparis Ozeti"}
                             </div>

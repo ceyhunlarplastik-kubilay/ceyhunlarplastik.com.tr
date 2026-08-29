@@ -70,14 +70,14 @@ export function ProductAttributeValueCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2, delay: index * 0.025 }}
             className={[
-                "overflow-hidden rounded-[24px] border bg-white shadow-sm transition",
+                "overflow-hidden rounded-3xl border bg-white shadow-sm transition",
                 isLinkedGroupsOpen
                     ? "border-amber-300 ring-2 ring-amber-100"
                     : "border-neutral-200",
             ].join(" ")}
         >
             <div className="grid gap-0 sm:grid-cols-[180px_minmax(0,1fr)]">
-                <div className="relative aspect-[16/10] min-h-[170px] border-b border-neutral-200 bg-neutral-100 sm:aspect-auto sm:min-h-[190px] sm:border-b-0 sm:border-r">
+                <div className="relative aspect-16/10 min-h-42.5 border-b border-neutral-200 bg-neutral-100 sm:aspect-auto sm:min-h-47.5 sm:border-b-0 sm:border-r">
                     {asset?.url ? (
                         <Image
                             src={asset.url}
@@ -88,7 +88,7 @@ export function ProductAttributeValueCard({
                             className="object-cover"
                         />
                     ) : (
-                        <div className="flex h-full min-h-[170px] flex-col items-center justify-center gap-2 text-neutral-400">
+                        <div className="flex h-full min-h-42.5 flex-col items-center justify-center gap-2 text-neutral-400">
                             <ImagePlus className="h-7 w-7" />
                             <span className="text-xs">Görsel yok</span>
                         </div>

@@ -6,10 +6,10 @@ export function ProductAttributeValuesSkeleton() {
             {Array.from({ length: 4 }).map((_, index) => (
                 <div
                     key={index}
-                    className="overflow-hidden rounded-[24px] border border-neutral-200 bg-white shadow-sm"
+                    className="overflow-hidden rounded-3xl border border-neutral-200 bg-white shadow-sm"
                 >
                     <div className="grid gap-0 sm:grid-cols-[180px_minmax(0,1fr)]">
-                        <Skeleton className="min-h-[180px] rounded-none" />
+                        <Skeleton className="min-h-45 rounded-none" />
                         <div className="space-y-4 p-4">
                             <Skeleton className="h-5 w-2/3" />
                             <Skeleton className="h-4 w-1/2" />

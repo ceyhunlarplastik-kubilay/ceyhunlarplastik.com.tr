@@ -82,9 +82,9 @@ export function CustomerPortalCartDock({ mode }: Props) {
                 "group overflow-hidden border backdrop-blur-xl transition",
                 mode === "topbar"
                     ? "rounded-[22px] px-4 py-3 shadow-sm"
-                    : "rounded-[24px] px-4 py-3 shadow-xl",
+                    : "rounded-3xl px-4 py-3 shadow-xl",
                 hasItems
-                    ? "border-brand/30 bg-brand/[0.10] text-neutral-950"
+                    ? "border-brand/30 bg-brand/10 text-neutral-950"
                     : "border-neutral-200 bg-white/95 text-neutral-900",
             )}
         >

@@ -143,7 +143,7 @@ export function ProductAttributesPageClient({
                             >
                                 <Link
                                     href={`${basePath}/${attribute.id}`}
-                                    className="group block h-full rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md"
+                                    className="group block h-full rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md"
                                 >
                                     <div className="flex h-full flex-col gap-4">
                                         <div className="flex items-start justify-between gap-4">

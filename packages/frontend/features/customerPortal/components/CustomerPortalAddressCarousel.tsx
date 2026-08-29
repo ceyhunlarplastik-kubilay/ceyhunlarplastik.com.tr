@@ -56,7 +56,7 @@ function AddressCard({
     return (
         <motion.article
             key={address.id}
-            className="flex h-full min-h-[360px] w-full flex-col rounded-[30px] border border-neutral-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,250,249,0.96)_100%)] p-5 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] sm:min-h-[430px] sm:p-6"
+            className="flex h-full min-h-90 w-full flex-col rounded-[30px] border border-neutral-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,250,249,0.96)_100%)] p-5 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)] transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] sm:min-h-107.5 sm:p-6"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, ease: "easeOut", delay: index * 0.04 }}
@@ -75,7 +75,7 @@ function AddressCard({
                 </div>
             </div>
 
-            <div className="mt-5 rounded-[24px] border border-neutral-200 bg-white/80 p-4">
+            <div className="mt-5 rounded-3xl border border-neutral-200 bg-white/80 p-4">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
                     Adres Detayı
                 </div>
@@ -131,7 +131,7 @@ function AddAddressCard({ onClick }: { onClick: () => void }) {
             type="button"
             onClick={onClick}
             aria-label="Yeni adres ekle"
-            className="group flex h-full min-h-[360px] w-full flex-col overflow-hidden rounded-[30px] border border-dashed border-brand/25 bg-[radial-gradient(circle_at_top,rgba(214,179,93,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,250,249,0.98)_100%)] p-5 text-left shadow-[0_12px_30px_-24px_rgba(15,23,42,0.3)] transition hover:-translate-y-0.5 hover:border-brand/45 hover:bg-[radial-gradient(circle_at_top,rgba(214,179,93,0.22),transparent_34%),linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(250,250,249,0.98)_100%)] sm:min-h-[430px] sm:p-6"
+            className="group flex h-full min-h-90 w-full flex-col overflow-hidden rounded-[30px] border border-dashed border-brand/25 bg-[radial-gradient(circle_at_top,rgba(214,179,93,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,250,249,0.98)_100%)] p-5 text-left shadow-[0_12px_30px_-24px_rgba(15,23,42,0.3)] transition hover:-translate-y-0.5 hover:border-brand/45 hover:bg-[radial-gradient(circle_at_top,rgba(214,179,93,0.22),transparent_34%),linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(250,250,249,0.98)_100%)] sm:min-h-107.5 sm:p-6"
         >
             <div className="flex flex-1 flex-col items-center justify-center rounded-[26px] border border-white/70 bg-white/65 px-6 py-8 text-center">
                 <div className="flex size-20 items-center justify-center rounded-full border border-brand/15 bg-brand/10 text-brand shadow-[0_14px_35px_-26px_color-mix(in_oklch,var(--color-brand),black_20%)] transition group-hover:scale-105">

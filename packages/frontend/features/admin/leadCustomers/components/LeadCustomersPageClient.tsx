@@ -103,7 +103,7 @@ function LeadCustomerCard({
         <div
             className={cn(
                 "overflow-hidden rounded-2xl border bg-white transition-colors",
-                isSelected ? "border-brand/60 bg-brand/[0.03]" : "border-neutral-200",
+                isSelected ? "border-brand/60 bg-brand/3" : "border-neutral-200",
             )}
         >
             <div className="flex flex-col gap-3 p-4 lg:flex-row lg:items-start lg:justify-between">

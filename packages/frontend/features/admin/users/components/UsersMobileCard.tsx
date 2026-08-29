@@ -70,7 +70,7 @@ export function UsersMobileCard({
     const customerMeta = getCustomerContactMeta(user)
 
     return (
-        <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm">
+        <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm">
             <div className="flex items-start gap-3">
                 <Checkbox checked={isSelected} onCheckedChange={onToggleSelected} className="mt-1" />
                 <Avatar size="lg" className="ring-1 ring-neutral-200">

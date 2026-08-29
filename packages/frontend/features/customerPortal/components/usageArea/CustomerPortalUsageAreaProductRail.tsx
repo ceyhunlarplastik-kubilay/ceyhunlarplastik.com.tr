@@ -37,7 +37,7 @@ export function CustomerPortalUsageAreaProductRail({
     }
 
     return (
-        <div className="mt-4 rounded-[24px] border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.94),rgba(255,255,255,1))] p-3.5 sm:p-4">
+        <div className="mt-4 rounded-3xl border border-slate-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.94),rgba(255,255,255,1))] p-3.5 sm:p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                     <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
@@ -64,7 +64,7 @@ export function CustomerPortalUsageAreaProductRail({
             </div>
 
             {isInitialLoading ? (
-                <div className="mt-3 flex min-h-[160px] items-center justify-center rounded-[20px] border border-dashed border-slate-200 bg-white/80">
+                <div className="mt-3 flex min-h-40 items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white/80">
                     <Spinner className="size-5" />
                 </div>
             ) : products.length > 0 ? (

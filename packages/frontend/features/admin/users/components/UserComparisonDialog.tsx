@@ -62,7 +62,7 @@ export function UserComparisonDialog({
                         const portalSummary = getPortalLinkSummary(user, draftsByUserId[user.id], suppliers, customers)
 
                         return (
-                            <div key={user.id} className="rounded-[24px] border border-neutral-200 bg-white p-5 shadow-sm">
+                            <div key={user.id} className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm">
                                 <div className="flex items-start gap-3">
                                     <Avatar size="lg" className="ring-1 ring-neutral-200">
                                         <AvatarImage src={user.imageUrl ?? undefined} alt={displayName} className="object-cover" />

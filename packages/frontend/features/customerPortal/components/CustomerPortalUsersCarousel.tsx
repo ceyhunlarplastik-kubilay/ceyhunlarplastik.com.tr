@@ -31,7 +31,7 @@ function AddUserCard({ onClick }: { onClick: () => void }) {
                     <span className="truncate">Portal Kullanıcısı</span>
                 </div>
 
-                <div className="flex flex-1 flex-col items-center justify-center rounded-[24px] border border-dashed border-brand/25 bg-white/70 px-6 py-8 text-center">
+                <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border border-dashed border-brand/25 bg-white/70 px-6 py-8 text-center">
                     <div className="flex size-18 items-center justify-center rounded-full border border-brand/15 bg-brand/10 text-brand shadow-[0_14px_35px_-26px_color-mix(in_oklch,var(--color-brand),black_20%)] transition group-hover:scale-105">
                         <Plus className="size-7" />
                     </div>

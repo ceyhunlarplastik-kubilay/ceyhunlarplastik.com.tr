@@ -87,7 +87,7 @@ export function CustomerPortalLoadPlanner({ items }: Props) {
             <div
                 role="status"
                 aria-live="polite"
-                className="rounded-[24px] border border-neutral-200 bg-neutral-50 p-5 motion-safe:animate-pulse"
+                className="rounded-3xl border border-neutral-200 bg-neutral-50 p-5 motion-safe:animate-pulse"
             >
                 <div className="h-4 w-44 rounded bg-neutral-200" />
                 <div className="mt-4 h-36 rounded-2xl bg-neutral-100" />
@@ -98,7 +98,7 @@ export function CustomerPortalLoadPlanner({ items }: Props) {
 
     if (logisticsQuery.isError) {
         return (
-            <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-5 text-amber-950">
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-950">
                 <div className="flex items-start gap-3">
                     <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
                     <div>
@@ -230,7 +230,7 @@ export function CustomerPortalLoadPlanner({ items }: Props) {
                                         aria-pressed={isSelected}
                                         onClick={() => setManualCarrierId(load.carrier.id)}
                                         className={cn(
-                                            "min-w-[148px] snap-start rounded-2xl border p-3 text-left outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40 lg:min-w-0",
+                                            "min-w-37 snap-start rounded-2xl border p-3 text-left outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40 lg:min-w-0",
                                             isSelected
                                                 ? "border-brand bg-brand/[0.07]"
                                                 : "border-neutral-200 bg-white hover:border-neutral-300",

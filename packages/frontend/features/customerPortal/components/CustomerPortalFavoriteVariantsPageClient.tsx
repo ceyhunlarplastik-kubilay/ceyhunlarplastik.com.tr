@@ -113,7 +113,7 @@ export function CustomerPortalFavoriteVariantsPageClient() {
                     <TabsContent key={tab.value} value={tab.value} className="m-0">
                         <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm">
                             {assignedQuery.isLoading ? (
-                                <div className="flex min-h-[320px] items-center justify-center">
+                                <div className="flex min-h-80 items-center justify-center">
                                     <Spinner className="size-5" />
                                 </div>
                             ) : itemsByTab[tab.value].length > 0 ? (

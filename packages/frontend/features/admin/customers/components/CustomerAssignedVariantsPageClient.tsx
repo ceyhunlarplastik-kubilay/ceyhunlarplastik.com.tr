@@ -449,7 +449,7 @@ export function CustomerAssignedVariantsPageClient({
                                 </div>
 
                                 {isInitialProductLoading ? (
-                                    <div className="flex min-h-[260px] items-center justify-center">
+                                    <div className="flex min-h-65 items-center justify-center">
                                         <Spinner className="size-5" />
                                     </div>
                                 ) : products.length > 0 ? (
@@ -464,7 +464,7 @@ export function CustomerAssignedVariantsPageClient({
                                                         type="button"
                                                         onClick={() => setSelectedProductId(product.id)}
                                                         className={cn(
-                                                            "group rounded-[24px] border bg-white p-3 text-left transition",
+                                                            "group rounded-3xl border bg-white p-3 text-left transition",
                                                             isActive
                                                                 ? "border-brand bg-brand/5 shadow-sm"
                                                                 : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50",
@@ -535,7 +535,7 @@ export function CustomerAssignedVariantsPageClient({
                                         Önce ürün modeli seçin, sonra o ürüne ait varyantlardan birini veya birden fazlasını işaretleyin.
                                     </div>
                                 ) : variantsQuery.isLoading ? (
-                                    <div className="flex min-h-[180px] items-center justify-center">
+                                    <div className="flex min-h-45 items-center justify-center">
                                         <Spinner className="size-5" />
                                     </div>
                                 ) : selectedProductVariants.length > 0 ? (

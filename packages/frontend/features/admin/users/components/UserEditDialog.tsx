@@ -161,7 +161,7 @@ export function UserEditDialog({
                             </div>
                         </div>
 
-                        <div className="grid gap-2 text-xs text-neutral-500 sm:min-w-[220px]">
+                        <div className="grid gap-2 text-xs text-neutral-500 sm:min-w-55">
                             <div>Kayıt: {formatUserDate(user.createdAt)}</div>
                             <div>Güncelleme: {formatUserDate(user.updatedAt)}</div>
                             <div>Erişim kararı: {formatUserDate(user.accessStatusChangedAt)}</div>
@@ -348,7 +348,7 @@ export function UserEditDialog({
                         </section>
                     ) : null}
 
-                    <div className="rounded-[24px] border border-neutral-200 bg-neutral-50/80 p-4">
+                    <div className="rounded-3xl border border-neutral-200 bg-neutral-50/80 p-4">
                         <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-500">Değişiklik Özeti</div>
                         <div className="mt-3 flex flex-wrap gap-2">
                             <Badge variant="outline" className={cn("rounded-full", plan.profileChanged ? "border-sky-200 bg-sky-50 text-sky-700" : "border-neutral-200 bg-white text-neutral-500")}>

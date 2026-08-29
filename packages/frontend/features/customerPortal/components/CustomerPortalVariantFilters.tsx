@@ -172,7 +172,7 @@ export function CustomerPortalVariantFilters({
         : 100
 
     return (
-        <div className="rounded-[24px] border border-neutral-200 bg-white shadow-sm">
+        <div className="rounded-3xl border border-neutral-200 bg-white shadow-sm">
             <div className="border-b border-neutral-100 px-4 py-4 sm:px-5">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div className="space-y-1">
@@ -222,7 +222,7 @@ export function CustomerPortalVariantFilters({
                                             <span
                                                 aria-hidden="true"
                                                 className={cn(
-                                                    "flex h-4 w-4 items-center justify-center rounded-[4px] border transition",
+                                                    "flex h-4 w-4 items-center justify-center rounded-lg border transition",
                                                     checked
                                                         ? "border-white/50 bg-white text-neutral-900"
                                                         : "border-neutral-300 bg-transparent",
@@ -274,7 +274,7 @@ export function CustomerPortalVariantFilters({
                                             <span
                                                 aria-hidden="true"
                                                 className={cn(
-                                                    "flex h-4 w-4 items-center justify-center rounded-[4px] border transition",
+                                                    "flex h-4 w-4 items-center justify-center rounded-lg border transition",
                                                     checked
                                                         ? "border-white/50 bg-white text-brand"
                                                         : "border-neutral-300 bg-transparent",
@@ -292,7 +292,7 @@ export function CustomerPortalVariantFilters({
                             })}
                         </FilterSelectionCard>
 
-                        <div className="rounded-[24px] border border-neutral-200 bg-neutral-50 p-4">
+                        <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-4">
                             <div className="flex items-start justify-between gap-3">
                                 <div>
                                     <div className="inline-flex items-center gap-2 text-sm font-medium text-neutral-900">
@@ -437,7 +437,7 @@ function FilterSelectionCard({
     const count = Array.isArray(children) ? children.length : 0
 
     return (
-        <div className="rounded-[24px] border border-neutral-200 bg-neutral-50 p-4">
+        <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <div className="inline-flex items-center gap-2 text-sm font-medium text-neutral-900">
@@ -488,7 +488,7 @@ function RangeInput({
                 className={cn(
                     "pointer-events-none absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 appearance-none bg-transparent",
                     "[&::-webkit-slider-runnable-track]:h-1.5 [&::-webkit-slider-runnable-track]:bg-transparent",
-                    "[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:-mt-[9px] [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-neutral-950 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-sm",
+                    "[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:-mt-2.25 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-neutral-950 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-sm",
                     "[&::-moz-range-track]:h-1.5 [&::-moz-range-track]:bg-transparent",
                     "[&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-neutral-950 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-sm",
                 )}

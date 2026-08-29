@@ -59,7 +59,7 @@ export function CustomerListFilters({
     onUsageAreaValueIdChange,
 }: Props) {
     return (
-        <div className="rounded-[24px] border border-neutral-200 bg-white p-4 shadow-sm">
+        <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm">
             <div className="mb-3 flex flex-wrap items-center gap-2">
                 <div className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-600">
                     Müşteri filtreleri
