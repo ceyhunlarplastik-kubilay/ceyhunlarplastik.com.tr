@@ -71,6 +71,8 @@ const customerMapPointSchema = z.object({
     longitude: z.number(),
     isPrimary: z.boolean(),
     isShipping: z.boolean(),
+    geocodingProvider: z.string().nullable().optional(),
+    geocodingPlaceId: z.string().nullable().optional(),
 }).loose()
 
 const portalCustomerUserInviteSchema = z.object({
@@ -196,18 +198,26 @@ export const deleteManagedCustomerAddressValidator = validatorWrapper(
 export const listManagedCustomersMapValidator = validatorWrapper(
     z.object({
         queryStringParameters: z.object({
-            north: z.coerce.number().min(-90).max(90),
-            south: z.coerce.number().min(-90).max(90),
-            east: z.coerce.number().min(-180).max(180),
-            west: z.coerce.number().min(-180).max(180),
+            // Viewport opsiyonel: filtre çubuğundan "Haritada Göster" segment
+            // yüklerken harita henüz hazır olmayabilir. Yoksa handler geniş
+            // varsayılan pencere kullanır.
+            north: z.coerce.number().min(-90).max(90).optional(),
+            south: z.coerce.number().min(-90).max(90).optional(),
+            east: z.coerce.number().min(-180).max(180).optional(),
+            west: z.coerce.number().min(-180).max(180).optional(),
             search: z.string().trim().optional(),
             status: z.enum(["LEAD", "CUSTOMER"]).optional(),
             assignedSalesUserId: z.uuid().optional(),
+            // Segment filtreleri: müşterinin kendi profil ataması + adres FK'ları.
+            sectorValueId: z.string().trim().min(1).optional(),
+            usageAreaValueId: z.string().trim().min(1).optional(),
+            countryId: z.coerce.number().int().positive().optional(),
+            stateId: z.coerce.number().int().positive().optional(),
+            cityId: z.coerce.number().int().positive().optional(),
         }),
     }).loose(),
     {
         requiredRootFields: ["queryStringParameters"],
-        requiredQueryStringParametersFields: ["north", "south", "east", "west"],
     },
 )
 

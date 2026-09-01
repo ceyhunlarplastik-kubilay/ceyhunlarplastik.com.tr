@@ -5231,6 +5231,96 @@ eklerken `grep -rn "addItem("` ile TÜMÜNÜ bulup güncellemek gerekiyor — te
 - Doğrulama: `typecheck -w frontend` ✅ `lint -w frontend` 0 error ✅
   `test -w frontend` 336/336 ✅ (codex merge'i testleri de getirdi).
 
+### Müşteri haritası — bilinçli segment yükleme + genişletilmiş filtreler (2026-09-01)
+**Ne yapıldı:** `admin/musteriler/harita` sayfası artık açılışta müşteri
+konumlarını OTOMATİK yüklemiyor. Harita boş açılır; kullanıcı filtre seçip
+**"Haritada Göster"**e basınca segment yüklenir. Basıldıktan sonra haritayı
+gezdikçe (pan/zoom) yalnız görünür alan içinde aynı segment refetch edilir; bir
+filtre değişince `applied` sıfırlanır ve yeni istek ancak butona tekrar basınca
+gider.
+**Neden:** sayfa açılır açılmaz zoom 5'te tüm Türkiye'yi çeken + her pan'de
+refetch eden model gereksiz Lambda/DB yükü ve pin kalabalığı üretiyordu. Amaç
+bilinçli müşteri-grubu görüntüleme (Not: `/sales/customers/map` bizim DB'mize
+gider, Google'a değil — pin render'ı da client-side; asıl kazanç backend yükü +
+netlik, Google harita-yükü ücreti değişmiyor çünkü harita yine açılıyor).
+**Yeni filtreler:** Durum + Satış Temsilcisi (mevcuttu) + **Sektör**, **Kullanım
+Alanı** (`ProductAttributeValue` `sector`/`usage_area` — `useAttributesForFilter`),
+**Ülke/İl/İlçe** (`GeoAddressFilterFields`, adres FK'ları). Kullanım alanı =
+`Customer.usageAreaValues.some({id})`; sektör = `Customer.sectorValueId`; geo =
+pinlenen adresin `countryId/stateId/cityId`'si (viewport ile AND'lenir). Ülke
+varsayılanı Türkiye (`GeoAddressFilterFields` mevcut davranışı; `hasFilters`
+sayımına girmez ki sayfa açılışta "filtreli/dirty" görünmesin — LeadCustomers
+deseni).
+**Bölgeye odak (Google Maps hissi):** "Haritada Göster" sonucu geldiğinde harita
+segmente uçar — nokta varsa `fitBounds` (tek nokta → `setCenter` + zoom 13),
+**nokta yoksa seçilen bölgenin merkezine** (`focusFallback`: `GeoCity/State/
+Country.latitude/longitude`, zoom 11/8/5). `focusToken` sayacı her apply'da artar;
+harita tarafında `useMapsLibrary("core").LatLngBounds`, her token bir kez işlenir,
+taze veri beklenir (`isFetching`). Google API çağrısı YOK (client-side; geo
+lat/lng zaten public geo yanıtında — backend tüm sütunları `.loose()` döndürüyor,
+sadece frontend tiplerine `latitude/longitude` eklendi).
+**Bölgeler arası geçiş düzeltmesi:** apply anında `focusPending=true` + `bounds=null`
+→ o istek MEVCUT viewport'la KISITLANMAZ. Önceki halde başka bölgeye (ör. Ukrayna)
+bakarken İzmir seçilince `stateId ∩ viewport` kesişimi boş çıkıyor, ne sonuç ne
+odak oluyordu. Harita hedefe oturup `onIdle` verince `focusPending` düşer, sonraki
+pan'ler yine viewport'a göre daralır ("in-uç sonra keşfet").
+**Toast bildirimleri (`sonner`):** apply sonucu 0 ise
+`toast.warning("<bölge> için eşleşen müşteri bulunamadı")`, >0 ise
+`toast.success("N müşteri haritada gösteriliyor")` (500'de "ilk 500" notu);
+`mapQuery.error` → `toast.error`. Inline kırmızı hata kutusu kaldırıldı.
+**Dokunulan yerler:**
+- `ProtectedApi/validators/crm.ts` — `listManagedCustomersMapValidator`:
+  `north/south/east/west` artık opsiyonel (yoksa handler geniş pencere kullanır),
+  yeni opsiyonel query alanları `sectorValueId/usageAreaValueId/countryId/stateId/cityId`
+  (strict inner-object olduğu için hepsi şemada beyan edildi).
+- `ProtectedApi/types/crm.ts` — `IListManagedCustomersMapEvent` query alanları.
+- `ProtectedApi/functions/crm/handlers.ts` — `parseCoordinateQuery` fallback'li,
+  `parseGeoIdQuery` eklendi, filtreler repo'ya geçiriliyor.
+- `core/helpers/prisma/customers/repository.ts` — `listCustomersForMap` query tipi
+  + `where` (sektör/kullanım alanı) + `coordinateWhere`'e geo FK AND. Response
+  şekli DEĞİŞMEDİ (`customerMapPointsResponseValidator` dokunulmadı).
+- `features/customerLocations/`: yeni `CustomerMapFilterBar.tsx` (LeadCustomers
+  filtre bölümü UI deseni), `CustomerMapPageClient.tsx` yeniden yazıldı (filtreler
+  `useState` → `nuqs` URL state: `q/status/rep/sector/usage/country/state/city/applied`;
+  `focusToken`/`focusPending` durumları; geo hook'ları ile `focusFallback` +
+  bölge adı; toast bildirimleri), `useCustomerMapData.ts` + `getCustomerMapPoints.ts`
+  şeması genişledi, `ManagedCustomerMap(Client).tsx` opsiyonel `emptyHint` +
+  `focusToken` + `focusFallback` + `onFocusResolved` prop'ları (fitBounds / bölge
+  merkezi odak efekti). `GeoAddressFilterFields.tsx` DEĞİŞMEDİ (Türkiye varsayılanı
+  korunuyor).
+- `features/geo/api/types.ts` — `GeoCountry/State/City`'ye `latitude/longitude`
+  (string|number|null) eklendi; backend zaten döndürüyordu.
+- **Pin popup'ı → native Google işletme kartı:** bir müşteri pinine tıklanınca
+  açılan `InfoWindow`, adres Google Places'ten geldiyse (`geocodingProvider ===
+  "google_places"` + `geocodingPlaceId`) `CustomerLocationPicker`'daki ile aynı
+  `PlaceDetailsCompactElement` kartını gösteriyor (fotoğraf/puan/adres/yol tarifi
+  Google'ın kartından). Ortak bileşen `GooglePlaceDetailsCard.tsx`'e çıkarıldı,
+  `CustomerLocationPickerMap` de onu kullanıyor. Manuel-pin / Google-dışı geocode
+  adreslerde eski CRM adres metni + "Yol Tarifi" düğmesi fallback. Her açılış bir
+  Place Details isteği (billable) ama yalnız tıklamayla, toplu değil.
+  Backend: `listCustomersForMap` select + `CustomerMapPointRecord` +
+  `customerMapPointSchema` (`.loose()`) + frontend `CustomerMapPoint` tipine
+  `geocodingProvider`/`geocodingPlaceId` eklendi.
+  Fotoğraf gözükmeme düzeltmesi: Google `PlaceDetailsCompactElement` yatay düzende
+  ~360px altında hero fotoğrafını gizliyor; `InfoWindow` sarmalayıcısı `max-w-85`
+  (~340px) ile kısıtlıyordu. Google dalında genişlik `w-90` + `widthCss
+  "min(360px, calc(100vw - 112px))"` (CustomerLocationPicker ile aynı), kısıt yok.
+- **Aranabilir combobox:** yeni `components/ui/searchable-select.tsx` (tek seçimli
+  shadcn Popover+Command, `SearchableGeoSelect` deseninden). `CustomerMapFilterBar`'daki
+  TÜM select alanları (Durum dahil) `SearchableSelect` — shadcn `SelectTrigger`'ın
+  `data-[size=default]:h-9`'u `cn()`/tailwind-merge ile `h-11`'e karşı dedupe
+  EDİLEMİYOR, CSS sıralaması 36px'i kazanıp search input'la yükseklik uyuşmuyordu;
+  `Button` tabanlı `SearchableSelect` trigger'ında `h-11` temiz kazanıyor.
+  `GeoAddressFilterFields`'teki
+  Ülke/İl/İlçe de `SearchableSelect`'e çevrildi — bu bileşen PAYLAŞILDIĞI için
+  `veri-girisi/potansiyel-musteriler` sayfası da aranabilir geo filtre kazanır
+  (aynı `onChange` kontratı, aynı değerler; sadece sunum değişti).
+**Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+`lint -w frontend` 0 error ✅ · functions 320 · core 587 · frontend 336 ✅
+(`validatorCompilation` 292 test map validator'ını da derliyor). i18n
+kataloglarına dokunulmadı (sayfa mevcut desenle hardcoded TR).
+**Kullanıcıda bekleyen:** kubi'de runtime doğrulama (aşağıdaki adımlar) + commit/deploy.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

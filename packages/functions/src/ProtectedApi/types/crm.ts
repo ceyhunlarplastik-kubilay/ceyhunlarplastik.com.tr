@@ -215,13 +215,18 @@ export type IListManagedCustomersMapEvent = IAPIGatewayProxyEventWithUserGeneric
     {},
     {},
     {
-        north: string
-        south: string
-        east: string
-        west: string
+        north?: string
+        south?: string
+        east?: string
+        west?: string
         search?: string
         status?: CustomerStatus
         assignedSalesUserId?: string
+        sectorValueId?: string
+        usageAreaValueId?: string
+        countryId?: string
+        stateId?: string
+        cityId?: string
     }
 >
 

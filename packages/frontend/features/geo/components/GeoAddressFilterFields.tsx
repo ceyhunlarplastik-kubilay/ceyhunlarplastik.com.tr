@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 
 import { useGeoCities } from "@/features/geo/hooks/useGeoCities"
 import { useGeoCountries } from "@/features/geo/hooks/useGeoCountries"
@@ -19,14 +19,12 @@ import { useGeoStates } from "@/features/geo/hooks/useGeoStates"
  * ve metnin nasıl yazıldığından bağımsız.
  *
  * ETİKET YOK, açıklayıcı placeholder var ("Tüm iller"): sayfadaki diğer filtreler
- * (sektör, kullanım alanı) de öyle. Etiket eklemek satır yüksekliklerini
- * ayrıştırıp ızgarayı bozuyordu.
+ * (sektör, kullanım alanı) de öyle. Alanlar aranabilir combobox (`SearchableSelect`)
+ * — ~250 ülke / 81 il listesinde yazarak filtrelemek gerekiyor.
  */
 
 /** Ülke ISO kodundan çözülür; veri kümesinin sayısal id'si sabit kodlanmaz. */
 export const DEFAULT_COUNTRY_ISO2 = "TR"
-
-const ALL = "__all__"
 
 type Props = {
     countryId: number | null
@@ -53,67 +51,56 @@ export function GeoAddressFilterFields({ countryId, stateId, cityId, onChange }:
 
     return (
         <>
-            <Select
-                    value={countryId ? String(countryId) : ALL}
-                    onValueChange={(value) =>
-                        // Ülke değişince il ve ilçe ANLAMSIZ kalır — birlikte sıfırlanır.
-                        onChange({
-                            countryId: value === ALL ? null : Number(value),
-                            stateId: null,
-                            cityId: null,
-                        })
-                    }
-            >
-                <SelectTrigger className="h-11 w-full rounded-2xl">
-                    <SelectValue placeholder="Tüm ülkeler" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value={ALL}>Tüm ülkeler</SelectItem>
-                    {countries.map((country) => (
-                        <SelectItem key={country.id} value={String(country.id)}>
-                            {country.name}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            <SearchableSelect
+                aria-label="Ülke"
+                value={countryId ? String(countryId) : null}
+                // Ülke değişince il ve ilçe ANLAMSIZ kalır — birlikte sıfırlanır.
+                onValueChange={(value) =>
+                    onChange({
+                        countryId: value ? Number(value) : null,
+                        stateId: null,
+                        cityId: null,
+                    })
+                }
+                options={countries.map((country) => ({
+                    value: String(country.id),
+                    label: country.name,
+                    keywords: country.iso2,
+                }))}
+                placeholder="Tüm ülkeler"
+                searchPlaceholder="Ülke ara"
+                loading={countriesQuery.isLoading}
+            />
 
-            <Select
-                    value={stateId ? String(stateId) : ALL}
-                    onValueChange={(value) =>
-                        onChange({ stateId: value === ALL ? null : Number(value), cityId: null })
-                    }
+            <SearchableSelect
+                aria-label="İl"
+                value={stateId ? String(stateId) : null}
+                onValueChange={(value) =>
+                    onChange({ stateId: value ? Number(value) : null, cityId: null })
+                }
+                options={(statesQuery.data ?? []).map((state) => ({
+                    value: String(state.id),
+                    label: state.name,
+                }))}
+                placeholder={countryId ? "Tüm iller" : "Önce ülke seçin"}
+                searchPlaceholder="İl ara"
                 disabled={!countryId || statesQuery.isLoading}
-            >
-                <SelectTrigger className="h-11 w-full rounded-2xl">
-                    <SelectValue placeholder={countryId ? "Tüm iller" : "Önce ülke seçin"} />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value={ALL}>Tüm iller</SelectItem>
-                    {(statesQuery.data ?? []).map((state) => (
-                        <SelectItem key={state.id} value={String(state.id)}>
-                            {state.name}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+                loading={statesQuery.isLoading}
+            />
 
-            <Select
-                    value={cityId ? String(cityId) : ALL}
-                    onValueChange={(value) => onChange({ cityId: value === ALL ? null : Number(value) })}
+            <SearchableSelect
+                aria-label="İlçe"
+                value={cityId ? String(cityId) : null}
+                onValueChange={(value) => onChange({ cityId: value ? Number(value) : null })}
+                options={(citiesQuery.data ?? []).map((city) => ({
+                    value: String(city.id),
+                    label: city.name,
+                }))}
+                placeholder={stateId ? "Tüm ilçeler" : "Önce il seçin"}
+                searchPlaceholder="İlçe ara"
                 disabled={!stateId || citiesQuery.isLoading}
-            >
-                <SelectTrigger className="h-11 w-full rounded-2xl">
-                    <SelectValue placeholder={stateId ? "Tüm ilçeler" : "Önce il seçin"} />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value={ALL}>Tüm ilçeler</SelectItem>
-                    {(citiesQuery.data ?? []).map((city) => (
-                        <SelectItem key={city.id} value={String(city.id)}>
-                            {city.name}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+                loading={citiesQuery.isLoading}
+            />
         </>
     )
 }

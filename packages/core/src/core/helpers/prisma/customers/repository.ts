@@ -362,6 +362,12 @@ export type CustomerMapPointRecord = {
     longitude: number
     isPrimary: boolean
     isShipping: boolean
+    /**
+     * Adres Google Places'ten geldiyse ("google_places") harita popup'ında native
+     * Google işletme kartı gösterilir; aksi halde CRM'deki adres metni.
+     */
+    geocodingProvider: string | null
+    geocodingPlaceId: string | null
 }
 
 export interface IPrismaCustomerRepository {
@@ -410,6 +416,11 @@ export interface IPrismaCustomerRepository {
         search?: string
         status?: CustomerStatus
         assignedSalesUserId?: string
+        sectorValueId?: string
+        usageAreaValueId?: string
+        countryId?: number
+        stateId?: number
+        cityId?: number
     }): Promise<CustomerMapPointRecord[]>
     replaceCompanyContactAssignments(
         customerId: string,
@@ -587,14 +598,29 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         search?: string
         status?: CustomerStatus
         assignedSalesUserId?: string
+        sectorValueId?: string
+        usageAreaValueId?: string
+        countryId?: number
+        stateId?: number
+        cityId?: number
     }) => {
         const south = Math.min(query.south, query.north)
         const north = Math.max(query.south, query.north)
         const west = Math.min(query.west, query.east)
         const east = Math.max(query.west, query.east)
+        // Adres FK filtresi (ülke/il/ilçe): normalize FK'lar üzerinden, görüntü
+        // metinleri değil — indeksli ve metnin yazımından bağımsız. Pinlenecek
+        // adres hem viewport'a hem bu filtreye uymalı, o yüzden `coordinateWhere`
+        // ile AND'lenir.
+        const geoAddressWhere: Prisma.CustomerAddressWhereInput = {
+            ...(query.countryId ? { countryId: query.countryId } : {}),
+            ...(query.stateId ? { stateId: query.stateId } : {}),
+            ...(query.cityId ? { cityId: query.cityId } : {}),
+        }
         // Görünür pencere SQL'de daraltılır: aksi halde her pan/zoom koordinatlı
         // TÜM müşterileri ve adreslerini çekip JS'te eler.
         const coordinateWhere: Prisma.CustomerAddressWhereInput = {
+            ...geoAddressWhere,
             latitude: { not: null, gte: south, lte: north },
             longitude: { not: null, gte: west, lte: east },
             OR: [
@@ -612,6 +638,10 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             where: {
                 ...(query.status ? { status: query.status } : {}),
                 ...(query.assignedSalesUserId ? { assignedSalesUserId: query.assignedSalesUserId } : {}),
+                ...(query.sectorValueId ? { sectorValueId: query.sectorValueId } : {}),
+                ...(query.usageAreaValueId
+                    ? { usageAreaValues: { some: { id: query.usageAreaValueId } } }
+                    : {}),
                 ...(search
                     ? {
                         OR: [
@@ -656,6 +686,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                         longitude: true,
                         isPrimary: true,
                         isShipping: true,
+                        geocodingProvider: true,
+                        geocodingPlaceId: true,
                     },
                 },
             },
@@ -689,6 +721,8 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                 longitude,
                 isPrimary: address.isPrimary,
                 isShipping: address.isShipping,
+                geocodingProvider: address.geocodingProvider ?? null,
+                geocodingPlaceId: address.geocodingPlaceId ?? null,
             }]
         })
     }

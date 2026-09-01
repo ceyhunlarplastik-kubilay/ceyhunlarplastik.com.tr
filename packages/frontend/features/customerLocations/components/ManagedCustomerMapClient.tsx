@@ -9,6 +9,7 @@ import { MarkerClusterer } from "@googlemaps/markerclusterer"
 import { AdvancedMarker, InfoWindow, Map, Pin, Polyline, useMap, useMapsLibrary } from "@vis.gl/react-google-maps"
 import { Button } from "@/components/ui/button"
 import { GoogleMapsApiProvider, googleMapsBrowserApiKey, googleMapsMapId } from "@/features/customerLocations/components/GoogleMapsApiProvider"
+import { GooglePlaceDetailsCard } from "@/features/customerLocations/components/GooglePlaceDetailsCard"
 import { buildGoogleMapsDirectionsUrl } from "@/features/customerLocations/lib/buildGoogleMapsDirectionsUrl"
 import { RoutePlannerPanel } from "@/features/customerLocations/routePlanning/RoutePlannerPanel"
 import { useRoutePlanner } from "@/features/customerLocations/routePlanning/useRoutePlanner"
@@ -21,6 +22,12 @@ type Bounds = {
     west: number
 }
 
+type FocusFallback = {
+    lat: number
+    lng: number
+    zoom: number
+}
+
 type Props = {
     points: CustomerMapPoint[]
     activePoint: CustomerMapPoint | null
@@ -28,7 +35,22 @@ type Props = {
     onBoundsChange: (bounds: Bounds) => void
     customerDetailHref: (customerId: string) => string
     isFetching?: boolean
+    /** `points` boşken haritada gösterilecek metin (segment henüz seçilmediyse vb.). */
+    emptyHint?: string
+    /**
+     * Her artışta harita segmente odaklanır: nokta varsa sınırlarına `fitBounds`,
+     * yoksa `focusFallback` (seçilen bölge merkezi) varsa oraya uçar.
+     */
+    focusToken?: number
+    focusFallback?: FocusFallback | null
+    /** Odak işlendiğinde çağrılır — sonuç sayısını üst katmana bildirir (toast vb.). */
+    onFocusResolved?: (info: { pointCount: number }) => void
 }
+
+const DEFAULT_EMPTY_HINT = "Bu görünümde geçerli koordinatlı müşteri bulunmuyor."
+
+/** Tek noktaya odaklanırken kullanılan zoom (fitBounds sıfır alanda aşırı yaklaşır). */
+const SINGLE_POINT_ZOOM = 13
 
 const WORLD_BOUNDS: Bounds = { north: 85, south: -85, east: 180, west: -180 }
 
@@ -164,9 +186,51 @@ function ManagedCustomerGoogleMap({
     onBoundsChange,
     customerDetailHref,
     isFetching,
+    emptyHint,
+    focusToken,
+    focusFallback,
+    onFocusResolved,
 }: Props) {
     const map = useMap()
+    const coreLibrary = useMapsLibrary("core")
     const routePlanner = useRoutePlanner()
+
+    // "Haritada Göster" sonrası: sonuç geldiğinde haritayı segmente odakla.
+    // Öncelik: müşteri noktaları → yoksa seçilen bölgenin merkezi (`focusFallback`).
+    // Her `focusToken` bir kez işlenir; taze veri beklenir (`isFetching`), sonuç
+    // 0 ve fallback yoksa görünüm korunur. `onFocusResolved` sonucu üst katmana
+    // bildirir (toast).
+    const handledFocusTokenRef = useRef<number | undefined>(focusToken)
+    const onFocusResolvedRef = useRef(onFocusResolved)
+    useEffect(() => {
+        onFocusResolvedRef.current = onFocusResolved
+    }, [onFocusResolved])
+
+    useEffect(() => {
+        if (!map || !coreLibrary) return
+        if (focusToken === undefined || focusToken === handledFocusTokenRef.current) return
+        if (isFetching) return
+
+        handledFocusTokenRef.current = focusToken
+
+        if (points.length === 1) {
+            map.setCenter({ lat: points[0].latitude, lng: points[0].longitude })
+            map.setZoom(SINGLE_POINT_ZOOM)
+        } else if (points.length > 1) {
+            const bounds = new coreLibrary.LatLngBounds()
+            for (const point of points) {
+                bounds.extend({ lat: point.latitude, lng: point.longitude })
+            }
+            map.fitBounds(bounds, 64)
+        } else if (focusFallback) {
+            // Sonuç yok ama kullanıcı bir bölge seçti — yine de oraya uç ki
+            // "burada müşteri yok" görsel olarak da anlaşılsın.
+            map.setCenter({ lat: focusFallback.lat, lng: focusFallback.lng })
+            map.setZoom(focusFallback.zoom)
+        }
+
+        onFocusResolvedRef.current?.({ pointCount: points.length })
+    }, [map, coreLibrary, focusToken, isFetching, points, focusFallback])
 
     const routeSelection = useMemo(() => {
         // `Map` adı bu dosyada vis.gl bileşeni tarafından gölgeleniyor.
@@ -250,42 +314,69 @@ function ManagedCustomerGoogleMap({
                 ) : null}
 
                 {activePoint ? (
-                    <InfoWindow
-                        position={{ lat: activePoint.latitude, lng: activePoint.longitude }}
-                        pixelOffset={[0, -28]}
-                        onCloseClick={() => onActivePointChange(null)}
-                    >
-                        <div className="min-w-55 max-w-70 space-y-3 pr-2">
-                            <div>
-                                <div className="text-sm font-semibold text-neutral-950">
-                                    {activePoint.companyName || activePoint.fullName}
+                    (() => {
+                        const isGooglePlace =
+                            activePoint.geocodingProvider === "google_places" && Boolean(activePoint.geocodingPlaceId)
+
+                        return (
+                            <InfoWindow
+                                position={{ lat: activePoint.latitude, lng: activePoint.longitude }}
+                                pixelOffset={[0, -28]}
+                                shouldFocus={false}
+                                onCloseClick={() => onActivePointChange(null)}
+                            >
+                                {/* Google kartı yatay düzende ~360px altında fotoğrafı gizliyor;
+                                    o dalda genişlik kısıtlanmaz (CustomerLocationPicker ile aynı). */}
+                                <div
+                                    className={
+                                        isGooglePlace
+                                            ? "w-90 max-w-[calc(100vw-7rem)] space-y-2.5"
+                                            : "min-w-60 max-w-80 space-y-2.5 pr-1"
+                                    }
+                                >
+                                    <div>
+                                        <div className="text-sm font-semibold text-neutral-950">
+                                            {activePoint.companyName || activePoint.fullName}
+                                        </div>
+                                        {activePoint.companyName ? (
+                                            <div className="text-xs text-neutral-500">{activePoint.fullName}</div>
+                                        ) : null}
+                                    </div>
+
+                                    {isGooglePlace ? (
+                                        // Adres Google Places'ten geldiyse native işletme kartı
+                                        // (fotoğraf, puan, adres, yol tarifi Google'ın kendi
+                                        // kartından). CustomerLocationPicker ile aynı bileşen.
+                                        <GooglePlaceDetailsCard
+                                            placeId={activePoint.geocodingPlaceId!}
+                                            widthCss="min(360px, calc(100vw - 112px))"
+                                            className="min-h-16 w-full"
+                                        />
+                                    ) : (
+                                        <>
+                                            <div className="space-y-1 text-sm text-neutral-700">
+                                                <div className="font-medium text-neutral-900">{activePoint.addressLabel}</div>
+                                                <div>{activePoint.addressSummary}</div>
+                                            </div>
+                                            <Button asChild size="sm" className="w-full">
+                                                <a
+                                                    href={buildGoogleMapsDirectionsUrl(activePoint.latitude, activePoint.longitude)}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    Google Maps’te Yol Tarifi
+                                                </a>
+                                            </Button>
+                                        </>
+                                    )}
+
+                                    <Button asChild size="sm" variant="outline" className="w-full">
+                                        <Link href={customerDetailHref(activePoint.customerId)}>Müşteri Detayını Aç</Link>
+                                    </Button>
                                 </div>
-                                {activePoint.companyName ? (
-                                    <div className="text-xs text-neutral-500">{activePoint.fullName}</div>
-                                ) : null}
-                            </div>
-
-                            <div className="space-y-1 text-sm text-neutral-700">
-                                <div className="font-medium text-neutral-900">{activePoint.addressLabel}</div>
-                                <div>{activePoint.addressSummary}</div>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <Button asChild size="sm" variant="outline">
-                                    <Link href={customerDetailHref(activePoint.customerId)}>Müşteri Detayını Aç</Link>
-                                </Button>
-                                <Button asChild size="sm">
-                                    <a
-                                        href={buildGoogleMapsDirectionsUrl(activePoint.latitude, activePoint.longitude)}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        Google Maps’te Yol Tarifi
-                                    </a>
-                                </Button>
-                            </div>
-                        </div>
-                    </InfoWindow>
+                            </InfoWindow>
+                        )
+                    })()
                 ) : null}
             </Map>
 
@@ -321,7 +412,7 @@ function ManagedCustomerGoogleMap({
 
             {points.length === 0 ? (
                 <div className="pointer-events-none absolute inset-x-4 bottom-4 rounded-2xl border border-dashed border-neutral-200 bg-white/95 px-4 py-3 text-sm text-neutral-500 shadow-sm">
-                    Bu görünümde geçerli koordinatlı müşteri bulunmuyor.
+                    {emptyHint ?? DEFAULT_EMPTY_HINT}
                 </div>
             ) : null}
         </div>

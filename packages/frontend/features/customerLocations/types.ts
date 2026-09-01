@@ -16,6 +16,9 @@ export type CustomerMapPoint = {
     longitude: number
     isPrimary: boolean
     isShipping: boolean
+    /** "google_places" ise harita popup'ında native Google işletme kartı gösterilir. */
+    geocodingProvider?: string | null
+    geocodingPlaceId?: string | null
 }
 
 export type CustomerMapResponse = {

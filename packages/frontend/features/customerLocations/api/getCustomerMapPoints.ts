@@ -2,13 +2,18 @@ import { protectedApiClient } from "@/lib/http/client"
 import type { CustomerMapResponse } from "@/features/customerLocations/types"
 
 type Params = {
-    north: number
-    south: number
-    east: number
-    west: number
+    north?: number
+    south?: number
+    east?: number
+    west?: number
     status?: "LEAD" | "CUSTOMER"
     search?: string
     assignedSalesUserId?: string
+    sectorValueId?: string
+    usageAreaValueId?: string
+    countryId?: number
+    stateId?: number
+    cityId?: number
 }
 
 export async function getCustomerMapPoints(params: Params) {

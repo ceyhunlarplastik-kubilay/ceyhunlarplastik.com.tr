@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import {
     AdvancedMarker,
     InfoWindow,
@@ -8,9 +8,9 @@ import {
     Pin,
     useAdvancedMarkerRef,
     useMap,
-    useMapsLibrary,
 } from "@vis.gl/react-google-maps"
 import { googleMapsMapId } from "@/features/customerLocations/components/GoogleMapsApiProvider"
+import { GooglePlaceDetailsCard } from "@/features/customerLocations/components/GooglePlaceDetailsCard"
 
 type Props = {
     latitude?: number | null
@@ -32,41 +32,6 @@ function SelectedLocationCamera({ latitude, longitude }: Pick<Props, "latitude" 
     }, [latitude, longitude, map])
 
     return null
-}
-
-function GooglePlaceDetails({ placeId }: { placeId: string }) {
-    const containerRef = useRef<HTMLDivElement | null>(null)
-    const placesLibrary = useMapsLibrary("places")
-
-    useEffect(() => {
-        const container = containerRef.current
-        if (!container || !placesLibrary) return
-
-        const detailsElement = new placesLibrary.PlaceDetailsCompactElement({
-            orientation: "HORIZONTAL",
-            truncationPreferred: true,
-        })
-        const requestElement = new placesLibrary.PlaceDetailsPlaceRequestElement({ place: placeId })
-        const contentElement = new placesLibrary.PlaceStandardContentElement()
-        const handleError = () => {
-            const message = document.createElement("p")
-            message.className = "p-3 text-sm text-amber-800"
-            message.textContent = "Google işletme bilgileri şu anda yüklenemedi."
-            container.replaceChildren(message)
-        }
-
-        detailsElement.style.width = "min(360px, calc(100vw - 112px))"
-        detailsElement.addEventListener("gmp-error", handleError)
-        detailsElement.append(requestElement, contentElement)
-        container.replaceChildren(detailsElement)
-
-        return () => {
-            detailsElement.removeEventListener("gmp-error", handleError)
-            container.replaceChildren()
-        }
-    }, [placeId, placesLibrary])
-
-    return <div ref={containerRef} className="min-h-16 min-w-60" aria-label="Google işletme bilgileri" />
 }
 
 export function CustomerLocationPickerMap({
@@ -136,7 +101,10 @@ export function CustomerLocationPickerMap({
                         shouldFocus={false}
                         onCloseClick={() => setDetailsOpen(false)}
                     >
-                        <GooglePlaceDetails placeId={googlePlaceId} />
+                        <GooglePlaceDetailsCard
+                            placeId={googlePlaceId}
+                            widthCss="min(360px, calc(100vw - 112px))"
+                        />
                     </InfoWindow>
                 ) : null}
             </Map>

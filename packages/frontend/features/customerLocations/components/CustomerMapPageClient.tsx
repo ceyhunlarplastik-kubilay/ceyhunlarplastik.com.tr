@@ -1,19 +1,20 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import { MapPinned, Search, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { MapPinned } from "lucide-react"
+import { toast } from "sonner"
+import { parseAsBoolean, parseAsInteger, parseAsString, useQueryState } from "nuqs"
 import { ManagedCustomerMap } from "@/features/customerLocations/components/ManagedCustomerMap"
+import {
+    CustomerMapFilterBar,
+    type CustomerMapFilters,
+} from "@/features/customerLocations/components/CustomerMapFilterBar"
 import { useCustomerMapData } from "@/features/customerLocations/hooks/useCustomerMapData"
 import { useProtectedUsers } from "@/features/customerLocations/hooks/useProtectedUsers"
+import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
+import { useGeoCities } from "@/features/geo/hooks/useGeoCities"
+import { useGeoCountries } from "@/features/geo/hooks/useGeoCountries"
+import { useGeoStates } from "@/features/geo/hooks/useGeoStates"
 import type { CustomerMapPoint } from "@/features/customerLocations/types"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
@@ -33,6 +34,22 @@ type Props = {
 
 // Her render'da yeni `[]` üretilirse harita efektleri boş yere tetiklenir.
 const EMPTY_POINTS: CustomerMapPoint[] = []
+
+const MAP_RESULT_LIMIT = 500
+
+const EMPTY_HINT =
+    "Segment seçip “Haritada Göster”e basın — müşteri konumları böylece yüklenir."
+
+// Seçilen coğrafi seviyeye göre "bölgeye uç" zoom'u (müşteri yoksa fallback).
+const COUNTRY_FOCUS_ZOOM = 5
+const STATE_FOCUS_ZOOM = 8
+const CITY_FOCUS_ZOOM = 11
+
+function toFiniteCoord(value: string | number | null | undefined) {
+    if (value === null || value === undefined) return null
+    const parsed = typeof value === "number" ? value : Number(value)
+    return Number.isFinite(parsed) ? parsed : null
+}
 
 function useDebouncedBounds(bounds: Bounds | null, delayMs: number) {
     const [debouncedBounds, setDebouncedBounds] = useState<Bounds | null>(bounds)
@@ -54,19 +71,90 @@ export function CustomerMapPageClient({
     customerDetailBasePath,
     allowSalesFilter,
 }: Props) {
+    // Filtreler URL'de (nuqs): ekran paylaşılabilir, geri tuşu segment seçimini
+    // korur. `applied` = kullanıcı bilinçli olarak "Haritada Göster"e bastı mı.
+    // Bir filtre değişince `applied` false olur; harita eski noktaları korur ve
+    // yeni istek ancak tekrar butona basılınca gider (Google/DB yükü azalır).
+    const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
+    const [status, setStatus] = useQueryState("status", parseAsString.withDefault("ALL"))
+    const [rep, setRep] = useQueryState("rep", parseAsString.withDefault("ALL"))
+    const [sector, setSector] = useQueryState("sector", parseAsString.withDefault(""))
+    const [usage, setUsage] = useQueryState("usage", parseAsString.withDefault(""))
+    const [countryId, setCountryId] = useQueryState("country", parseAsInteger)
+    const [stateId, setStateId] = useQueryState("state", parseAsInteger)
+    const [cityId, setCityId] = useQueryState("city", parseAsInteger)
+    const [applied, setApplied] = useQueryState("applied", parseAsBoolean.withDefault(false))
+
     const [bounds, setBounds] = useState<Bounds | null>(null)
-    const [searchInput, setSearchInput] = useState("")
-    const [search, setSearch] = useState("")
-    const [status, setStatus] = useState<"LEAD" | "CUSTOMER" | "ALL">("ALL")
-    const [assignedSalesUserId, setAssignedSalesUserId] = useState<string>("ALL")
     const [activePoint, setActivePoint] = useState<CustomerMapPoint | null>(null)
+    // Her "Haritada Göster" basışında artar; harita bu sinyalle sonuçlara
+    // (seçilen ülke/il/ilçe bölgesine) odaklanır.
+    const [focusToken, setFocusToken] = useState(0)
+    // "Haritada Göster" basıldıktan sonra harita hedef bölgeye oturana kadar
+    // TRUE. Bu sürede istek MEVCUT viewport'la kısıtlanmaz — aksi halde başka
+    // bir bölgeye (ör. Ukrayna) bakarken İzmir seçilince kesişim boş çıkardı.
+    const [focusPending, setFocusPending] = useState(false)
     const debouncedBounds = useDebouncedBounds(bounds, 320)
+
+    // Geo referans verisi: `GeoAddressFilterFields` ile AYNI query key'ler →
+    // cache paylaşılır, ek network yok. Seçilen bölgenin koordinatı "müşteri
+    // yoksa bile oraya uç" fallback'i için kullanılır.
+    const countriesQuery = useGeoCountries()
+    const statesQuery = useGeoStates(countryId ?? undefined)
+    const citiesQuery = useGeoCities(stateId ?? undefined)
+
+    const selectedRegion = useMemo(() => {
+        const city = cityId ? citiesQuery.data?.find((item) => item.id === cityId) : undefined
+        if (city) {
+            return {
+                name: city.name,
+                lat: toFiniteCoord(city.latitude),
+                lng: toFiniteCoord(city.longitude),
+                zoom: CITY_FOCUS_ZOOM,
+            }
+        }
+        const state = stateId ? statesQuery.data?.find((item) => item.id === stateId) : undefined
+        if (state) {
+            return {
+                name: state.name,
+                lat: toFiniteCoord(state.latitude),
+                lng: toFiniteCoord(state.longitude),
+                zoom: STATE_FOCUS_ZOOM,
+            }
+        }
+        const country = countryId ? countriesQuery.data?.find((item) => item.id === countryId) : undefined
+        if (country) {
+            return {
+                name: country.name,
+                lat: toFiniteCoord(country.latitude),
+                lng: toFiniteCoord(country.longitude),
+                zoom: COUNTRY_FOCUS_ZOOM,
+            }
+        }
+        return null
+    }, [cityId, stateId, countryId, citiesQuery.data, statesQuery.data, countriesQuery.data])
+
+    const focusFallback = useMemo(
+        () =>
+            selectedRegion && selectedRegion.lat !== null && selectedRegion.lng !== null
+                ? { lat: selectedRegion.lat, lng: selectedRegion.lng, zoom: selectedRegion.zoom }
+                : null,
+        [selectedRegion],
+    )
+
+    // `handleFocusResolved` stabil kalsın diye bölge adı ref üzerinden okunur.
+    const selectedRegionNameRef = useRef<string | null>(null)
+    useEffect(() => {
+        selectedRegionNameRef.current = selectedRegion?.name ?? null
+    }, [selectedRegion])
 
     const usersQuery = useProtectedUsers({
         page: 1,
         limit: 500,
         accessStatus: "ACTIVE",
     }, allowSalesFilter)
+
+    const attributesQuery = useAttributesForFilter()
 
     const salesUsers = useMemo(
         () => (usersQuery.data?.data ?? [])
@@ -79,14 +167,121 @@ export function CustomerMapPageClient({
         [usersQuery.data?.data],
     )
 
-    const mapQuery = useCustomerMapData(debouncedBounds
+    const sectorValues = useMemo(
+        () => attributesQuery.data?.find((attribute) => attribute.code === "sector")?.values ?? [],
+        [attributesQuery.data],
+    )
+    const usageAreaValues = useMemo(
+        () => attributesQuery.data?.find((attribute) => attribute.code === "usage_area")?.values ?? [],
+        [attributesQuery.data],
+    )
+
+    const filters: CustomerMapFilters = useMemo(
+        () => ({
+            search,
+            status: status === "LEAD" || status === "CUSTOMER" ? status : "ALL",
+            assignedSalesUserId: rep,
+            sectorValueId: sector,
+            usageAreaValueId: usage,
+            countryId,
+            stateId,
+            cityId,
+        }),
+        [search, status, rep, sector, usage, countryId, stateId, cityId],
+    )
+
+    // Ülke varsayılanı Türkiye olduğu için "filtre var mı" sayımına GİRMEZ
+    // (LeadCustomers deseni) — aksi halde sayfa her açılışta "filtreli" görünür.
+    const hasFilters = Boolean(
+        filters.search.trim()
+        || filters.status !== "ALL"
+        || (allowSalesFilter && filters.assignedSalesUserId !== "ALL")
+        || filters.sectorValueId
+        || filters.usageAreaValueId
+        || filters.stateId
+        || filters.cityId,
+    )
+
+    function patchFilters(patch: Partial<CustomerMapFilters>) {
+        if (patch.search !== undefined) setSearch(patch.search)
+        if (patch.status !== undefined) setStatus(patch.status)
+        if (patch.assignedSalesUserId !== undefined) setRep(patch.assignedSalesUserId)
+        if (patch.sectorValueId !== undefined) setSector(patch.sectorValueId)
+        if (patch.usageAreaValueId !== undefined) setUsage(patch.usageAreaValueId)
+        if (patch.countryId !== undefined) setCountryId(patch.countryId)
+        if (patch.stateId !== undefined) setStateId(patch.stateId)
+        if (patch.cityId !== undefined) setCityId(patch.cityId)
+        // Değişiklik henüz haritaya uygulanmadı: buton tekrar basılana kadar
+        // otomatik istek atılmaz.
+        setApplied(false)
+    }
+
+    function applyFilters() {
+        setApplied(true)
+        // Sonuç geldiğinde harita bu segmente odaklansın; o ana kadar istek
+        // mevcut viewport'la KISITLANMASIN (bölgeler arası geçişte kesişim boş
+        // çıkmasın diye — Ukrayna'ya bakarken İzmir seçme senaryosu).
+        setFocusToken((token) => token + 1)
+        setFocusPending(true)
+        setBounds(null)
+    }
+
+    function clearFilters() {
+        setSearch("")
+        setStatus("ALL")
+        setRep("ALL")
+        setSector("")
+        setUsage("")
+        setCountryId(null)
+        setStateId(null)
+        setCityId(null)
+        setApplied(false)
+        setFocusPending(false)
+    }
+
+    const handleFocusResolved = useCallback(
+        ({ pointCount }: { pointCount: number }) => {
+            setFocusPending(false)
+
+            if (pointCount === 0) {
+                toast.warning(
+                    selectedRegionNameRef.current
+                        ? `${selectedRegionNameRef.current} için eşleşen müşteri bulunamadı`
+                        : "Seçilen filtrelerle eşleşen müşteri bulunamadı",
+                    { description: "Filtreleri gevşetip tekrar deneyebilirsiniz." },
+                )
+                return
+            }
+
+            toast.success(
+                `${pointCount} müşteri haritada gösteriliyor`,
+                pointCount >= MAP_RESULT_LIMIT
+                    ? { description: "İlk 500 kayıt gösteriliyor — segmenti daraltabilirsiniz." }
+                    : undefined,
+            )
+        },
+        [],
+    )
+
+    const mapParams = applied
         ? {
-            ...debouncedBounds,
-            ...(status !== "ALL" ? { status } : {}),
-            ...(search ? { search } : {}),
-            ...(allowSalesFilter && assignedSalesUserId !== "ALL" ? { assignedSalesUserId } : {}),
+            // Odak beklerken viewport'u GÖNDERME (bkz. applyFilters).
+            ...(!focusPending && debouncedBounds ? debouncedBounds : {}),
+            ...(filters.status !== "ALL" ? { status: filters.status } : {}),
+            ...(filters.search.trim() ? { search: filters.search.trim() } : {}),
+            ...(allowSalesFilter && filters.assignedSalesUserId !== "ALL"
+                ? { assignedSalesUserId: filters.assignedSalesUserId }
+                : {}),
+            ...(filters.sectorValueId ? { sectorValueId: filters.sectorValueId } : {}),
+            ...(filters.usageAreaValueId ? { usageAreaValueId: filters.usageAreaValueId } : {}),
+            ...(filters.countryId ? { countryId: filters.countryId } : {}),
+            ...(filters.stateId ? { stateId: filters.stateId } : {}),
+            ...(filters.cityId ? { cityId: filters.cityId } : {}),
         }
-        : undefined)
+        : undefined
+
+    const mapQuery = useCustomerMapData(mapParams)
+    const points = mapQuery.data ?? EMPTY_POINTS
 
     useEffect(() => {
         if (!activePoint) return
@@ -101,6 +296,15 @@ export function CustomerMapPageClient({
         }
     }, [activePoint, mapQuery.data])
 
+    // Hata bildirimi toast ile (AGENTS.md: kullanıcıya dönük bildirimler Sonner).
+    useEffect(() => {
+        if (!mapQuery.error) return
+        toast.error("Harita verisi yüklenemedi", {
+            description:
+                mapQuery.error instanceof Error ? mapQuery.error.message : "Lütfen tekrar deneyin.",
+        })
+    }, [mapQuery.error])
+
     return (
         <div className="space-y-6">
             <div className="space-y-1">
@@ -108,77 +312,34 @@ export function CustomerMapPageClient({
                 <p className="text-sm text-neutral-500">{description}</p>
             </div>
 
-            <div className="grid gap-3 rounded-3xl border bg-white p-4 shadow-sm lg:grid-cols-[minmax(0,1.2fr)_200px_220px_auto]">
-                <div className="flex gap-2">
-                    <Input
-                        value={searchInput}
-                        onChange={(event) => setSearchInput(event.target.value)}
-                        placeholder="Firma, kişi veya e-posta ara"
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                                event.preventDefault()
-                                setSearch(searchInput.trim())
-                            }
-                        }}
-                    />
-                    <Button type="button" variant="outline" onClick={() => setSearch(searchInput.trim())}>
-                        <Search className="mr-2 h-4 w-4" />
-                        Filtrele
-                    </Button>
-                </div>
-
-                <Select value={status} onValueChange={(value) => setStatus(value as typeof status)}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Durum" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="ALL">Tüm Durumlar</SelectItem>
-                        <SelectItem value="CUSTOMER">Müşteriler</SelectItem>
-                        <SelectItem value="LEAD">Potansiyeller</SelectItem>
-                    </SelectContent>
-                </Select>
-
-                {allowSalesFilter ? (
-                    <Select value={assignedSalesUserId} onValueChange={setAssignedSalesUserId}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Satış temsilcisi" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">Tüm Temsilciler</SelectItem>
-                            {salesUsers.map((user) => (
-                                <SelectItem key={user.id} value={user.id}>
-                                    {user.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                ) : (
-                    <div className="hidden lg:block" />
-                )}
-
-                <div className="flex items-center justify-between rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-600">
-                    <span className="inline-flex items-center gap-2">
-                        <Users className="h-4 w-4 text-brand" />
-                        Görünen kayıt
-                    </span>
-                    <span className="font-semibold text-neutral-900">{mapQuery.data?.length ?? 0}</span>
-                </div>
-            </div>
+            <CustomerMapFilterBar
+                filters={filters}
+                onChange={patchFilters}
+                onApply={applyFilters}
+                onClear={clearFilters}
+                isDirty={!applied && hasFilters}
+                isApplied={applied}
+                isFetching={mapQuery.isFetching}
+                resultCount={points.length}
+                atResultLimit={points.length >= MAP_RESULT_LIMIT}
+                allowSalesFilter={allowSalesFilter}
+                salesUsers={salesUsers}
+                sectorValues={sectorValues}
+                usageAreaValues={usageAreaValues}
+            />
 
             <ManagedCustomerMap
-                points={mapQuery.data ?? EMPTY_POINTS}
+                points={points}
                 activePoint={activePoint}
                 onActivePointChange={setActivePoint}
                 onBoundsChange={setBounds}
                 customerDetailHref={(customerId) => `${customerDetailBasePath}/${customerId}`}
                 isFetching={mapQuery.isFetching}
+                emptyHint={applied ? undefined : EMPTY_HINT}
+                focusToken={focusToken}
+                focusFallback={focusFallback}
+                onFocusResolved={handleFocusResolved}
             />
-
-            {mapQuery.error ? (
-                <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    {mapQuery.error instanceof Error ? mapQuery.error.message : "Harita verisi yüklenemedi."}
-                </div>
-            ) : null}
 
             <div className="rounded-3xl border bg-white p-4 shadow-sm">
                 <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
@@ -186,8 +347,8 @@ export function CustomerMapPageClient({
                     Harita Notları
                 </div>
                 <div className="mt-3 grid gap-3 text-sm leading-6 text-neutral-600 md:grid-cols-3">
-                    <p>Haritayı hareket ettirdikçe sadece görünür alan içindeki koordinatlı müşteriler çağrılır.</p>
-                    <p>Aynı bölgede yoğun kayıt olduğunda cluster açılır; tıklayınca harita o bölgeye yaklaşır.</p>
+                    <p>Konumlar yalnız “Haritada Göster”e basınca yüklenir; sayfa açılışında harita boş gelir.</p>
+                    <p>Segment yüklendikten sonra haritayı gezdikçe yalnız görünür alandaki müşteriler çağrılır.</p>
                     <p>Popup içinden müşteri detayı ve Google Maps yol tarifi akışına doğrudan geçebilirsiniz.</p>
                 </div>
             </div>

@@ -102,12 +102,19 @@ function numberOrNull(value: number | null | undefined) {
     return typeof value === "number" && Number.isFinite(value) ? value : null
 }
 
-function parseCoordinateQuery(value: string | undefined, label: string) {
+function parseCoordinateQuery(value: string | undefined, label: string, fallback: number) {
+    if (value === undefined || value === "") return fallback
     const parsed = Number(value)
     if (!Number.isFinite(parsed)) {
         throw new createError.BadRequest(`${label} must be a valid number`)
     }
     return parsed
+}
+
+/** Query string'deki geo id'leri çözer; geçersizse filtre UYGULANMAZ. */
+function parseGeoIdQuery(value: string | undefined) {
+    const parsed = Number.parseInt(value ?? "", 10)
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
 }
 
 function normalizePaymentScheduleForPersistence(value: ICustomerSpecialPriceBody["paymentSchedule"]) {
@@ -233,10 +240,12 @@ export const listManagedCustomersMapHandler = ({ customerRepository }: IProtecte
             throw new createError.Forbidden("Customer map access denied")
         }
 
-        const north = parseCoordinateQuery(event.queryStringParameters?.north, "north")
-        const south = parseCoordinateQuery(event.queryStringParameters?.south, "south")
-        const east = parseCoordinateQuery(event.queryStringParameters?.east, "east")
-        const west = parseCoordinateQuery(event.queryStringParameters?.west, "west")
+        // Viewport opsiyonel: gelmezse geniş varsayılan pencere (segment yüklemesi
+        // filtre çubuğundan tetiklendiğinde harita bounds'u henüz yoktur).
+        const north = parseCoordinateQuery(event.queryStringParameters?.north, "north", 85)
+        const south = parseCoordinateQuery(event.queryStringParameters?.south, "south", -85)
+        const east = parseCoordinateQuery(event.queryStringParameters?.east, "east", 180)
+        const west = parseCoordinateQuery(event.queryStringParameters?.west, "west", -180)
         const assignedSalesUserId = requester.isSales
             ? requester.id
             : requester.isSalesDirector || requester.isAdmin || requester.isOwner
@@ -251,6 +260,11 @@ export const listManagedCustomersMapHandler = ({ customerRepository }: IProtecte
             search: event.queryStringParameters?.search?.trim() || undefined,
             status: event.queryStringParameters?.status,
             assignedSalesUserId,
+            sectorValueId: event.queryStringParameters?.sectorValueId?.trim() || undefined,
+            usageAreaValueId: event.queryStringParameters?.usageAreaValueId?.trim() || undefined,
+            countryId: parseGeoIdQuery(event.queryStringParameters?.countryId),
+            stateId: parseGeoIdQuery(event.queryStringParameters?.stateId),
+            cityId: parseGeoIdQuery(event.queryStringParameters?.cityId),
         })
 
         return apiResponseDTO({
