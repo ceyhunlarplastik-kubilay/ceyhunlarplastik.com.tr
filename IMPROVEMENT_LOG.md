@@ -5321,6 +5321,41 @@ pan'ler yine viewport'a göre daralır ("in-uç sonra keşfet").
 kataloglarına dokunulmadı (sayfa mevcut desenle hardcoded TR).
 **Kullanıcıda bekleyen:** kubi'de runtime doğrulama (aşağıdaki adımlar) + commit/deploy.
 
+### `LeadCustomersPageClient` — useState azaltma, filtre hook'u, hata düzeltmesi (2026-09-01)
+**Ne yapıldı:** 8 ayrı `useQueryState` + kopyalı toplu-seçim mantığı, repodaki
+`use<Feature>ListFilters` desenine (`useCustomerListFilters`/`useColorListFilters`
+örneği — tek `useQueryStates` çağrısı) taşındı.
+- Yeni `useLeadCustomerListFilters` (hooks/): tek `useQueryStates`, saf parametre
+  üretimi `lib/leadCustomerListParams.ts`'te (`buildLeadCustomerListParams`,
+  `hasActiveLeadCustomerFilters` — testli). `refresh` alanı eklendi (kardeş
+  hook'larla tutarlı otomatik yenileme).
+- Yeni paylaşılan `useBulkSelection` (`admin/shared/hooks/`): `selectedIds: Set`
+  + toggle/toggleVisible/clear/replace/visibleState. Saf mantık
+  `admin/shared/utils/bulkSelection.ts`'te (testli). Önceden bu mantık
+  `LeadCustomersPageClient` VE `ProductVariantMatrixPageClient`'te birebir
+  kopyalıydı; ikincisi bu dilimde DOKUNULMADI (ayrı iş).
+- `dialogOpen` + `editingCustomer` → tek `useState<{ customer } | null>`
+  (AGENTS.md "coupled modal state").
+- Sonuç: **8 `useQueryState` + 4 `useState` → 2 `useState` + 2 amaca özel hook.**
+**Hata düzeltmesi:** `handleCreated` yalnız arama/sektör/kullanım alanını
+sıfırlıyordu; aktif bir il/ilçe filtresi `addresses.some({...})` kısıtı
+uyguladığından adressiz yeni bir kayıt HİÇBİR ZAMAN eşleşmiyordu (kullanıcıya
+"kayıt oluşmadı" gibi görünürdü). Artık `reset()` ile ülke/il/ilçe dahil TÜM
+filtreler temizleniyor.
+**UI/UX:** Sektör/Kullanım Alanı `Select` → `SearchableSelect` (harita filtre
+işinden — usage_area listesi uzun, aranabilir); bare "Yenile" düğmesi →
+paylaşılan `AdminListRefreshBar` (son güncelleme saati + otomatik yenileme,
+diğer admin listeleriyle tutarlı); arka plan refetch'inde liste üzerine
+`AdminSectionLoadingOverlay` (önceden yalnız `aria-busy`, görsel katman yoktu);
+`session.user.groups` cast'i kaldırıldı (zaten `next-auth.d.ts`'te tipli).
+`LeadCustomerProfileDialog` zaten `useForm`+`zodResolver` kullanıyordu —
+dokunulmadı.
+**Doğrulama:** `typecheck:backend` ✅ (dokunulmadı) · `typecheck -w frontend` ✅ ·
+`lint -w frontend` 0 error ✅ · `test -w frontend` 354/354 (18 yeni test:
+12 bulkSelection + 6 leadCustomerListParams). i18n kataloglarına dokunulmadı.
+**Kalan:** `ProductVariantMatrixPageClient`'in `useBulkSelection`'a geçirilmesi
+(ayrı, onaysız dilim) — IMPROVEMENT_PLAN.md'ye not düşülebilir istenirse.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

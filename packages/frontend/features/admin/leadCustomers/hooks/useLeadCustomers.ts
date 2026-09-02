@@ -22,12 +22,17 @@ import type {
     ListLeadCustomersParams,
 } from "@/features/admin/leadCustomers/api/types"
 
-export function useLeadCustomers(params: ListLeadCustomersParams) {
+export function useLeadCustomers(
+    params: ListLeadCustomersParams,
+    options: { autoRefreshIntervalMs?: number | false } = {},
+) {
     return useQuery({
         queryKey: leadCustomerKeys.list(params),
         queryFn: () => listLeadCustomers(params),
         placeholderData: (prev) => prev,
         refetchOnWindowFocus: false,
+        refetchInterval: options.autoRefreshIntervalMs ?? false,
+        refetchIntervalInBackground: false,
     })
 }
 

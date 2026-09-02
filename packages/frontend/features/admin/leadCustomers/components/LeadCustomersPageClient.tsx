@@ -1,62 +1,52 @@
 "use client"
 
-import { useDeferredValue, useMemo, useState } from "react"
+import { useState } from "react"
 import {
     Building2,
     ChevronDown,
-    Loader2,
     Globe,
     Mail,
     Phone,
     Plus,
-    RefreshCcw,
     Search,
     Target,
+    Trash2,
     UserPlus,
     X,
 } from "lucide-react"
 import { toast } from "sonner"
+import { useSession } from "next-auth/react"
 
 import { Badge } from "@/components/ui/badge"
 import { resolveCustomerNameParts } from "@core/helpers/crm/customerDisplayName"
 import { formatWebsiteLabel } from "@core/helpers/crm/customerWebsite"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
-import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
-import type { LeadCustomer } from "@/features/admin/leadCustomers/api/types"
-import { useLeadCustomers } from "@/features/admin/leadCustomers/hooks/useLeadCustomers"
-import { LeadCustomerDetailPanel } from "./LeadCustomerDetailPanel"
-import { LeadCustomerProfileDialog } from "./LeadCustomerProfileDialog"
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs"
-import { Checkbox } from "@/components/ui/checkbox"
+import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
+import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { BulkSelectionBar } from "@/features/admin/shared/components/BulkSelectionBar"
+import { useBulkSelection } from "@/features/admin/shared/hooks/useBulkSelection"
+import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { GeoAddressFilterFields } from "@/features/geo/components/GeoAddressFilterFields"
-import { Trash2 } from "lucide-react"
 import { ConfirmDeleteDialog } from "@/features/admin/shared/components/ConfirmDeleteDialog"
-import { useSession } from "next-auth/react"
+import type { LeadCustomer } from "@/features/admin/leadCustomers/api/types"
+import { useLeadCustomerListFilters } from "@/features/admin/leadCustomers/hooks/useLeadCustomerListFilters"
 import {
     useBulkDeleteLeadCustomers,
     useDeleteLeadCustomer,
+    useLeadCustomers,
 } from "@/features/admin/leadCustomers/hooks/useLeadCustomers"
-
-const ALL_VALUE = "__all__"
+import { LeadCustomerDetailPanel } from "./LeadCustomerDetailPanel"
+import { LeadCustomerProfileDialog } from "./LeadCustomerProfileDialog"
 
 type Props = {
     workspaceLabel: string
 }
-
-// Ülke varsayılanı (Türkiye) `GeoAddressFilterFields` içinde ISO kodundan
-// çözülür — veri kümesinin sayısal id'si sabit kodlanmaz.
 
 /**
  * Silme geri alınamaz; AWS'in kaynak silmede istediği gibi kullanıcı bu ifadeyi
@@ -64,6 +54,9 @@ type Props = {
  * (kullanıcı kararı): potansiyel müşteri silmek her iki durumda da kritik.
  */
 const DELETE_CONFIRMATION = "KALICI OLARAK SİL"
+
+/** `null` = kapalı; `customer: null` = yeni kayıt; `customer` dolu = düzenleme. */
+type ProfileDialogState = { customer: LeadCustomer | null } | null
 
 function formatNumber(value: number) {
     return new Intl.NumberFormat("tr-TR").format(value)
@@ -249,143 +242,78 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
     // kontrol yalnız arayüzü sunucuyla tutarlı tutmak için.
     // TEKİL silme veri girişi operatöründe de açık — asıl talep buydu.
     const { data: session } = useSession()
-    const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
+    const groups = session?.user?.groups ?? []
     const canBulkDelete = groups.includes("admin") || groups.includes("owner")
-    // Filtreler URL'de (nuqs): ekran paylaşılabilir olsun ve geri tuşu filtreyi
-    // korusun (AGENTS.md URL query state kuralı). Öncesinde `useState`'teydiler.
-    const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
-    const [sectorValueId, setSectorValueId] = useQueryState("sector", parseAsString.withDefault(""))
-    const [usageAreaValueId, setUsageAreaValueId] = useQueryState("usage", parseAsString.withDefault(""))
-    const [countryId, setCountryId] = useQueryState("country", parseAsInteger)
-    const [stateId, setStateId] = useQueryState("state", parseAsInteger)
-    const [cityId, setCityId] = useQueryState("city", parseAsInteger)
-    const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1))
-    const [limit, setLimit] = useQueryState("limit", parseAsInteger.withDefault(20))
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
-    const [expandedId, setExpandedId] = useState<string | null>(null)
-    const [dialogOpen, setDialogOpen] = useState(false)
-    const [editingCustomer, setEditingCustomer] = useState<LeadCustomer | null>(null)
 
-    const deferredSearch = useDeferredValue(search)
+    const {
+        filters,
+        params,
+        hasFilters,
+        setSearch,
+        setSectorValueId,
+        setUsageAreaValueId,
+        setGeo,
+        setPage,
+        setLimit,
+        setRefreshIntervalSeconds,
+        reset,
+    } = useLeadCustomerListFilters()
+
     const attributesQuery = useAttributesForFilter()
-
-    const params = useMemo(
-        () => ({
-            page,
-            limit,
-            ...(deferredSearch.trim() ? { search: deferredSearch.trim() } : {}),
-            ...(sectorValueId ? { sectorValueId } : {}),
-            ...(usageAreaValueId ? { usageAreaValueId } : {}),
-            ...(countryId ? { countryId } : {}),
-            ...(stateId ? { stateId } : {}),
-            ...(cityId ? { cityId } : {}),
-        }),
-        [cityId, countryId, deferredSearch, limit, page, sectorValueId, stateId, usageAreaValueId],
-    )
-
-    const leadsQuery = useLeadCustomers(params)
+    const leadsQuery = useLeadCustomers(params, {
+        autoRefreshIntervalMs:
+            filters.refreshIntervalSeconds > 0 ? filters.refreshIntervalSeconds * 1000 : false,
+    })
     const leads = leadsQuery.data?.data ?? []
     const meta = leadsQuery.data?.meta
     const isInitialLoading = leadsQuery.isLoading && leads.length === 0
+    // İlk yükleme skeleton'a ait; arka plan yenilemesi bölüm-yerel katmana.
+    const isBackgroundRefreshing = leadsQuery.isFetching && !isInitialLoading
 
-    const sectorValues = useMemo(
-        () => attributesQuery.data?.find((attribute) => attribute.code === "sector")?.values ?? [],
-        [attributesQuery.data],
-    )
-    const usageAreaValues = useMemo(
-        () => attributesQuery.data?.find((attribute) => attribute.code === "usage_area")?.values ?? [],
-        [attributesQuery.data],
-    )
+    const selection = useBulkSelection()
+    const [expandedId, setExpandedId] = useState<string | null>(null)
+    const [profileDialog, setProfileDialog] = useState<ProfileDialogState>(null)
+
+    const sectorValues = attributesQuery.data?.find((attribute) => attribute.code === "sector")?.values ?? []
+    const usageAreaValues =
+        attributesQuery.data?.find((attribute) => attribute.code === "usage_area")?.values ?? []
 
     const withoutProfileCount = leads.filter(
         (lead) => !lead.sectorValue && lead.usageAreaValues.length === 0,
     ).length
 
-    // Ülke varsayılanı Türkiye olduğu için "filtre var mı" sayımına GİRMEZ:
-    // aksi hâlde sayfa her açılışta "filtreli" görünür ve boş sonuçta kullanıcıya
-    // yanlışlıkla "filtreleri temizle" önerilirdi.
-    const hasFilters = Boolean(
-        search.trim() || sectorValueId || usageAreaValueId || stateId || cityId,
-    )
-
-    function clearFilters() {
-        setSearch("")
-        setSectorValueId("")
-        setUsageAreaValueId("")
-        setStateId(null)
-        setCityId(null)
-        setPage(1)
-    }
-
     const deleteMutation = useDeleteLeadCustomer()
     const bulkDeleteMutation = useBulkDeleteLeadCustomers()
 
-    const toggleSelect = (id: string) => {
-        setSelectedIds((current) => {
-            const next = new Set(current)
-            if (next.has(id)) next.delete(id)
-            else next.add(id)
-            return next
-        })
-    }
+    const visibleIds = leads.map((lead) => lead.id)
+    const visibleSelectionState = selection.visibleState(visibleIds)
 
-    /** Görünen sayfadaki kayıtların tamamını seçer; hepsi seçiliyse bırakır. */
-    const toggleSelectAllVisible = () => {
-        const visibleIds = leads.map((lead) => lead.id)
-        setSelectedIds((current) => {
-            const allSelected = visibleIds.length > 0 && visibleIds.every((id) => current.has(id))
-            const next = new Set(current)
-            for (const id of visibleIds) {
-                if (allSelected) next.delete(id)
-                else next.add(id)
-            }
-            return next
-        })
-    }
-
-    /**
-     * Onayda listelenecek adlar. Seçim sayfa değişince korunuyor; görünen
-     * sayfada olmayan bir kaydın adı elde olmayabilir, o yüzden id'ye düşülür —
-     * kullanıcı yine de kaç kaydın gideceğini ve bulunanların adını görür.
-     */
-    const selectedNames = useMemo(() => {
-        const byId = new Map(leads.map((lead) => [lead.id, resolveCustomerNameParts(lead).title]))
-        return [...selectedIds].map((id) => byId.get(id) ?? id)
-    }, [leads, selectedIds])
+    /** Onayda listelenecek adlar — sayfa değişince korunan seçim id'ye düşebilir. */
+    const nameById = new Map(leads.map((lead) => [lead.id, resolveCustomerNameParts(lead).title]))
+    const selectedNames = [...selection.selectedIds].map((id) => nameById.get(id) ?? id)
 
     const handleBulkDelete = async () => {
-        const ids = [...selectedIds]
+        const ids = [...selection.selectedIds]
         if (ids.length === 0) return
 
         const result = await bulkDeleteMutation.mutateAsync(ids)
         // Engelliler SEÇİLİ KALIR: kullanıcı hangilerinin kaldığını görüp
         // seçimden çıkarabilsin (silinenler zaten listeden düşüyor).
-        setSelectedIds(new Set(result.blocked.map((row) => row.id)))
+        selection.replace(result.blocked.map((row) => row.id))
     }
 
     /**
      * Kayıttan sonra yeni kayıt MUTLAKA görünür olmalı: aktif filtre veya 2.
      * sayfa yüzünden kart hiç render edilmezse kullanıcıya "hiçbir şey olmadı"
-     * gibi görünür. Bu yüzden filtreler temizlenir, ilk sayfaya dönülür,
-     * kart görünür ve açık gelir. Adres formu kullanıcı "Adres Ekle" dediğinde
-     * açılır; kayıt sonrası ikinci bir modal akışı başlatılmaz.
+     * gibi görünür. TÜM filtreler (geo dahil — `reset()`) temizlenir, ilk sayfaya
+     * dönülür, kart görünür ve açık gelir. Adressiz yeni bir kayıt aktif bir
+     * il/ilçe filtresiyle asla eşleşmezdi; eski kod yalnız metin filtrelerini
+     * temizliyordu. Adres formu kullanıcı "Adres Ekle" dediğinde açılır; kayıt
+     * sonrası ikinci bir modal akışı başlatılmaz.
      */
     function handleCreated(customerId: string) {
-        setSearch("")
-        setSectorValueId("")
-        setUsageAreaValueId("")
-        setPage(1)
+        reset()
         setExpandedId(customerId)
-    }
-
-    function openCreateDialog() {
-        setEditingCustomer(null)
-        setDialogOpen(true)
-    }
-
-    function openEditDialog(customer: LeadCustomer) {
-        setEditingCustomer(customer)
-        setDialogOpen(true)
     }
 
     async function handleRefresh() {
@@ -440,26 +368,14 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                         </p>
                     </div>
 
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="rounded-2xl"
-                            onClick={handleRefresh}
-                            disabled={leadsQuery.isFetching}
-                        >
-                            {leadsQuery.isFetching ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <RefreshCcw className="h-4 w-4" />
-                            )}
-                            Yenile
-                        </Button>
-                        <Button type="button" className="rounded-2xl" onClick={openCreateDialog}>
-                            <Plus className="h-4 w-4" />
-                            Yeni Potansiyel Müşteri
-                        </Button>
-                    </div>
+                    <Button
+                        type="button"
+                        className="rounded-2xl"
+                        onClick={() => setProfileDialog({ customer: null })}
+                    >
+                        <Plus className="h-4 w-4" />
+                        Yeni Potansiyel Müşteri
+                    </Button>
                 </div>
 
                 <Separator className="my-5" />
@@ -468,71 +384,42 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                         <Input
-                            value={search}
-                            onChange={(event) => {
-                                setSearch(event.target.value)
-                                setPage(1)
-                            }}
+                            value={filters.search}
+                            onChange={(event) => setSearch(event.target.value)}
                             placeholder="Firma, yetkili, e-posta veya telefon ara"
                             className="h-11 rounded-2xl pl-9"
                         />
                     </div>
 
-                    <Select
-                        value={sectorValueId || ALL_VALUE}
-                        onValueChange={(value) => {
-                            setSectorValueId(value === ALL_VALUE ? "" : value)
-                            setPage(1)
-                        }}
-                    >
-                        <SelectTrigger className="h-11 w-full rounded-2xl">
-                            <SelectValue placeholder="Sektör" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL_VALUE}>Tüm sektörler</SelectItem>
-                            {sectorValues.map((value) => (
-                                <SelectItem key={value.id} value={value.id}>
-                                    {value.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                        aria-label="Sektör"
+                        value={filters.sectorValueId || null}
+                        onValueChange={(value) => setSectorValueId(value ?? "")}
+                        options={sectorValues.map((value) => ({ value: value.id, label: value.name }))}
+                        placeholder="Tüm sektörler"
+                        searchPlaceholder="Sektör ara"
+                        loading={attributesQuery.isLoading}
+                    />
 
-                    <Select
-                        value={usageAreaValueId || ALL_VALUE}
-                        onValueChange={(value) => {
-                            setUsageAreaValueId(value === ALL_VALUE ? "" : value)
-                            setPage(1)
-                        }}
-                    >
-                        <SelectTrigger className="h-11 w-full rounded-2xl">
-                            <SelectValue placeholder="Kullanım alanı" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value={ALL_VALUE}>Tüm kullanım alanları</SelectItem>
-                            {usageAreaValues.map((value) => (
-                                <SelectItem key={value.id} value={value.id}>
-                                    {value.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
+                    <SearchableSelect
+                        aria-label="Kullanım alanı"
+                        value={filters.usageAreaValueId || null}
+                        onValueChange={(value) => setUsageAreaValueId(value ?? "")}
+                        options={usageAreaValues.map((value) => ({ value: value.id, label: value.name }))}
+                        placeholder="Tüm kullanım alanları"
+                        searchPlaceholder="Kullanım alanı ara"
+                        loading={attributesQuery.isLoading}
+                    />
                 </div>
 
                 {/* Adres filtresi kendi satırında: üstteki ızgara dört sütuna göre
                     kurulmuş, üç alan daha eklemek sarmayı bozuyordu. */}
                 <div className="mt-3 grid gap-3 lg:grid-cols-[repeat(3,minmax(0,1fr))_auto] lg:items-center">
                     <GeoAddressFilterFields
-                        countryId={countryId}
-                        stateId={stateId}
-                        cityId={cityId}
-                        onChange={(patch) => {
-                            if (patch.countryId !== undefined) setCountryId(patch.countryId)
-                            if (patch.stateId !== undefined) setStateId(patch.stateId)
-                            if (patch.cityId !== undefined) setCityId(patch.cityId)
-                            setPage(1)
-                        }}
+                        countryId={filters.countryId}
+                        stateId={filters.stateId}
+                        cityId={filters.cityId}
+                        onChange={setGeo}
                     />
 
                     {hasFilters ? (
@@ -540,7 +427,7 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                             type="button"
                             variant="outline"
                             className="h-11 rounded-2xl"
-                            onClick={clearFilters}
+                            onClick={reset}
                         >
                             <X className="h-4 w-4" />
                             Temizle
@@ -549,12 +436,20 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                 </div>
             </section>
 
+            <AdminListRefreshBar
+                dataUpdatedAt={leadsQuery.dataUpdatedAt}
+                isFetching={leadsQuery.isFetching}
+                onRefresh={handleRefresh}
+                refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                onRefreshIntervalChange={setRefreshIntervalSeconds}
+            />
+
             {canBulkDelete ? (
                 <div className="space-y-2">
                     <BulkSelectionBar
-                        selectedCount={selectedIds.size}
+                        selectedCount={selection.selectedCount}
                         isDeleting={bulkDeleteMutation.isPending}
-                        onClear={() => setSelectedIds(new Set())}
+                        onClear={selection.clear}
                         onDelete={handleBulkDelete}
                         itemLabel="potansiyel müşteri"
                         itemNames={selectedNames}
@@ -574,13 +469,13 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                         <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-neutral-600">
                             <Checkbox
                                 checked={
-                                    leads.every((lead) => selectedIds.has(lead.id))
+                                    visibleSelectionState === "all"
                                         ? true
-                                        : leads.some((lead) => selectedIds.has(lead.id))
+                                        : visibleSelectionState === "some"
                                             ? "indeterminate"
                                             : false
                                 }
-                                onCheckedChange={toggleSelectAllVisible}
+                                onCheckedChange={() => selection.toggleVisible(visibleIds)}
                             />
                             Bu sayfadaki {leads.length} kaydı seç
                         </label>
@@ -588,71 +483,80 @@ export function LeadCustomersPageClient({ workspaceLabel }: Props) {
                 </div>
             ) : null}
 
-            <div aria-busy={leadsQuery.isFetching} className="space-y-3">
-                {isInitialLoading
-                    ? Array.from({ length: 4 }).map((_, index) => (
-                        <div
-                            key={index}
-                            className="h-33 animate-pulse rounded-2xl border border-neutral-100 bg-neutral-50"
-                        />
-                    ))
-                    : leads.map((customer) => (
-                        <LeadCustomerCard
-                            key={customer.id}
-                            customer={customer}
-                            isExpanded={expandedId === customer.id}
-                            onToggle={() =>
-                                setExpandedId((current) => (current === customer.id ? null : customer.id))
-                            }
-                            onEdit={() => openEditDialog(customer)}
-                            isSelected={selectedIds.has(customer.id)}
-                            onToggleSelect={() => toggleSelect(customer.id)}
-                            onDelete={() => deleteMutation.mutate(customer.id)}
-                            isDeleting={deleteMutation.isPending}
-                            canDelete
-                            canSelect={canBulkDelete}
-                        />
-                    ))}
+            <div className="relative">
+                <AdminSectionLoadingOverlay isVisible={isBackgroundRefreshing} label="Liste güncelleniyor…" />
 
-                {!isInitialLoading && leads.length === 0 ? (
-                    <div className="rounded-3xl border border-dashed border-neutral-200 bg-white px-6 py-14 text-center shadow-sm">
-                        <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-brand">
-                            {hasFilters ? <Building2 className="h-6 w-6" /> : <UserPlus className="h-6 w-6" />}
+                <div aria-busy={leadsQuery.isFetching} className="space-y-3">
+                    {isInitialLoading
+                        ? Array.from({ length: 4 }).map((_, index) => (
+                            <div
+                                key={index}
+                                className="h-33 animate-pulse rounded-2xl border border-neutral-100 bg-neutral-50"
+                            />
+                        ))
+                        : leads.map((customer) => (
+                            <LeadCustomerCard
+                                key={customer.id}
+                                customer={customer}
+                                isExpanded={expandedId === customer.id}
+                                onToggle={() =>
+                                    setExpandedId((current) => (current === customer.id ? null : customer.id))
+                                }
+                                onEdit={() => setProfileDialog({ customer })}
+                                isSelected={selection.isSelected(customer.id)}
+                                onToggleSelect={() => selection.toggle(customer.id)}
+                                onDelete={() => deleteMutation.mutate(customer.id)}
+                                isDeleting={deleteMutation.isPending}
+                                canDelete
+                                canSelect={canBulkDelete}
+                            />
+                        ))}
+
+                    {!isInitialLoading && leads.length === 0 ? (
+                        <div className="rounded-3xl border border-dashed border-neutral-200 bg-white px-6 py-14 text-center shadow-sm">
+                            <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/10 text-brand">
+                                {hasFilters ? <Building2 className="h-6 w-6" /> : <UserPlus className="h-6 w-6" />}
+                            </div>
+                            <h3 className="mt-4 text-base font-semibold text-neutral-950">
+                                {hasFilters ? "Filtrelere uyan kayıt yok" : "Henüz potansiyel müşteri yok"}
+                            </h3>
+                            <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500">
+                                {hasFilters
+                                    ? "Aramayı veya filtreleri temizleyerek tüm kayıtları görebilirsiniz."
+                                    : "İlk potansiyel müşteriyi ekleyip ilgilendiği kullanım alanlarını atayın."}
+                            </p>
+                            <Button
+                                type="button"
+                                className="mt-4 rounded-2xl"
+                                onClick={hasFilters ? reset : () => setProfileDialog({ customer: null })}
+                            >
+                                {hasFilters ? "Filtreleri Temizle" : "Yeni Potansiyel Müşteri"}
+                            </Button>
                         </div>
-                        <h3 className="mt-4 text-base font-semibold text-neutral-950">
-                            {hasFilters ? "Filtrelere uyan kayıt yok" : "Henüz potansiyel müşteri yok"}
-                        </h3>
-                        <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500">
-                            {hasFilters
-                                ? "Aramayı veya filtreleri temizleyerek tüm kayıtları görebilirsiniz."
-                                : "İlk potansiyel müşteriyi ekleyip ilgilendiği kullanım alanlarını atayın."}
-                        </p>
-                        <Button type="button" className="mt-4 rounded-2xl" onClick={hasFilters ? clearFilters : openCreateDialog}>
-                            {hasFilters ? "Filtreleri Temizle" : "Yeni Potansiyel Müşteri"}
-                        </Button>
-                    </div>
-                ) : null}
+                    ) : null}
+                </div>
             </div>
 
             {leads.length > 0 ? (
                 <AdminListPagination
-                    page={meta?.page ?? page}
+                    page={meta?.page ?? filters.page}
                     totalPages={meta?.totalPages ?? 1}
                     total={meta?.total ?? 0}
-                    limit={limit}
+                    limit={filters.limit}
                     itemLabel="potansiyel müşteri"
                     onPageChange={setPage}
-                    onLimitChange={(nextLimit) => {
-                        setLimit(nextLimit)
-                        setPage(1)
-                    }}
+                    onLimitChange={setLimit}
                 />
             ) : null}
 
             <LeadCustomerProfileDialog
-                open={dialogOpen}
-                onOpenChange={setDialogOpen}
-                customer={editingCustomer}
+                open={profileDialog !== null}
+                // Dialog yalnız kapanışı bildirir (`open === false`); açılış bu
+                // sayfada `setProfileDialog({ customer })` ile tetiklenir.
+                onOpenChange={(open) => {
+                    if (!open) setProfileDialog(null)
+                }}
+                customer={profileDialog?.customer}
                 onCreated={handleCreated}
             />
         </div>
