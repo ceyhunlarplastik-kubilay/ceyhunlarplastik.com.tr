@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import Image from "next/image"
-import { Package, Truck } from "lucide-react"
+import { Package, Plus, Truck } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -25,7 +25,13 @@ import { useSuppliers } from "@/features/admin/suppliers/hooks/useSuppliers"
 import { useSupplierVariantSuppliers } from "@/features/admin/suppliers/hooks/useSupplierVariantSuppliers"
 import { useSupplierProducts } from "@/features/admin/suppliers/hooks/useSupplierProducts"
 import { useUpdateSupplier } from "@/features/admin/suppliers/hooks/useUpdateSupplier"
+import { useCreateSupplier } from "@/features/admin/suppliers/hooks/useCreateSupplier"
 import { useBulkUpdateSupplierVariantPricing } from "@/features/admin/suppliers/hooks/useBulkUpdateSupplierVariantPricing"
+import {
+    buildSupplierCreatePayload,
+    buildSupplierUpdatePayload,
+    type SupplierEditorFormValues,
+} from "@/features/admin/suppliers/schema/supplierEditor"
 import type { Supplier } from "@/features/admin/suppliers/api/types"
 import { SupplierListFilters } from "@/features/admin/suppliers/components/SupplierListFilters"
 import { useSupplierListFilters } from "@/features/admin/suppliers/hooks/useSupplierListFilters"
@@ -33,7 +39,7 @@ import { useCategories } from "@/features/admin/categories/hooks/useCategories"
 import { useProductVariants } from "@/features/admin/productVariants/hooks/useProductVariants"
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
-import { EditSupplierDialog } from "@/features/admin/suppliers/components/EditSupplierDialog"
+import { SupplierFormDialog } from "@/features/admin/suppliers/components/SupplierFormDialog"
 import { SupplierBulkPricingForm } from "@/features/admin/suppliers/components/SupplierBulkPricingForm"
 import { useSupplierWorkspaceState } from "@/features/admin/suppliers/hooks/useSupplierWorkspaceState"
 import { getUserDisplayName } from "@/lib/users/displayName"
@@ -49,7 +55,10 @@ export function SuppliersPageClient() {
     } = useSupplierListFilters()
 
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
-    const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
+    // `null` = kapalı; `{ mode: "create" }` = yeni; `{ mode: "edit", supplier }` = düzenle.
+    const [supplierDialog, setSupplierDialog] = useState<
+        { mode: "create" } | { mode: "edit"; supplier: Supplier } | null
+    >(null)
     const supplierWorkspace = useSupplierWorkspaceState()
     const {
         selectedCategoryId,
@@ -69,6 +78,7 @@ export function SuppliersPageClient() {
             : false,
     })
     const updateSupplierMutation = useUpdateSupplier()
+    const createSupplierMutation = useCreateSupplier()
     const bulkUpdatePricingMutation = useBulkUpdateSupplierVariantPricing()
     const categoriesQuery = useCategories({ params: { limit: 500 } })
     const usersQuery = useUsers({ params: { page: 1, limit: 500 } })
@@ -113,23 +123,18 @@ export function SuppliersPageClient() {
         [productVariantsQuery.data]
     )
 
-    async function handleSupplierUpdate(payload: {
-        id: string
-        name?: string
-        contactName?: string
-        phone?: string
-        address?: string
-        taxNumber?: string
-        defaultPaymentTermDays?: number
-        assignedPurchasingUserIds?: string[]
-    }) {
-        const updatedSupplier = await updateSupplierMutation.mutateAsync(payload)
-        setSelectedSupplier((current) => (
-            current?.id === updatedSupplier.id
-                ? updatedSupplier
-                : current
-        ))
-        setEditingSupplier(null)
+    async function handleSupplierSubmit(values: SupplierEditorFormValues, supplierId: string | null) {
+        if (supplierId) {
+            const updatedSupplier = await updateSupplierMutation.mutateAsync(
+                buildSupplierUpdatePayload(supplierId, values),
+            )
+            setSelectedSupplier((current) => (
+                current?.id === updatedSupplier.id ? updatedSupplier : current
+            ))
+        } else {
+            await createSupplierMutation.mutateAsync(buildSupplierCreatePayload(values))
+        }
+        setSupplierDialog(null)
     }
 
     async function handleBulkPricingSubmit(payload: {
@@ -149,11 +154,18 @@ export function SuppliersPageClient() {
 
     return (
         <div className="space-y-6">
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Tedarikçiler</h1>
-                <p className="text-neutral-500 text-sm">
-                    Tedarikçileri listeleyin, seçin ve seçilen tedarikçiye bağlı varyant/fiyat kayıtlarını inceleyin.
-                </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-1">
+                    <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Tedarikçiler</h1>
+                    <p className="text-neutral-500 text-sm">
+                        Tedarikçileri listeleyin, seçin ve seçilen tedarikçiye bağlı varyant/fiyat kayıtlarını inceleyin.
+                    </p>
+                </div>
+
+                <Button className="gap-2" onClick={() => setSupplierDialog({ mode: "create" })}>
+                    <Plus className="h-4 w-4" />
+                    Yeni Tedarikçi
+                </Button>
             </div>
 
             <SupplierListFilters search={filters.search} onSearchChange={setSearch} />
@@ -219,7 +231,7 @@ export function SuppliersPageClient() {
                                         size="sm"
                                         variant="ghost"
                                         className="ml-1"
-                                        onClick={() => setEditingSupplier(supplier)}
+                                        onClick={() => setSupplierDialog({ mode: "edit", supplier })}
                                     >
                                         Düzenle
                                     </Button>
@@ -469,7 +481,7 @@ export function SuppliersPageClient() {
                                             {row.paymentTermDays ?? selectedSupplier.defaultPaymentTermDays ?? "-"}
                                         </TableCell>
                                         <TableCell>{row.supplierVariantCode ?? "-"}</TableCell>
-                                        <TableCell className="max-w-[220px] truncate" title={row.supplierNote ?? ""}>{row.supplierNote ?? "-"}</TableCell>
+                                        <TableCell className="max-w-55 truncate" title={row.supplierNote ?? ""}>{row.supplierNote ?? "-"}</TableCell>
                                         <TableCell>{row.minOrderQty ?? "-"}</TableCell>
                                         <TableCell>{row.stockQty ?? "-"}</TableCell>
                                         <TableCell>{row.pricingUpdatedAt ? new Date(row.pricingUpdatedAt).toLocaleString("tr-TR") : "-"}</TableCell>
@@ -517,15 +529,15 @@ export function SuppliersPageClient() {
                 </div>
             )}
 
-            <EditSupplierDialog
-                open={Boolean(editingSupplier)}
-                supplier={editingSupplier}
+            <SupplierFormDialog
+                open={supplierDialog !== null}
+                supplier={supplierDialog?.mode === "edit" ? supplierDialog.supplier : null}
                 purchasingUserOptions={purchasingUserOptions}
-                isPending={updateSupplierMutation.isPending}
+                isPending={updateSupplierMutation.isPending || createSupplierMutation.isPending}
                 onOpenChange={(next) => {
-                    if (!next) setEditingSupplier(null)
+                    if (!next) setSupplierDialog(null)
                 }}
-                onSubmit={handleSupplierUpdate}
+                onSubmit={handleSupplierSubmit}
             />
 
         </div>

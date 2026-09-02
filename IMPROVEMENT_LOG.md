@@ -5356,6 +5356,32 @@ dokunulmadı.
 **Kalan:** `ProductVariantMatrixPageClient`'in `useBulkSelection`'a geçirilmesi
 (ayrı, onaysız dilim) — IMPROVEMENT_PLAN.md'ye not düşülebilir istenirse.
 
+### `/admin/suppliers` — admin için "Yeni Tedarikçi" oluşturma UI'ı (2026-09-02)
+**Ne yapıldı:** `SuppliersPageClient`'e "Yeni Tedarikçi" butonu + form dialogu
+eklendi. **Backend zaten hazırdı:** `POST /suppliers` (`createSupplier`) uzun
+süredir `auth: { requiredPermissionGroups: ["admin", "owner"] }` — eksik olan
+yalnızca frontend'di (sayfada oluşturma yüzeyi hiç yoktu, sadece liste + düzenle).
+- `EditSupplierDialog.tsx` → `SupplierFormDialog.tsx` olarak yeniden adlandırıldı
+  ve iki modlu hale getirildi: `supplier` prop'u `null` ise "Yeni Tedarikçi",
+  dolu ise "Tedarikçi Bilgileri". Aynı `useForm`+`zodResolver`+`supplierEditorSchema`.
+  `onSubmit(values, supplierId | null)` — payload dönüşümü artık sayfada. Eski
+  dialogda hiç olmayan `DialogDescription` eklendi (Radix "Missing Description
+  or aria-describedby" uyarısı gideriliyor).
+- `schema/supplierEditor.ts`: `emptySupplierEditorFormValues()` +
+  `buildSupplierCreatePayload()` eklendi; `toSupplierFieldPayload()` create/update
+  ortak gövdesi olarak çıkarıldı.
+- Yeni `api/createSupplier.ts` + `hooks/useCreateSupplier.ts` (`updateSupplier`
+  desenini birebir izler; `["admin-suppliers"]` invalidate).
+- `SuppliersPageClient`: `editingSupplier: Supplier | null` →
+  `supplierDialog: { mode: "create" } | { mode: "edit"; supplier } | null`
+  (ayrık birleşik state). `handleSupplierUpdate` → `handleSupplierSubmit`.
+Not: `productVariants/api/createSupplierReference.ts` (yalnız `{name,isActive}`
+gönderen, farklı query key invalidate eden) bu yüzeyde KULLANILMADI — dar amaçlı
+ve hiçbir yerden çağrılmıyor, ayrı iş.
+**Doğrulama:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error ✅ ·
+`test -w frontend` 354/354 ✅ · `typecheck:backend` ✅ (dokunulmadı). i18n
+kataloglarına dokunulmadı (sayfa mevcut desenle hardcoded TR).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

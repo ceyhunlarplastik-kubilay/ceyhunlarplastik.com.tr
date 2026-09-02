@@ -4,13 +4,19 @@ import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { EntityAssignmentSelect } from "@/features/admin/users/components/EntityAssignmentSelect"
 import type { Supplier } from "@/features/admin/suppliers/api/types"
 import {
-    buildSupplierUpdatePayload,
+    emptySupplierEditorFormValues,
     supplierEditorSchema,
     toSupplierEditorFormValues,
     type SupplierEditorFormValues,
@@ -24,14 +30,16 @@ type AssignmentOption = {
 
 type Props = {
     open: boolean
+    /** `null` = yeni tedarikçi oluştur; dolu = düzenle. */
     supplier: Supplier | null
     purchasingUserOptions: AssignmentOption[]
     isPending: boolean
     onOpenChange: (open: boolean) => void
-    onSubmit: (payload: ReturnType<typeof buildSupplierUpdatePayload>) => Promise<void>
+    /** Form değerleri; `supplierId` düzenlemede kaydın id'si, oluşturmada `null`. */
+    onSubmit: (values: SupplierEditorFormValues, supplierId: string | null) => Promise<void>
 }
 
-export function EditSupplierDialog({
+export function SupplierFormDialog({
     open,
     supplier,
     purchasingUserOptions,
@@ -39,30 +47,34 @@ export function EditSupplierDialog({
     onOpenChange,
     onSubmit,
 }: Props) {
+    const isEditing = Boolean(supplier)
+
     const form = useForm<SupplierEditorFormValues>({
         resolver: zodResolver(supplierEditorSchema),
-        defaultValues: supplier ? toSupplierEditorFormValues(supplier) : undefined,
+        defaultValues: emptySupplierEditorFormValues(),
     })
 
     useEffect(() => {
-        if (supplier && open) {
-            form.reset(toSupplierEditorFormValues(supplier))
-        }
+        if (!open) return
+        form.reset(supplier ? toSupplierEditorFormValues(supplier) : emptySupplierEditorFormValues())
     }, [form, open, supplier])
-
-    if (!supplier) return null
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Tedarikçi Bilgileri</DialogTitle>
+                    <DialogTitle>{isEditing ? "Tedarikçi Bilgileri" : "Yeni Tedarikçi"}</DialogTitle>
+                    <DialogDescription>
+                        {isEditing
+                            ? "Tedarikçinin iletişim, vergi ve satın alma sorumlusu bilgilerini güncelleyin."
+                            : "Yeni tedarikçi kaydı oluşturun. Yalnızca firma adı zorunludur."}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form
                     className="grid gap-3"
                     onSubmit={form.handleSubmit(async (values) => {
-                        await onSubmit(buildSupplierUpdatePayload(supplier.id, values))
+                        await onSubmit(values, supplier?.id ?? null)
                     })}
                 >
                     <div className="grid gap-1.5">
@@ -126,7 +138,7 @@ export function EditSupplierDialog({
 
                     <div className="flex justify-end">
                         <Button type="submit" disabled={isPending}>
-                            {isPending ? "Kaydediliyor..." : "Kaydet"}
+                            {isPending ? "Kaydediliyor..." : isEditing ? "Kaydet" : "Oluştur"}
                         </Button>
                     </div>
                 </form>

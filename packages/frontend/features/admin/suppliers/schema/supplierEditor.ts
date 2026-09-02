@@ -16,6 +16,19 @@ export const supplierEditorSchema = z.object({
 
 export type SupplierEditorFormValues = z.infer<typeof supplierEditorSchema>
 
+/** Yeni tedarikçi formunun boş başlangıç değerleri. */
+export function emptySupplierEditorFormValues(): SupplierEditorFormValues {
+    return {
+        name: "",
+        contactName: "",
+        phone: "",
+        address: "",
+        taxNumber: "",
+        defaultPaymentTermDays: "",
+        assignedPurchasingUserIds: [],
+    }
+}
+
 export function toSupplierEditorFormValues(supplier: Supplier): SupplierEditorFormValues {
     return {
         name: supplier.name ?? "",
@@ -32,12 +45,9 @@ export function toSupplierEditorFormValues(supplier: Supplier): SupplierEditorFo
     }
 }
 
-export function buildSupplierUpdatePayload(
-    supplierId: string,
-    values: SupplierEditorFormValues,
-) {
+/** Form değerlerini API alanlarına indirger (create + update ortak gövdesi). */
+function toSupplierFieldPayload(values: SupplierEditorFormValues) {
     return {
-        id: supplierId,
         name: values.name.trim(),
         contactName: values.contactName.trim() || undefined,
         phone: values.phone.trim() || undefined,
@@ -48,4 +58,15 @@ export function buildSupplierUpdatePayload(
             : undefined,
         assignedPurchasingUserIds: values.assignedPurchasingUserIds,
     }
+}
+
+export function buildSupplierUpdatePayload(
+    supplierId: string,
+    values: SupplierEditorFormValues,
+) {
+    return { id: supplierId, ...toSupplierFieldPayload(values) }
+}
+
+export function buildSupplierCreatePayload(values: SupplierEditorFormValues) {
+    return { ...toSupplierFieldPayload(values), isActive: true }
 }

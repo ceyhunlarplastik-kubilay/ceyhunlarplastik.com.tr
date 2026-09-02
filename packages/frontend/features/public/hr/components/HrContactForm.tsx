@@ -152,7 +152,7 @@ export default function HrContactForm() {
                                 disabled={isSubmitting}
                                 className="
                   w-full rounded-xl py-6 text-base font-semibold
-                  bg-[var(--color-brand)] text-black
+                  bg-(--color-brand) text-black
                   hover:bg-black hover:text-white
                   transition
                 "
