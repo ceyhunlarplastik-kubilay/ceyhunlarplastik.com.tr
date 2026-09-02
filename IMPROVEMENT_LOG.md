@@ -5430,6 +5430,19 @@ ilk eşleşen varyantı alır (çökmez, görünür çift yok). Kubi'de o ürün
 gözlemlenmeli.
 **Kullanıcıda bekleyen:** kubi runtime doğrulaması (aşağıdaki adımlar) + commit.
 
+### Varyant detay tablolarında renk = "RAL kodu + ad" (2026-09-02)
+`ProductVariantTable`'daki "Renk Seçenekleri" bölümü `formatColorLabel(color)` ile
+`RAL7016 Antrasit Gri` biçimini gösteriyordu; iki drill-down tablosu ise yalnız
+`color.name`. Aynı `formatColorLabel` (`system+code` + ad) artık:
+- `ProductVariantDetailsTable.tsx` — "Renk" sütunu hücresi
+- `CustomerPortalVariantDetailsTable.tsx` — "Renk" sütunu hücresi + renk filtre
+  seçeneği etiketi (`colorOptions`)
+- `CustomerPortalAssignedVariantCard.tsx` — favori varyant kartındaki "Renk" alanı
+  (favori varyantlar sayfası bu kartı listeler)
+DTO'lar zaten `system`/`code` taşıyor (`mapVariantTableStructure` → `localizeColor`;
+favori kartında `flattenProductVariantStructure` → ham `version.color`).
+`typecheck -w frontend` ✅ · `lint` 0 error ✅ · `test -w frontend` 354/354 ✅.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

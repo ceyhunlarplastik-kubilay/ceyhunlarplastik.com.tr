@@ -22,6 +22,7 @@ import type {
     VariantTableData,
 } from "@/features/public/products/components/ProductVariantTable"
 import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import { CustomerPortalVariantFilters } from "@/features/customerPortal/components/CustomerPortalVariantFilters"
 import { usePortalSpecialPrices } from "@/features/customerPortal/hooks/usePortalSpecialPrices"
 import {
@@ -286,7 +287,7 @@ export function CustomerPortalVariantDetailsTable({
             const current = counts.get(variant.color.id)
             counts.set(variant.color.id, {
                 id: variant.color.id,
-                label: variant.color.name,
+                label: formatColorLabel(variant.color),
                 count: (current?.count ?? 0) + 1,
                 hex: variant.color.hex ?? null,
             })
@@ -657,7 +658,7 @@ export function CustomerPortalVariantDetailsTable({
                                                             className="h-2.5 w-2.5 rounded-full border border-neutral-300"
                                                             style={{ backgroundColor: variant.color.hex || "#ddd" }}
                                                         />
-                                                        {variant.color.name}
+                                                        {formatColorLabel(variant.color)}
                                                     </span>
                                                 ) : (
                                                     <span className="text-neutral-400">-</span>

@@ -17,6 +17,7 @@ import type {
     VariantTableData,
 } from "@/features/public/products/components/ProductVariantTable"
 import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
+import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import { resolveMeasurementUnit } from "@core/helpers/productVariants/measurementDisplay"
 
 interface ProductVariantDetailsTableProps {
@@ -152,7 +153,7 @@ export default function ProductVariantDetailsTable({
                                                     className="w-3 h-3 rounded-full border border-neutral-300"
                                                     style={{ backgroundColor: variant.color.hex || "#ddd" }}
                                                 />
-                                                {variant.color.name}
+                                                {formatColorLabel(variant.color)}
                                             </span>
                                         ) : (
                                             <span className="text-neutral-400">-</span>

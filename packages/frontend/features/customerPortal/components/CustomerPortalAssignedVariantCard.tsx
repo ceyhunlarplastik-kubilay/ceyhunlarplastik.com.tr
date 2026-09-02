@@ -12,6 +12,7 @@ import {
     resolveMeasurementName,
     resolveMeasurementUnit,
 } from "@/features/public/products/utils/measurement"
+import { formatColorLabel } from "@/lib/color/formatColorLabel"
 import { getAssignedProductVariantImageUrl } from "@/lib/customers/assignedProductVariants"
 import { PortalFavoriteVariantButton } from "@/features/customerPortal/components/PortalFavoriteVariantButton"
 import {
@@ -178,7 +179,7 @@ export function CustomerPortalAssignedVariantCard({ item }: Props) {
                                     className="h-3.5 w-3.5 shrink-0 rounded-full border border-neutral-300"
                                     style={{ backgroundColor: color.hex || "#d4d4d8" }}
                                 />
-                                <span className="truncate">{color.name}</span>
+                                <span className="truncate">{formatColorLabel(color)}</span>
                             </div>
                         ) : (
                             <div className="text-xs text-neutral-400">Renk yok</div>
