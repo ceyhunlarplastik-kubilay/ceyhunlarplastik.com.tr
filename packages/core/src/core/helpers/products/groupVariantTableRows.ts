@@ -32,22 +32,13 @@ export type GroupedVariantRow = {
     colors: any[]
     materials: any[]
     /**
-     * P1.8(B0)'dan beri HER ZAMAN boş: ne public ne portal DTO'su tedarikçi
-     * kimliği taşıyor (public'te `variantSuppliers` hiç yok, portalda yalnız
-     * `listPrice`/`currency` var — `supplier.id`/`name` yok).
-     *
-     * Alan yine de üretiliyor çünkü `ProductVariantTable` bunu bir KAPI olarak
-     * okuyor: `hasSupplierData = options.some(o => o.suppliers.length > 0)` →
-     * boş kalınca Tedarikçi sütunu ve rozeti gizleniyor. Kaldırılırsa o kapı
-     * kırılır. Tedarikçi yüzeyi admin/satın alma ekranlarında yaşıyor.
+     * Tedarikçi alanı BİLİNÇLİ OLARAK YOK: public/portal özet tablosu tedarikçi
+     * kimliği (id/ad/harf) taşımaz — public'te `variantSuppliers` DB'den hiç
+     * çekilmez, portalda yalnız `listPrice`/`currency` var. Eskiden burada boş
+     * bir `suppliers: []` alanı vardı; tek amacı `ProductVariantTable`'ın artık
+     * kaldırılmış "Tedarikçi sütunu" kapısını beslemekti. Tedarikçi yüzeyi
+     * admin/satın alma ekranlarında (ayrı DTO) yaşıyor.
      */
-    suppliers: Array<{
-        supplierId: string
-        supplierName: string
-        priceText: string
-        currency: string
-        isActive: boolean
-    }>
     /** Bu ölçüdeki tüm varyant kodları. */
     fullCodes: string[]
     variants: Array<{
@@ -118,7 +109,6 @@ export function groupVariantTableRows(
                 measurements: [...measurements].sort(byDisplayOrder),
                 colors: [],
                 materials: [],
-                suppliers: [],
                 fullCodes: [],
                 variants: [],
             }

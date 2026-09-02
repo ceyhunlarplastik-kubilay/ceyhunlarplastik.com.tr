@@ -5443,6 +5443,38 @@ DTO'lar zaten `system`/`code` taşıyor (`mapVariantTableStructure` → `localiz
 favori kartında `flattenProductVariantStructure` → ham `version.color`).
 `typecheck -w frontend` ✅ · `lint` 0 error ✅ · `test -w frontend` 354/354 ✅.
 
+### Public ürün/varyant listeleme yolları — supplier include denetimi (2026-09-02)
+**Denetim sonucu:** Public ürün/varyant OKUMA sorgularının hiçbiri supplier
+verisi çekmiyor — P1.8(B0) bunu tam yapmış:
+- `getProductBySlug` / `getProduct` / `listProducts` → `baseInclude`/`listCardInclude`,
+  `variants` bile yok (ürün nesnesi varyant taşımıyor).
+- `/products/{id}/variant-table` + `/products/{id}/variants-by-measurement` →
+  `buildVariantStructureInclude`, `variantSuppliers` DB'den çekilmiyor.
+- `/product-variants` (`listPublicProductVariants`) → `publicInclude`,
+  `variantSuppliers` yok (`defaultInclude` yalnız admin).
+`1.23.1.V1.A` → `.A` harfi (`ProductVariantSupplier`) public'e hiç gitmiyor.
+**Sorguya dokunulmadı.**
+**Kaldırılan ölü iskele:** `ProductVariantTable` yalnız iki yerde render ediliyor
+(public `/urun/[slug]` + müşteri paneli), ikisi de public `/variant-table` ucunu
+kullanıyor. `hasSupplierData = options.some(o => o.suppliers.length > 0)` her zaman
+`false`'tu (`groupVariantTableRows` `suppliers`'ı boş üretiyordu) → `colSupplier`
+sütunu ve `supplierCount` hücresi hiç render OLMUYORDU.
+- `ProductVariantTable.tsx`: `hasSupplierData`, `colSupplier` `<TableHead>` dalı,
+  `supplierCount` `<TableCell>` dalı silindi (hepsi `hasSupplierData &&` korumalı,
+  render çıktısı bit bit aynı).
+- `core/helpers/products/groupVariantTableRows.ts`: `GroupedVariantRow.suppliers`
+  alanı + `suppliers: []` init'i kaldırıldı (tek tüketicisi yukarıdaki ölü kapıydı).
+  Satır başına bir boş dizi kadar RSC payload'u küçüldü.
+- Testler: `groupVariantTableRows.test.ts` "tedarikçi alanı" testi
+  `not.toHaveProperty("suppliers")`e çevrildi; `resolveProduct3dVariantSelection.test.ts`
+  fixture'ından `suppliers: []` çıkarıldı.
+`VariantTableData.variantSuppliers?` + `VariantSupplier` tipine DOKUNULMADI —
+admin/portal özel-fiyat seçicileri (`isActive`/`listPrice`/`currency` okuyor) ayrı
+yüzey. i18n anahtarları (`colSupplier`/`supplierCount`) 14 dilde bırakıldı
+(kullanılmayan anahtar zararsız; 14 katalogdan silmek riskli).
+**Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+`lint -w frontend` 0 error ✅ · core 596 · functions 320 · frontend 354 ✅.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

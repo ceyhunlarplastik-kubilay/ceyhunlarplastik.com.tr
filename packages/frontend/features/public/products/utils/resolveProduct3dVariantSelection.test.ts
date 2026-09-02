@@ -15,7 +15,6 @@ const option = {
         { id: "pp", name: "PP", code: "PP" },
         { id: "pa", name: "PA", code: "PA" },
     ],
-    suppliers: [],
     fullCodes: ["A", "B"],
     variants: [
         {

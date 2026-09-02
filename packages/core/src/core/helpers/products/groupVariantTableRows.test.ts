@@ -75,9 +75,9 @@ describe("groupVariantTableRows", () => {
         expect(rows.map((r) => r.fullCodes[0])).toEqual(["10.5.2.V1", "10.5.1.V1"])
     })
 
-    it("tedarikçi alanı BOŞ üretilir — tablo bunu kapı olarak okuyor", () => {
+    it("gruplanmış satır tedarikçi alanı taşımaz (public/portal)", () => {
         const rows = groupVariantTableRows([row("v1", "10.5.1.V1", [["R", 10]], "black")])
-        expect(rows[0].suppliers).toEqual([])
+        expect(rows[0]).not.toHaveProperty("suppliers")
     })
 
     it("renksiz varyantta çökmez", () => {
