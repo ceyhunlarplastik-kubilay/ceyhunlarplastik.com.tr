@@ -42,6 +42,9 @@ export const getCustomerProductVariantTableHandler = ({ productVariantRepository
                 productVariantRepository.getProductVariantTableData(productId, {
                     includeListPrice: true,
                     locale, page, limit, search, order,
+                    // Public tarafla AYNI: özet tablo yalnız zorunlu ölçülerle
+                    // gruplanır (bkz. groupVariantTableRows / public handler).
+                    requiredMeasurementColumnsOnly: true,
                 }),
                 customerId
                     ? customerRepository.getCustomerPricingContext(customerId)
@@ -51,9 +54,11 @@ export const getCustomerProductVariantTableHandler = ({ productVariantRepository
             return apiResponseDTO({
                 statusCode: 200,
                 payload: {
-                    // Public tarafla AYNI gruplama: satır = ölçü (bkz. groupVariantTableRows).
+                    // Public tarafla AYNI gruplama: satır = ölçü, yalnız zorunlu
+                    // ölçülerle (bkz. groupVariantTableRows).
                     data: groupVariantTableRows(
                         table.rows.map((variant) => mapCustomerProductVariantTableRow(variant, locale)),
+                        { requiredMeasurementsOnly: true },
                     ),
                     meta: buildVariantTableMeta({
                         page, limit, total: table.total, columns: table.columns,

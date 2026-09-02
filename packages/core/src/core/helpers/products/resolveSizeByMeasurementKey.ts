@@ -21,9 +21,26 @@ type SizeRowLike = {
     values: Array<{
         value: number
         requirement: {
+            isRequired?: boolean
             measurementType: { id: string; displayOrder?: number } | null
         } | null
     }>
+}
+
+function buildSizeKey(size: SizeRowLike, requiredOnly: boolean): string {
+    // `buildMeasurementKey` yalnız `value` ve `measurementType`'ı okur;
+    // id/label anahtara girmez (etiket çevrilebilir olduğu için bilinçli).
+    const values = requiredOnly
+        ? size.values.filter((value) => value.requirement?.isRequired !== false)
+        : size.values
+    return buildMeasurementKey(
+        values.map((value) => ({
+            id: "",
+            label: "",
+            value: value.value,
+            measurementType: value.requirement?.measurementType,
+        })),
+    )
 }
 
 export function resolveSizeIdByMeasurementKey(
@@ -31,20 +48,35 @@ export function resolveSizeIdByMeasurementKey(
     measurementKey: string,
 ): string | null {
     if (!measurementKey) return null
-
     for (const size of sizes) {
-        // `buildMeasurementKey` yalnız `value` ve `measurementType`'ı okur;
-        // id/label anahtara girmez (etiket çevrilebilir olduğu için bilinçli).
-        const key = buildMeasurementKey(
-            size.values.map((value) => ({
-                id: "",
-                label: "",
-                value: value.value,
-                measurementType: value.requirement?.measurementType,
-            })),
-        )
-        if (key === measurementKey) return size.id
+        if (buildSizeKey(size, false) === measurementKey) return size.id
     }
-
     return null
+}
+
+/**
+ * Anahtarla EŞLEŞEN TÜM ölçü id'leri.
+ *
+ * Public/portal özet tablosunun anahtarı yalnız ZORUNLU ölçülerden kurulur
+ * (bkz. `groupVariantTableRows`), bu yüzden tek bir grup satırı birden çok
+ * `ProductSize`'a karşılık gelebilir — opsiyonel ölçüsü girilmiş ve girilmemiş
+ * versiyonlar. "Varyantları Göster" drill-down'ı hepsinin varyantlarını
+ * göstermeli, yoksa deduplike satırın altında varyant kaybolur.
+ *
+ * Bir ölçü, zorunlu-ölçü anahtarı VEYA tüm-ölçü anahtarı gelen değerle eşleşirse
+ * dahil edilir; ikinci koşul dışarı çıkmış eski `?m=` bağlantılarını (tüm
+ * ölçülerle üretilmiş anahtar) da çalışır tutar.
+ */
+export function resolveSizeIdsByMeasurementKey(
+    sizes: readonly SizeRowLike[],
+    measurementKey: string,
+): string[] {
+    if (!measurementKey) return []
+    return sizes
+        .filter(
+            (size) =>
+                buildSizeKey(size, true) === measurementKey ||
+                buildSizeKey(size, false) === measurementKey,
+        )
+        .map((size) => size.id)
 }

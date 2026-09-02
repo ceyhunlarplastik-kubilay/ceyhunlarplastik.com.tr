@@ -26,9 +26,12 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
         try {
             // P1.8(B0): PUBLIC — fiyat/tedarikçi çekilmez (includeListPrice yok).
             // P1.8(d): sayfalama ÖLÇÜ üzerinde; satır = ölçü, ham varyant değil.
+            // Özet tablo YALNIZ zorunlu ölçülerle gruplanır: bir tedarikçi
+            // kataloğunda opsiyonel ölçü girilmemişse (R20/D5/H17 ile R20/D5)
+            // aksi hâlde iki ayrı satır olarak tekrar ederdi.
             const { rows, total, columns } = await productVariantRepository.getProductVariantTableData(
                 productId,
-                { locale, page, limit, search, order },
+                { locale, page, limit, search, order, requiredMeasurementColumnsOnly: true },
             )
 
             return apiResponseDTO({
@@ -40,6 +43,7 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
                     // oturdu (bkz. groupVariantTableRows).
                     data: groupVariantTableRows(
                         rows.map((variant) => mapPublicProductVariantTableRow(variant, locale)),
+                        { requiredMeasurementsOnly: true },
                     ),
                     meta: buildVariantTableMeta({ page, limit, total, columns }),
                 },

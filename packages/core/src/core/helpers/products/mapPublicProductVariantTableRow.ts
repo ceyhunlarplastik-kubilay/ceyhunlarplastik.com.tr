@@ -77,6 +77,8 @@ function mapVariantTableStructure(
             value: sizeValue.value,
             label: resolveRequirementLabel(sizeValue.requirement, locale),
             unit: sizeValue.requirement?.unit ?? sizeValue.requirement?.measurementType?.baseUnit ?? null,
+            // Şablon varsayılanı `true`; alan gelmezse zorunlu kabul edilir.
+            isRequired: sizeValue.requirement?.isRequired ?? true,
             measurementType: mapVariantMeasurementType(sizeValue.requirement?.measurementType, locale),
         })),
         createdAt: variant.createdAt,

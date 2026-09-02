@@ -14,6 +14,14 @@ export type MeasurementDisplayInput = {
     label: string
     /** Şablonda ezilmiş birim; yoksa ölçü tipinin taban birimi. */
     unit?: string | null
+    /**
+     * Ölçü şablonunda (`ProductMeasurementRequirement.isRequired`) zorunlu mu.
+     * Public/portal özet tablosu satırları YALNIZ zorunlu ölçülerle gruplanır —
+     * bir tedarikçi kataloğunda opsiyonel ölçü girilmemiş olabilir ve o varyant
+     * aksi hâlde ayrı bir satır olarak tekrar ederdi. Alan yoksa `true` kabul
+     * edilir (şema varsayılanı).
+     */
+    isRequired?: boolean
     // Alanlar GEVŞEK: bu yardımcıyı public katalog, portal ve admin farklı DTO
     // şekilleriyle çağırıyor; gösterim kuralı eksik alana tolerans göstermeli.
     measurementType?: {

@@ -5382,6 +5382,54 @@ ve hiçbir yerden çağrılmıyor, ayrı iş.
 `test -w frontend` 354/354 ✅ · `typecheck:backend` ✅ (dokunulmadı). i18n
 kataloglarına dokunulmadı (sayfa mevcut desenle hardcoded TR).
 
+### Public/portal ölçü tablosu — yalnız ZORUNLU ölçülerle grupla (2026-09-02)
+**Sorun:** Operatör tedarikçi kataloglarından varyant girerken opsiyonel ölçüleri
+(şablonda `isRequired: false`) her katalogda giremiyor. Örn. 1.23 modelinde R+D
+zorunlu, H değil: Sanay kataloğundan `R20/D5/H17`, Özgen'den `R20/D5` (H yok).
+Public "Ölçü Seçenekleri" tablosu satırları TÜM ölçülerle gruplandığından
+(`buildMeasurementKey(variant.measurements)`) bu iki varyant alt alta iki ayrı
+satır olarak tekrar ediyordu.
+**Çözüm:** Public (`getProductVariantTableHandler`) ve portal
+(`getCustomerProductVariantTableHandler`) özet tablosu artık YALNIZ zorunlu
+ölçülerle gruplanır ve satır yalnız zorunlu ölçü sütunlarını taşır. `R20/D5/H17`
+ile `R20/D5` tek satırda birleşir (`R 20mm · D M5`); renk/hammadde/kod ikisinden
+de toplanır. `veri-girisi` varyant MATRİSİ sayfası ayrı uç — dokunulmadı, tüm
+ölçüler görünür.
+**Dokunulan yerler:**
+- `core/helpers/productVariants/measurementDisplay.ts` — `MeasurementDisplayInput`'a
+  opsiyonel `isRequired?` (yoksa `true` = şema varsayılanı).
+- `core/helpers/products/mapPublicProductVariantTableRow.ts` — `mapVariantTableStructure`
+  her ölçüye `isRequired: sizeValue.requirement?.isRequired ?? true` yazar.
+- `core/helpers/products/groupVariantTableRows.ts` — yeni opsiyon
+  `{ requiredMeasurementsOnly?: boolean }`; açıkken anahtar + `measurements` +
+  `label` yalnız `isRequired !== false` ölçülerden. Varsayılan davranış birebir aynı.
+- `core/helpers/products/resolveSizeByMeasurementKey.ts` — yeni
+  `resolveSizeIdsByMeasurementKey` (DİZİ döndürür). Bir zorunlu-ölçü anahtarı
+  BİRDEN ÇOK `ProductSize`'a çözülebilir (opsiyoneli girilmiş + girilmemiş
+  versiyonlar); "Varyantları Göster" drill-down'ı hepsini listeler. Tüm-ölçü
+  anahtarıyla da eşleşir (eski dışa çıkmış `?m=` bağlantıları).
+- `core/helpers/prisma/productVariants/repository.ts` — `sizeKeySelect`'e
+  `requirement.isRequired`; `loadVariantTableColumns(productId, requiredOnly)`;
+  `VariantTableQueryOptions.requiredMeasurementColumnsOnly` (yalnız iki özet-tablo
+  handler'ı geçer, `?m=` detay yolu geçmez); `getProductVariantsByMeasurementKey`
+  artık `productSizeId: { in: sizeIds }`.
+- İki handler `groupVariantTableRows(..., { requiredMeasurementsOnly: true })` +
+  `getProductVariantTableData(..., { requiredMeasurementColumnsOnly: true })`.
+**Testler:** `groupVariantTableRows.test.ts` (+3: required-only birleştirme,
+opsiyonel kolon düşürme, varsayılan modda hâlâ ayrı), yeni
+`resolveSizeByMeasurementKey.test.ts` (+6). Response validator düzenlemesi YOK
+(`data: z.array(z.any())`).
+**Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+`lint -w frontend` 0 error ✅ · core 596 · functions 320 · frontend 354 ✅
+(`variantTableResponseShape` + `buildVariantTableMeta` yeşil). i18n'e dokunulmadı.
+**Bilinen düşük risk:** `Product3DConfigurator` gruplanmış `options` alıyor;
+required-only'de bir option 2 ölçüyü kapsayabilir. Parametrik 3D config opsiyonel
+bir ölçüye referans veriyorsa `isConfigCompatibleWithOptions` false dönüp GLB
+viewer'a düşebilir. Aynı renk+hammadde kombinasyonu iki ölçüde de varsa 3D seçici
+ilk eşleşen varyantı alır (çökmez, görünür çift yok). Kubi'de o ürünlerde
+gözlemlenmeli.
+**Kullanıcıda bekleyen:** kubi runtime doğrulaması (aşağıdaki adımlar) + commit.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -9,7 +9,7 @@ import { colorTranslationSelect } from "@/core/helpers/prisma/colors/repository"
 import { materialTranslationSelect } from "@/core/helpers/prisma/materials/repository"
 import { measurementTypeTranslationSelect } from "@/core/helpers/prisma/measurementTypes/repository"
 import { DEFAULT_LOCALE, type SupportedLocale } from "@/core/i18n/locales"
-import { resolveSizeIdByMeasurementKey } from "@/core/helpers/products/resolveSizeByMeasurementKey"
+import { resolveSizeIdsByMeasurementKey } from "@/core/helpers/products/resolveSizeByMeasurementKey"
 
 /**
  * Varyantın YAPISAL include'u: ölçü (size) ve versiyon (renk + hammadde).
@@ -176,6 +176,12 @@ export type VariantTableQueryOptions = {
     /** `fullCode` içinde arar. */
     search?: string
     order?: "asc" | "desc"
+    /**
+     * `meta.columns` yalnız ZORUNLU ölçüleri içersin. Public/portal özet tablosu
+     * satırları da yalnız zorunlu ölçülerle gruplandığı için kolonlar onunla
+     * tutarlı olmalı. `?m=` detay yolu bunu KULLANMAZ (orada tüm ölçüler görünür).
+     */
+    requiredMeasurementColumnsOnly?: boolean
 }
 
 /**
@@ -201,7 +207,12 @@ const sizeKeySelect = {
     values: {
         select: {
             value: true,
-            requirement: { select: { measurementType: { select: { id: true, displayOrder: true } } } },
+            requirement: {
+                select: {
+                    isRequired: true,
+                    measurementType: { select: { id: true, displayOrder: true } },
+                },
+            },
         },
     },
 } as const
@@ -350,10 +361,15 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
      * türetilir: kolon listesi sayfadan sayfaya değişmemeli (eski davranışta
      * 2. sayfada farklı kolonlar çıkabiliyordu) ve şablon zaten tek doğru kaynak.
      */
-    /** Ürünün ölçü şablonundan kolon kodları — sayfadan bağımsız, tek doğru kaynak. */
-    const loadVariantTableColumns = async (productId: string) => {
+    /**
+     * Ürünün ölçü şablonundan kolon kodları — sayfadan bağımsız, tek doğru kaynak.
+     * `requiredOnly` ile yalnız zorunlu ölçüler: public/portal özet tablosu
+     * satırları zaten yalnız zorunlu ölçülerle gruplanıyor (bkz.
+     * `groupVariantTableRows`), `meta.columns` de onunla tutarlı olmalı.
+     */
+    const loadVariantTableColumns = async (productId: string, requiredOnly = false) => {
         const requirements = await prisma.productMeasurementRequirement.findMany({
-            where: { productId },
+            where: { productId, ...(requiredOnly ? { isRequired: true } : {}) },
             orderBy: [{ sortPriority: "asc" }, { displayOrder: "asc" }],
             select: { measurementType: { select: { code: true } } },
         })
@@ -482,7 +498,7 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
                 select: { id: true },
             }),
             prisma.productSize.count({ where: sizeWhere }),
-            loadVariantTableColumns(productId),
+            loadVariantTableColumns(productId, options.requiredMeasurementColumnsOnly ?? false),
         ])
 
         if (sizePage.length === 0) return { rows: [], total, columns }
@@ -525,11 +541,14 @@ export const productVariantRepository = (): IPrismaProductVariantRepository => {
             loadVariantTableColumns(productId),
         ])
 
-        const sizeId = resolveSizeIdByMeasurementKey(sizes, options.measurementKey)
-        if (!sizeId) return { rows: [], columns }
+        // Özet tablonun anahtarı yalnız zorunlu ölçülerden kurulduğu için bir
+        // anahtar BİRDEN ÇOK ölçüye çözülebilir (opsiyonel ölçüsü girilmiş ve
+        // girilmemiş versiyonlar). Hepsinin varyantları listelenir.
+        const sizeIds = resolveSizeIdsByMeasurementKey(sizes, options.measurementKey)
+        if (sizeIds.length === 0) return { rows: [], columns }
 
         const structure = buildVariantStructureInclude(localeFilter)
-        const variantWhere = { productId, productSizeId: sizeId }
+        const variantWhere = { productId, productSizeId: { in: sizeIds } }
         const variantOrderBy = buildVariantTableOrderBy("asc")
 
         const rows = options.includeListPrice

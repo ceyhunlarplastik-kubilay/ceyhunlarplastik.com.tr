@@ -77,6 +77,19 @@ function byDisplayOrder(a: any, b: any) {
     return (a?.measurementType?.displayOrder ?? 0) - (b?.measurementType?.displayOrder ?? 0)
 }
 
+export type GroupVariantTableRowsOptions = {
+    /**
+     * true → satırlar YALNIZ zorunlu ölçülerle (`isRequired !== false`) gruplanır
+     * ve gruplanmış satır yalnız o ölçüleri taşır. Public + portal özet tablosu
+     * bunu kullanır: bir tedarikçi kataloğunda opsiyonel bir ölçü girilmemişse
+     * (`R20/D5/H17` ile `R20/D5`) aksi hâlde iki ayrı satır olarak tekrar ederdi.
+     * Zorunlu ölçüleri aynı olan tüm varyantlar (renk/hammadde/kod) tek satırda
+     * birleşir. Varsayılan (false) davranış birebir korunur — admin/matris ve
+     * diğer çağıranlar tüm ölçüleri görür.
+     */
+    requiredMeasurementsOnly?: boolean
+}
+
 /**
  * DTO satırlarını ölçüye göre gruplar. Sıra korunur: çağıran zaten `size.code`'a
  * göre sıralı getirir (kod küçükten büyüğe atanmıştır), bu yüzden burada YENİDEN
@@ -85,18 +98,24 @@ function byDisplayOrder(a: any, b: any) {
  */
 export function groupVariantTableRows(
     variants: readonly VariantRowLike[],
+    options: GroupVariantTableRowsOptions = {},
 ): GroupedVariantRow[] {
     const groups = new Map<string, GroupedVariantRow>()
+    const effectiveMeasurements = (variant: VariantRowLike) =>
+        options.requiredMeasurementsOnly
+            ? variant.measurements.filter((measurement) => measurement.isRequired !== false)
+            : variant.measurements
 
     for (const variant of variants) {
-        const key = buildMeasurementKey(variant.measurements)
+        const measurements = effectiveMeasurements(variant)
+        const key = buildMeasurementKey(measurements)
         let group = groups.get(key)
 
         if (!group) {
             group = {
                 key,
-                label: toMeasurementLabel(variant.measurements),
-                measurements: [...variant.measurements].sort(byDisplayOrder),
+                label: toMeasurementLabel(measurements),
+                measurements: [...measurements].sort(byDisplayOrder),
                 colors: [],
                 materials: [],
                 suppliers: [],
