@@ -11,21 +11,19 @@ import ProductTechnicalDrawingSection from "@/features/public/products/component
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantsByMeasurement } from "@/features/public/products/server/getProductVariantsByMeasurement"
 
-export const revalidate = 60
-
-/**
- * ISR'i AÇAR — bkz. `urun/[slug]/page.tsx`. `generateStaticParams` olmadan
- * dinamik segmentli route tamamen dynamic render edilir ve CDN'de hiç
- * cache'lenmez. Boş dizi: build'de sayfa üretilmez, ilk istekte üretilip
- * CDN'e alınır.
- */
-export async function generateStaticParams() {
-    return []
-}
-
 import { buildMeasurementKey } from "@/features/public/products/utils/measurement"
 import { getOgLocale } from "@/i18n/localeMetadata";
 import { buildAlternates } from "@/i18n/alternates";
+
+/**
+ * DİNAMİK route: bu sayfa `?m=` (searchParams) okuyor. `export const revalidate`
+ * + `generateStaticParams` ile birlikte `searchParams` okumak Next 16 prod
+ * build'inde `DYNAMIC_SERVER_USAGE` ile 500 veriyordu (lokalde `next dev` sınırı
+ * zorlamadığı için görünmüyordu). Özet sayfa (`urun/[slug]/page.tsx`) ISR'de
+ * kalır — o `searchParams` okumaz. Veri katmanı (`getProductVariantsByMeasurement`)
+ * `unstable_cache(revalidate:60)` ile DB turunu yine 60 sn dedupe ediyor.
+ */
+export const dynamic = "force-dynamic"
 
 type PageProps = {
     params: Promise<{ locale: string; slug: string }>

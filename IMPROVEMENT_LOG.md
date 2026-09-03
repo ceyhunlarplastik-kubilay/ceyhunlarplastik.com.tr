@@ -5475,6 +5475,30 @@ yüzey. i18n anahtarları (`colSupplier`/`supplierCount`) 14 dilde bırakıldı
 **Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
 `lint -w frontend` 0 error ✅ · core 596 · functions 320 · frontend 354 ✅.
 
+### `urun/[slug]/varyantlar` prod'da 500 — ISR + searchParams çelişkisi (2026-09-02)
+**Belirti:** `ceyhunlarplastik.xyz/.../varyantlar?m=<key>` prod'da Internal Server
+Error; lokalde sorunsuz. CloudWatch (`CeyhunlarFrontendServer`): tekrarlayan
+`digest: 'DYNAMIC_SERVER_USAGE'` (RSC render, HTTP çağrısından önce — API Lambda'sı
+hiç invoke edilmemiş).
+**Kök neden:** `varyantlar/page.tsx` `export const revalidate = 60` +
+`generateStaticParams` (ISR — commit `0d2889e`) taşırken `await searchParams` ile
+`?m=` okuyor (commit `c85a90f`). Next 16 prod build'inde `revalidate` set edilmiş
+bir route'ta `searchParams` okumak `DYNAMIC_SERVER_USAGE` fırlatıyor. `next dev`
+statik/dinamik sınırını zorlamadığı için lokalde görünmüyordu; bu sayfa `c85a90f`'den
+beri her production build'inde `?m=` linkiyle açılınca kırıktı — prod'da bu akış
+ilk kez şimdi tıklandı. Supplier/veri/son değişikliklerle İLGİSİ YOK.
+**Çözüm:** `varyantlar/page.tsx`'ten `revalidate` + `generateStaticParams`
+kaldırıldı, `export const dynamic = "force-dynamic"` eklendi. Özet sayfa
+(`urun/[slug]/page.tsx`) ISR'de kalıyor — o `searchParams` okumaz.
+`getProductVariantsByMeasurement` içindeki `unstable_cache(revalidate:60)` DB
+turunu yine 60 sn dedupe ediyor, veri katmanı performansı aynı.
+**Doğrulama:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error ✅.
+Tam doğrulama = prod deploy (bare `next build` SST link hatasından önce bu sınıra
+gelmez; `sst shell` içinde build veya deploy gerekir).
+**Kullanıcıda bekleyen:** `sst deploy --stage prod` + prod'da `?m=` linkinin
+düzeldiğinin doğrulanması. Müşteri paneli muadili (`(panels)/musteri/.../varyantlar`)
+zaten `revalidate`/`generateStaticParams` taşımıyor — etkilenmedi.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
