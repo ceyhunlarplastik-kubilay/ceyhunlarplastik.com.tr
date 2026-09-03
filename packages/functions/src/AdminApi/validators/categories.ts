@@ -183,11 +183,17 @@ export const listCategoryResponseValidator = z.toJSONSchema(
     }).loose()
 )
 
+// categoryId + assetType verilirse presign, PENDING_UPLOAD Asset satırını da
+// oluşturur (AssetUploader akışı — S3 event'i sonra ACTIVE'e çevirir). İkisi de
+// verilmezse yalnız presign döner ve satırı çağıran oluşturur (CategoryCreateForm
+// — kategori + asset tek-atışta, henüz categoryId yok).
 export const createCategoryAssetUploadValidator = validatorWrapper(
     z.object({
         body: z.object({
+            categoryId: z.uuid().optional(),
             categorySlug: z.string().min(1),
             assetRole: assetRoleEnum,
+            assetType: assetTypeEnum.optional(),
             fileName: z.string().min(1),
             contentType: z.string().min(1),
         }),

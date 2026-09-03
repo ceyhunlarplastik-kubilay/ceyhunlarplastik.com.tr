@@ -14,6 +14,7 @@ export default $config({
     const db = await import("./infra/db");
     await import("./infra/googleMaps");
     await import("./infra/businessWorkflow");
+    await import("./infra/assetLifecycle");
     await import("./infra/PublicApi");
     await import("./infra/ProtectedApi");
     await import("./infra/AdminApi");

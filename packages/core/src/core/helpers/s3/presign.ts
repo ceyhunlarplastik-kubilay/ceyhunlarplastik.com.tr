@@ -68,11 +68,19 @@ function buildPublicUrl(key: string) {
 }
 
 export async function generateCategoryAssetUpload({
+    assetId,
     categorySlug,
     assetRole,
     fileName,
     contentType,
 }: {
+    /**
+     * Asset satırının id'si. Key'in dosya adı bu id'dir; S3 ObjectCreated event'i
+     * key üzerinden satırı bulup PENDING_UPLOAD → ACTIVE çevirir
+     * (confirmCategoryAssetUpload). Çağıran presign handler'ı üretir ve aynı id
+     * ile createPendingAsset yazar.
+     */
+    assetId: string
     categorySlug: string
     assetRole: string
     fileName: string
@@ -80,22 +88,19 @@ export async function generateCategoryAssetUpload({
 }) {
     const safeName = sanitizeFileName(fileName)
     const ext = safeName.includes(".") ? safeName.split(".").pop() : undefined
-    const uuid = randomUUID()
-    // const folder = getFolderByType(assetType)
-    // const key = `categories/${categorySlug}/${folder}/${uuid}${ext ? `.${ext}` : ""}`
 
     const folder = getFolderByRole(assetRole)
-    const key = `categories/${categorySlug}/${folder}/${uuid}${ext ? `.${ext}` : ""}`
+    const key = `categories/${categorySlug}/${folder}/${assetId}${ext ? `.${ext}` : ""}`
 
     const cmd = new PutObjectCommand({
         Bucket: process.env.BUCKET_NAME!,
         Key: key,
         ContentType: contentType,
-        // İstersen metadata ekleyebilirsin
-        // Metadata: { assetType },
     })
 
-    const uploadUrl = await getSignedUrl(s3, cmd, { expiresIn: 60 })
+    // 900s: büyük dosya + yavaş uplink için pay. Süre yalnız PUT'un başlaması
+    // için geçerli; asıl DB yazımı S3 event'iyle asenkron ilerler.
+    const uploadUrl = await getSignedUrl(s3, cmd, { expiresIn: 900 })
 
     return {
         uploadUrl,

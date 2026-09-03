@@ -77,4 +77,18 @@ describe("assetRepository", () => {
             expect(result.asset).toMatchObject({ id: "asset-1" })
         })
     })
+
+    describe("demoteOtherCategoryPrimaryAssets", () => {
+        it("keepAssetId hariç kategorinin diğer PRIMARY'lerini GALLERY yapar", async () => {
+            await assetRepository().demoteOtherCategoryPrimaryAssets("cat-1", "asset-1")
+
+            const call = prismaMock.asset.updateMany.mock.calls[0][0]
+            expect(call.where).toMatchObject({
+                categoryId: "cat-1",
+                role: "PRIMARY",
+                id: { not: "asset-1" },
+            })
+            expect(call.data).toEqual({ role: "GALLERY" })
+        })
+    })
 })

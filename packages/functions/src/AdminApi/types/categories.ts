@@ -92,11 +92,19 @@ export interface IUpdateCategoryDependencies {
 }
 
 // ✅ Presign request
+// categoryId + assetType birlikte verilirse handler PENDING_UPLOAD Asset satırını
+// da yazar; verilmezse yalnız presign döner (kategori + asset tek-atışta oluşturma).
 export interface ICreateCategoryAssetUploadBody {
+    categoryId?: string
     categorySlug: string
     assetRole: AssetRole
+    assetType?: AssetType
     fileName: string
     contentType: string
 }
 
 export type ICreateCategoryAssetUploadEvent = IAPIGatewayProxyEventWithUserGeneric<Partial<ICreateCategoryAssetUploadBody>, {}>
+
+export interface ICreateCategoryAssetUploadDependencies {
+    assetRepository: IPrismaAssetRepository
+}

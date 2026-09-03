@@ -27,6 +27,7 @@ export interface IPrismaAssetRepository {
     deleteAssetsByIds(ids: string[]): Promise<Prisma.BatchPayload>
     deleteCategoryAssetsByType(categoryId: string, type: AssetType): Promise<Prisma.BatchPayload>
     unsetCategoryPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
+    demoteOtherCategoryPrimaryAssets(categoryId: string, keepAssetId: string): Promise<Prisma.BatchPayload>
     unsetProductPrimaryAssets(categoryId: string): Promise<Prisma.BatchPayload>
     unsetProductAttributeValuePrimaryAssets(productAttributeValueId: string): Promise<Prisma.BatchPayload>
 }
@@ -174,6 +175,27 @@ export const assetRepository = (): IPrismaAssetRepository => {
         })
     }
 
+    // confirmUploadedAsset sonrası: yeni PRIMARY gerçekten S3'te doğrulandığında
+    // aynı kategorinin diğer PRIMARY'lerini düşür. keepAssetId hariç tutulur ki
+    // yeni onaylanan asset PRIMARY kalsın. (Eski akışta bu unsetCategoryPrimaryAssets
+    // ile presign öncesi yapılıyordu; artık onay anına taşındı — upload yarıda
+    // kalırsa eski PRIMARY boşuna düşmesin.)
+    const demoteOtherCategoryPrimaryAssets = async (
+        categoryId: string,
+        keepAssetId: string,
+    ) => {
+        return prisma.asset.updateMany({
+            where: {
+                categoryId,
+                role: "PRIMARY",
+                id: { not: keepAssetId },
+            },
+            data: {
+                role: "GALLERY",
+            },
+        })
+    }
+
     const unsetProductPrimaryAssets = async (productId: string) => {
         return prisma.asset.updateMany({
             where: {
@@ -212,6 +234,7 @@ export const assetRepository = (): IPrismaAssetRepository => {
         deleteAssetsByIds,
         deleteCategoryAssetsByType,
         unsetCategoryPrimaryAssets,
+        demoteOtherCategoryPrimaryAssets,
         unsetProductPrimaryAssets,
         unsetProductAttributeValuePrimaryAssets,
     }

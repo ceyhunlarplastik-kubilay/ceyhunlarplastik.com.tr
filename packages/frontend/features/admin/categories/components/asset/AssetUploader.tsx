@@ -12,7 +12,6 @@ import type { Category } from "@/features/public/categories/types"
 import type { AssetRole } from "@/features/public/assets/types"
 
 import { usePresignCategoryAsset } from "@/features/admin/categories/hooks/usePresignCategoryAsset"
-import { useUpdateCategory } from "@/features/admin/categories/hooks/useUpdateCategory"
 
 type Upload = {
     id: string
@@ -26,6 +25,12 @@ type Props = {
     refetchCategory: () => Promise<void>
 }
 
+function resolveAssetType(mime: string) {
+    if (mime.startsWith("image")) return "IMAGE"
+    if (mime.startsWith("video")) return "VIDEO"
+    return "PDF"
+}
+
 export function AssetUploader({
     category,
     activeRole,
@@ -35,7 +40,6 @@ export function AssetUploader({
     const [uploads, setUploads] = useState<Upload[]>([])
 
     const presignMutation = usePresignCategoryAsset()
-    const updateCategoryMutation = useUpdateCategory()
 
     const handleFiles = (files: File[]) => {
 
@@ -58,14 +62,20 @@ export function AssetUploader({
                 locale: "tr"
             })
 
+            // Presign artık PENDING_UPLOAD Asset satırını da oluşturur. S3'e PUT
+            // bitince kayıt için beklemeye gerek yok: S3 ObjectCreated event'i
+            // satırı ACTIVE'e çevirir (confirmCategoryAssetUpload). Buradaki tek
+            // refetch geçici — Slice 3 optimistic + reconciler ile kaldıracak.
             const presigned = await presignMutation.mutateAsync({
+                categoryId: category.id,
                 categorySlug: slug,
                 assetRole: activeRole,
+                assetType: resolveAssetType(upload.file.type),
                 fileName: upload.file.name,
                 contentType: upload.file.type
             })
 
-            const { uploadUrl, key } = presigned
+            const { uploadUrl } = presigned
 
             await axios.put(uploadUrl, upload.file, {
 
@@ -91,22 +101,8 @@ export function AssetUploader({
 
             })
 
-            await updateCategoryMutation.mutateAsync({
-
-                id: category.id,
-                assetKey: key,
-                assetRole: activeRole,
-                assetType: upload.file.type.startsWith("image")
-                    ? "IMAGE"
-                    : upload.file.type.startsWith("video")
-                        ? "VIDEO"
-                        : "PDF",
-                mimeType: upload.file.type
-
-            })
-
             await refetchCategory()
-            toast.success(`${upload.file.name} kategori asset'i olarak yüklendi`)
+            toast.success(`${upload.file.name} yüklendi — arka planda işleniyor`)
         } catch {
             toast.error(`${upload.file.name} yüklenemedi`)
         }

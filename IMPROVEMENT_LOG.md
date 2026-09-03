@@ -5655,6 +5655,80 @@ bileşenlerini paylaşıyor). Branch: `feat/async-category-asset-upload`.
   now()-24h`); istenirse ürün/materyal asset akışları; 2. tüketici gerekirse
   EventBridge Bus refactor.
 
+## Asenkron asset yükleme (S3 event-driven) — Dilim 2: presign PENDING satırı + S3 → Lambda onayı (2026-09-04) *(kullanıcı talebiyle eklendi)*
+
+**Ne yapıldı:** Kategori asset presign'ı artık `PENDING_UPLOAD` Asset satırını da
+yazıyor; S3 `ObjectCreated` **doğrudan** bir Lambda'yı tetikliyor, o da satırı
+`ACTIVE`'e çeviriyor. Kullanıcı artık `PUT /categories/{id}` DB yazımını beklemiyor
+(Dilim 3 kalan tek `refetch`'i de kaldıracak). Branch: `feat/async-category-asset-upload`.
+
+**Değişen / yeni dosyalar:**
+- `core/helpers/s3/presign.ts` — `generateCategoryAssetUpload` `assetId` alır; key
+  `categories/<slug>/<rol>/<assetId>.<ext>` (eskiden içeride `randomUUID`);
+  `expiresIn` 60→900s. Diğer `generate*` fonksiyonları DEĞİŞMEDİ.
+- `core/helpers/prisma/assets/repository.ts` — `+ demoteOtherCategoryPrimaryAssets(
+  categoryId, keepAssetId)` (confirm sonrası; `unsetCategoryPrimaryAssets`'ten farkı:
+  yeni onaylananı hariç tutar).
+- `functions/AdminApi/functions/categories/handlers/createCategoryAssetUploadHandler.ts`
+  — `assetRepository` dep; **iki-yollu**: `categoryId`+`assetType` verilirse
+  `createPendingAsset({ id: assetId, key, type, role, category: connect })` (P2025→404),
+  dönüşe `assetId`. `categoryId` YOKSA satır yazılmaz, yalnız presign döner —
+  `CategoryCreateForm` (kategori+asset tek-atışta, henüz id yok) bozulmasın diye.
+  `categoryId` var ama `assetType` yoksa 400.
+- `functions/AdminApi/validators/categories.ts` — `createCategoryAssetUploadValidator`:
+  `+ categoryId: z.uuid().optional()`, `+ assetType: assetTypeEnum.optional()`
+  (`requiredBodyFields` DEĞİŞMEDİ).
+- `functions/AdminApi/types/categories.ts` — body `categoryId?`/`assetType?` +
+  `ICreateCategoryAssetUploadDependencies`.
+- `functions/AdminApi/functions/categories/actions.ts` — `assetRepository()` enjekte.
+- **YENİ** `packages/functions/src/AssetLifecycle/functions/confirmCategoryAssetUpload.ts`
+  — S3 event handler. Plain `handler`; `confirmUploadedAsset(decodeURIComponent(
+  key.replace(/\+/g, " ")))`; `categories/` prefix guard; `count === 0` → no-op log
+  (zaten ACTIVE / satır yok / elle yükleme); onaylanan satır PRIMARY ise
+  `demoteOtherCategoryPrimaryAssets`. `console.info` (repo'daki `GoogleMapsLocationRefresh`
+  deseni).
+- **YENİ** `infra/assetLifecycle.ts` — `publicBucket.notify({ notifications: [{ name:
+  "ConfirmCategoryAssetUpload", function: {…nodejs24.x, timeout 1min, vpc, link:[rds],
+  Powertools env}, events: ["s3:ObjectCreated:*"], filterPrefix: "categories/" }] })`.
+  Stage gate YOK (kubi pilotu gerektiriyor; per-upload tetik, zamanlanmış maliyeti yok).
+  Bucket'lar stage'e göre ayrı (SST bucket adına stage ekliyor) — kubi notification'ı
+  prod'a dokunmaz.
+- `sst.config.ts` — `await import("./infra/assetLifecycle")` (storage+db+businessWorkflow'dan sonra).
+- **Frontend (minimal geçiş — optimistic UX + rozet Dilim 3):** `AssetUploader.tsx` —
+  bloklayan `updateCategory` asset çağrısı KALKTI (import + mutation dahil); presign'a
+  `categoryId`+`assetType` gider; PUT sonrası tek `refetchCategory()` + toast
+  "yüklendi — arka planda işleniyor". `api/presignCategoryAsset.ts` — `Params`
+  `categoryId?`/`assetType?`, `Response.payload` `+ assetId`.
+- Testler: `AssetLifecycle/functions/confirmCategoryAssetUpload.test.ts` (+6),
+  `AdminApi/.../createCategoryAssetUploadHandler.test.ts` (+4: iki-yol + assetType-eksik
+  400), `assets/repository.test.ts` (+1: demote).
+
+**Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · `lint -w frontend`
+0 error (156 warning) ✅ · `test:ci -w core` 607/607 ✅ · `test -w functions` 330/330
+(`validatorCompilation` 292 — opsiyonel alan eklemeleri ajv `strict` altında derleniyor)
+✅ · `test -w frontend` 357/357 ✅ · `infra/assetLifecycle.ts` + `sst.config.ts` root
+`tsc` ile hatasız (backend tsconfig infra'yı kapsamaz).
+
+**Kullanıcıda bekleyen (kubi):**
+1. **`npx sst diff --stage prod` (READ-ONLY) — beraber gözden geçirilecek.** Beklenen:
+   yalnız `CeyhunlarWebBucket` üzerinde 1 yeni `BucketNotification` + 1 yeni Function
+   (`ConfirmCategoryAssetUpload`) + log group + S3→Lambda invoke permission. Bucket
+   access/policy/CORS/removal DEĞİŞMEZ; hiçbir mevcut route/function'a dokunulmaz.
+2. Kubi'ye deploy. Test:
+   - Kategori yönetim dialog'unda görsel yükle → kayıt neredeyse anında grid'de
+     (`uploadStatus: PENDING_UPLOAD`).
+   - CloudWatch `ceyhunlar-asset-lifecycle` log grubunda `asset upload confirmed`;
+     DB'de satır ~1-2 sn içinde `ACTIVE`.
+   - PRIMARY rolüne yükle → eski PRIMARY `GALLERY`'e düşer (`demoted siblings` log).
+   - `CategoryCreateForm` (Yeni Kategori + kapak asset'i) hâlâ çalışıyor (senkron yol).
+
+**Ne kaldı:**
+- **Dilim 3:** `AssetUploader` optimistic pending asset + `usePendingAssetReconciler`
+  (kalan `refetch` beklemesi de kalkar); `AssetGrid`/`AssetPreviewPanel` PENDING rozeti;
+  **public/liste okumalarına `uploadStatus=ACTIVE` filtresi** (`categoryRepository`
+  `categoryInclude`, admin + public `mapCategoryWithAssets` tüketicileri).
+- **Dilim 4:** günlük `sst.aws.Cron` zombi-sweep.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

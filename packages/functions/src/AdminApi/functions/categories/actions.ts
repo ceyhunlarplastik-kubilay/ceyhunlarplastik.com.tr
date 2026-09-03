@@ -34,6 +34,7 @@ import type {
     IDeleteCategoryEvent,
     IUpdateCategoryDependencies,
     IUpdateCategoryEvent,
+    ICreateCategoryAssetUploadDependencies,
     ICreateCategoryAssetUploadEvent,
 } from "@/functions/AdminApi/types/categories"
 
@@ -144,7 +145,11 @@ export const updateCategory = lambdaHandler(
 
 export const createCategoryAssetUpload = lambdaHandler(
     async (event) => {
-        return createCategoryAssetUploadHandler()(
+        const deps: ICreateCategoryAssetUploadDependencies = {
+            assetRepository: assetRepository(),
+        }
+
+        return createCategoryAssetUploadHandler(deps)(
             event as ICreateCategoryAssetUploadEvent
         )
     },
