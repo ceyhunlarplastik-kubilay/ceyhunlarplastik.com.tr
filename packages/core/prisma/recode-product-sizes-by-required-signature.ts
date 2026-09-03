@@ -16,13 +16,33 @@
  * NOT: append-only doktrini gereği kod BOŞLUKLARI doldurulmaz — birleşen grup,
  * eski kodlarının en küçüğünü alır (ör. 1/2/3 → 1; 2 ve 3 numarası boşta kalır).
  *
- * Çalıştırma (YALNIZ kubi / non-prod):
+ * Çalıştırma:
+ *   # non-prod (kubi/dev) — paylaşılan istemci doğrudan RDS/Neon'a bağlanır:
  *   npm run backfill:recode-product-sizes -w @ceyhunlarweb/core
+ *
+ *   # prod — paylaşılan istemci RDS Proxy'ye (VPC içi) bağlanır, `sst tunnel`
+ *   # yalnız doğrudan RDS örneğini açar. Bu yüzden `prisma migrate`'in kullandığı
+ *   # DIRECT_URL'i override olarak ver:
+ *   BACKFILL_DATABASE_URL="$DIRECT_URL" npm run backfill:recode-product-sizes -w @ceyhunlarweb/core
  */
 
-import { prisma } from "../src/core/db/prisma.js"
+import { PrismaPg } from "@prisma/adapter-pg"
+
+import { PrismaClient } from "./generated/prisma/client.js"
+import { prisma as sharedPrisma } from "../src/core/db/prisma.js"
 import { mergeProductSizesByRequiredSignature } from "../src/core/helpers/productVariants/mergeProductSizesByRequiredSignature.js"
 import { recalculateProductVariantCodes } from "../src/core/helpers/productVariants/productVariantMaintenance.js"
+
+/**
+ * Prod'da paylaşılan istemci RDS Proxy'ye bağlanır (yalnız VPC içinden erişilir).
+ * `BACKFILL_DATABASE_URL` verilirse (tünelden erişilen DIRECT_URL gibi) ona bağlı
+ * AYRI bir istemci kurulur — soft-delete extension'ı bu backfill'i etkilemez.
+ */
+const overrideUrl = process.env.BACKFILL_DATABASE_URL
+const ownClient = overrideUrl
+    ? new PrismaClient({ adapter: new PrismaPg({ connectionString: overrideUrl }) })
+    : null
+const prisma = (ownClient ?? sharedPrisma) as unknown as typeof sharedPrisma
 
 async function main() {
     const products = await prisma.product.findMany({
@@ -107,4 +127,5 @@ main()
     })
     .finally(async () => {
         await prisma.$disconnect()
+        if (ownClient) await ownClient.$disconnect()
     })
