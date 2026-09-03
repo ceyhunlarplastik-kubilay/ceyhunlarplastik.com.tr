@@ -15,6 +15,8 @@ type Props = {
     productName: string
     /** Uyarıda kaç ölçünün etkileneceğini söylemek için. */
     sizeCount: number
+    /** Şablonu düzenlerken referans için diyalogda gösterilen teknik resim. */
+    technicalDrawingUrl?: string | null
 }
 
 /**
@@ -24,7 +26,7 @@ type Props = {
  * girerken hangi ölçüyü neden girdiğini görebilmeli. Düzenleme diyalogda yapılır:
  * sütun 304px ve satır başına dört alan + sıralama düğmeleri buraya sığmıyor.
  */
-export function MeasurementRequirementsPanel({ productId, productName, sizeCount }: Props) {
+export function MeasurementRequirementsPanel({ productId, productName, sizeCount, technicalDrawingUrl }: Props) {
     const { data: requirements, isLoading } = useMeasurementRequirements(productId)
     const { data: references, isLoading: referencesLoading, isError: referencesError } = useVariantMatrixReferences()
     const [editorOpen, setEditorOpen] = useState(false)
@@ -117,6 +119,7 @@ export function MeasurementRequirementsPanel({ productId, productName, sizeCount
                 requirements={requirements}
                 measurementTypes={measurementTypes}
                 sizeCount={sizeCount}
+                technicalDrawingUrl={technicalDrawingUrl}
             />
         </>
     )

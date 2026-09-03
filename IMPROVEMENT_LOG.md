@@ -5499,6 +5499,27 @@ gelmez; `sst shell` içinde build veya deploy gerekir).
 düzeldiğinin doğrulanması. Müşteri paneli muadili (`(panels)/musteri/.../varyantlar`)
 zaten `revalidate`/`generateStaticParams` taşımıyor — etkilenmedi.
 
+### Varyant matrisi — Ölçü Şablonu diyalogunda teknik resim + boş durum (2026-09-03)
+**Ölçü Şablonu diyalogu:** Şablon düzenlenirken referans olsun diye teknik resim
+diyalogun soluna eklendi. `VariantMatrixContextRail` zaten `TECHNICAL_DRAWING`
+asset URL'ini hesaplıyor → `MeasurementRequirementsPanel` (`technicalDrawingUrl?`
+prop) → `MeasurementRequirementsEditorDialog`. URL varsa `DialogContent`
+`max-w-3xl` → `max-w-5xl`, içerik `lg:flex-row`: solda `lg:w-64` sticky resim
+paneli (`next/image` `object-contain`, hover'da büyüteç ikonu), sağda mevcut
+`EditorForm`. URL yoksa tek sütun aynen kalır.
+- **İç içe Radix Dialog KULLANILMADI** (`VariantAssetPreview` / `InteractiveZoomImage`
+  ikisi de Dialog açar; editör Dialog'u içinde odak/z-index sorunu çıkar). Tam
+  boy için resim `<a target="_blank">` ile yeni sekmede açılır — sadece resim,
+  yazı yok.
+**Boş durum:** yeni shadcn `components/ui/empty.tsx` bileşeni. Her iki sayfa
+(`admin/products/[id]/variants` + `veri-girisi/products/[id]/variants`) aynı
+`ProductVariantMatrixPageClient`'ı kullanıyor → "Kayıtlı varyantlar" bölümünde
+`matrix.rows.length === 0` ise filtre/refresh/tablo/sayfalama yerine `<Empty>`:
+`Boxes` ikonu · "Ürün Varyantı Yok" · şablon durumuna göre yönlendirme metni.
+"Giriş" bölümü yukarıda kalır.
+**Doğrulama:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error ✅ ·
+`test -w frontend` 354/354 ✅. Backend/i18n'e dokunulmadı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

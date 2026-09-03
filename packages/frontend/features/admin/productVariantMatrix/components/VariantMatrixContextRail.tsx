@@ -106,6 +106,7 @@ export function VariantMatrixContextRail({
                 productId={productId}
                 productName={name}
                 sizeCount={sizeCount}
+                technicalDrawingUrl={technicalDrawing}
             />
 
             <div className="h-px bg-border" />

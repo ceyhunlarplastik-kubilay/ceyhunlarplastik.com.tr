@@ -2,10 +2,11 @@
 
 import { useMemo, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { AlertTriangle, Plus, X } from "lucide-react"
+import { AlertTriangle, Boxes, Plus, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -560,6 +561,22 @@ export function ProductVariantMatrixPageClient({
                             <span className="text-sm font-normal text-neutral-500">{matrix.rows.length} kayıt</span>
                         </h2>
 
+                        {matrix.rows.length === 0 ? (
+                            <Empty className="border">
+                                <EmptyHeader>
+                                    <EmptyMedia variant="icon">
+                                        <Boxes />
+                                    </EmptyMedia>
+                                    <EmptyTitle>Ürün Varyantı Yok</EmptyTitle>
+                                    <EmptyDescription>
+                                        {hasTemplate
+                                            ? "Bu ürün modeli için henüz varyant girilmemiş. Yukarıdaki “Giriş” bölümünden ölçüleri ekleyip kaydedin."
+                                            : "Varyant girebilmek için önce soldaki “Ölçü şablonu” bölümünden en az bir ölçü tanımlayın."}
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                            </Empty>
+                        ) : (
+                            <>
                         <VariantMatrixFilters
                             query={filters.q}
                             onQueryChange={setQuery}
@@ -639,6 +656,8 @@ export function ProductVariantMatrixPageClient({
                                 onLimitChange={setLimit}
                             />
                         ) : null}
+                            </>
+                        )}
                     </section>
                 </div>
 

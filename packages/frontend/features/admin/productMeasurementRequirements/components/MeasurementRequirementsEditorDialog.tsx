@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { AlertTriangle, ArrowDown, ArrowUp, Loader2, Plus, Ruler, Trash2 } from "lucide-react"
+import Image from "next/image"
+import { AlertTriangle, ArrowDown, ArrowUp, Loader2, Maximize2, Plus, Ruler, Trash2 } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -39,6 +41,38 @@ type Props = {
     requirements: MeasurementRequirement[]
     measurementTypes: MeasurementTypeOption[]
     sizeCount: number
+    /** Şablon düzenlenirken referans olsun diye yanda gösterilen teknik resim. */
+    technicalDrawingUrl?: string | null
+}
+
+/**
+ * Diyalogun yanındaki referans teknik resim — SADECE görsel, yazı yok.
+ *
+ * Tıklama Radix Dialog AÇMAZ: editör zaten bir Dialog ve iç içe Radix Dialog
+ * odak/z-index sorunları çıkarıyor. Tam boyu görmek isteyen operatör resmi yeni
+ * sekmede açar.
+ */
+function TechnicalDrawingAside({ url, productName }: { url: string; productName: string }) {
+    return (
+        <a
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`${productName} teknik resmini yeni sekmede aç`}
+            className="group relative block aspect-square w-full shrink-0 overflow-hidden rounded-lg border bg-neutral-50 lg:sticky lg:top-0 lg:aspect-auto lg:h-[min(420px,60vh)] lg:w-64 lg:self-start dark:bg-neutral-900"
+        >
+            <Image
+                src={url}
+                alt={`${productName} teknik resmi`}
+                fill
+                sizes="256px"
+                className="object-contain p-2"
+            />
+            <span className="pointer-events-none absolute end-1.5 top-1.5 inline-flex items-center rounded-md bg-white/85 p-1 text-neutral-600 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 dark:bg-neutral-900/85">
+                <Maximize2 className="size-3.5" />
+            </span>
+        </a>
+    )
 }
 
 function toDraft(requirement: MeasurementRequirement): DraftRequirement {
@@ -64,9 +98,16 @@ function sameOrder(drafts: DraftRequirement[], saved: MeasurementRequirement[]) 
  * oraya sığmıyordu.
  */
 export function MeasurementRequirementsEditorDialog(props: Props) {
+    const hasDrawing = Boolean(props.technicalDrawingUrl)
+
     return (
         <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-            <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+            <DialogContent
+                className={cn(
+                    "max-h-[90vh] overflow-y-auto",
+                    hasDrawing ? "max-w-5xl" : "max-w-3xl",
+                )}
+            >
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Ruler className="size-4" />
@@ -86,7 +127,17 @@ export function MeasurementRequirementsEditorDialog(props: Props) {
 
                 {/* Diyalog her açılışta taze başlangıç değeriyle kurulur — veri gelince
                     state'i senkronlayan bir effect'e gerek kalmaz. */}
-                <EditorForm key={props.requirements.map((r) => r.id).join("|")} {...props} />
+                <div className={cn("flex flex-col gap-5", hasDrawing && "lg:flex-row")}>
+                    {props.technicalDrawingUrl ? (
+                        <TechnicalDrawingAside
+                            url={props.technicalDrawingUrl}
+                            productName={props.productName}
+                        />
+                    ) : null}
+                    <div className="min-w-0 flex-1">
+                        <EditorForm key={props.requirements.map((r) => r.id).join("|")} {...props} />
+                    </div>
+                </div>
             </DialogContent>
         </Dialog>
     )
