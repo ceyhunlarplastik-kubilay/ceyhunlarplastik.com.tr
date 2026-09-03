@@ -5,7 +5,7 @@ import {
     type PlannerVariant,
     type PlannerVersion,
 } from "@core/helpers/productVariants/assignProductVariantCodes"
-import { buildSizeSignature, buildSizeSortKey } from "@core/helpers/productVariants/sizeSignature"
+import { buildRequiredSignature, buildSizeSortKey } from "@core/helpers/productVariants/sizeSignature"
 import { parseVersionCode } from "@core/helpers/productVariants/variantCode"
 import { buildVersionSignature } from "@core/helpers/productVariants/versionSignature"
 
@@ -89,6 +89,7 @@ export function previewVariantCodes(input: {
         label: requirement.label,
         sortPriority: requirement.sortPriority,
         displayOrder: requirement.displayOrder,
+        isRequired: requirement.isRequired,
     }))
 
     try {
@@ -98,7 +99,8 @@ export function previewVariantCodes(input: {
             code: size.code,
             // signature/sortKey matris yanıtında taşınmıyor (istemcinin işine
             // yaramıyordu); değerlerden aynı core yardımcılarıyla yeniden üretilir.
-            signature: buildSizeSignature(size.values, requirementLikes),
+            // signature = ZORUNLU ölçü imzası (sunucudaki productVariantWriter ile aynı).
+            signature: buildRequiredSignature(size.values, requirementLikes),
             sortKey: buildSizeSortKey(size.values, requirementLikes),
         }))
         const sizeIdBySignature = new Map(plannerSizes.map((size) => [size.signature, size.id]))
@@ -144,7 +146,7 @@ export function previewVariantCodes(input: {
         }> = []
 
         draftRows.forEach((row, index) => {
-            const signature = buildSizeSignature(row.measurements, requirementLikes)
+            const signature = buildRequiredSignature(row.measurements, requirementLikes)
             let sizeId = sizeIdBySignature.get(signature)
             if (!sizeId) {
                 sizeId = `${DRAFT_PREFIX}size:${signature}`

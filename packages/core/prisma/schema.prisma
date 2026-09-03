@@ -766,11 +766,12 @@ model ProductMeasurementRequirementTranslation {
 
 /// Ürün modeli içindeki bir ÖLÇÜ — kodun 3. segmenti.
 ///
-/// `signature` tekilleştirme anahtarıdır: aynı fiziksel ölçü kaç farklı tedarikçi
-/// kataloğundan girilirse girilsin TEK kod alır (eski `variantIndex` elle girildiği
-/// için bunu sağlayamıyordu). `sortKey` ise "küçükten büyüğe" numaralandırmayı
-/// besler; çok ölçülü modellerde (ör. "M4 + 10 cm") şablondaki `sortPriority`
-/// sırasına göre çok anahtarlıdır. İkisi de
+/// `signature` = ZORUNLU ölçü imzası (`buildRequiredSignature`). Zorunlu ölçüleri
+/// aynı olan varyantlar — opsiyonel bir ölçüsü farklı olsa ya da hiç girilmese bile
+/// — TEK `ProductSize`'a, tek koda çözülür (`1.23.1.V1.A` / `.B` / `.C`). Opsiyonel
+/// ölçü değerleri yine `ProductSizeValue`'da tutulur ama kodu belirlemez. `sortKey`
+/// "küçükten büyüğe" numaralandırmayı besler; çok ölçülü modellerde (ör. "M4 + 10 cm")
+/// şablondaki `sortPriority` sırasına göre çok anahtarlıdır. İkisi de
 /// `core/helpers/productVariants/sizeSignature.ts` tarafından üretilir.
 model ProductSize {
   id String @id @default(uuid())
@@ -778,7 +779,7 @@ model ProductSize {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  /// 1..N. Taslakta yeniden numaralanır, kilitten sonra append-only.
+  /// 1..N, append-only. Zorunlu imzası aynı olan kayıtlar aynı kodu paylaşır.
   code      Int
   signature String
   sortKey   String
@@ -789,14 +790,13 @@ model ProductSize {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // `signature` ARTIK TEKİL DEĞİL: aynı fiziksel ölçü farklı tedarikçilerden
-  // girildiğinde her giriş kendi kodunu alır (4.1.1 Özgen, 4.1.7 Esersan) —
-  // kod, veri girişi sırasının sayacıdır. Tekilleştirme "ölçü + tedarikçi"
-  // anahtarıyla UYGULAMA katmanında yapılır (bkz. productVariantWriter), çünkü
-  // tedarikçi `ProductSize` üzerinde değil `ProductVariantSupplier` üzerinde.
-  // Public/portal listeleri ölçüleri zaten gruplayıp tekilleştiriyor.
+  // Tekilleştirme "zorunlu ölçü imzası" anahtarıyla UYGULAMA katmanında yapılır
+  // (bkz. productVariantWriter); DB'de `signature` üzerinde unique KISIT YOK —
+  // yalnız arama/eşleştirme için index var. Eski kayıtların birleştirilmesi tek
+  // seferlik backfill script'iyle yapıldı.
   @@unique([productId, code])
   @@index([productId, sortKey])
+  @@index([productId, signature])
 }
 
 model ProductSizeValue {

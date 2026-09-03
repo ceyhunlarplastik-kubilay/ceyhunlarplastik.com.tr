@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import {
+    buildRequiredSignature,
     buildSizeSignature,
     buildSizeSortKey,
     compareSizeKeys,
@@ -104,6 +105,103 @@ describe("buildSizeSignature", () => {
 
     it("değersiz ölçü kaydını reddeder", () => {
         expect(() => buildSizeSignature([], requirements)).toThrow(RangeError)
+    })
+})
+
+describe("buildRequiredSignature", () => {
+    // "1.23" ürün modeli: R/D/H1 zorunlu, H2 (Civata Uzunluğu) OPSİYONEL.
+    const elcikDiameter: MeasurementRequirementLike = { id: "r", measurementCode: "R", label: "Elcik Çapı", sortPriority: 0, displayOrder: 0 }
+    const bushing: MeasurementRequirementLike = { id: "d", measurementCode: "D", label: "Burç Metriği", sortPriority: 1, displayOrder: 1 }
+    const elcikHeight: MeasurementRequirementLike = { id: "h1", measurementCode: "H1", label: "Elcik Yüksekliği", sortPriority: 2, displayOrder: 2 }
+    const boltLength: MeasurementRequirementLike = { id: "h2", measurementCode: "H2", label: "Civata Uzunluğu", sortPriority: 3, displayOrder: 3, isRequired: false }
+    const template = [elcikDiameter, bushing, elcikHeight, boltLength]
+
+    it("yalnız zorunlu ölçüleri şablon sırasıyla imzalar", () => {
+        expect(
+            buildRequiredSignature(
+                [
+                    { requirementId: "r", value: 20 },
+                    { requirementId: "d", value: 5 },
+                    { requirementId: "h1", value: 16 },
+                    { requirementId: "h2", value: 11 },
+                ],
+                template,
+            ),
+        ).toBe("R#Elcik Çapı=20.0000|D#Burç Metriği=5.0000|H1#Elcik Yüksekliği=16.0000")
+    })
+
+    it("opsiyonel ölçü FARKLI olsa da imza aynıdır (1.23.1.V1.A / .B)", () => {
+        const withBolt11 = buildRequiredSignature(
+            [
+                { requirementId: "r", value: 20 },
+                { requirementId: "d", value: 5 },
+                { requirementId: "h1", value: 16 },
+                { requirementId: "h2", value: 11 },
+            ],
+            template,
+        )
+        const withBolt13 = buildRequiredSignature(
+            [
+                { requirementId: "r", value: 20 },
+                { requirementId: "d", value: 5 },
+                { requirementId: "h1", value: 16 },
+                { requirementId: "h2", value: 13 },
+            ],
+            template,
+        )
+        expect(withBolt11).toBe(withBolt13)
+    })
+
+    it("opsiyonel ölçü HİÇ girilmese de imza aynıdır (Esersan → .C)", () => {
+        const withBolt = buildRequiredSignature(
+            [
+                { requirementId: "r", value: 20 },
+                { requirementId: "d", value: 5 },
+                { requirementId: "h1", value: 16 },
+                { requirementId: "h2", value: 11 },
+            ],
+            template,
+        )
+        const withoutBolt = buildRequiredSignature(
+            [
+                { requirementId: "r", value: 20 },
+                { requirementId: "d", value: 5 },
+                { requirementId: "h1", value: 16 },
+            ],
+            template,
+        )
+        expect(withoutBolt).toBe(withBolt)
+    })
+
+    it("zorunlu ölçü farklıysa imza da farklıdır", () => {
+        const a = buildRequiredSignature(
+            [
+                { requirementId: "r", value: 20 },
+                { requirementId: "d", value: 5 },
+                { requirementId: "h1", value: 16 },
+            ],
+            template,
+        )
+        const b = buildRequiredSignature(
+            [
+                { requirementId: "r", value: 20 },
+                { requirementId: "d", value: 6 },
+                { requirementId: "h1", value: 16 },
+            ],
+            template,
+        )
+        expect(a).not.toBe(b)
+    })
+
+    it("isRequired verilmeyen ölçüyü zorunlu sayar", () => {
+        expect(buildRequiredSignature([{ requirementId: "req-r", value: 20 }], requirements)).toBe(
+            "R#Kol Çapı=20.0000",
+        )
+    })
+
+    it("şablonda hiç zorunlu ölçü yoksa boş string döner", () => {
+        const allOptional = template.map((r) => ({ ...r, isRequired: false }))
+        expect(buildRequiredSignature([{ requirementId: "r", value: 20 }], allOptional)).toBe("")
     })
 })
 

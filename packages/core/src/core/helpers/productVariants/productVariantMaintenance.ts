@@ -20,7 +20,11 @@ import {
     type PlannerVariantSupplier,
     type PlannerVersion,
 } from "./assignProductVariantCodes"
-import { buildSizeSignature, buildSizeSortKey, type MeasurementRequirementLike } from "./sizeSignature"
+import {
+    buildRequiredSignature,
+    buildSizeSortKey,
+    type MeasurementRequirementLike,
+} from "./sizeSignature"
 import { negateProductVariantCodes, writeProductVariantCodes } from "./writeProductVariantCodes"
 
 type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
@@ -58,6 +62,7 @@ export async function recalculateProductVariantCodes(
         label: requirement.label,
         sortPriority: requirement.sortPriority,
         displayOrder: requirement.displayOrder,
+        isRequired: requirement.isRequired,
     }))
 
     const sizes = await tx.productSize.findMany({
@@ -72,13 +77,19 @@ export async function recalculateProductVariantCodes(
     })
 
     // 1) Anahtarları şablonun GÜNCEL hâline göre yeniden üret.
+    //
+    // `signature` = ZORUNLU ölçü imzası (`buildRequiredSignature`). Şablonda bir
+    // ölçü zorunlu→opsiyonel çevrilirse iki ölçü kaydı aynı imzaya düşebilir; bu
+    // yol onları OTOMATİK BİRLEŞTİRMEZ (kodlar append-only kalır, sipariş/talep
+    // referansı olan bir varyantı sessizce yok etmemek için). Birleştirme yalnız
+    // tek seferlik backfill script'inde yapılır.
     const resorted: Array<{ id: string; signature: string; sortKey: string }> = []
     const plannerSizes = sizes.map((size) => {
         if (size.values.length === 0 || requirements.length === 0) {
             return { id: size.id, signature: size.signature, sortKey: size.sortKey, code: size.code }
         }
 
-        const signature = buildSizeSignature(size.values, requirements)
+        const signature = buildRequiredSignature(size.values, requirements)
         const sortKey = buildSizeSortKey(size.values, requirements)
 
         if (signature !== size.signature || sortKey !== size.sortKey) {

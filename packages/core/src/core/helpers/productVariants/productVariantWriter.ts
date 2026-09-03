@@ -27,7 +27,11 @@ import {
     type PlannerVariantSupplier,
     type PlannerVersion,
 } from "./assignProductVariantCodes"
-import { buildSizeSignature, buildSizeSortKey, type MeasurementRequirementLike } from "./sizeSignature"
+import {
+    buildRequiredSignature,
+    buildSizeSortKey,
+    type MeasurementRequirementLike,
+} from "./sizeSignature"
 import { buildVersionSignature } from "./versionSignature"
 import { negateProductVariantCodes, writeProductVariantCodes } from "./writeProductVariantCodes"
 
@@ -156,6 +160,7 @@ export async function upsertProductVariantRows(
         label: requirement.label,
         sortPriority: requirement.sortPriority,
         displayOrder: requirement.displayOrder,
+        isRequired: requirement.isRequired,
     }))
     const requiredIds = requirementRows.filter((requirement) => requirement.isRequired).map((r) => r.id)
 
@@ -181,42 +186,30 @@ export async function upsertProductVariantRows(
     ])
 
     /**
-     * Ölçü tekilleştirme anahtarı: **ölçü imzası + TEDARİKÇİ**.
+     * Ölçü tekilleştirme anahtarı: **ZORUNLU ölçü imzası** (`buildRequiredSignature`).
      *
-     * Ölçüler eskiden yalnız imzayla tekilleştiriliyordu: Özgen 20×20 girip
-     * `4.1.1` aldıktan sonra Esersan aynı 20×20'yi girince o da `4.1.1`'i
-     * kullanıyordu. İstenen davranış her giriş satırının SIRADAKİ numarayı
-     * alması (`4.1.7`) — kod, veri girişi sırasının sayacıdır.
+     * Zorunlu ölçüleri aynı olan satırlar — opsiyonel bir ölçüsü farklı olsa ya da
+     * hiç girilmese bile — TEK `ProductSize`'a, dolayısıyla tek 3. segment koduna
+     * çözülür: `1.23.1.V1.A` / `.B` / `.C`. Tedarikçi anahtara GİRMEZ; aynı zorunlu
+     * ölçüyü farklı tedarikçiler girdiğinde tek varyant + birden çok
+     * `ProductVariantSupplier` oluşur.
      *
-     * Tedarikçi anahtara dahil ki aynı tedarikçi aynı ölçüyü ikinci kez
-     * girdiğinde (katalog güncellemesi, kazara tekrar) yeni kod ÜRETİLMESİN,
-     * mevcut satır güncellensin.
+     * Eskiden anahtar "tüm dolu değerler + tedarikçi" idi; her tedarikçi aynı
+     * fiziksel ölçü için ayrı kod alıyordu (`1.23.1 / 1.23.2 / 1.23.3`). Yeni kural
+     * zorunlu ölçüleri eşleşenleri aynı kodda toplar.
      *
-     * Tedarikçisiz satırlar kendi aralarında imzayla tekilleşir (anahtarın
-     * tedarikçi kısmı boş kalır).
+     * Opsiyonel ölçü değerleri yine `ProductSizeValue`'da tutulur; paylaşılan bir
+     * ölçüye sonradan gelen opsiyonel değer var olana EKLENİR / üzerine yazılır
+     * (son yazan kazanır), asla silinmez.
+     *
+     * `ProductSize.signature` kolonu ARTIK bu zorunlu imzayı saklar (eski "tüm dolu
+     * değerler" imzasını değil — bkz. sizeSignature.ts ve backfill script'i).
      */
-    const sizeSupplierKey = (signature: string, supplierId?: string) => `${signature}#${supplierId ?? ""}`
-
-    const supplierIdsBySizeId = new Map<string, Set<string>>()
-    for (const variant of existingVariants) {
-        const set = supplierIdsBySizeId.get(variant.productSizeId) ?? new Set<string>()
-        for (const link of variant.variantSuppliers) set.add(link.supplierId)
-        supplierIdsBySizeId.set(variant.productSizeId, set)
-    }
-
     const sizeByKey = new Map<string, { id: string; code: number; signature: string; sortKey: string }>()
     for (const size of existingSizes) {
-        const supplierIds = supplierIdsBySizeId.get(size.id)
-        if (!supplierIds || supplierIds.size === 0) {
-            sizeByKey.set(sizeSupplierKey(size.signature), size)
-            continue
-        }
-        // Bir ölçü BİRDEN ÇOK tedarikçiye bağlı olabilir (bu değişiklikten önce
-        // yazılmış kayıtlar). Hepsi o ölçüye çözülür; eski veri bozulmaz.
-        for (const supplierId of supplierIds) {
-            sizeByKey.set(sizeSupplierKey(size.signature, supplierId), size)
-        }
+        sizeByKey.set(size.signature, size)
     }
+    const existingSizeIds = new Set(existingSizes.map((size) => size.id))
     const versionBySignature = new Map(existingVersions.map((version) => [version.signature, version]))
     const supplierCodeBySupplierId = new Map(existingSupplierCodes.map((entry) => [entry.supplierId, entry]))
     const variantBySizeVersion = new Map(
@@ -225,6 +218,38 @@ export async function upsertProductVariantRows(
 
     // ── Aşama 1: bellekte çözümle / hazırla (henüz hiçbir şey yazılmıyor) ────────
     const newSizes: Array<{ id: string; signature: string; sortKey: string; values: Array<{ requirementId: string; value: number }> }> = []
+    /** Staged ölçünün değer dizisine referans — sonraki satırlar opsiyonel değer ekleyebilir. */
+    const newSizeValuesById = new Map<string, Array<{ requirementId: string; value: number }>>()
+    /** Mevcut bir ölçüye eklenecek/güncellenecek (özellikle opsiyonel) değerler. */
+    const sizeValueUpsertsByKey = new Map<string, { productSizeId: string; requirementId: string; value: number }>()
+
+    /**
+     * Zorunlu imzası eşleşen bir ölçüye çözülen satırın taşıdığı değerleri o ölçüye
+     * işler: staged ise dizisine katar, mevcutsa upsert kuyruğuna alır. Zorunlu
+     * değerler zaten aynıdır; asıl kazanç opsiyonel ölçünün kaybolmamasıdır.
+     */
+    const mergeMeasurementValues = (
+        sizeId: string,
+        measurements: ReadonlyArray<{ requirementId: string; value: number }>,
+    ) => {
+        const stagedValues = newSizeValuesById.get(sizeId)
+        if (stagedValues) {
+            for (const measurement of measurements) {
+                const existing = stagedValues.find((value) => value.requirementId === measurement.requirementId)
+                if (existing) existing.value = measurement.value
+                else stagedValues.push({ ...measurement })
+            }
+            return
+        }
+        if (!existingSizeIds.has(sizeId)) return
+        for (const measurement of measurements) {
+            sizeValueUpsertsByKey.set(`${sizeId}#${measurement.requirementId}`, {
+                productSizeId: sizeId,
+                requirementId: measurement.requirementId,
+                value: measurement.value,
+            })
+        }
+    }
     const newSupplierCodes: Array<{ id: string; supplierId: string; sequence: number }> = []
     const newVariants: Array<{ id: string; name: string; productSizeId: string; variantVersionId: string }> = []
     const newVariantSuppliers: Array<{ id: string; variantId: string; supplier: VariantRowSupplierInput }> = []
@@ -255,17 +280,20 @@ export async function upsertProductVariantRows(
             )
         }
 
-        const signature = buildSizeSignature(row.measurements, requirements)
+        const signature = buildRequiredSignature(row.measurements, requirements)
         const sortKey = buildSizeSortKey(row.measurements, requirements)
 
-        const sizeKey = sizeSupplierKey(signature, row.supplier?.supplierId)
-        let size = sizeByKey.get(sizeKey)
+        let size = sizeByKey.get(signature)
         if (!size) {
+            const values = [...row.measurements]
             const staged = { id: randomUUID(), code: null as unknown as number, signature, sortKey }
-            sizeByKey.set(sizeKey, staged)
-            newSizes.push({ id: staged.id, signature, sortKey, values: [...row.measurements] })
+            sizeByKey.set(signature, staged)
+            newSizes.push({ id: staged.id, signature, sortKey, values })
+            newSizeValuesById.set(staged.id, values)
             plannerSizes.push({ id: staged.id, signature, sortKey, code: null })
             size = staged
+        } else {
+            mergeMeasurementValues(size.id, row.measurements)
         }
 
         const versionSignature = buildVersionSignature({ colorId: row.colorId, materialIds: row.materialIds })
@@ -394,6 +422,22 @@ export async function upsertProductVariantRows(
                     value: value.value,
                 })),
             ),
+        })
+    }
+
+    // Zorunlu imzası eşleştiği için mevcut bir ölçüye çözülen satırların (özellikle
+    // opsiyonel) değerleri: yoksa ekle, varsa güncelle. Kuyruk küçüktür (yalnız
+    // aynı zorunlu ölçüyü paylaşan satırlar) — satır başına upsert kabul edilebilir.
+    for (const upsert of sizeValueUpsertsByKey.values()) {
+        await tx.productSizeValue.upsert({
+            where: {
+                productSizeId_requirementId: {
+                    productSizeId: upsert.productSizeId,
+                    requirementId: upsert.requirementId,
+                },
+            },
+            create: upsert,
+            update: { value: upsert.value },
         })
     }
 

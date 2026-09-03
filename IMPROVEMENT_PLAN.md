@@ -66,6 +66,15 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 - Backend hata mesajları: response'lara makine-okur `code` alanı ekle (backward compatible, TR `message` korunur), frontend `code`'u kendi locale'inde çevirir.
 - E-postalar için `User.preferredLocale` alanı (şema değişikliği — onaylı migration).
 
+### B3 — ölçü şablonu `isRequired` toggle sonrası ölçü birleştirme · düşük öncelik
+- `ProductSize` artık ZORUNLU ölçü imzasıyla tekilleşiyor (2026-09-03 LOG). Bir ölçü
+  şablonda zorunlu→opsiyonel çevrilirse, o ölçüyle ayrışmış mevcut `ProductSize`
+  kayıtları aynı imzaya düşer ama `recalculateProductVariantCodes` onları BİLEREK
+  otomatik birleştirmez (sipariş/talep referanslı varyantı yok etmemek için).
+  Gerekirse: tek seferlik `backfill:recode-product-sizes` yeniden çalıştırılır
+  (referanslı olanları zaten atlıyor) ya da admin'e açık "ölçüleri birleştir"
+  eylemi eklenir. Bugün gerek yok — kayıtlar bozulmuyor, yalnız fazladan kod kalıyor.
+
 ### B2 — latent migration: varyant ölçü parmak izi · onay gerekir, bugün gerek yok
 - DB-side ölçü gruplaması için materialize `measurementFingerprint` kolonu (`ALTER ADD COLUMN` + backfill; ölçüler güvende, veri kaybettirmez). Bugün gerek yok: gruplama saf server helper'a taşındı (`groupVariantMeasurements`, sorgu zaten hızlı+cache'li). Varyant verisi çok büyürse ve DB-side `string_agg` gruplaması istenirse bu migration + onay gerekir.
 

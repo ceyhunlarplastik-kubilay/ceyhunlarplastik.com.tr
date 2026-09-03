@@ -15,6 +15,7 @@
     "translate:product-industrial-usage-translations": "tsx prisma/translate-product-industrial-usage-translations.ts",
     "backfill:product-translations": "tsx prisma/backfill-product-translations.ts",
     "translate:product-translations": "tsx prisma/translate-product-translations.ts",
+    "backfill:recode-product-sizes": "tsx prisma/recode-product-sizes-by-required-signature.ts",
     "seed:geo": "tsx prisma/seed-geo.ts",
     "translate:messages": "tsx scripts/translate-messages.ts",
     "translate:content": "tsx scripts/translate-content.ts"

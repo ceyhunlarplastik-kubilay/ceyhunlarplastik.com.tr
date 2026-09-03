@@ -68,7 +68,7 @@ function TechnicalDrawingAside({ url, productName }: { url: string; productName:
                 sizes="256px"
                 className="object-contain p-2"
             />
-            <span className="pointer-events-none absolute end-1.5 top-1.5 inline-flex items-center rounded-md bg-white/85 p-1 text-neutral-600 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 dark:bg-neutral-900/85">
+            <span className="pointer-events-none absolute inset-e-1.5 top-1.5 inline-flex items-center rounded-md bg-white/85 p-1 text-neutral-600 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 dark:bg-neutral-900/85">
                 <Maximize2 className="size-3.5" />
             </span>
         </a>

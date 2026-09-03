@@ -5520,6 +5520,71 @@ paneli (`next/image` `object-contain`, hover'da büyüteç ikonu), sağda mevcut
 **Doğrulama:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error ✅ ·
 `test -w frontend` 354/354 ✅. Backend/i18n'e dokunulmadı.
 
+### Varyant kodu — ölçü kodu (3. segment) ZORUNLU ölçü grubuna göre (2026-09-03)
+**İstenen:** Her yeni varyantta 3. index'i aritmetik +1 yerine, ZORUNLU ölçüleri
+aynı olan varyantlar aynı 3. segment kodunu paylaşsın. "1.23" modeli (R/D/H1
+zorunlu, H2 opsiyonel) için Sanay `1.23.1.V1.A`, Özgen `1.23.1.V1.B`, Esersan
+(H2 yok) `1.23.1.V1.C` — eskiden `1.23.1 / 1.23.2 / 1.23.3` oluyordu.
+
+**Yaklaşım (onaylanan "Yaklaşım 1", uygulamada daha da yalın çıktı):**
+`ProductSize` artık **zorunlu ölçü imzasıyla** tekilleşir. `signature` kolonunun
+anlamı "tüm dolu değerler" → "yalnız zorunlu ölçüler" oldu. Böylece `ProductSize`
+yine 1:1 kod taşır → `assignProductVariantCodes` / `writeProductVariantCodes`
+DEĞİŞMEDİ, `ProductVariant.fullCode` / `ProductVariantSupplier.fullCode` /
+`ProductSize.code` unique kısıtları KALDIRILMADI. Opsiyonel ölçü değerleri yine
+`ProductSizeValue`'da; paylaşılan bir ölçüye sonradan gelen opsiyonel değer eklenir
+/ üzerine yazılır (**son yazan kazanır**), asla silinmez.
+
+**Değişen dosyalar:**
+- `core/helpers/productVariants/sizeSignature.ts` — `+ buildRequiredSignature()`;
+  `MeasurementRequirementLike += isRequired?` (verilmezse zorunlu sayılır).
+- `core/helpers/productVariants/productVariantWriter.ts` — tekilleştirme anahtarı
+  `imza+tedarikçi` → **zorunlu imza**; `ProductSize.signature`'a zorunlu imza
+  yazılır; zorunlu imzası eşleşen mevcut ölçüye çözülen satırın (özellikle
+  opsiyonel) değerleri `productSizeValue.upsert` ile o ölçüye işlenir.
+- `core/helpers/productVariants/productVariantMaintenance.ts` — `recalculate…`
+  imza tazelemesi `buildRequiredSignature`'a geçti. Şablonda zorunlu→opsiyonel
+  çevrilirse iki ölçü aynı imzaya düşebilir; bu yol OTOMATİK BİRLEŞTİRMEZ
+  (sipariş/talep referanslı varyantı sessizce yok etmemek için) — birleştirme
+  yalnız backfill'de.
+- `core/helpers/productVariants/mergeProductSizesByRequiredSignature.ts` — YENİ.
+  Zorunlu imzası aynı `ProductSize`'ları tek kayıtta birleştirir (opsiyonel
+  değerleri korur, varyant + tedarikçi linklerini keeper'a taşır, boş varyantı
+  siler). Dışarıdan referanslı (sipariş/talep/özel fiyat/kampanya/atama/asset)
+  varyant içeren kopya ölçüyü ATLAR ve uyarı loglar.
+- `frontend/features/admin/productVariantMatrix/utils/previewVariantCodes.ts` —
+  önizleme de zorunlu imzayla tekilleşir (sunucu ile birebir).
+- `core/prisma/schema.prisma` — `ProductSize` doc + `@@index([productId, signature])`
+  (yalnız index; `signature` üzerinde unique KISIT YOK — kontrol uygulama
+  katmanında). Migration `20260903120000_product_size_required_signature`
+  (tek `CREATE INDEX`, yıkıcı değil).
+- `core/prisma/recode-product-sizes-by-required-signature.ts` — YENİ tek seferlik
+  backfill. `package.json`: `backfill:recode-product-sizes`.
+- Testler: `sizeSignature.test.ts` (+7), `previewVariantCodes.test.ts` (+3, 1.23
+  senaryosu).
+
+**Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+`lint -w frontend` 0 error (156 warning) ✅ · `test:ci -w core` 602/602 ✅ ·
+`test -w functions` 320/320 ✅ · `test -w frontend` 357/357 ✅.
+
+**Kullanıcıda bekleyen (YALNIZ kubi, prod'a HENÜZ değil):**
+1. Migration (README §4 akışı, `DIRECT_URL=$NEON_DIRECT_URL` ile CLI):
+   `cd packages/core && DIRECT_URL="$NEON_DIRECT_URL" npx prisma migrate dev && npx prisma generate && cd ../..`
+   → committed `20260903120000_product_size_required_signature` uygulanır (tek
+   `CREATE INDEX`, drift beklenmiyor) + client yeniden üretilir.
+2. `DIRECT_URL="$NEON_DIRECT_URL" npm run backfill:recode-product-sizes -w @ceyhunlarweb/core`
+   — mevcut ölçüleri zorunlu imzaya göre birleştirir + tüm `fullCode`'ları yeniden
+   yazar. Çıktıdaki "atlanan ölçü" / "başarısız" satırlarını kontrol et.
+3. Veri girişi/admin matrisinde doğrula: "1.23" gibi (R/D/H1 zorunlu, H2 opsiyonel)
+   bir modelde aynı R/D/H1 değerlerini farklı tedarikçiyle gir → üçü de `1.23.N.V1`
+   aynı 3. segment, tedarikçi kodları `.A/.B/.C`. Public ürün sayfası ölçü tablosu
+   değişmemeli (zaten zorunlu ölçüyle grupluyor).
+4. `git checkout sst-env.d.ts` (kubi/Neon varyantı commit'e girmesin).
+
+**Bilinen sınır / kabul:** Paylaşılan bir ölçüye iki tedarikçi FARKLI opsiyonel
+değer girerse son yazan kazanır (opsiyonel ölçü kod kimliğinin parçası değil).
+Prod'a geçiş: aynı 2 adım (migrate + backfill) prod deploy sırasında, ayrı onayla.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

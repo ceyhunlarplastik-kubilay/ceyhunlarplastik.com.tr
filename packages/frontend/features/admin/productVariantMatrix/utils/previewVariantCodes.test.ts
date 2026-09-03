@@ -155,3 +155,73 @@ describe("previewVariantCodes", () => {
         expect(result).toEqual([{ fullCode: null, supplierFullCode: null, versionDefined: true }])
     })
 })
+
+describe("previewVariantCodes — zorunlu ölçü grubu (1.23 senaryosu)", () => {
+    // "1.23" modeli: R/D/H1 ZORUNLU, H2 (Civata Uzunluğu) OPSİYONEL.
+    const r: MatrixRequirement = { id: "r", measurementTypeId: "mt-r", measurementCode: "R", label: "Elcik Çapı", unit: "mm", isRequired: true, sortPriority: 0, displayOrder: 0 }
+    const d: MatrixRequirement = { id: "d", measurementTypeId: "mt-d", measurementCode: "D", label: "Burç Metriği", unit: "mm", isRequired: true, sortPriority: 1, displayOrder: 1 }
+    const h1: MatrixRequirement = { id: "h1", measurementTypeId: "mt-h1", measurementCode: "H1", label: "Elcik Yüksekliği", unit: "mm", isRequired: true, sortPriority: 2, displayOrder: 2 }
+    const h2: MatrixRequirement = { id: "h2", measurementTypeId: "mt-h2", measurementCode: "H2", label: "Civata Uzunluğu", unit: "mm", isRequired: false, sortPriority: 3, displayOrder: 3 }
+
+    const dict = [{ id: "v-1", code: 1, colorId: "c-black", materialIds: ["m-bakalit"] }]
+
+    function run(draftRows: Parameters<typeof previewVariantCodes>[0]["draftRows"]) {
+        return previewVariantCodes({
+            productCode: "1.23",
+            requirements: [r, d, h1, h2],
+            sizes: [],
+            versions: [],
+            supplierCodes: [],
+            rows: [],
+            draftRows,
+            versionDictionary: dict,
+        })
+    }
+
+    const row = (measurements: Array<{ requirementId: string; value: number }>, supplierId: string) => ({
+        name: "x",
+        measurements,
+        colorId: "c-black",
+        materialIds: ["m-bakalit"],
+        supplier: { supplierId },
+    })
+
+    const required = [
+        { requirementId: "r", value: 20 },
+        { requirementId: "d", value: 5 },
+        { requirementId: "h1", value: 16 },
+    ]
+
+    it("zorunlu ölçüleri aynı üç tedarikçi TEK ölçü kodu alır (1.23.1.V1.A/.B/.C)", () => {
+        const result = run([
+            row([...required, { requirementId: "h2", value: 11 }], "sup-a"), // Sanay Bakalit
+            row([...required, { requirementId: "h2", value: 11 }], "sup-b"), // Özgen Plastik
+            row([...required], "sup-c"), // Esersan — H2 girilmedi
+        ])
+
+        expect(result.map((entry) => entry.fullCode)).toEqual(["1.23.1.V1", "1.23.1.V1", "1.23.1.V1"])
+        expect(result.map((entry) => entry.supplierFullCode)).toEqual([
+            "1.23.1.V1.A",
+            "1.23.1.V1.B",
+            "1.23.1.V1.C",
+        ])
+    })
+
+    it("opsiyonel ölçü FARKLI olsa da kod paylaşılır", () => {
+        const result = run([
+            row([...required, { requirementId: "h2", value: 11 }], "sup-a"),
+            row([...required, { requirementId: "h2", value: 99 }], "sup-b"),
+        ])
+        expect(result[0].fullCode).toBe("1.23.1.V1")
+        expect(result[1].fullCode).toBe("1.23.1.V1")
+    })
+
+    it("ZORUNLU ölçü farklıysa ayrı kod alır", () => {
+        const result = run([
+            row([...required], "sup-a"),
+            row([{ requirementId: "r", value: 20 }, { requirementId: "d", value: 6 }, { requirementId: "h1", value: 16 }], "sup-b"),
+        ])
+        expect(result[0].fullCode).toBe("1.23.1.V1")
+        expect(result[1].fullCode).toBe("1.23.2.V1")
+    })
+})

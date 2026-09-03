@@ -2,8 +2,10 @@
  * Ölçü kaydı (`ProductSize`) için tekilleştirme ve sıralama anahtarları.
  *
  * Kodun 3. segmenti ürün modeli içindeki ÖLÇÜ kodudur ve iki kural taşır:
- *  1. **Tekillik** — aynı fiziksel ölçü, farklı tedarikçi kataloglarından kaç kez
- *     girilirse girilsin tek kod alır. `signature` bunun anahtarıdır.
+ *  1. **Tekillik** — ZORUNLU ölçüleri aynı olan kayıtlar tek kod alır. `ProductSize`
+ *     `buildRequiredSignature` ile tekilleştirilir; `buildSizeSignature` (tüm dolu
+ *     değerler) yalnız tanısal karşılaştırma / eski çağrılar içindir. Opsiyonel bir
+ *     ölçünün farklı olması ya da hiç girilmemesi ayrı kod ÜRETMEZ.
  *  2. **Küçükten büyüğe** — kodlar 1..N sırayla verilir. Bir ürün modelinde
  *     birden fazla ölçü olabildiği için (ör. "M4 + 10 cm") sıralama ÇOK
  *     ANAHTARLIDIR: ürün modelinin ölçü şablonundaki `sortPriority` sırasına göre
@@ -26,6 +28,11 @@ export type MeasurementRequirementLike = {
     sortPriority: number
     /** Tablo kolon sırası — `sortPriority` eşitse ikincil ayraç. */
     displayOrder: number
+    /**
+     * Şablonda "zorunlu" işaretli mi? `buildRequiredSignature` YALNIZ bunlara bakar.
+     * Alan verilmezse şablon varsayılanı gibi ZORUNLU kabul edilir (`@default(true)`).
+     */
+    isRequired?: boolean
 }
 
 export type SizeMeasurementValue = {
@@ -101,6 +108,33 @@ export function buildSizeSignature(
 
     return orderMeasurementRequirements(requirements)
         .filter((requirement) => lookup.has(requirement.id))
+        .map((requirement) => {
+            const value = lookup.get(requirement.id) as number
+            return `${requirement.measurementCode}#${requirement.label}=${value.toFixed(MEASUREMENT_VALUE_PRECISION)}`
+        })
+        .join("|")
+}
+
+/**
+ * Ölçü kaydının ZORUNLU ölçülerinden türeyen imza — "R#Elcik Çapı=20.0000|D#Burç
+ * Metriği=5.0000|H1#Elcik Yüksekliği=16.0000".
+ *
+ * `ProductSize` bu anahtarla tekilleştirilir: zorunlu ölçüleri aynı olan varyantlar
+ * — opsiyonel bir ölçüsü farklı olsa ya da hiç girilmese bile — TEK ölçü kodunu
+ * paylaşır (`1.23.1.V1.A` / `.B` / `.C`). Opsiyonel ölçü değerleri yine
+ * `ProductSizeValue`'da tutulur ama kodun 3. segmentini belirlemez.
+ *
+ * Şablonda hiç zorunlu ölçü yoksa boş string döner — o modelin tüm varyantları tek
+ * gruba düşer (public özet tablosu da zaten zorunlu ölçüyle grupluyor).
+ */
+export function buildRequiredSignature(
+    values: readonly SizeMeasurementValue[],
+    requirements: readonly MeasurementRequirementLike[],
+): string {
+    const lookup = buildValueLookup(values, requirements)
+
+    return orderMeasurementRequirements(requirements)
+        .filter((requirement) => requirement.isRequired !== false && lookup.has(requirement.id))
         .map((requirement) => {
             const value = lookup.get(requirement.id) as number
             return `${requirement.measurementCode}#${requirement.label}=${value.toFixed(MEASUREMENT_VALUE_PRECISION)}`
