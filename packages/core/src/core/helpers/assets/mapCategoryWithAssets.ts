@@ -8,6 +8,8 @@ function mapAsset(asset: any) {
         type: asset.type,
         role: asset.role,
         url: buildAssetUrl(asset.key),
+        uploadStatus: asset.uploadStatus,
+        uploadedAt: asset.uploadedAt,
         createdAt: asset.createdAt,
         updatedAt: asset.updatedAt,
     }

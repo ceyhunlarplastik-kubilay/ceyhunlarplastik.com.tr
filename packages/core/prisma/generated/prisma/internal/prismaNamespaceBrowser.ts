@@ -1027,6 +1027,8 @@ export const AssetScalarFieldEnum = {
   type: 'type',
   role: 'role',
   model3dConfig: 'model3dConfig',
+  uploadStatus: 'uploadStatus',
+  uploadedAt: 'uploadedAt',
   categoryId: 'categoryId',
   productId: 'productId',
   variantId: 'variantId',

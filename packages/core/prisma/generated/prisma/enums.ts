@@ -290,3 +290,11 @@ export const AssetRole = {
 } as const
 
 export type AssetRole = (typeof AssetRole)[keyof typeof AssetRole]
+
+
+export const AssetUploadStatus = {
+  PENDING_UPLOAD: 'PENDING_UPLOAD',
+  ACTIVE: 'ACTIVE'
+} as const
+
+export type AssetUploadStatus = (typeof AssetUploadStatus)[keyof typeof AssetUploadStatus]

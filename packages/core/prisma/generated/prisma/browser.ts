@@ -161,11 +161,12 @@ export type ProductMeasurementRequirementTranslation = Prisma.ProductMeasurement
  * Model ProductSize
  * Ürün modeli içindeki bir ÖLÇÜ — kodun 3. segmenti.
  * 
- * `signature` tekilleştirme anahtarıdır: aynı fiziksel ölçü kaç farklı tedarikçi
- * kataloğundan girilirse girilsin TEK kod alır (eski `variantIndex` elle girildiği
- * için bunu sağlayamıyordu). `sortKey` ise "küçükten büyüğe" numaralandırmayı
- * besler; çok ölçülü modellerde (ör. "M4 + 10 cm") şablondaki `sortPriority`
- * sırasına göre çok anahtarlıdır. İkisi de
+ * `signature` = ZORUNLU ölçü imzası (`buildRequiredSignature`). Zorunlu ölçüleri
+ * aynı olan varyantlar — opsiyonel bir ölçüsü farklı olsa ya da hiç girilmese bile
+ * — TEK `ProductSize`'a, tek koda çözülür (`1.23.1.V1.A` / `.B` / `.C`). Opsiyonel
+ * ölçü değerleri yine `ProductSizeValue`'da tutulur ama kodu belirlemez. `sortKey`
+ * "küçükten büyüğe" numaralandırmayı besler; çok ölçülü modellerde (ör. "M4 + 10 cm")
+ * şablondaki `sortPriority` sırasına göre çok anahtarlıdır. İkisi de
  * `core/helpers/productVariants/sizeSignature.ts` tarafından üretilir.
  */
 export type ProductSize = Prisma.ProductSizeModel

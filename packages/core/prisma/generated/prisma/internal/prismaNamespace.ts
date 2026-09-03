@@ -5322,6 +5322,8 @@ export const AssetScalarFieldEnum = {
   type: 'type',
   role: 'role',
   model3dConfig: 'model3dConfig',
+  uploadStatus: 'uploadStatus',
+  uploadedAt: 'uploadedAt',
   categoryId: 'categoryId',
   productId: 'productId',
   variantId: 'variantId',
@@ -5840,6 +5842,20 @@ export type EnumAssetRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'AssetRole[]'
  */
 export type ListEnumAssetRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetRole[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AssetUploadStatus'
+ */
+export type EnumAssetUploadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetUploadStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AssetUploadStatus[]'
+ */
+export type ListEnumAssetUploadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssetUploadStatus[]'>
     
 
 /**

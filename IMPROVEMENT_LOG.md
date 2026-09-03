@@ -5585,6 +5585,76 @@ DEĞİŞMEDİ, `ProductVariant.fullCode` / `ProductVariantSupplier.fullCode` /
 değer girerse son yazan kazanır (opsiyonel ölçü kod kimliğinin parçası değil).
 Prod'a geçiş: aynı 2 adım (migrate + backfill) prod deploy sırasında, ayrı onayla.
 
+## Asenkron asset yükleme (S3 event-driven) — Dilim 1: şema + çekirdek (2026-09-04) *(kullanıcı talebiyle eklendi)*
+
+**Amaç (tüm iş):** Kategori asset yüklemesinde kullanıcı yalnız fiziksel S3 PUT'unu
+beklesin; DB kaydı + kategori refetch'i arka plana alınsın. Desen: presign
+`PENDING_UPLOAD` satırı oluşturur → tarayıcı S3'e PUT → `s3:ObjectCreated:*`
+(filterPrefix `categories/`) → **doğrudan** Lambda satırı `ACTIVE`'e çevirir. Taşıma
+kararı (kullanıcı onayı): EventBridge değil, `bucket.notify` + doğrudan Lambda (tek
+tüketici; handler taşıma-bağımsız yazılacak). Zombi temizliği Dilim 4'e bırakıldı.
+Pilot yüzey: kategori (admin + veri-girişi aynı `features/admin/categories/*`
+bileşenlerini paylaşıyor). Branch: `feat/async-category-asset-upload`.
+
+**Bu dilimde (davranış değişikliği YOK — yeni kod henüz hiçbir yerden çağrılmıyor):**
+- `core/prisma/schema.prisma` — `enum AssetUploadStatus { PENDING_UPLOAD, ACTIVE }`;
+  `Asset.uploadStatus AssetUploadStatus @default(ACTIVE)`; `Asset.uploadedAt DateTime?`;
+  `@@index([uploadStatus, createdAt])` (Dilim 4 sweep sorgusu). `@default(ACTIVE)` →
+  mevcut satırlar ve diğer 5 asset akışı (ürün, materyal, attribute value, kullanıcı
+  fotoğrafı, varyant matrisi) backfill'siz geçerli.
+- `core/helpers/prisma/assets/repository.ts` — `+ createPendingAsset(data)`
+  (`uploadStatus: PENDING_UPLOAD` zorlar), `+ confirmUploadedAsset(key)` →
+  `updateMany({ where: { key, uploadStatus: PENDING_UPLOAD }, data: { uploadStatus:
+  ACTIVE, uploadedAt } })` + satırı döndürür (PRIMARY demote kararı için); guard
+  idempotent + sıra-bağımsız. Arayüze de eklendi.
+- `core/helpers/assets/mapCategoryWithAssets.ts` — `mapAsset` `uploadStatus` +
+  `uploadedAt` passthrough.
+- `functions/AdminApi/validators/categories.ts` + `functions/PublicApi/validators/categories.ts`
+  — `assetSchema`'ya `uploadStatus: z.enum(["PENDING_UPLOAD","ACTIVE"])` +
+  `uploadedAt: z.string().nullable()`. **Zorunlu:** `mapCategoryWithAssets` HEM Admin
+  HEM Public kategori handler'larında kullanılıyor ve iki `assetSchema` da `.loose()`
+  DEĞİL → alan eklenmeden `getCategory`/`getCategoryBySlug`/`listCategories` runtime'da
+  500 "Response object failed validation" verirdi.
+- `frontend/features/public/assets/types.ts` — `AssetUploadStatus` type +
+  `Asset.uploadStatus?` / `uploadedAt?` (opsiyonel — 22 importçu kırılmıyor).
+- `core/helpers/prisma/assets/repository.test.ts` — YENİ (+4): iki metodun guard'ları
+  (`vi.hoisted` prisma mock deseni).
+- `core/prisma/generated/**` — client yeniden üretildi (offline, dummy `DIRECT_URL`;
+  `generate` bağlanmıyor). Taahhütlü client `ProductSize` doc-comment'lerinde `main`'e
+  göre önceden drift'liydi (commit 5f512fd tam regen etmemiş); bu drift bilinçli olarak
+  bu dilime ALINMADI (`ProductSize.ts` regen'i geri alındı).
+
+**Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+`lint -w frontend` 0 error (156 warning; hiçbiri dokunulan dosyada değil) ✅ ·
+`test:ci -w core` 606/606 ✅ · `test -w functions` 320/320 (`validatorCompilation`
+292 dahil — iki `assetSchema` ajv `strict` altında derleniyor) ✅ ·
+`test -w frontend` 357/357 ✅.
+
+**Kullanıcıda bekleyen (YALNIZ kubi, prod'a HENÜZ değil):**
+1. `cd packages/core && DIRECT_URL="$NEON_DIRECT_URL" npx prisma migrate dev --name add_asset_upload_status && npx prisma generate && cd ../..`
+   → additive migration (1 `CREATE TYPE` + 2 `ADD COLUMN` + 1 `CREATE INDEX`;
+   `ADD COLUMN … DEFAULT` sabit default → metadata-only, tablo taraması yok, drift
+   beklenmiyor).
+2. `DIRECT_URL="$NEON_DIRECT_URL" npx prisma migrate status` temiz olmalı.
+3. Gerekirse `git checkout sst-env.d.ts` (kubi/Neon varyantı commit'e girmesin).
+4. Regen'de küçük bir `generated/prisma/models/ProductSize.ts` doc-comment diff'i
+   görülebilir (yukarıdaki önceki drift) — zararsız, dahil edilebilir veya atılabilir.
+
+**Ne kaldı (sonraki dilimler — IMPROVEMENT_PLAN.md'de):**
+- **Dilim 2:** presign handler `categoryId`+`assetType` alır → `createPendingAsset` +
+  id'li key (`categories/<slug>/<rol>/<assetId>.<ext>`) + `assetId` döner, `expiresIn`
+  60→900s; `infra/assetLifecycle.ts` (`publicBucket.notify` + confirm Lambda, VPC+rds,
+  Powertools, PRIMARY demote-on-confirm); `sst.config.ts` import. `sst diff --stage prod`
+  beraber gözden geçirilir.
+- **Dilim 3:** `AssetUploader` bloklayan `updateCategory`+`refetchCategory`'yi bırakır →
+  optimistic pending asset + toast; `AssetGrid`/`AssetPreviewPanel` PENDING rozeti;
+  `usePendingAssetReconciler` poll; **public/liste okumalarına `uploadStatus=ACTIVE`
+  filtresi** (`categoryRepository` `categoryInclude.assets: true` şu an TÜM asset'leri
+  çekiyor — Dilim 1'de sorun değil çünkü her satır ACTIVE).
+- **Dilim 4:** günlük `sst.aws.Cron` zombi-sweep (`PENDING_UPLOAD` + `createdAt <
+  now()-24h`); istenirse ürün/materyal asset akışları; 2. tüketici gerekirse
+  EventBridge Bus refactor.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -1720,6 +1720,16 @@ enum AssetRole {
   CERTIFICATE
 }
 
+// Asset yükleme yaşam döngüsü. PENDING_UPLOAD: presign sırasında satır oluşturuldu,
+// S3 nesnesi henüz onaylanmadı. ACTIVE: S3 ObjectCreated event'i satırı doğruladı
+// (ya da event'siz eski/senkron akışlardan geldi). @default(ACTIVE) → mevcut satırlar
+// ve diğer asset akışları (ürün, materyal, attribute value, kullanıcı fotoğrafı)
+// backfill'siz geçerli kalır.
+enum AssetUploadStatus {
+  PENDING_UPLOAD
+  ACTIVE
+}
+
 // kaldırıldı
 // isPrimary Boolean   @default(false)
 model Asset {
@@ -1730,6 +1740,9 @@ model Asset {
   type          AssetType
   role          AssetRole
   model3dConfig Json?
+
+  uploadStatus AssetUploadStatus @default(ACTIVE)
+  uploadedAt   DateTime? // S3 ObjectCreated onayında dolar
 
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -1754,4 +1767,5 @@ model Asset {
   @@index([variantId])
   @@index([productAttributeValueId])
   @@index([materialId])
+  @@index([uploadStatus, createdAt])
 }

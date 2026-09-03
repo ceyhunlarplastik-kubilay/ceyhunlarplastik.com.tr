@@ -20,6 +20,8 @@ export interface IPrismaAssetRepository {
     listAssetsByMaterialId(materialId: string): Promise<Asset[]>
     listAssetsByProductAttributeValueId(productAttributeValueId: string): Promise<Asset[]>
     createAsset(data: Prisma.AssetCreateInput): Promise<Asset>
+    createPendingAsset(data: Prisma.AssetCreateInput): Promise<Asset>
+    confirmUploadedAsset(key: string): Promise<{ count: number; asset: Asset | null }>
     updateAsset(id: string, data: Prisma.AssetUpdateInput): Promise<Asset>
     deleteAsset(id: string): Promise<Asset>
     deleteAssetsByIds(ids: string[]): Promise<Prisma.BatchPayload>
@@ -102,6 +104,29 @@ export const assetRepository = (): IPrismaAssetRepository => {
     const createAsset = async (data: Prisma.AssetCreateInput) =>
         prisma.asset.create({ data })
 
+    // Presign akışı: satır PENDING_UPLOAD olarak oluşturulur; S3 ObjectCreated
+    // event'i confirmUploadedAsset ile ACTIVE'e çevirir. Diğer asset akışları
+    // createAsset kullanmaya devam eder (varsayılan uploadStatus = ACTIVE).
+    const createPendingAsset = async (data: Prisma.AssetCreateInput) =>
+        prisma.asset.create({
+            data: { ...data, uploadStatus: "PENDING_UPLOAD" },
+        })
+
+    // S3 ObjectCreated onayı. Guard idempotent + sıra-bağımsız: yalnız hâlâ
+    // PENDING_UPLOAD olan satırı çevirir; tekrar teslim veya zaten ACTIVE = no-op
+    // (count 0). Satırı geri döndürür ki çağıran PRIMARY rol kardeşlerini
+    // düşürüp düşürmeyeceğine karar verebilsin.
+    const confirmUploadedAsset = async (key: string) => {
+        const { count } = await prisma.asset.updateMany({
+            where: { key, uploadStatus: "PENDING_UPLOAD" },
+            data: { uploadStatus: "ACTIVE", uploadedAt: new Date() },
+        })
+
+        const asset = await prisma.asset.findFirst({ where: { key } })
+
+        return { count, asset }
+    }
+
     const updateAsset = async (id: string, data: Prisma.AssetUpdateInput) =>
         prisma.asset.update({
             where: { id },
@@ -180,6 +205,8 @@ export const assetRepository = (): IPrismaAssetRepository => {
         listAssetsByMaterialId,
         listAssetsByProductAttributeValueId,
         createAsset,
+        createPendingAsset,
+        confirmUploadedAsset,
         updateAsset,
         deleteAsset,
         deleteAssetsByIds,

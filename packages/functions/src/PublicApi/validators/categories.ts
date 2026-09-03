@@ -28,6 +28,8 @@ export const assetSchema = z.object({
     type: assetTypeEnum,
     role: assetRoleEnum,
     url: z.string(), // ✅ runtime generated
+    uploadStatus: z.enum(["PENDING_UPLOAD", "ACTIVE"]),
+    uploadedAt: z.string().nullable(),
     createdAt: z.string(),
     updatedAt: z.string(),
 })
