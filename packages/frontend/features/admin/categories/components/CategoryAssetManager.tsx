@@ -9,6 +9,7 @@ import { AssetRoleTabs } from "@/features/admin/categories/components/asset/Asse
 import { AssetGrid } from "@/features/admin/categories/components/asset/AssetGrid";
 import { AssetPreviewPanel } from "@/features/admin/categories/components/asset/AssetPreviewPanel";
 import { AssetUploader } from "@/features/admin/categories/components/asset/AssetUploader";
+import { usePendingAssetReconciler } from "@/features/admin/categories/hooks/usePendingAssetReconciler";
 
 type Props = {
     category: Category;
@@ -26,6 +27,10 @@ export function CategoryAssetManager({
 
     const [activeRole, setActiveRole] = useState<AssetRole>("PRIMARY");
     const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+
+    // Yeni yüklenen asset presign'da PENDING_UPLOAD olarak oluşur; S3 onayına
+    // kadar rozetle gösterilir. Bu hook onay gelene dek kategoriyi tazeler.
+    usePendingAssetReconciler(category.assets, refetchCategory);
 
     const assetsByRole = useMemo(() => {
 

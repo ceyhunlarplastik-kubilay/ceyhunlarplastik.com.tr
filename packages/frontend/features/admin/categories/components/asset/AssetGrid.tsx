@@ -1,7 +1,8 @@
 "use client";
 
-import { Image as ImageIcon, Film, FileText } from "lucide-react";
+import { Image as ImageIcon, Film, FileText, Loader2 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import type { Asset, AssetRole } from "@/features/public/assets/types";
 
 type Props = {
@@ -36,17 +37,30 @@ export function AssetGrid({
                 {assets.map((asset) => {
 
                     const selected = selectedAsset?.id === asset.id;
+                    const pending = asset.uploadStatus === "PENDING_UPLOAD";
 
                     return (
                         <button
                             key={asset.id}
                             onClick={() => setSelectedAsset(asset)}
-                            className={`rounded-lg border overflow-hidden transition
+                            className={`relative rounded-lg border overflow-hidden transition
                 ${selected ? "ring-2 ring-black" : ""}
               `}
                         >
 
-                            <div className="h-24 w-full bg-muted flex items-center justify-center">
+                            {pending && (
+                                <Badge
+                                    variant="secondary"
+                                    className="absolute left-1 top-1 z-10 gap-1 px-1.5 py-0 text-[10px]"
+                                >
+                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                    İşleniyor
+                                </Badge>
+                            )}
+
+                            <div
+                                className={`h-24 w-full bg-muted flex items-center justify-center ${pending ? "opacity-50" : ""}`}
+                            >
 
                                 {asset.type === "IMAGE" && (
                                     <img

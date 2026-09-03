@@ -11,7 +11,9 @@ export const getCategoryHandler = ({ categoryRepository }: IGetCategoryDependenc
         const locale = getSupportedLocale(event.queryStringParameters?.locale)
 
         try {
-            const category = await categoryRepository.getCategory(id, locale);
+            // Yönetim dialog'u PENDING_UPLOAD asset'leri de görmeli (rozetle);
+            // liste ve public okumaları yalnız ACTIVE alır.
+            const category = await categoryRepository.getCategory(id, locale, { includeAllAssets: true });
 
             return apiResponseDTO({
                 statusCode: 200,

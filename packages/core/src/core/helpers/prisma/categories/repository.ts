@@ -16,12 +16,29 @@ import type { Category } from "@/prisma/generated/prisma/client"
 
 const CATEGORY_MAX_LIMIT = 500
 
+// Public / liste okumaları yalnız doğrulanmış asset'leri görür. Presign akışında
+// oluşan PENDING_UPLOAD satırları S3 ObjectCreated onayına kadar gizlenir
+// (confirmCategoryAssetUpload). Yalnız admin kategori yönetim dialog'u
+// (getCategory / updateCategory, includeAllAssets: true) PENDING'i rozetle gösterir.
 const categoryInclude = {
-    assets: true,
+    assets: {
+        where: { uploadStatus: "ACTIVE" },
+    },
     translations: {
         orderBy: { locale: "asc" },
     },
 } satisfies Prisma.CategoryInclude
+
+// Payload ŞEKLİ aynı (assets: Asset[]); yalnız `where` filtresi düşüyor. Tüm
+// sorgu yerlerinin tek `CategoryWithRelations` tipine çözülmesi için `categoryInclude`
+// tipine daraltılır — union bir include Prisma'nın GetPayload çıkarımını bozuyor.
+const categoryIncludeAllAssets = {
+    ...categoryInclude,
+    assets: true,
+} as unknown as typeof categoryInclude
+
+const pickCategoryInclude = (includeAllAssets = false) =>
+    includeAllAssets ? categoryIncludeAllAssets : categoryInclude
 
 type CategoryWithRelations = Prisma.CategoryGetPayload<{ include: typeof categoryInclude }>
 
@@ -35,10 +52,10 @@ export interface IPrismaCategoryRepository {
             totalPages: number
         }
     }>
-    getCategory(id: string, locale?: SupportedLocale): Promise<LocalizedCategory<CategoryWithRelations>>
+    getCategory(id: string, locale?: SupportedLocale, opts?: { includeAllAssets?: boolean }): Promise<LocalizedCategory<CategoryWithRelations>>
     getCategoryBySlug(slug: string, locale?: SupportedLocale): Promise<LocalizedCategory<CategoryWithRelations>>
     createCategory(data: Prisma.CategoryCreateInput): Promise<LocalizedCategory<CategoryWithRelations>>
-    updateCategory(id: string, data: Prisma.CategoryUpdateInput): Promise<LocalizedCategory<CategoryWithRelations>>
+    updateCategory(id: string, data: Prisma.CategoryUpdateInput, opts?: { includeAllAssets?: boolean }): Promise<LocalizedCategory<CategoryWithRelations>>
     deleteCategory(id: string): Promise<Category>
 }
 
@@ -98,7 +115,7 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
                 orderBy,
                 skip,
                 take: limit,
-                include: categoryInclude,
+                include: pickCategoryInclude(),
             }),
             prisma.category.count({ where }),
         ])
@@ -117,10 +134,11 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
     const getCategory = async (
         id: string,
         locale: SupportedLocale = DEFAULT_LOCALE,
+        opts?: { includeAllAssets?: boolean },
     ) => {
         const category = await prisma.category.findUniqueOrThrow({
             where: { id },
-            include: categoryInclude,
+            include: pickCategoryInclude(opts?.includeAllAssets),
         })
 
         return localizeCategory(category, locale)
@@ -140,7 +158,7 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
                 },
                 include: {
                     category: {
-                        include: categoryInclude,
+                        include: pickCategoryInclude(),
                     },
                 },
             })
@@ -167,7 +185,7 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
             where: { slug },
             include: {
                 category: {
-                    include: categoryInclude,
+                    include: pickCategoryInclude(),
                 },
             },
         })
@@ -177,7 +195,7 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
 
         const legacyCategory = await prisma.category.findUniqueOrThrow({
             where: { slug },
-            include: categoryInclude,
+            include: pickCategoryInclude(),
         })
 
         return localizeCategory(legacyCategory, locale)
@@ -186,7 +204,7 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
     const createCategory = async (data: Prisma.CategoryCreateInput) => {
         const category = await prisma.category.create({
             data,
-            include: categoryInclude,
+            include: pickCategoryInclude(),
         })
 
         return localizeCategory(category, DEFAULT_LOCALE)
@@ -195,11 +213,12 @@ export const categoryRepository = (): IPrismaCategoryRepository => {
     const updateCategory = async (
         id: string,
         data: Prisma.CategoryUpdateInput,
+        opts?: { includeAllAssets?: boolean },
     ) => {
         const category = await prisma.category.update({
             where: { id },
             data,
-            include: categoryInclude,
+            include: pickCategoryInclude(opts?.includeAllAssets),
         })
 
         return localizeCategory(category, DEFAULT_LOCALE)

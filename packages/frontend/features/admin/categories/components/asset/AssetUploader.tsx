@@ -101,7 +101,9 @@ export function AssetUploader({
 
             })
 
-            await refetchCategory()
+            // Kayıt (PENDING_UPLOAD) presign'da zaten oluştu. Bloklamadan tazele;
+            // usePendingAssetReconciler S3 onayına kadar tazelemeyi sürdürür.
+            void refetchCategory()
             toast.success(`${upload.file.name} yüklendi — arka planda işleniyor`)
         } catch {
             toast.error(`${upload.file.name} yüklenemedi`)

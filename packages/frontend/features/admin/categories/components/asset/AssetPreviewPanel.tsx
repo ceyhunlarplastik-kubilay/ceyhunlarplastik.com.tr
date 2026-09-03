@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { Copy, ExternalLink, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Loader2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useDeleteAsset } from "@/features/admin/categories/hooks/useDeleteAsset";
@@ -49,6 +49,13 @@ export function AssetPreviewPanel({
             <div className="text-sm font-medium">
                 Detay / Önizleme
             </div>
+
+            {asset.uploadStatus === "PENDING_UPLOAD" && (
+                <div className="flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Arka planda doğrulanıyor…
+                </div>
+            )}
 
             {asset.type === "IMAGE" && (
                 <img

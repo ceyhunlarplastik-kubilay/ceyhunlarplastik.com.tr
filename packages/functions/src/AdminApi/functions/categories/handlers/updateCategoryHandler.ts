@@ -100,8 +100,9 @@ export const updateCategoryHandler = ({
                 }),
             }
 
-            // 1️⃣ Category update
-            let category = await categoryRepository.updateCategory(id, updateData)
+            // 1️⃣ Category update — yönetim dialog'u PENDING_UPLOAD asset'leri de
+            // görmeli (rozetle); liste/public yalnız ACTIVE alır.
+            let category = await categoryRepository.updateCategory(id, updateData, { includeAllAssets: true })
 
             // 2️⃣ Yeni asset geldiyse lifecycle yönetimi
             if (assetType && assetKey && mimeType) {
@@ -118,7 +119,7 @@ export const updateCategoryHandler = ({
                     category: { connect: { id } },
                 })
 
-                category = await categoryRepository.getCategory(id) as typeof category
+                category = await categoryRepository.getCategory(id, undefined, { includeAllAssets: true }) as typeof category
             }
 
             return apiResponseDTO({

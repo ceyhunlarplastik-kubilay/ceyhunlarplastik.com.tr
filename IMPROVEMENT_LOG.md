@@ -5729,6 +5729,61 @@ yazıyor; S3 `ObjectCreated` **doğrudan** bir Lambda'yı tetikliyor, o da satı
   `categoryInclude`, admin + public `mapCategoryWithAssets` tüketicileri).
 - **Dilim 4:** günlük `sst.aws.Cron` zombi-sweep.
 
+## Asenkron asset yükleme (S3 event-driven) — Dilim 3: bekleme yok + PENDING rozeti + public ACTIVE filtresi (2026-09-04) *(kullanıcı talebiyle eklendi)*
+
+**Ne yapıldı:** Kategori asset yüklemesinde kullanıcı artık S3 PUT dışında HİÇBİR
+şeyi beklemiyor. Yeni asset presign'da `PENDING_UPLOAD` oluşur, yönetim ızgarasında
+anında "İşleniyor" rozetiyle görünür, S3 onayı gelince (~1-2 sn) rozet kalkar.
+Public / admin liste okumaları PENDING asset'i HİÇ görmez.
+
+**Değişen / yeni dosyalar:**
+- `core/helpers/prisma/categories/repository.ts` — `categoryInclude` artık
+  `assets: { where: { uploadStatus: "ACTIVE" } }`; `categoryIncludeAllAssets`
+  (`assets: true`, `as unknown as typeof categoryInclude` — union include Prisma
+  `GetPayload` çıkarımını bozuyor, payload şekli birebir aynı); `pickCategoryInclude(
+  includeAllAssets)`. `getCategory`/`updateCategory` opsiyonel `{ includeAllAssets?:
+  boolean }` alır. Diğer 4 sorgu yeri (list, slug ×2, create) + tüm PublicApi +
+  products/assets/businessRequests'in `getCategory` çağrıları ACTIVE-only kalır
+  (kategorinin kendi asset listesini kullanmıyorlar).
+- `functions/AdminApi/.../getCategoryHandler.ts` — `getCategory(id, locale,
+  { includeAllAssets: true })`
+- `functions/AdminApi/.../updateCategoryHandler.ts` — `updateCategory(id, data,
+  { includeAllAssets: true })` + asset-branch re-read `getCategory(id, undefined,
+  { includeAllAssets: true })`
+- **YENİ** `frontend/features/admin/categories/hooks/usePendingAssetReconciler.ts` —
+  `category.assets` içinde `PENDING_UPLOAD` varken `refetchCategory`'yi 2.5sn'de bir,
+  ≤12 kez (~30sn tavan) çağırır; bekleyen bitince sıfırlanır. `tick` state'i ile
+  pendingCount değişmese de döngü sürer; unmount'ta `cancelled` guard.
+- `frontend/.../CategoryAssetManager.tsx` — `usePendingAssetReconciler(category.assets,
+  refetchCategory)`
+- `frontend/.../asset/AssetUploader.tsx` — PUT sonrası `await refetchCategory()` →
+  `void refetchCategory()` (bloklamaz)
+- `frontend/.../asset/AssetGrid.tsx` — PENDING kartında `Badge` (`secondary`) +
+  `Loader2 animate-spin` "İşleniyor" overlay, thumbnail `opacity-50`
+- `frontend/.../asset/AssetPreviewPanel.tsx` — seçili asset PENDING ise "Arka planda
+  doğrulanıyor…" satırı + spinner
+
+**Doğrulama:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · `lint -w frontend`
+0 error (156 warning, yeni yok) ✅ · `test:ci -w core` 607/607 ✅ · `test -w functions`
+330/330 ✅ · `test -w frontend` 357/357 ✅. Yeni test yok: repo değişikliği tüm
+çağıranlarda typecheck-kapsamında; `usePendingAssetReconciler` için jsdom/renderHook
+altyapısı repoda yok (frontend testleri saf mantık test ediyor).
+
+**Kullanıcıda bekleyen (kubi):**
+- Kategori yönetim dialog'unda görsel yükle → progress dolar, biter bitmez toast +
+  ızgarada "İşleniyor" rozetli kart → ~2-3 sn sonra rozet kalkar. Kayıt için hiç
+  beklenmiyor.
+- PRIMARY'ye yükle → eski PRIMARY `GALLERY`'ye düşer (Dilim 2 confirm Lambda).
+- Public katalog / admin kategori LİSTESİ (`GET /categories`) → yeni yüklenen asset
+  onaylanana kadar GÖRÜNMEZ (thumbnail/sayım ACTIVE-only).
+- Dialog içinde çeviri/attribute kaydet → PENDING asset kaybolmaz (`updateCategory`
+  da `includeAllAssets`).
+
+**Ne kaldı:**
+- **Dilim 4 (opsiyonel):** günlük `sst.aws.Cron` zombi-sweep (`PENDING_UPLOAD` +
+  `createdAt < now()-24h` sil). İstenirse ürün/materyal/attribute-value asset
+  akışlarına aynı desen; 2. tüketici gerekirse EventBridge Bus.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
