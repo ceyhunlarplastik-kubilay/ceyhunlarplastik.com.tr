@@ -534,6 +534,13 @@ adminApi.route("DELETE /products/{id}/supplier-codes/{codeId}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+// Tedarikçi harfi başına TEK teknik resim — async yükleme (presign →
+// PENDING_UPLOAD Asset → S3 ObjectCreated → confirmProductSupplierCodeAssetUpload).
+adminApi.route("POST /products/{id}/supplier-codes/{codeId}/technical-drawing/presign", {
+    handler: `${folderPrefix}/productSupplierCodes/actions.createProductSupplierCodeAssetUpload`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 // Renk + hammadde kombinasyonunun ÜRÜN MODELİ İÇİNDEKİ numarası ("V1"). Numara
 // append-only'dur; mevcut bir kaydın kodunu değiştirecek bir uç BİLİNÇLİ OLARAK YOK.
 // Varyant girişi tanımsız kombinasyonu reddeder — önce buradan tanımlanır.

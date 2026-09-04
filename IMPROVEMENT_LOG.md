@@ -5846,6 +5846,64 @@ Branch: `feat/supplier-code-technical-drawing` (`main`'den).
 **Ne kaldı:** Dilim 2 (presign ucu + confirm Lambda + infra), Dilim 3 (frontend UI),
 Dilim 4 (`main` merge). Detay: IMPROVEMENT_PLAN.md.
 
+## Tedarikçi sözlüğü teknik resmi (async yükleme) — Dilim 2: presign ucu + confirm Lambda + infra (2026-09-04) *(kullanıcı talebiyle eklendi)*
+
+**Ne yapıldı:** Teknik resim yüklemenin backend'i tamam. Yeni uç PENDING_UPLOAD
+Asset satırını yazar, S3 nesnesi gelince ikinci bir confirm Lambda satırı ACTIVE'e
+çevirir. Kategori akışının notification/Lambda'sına DOKUNULMADI — çakışmayan
+kardeş prefix (`product-supplier-codes/` vs `categories/`).
+
+**Değişen / yeni dosyalar:**
+- `core/helpers/prisma/productSupplierCodes/repository.ts` — **YENİ** `findForProduct({
+  productId, id })` → `{ id } | null` (yetki sınırı: harf gerçekten bu ürün modeline
+  mi ait). `update`/`remove`'daki inline `productId` kontrolüyle aynı desen.
+- **YENİ** `functions/AssetLifecycle/functions/confirmProductSupplierCodeAssetUpload.ts` —
+  kategori confirm'inin kısaltılmışı: prefix guard `product-supplier-codes/`, yalnız
+  `confirmUploadedAsset` (PENDING→ACTIVE, idempotent). PRIMARY-demote YOK (harf başına
+  TEK resim). Satır yoksa/zaten ACTIVE = loglanır, hata değil.
+- **YENİ** `.../confirmProductSupplierCodeAssetUpload.test.ts` — 4 test (confirm, key
+  decode, başka prefix atla, count 0 no-throw).
+- `functions/AdminApi/functions/productSupplierCodes/handlers/index.ts` — **YENİ**
+  `createProductSupplierCodeAssetUploadHandler({ productSupplierCodeRepository,
+  assetRepository })`: `findForProduct` → 404; `randomUUID` assetId →
+  `generateProductSupplierCodeAssetUpload` → `createPendingAsset({ id, key, mimeType,
+  type: "TECHNICAL_DRAWING", role: "TECHNICAL_DRAWING", productSupplierCode: { connect:
+  { id: codeId } } })`; Prisma P2025 → 404; `{ uploadUrl, key, url, assetId }` döner.
+- **YENİ** `.../handlers/createProductSupplierCodeAssetUploadHandler.test.ts` — 3 test.
+- `functions/AdminApi/functions/productSupplierCodes/actions.ts` — **YENİ**
+  `createProductSupplierCodeAssetUpload` lambdaHandler (`getAssetUploadDeps` iki repo
+  kurar). Auth: `["admin", "content_editor"]` (create/update ile aynı). request +
+  response validator bağlı.
+- `functions/AdminApi/types/productSupplierCodes.ts` — `ICreateProductSupplierCodeAssetUploadDependencies`
+  (iki repo) + `ICreateProductSupplierCodeAssetUploadEvent` (`{ fileName, contentType }`,
+  path `{ id, codeId }`).
+- `functions/AdminApi/validators/productSupplierCodes.ts` — **YENİ**
+  `createProductSupplierCodeAssetUploadValidator` (request: path `{ id, codeId }` uuid,
+  body `{ fileName, contentType }` min 1) + `productSupplierCodeAssetUploadResponseValidator`
+  (`{ uploadUrl, key, url, assetId }`).
+- `infra/AdminApi.ts` — **YENİ** route `POST /products/{id}/supplier-codes/{codeId}/technical-drawing/presign`.
+- `infra/assetLifecycle.ts` — ortak `confirmFunctionBase` (runtime/timeout/vpc/link/
+  logging/env) çıkarıldı; `notifications`'a **2. obje** `ConfirmProductSupplierCodeAssetUpload`
+  (`filterPrefix: "product-supplier-codes/"`). Kategori notification'ı bit-bit aynı
+  kaldı (yalnız ortak alanlar spread'e taşındı).
+
+**Doğrulama:** `typecheck:backend` ✅ · infra tsc (touched-file grep) temiz ✅ ·
+`test:ci -w core` 613/613 ✅ · `test -w functions` 339/339 ✅ (yeni: 4 confirm + 3
+handler; `validatorCompilation` 292→294) .
+
+**Kullanıcıda bekleyen (kubi):**
+- `sst dev --stage kubi` → yeni Lambda `ConfirmProductSupplierCodeAssetUpload` deploy olur.
+- Elle presign testi (curl / dialog Dilim 3'te): `POST /products/{id}/supplier-codes/
+  {codeId}/technical-drawing/presign` `{ fileName, contentType }` → `{ uploadUrl, key,
+  url, assetId }`; `uploadUrl`'e PUT → ~1-2 sn içinde Asset satırı `uploadStatus=ACTIVE`,
+  `uploadedAt` dolu (`GET /products/{id}/supplier-codes` → ilgili satırın
+  `technicalDrawing.uploadStatus`).
+- `npx sst diff --stage prod` (READ-ONLY) → beklenen: 1 yeni Lambda + 1 yeni S3
+  bucket notification (`product-supplier-codes/` prefix), kategori notification'ında
+  değişiklik YOK.
+
+**Ne kaldı:** Dilim 3 (frontend UI), Dilim 4 (`main` merge). Detay: IMPROVEMENT_PLAN.md.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

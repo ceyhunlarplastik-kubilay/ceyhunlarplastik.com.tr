@@ -54,6 +54,11 @@ export type ProductSupplierCodeRow = {
 
 export interface IPrismaProductSupplierCodeRepository {
     list(productId: string): Promise<ProductSupplierCodeRow[]>
+    /**
+     * Yetki sınırı kontrolü: harf gerçekten bu ürün modeline mi ait. Teknik resim
+     * presign ucu, PENDING satırı yazmadan önce bununla doğrular.
+     */
+    findForProduct(input: { productId: string; id: string }): Promise<{ id: string } | null>
     create(input: {
         productId: string
         supplierId: string
@@ -171,6 +176,14 @@ export const productSupplierCodeRepository = (): IPrismaProductSupplierCodeRepos
         return rows.map((row) => toRow(row, usage.get(row.supplierId) ?? 0))
     }
 
+    const findForProduct = async (input: { productId: string; id: string }) => {
+        const row = await prisma.productSupplierCode.findUnique({
+            where: { id: input.id },
+            select: { id: true, productId: true },
+        })
+        return row && row.productId === input.productId ? { id: row.id } : null
+    }
+
     const create = async (input: { productId: string; supplierId: string; code?: string }) => {
         // Transaction YALNIZ tekillik kontrolü + yazma içerir. Gösterim için
         // gereken kullanım sayısı commit'ten SONRA okunur — bkz. loadUsageCounts.
@@ -286,5 +299,5 @@ export const productSupplierCodeRepository = (): IPrismaProductSupplierCodeRepos
         return { id: input.id }
     }
 
-    return { list, create, update, remove }
+    return { list, findForProduct, create, update, remove }
 }

@@ -1,10 +1,15 @@
+import { randomUUID } from "crypto"
 import createError, { HttpError } from "http-errors"
 
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
+import { generateProductSupplierCodeAssetUpload } from "@/core/helpers/s3/presign"
+import { Prisma } from "@/prisma/generated/prisma/client"
 import {
     IProductSupplierCodeDependencies,
+    ICreateProductSupplierCodeAssetUploadDependencies,
     IListProductSupplierCodesEvent,
     ICreateProductSupplierCodeEvent,
+    ICreateProductSupplierCodeAssetUploadEvent,
     IUpdateProductSupplierCodeEvent,
     IDeleteProductSupplierCodeEvent,
 } from "@/functions/AdminApi/types/productSupplierCodes"
@@ -86,5 +91,65 @@ export const deleteProductSupplierCodeHandler = (
             console.error(err)
             throw new createError.InternalServerError("Tedarikçi harfi silinemedi")
         }
+    }
+}
+
+/**
+ * Tedarikçi harfi için teknik resim presign'ı — kategori akışının aynısı:
+ * PENDING_UPLOAD Asset satırı oluşur, S3 ObjectCreated event'i
+ * (confirmProductSupplierCodeAssetUpload) ACTIVE'e çevirir. type & role sabit:
+ * TECHNICAL_DRAWING. Harf başına TEK resim — "değiştir" = eskiyi senkron
+ * DELETE /assets/{id} + yeniyi bu uçtan yükle (frontend yapar).
+ */
+export const createProductSupplierCodeAssetUploadHandler = (
+    { productSupplierCodeRepository, assetRepository }: ICreateProductSupplierCodeAssetUploadDependencies,
+) => {
+    return async (event: ICreateProductSupplierCodeAssetUploadEvent) => {
+        const productId = event.pathParameters.id
+        const codeId = event.pathParameters.codeId
+        const { fileName, contentType } = event.body
+
+        if (!fileName || !contentType) {
+            throw new createError.BadRequest("Missing required fields")
+        }
+
+        // Yetki sınırı: harf gerçekten bu ürün modeline mi ait.
+        const code = await productSupplierCodeRepository.findForProduct({ productId, id: codeId })
+        if (!code) {
+            throw new createError.NotFound("Tedarikçi harfi bulunamadı")
+        }
+
+        // assetId key'in dosya adı olur; S3 event'i key'den satırı bulur.
+        const assetId = randomUUID()
+
+        const presigned = await generateProductSupplierCodeAssetUpload({
+            assetId,
+            productId,
+            codeId,
+            fileName,
+            contentType,
+        })
+
+        try {
+            await assetRepository.createPendingAsset({
+                id: assetId,
+                key: presigned.key,
+                mimeType: contentType,
+                type: "TECHNICAL_DRAWING",
+                role: "TECHNICAL_DRAWING",
+                productSupplierCode: { connect: { id: codeId } },
+            })
+        } catch (err) {
+            if (err instanceof HttpError) throw err
+            if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+                throw new createError.NotFound("Tedarikçi harfi bulunamadı")
+            }
+            throw err
+        }
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { ...presigned, assetId }, // { uploadUrl, key, url, assetId }
+        })
     }
 }

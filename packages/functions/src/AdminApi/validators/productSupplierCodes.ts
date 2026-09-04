@@ -40,6 +40,21 @@ export const createProductSupplierCodeValidator = validatorWrapper(
     { requiredRootFields: ["pathParameters", "body"] },
 )
 
+/**
+ * Teknik resim presign isteği. type & role handler'da TECHNICAL_DRAWING sabit —
+ * istekte beyan edilmez.
+ */
+export const createProductSupplierCodeAssetUploadValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({ id: z.uuid(), codeId: z.uuid() }),
+        body: z.object({
+            fileName: z.string().min(1),
+            contentType: z.string().min(1),
+        }),
+    }),
+    { requiredRootFields: ["pathParameters", "body"] },
+)
+
 /** Harf (`code`) şemada HİÇ BEYAN EDİLMEZ: değiştirmek tüm kodları yeniden yazar. */
 export const updateProductSupplierCodeValidator = validatorWrapper(
     z.object({
@@ -72,6 +87,21 @@ export const productSupplierCodeResponseValidator = z.toJSONSchema(
         body: z.object({
             statusCode: z.number(),
             payload: z.object({ code: supplierCodeSchema }).loose(),
+        }).loose(),
+    }).loose()
+)
+
+export const productSupplierCodeAssetUploadResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                uploadUrl: z.string(),
+                key: z.string(),
+                url: z.string(),
+                assetId: z.string(),
+            }).loose(),
         }).loose(),
     }).loose()
 )

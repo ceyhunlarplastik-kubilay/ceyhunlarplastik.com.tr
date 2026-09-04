@@ -1,25 +1,31 @@
 import { lambdaHandler } from "@/core/middy"
 import { productSupplierCodeRepository } from "@/core/helpers/prisma/productSupplierCodes/repository"
+import { assetRepository } from "@/core/helpers/prisma/assets/repository"
 
 import {
     listProductSupplierCodesHandler,
     createProductSupplierCodeHandler,
+    createProductSupplierCodeAssetUploadHandler,
     updateProductSupplierCodeHandler,
     deleteProductSupplierCodeHandler,
 } from "@/functions/AdminApi/functions/productSupplierCodes/handlers"
 import {
     listProductSupplierCodesValidator,
     createProductSupplierCodeValidator,
+    createProductSupplierCodeAssetUploadValidator,
     updateProductSupplierCodeValidator,
     deleteProductSupplierCodeValidator,
     listProductSupplierCodesResponseValidator,
     productSupplierCodeResponseValidator,
+    productSupplierCodeAssetUploadResponseValidator,
     deleteProductSupplierCodeResponseValidator,
 } from "@/functions/AdminApi/validators/productSupplierCodes"
 import type {
     IProductSupplierCodeDependencies,
+    ICreateProductSupplierCodeAssetUploadDependencies,
     IListProductSupplierCodesEvent,
     ICreateProductSupplierCodeEvent,
+    ICreateProductSupplierCodeAssetUploadEvent,
     IUpdateProductSupplierCodeEvent,
     IDeleteProductSupplierCodeEvent,
 } from "@/functions/AdminApi/types/productSupplierCodes"
@@ -32,6 +38,11 @@ const supplierCodeAdminGroups = ["admin"]
 
 const getDeps = (): IProductSupplierCodeDependencies => ({
     productSupplierCodeRepository: productSupplierCodeRepository(),
+})
+
+const getAssetUploadDeps = (): ICreateProductSupplierCodeAssetUploadDependencies => ({
+    productSupplierCodeRepository: productSupplierCodeRepository(),
+    assetRepository: assetRepository(),
 })
 
 export const listProductSupplierCodes = lambdaHandler(
@@ -49,6 +60,17 @@ export const createProductSupplierCode = lambdaHandler(
         auth: { requiredPermissionGroups: supplierCodeManagerGroups },
         requestValidator: createProductSupplierCodeValidator,
         responseValidator: productSupplierCodeResponseValidator,
+    }
+)
+
+// Teknik resim presign'ı: PENDING_UPLOAD Asset satırı oluşur, S3 event'i ACTIVE
+// yapar. Sözlük yönetiminin sınırı — admin + content_editor.
+export const createProductSupplierCodeAssetUpload = lambdaHandler(
+    async (event) => createProductSupplierCodeAssetUploadHandler(getAssetUploadDeps())(event as ICreateProductSupplierCodeAssetUploadEvent),
+    {
+        auth: { requiredPermissionGroups: supplierCodeManagerGroups },
+        requestValidator: createProductSupplierCodeAssetUploadValidator,
+        responseValidator: productSupplierCodeAssetUploadResponseValidator,
     }
 )
 
