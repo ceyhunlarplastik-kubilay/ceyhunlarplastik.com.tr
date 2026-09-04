@@ -44,3 +44,27 @@ export async function deleteProductSupplierCode(productId: string, codeId: strin
     )
     return res.data.payload.deletedId
 }
+
+/**
+ * Harf başına TEK teknik resim — async yükleme: PENDING_UPLOAD Asset satırı
+ * oluşur, S3'e PUT bitince ObjectCreated event'i satırı ACTIVE'e çevirir.
+ */
+export async function presignProductSupplierCodeDrawing(
+    productId: string,
+    codeId: string,
+    input: { fileName: string; contentType: string },
+): Promise<{ uploadUrl: string; key: string; url: string; assetId: string }> {
+    const res = await adminApiClient.post<{
+        statusCode: number
+        payload: { uploadUrl: string; key: string; url: string; assetId: string }
+    }>(
+        `/products/${productId}/supplier-codes/${codeId}/technical-drawing/presign`,
+        input,
+    )
+    return res.data.payload
+}
+
+/** "Değiştir" = eskiyi bununla sil (S3 + satır senkron) + yeniyi presign'la yükle. */
+export async function deleteProductSupplierCodeDrawing(assetId: string): Promise<void> {
+    await adminApiClient.delete(`/assets/${assetId}`)
+}

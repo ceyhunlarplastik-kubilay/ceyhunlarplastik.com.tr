@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Check, Info, Loader2, Lock, Pencil, Plus, Trash2, X } from "lucide-react"
+import { useRef, useState } from "react"
+import { Check, FileUp, Info, Loader2, Lock, Pencil, Plus, Trash2, X } from "lucide-react"
 
 import {
     AlertDialog,
@@ -27,9 +27,12 @@ import { useVariantMatrixReferences } from "@/features/admin/productVariantMatri
 import {
     useCreateProductSupplierCode,
     useDeleteProductSupplierCode,
+    usePendingSupplierCodeDrawingReconciler,
     useProductSupplierCodes,
     useUpdateProductSupplierCode,
+    useUploadProductSupplierCodeDrawing,
 } from "@/features/admin/productSupplierCodes/hooks/useProductSupplierCodes"
+import { SupplierCodeDrawingCell } from "@/features/admin/productSupplierCodes/components/SupplierCodeDrawingCell"
 
 type Props = {
     open: boolean
@@ -61,21 +64,32 @@ export function ProductSupplierCodesDialog({
     const createMutation = useCreateProductSupplierCode(productId)
     const updateMutation = useUpdateProductSupplierCode(productId)
     const deleteMutation = useDeleteProductSupplierCode(productId)
+    const uploadDrawingMutation = useUploadProductSupplierCodeDrawing(productId)
 
     const [supplierId, setSupplierId] = useState("")
     const [code, setCode] = useState("")
     const [editing, setEditing] = useState<{ id: string; supplierId: string } | null>(null)
+    const [newDrawing, setNewDrawing] = useState<File | null>(null)
+    const newDrawingInputRef = useRef<HTMLInputElement>(null)
+
+    // Bir harfin teknik resmi PENDING iken listeyi tazeler (S3 onayına kadar).
+    usePendingSupplierCodeDrawingReconciler(codes, productId)
 
     const suppliers = references?.suppliers ?? []
 
     const handleCreate = async () => {
         if (!supplierId) return
-        await createMutation.mutateAsync({
+        const created = await createMutation.mutateAsync({
             supplierId,
             code: code.trim() ? code.trim().toUpperCase() : undefined,
         })
+        if (newDrawing) {
+            await uploadDrawingMutation.mutateAsync({ codeId: created.id, file: newDrawing })
+        }
         setSupplierId("")
         setCode("")
+        setNewDrawing(null)
+        if (newDrawingInputRef.current) newDrawingInputRef.current.value = ""
     }
 
     return (
@@ -134,8 +148,12 @@ export function ProductSupplierCodesDialog({
                         </div>
 
                         <div className="flex items-end">
-                            <Button type="button" onClick={handleCreate} disabled={!supplierId || createMutation.isPending}>
-                                {createMutation.isPending ? (
+                            <Button
+                                type="button"
+                                onClick={handleCreate}
+                                disabled={!supplierId || createMutation.isPending || uploadDrawingMutation.isPending}
+                            >
+                                {createMutation.isPending || uploadDrawingMutation.isPending ? (
                                     <Loader2 className="mr-2 size-4 animate-spin" />
                                 ) : (
                                     <Plus className="mr-2 size-4" />
@@ -144,8 +162,45 @@ export function ProductSupplierCodesDialog({
                             </Button>
                         </div>
                     </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <input
+                            ref={newDrawingInputRef}
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={(event) => setNewDrawing(event.target.files?.[0] ?? null)}
+                        />
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => newDrawingInputRef.current?.click()}
+                        >
+                            <FileUp className="mr-1 size-3" />
+                            {newDrawing ? "Teknik resmi değiştir" : "Teknik resim ekle (opsiyonel)"}
+                        </Button>
+                        {newDrawing ? (
+                            <span className="flex items-center gap-1 text-xs text-neutral-500">
+                                {newDrawing.name}
+                                <button
+                                    type="button"
+                                    aria-label="Seçili teknik resmi kaldır"
+                                    onClick={() => {
+                                        setNewDrawing(null)
+                                        if (newDrawingInputRef.current) newDrawingInputRef.current.value = ""
+                                    }}
+                                >
+                                    <X className="size-3" />
+                                </button>
+                            </span>
+                        ) : null}
+                    </div>
+
                     <p className="text-xs text-neutral-500">
                         Harf boş bırakılırsa bu ürün içindeki sıradaki harf verilir (A, B, C…).
+                        Teknik resim sonradan da eklenebilir.
                     </p>
                 </section>
 
@@ -166,6 +221,7 @@ export function ProductSupplierCodesDialog({
                                     <TableHead className="w-20">Harf</TableHead>
                                     <TableHead>Tedarikçi</TableHead>
                                     <TableHead>Kullanım</TableHead>
+                                    <TableHead>Teknik resim</TableHead>
                                     <TableHead className="text-right">İşlem</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -209,6 +265,9 @@ export function ProductSupplierCodesDialog({
                                                 ) : (
                                                     <span className="text-neutral-400">kullanılmıyor</span>
                                                 )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <SupplierCodeDrawingCell productId={productId} entry={entry} />
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex items-center justify-end gap-1">

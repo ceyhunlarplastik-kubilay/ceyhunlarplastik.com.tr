@@ -5904,6 +5904,62 @@ handler; `validatorCompilation` 292→294) .
 
 **Ne kaldı:** Dilim 3 (frontend UI), Dilim 4 (`main` merge). Detay: IMPROVEMENT_PLAN.md.
 
+## Tedarikçi sözlüğü teknik resmi (async yükleme) — Dilim 3: frontend UI (2026-09-04) *(kullanıcı talebiyle eklendi)*
+
+**Ne yapıldı:** `ProductSupplierCodesDialog`'a her tedarikçi harfi için "Teknik resim"
+kolonu. Boşsa "Yükle"; doluysa küçük önizleme (görsel→thumbnail, PDF→dosya ikonu, tıkla→yeni
+sekmede aç) + "Değiştir" (eskiyi senkron sil + yeniyi presign'la yükle) + "Sil". Yükleme
+kullanıcıyı BLOKLAMAZ — S3 PUT biter bitmez toast, satır `PENDING_UPLOAD` rozetiyle
+("İşleniyor") görünür, reconciler S3 onayına kadar (~1-2 sn) listeyi tazeler. Yeni-harf
+formuna da opsiyonel dosya alanı: harf oluşturulup id dönünce aynı akışla yüklenir.
+
+**Değişen / yeni dosyalar:**
+- `features/admin/productSupplierCodes/api/types.ts` — **YENİ** `SupplierCodeDrawing`
+  tipi (`id, key, url, mimeType, uploadStatus, uploadedAt, createdAt`);
+  `ProductSupplierCodeEntry.technicalDrawing: SupplierCodeDrawing | null`.
+- `.../api/productSupplierCodes.ts` — **YENİ** `presignProductSupplierCodeDrawing(
+  productId, codeId, { fileName, contentType })` → `{ uploadUrl, key, url, assetId }`;
+  `deleteProductSupplierCodeDrawing(assetId)` → `DELETE /assets/{id}` (senkron S3 + satır).
+- `.../hooks/useProductSupplierCodes.ts`:
+  - `useDictionaryInvalidation` artık `useCallback` (reconciler effect bağımlılığında
+    sabit referans gerekiyordu).
+  - **YENİ** `useUploadProductSupplierCodeDrawing(productId)` — `{ codeId, file,
+    replaceAssetId? }`: opsiyonel eski sil → presign → `axios.put` S3'e → `invalidate`.
+    Toast "yüklendi — arka planda işleniyor".
+  - **YENİ** `useDeleteProductSupplierCodeDrawing(productId)`.
+  - **YENİ** `usePendingSupplierCodeDrawingReconciler(codes, productId)` — bir harfin
+    `technicalDrawing.uploadStatus === "PENDING_UPLOAD"` iken 2.5sn'de bir, ≤12 kez
+    (~30sn tavan) `invalidate`; bekleyen bitince sıfırlanır. Kategori
+    `usePendingAssetReconciler` ile aynı desen.
+- **YENİ** `.../components/SupplierCodeDrawingCell.tsx` — hücre bileşeni: gizli
+  `<input type="file" accept="image/*,application/pdf">` + ref; PENDING→rozet,
+  ACTIVE→önizleme+Değiştir+Sil, boş→Yükle. Her hücre kendi upload/delete mutation
+  instance'ını tutar (satırlar birbirini bloklamaz).
+- `.../components/ProductSupplierCodesDialog.tsx` — reconciler çağrısı; tabloya
+  "Teknik resim" `TableHead` + `SupplierCodeDrawingCell` `TableCell` (Kullanım ile
+  İşlem arası); yeni-harf `<section>`'ına opsiyonel dosya seçici (`newDrawing` state +
+  ref), `handleCreate` create sonrası dosya varsa `uploadDrawingMutation.mutateAsync({
+  codeId: created.id, file })`; "Ekle" düğmesi upload pending'de de disable/spinner.
+
+**Doğrulama:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (159 warning:
+`SupplierCodeDrawingCell` `<img>` — kategori `AssetGrid`/`AssetPreviewPanel` ile aynı;
+`useProductSupplierCodes` 3× `onError(error: any)` — dosyadaki mevcut 3 mutation ile
+aynı) ✅ · `test -w frontend` 357/357 ✅. Yeni test yok: reconciler/hook için
+jsdom/renderHook altyapısı repoda yok (frontend testleri saf mantık).
+
+**Kullanıcıda bekleyen (kubi):**
+- `sst dev --stage kubi` (Dilim 2'deki Lambda zaten deploy ise ek adım yok).
+- `/admin` veya `/veri-girisi` → varyant matrisi rail'inde "Tedarikçi sözlüğü" →
+  Düzenle → bir harf satırında **Yükle** → progress yerine anında toast + "İşleniyor"
+  rozeti → ~2 sn sonra rozet kalkar, önizleme belirir.
+- **Değiştir** → eski resim gider, yenisi PENDING → ACTIVE. **Sil** → önizleme kalkar,
+  "Yükle" düğmesine döner.
+- Yeni harf eklerken "Teknik resim ekle (opsiyonel)" ile dosya seç → **Ekle** → harf +
+  resim birlikte oluşur.
+
+**Ne kaldı:** Dilim 4 (`feat/supplier-code-technical-drawing` → `main` merge; prod
+deploy + prod migration kullanıcıda).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
