@@ -92,12 +92,6 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 - **`.env` temizliği** — `RDS_PASSWORD`, `GMAIL_SMTP_USER`, `GMAIL_SMTP_APP_PASSWORD`, `DEEPL_API_KEY` satırları silinebilir; kod artık SST Secret'tan okuyor (P1.3). `.env`'de KALMASI gerekenler: `AWS_REGION`, `HOSTED_ZONE_ID`, `DOMAIN`, `DOMAIN_CERTIFICATE_ARN`, `DEEPL_GLOSSARY_ID`, `DIRECT_RDS_HOST`.
 - **Müşteri haritası rota optimizasyonu** (2026-08-28) — kubi doğrulaması bekliyor. Adımlar LOG'daki "Müşteri haritası: rota optimizasyonu" notunun "Kullanıcıda kalan" bölümünde.
 - **P2.7 deploy** (yukarıda) — API Lambda'larının `nodejs24.x` geçişi commit'li ama prod'a deploy edilmedi; `sst deploy --stage prod` + duman testi. `postConfirmation` node20→24 normalizasyonu ayrı küçük iş.
-- **Tedarikçi sözlüğü teknik resmi — prod'a alma** (2026-09-04, LOG'da tam detay) —
-  `feat/supplier-code-technical-drawing` `main`'e merge edildi (`e368f93`), kubi'de
-  doğrulandı. Kalan: `npx sst diff --stage prod` önizleme (beklenen: 1 yeni Lambda +
-  1 yeni S3 bucket notification `product-supplier-codes/` prefix'i, kategori
-  notification'ında değişiklik yok) → prod migration `add_asset_product_supplier_code`
-  (additive/nullable, mevcut Asset satırları etkilenmez) → `sst deploy --stage prod`.
 
 ---
 

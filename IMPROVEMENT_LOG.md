@@ -5985,12 +5985,9 @@ deploy + prod migration kullanıcıda).
 
 `feat/supplier-code-technical-drawing` (4 commit: Dilim 1 `a058d53`, Dilim 2
 `20657a3`, Dilim 3 `9986c5d`, Attachment düzenlemesi `e368f93`) `main`'e **fast-forward**
-merge edildi → `main` `e368f93`. Kod tarafı tamam; kubi'de doğrulandı. Kalan yalnız
-kullanıcı elinde: `npx sst diff --stage prod` önizleme (beklenen: 1 yeni Lambda
-`ConfirmProductSupplierCodeAssetUpload` + 1 yeni S3 bucket notification
-`product-supplier-codes/` prefix'i, kategori notification'ında değişiklik yok) →
-prod migration `add_asset_product_supplier_code` → `sst deploy --stage prod`. Detay:
-IMPROVEMENT_PLAN.md § Kullanıcıda Bekleyen Adımlar.
+merge edildi → `main` `e368f93`. Prod migration `add_asset_product_supplier_code` ve
+`sst deploy --stage prod` kullanıcı tarafından başarıyla tamamlandı (2026-09-04) —
+özellik uçtan uca canlıda. İş tamamen kapandı, PLAN'da açık madde kalmadı.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
