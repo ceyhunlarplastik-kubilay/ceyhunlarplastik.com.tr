@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Check, FileUp, Info, Loader2, Lock, Pencil, Plus, Trash2, X } from "lucide-react"
+import { Check, FileUp, Info, Loader2, Lock, Pencil, Plus, RefreshCw, Trash2, X } from "lucide-react"
 
 import {
     AlertDialog,
@@ -14,6 +14,15 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+    Attachment,
+    AttachmentAction,
+    AttachmentActions,
+    AttachmentContent,
+    AttachmentDescription,
+    AttachmentMedia,
+    AttachmentTitle,
+} from "@/components/ui/attachment"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -171,31 +180,47 @@ export function ProductSupplierCodesDialog({
                             className="hidden"
                             onChange={(event) => setNewDrawing(event.target.files?.[0] ?? null)}
                         />
-                        <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="h-7 px-2 text-xs"
-                            onClick={() => newDrawingInputRef.current?.click()}
-                        >
-                            <FileUp className="mr-1 size-3" />
-                            {newDrawing ? "Teknik resmi değiştir" : "Teknik resim ekle (opsiyonel)"}
-                        </Button>
                         {newDrawing ? (
-                            <span className="flex items-center gap-1 text-xs text-neutral-500">
-                                {newDrawing.name}
-                                <button
-                                    type="button"
-                                    aria-label="Seçili teknik resmi kaldır"
-                                    onClick={() => {
-                                        setNewDrawing(null)
-                                        if (newDrawingInputRef.current) newDrawingInputRef.current.value = ""
-                                    }}
-                                >
-                                    <X className="size-3" />
-                                </button>
-                            </span>
-                        ) : null}
+                            <Attachment size="sm" state="idle">
+                                <AttachmentMedia>
+                                    <FileUp />
+                                </AttachmentMedia>
+                                <AttachmentContent>
+                                    <AttachmentTitle>{newDrawing.name}</AttachmentTitle>
+                                    <AttachmentDescription>{"Ekle'ye basınca yüklenir"}</AttachmentDescription>
+                                </AttachmentContent>
+                                <AttachmentActions>
+                                    <AttachmentAction
+                                        aria-label="Seçili teknik resmi değiştir"
+                                        title="Değiştir"
+                                        onClick={() => newDrawingInputRef.current?.click()}
+                                    >
+                                        <RefreshCw />
+                                    </AttachmentAction>
+                                    <AttachmentAction
+                                        aria-label="Seçili teknik resmi kaldır"
+                                        title="Kaldır"
+                                        onClick={() => {
+                                            setNewDrawing(null)
+                                            if (newDrawingInputRef.current) newDrawingInputRef.current.value = ""
+                                        }}
+                                    >
+                                        <X />
+                                    </AttachmentAction>
+                                </AttachmentActions>
+                            </Attachment>
+                        ) : (
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => newDrawingInputRef.current?.click()}
+                            >
+                                <FileUp className="mr-1 size-3" />
+                                Teknik resim ekle (opsiyonel)
+                            </Button>
+                        )}
                     </div>
 
                     <p className="text-xs text-neutral-500">

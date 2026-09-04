@@ -5957,6 +5957,27 @@ jsdom/renderHook altyapısı repoda yok (frontend testleri saf mantık).
 - Yeni harf eklerken "Teknik resim ekle (opsiyonel)" ile dosya seç → **Ekle** → harf +
   resim birlikte oluşur.
 
+**Ek düzenleme — shadcn `Attachment` bileşeni (2026-09-04, aynı gün, kullanıcı talebiyle):**
+Kullanıcı `components/ui/attachment.tsx`'i (shadcn) kurdu; teknik resim slotu ad-hoc
+`<img>`/ikon/düğme yerine `Attachment` ailesiyle yeniden yazıldı.
+- `SupplierCodeDrawingCell.tsx` — `Attachment` + `AttachmentMedia`/`Content`/`Title`/
+  `Description`/`Actions`/`Action`/`Trigger`. `state` prop'u durum makinesi:
+  `idle` (boş, kesikli kenar, tam-alan `AttachmentTrigger` → dosya seç) · `uploading`
+  (`<Spinner data-slot="spinner">`) · `processing` (PENDING_UPLOAD) · `error` · `done`
+  (ACTIVE — görsel→`variant="image"` `<img>`, PDF→`FileText`; `AttachmentTrigger asChild`
+  → `<a target=_blank>`; `AttachmentActions` → Değiştir/Sil). Bloklamayan yükleme +
+  reconciler aynen korundu.
+- `ProductSupplierCodesDialog.tsx` — yeni-harf formundaki seçili dosya çipi de
+  `<Attachment state="idle">` (media `FileUp`, actions Değiştir/Kaldır).
+- `components/ui/button.tsx` — **`"icon-xs": "size-7"`** size variant eklendi
+  (`AttachmentAction` bunu default alıyor; repoda yoktu → `attachment.tsx` typecheck
+  hatası veriyordu). Additive.
+- `components/ui/attachment.tsx` — `AttachmentActions`'taki `right-3` → `end-3`
+  (repo RTL guard testi `components/logicalProperties.test.ts` fiziksel yön sınıfını
+  `components/ui` altında yasaklıyor).
+- Doğrulama: `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (158 warning) ✅ ·
+  `test -w frontend` 357/357 ✅ (RTL guard dahil).
+
 **Ne kaldı:** Dilim 4 (`feat/supplier-code-technical-drawing` → `main` merge; prod
 deploy + prod migration kullanıcıda).
 

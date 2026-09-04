@@ -1,10 +1,19 @@
 "use client"
 
 import { useRef } from "react"
-import { FileText, ImageOff, Loader2, Trash2, Upload } from "lucide-react"
+import { FileText, RefreshCw, Trash2, Upload } from "lucide-react"
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import {
+    Attachment,
+    AttachmentAction,
+    AttachmentActions,
+    AttachmentContent,
+    AttachmentDescription,
+    AttachmentMedia,
+    AttachmentTitle,
+    AttachmentTrigger,
+} from "@/components/ui/attachment"
+import { Spinner } from "@/components/ui/spinner"
 
 import {
     useDeleteProductSupplierCodeDrawing,
@@ -20,9 +29,10 @@ type Props = {
 }
 
 /**
- * Tedarikçi harfi başına TEK teknik resim slotu. Boşsa "Yükle"; doluysa küçük
- * önizleme + "Değiştir" (eskiyi sil + yeniyi yükle) + "Sil". Yükleme bloklamaz —
- * satır PENDING iken "İşleniyor" rozeti, S3 onayı gelince kalkar (reconciler).
+ * Tedarikçi harfi başına TEK teknik resim slotu — shadcn `Attachment` ile.
+ * Durumlar: idle (boş, kesikli kenar → tıkla-seç) · uploading · processing
+ * (PENDING_UPLOAD, S3 onayı bekleniyor) · error · done (ACTIVE, önizleme + Değiştir/Sil).
+ * Yükleme bloklamaz; reconciler PENDING iken listeyi tazeler.
  */
 export function SupplierCodeDrawingCell({ productId, entry }: Props) {
     const inputRef = useRef<HTMLInputElement>(null)
@@ -30,7 +40,7 @@ export function SupplierCodeDrawingCell({ productId, entry }: Props) {
     const deleteMutation = useDeleteProductSupplierCodeDrawing(productId)
 
     const drawing = entry.technicalDrawing
-    const pending = drawing?.uploadStatus === "PENDING_UPLOAD"
+    const isImage = drawing?.mimeType.startsWith("image/") ?? false
     const busy = uploadMutation.isPending || deleteMutation.isPending
 
     const pickFile = () => inputRef.current?.click()
@@ -46,8 +56,43 @@ export function SupplierCodeDrawingCell({ productId, entry }: Props) {
         })
     }
 
+    const state: "idle" | "uploading" | "processing" | "error" | "done" =
+        uploadMutation.isPending || deleteMutation.isPending
+            ? "uploading"
+            : uploadMutation.isError
+                ? "error"
+                : drawing?.uploadStatus === "PENDING_UPLOAD"
+                    ? "processing"
+                    : drawing
+                        ? "done"
+                        : "idle"
+
+    const title =
+        state === "done"
+            ? "Teknik resim"
+            : state === "processing"
+                ? "İşleniyor"
+                : state === "uploading"
+                    ? "Yükleniyor…"
+                    : state === "error"
+                        ? "Yüklenemedi"
+                        : "Teknik resim yükle"
+
+    const description =
+        state === "done"
+            ? isImage
+                ? "Görseli aç"
+                : "PDF · aç"
+            : state === "processing"
+                ? "Arka planda doğrulanıyor"
+                : state === "error"
+                    ? "Tekrar denemek için tıklayın"
+                    : state === "idle"
+                        ? "PNG, JPG veya PDF"
+                        : " "
+
     return (
-        <div className="flex items-center gap-2">
+        <>
             <input
                 ref={inputRef}
                 type="file"
@@ -56,85 +101,58 @@ export function SupplierCodeDrawingCell({ productId, entry }: Props) {
                 onChange={handleFile}
             />
 
-            {pending ? (
-                <Badge variant="secondary" className="gap-1 px-1.5 py-0 text-[10px]">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    İşleniyor
-                </Badge>
-            ) : drawing ? (
-                <>
-                    <a
-                        href={drawing.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="shrink-0 rounded border bg-muted"
-                        title="Teknik resmi aç"
-                    >
-                        {drawing.mimeType.startsWith("image/") ? (
-                            <img
-                                src={drawing.url}
-                                alt=""
-                                className="h-10 w-10 rounded object-cover"
-                            />
-                        ) : (
-                            <span className="flex h-10 w-10 items-center justify-center">
-                                <FileText className="h-4 w-4 text-muted-foreground" />
-                            </span>
-                        )}
-                    </a>
-
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 px-2 text-xs"
-                        onClick={pickFile}
-                        disabled={busy}
-                    >
-                        {uploadMutation.isPending ? (
-                            <Loader2 className="size-3 animate-spin" />
-                        ) : (
-                            "Değiştir"
-                        )}
-                    </Button>
-
-                    <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="size-7"
-                        aria-label="Teknik resmi sil"
-                        onClick={() => deleteMutation.mutate(drawing.id)}
-                        disabled={busy}
-                    >
-                        {deleteMutation.isPending ? (
-                            <Loader2 className="size-3.5 animate-spin" />
-                        ) : (
-                            <Trash2 className="size-3.5 text-red-600" />
-                        )}
-                    </Button>
-                </>
-            ) : (
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="h-7 px-2 text-xs"
-                    onClick={pickFile}
-                    disabled={busy}
-                >
-                    {uploadMutation.isPending ? (
-                        <Loader2 className="mr-1 size-3 animate-spin" />
+            <Attachment size="sm" state={state} className="min-w-0">
+                <AttachmentMedia variant={state === "done" && isImage ? "image" : "icon"}>
+                    {state === "uploading" || state === "processing" ? (
+                        <Spinner data-slot="spinner" />
+                    ) : state === "done" && isImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- Attachment CSS bare <img> hedefliyor
+                        <img src={drawing!.url} alt="" />
+                    ) : state === "done" ? (
+                        <FileText />
                     ) : (
-                        <Upload className="mr-1 size-3" />
+                        <Upload />
                     )}
-                    Yükle
-                </Button>
-            )}
+                </AttachmentMedia>
 
-            {uploadMutation.isError && !busy ? (
-                <ImageOff className="size-3.5 text-red-600" aria-label="Yükleme başarısız" />
-            ) : null}
-        </div>
+                <AttachmentContent>
+                    <AttachmentTitle>{title}</AttachmentTitle>
+                    <AttachmentDescription>{description}</AttachmentDescription>
+                </AttachmentContent>
+
+                {state === "done" ? (
+                    <>
+                        <AttachmentTrigger asChild>
+                            <a
+                                href={drawing!.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label="Teknik resmi aç"
+                            />
+                        </AttachmentTrigger>
+                        <AttachmentActions>
+                            <AttachmentAction
+                                aria-label="Teknik resmi değiştir"
+                                title="Değiştir"
+                                onClick={pickFile}
+                                disabled={busy}
+                            >
+                                <RefreshCw />
+                            </AttachmentAction>
+                            <AttachmentAction
+                                aria-label="Teknik resmi sil"
+                                title="Sil"
+                                onClick={() => deleteMutation.mutate(drawing!.id)}
+                                disabled={busy}
+                            >
+                                <Trash2 className="text-destructive" />
+                            </AttachmentAction>
+                        </AttachmentActions>
+                    </>
+                ) : state === "idle" || state === "error" ? (
+                    <AttachmentTrigger onClick={pickFile} aria-label="Teknik resim seç" />
+                ) : null}
+            </Attachment>
+        </>
     )
 }
