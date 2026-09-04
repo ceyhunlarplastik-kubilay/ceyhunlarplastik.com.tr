@@ -5784,6 +5784,68 @@ altyapısı repoda yok (frontend testleri saf mantık test ediyor).
   `createdAt < now()-24h` sil). İstenirse ürün/materyal/attribute-value asset
   akışlarına aynı desen; 2. tüketici gerekirse EventBridge Bus.
 
+## Tedarikçi sözlüğü teknik resmi (async yükleme) — Dilim 1: şema + çekirdek (2026-09-04) *(kullanıcı talebiyle eklendi)*
+
+**Amaç:** `ProductSupplierCodesDialog`'da her tedarikçi harfi için (ürün modeli +
+firma, ör. "1.23 modelinde A harfi = Özgen Plastik") **tam bir** teknik resim
+yüklenebilsin. Kategori pilotundaki async pattern aynen yeniden kullanılıyor
+(presign → `PENDING_UPLOAD` satır → S3 `ObjectCreated` → confirm Lambda → `ACTIVE`).
+Branch: `feat/supplier-code-technical-drawing` (`main`'den).
+
+**Değişen / yeni dosyalar (Dilim 1):**
+- `core/prisma/schema.prisma` — `Asset.productSupplierCodeId String?` + `productSupplierCode`
+  relation (`onDelete: Cascade`) + `@@index([productSupplierCodeId])`; `ProductSupplierCode.assets
+  Asset[]`. Tamamı additive/nullable; `uploadStatus @default(ACTIVE)` önceki
+  migration'dan geldiği için **backfill yok**.
+- `core/helpers/s3/presign.ts` — **YENİ** `generateProductSupplierCodeAssetUpload({
+  assetId, productId, codeId, fileName, contentType })`; key `product-supplier-codes/
+  {productId}/{codeId}/{assetId}{.ext?}`, `expiresIn: 900`. Kategori helper'ıyla aynı
+  desen (assetId = key dosya adı → confirm Lambda key'den satırı bulur). Yeni prefix
+  `product-supplier-codes/` — `categories/` ile çakışmaz.
+- `core/helpers/prisma/productSupplierCodes/repository.ts`:
+  - **YENİ** `SupplierCodeDrawingView` tipi; `ProductSupplierCodeRow`'a
+    `technicalDrawing: SupplierCodeDrawingView | null`.
+  - `rowSelect` → `assets: { where: { type: "TECHNICAL_DRAWING" }, orderBy: { createdAt:
+    "desc" }, take: 5 }` (normalde 0-1 satır; yarıda kalmış PENDING eski ACTIVE'i
+    gizlemesin diye birkaç satır + JS'te ACTIVE tercihi).
+  - `toRow` → `raw.assets.find(ACTIVE) ?? raw.assets[0] ?? null`; `url = buildAssetUrl(key)`.
+    `list`/`create`/`update` üçü de artık `technicalDrawing` taşıyor (`create` → yeni
+    harf, `assets: []` → null).
+  - `remove()` → harf silinmeden önce `asset.findMany({ productSupplierCodeId, type:
+    "TECHNICAL_DRAWING" })` + her key için `deleteS3Object` (FK cascade satırları
+    siler; S3 çöpü kalmasın diye `deleteAssetHandler` ile aynı sıra). `usageCount > 0`
+    guard'ı zaten var — S3 temizliği yalnız gerçekten silinecekse çalışır.
+- `functions/AdminApi/validators/productSupplierCodes.ts` — `supplierCodeSchema`
+  (`list`/`create`/`update` response validator'ı, `.loose()`) → `technicalDrawing:
+  z.object({ id, key, url, mimeType, uploadStatus enum, uploadedAt nullable, createdAt
+  }).loose().nullable()`. Response shape değişti, validator senkron tutuldu.
+- **YENİ** `core/helpers/prisma/productSupplierCodes/repository.test.ts` — 6 test:
+  `list` ACTIVE tercihi / PENDING fallback / null / `where` yalnız TECHNICAL_DRAWING;
+  `remove` S3 temizliği / kullanımdayken ne S3 ne DB.
+
+**Tasarım kararları:**
+- **Harf başına TEK teknik resim** (kullanıcı netleştirdi). Backend N satırı zararsız
+  tutar; "değiştir" = UI senkron `DELETE /assets/{id}` (eskiyi sil) + yeni presign.
+  Confirm Lambda'da silme mantığı YOK (kategori'deki PRIMARY-demote muadili
+  gereksiz) → confirm Lambda'ya S3 delete izni gerekmiyor.
+- **2. kardeş notification** (Dilim 2) — `filterPrefix: "product-supplier-codes/"`,
+  kategori notification/Lambda'sına dokunulmaz. S3 çakışmayan prefix'lere izin verir;
+  IMPROVEMENT_PLAN'daki "kardeş prefix'ler" kararıyla uyumlu.
+
+**Doğrulama:** `typecheck:backend` ✅ · `test:ci -w core` 613/613 ✅ (yeni 6 dahil) ·
+`test -w functions` 330/330 ✅ · `validatorCompilation` 292/292 ✅. Prisma client
+`DIRECT_URL=dummy npx prisma generate` ile yenilendi (yalnız `Asset` + `ProductSupplierCode`
++ internal namespace dosyaları değişti, alakasız drift yok).
+
+**Kullanıcıda bekleyen:**
+- Kubi'de migration: `npx prisma migrate dev --name add_asset_product_supplier_code`
+  (Neon). Additive/nullable — mevcut Asset satırları etkilenmez.
+- Sağlık kontrolü: `GET /products/{id}/supplier-codes` hâlâ dönüyor mu, yanıtta
+  `technicalDrawing: null` alanı var mı.
+
+**Ne kaldı:** Dilim 2 (presign ucu + confirm Lambda + infra), Dilim 3 (frontend UI),
+Dilim 4 (`main` merge). Detay: IMPROVEMENT_PLAN.md.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

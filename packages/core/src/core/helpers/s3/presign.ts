@@ -109,6 +109,47 @@ export async function generateCategoryAssetUpload({
     }
 }
 
+/**
+ * Tedarikçi sözlüğü teknik resmi (ürün modeli + tedarikçi harfi başına TEK).
+ * Kategori akışının aynısı: `assetId` key'in dosya adı olur, S3 ObjectCreated
+ * event'i key üzerinden PENDING_UPLOAD satırını bulup ACTIVE'e çevirir
+ * (confirmProductSupplierCodeAssetUpload). type & role sabittir: TECHNICAL_DRAWING.
+ */
+export async function generateProductSupplierCodeAssetUpload({
+    assetId,
+    productId,
+    codeId,
+    fileName,
+    contentType,
+}: {
+    assetId: string
+    productId: string
+    codeId: string
+    fileName: string
+    contentType: string
+}) {
+    const safeName = sanitizeFileName(fileName)
+    const ext = safeName.includes(".") ? safeName.split(".").pop() : undefined
+
+    const key = `product-supplier-codes/${productId}/${codeId}/${assetId}${ext ? `.${ext}` : ""}`
+
+    const cmd = new PutObjectCommand({
+        Bucket: process.env.BUCKET_NAME!,
+        Key: key,
+        ContentType: contentType,
+    })
+
+    // 900s: teknik resim büyük olabilir + yavaş uplink. DB yazımı S3 event'iyle
+    // asenkron ilerler.
+    const uploadUrl = await getSignedUrl(s3, cmd, { expiresIn: 900 })
+
+    return {
+        uploadUrl,
+        key,
+        url: buildPublicUrl(key),
+    }
+}
+
 
 export async function generateProductAssetUpload({
     productSlug,

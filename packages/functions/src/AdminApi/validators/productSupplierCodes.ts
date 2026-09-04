@@ -7,6 +7,17 @@ const supplierCodeSchema = z.object({
     supplierId: z.string(),
     supplier: z.object({ id: z.string(), name: z.string() }).loose(),
     usageCount: z.number(),
+    // Ürün modeli + harf başına TEK teknik resim; yoksa null. Async yükleme
+    // sırasında uploadStatus PENDING_UPLOAD gelir (arayüz "İşleniyor" gösterir).
+    technicalDrawing: z.object({
+        id: z.string(),
+        key: z.string(),
+        url: z.string(),
+        mimeType: z.string(),
+        uploadStatus: z.enum(["PENDING_UPLOAD", "ACTIVE"]),
+        uploadedAt: z.string().nullable(),
+        createdAt: z.string(),
+    }).loose().nullable(),
     createdAt: z.string(),
 }).loose()
 

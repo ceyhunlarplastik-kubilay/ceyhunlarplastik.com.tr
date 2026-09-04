@@ -194,6 +194,7 @@ export type ProductSupplierCodeWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"ProductSupplierCode"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  assets?: Prisma.AssetListRelationFilter
 }
 
 export type ProductSupplierCodeOrderByWithRelationInput = {
@@ -205,6 +206,7 @@ export type ProductSupplierCodeOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   supplier?: Prisma.SupplierOrderByWithRelationInput
+  assets?: Prisma.AssetOrderByRelationAggregateInput
 }
 
 export type ProductSupplierCodeWhereUniqueInput = Prisma.AtLeast<{
@@ -221,6 +223,7 @@ export type ProductSupplierCodeWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"ProductSupplierCode"> | Date | string
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  assets?: Prisma.AssetListRelationFilter
 }, "id" | "productId_supplierId" | "productId_code">
 
 export type ProductSupplierCodeOrderByWithAggregationInput = {
@@ -254,6 +257,7 @@ export type ProductSupplierCodeCreateInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutSupplierCodesInput
   supplier: Prisma.SupplierCreateNestedOneWithoutProductCodesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductSupplierCodeInput
 }
 
 export type ProductSupplierCodeUncheckedCreateInput = {
@@ -263,6 +267,7 @@ export type ProductSupplierCodeUncheckedCreateInput = {
   code: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductSupplierCodeInput
 }
 
 export type ProductSupplierCodeUpdateInput = {
@@ -272,6 +277,7 @@ export type ProductSupplierCodeUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutSupplierCodesNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutProductCodesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductSupplierCodeNestedInput
 }
 
 export type ProductSupplierCodeUncheckedUpdateInput = {
@@ -281,6 +287,7 @@ export type ProductSupplierCodeUncheckedUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductSupplierCodeNestedInput
 }
 
 export type ProductSupplierCodeCreateManyInput = {
@@ -353,6 +360,11 @@ export type ProductSupplierCodeMinOrderByAggregateInput = {
   code?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ProductSupplierCodeNullableScalarRelationFilter = {
+  is?: Prisma.ProductSupplierCodeWhereInput | null
+  isNot?: Prisma.ProductSupplierCodeWhereInput | null
 }
 
 export type ProductSupplierCodeCreateNestedManyWithoutProductInput = {
@@ -439,12 +451,29 @@ export type ProductSupplierCodeUncheckedUpdateManyWithoutSupplierNestedInput = {
   deleteMany?: Prisma.ProductSupplierCodeScalarWhereInput | Prisma.ProductSupplierCodeScalarWhereInput[]
 }
 
+export type ProductSupplierCodeCreateNestedOneWithoutAssetsInput = {
+  create?: Prisma.XOR<Prisma.ProductSupplierCodeCreateWithoutAssetsInput, Prisma.ProductSupplierCodeUncheckedCreateWithoutAssetsInput>
+  connectOrCreate?: Prisma.ProductSupplierCodeCreateOrConnectWithoutAssetsInput
+  connect?: Prisma.ProductSupplierCodeWhereUniqueInput
+}
+
+export type ProductSupplierCodeUpdateOneWithoutAssetsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductSupplierCodeCreateWithoutAssetsInput, Prisma.ProductSupplierCodeUncheckedCreateWithoutAssetsInput>
+  connectOrCreate?: Prisma.ProductSupplierCodeCreateOrConnectWithoutAssetsInput
+  upsert?: Prisma.ProductSupplierCodeUpsertWithoutAssetsInput
+  disconnect?: Prisma.ProductSupplierCodeWhereInput | boolean
+  delete?: Prisma.ProductSupplierCodeWhereInput | boolean
+  connect?: Prisma.ProductSupplierCodeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductSupplierCodeUpdateToOneWithWhereWithoutAssetsInput, Prisma.ProductSupplierCodeUpdateWithoutAssetsInput>, Prisma.ProductSupplierCodeUncheckedUpdateWithoutAssetsInput>
+}
+
 export type ProductSupplierCodeCreateWithoutProductInput = {
   id?: string
   code: string
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutProductCodesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductSupplierCodeInput
 }
 
 export type ProductSupplierCodeUncheckedCreateWithoutProductInput = {
@@ -453,6 +482,7 @@ export type ProductSupplierCodeUncheckedCreateWithoutProductInput = {
   code: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductSupplierCodeInput
 }
 
 export type ProductSupplierCodeCreateOrConnectWithoutProductInput = {
@@ -499,6 +529,7 @@ export type ProductSupplierCodeCreateWithoutSupplierInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutSupplierCodesInput
+  assets?: Prisma.AssetCreateNestedManyWithoutProductSupplierCodeInput
 }
 
 export type ProductSupplierCodeUncheckedCreateWithoutSupplierInput = {
@@ -507,6 +538,7 @@ export type ProductSupplierCodeUncheckedCreateWithoutSupplierInput = {
   code: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  assets?: Prisma.AssetUncheckedCreateNestedManyWithoutProductSupplierCodeInput
 }
 
 export type ProductSupplierCodeCreateOrConnectWithoutSupplierInput = {
@@ -535,6 +567,58 @@ export type ProductSupplierCodeUpdateManyWithWhereWithoutSupplierInput = {
   data: Prisma.XOR<Prisma.ProductSupplierCodeUpdateManyMutationInput, Prisma.ProductSupplierCodeUncheckedUpdateManyWithoutSupplierInput>
 }
 
+export type ProductSupplierCodeCreateWithoutAssetsInput = {
+  id?: string
+  code: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product: Prisma.ProductCreateNestedOneWithoutSupplierCodesInput
+  supplier: Prisma.SupplierCreateNestedOneWithoutProductCodesInput
+}
+
+export type ProductSupplierCodeUncheckedCreateWithoutAssetsInput = {
+  id?: string
+  productId: string
+  supplierId: string
+  code: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProductSupplierCodeCreateOrConnectWithoutAssetsInput = {
+  where: Prisma.ProductSupplierCodeWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductSupplierCodeCreateWithoutAssetsInput, Prisma.ProductSupplierCodeUncheckedCreateWithoutAssetsInput>
+}
+
+export type ProductSupplierCodeUpsertWithoutAssetsInput = {
+  update: Prisma.XOR<Prisma.ProductSupplierCodeUpdateWithoutAssetsInput, Prisma.ProductSupplierCodeUncheckedUpdateWithoutAssetsInput>
+  create: Prisma.XOR<Prisma.ProductSupplierCodeCreateWithoutAssetsInput, Prisma.ProductSupplierCodeUncheckedCreateWithoutAssetsInput>
+  where?: Prisma.ProductSupplierCodeWhereInput
+}
+
+export type ProductSupplierCodeUpdateToOneWithWhereWithoutAssetsInput = {
+  where?: Prisma.ProductSupplierCodeWhereInput
+  data: Prisma.XOR<Prisma.ProductSupplierCodeUpdateWithoutAssetsInput, Prisma.ProductSupplierCodeUncheckedUpdateWithoutAssetsInput>
+}
+
+export type ProductSupplierCodeUpdateWithoutAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneRequiredWithoutSupplierCodesNestedInput
+  supplier?: Prisma.SupplierUpdateOneRequiredWithoutProductCodesNestedInput
+}
+
+export type ProductSupplierCodeUncheckedUpdateWithoutAssetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type ProductSupplierCodeCreateManyProductInput = {
   id?: string
   supplierId: string
@@ -549,6 +633,7 @@ export type ProductSupplierCodeUpdateWithoutProductInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutProductCodesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductSupplierCodeNestedInput
 }
 
 export type ProductSupplierCodeUncheckedUpdateWithoutProductInput = {
@@ -557,6 +642,7 @@ export type ProductSupplierCodeUncheckedUpdateWithoutProductInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductSupplierCodeNestedInput
 }
 
 export type ProductSupplierCodeUncheckedUpdateManyWithoutProductInput = {
@@ -581,6 +667,7 @@ export type ProductSupplierCodeUpdateWithoutSupplierInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutSupplierCodesNestedInput
+  assets?: Prisma.AssetUpdateManyWithoutProductSupplierCodeNestedInput
 }
 
 export type ProductSupplierCodeUncheckedUpdateWithoutSupplierInput = {
@@ -589,6 +676,7 @@ export type ProductSupplierCodeUncheckedUpdateWithoutSupplierInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.AssetUncheckedUpdateManyWithoutProductSupplierCodeNestedInput
 }
 
 export type ProductSupplierCodeUncheckedUpdateManyWithoutSupplierInput = {
@@ -600,6 +688,35 @@ export type ProductSupplierCodeUncheckedUpdateManyWithoutSupplierInput = {
 }
 
 
+/**
+ * Count Type ProductSupplierCodeCountOutputType
+ */
+
+export type ProductSupplierCodeCountOutputType = {
+  assets: number
+}
+
+export type ProductSupplierCodeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  assets?: boolean | ProductSupplierCodeCountOutputTypeCountAssetsArgs
+}
+
+/**
+ * ProductSupplierCodeCountOutputType without action
+ */
+export type ProductSupplierCodeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductSupplierCodeCountOutputType
+   */
+  select?: Prisma.ProductSupplierCodeCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProductSupplierCodeCountOutputType without action
+ */
+export type ProductSupplierCodeCountOutputTypeCountAssetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssetWhereInput
+}
+
 
 export type ProductSupplierCodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -610,6 +727,8 @@ export type ProductSupplierCodeSelect<ExtArgs extends runtime.Types.Extensions.I
   updatedAt?: boolean
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  assets?: boolean | Prisma.ProductSupplierCode$assetsArgs<ExtArgs>
+  _count?: boolean | Prisma.ProductSupplierCodeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productSupplierCode"]>
 
 export type ProductSupplierCodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -647,6 +766,8 @@ export type ProductSupplierCodeOmit<ExtArgs extends runtime.Types.Extensions.Int
 export type ProductSupplierCodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  assets?: boolean | Prisma.ProductSupplierCode$assetsArgs<ExtArgs>
+  _count?: boolean | Prisma.ProductSupplierCodeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductSupplierCodeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -662,6 +783,13 @@ export type $ProductSupplierCodePayload<ExtArgs extends runtime.Types.Extensions
   objects: {
     product: Prisma.$ProductPayload<ExtArgs>
     supplier: Prisma.$SupplierPayload<ExtArgs>
+    /**
+     * Ürün modeli + tedarikçi harfi başına TEK teknik resim (type & role =
+     * TECHNICAL_DRAWING). Async yükleme: presign PENDING_UPLOAD satır oluşturur,
+     * S3 ObjectCreated → confirm Lambda ACTIVE'e çevirir. Değiştirme = eskiyi sil
+     * + yeniyi yükle (UI senkron DELETE /assets/{id}).
+     */
+    assets: Prisma.$AssetPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1066,6 +1194,7 @@ export interface Prisma__ProductSupplierCodeClient<T, Null = never, ExtArgs exte
   readonly [Symbol.toStringTag]: "PrismaPromise"
   product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   supplier<T extends Prisma.SupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  assets<T extends Prisma.ProductSupplierCode$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductSupplierCode$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1499,6 +1628,30 @@ export type ProductSupplierCodeDeleteManyArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many ProductSupplierCodes to delete.
    */
   limit?: number
+}
+
+/**
+ * ProductSupplierCode.assets
+ */
+export type ProductSupplierCode$assetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Asset
+   */
+  select?: Prisma.AssetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Asset
+   */
+  omit?: Prisma.AssetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssetInclude<ExtArgs> | null
+  where?: Prisma.AssetWhereInput
+  orderBy?: Prisma.AssetOrderByWithRelationInput | Prisma.AssetOrderByWithRelationInput[]
+  cursor?: Prisma.AssetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssetScalarFieldEnum | Prisma.AssetScalarFieldEnum[]
 }
 
 /**

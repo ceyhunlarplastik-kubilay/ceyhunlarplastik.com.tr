@@ -1,6 +1,8 @@
 import createError from "http-errors"
 
 import { prisma } from "@/core/db/prisma"
+import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
+import { deleteS3Object } from "@/core/helpers/s3/deleteObject"
 import { nextSupplierCode, parseSupplierCode } from "@/core/helpers/productVariants/variantCode"
 
 /**
@@ -24,6 +26,20 @@ import { nextSupplierCode, parseSupplierCode } from "@/core/helpers/productVaria
  * bir firmayı gösterir. Arayüz kullanımdaki bir harfi düzenlerken uyarır.
  */
 
+/**
+ * Ürün modeli + tedarikçi harfi başına TEK teknik resim. `PENDING_UPLOAD` iken
+ * arayüz "İşleniyor" rozeti gösterir; S3 ObjectCreated onayı `ACTIVE` yapar.
+ */
+export type SupplierCodeDrawingView = {
+    id: string
+    key: string
+    url: string
+    mimeType: string
+    uploadStatus: "PENDING_UPLOAD" | "ACTIVE"
+    uploadedAt: Date | null
+    createdAt: Date
+}
+
 export type ProductSupplierCodeRow = {
     id: string
     code: string
@@ -31,6 +47,8 @@ export type ProductSupplierCodeRow = {
     supplier: { id: string; name: string }
     /** Bu üründe kaç varyant-tedarikçi satırı bu harfi kullanıyor. */
     usageCount: number
+    /** En güncel teknik resim (varsa); yoksa null. */
+    technicalDrawing: SupplierCodeDrawingView | null
     createdAt: Date
 }
 
@@ -57,6 +75,22 @@ const rowSelect = {
     supplierId: true,
     createdAt: true,
     supplier: { select: { id: true, name: true } },
+    // Ürün modeli + harf başına TEK teknik resim. Normalde 0-1 satır olur
+    // (değiştirme = eskiyi sil + yeniyi yükle); yarıda kalmış bir PENDING
+    // eski ACTIVE'i gizlemesin diye birkaç satır çekip ACTIVE'i tercih ediyoruz.
+    assets: {
+        where: { type: "TECHNICAL_DRAWING" },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+            id: true,
+            key: true,
+            mimeType: true,
+            uploadStatus: true,
+            uploadedAt: true,
+            createdAt: true,
+        },
+    },
 } as const
 
 type RawRow = {
@@ -65,6 +99,14 @@ type RawRow = {
     supplierId: string
     createdAt: Date
     supplier: { id: string; name: string }
+    assets: Array<{
+        id: string
+        key: string
+        mimeType: string
+        uploadStatus: "PENDING_UPLOAD" | "ACTIVE"
+        uploadedAt: Date | null
+        createdAt: Date
+    }>
 }
 
 /**
@@ -91,12 +133,26 @@ async function loadUsageCounts(productId: string): Promise<Map<string, number>> 
 }
 
 function toRow(raw: RawRow, usageCount: number): ProductSupplierCodeRow {
+    const drawingRow =
+        raw.assets.find((asset) => asset.uploadStatus === "ACTIVE") ?? raw.assets[0] ?? null
+
     return {
         id: raw.id,
         code: raw.code,
         supplierId: raw.supplierId,
         supplier: raw.supplier,
         usageCount,
+        technicalDrawing: drawingRow
+            ? {
+                id: drawingRow.id,
+                key: drawingRow.key,
+                url: buildAssetUrl(drawingRow.key),
+                mimeType: drawingRow.mimeType,
+                uploadStatus: drawingRow.uploadStatus,
+                uploadedAt: drawingRow.uploadedAt,
+                createdAt: drawingRow.createdAt,
+            }
+            : null,
         createdAt: raw.createdAt,
     }
 }
@@ -214,6 +270,16 @@ export const productSupplierCodeRepository = (): IPrismaProductSupplierCodeRepos
             throw new createError.Conflict(
                 `${existing.code} silinemez — ${usage} varyant satırı bu tedarikçiyi kullanıyor.`,
             )
+        }
+
+        // Asset satırları FK cascade ile gider; S3 nesnelerini önce elle temizle
+        // ki bucket'ta çöp kalmasın (deleteAssetHandler ile aynı sıra).
+        const drawings = await prisma.asset.findMany({
+            where: { productSupplierCodeId: input.id, type: "TECHNICAL_DRAWING" },
+            select: { key: true },
+        })
+        for (const drawing of drawings) {
+            await deleteS3Object(drawing.key)
         }
 
         await prisma.productSupplierCode.delete({ where: { id: input.id } })

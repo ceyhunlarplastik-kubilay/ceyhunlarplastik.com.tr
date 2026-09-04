@@ -880,6 +880,12 @@ model ProductSupplierCode {
 
   code String
 
+  /// Ürün modeli + tedarikçi harfi başına TEK teknik resim (type & role =
+  /// TECHNICAL_DRAWING). Async yükleme: presign PENDING_UPLOAD satır oluşturur,
+  /// S3 ObjectCreated → confirm Lambda ACTIVE'e çevirir. Değiştirme = eskiyi sil
+  /// + yeniyi yükle (UI senkron DELETE /assets/{id}).
+  assets Asset[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1759,6 +1765,9 @@ model Asset {
   materialId String?
   material   Material? @relation(fields: [materialId], references: [id], onDelete: Cascade)
 
+  productSupplierCodeId String?
+  productSupplierCode   ProductSupplierCode? @relation(fields: [productSupplierCodeId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1767,5 +1776,6 @@ model Asset {
   @@index([variantId])
   @@index([productAttributeValueId])
   @@index([materialId])
+  @@index([productSupplierCodeId])
   @@index([uploadStatus, createdAt])
 }
