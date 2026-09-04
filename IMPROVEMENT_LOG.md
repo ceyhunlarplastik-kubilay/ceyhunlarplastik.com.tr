@@ -5981,6 +5981,17 @@ Kullanıcı `components/ui/attachment.tsx`'i (shadcn) kurdu; teknik resim slotu 
 **Ne kaldı:** Dilim 4 (`feat/supplier-code-technical-drawing` → `main` merge; prod
 deploy + prod migration kullanıcıda).
 
+## Tedarikçi sözlüğü teknik resmi (async yükleme) — Dilim 4: main merge (2026-09-04) *(kullanıcı talebiyle eklendi)*
+
+`feat/supplier-code-technical-drawing` (4 commit: Dilim 1 `a058d53`, Dilim 2
+`20657a3`, Dilim 3 `9986c5d`, Attachment düzenlemesi `e368f93`) `main`'e **fast-forward**
+merge edildi → `main` `e368f93`. Kod tarafı tamam; kubi'de doğrulandı. Kalan yalnız
+kullanıcı elinde: `npx sst diff --stage prod` önizleme (beklenen: 1 yeni Lambda
+`ConfirmProductSupplierCodeAssetUpload` + 1 yeni S3 bucket notification
+`product-supplier-codes/` prefix'i, kategori notification'ında değişiklik yok) →
+prod migration `add_asset_product_supplier_code` → `sst deploy --stage prod`. Detay:
+IMPROVEMENT_PLAN.md § Kullanıcıda Bekleyen Adımlar.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
