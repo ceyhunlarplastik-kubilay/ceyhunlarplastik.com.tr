@@ -240,6 +240,8 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                                                         imageStatic={primary?.url || fallback?.url || "/placeholder.webp"}
                                                         imageAnimated={animated?.url}
                                                         attributeValues={product.attributeValues}
+                                                        isNew={product.isNew}
+                                                        hasNewVariant={product.hasNewVariant}
                                                         onNavigationStart={() => setNavigatingProductId(product.id)}
                                                         navigationPending={navigatingProductId === product.id}
                                                         navigationPendingLabel="Detay hazırlanıyor"

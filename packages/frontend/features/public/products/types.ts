@@ -18,6 +18,10 @@ export type Product = {
     categoryId: string;
     createdAt: string;
     updatedAt: string;
+    // "Yeni Ürün"/"Yeni Varyant" rozetleri — `/products` liste ucunda (card VE
+    // "full" görünüm, ör. müşteri portalı) dolu gelir; tekil ürün okumalarında yok.
+    isNew?: boolean;
+    hasNewVariant?: boolean;
     category?: Category;
     assets?: any[];
     attributeValues?: any[];

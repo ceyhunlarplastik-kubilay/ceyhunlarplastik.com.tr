@@ -8,7 +8,7 @@ import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Hash, Loader2 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 interface ProductCardProps {
     title: string;
@@ -26,6 +26,11 @@ interface ProductCardProps {
     }>;
     children?: ReactNode;
 
+    /** Ürünün kendisi son N günde oluşturulduysa "Yeni Ürün" rozeti. */
+    isNew?: boolean;
+    /** Ürünün varyantlarından en az biri son N günde eklendiyse "Yeni Varyant" rozeti. */
+    hasNewVariant?: boolean;
+
     /** 👇 SADECE NAVIGATION'DA true */
     asNavigationItem?: boolean;
     showSpecialAttributeValues?: boolean;
@@ -42,6 +47,8 @@ export function ProductCard({
     imageAnimated,
     attributeValues = [],
     children,
+    isNew = false,
+    hasNewVariant = false,
     asNavigationItem = false,
     showSpecialAttributeValues = false,
     onNavigationStart,
@@ -51,6 +58,13 @@ export function ProductCard({
     const t = useTranslations("shared.productCard");
     const pendingLabel = navigationPendingLabel ?? t("navigationPending");
     const [hovered, setHovered] = useState(false);
+    const reduceMotion = useReducedMotion();
+    // Kalp atışı: hafif scale pulse, sonsuz döngü. `prefers-reduced-motion`da
+    // sabit kalır (statik rozet, animasyon yok).
+    const pulseAnimation = reduceMotion
+        ? undefined
+        : { scale: [1, 1.08, 1] };
+    const pulseTransition = { duration: 1.6, repeat: Infinity, ease: "easeInOut" as const };
     const hiddenCodes = showSpecialAttributeValues
         ? new Set<string>()
         : new Set(["sector", "production_group", "usage_area"]);
@@ -100,6 +114,25 @@ export function ProductCard({
                     <Hash className="h-3 w-3" />
                     {code}
                 </Badge>
+
+                {(isNew || hasNewVariant) && (
+                    <div className="absolute inset-e-2 top-2 z-10 flex flex-col items-end gap-1">
+                        {isNew && (
+                            <motion.span animate={pulseAnimation} transition={pulseTransition}>
+                                <Badge variant="newProduct" className="text-[10px] shadow-sm">
+                                    {t("newProductBadge")}
+                                </Badge>
+                            </motion.span>
+                        )}
+                        {hasNewVariant && (
+                            <motion.span animate={pulseAnimation} transition={pulseTransition}>
+                                <Badge variant="newVariant" className="text-[10px] shadow-sm">
+                                    {t("newVariantBadge")}
+                                </Badge>
+                            </motion.span>
+                        )}
+                    </div>
+                )}
 
                 <Image
                     src={imageStatic}

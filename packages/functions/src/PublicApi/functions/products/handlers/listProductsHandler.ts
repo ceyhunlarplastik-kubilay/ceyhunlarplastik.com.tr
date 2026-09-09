@@ -3,6 +3,7 @@ import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import { IProductDependencies, IListProductsEvent } from "@/functions/PublicApi/types/products"
 import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets"
+import { isWithinNewItemWindow } from "@/core/helpers/products/productFreshness"
 import {
     DATABASE_CONNECTION_CAPACITY_MESSAGE,
     isDatabaseConnectionCapacityError,
@@ -30,6 +31,13 @@ const ALLOWED_SORT_FIELDS = ["code", "name", "createdAt"] as const
  * sector/production_group hiyerarşisini türetmek için translations + derin parentValue
  * zincirini KULLANIYOR. Include daraltılırsa yerelleştirme bozulur; bu yüzden veri
  * map'lendikten SONRA yanıttan atılır.
+ *
+ * `isNew`/`hasNewVariant`: "Yeni Ürün"/"Yeni Varyant" rozetleri hem card hem
+ * "full" görünümde dolu gelir — hesaplama aşağıda `mapped` üretilirken BİR
+ * KEZ yapılır (bkz. productFreshness.ts), burada yalnız kopyalanır. Bu fonksiyon
+ * kendi başına recompute ETMEZ: `product.variants` (repository'nin eşik sonrası
+ * en fazla 1 id çektiği ham alan) card DTO'suna hiç girmez, yalnız zaten
+ * hesaplanmış boolean süzülür.
  */
 function toProductCardDTO(product: any) {
     return {
@@ -40,6 +48,8 @@ function toProductCardDTO(product: any) {
         categoryId: product.categoryId,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
+        isNew: product.isNew,
+        hasNewVariant: product.hasNewVariant,
         assets: (product.assets ?? [])
             .filter((asset: any) => asset?.role === "PRIMARY" || asset?.type === "IMAGE")
             .map((asset: any) => ({
@@ -148,6 +158,13 @@ export const listProductsHandler =
                 // Public liste yüzeyleri (katalog kartları, benzer ürünler) industrialUsages
                 // kullanmaz; card view bu ilişkiyi hiç taşımayarak 6MB Lambda yanıt
                 // limitine takılmayı önler. Detay endpoint'leri full include'da kalır.
+                //
+                // NOT: bu çağrı `query.view`'dan BAĞIMSIZ olarak hep `{ view: "card" }`
+                // ister — `query.view` yalnız aşağıdaki ÇIKTI şekillendirmesini
+                // (toProductCardDTO vs. ham `mapped`) kontrol eder. Bu sayede müşteri
+                // portalı gibi `?view=card` GÖNDERMEYEN çağıranlar da repository'den
+                // aynı `product.variants` (eşik sonrası ≤1 id) alanını alır ve
+                // "Yeni Varyant" rozeti için kullanabilir.
                 const result = await productRepository.listProducts({
                     page,
                     limit,
@@ -160,10 +177,16 @@ export const listProductsHandler =
                     attributeValueIds
                 }, { view: "card" })
 
-                // Public yüzey admin'e özel çeviri satırlarını taşımaz.
-                const mapped = result.data.map((product) =>
-                    mapProductWithAssets(product, locale, { includeAdminTranslations: false }),
-                )
+                // Public yüzey admin'e özel çeviri satırlarını taşımaz. `isNew`/
+                // `hasNewVariant` burada, HER görünüm için, ham `product.createdAt`/
+                // `product.variants`'tan hesaplanıp eklenir — müşteri portalı da
+                // (view=card göndermeyen çağıran) aynı `ProductCard` bileşenini
+                // kullandığı için rozetlerin "full" yanıtta da dolu gelmesi gerekir.
+                const mapped = result.data.map((product) => ({
+                    ...mapProductWithAssets(product, locale, { includeAdminTranslations: false }),
+                    isNew: isWithinNewItemWindow(product.createdAt),
+                    hasNewVariant: Array.isArray(product.variants) && product.variants.length > 0,
+                }))
 
                 return apiResponseDTO({
                     statusCode: 200,

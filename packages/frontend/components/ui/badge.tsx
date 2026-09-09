@@ -12,12 +12,17 @@ const badgeVariants = cva(
         default: "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
           "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        brand: "bg-brand text-brand-foreground [a&]:hover:bg-brand/90",
         destructive:
           "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
         outline:
           "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        // "Yeni Ürün" / "Yeni Varyant" rozetleri (ProductCard) — kasıtlı olarak
+        // farklı iki renk, aynı hizada karışmasınlar diye.
+        newProduct: "bg-brand text-brand-foreground [a&]:hover:bg-brand/90",
+        newVariant: "bg-teal-600 text-white [a&]:hover:bg-teal-600/90 dark:bg-teal-700",
       },
     },
     defaultVariants: {

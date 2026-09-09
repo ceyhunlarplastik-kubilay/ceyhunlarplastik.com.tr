@@ -139,6 +139,7 @@ import { buildPaginationQuery } from "@/core/helpers/pagination/buildPaginationQ
 import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginationResponse"
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
+import { getNewItemCutoffDate } from "@/core/helpers/products/productFreshness"
 import {
     DEFAULT_LOCALE,
     type SupportedLocale,
@@ -264,17 +265,41 @@ const baseInclude = {
     },
 } satisfies Prisma.ProductInclude
 
+// `variants`: "Yeni Varyant" rozeti için VAR MI sorusuna tek satırlık yanıt —
+// eşik tarihinden sonra oluşturulmuş TEK bir varyant id'si (varsa) çekilir,
+// tam varyant listesi hiç taşınmaz (bkz. productFreshness.ts, migration yok).
+// Yalnız `listProducts`'ta (public/portal/admin liste yüzeyleri) kullanılır;
+// tekil ürün okumaları (`getProduct`, `getProductBySlug` vb.) `baseInclude`'u
+// DEĞİŞTİRİLMEDEN kullanmaya devam eder — "yeni mi" sorusu yalnız listede anlamlı.
+function buildListFullInclude(newVariantCutoff: Date) {
+    return {
+        ...baseInclude,
+        variants: {
+            where: { createdAt: { gte: newVariantCutoff } },
+            select: { id: true },
+            take: 1,
+        },
+    } satisfies Prisma.ProductInclude
+}
+
 // Card görünümü (public liste yüzeyleri): industrialUsages hiç taşınmaz.
-const listCardInclude = {
-    category: categoryInclude,
-    assets: true,
-    translations: productTranslationsSelect,
-    attributeValues: attributeValuesInclude,
-} satisfies Prisma.ProductInclude
+function buildListCardInclude(newVariantCutoff: Date) {
+    return {
+        category: categoryInclude,
+        assets: true,
+        translations: productTranslationsSelect,
+        attributeValues: attributeValuesInclude,
+        variants: {
+            where: { createdAt: { gte: newVariantCutoff } },
+            select: { id: true },
+            take: 1,
+        },
+    } satisfies Prisma.ProductInclude
+}
 
 export type ProductWithRelations = Prisma.ProductGetPayload<{ include: typeof baseInclude }>
 
-export type ProductListItem = Prisma.ProductGetPayload<{ include: typeof listCardInclude }> & {
+export type ProductListItem = Prisma.ProductGetPayload<{ include: ReturnType<typeof buildListCardInclude> }> & {
     industrialUsages?: ProductWithRelations["industrialUsages"]
 }
 
@@ -335,11 +360,18 @@ export const productRepository = (): IPrismaProductRepository => {
         query: IPaginationQuery & { categoryId?: string; category?: string; locale?: SupportedLocale },
         options?: { view?: ProductListView },
     ) => {
-        // Cast: iki include de baseInclude'un alt kümesi; Prisma.ProductInclude
-        // anotasyonu tsc'de aşırı derin tip karşılaştırmasına yol açıyor.
+        // Cast: üç include de baseInclude'un alt/üst kümesi; Prisma.ProductInclude
+        // anotasyonu tsc'de aşırı derin tip karşılaştırmasına yol açıyor. Card ve
+        // full include'lar birbirinden farklı alan kümeleri taşıdığı için (ör.
+        // yalnız full'da `industrialUsages` var) doğrudan `as typeof baseInclude`
+        // tsc'yi "yeterince örtüşmüyor" hatasına düşürüyor — `unknown` üzerinden
+        // iki adımlı cast bunu bypass eder.
+        const newVariantCutoff = getNewItemCutoffDate()
         const listInclude = (
-            options?.view === "card" ? listCardInclude : baseInclude
-        ) as typeof baseInclude
+            options?.view === "card"
+                ? buildListCardInclude(newVariantCutoff)
+                : buildListFullInclude(newVariantCutoff)
+        ) as unknown as typeof baseInclude
 
         const filterWhere = buildFilterQuery<Product>(query, [
             "name",

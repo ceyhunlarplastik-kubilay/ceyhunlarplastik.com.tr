@@ -133,6 +133,12 @@ export const productSchema = z.object({
     assets: z.array(assetSchema),
     attributeValues: z.array(attributeValueSchema),
     industrialUsages: z.array(industrialUsageSchema).optional(),
+    // "Yeni Ürün"/"Yeni Varyant" rozetleri — `/products` liste ucunda (card VE
+    // "full" görünüm, bkz. listProductsHandler.ts) her zaman dolu gelir; tekil
+    // ürün route'ları (`productResponseValidator`) bu alanları HİÇ doldurmaz,
+    // o yüzden şemada opsiyonel kalır.
+    isNew: z.boolean().optional(),
+    hasNewVariant: z.boolean().optional(),
 }).loose()
 
 export const idValidator = validatorWrapper(

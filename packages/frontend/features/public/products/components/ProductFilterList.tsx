@@ -84,10 +84,10 @@ export default function ProductFilterList({
 
             {isEmpty ? (
                 <div className="rounded-3xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-16 text-center">
-                    <p className="text-lg font-semibold text-neutral-900">
+                    <p className="text-lg font-semibold text-foreground">
                         {t("noResultsTitle")}
                     </p>
-                    <p className="mt-2 text-sm text-neutral-500">
+                    <p className="mt-2 text-sm text-muted-foreground">
                         {t("noResultsSubtitle")}
                     </p>
                 </div>
@@ -100,7 +100,7 @@ export default function ProductFilterList({
                     <p className="text-sm font-medium">
                         {t("countFound", { count: meta?.total ?? 0 })}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                         {t("perPage", { limit: meta?.limit ?? 0 })}
                     </p>
                 </div>
@@ -122,6 +122,8 @@ export default function ProductFilterList({
                                 href={`/urun/${product.slug}`}
                                 imageStatic={img}
                                 attributeValues={product.attributeValues}
+                                isNew={product.isNew}
+                                hasNewVariant={product.hasNewVariant}
                             />
                         </li>
                     )

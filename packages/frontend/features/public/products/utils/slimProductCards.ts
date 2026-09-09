@@ -32,6 +32,8 @@ export function slimProductCards(products: Product[]): Product[] {
         categoryId: product.categoryId,
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
+        isNew: product.isNew,
+        hasNewVariant: product.hasNewVariant,
         assets: (product.assets ?? [])
             .filter(
                 (asset: { role?: string; type?: string }) =>
