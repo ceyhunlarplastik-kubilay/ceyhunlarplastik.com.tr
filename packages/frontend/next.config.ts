@@ -21,6 +21,18 @@ const remotePatterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [
 ];
 
 const nextConfig: NextConfig = {
+  // `app/global-not-found.tsx`: proje `app/[locale]/layout.tsx` (dinamik üst
+  // segment) + `app/(panels)/layout.tsx` şeklinde İKİ ayrı "kök" layout
+  // taşıyor, ortak tek bir `app/layout.tsx` yok. Next.js dokümantasyonu tam
+  // bu durumu (birden fazla kök layout / üst segmentte dinamik param) normal
+  // iç içe `not-found.tsx`'in YETERSİZ kaldığı, `global-not-found` gerektiren
+  // senaryo olarak tanımlıyor — iç içe `not-found.tsx` yalnız route içinde
+  // `notFound()` ÇAĞRILDIĞINDA devreye girer, dosya sisteminde HİÇ eşleşmeyen
+  // bir path (ör. /urunler/olmayan-bir-sayfa) için değil; o durumda kök
+  // `app/not-found.tsx`/`global-not-found.tsx` gerekir.
+  experimental: {
+    globalNotFound: true,
+  },
   images: {
     // Asset URL'leri UUID tabanlı ve değişmez (görsel değişirse yeni URL alır),
     // bu yüzden uzun TTL güvenli: daha az tekrar-optimizasyon + daha iyi cache.

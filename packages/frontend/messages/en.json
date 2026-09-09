@@ -151,7 +151,23 @@
             "services": "Services"
         },
         "productCard": {
-            "navigationPending": "Opening product details"
+            "navigationPending": "Opening product details",
+            "newProductBadge": "New",
+            "newVariantBadge": "New Variant"
+        },
+        "errors": {
+            "notFound": {
+                "title": "Page not found",
+                "description": "The page you're looking for may have been moved, removed, or never existed.",
+                "homeCta": "Back to Home",
+                "productsCta": "Browse Products"
+            },
+            "serverError": {
+                "title": "Something went wrong",
+                "description": "An unexpected error occurred while loading the page. Please try again.",
+                "retryCta": "Try Again",
+                "homeCta": "Back to Home"
+            }
         },
         "enviroment": {
             "word1": "NATURE",

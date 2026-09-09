@@ -151,7 +151,23 @@
             "services": "Hizmetler"
         },
         "productCard": {
-            "navigationPending": "Ürün detayı açılıyor"
+            "navigationPending": "Ürün detayı açılıyor",
+            "newProductBadge": "Yeni Ürün",
+            "newVariantBadge": "Yeni Varyant"
+        },
+        "errors": {
+            "notFound": {
+                "title": "Sayfa bulunamadı",
+                "description": "Aradığınız sayfa taşınmış, kaldırılmış ya da hiç var olmamış olabilir.",
+                "homeCta": "Ana Sayfaya Dön",
+                "productsCta": "Ürünleri İncele"
+            },
+            "serverError": {
+                "title": "Bir şeyler ters gitti",
+                "description": "Sayfa yüklenirken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+                "retryCta": "Tekrar Dene",
+                "homeCta": "Ana Sayfaya Dön"
+            }
         },
         "enviroment": {
             "word1": "DOĞA",
@@ -735,8 +751,8 @@
                 "imageMissing": "Görsel eklenmedi",
                 "sectionTitle": "Ürün Modelimizin Kullanıldığı Endüstriyel Alanlar",
                 "sectionSubtitle": "Sektör, üretim grubu ve kullanım alanı bazında örnek kullanım eşleşmeleri.",
-                "accordionTitle": "Kullanıldığı Endüstriyel Alanlar",
-                "accordionSubtitle": "Ürünün kullanıldığı sektör, üretim grubu ve endüstriyel alanlar.",
+                "accordionTitle": "Ürün Modelimizin Kullanıldığı Endüstriyel Alanlar",
+                "accordionSubtitle": "Ürün modelinin kullanıldığı sektör, üretim grubu ve endüstriyel alanlar eşlemeleri.",
                 "reviewDetails": "Detayları İncele",
                 "showAllRows": "Tümünü göster ({count} satır)"
             },
