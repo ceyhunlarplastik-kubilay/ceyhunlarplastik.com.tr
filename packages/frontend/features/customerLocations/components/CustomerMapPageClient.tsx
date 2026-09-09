@@ -1,10 +1,13 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { MapPinned } from "lucide-react"
+import { ChevronUp, List, MapPinned } from "lucide-react"
 import { toast } from "sonner"
-import { parseAsBoolean, parseAsInteger, parseAsString, useQueryState } from "nuqs"
+import { parseAsBoolean, parseAsInteger, parseAsString, parseAsStringLiteral, useQueryState } from "nuqs"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { ManagedCustomerMap } from "@/features/customerLocations/components/ManagedCustomerMap"
+import { CustomerMapCustomerAccordion } from "@/features/customerLocations/components/CustomerMapCustomerAccordion"
 import {
     CustomerMapFilterBar,
     type CustomerMapFilters,
@@ -12,9 +15,13 @@ import {
 import { useCustomerMapData } from "@/features/customerLocations/hooks/useCustomerMapData"
 import { useProtectedUsers } from "@/features/customerLocations/hooks/useProtectedUsers"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
+import { useBulkSelection } from "@/features/admin/shared/hooks/useBulkSelection"
+import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { DEFAULT_ADMIN_LIST_PAGE_SIZE, normalizeAdminPageSize } from "@/features/admin/shared/config"
 import { useGeoCities } from "@/features/geo/hooks/useGeoCities"
 import { useGeoCountries } from "@/features/geo/hooks/useGeoCountries"
 import { useGeoStates } from "@/features/geo/hooks/useGeoStates"
+import { groupCustomerMapPoints } from "@/features/customerLocations/lib/groupCustomerMapPoints"
 import type { CustomerMapPoint } from "@/features/customerLocations/types"
 import { getUserDisplayName } from "@/lib/users/displayName"
 
@@ -37,8 +44,17 @@ const EMPTY_POINTS: CustomerMapPoint[] = []
 
 const MAP_RESULT_LIMIT = 500
 
+// Segment ilk açıldığında yalnız bu kadar müşteri (peek) gösterilir; kalanı
+// "Tümünü Göster" ile açılır — `ProductUsageAreasTable`'daki peek deseniyle
+// aynı fikir (kullanıcı örneği), tek fark: sayfalanmış tam liste `AdminListPagination`
+// ile geliyor, peek modunda sayfalama/toplu-seç satırı gösterilmiyor.
+const PEEK_CUSTOMER_COUNT = 3
+
 const EMPTY_HINT =
-    "Segment seçip “Haritada Göster”e basın — müşteri konumları böylece yüklenir."
+    "Segment seçip “Listele”ye basın — eşleşen müşteriler önce liste olarak gösterilir."
+
+const LIST_EMPTY_MESSAGE =
+    "Seçilen filtrelerle eşleşen müşteri bulunamadı. Filtreleri gevşetip tekrar deneyebilirsiniz."
 
 // Seçilen coğrafi seviyeye göre "bölgeye uç" zoom'u (müşteri yoksa fallback).
 const COUNTRY_FOCUS_ZOOM = 5
@@ -65,6 +81,32 @@ function useDebouncedBounds(bounds: Bounds | null, delayMs: number) {
     return debouncedBounds
 }
 
+/**
+ * Panel şablonundaki (`PanelShell`) üst çubuk masaüstünde `position: sticky`
+ * ile ekranın en üstüne yapışık kalır; bu sayfanın kendi aksiyon çubuğu
+ * (Gizle/Haritada Göster) onun ALTINA sabitlenecekse yüksekliği bilinmeli.
+ * Sabit bir piksel yazmak şablon değişince sessizce kayardı, o yüzden DOM'dan
+ * ölçülür. Mobilde bu header hiç render edilmez (`hidden md:block`), o zaman
+ * offset 0 kalır ve çubuk doğrudan viewport üstüne yapışır.
+ */
+function usePanelHeaderOffset() {
+    const [offset, setOffset] = useState(0)
+
+    useEffect(() => {
+        const header = document.querySelector("header")
+        if (!header) return
+
+        const update = () => setOffset(header.getBoundingClientRect().height)
+        update()
+
+        const observer = new ResizeObserver(update)
+        observer.observe(header)
+        return () => observer.disconnect()
+    }, [])
+
+    return offset
+}
+
 export function CustomerMapPageClient({
     title,
     description,
@@ -72,9 +114,11 @@ export function CustomerMapPageClient({
     allowSalesFilter,
 }: Props) {
     // Filtreler URL'de (nuqs): ekran paylaşılabilir, geri tuşu segment seçimini
-    // korur. `applied` = kullanıcı bilinçli olarak "Haritada Göster"e bastı mı.
-    // Bir filtre değişince `applied` false olur; harita eski noktaları korur ve
-    // yeni istek ancak tekrar butona basılınca gider (Google/DB yükü azalır).
+    // korur. `applied` = kullanıcı bilinçli olarak "Listele"ye bastı mı. Bir
+    // filtre değişince `applied` false olur; yeni istek ancak tekrar butona
+    // basılınca gider (DB yükü azalır). Harita (`view === "map"`) bundan ayrı
+    // bir sonraki adım — DB isteğinden bağımsız olarak Google Maps JS'in kendisi
+    // yalnız kullanıcı "Haritada Göster" deyince yüklenir.
     const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
     const [status, setStatus] = useQueryState("status", parseAsString.withDefault("ALL"))
     const [rep, setRep] = useQueryState("rep", parseAsString.withDefault("ALL"))
@@ -84,6 +128,24 @@ export function CustomerMapPageClient({
     const [stateId, setStateId] = useQueryState("state", parseAsInteger)
     const [cityId, setCityId] = useQueryState("city", parseAsInteger)
     const [applied, setApplied] = useQueryState("applied", parseAsBoolean.withDefault(false))
+    // Filtre uygulanınca ÖNCE liste gösterilir; harita yalnız kullanıcı bir
+    // "Haritada Göster" aksiyonuna basınca (Google Maps JS bu anda yüklenir).
+    const [view, setView] = useQueryState("view", parseAsStringLiteral(["list", "map"] as const).withDefault("list"))
+    // `null` = filtreyle eşleşen TÜM müşteriler haritada; dolu dizi = yalnız
+    // liste görünümünden seçilen/tekil müşteri(ler).
+    const [mapCustomerIds, setMapCustomerIds] = useState<string[] | null>(null)
+    const selection = useBulkSelection()
+    // Liste görünümü tek istekte gelen (backend `take: 500`) TÜM segmenti aynı
+    // anda accordion olarak basmaz — 200+ müşteri tek sayfada ele alınamaz
+    // uzunlukta olur. Sayfalama client-side: ek istek yok, zaten çekilmiş
+    // `groups` dizisi dilimlenir (admin listeleriyle aynı bileşen: `AdminListPagination`).
+    const [listPage, setListPage] = useQueryState("page", parseAsInteger.withDefault(1))
+    const [listLimit, setListLimit] = useQueryState("limit", parseAsInteger.withDefault(DEFAULT_ADMIN_LIST_PAGE_SIZE))
+    const normalizedListLimit = normalizeAdminPageSize(listLimit)
+    // Segment yeni uygulandığında liste PEEK modunda başlar (bkz. PEEK_CUSTOMER_COUNT).
+    const [isListExpanded, setIsListExpanded] = useState(false)
+
+    const panelHeaderOffset = usePanelHeaderOffset()
 
     const [bounds, setBounds] = useState<Bounds | null>(null)
     const [activePoint, setActivePoint] = useState<CustomerMapPoint | null>(null)
@@ -211,16 +273,36 @@ export function CustomerMapPageClient({
         if (patch.countryId !== undefined) setCountryId(patch.countryId)
         if (patch.stateId !== undefined) setStateId(patch.stateId)
         if (patch.cityId !== undefined) setCityId(patch.cityId)
-        // Değişiklik henüz haritaya uygulanmadı: buton tekrar basılana kadar
-        // otomatik istek atılmaz.
+        // Değişiklik henüz uygulanmadı: buton tekrar basılana kadar otomatik
+        // istek atılmaz.
         setApplied(false)
     }
 
     function applyFilters() {
         setApplied(true)
-        // Sonuç geldiğinde harita bu segmente odaklansın; o ana kadar istek
-        // mevcut viewport'la KISITLANMASIN (bölgeler arası geçişte kesişim boş
-        // çıkmasın diye — Ukrayna'ya bakarken İzmir seçme senaryosu).
+        // Yeni segment ÖNCE liste olarak gösterilir; önceki "haritada göster"
+        // seçimi/görünümü yeni segmentle anlamsızlaşır.
+        setView("list")
+        setMapCustomerIds(null)
+        selection.clear()
+        setListPage(1)
+        setIsListExpanded(false)
+        setFocusPending(false)
+        // İstek mevcut harita viewport'uyla KISITLANMASIN (bölgeler arası
+        // geçişte kesişim boş çıkmasın diye — Ukrayna'ya bakarken İzmir seçme
+        // senaryosu); liste görünümünde zaten viewport'un bir anlamı yok.
+        setBounds(null)
+    }
+
+    /**
+     * Liste görünümünden harita görünümüne geçiş. `customerIds` `null` ise
+     * segmentteki TÜM müşteriler, dolu dizi ise yalnız seçilenler haritada
+     * gösterilir. Google Maps JS bu ana kadar hiç yüklenmez.
+     */
+    function showOnMap(customerIds: string[] | null) {
+        setMapCustomerIds(customerIds)
+        setView("map")
+        // Harita yeni mount edildiği için segmente odaklanmalı.
         setFocusToken((token) => token + 1)
         setFocusPending(true)
         setBounds(null)
@@ -236,6 +318,11 @@ export function CustomerMapPageClient({
         setStateId(null)
         setCityId(null)
         setApplied(false)
+        setView("list")
+        setMapCustomerIds(null)
+        selection.clear()
+        setListPage(1)
+        setIsListExpanded(false)
         setFocusPending(false)
     }
 
@@ -282,6 +369,40 @@ export function CustomerMapPageClient({
 
     const mapQuery = useCustomerMapData(mapParams)
     const points = mapQuery.data ?? EMPTY_POINTS
+    const isInitialLoading = mapQuery.isLoading
+
+    // Liste görünümü müşteri bazında tek satır gösterir; harita ADRES bazlı kalır.
+    const groups = useMemo(() => groupCustomerMapPoints(points), [points])
+
+    const listTotalPages = Math.max(1, Math.ceil(groups.length / normalizedListLimit))
+    // Filtre/sayfa boyutu değişince eski sayfa numarası sınırın dışında kalabilir
+    // (ör. 3. sayfadayken sayfa boyutu büyütülürse) — son sayfaya kenetlenir.
+    const currentListPage = Math.min(Math.max(1, listPage), listTotalPages)
+    const pagedGroups = useMemo(
+        () => groups.slice((currentListPage - 1) * normalizedListLimit, currentListPage * normalizedListLimit),
+        [groups, currentListPage, normalizedListLimit],
+    )
+    const pagedGroupIds = useMemo(() => pagedGroups.map((group) => group.customerId), [pagedGroups])
+    const pageSelectionState = selection.visibleState(pagedGroupIds)
+
+    // Segment ilk açıldığında (henüz "Tümünü Göster" denmedi) yalnız ilk birkaç
+    // müşteri görünür; sayfalama/toplu-seç satırı bu modda anlamsız, gizlenir.
+    const isPeeking = !isListExpanded && groups.length > PEEK_CUSTOMER_COUNT
+    const visibleGroups = isPeeking ? groups.slice(0, PEEK_CUSTOMER_COUNT) : pagedGroups
+
+    const mapCustomerIdSet = useMemo(
+        () => (mapCustomerIds ? new Set(mapCustomerIds) : null),
+        [mapCustomerIds],
+    )
+    const mapPoints = useMemo(
+        () => (mapCustomerIdSet ? points.filter((point) => mapCustomerIdSet.has(point.customerId)) : points),
+        [points, mapCustomerIdSet],
+    )
+
+    const salesUserLabelById = useMemo(
+        () => new Map(salesUsers.map((user) => [user.id, user.label])),
+        [salesUsers],
+    )
 
     useEffect(() => {
         if (!activePoint) return
@@ -320,7 +441,7 @@ export function CustomerMapPageClient({
                 isDirty={!applied && hasFilters}
                 isApplied={applied}
                 isFetching={mapQuery.isFetching}
-                resultCount={points.length}
+                resultCount={groups.length}
                 atResultLimit={points.length >= MAP_RESULT_LIMIT}
                 allowSalesFilter={allowSalesFilter}
                 salesUsers={salesUsers}
@@ -328,18 +449,135 @@ export function CustomerMapPageClient({
                 usageAreaValues={usageAreaValues}
             />
 
-            <ManagedCustomerMap
-                points={points}
-                activePoint={activePoint}
-                onActivePointChange={setActivePoint}
-                onBoundsChange={setBounds}
-                customerDetailHref={(customerId) => `${customerDetailBasePath}/${customerId}`}
-                isFetching={mapQuery.isFetching}
-                emptyHint={applied ? undefined : EMPTY_HINT}
-                focusToken={focusToken}
-                focusFallback={focusFallback}
-                onFocusResolved={handleFocusResolved}
-            />
+            {!applied ? (
+                <div className="flex h-40 items-center justify-center rounded-3xl border border-dashed border-neutral-200 bg-white px-6 text-center text-sm text-neutral-500 shadow-sm">
+                    {EMPTY_HINT}
+                </div>
+            ) : view === "map" ? (
+                <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <Button type="button" variant="outline" className="rounded-2xl" onClick={() => setView("list")}>
+                            <List className="h-4 w-4" />
+                            Listeye Dön
+                        </Button>
+                        {mapCustomerIds ? (
+                            <span className="text-sm text-neutral-500">
+                                Seçilen {mapCustomerIds.length} müşteri gösteriliyor
+                            </span>
+                        ) : null}
+                    </div>
+
+                    <ManagedCustomerMap
+                        points={mapPoints}
+                        activePoint={activePoint}
+                        onActivePointChange={setActivePoint}
+                        onBoundsChange={setBounds}
+                        customerDetailHref={(customerId) => `${customerDetailBasePath}/${customerId}`}
+                        isFetching={mapQuery.isFetching}
+                        focusToken={focusToken}
+                        focusFallback={focusFallback}
+                        onFocusResolved={handleFocusResolved}
+                    />
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {/* Liste uzun olabileceği için aksiyonlar (Gizle/Haritada Göster)
+                        panel üst çubuğunun HEMEN ALTINDA sabit kalır — sadece bu
+                        `space-y-3` sarmalayıcı boyunca (accordion + sayfalama bitene
+                        kadar); panel notlarına gelindiğinde normal akışa döner. */}
+                    <div
+                        className="sticky z-20 space-y-3 rounded-2xl border border-neutral-200 bg-white/95 p-4 shadow-sm backdrop-blur"
+                        style={{ top: panelHeaderOffset }}
+                    >
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-sm text-neutral-500">
+                                {groups.length} müşteri
+                                {points.length >= MAP_RESULT_LIMIT ? " (ilk 500 adres — segmenti daraltın)" : ""}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {isListExpanded && groups.length > PEEK_CUSTOMER_COUNT ? (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="rounded-2xl"
+                                        onClick={() => {
+                                            setIsListExpanded(false)
+                                            setListPage(1)
+                                        }}
+                                    >
+                                        <ChevronUp className="h-4 w-4" />
+                                        Gizle
+                                    </Button>
+                                ) : null}
+                                {selection.selectedCount > 0 ? (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="rounded-2xl"
+                                        onClick={() => showOnMap([...selection.selectedIds])}
+                                    >
+                                        <MapPinned className="h-4 w-4" />
+                                        Seçilenleri Haritada Göster ({selection.selectedCount})
+                                    </Button>
+                                ) : null}
+                                <Button
+                                    type="button"
+                                    className="rounded-2xl"
+                                    onClick={() => showOnMap(null)}
+                                    disabled={groups.length === 0}
+                                >
+                                    <MapPinned className="h-4 w-4" />
+                                    Tümünü Haritada Göster
+                                </Button>
+                            </div>
+                        </div>
+
+                        {!isPeeking && pagedGroups.length > 0 ? (
+                            <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-neutral-600">
+                                <Checkbox
+                                    checked={
+                                        pageSelectionState === "all"
+                                            ? true
+                                            : pageSelectionState === "some"
+                                                ? "indeterminate"
+                                                : false
+                                    }
+                                    onCheckedChange={() => selection.toggleVisible(pagedGroupIds)}
+                                />
+                                Bu sayfadaki {pagedGroups.length} kaydı seç
+                            </label>
+                        ) : null}
+                    </div>
+
+                    <CustomerMapCustomerAccordion
+                        groups={visibleGroups}
+                        isPeeking={isPeeking}
+                        totalCount={groups.length}
+                        onExpandRequest={() => setIsListExpanded(true)}
+                        selection={selection}
+                        customerDetailHref={(customerId) => `${customerDetailBasePath}/${customerId}`}
+                        salesUserLabel={(userId) => salesUserLabelById.get(userId)}
+                        isLoading={isInitialLoading}
+                        emptyMessage={LIST_EMPTY_MESSAGE}
+                        onShowOnMap={(customerId) => showOnMap([customerId])}
+                    />
+
+                    {!isPeeking && !isInitialLoading && listTotalPages > 1 ? (
+                        <AdminListPagination
+                            page={currentListPage}
+                            totalPages={listTotalPages}
+                            total={groups.length}
+                            limit={normalizedListLimit}
+                            itemLabel="müşteri"
+                            onPageChange={setListPage}
+                            onLimitChange={(next) => {
+                                setListLimit(next)
+                                setListPage(1)
+                            }}
+                        />
+                    ) : null}
+                </div>
+            )}
 
             <div className="rounded-3xl border bg-white p-4 shadow-sm">
                 <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">
@@ -347,8 +585,8 @@ export function CustomerMapPageClient({
                     Harita Notları
                 </div>
                 <div className="mt-3 grid gap-3 text-sm leading-6 text-neutral-600 md:grid-cols-3">
-                    <p>Konumlar yalnız “Haritada Göster”e basınca yüklenir; sayfa açılışında harita boş gelir.</p>
-                    <p>Segment yüklendikten sonra haritayı gezdikçe yalnız görünür alandaki müşteriler çağrılır.</p>
+                    <p>Filtreler uygulanınca müşteriler önce liste olarak gösterilir; harita yalnız “Haritada Göster”e basınca açılır (Google Maps kullanım maliyetini düşürür).</p>
+                    <p>Harita açıldıktan sonra gezdikçe yalnız görünür alandaki müşteriler çağrılır.</p>
                     <p>Popup içinden müşteri detayı ve Google Maps yol tarifi akışına doğrudan geçebilirsiniz.</p>
                 </div>
             </div>

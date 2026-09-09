@@ -27,3 +27,27 @@ export type CustomerMapResponse = {
         data: CustomerMapPoint[]
     }
 }
+
+export type CustomerMapCustomerAddress = {
+    addressId: string
+    addressLabel: string
+    addressSummary: string
+    latitude: number
+    longitude: number
+    isPrimary: boolean
+    isShipping: boolean
+    geocodingProvider?: string | null
+    geocodingPlaceId?: string | null
+}
+
+/** Aynı `customerId`'ye ait `CustomerMapPoint` satırları tek satırda birleşir. */
+export type CustomerMapCustomerGroup = {
+    customerId: string
+    companyName?: string | null
+    fullName: string
+    email: string
+    phone: string
+    status: "LEAD" | "CUSTOMER"
+    assignedSalesUserId?: string | null
+    addresses: CustomerMapCustomerAddress[]
+}

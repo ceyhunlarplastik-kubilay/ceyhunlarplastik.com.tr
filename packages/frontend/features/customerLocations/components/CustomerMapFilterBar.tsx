@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2, MapPinned, Search, X } from "lucide-react"
+import { List, Loader2, Search, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,8 +45,9 @@ type Props = {
  * Müşteri haritası segment filtresi. UI/UX yerleşimi "Potansiyel Müşteriler"
  * sayfasındaki filtre bölümünden alındı (yuvarlak inputlar, ayrı satırda geo
  * alanları, sağda temizle). Buradaki fark: seçimler haritaya OTOMATİK yansımaz;
- * kullanıcı bilinçli olarak "Haritada Göster"e basınca yüklenir — Google harita
- * yükü ve gereksiz istek azaltılır.
+ * kullanıcı bilinçli olarak "Listele"ye basınca eşleşen müşteriler önce liste
+ * (accordion) olarak gösterilir — haritayı (Google Maps JS) yalnız kullanıcı
+ * listeden "Haritada Göster" dediğinde `CustomerMapPageClient` mount eder.
  */
 export function CustomerMapFilterBar({
     filters,
@@ -81,8 +82,9 @@ export function CustomerMapFilterBar({
                 <h2 className="text-lg font-semibold text-neutral-950">Segment Filtresi</h2>
                 <p className="text-sm text-neutral-500">
                     Ülke/il/ilçe, sektör, kullanım alanı ve temsilci seçip{" "}
-                    <span className="font-medium text-neutral-700">Haritada Göster</span>&apos;e basın —
-                    müşteri konumları yalnız o zaman yüklenir.
+                    <span className="font-medium text-neutral-700">Listele</span>&apos;ye basın —
+                    eşleşen müşteriler önce liste olarak gösterilir, haritayı isterseniz
+                    ayrıca açarsınız.
                 </p>
             </div>
 
@@ -169,11 +171,11 @@ export function CustomerMapFilterBar({
                         </span>
                     ) : isApplied ? (
                         <span>
-                            Haritada <span className="font-semibold text-neutral-900">{resultCount}</span> müşteri
+                            Eşleşen <span className="font-semibold text-neutral-900">{resultCount}</span> müşteri
                             {atResultLimit ? " (ilk 500 — segmenti daraltın)" : ""}
                         </span>
                     ) : (
-                        <span>Henüz segment yüklenmedi.</span>
+                        <span>Henüz segment listelenmedi.</span>
                     )}
                 </div>
 
@@ -198,9 +200,9 @@ export function CustomerMapFilterBar({
                         {isFetching ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                            <MapPinned className="h-4 w-4" />
+                            <List className="h-4 w-4" />
                         )}
-                        Haritada Göster
+                        Listele
                     </Button>
                 </div>
             </div>
