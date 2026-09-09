@@ -217,3 +217,49 @@ export function findPortalCarrierLoad(
     return summary.carrierLoads.find((load) => load.carrier.id === carrierId)
         ?? summary.carrierLoads[0]
 }
+
+export type PortalCartFillSuggestion<T extends PortalCartLoadItem> = {
+    item: T
+    /** Kalemin ölçü birimi (adet) cinsinden önerilen ek miktar. */
+    additionalUnits: number
+    /** Bu kalemle doldurulduktan sonra araçta kalan hacim (m³) — "best fit" seçiminde kıyaslanır. */
+    leftoverVolumeM3: number
+}
+
+/**
+ * Seçili taşıyıcının SON aracında/paletinde boş kalan hacmi, sepetteki hangi
+ * kalemin (miktarı artırılarak) EN İYİ dolduracağını önerir — müşteri teşviki
+ * ("bu europalet için X adet daha eklersen tam dolar"). Yalnız hacim profili
+ * HAZIR (`READY`) kalemler aday olur; birden fazla aday varsa boşluğu EN AZ
+ * bırakan ("best fit") kalem seçilir ki gereğinden fazla adet önerilmesin.
+ * Hiçbir kalem için en az 1 koli daha sığmıyorsa (boşluk çok küçük) `null`.
+ */
+export function resolvePortalCartFillSuggestion<T extends PortalCartLoadItem>(
+    items: readonly T[],
+    profiles: readonly PortalCartLogisticsProfile[],
+    load: PortalCarrierLoad,
+): PortalCartFillSuggestion<T> | null {
+    const remainingVolumeM3 = load.carrier.capacityM3 * (1 - load.lastVehicleFillPercent / 100)
+    if (!(remainingVolumeM3 > 0)) return null
+
+    const profilesByVariantId = new Map(profiles.map((profile) => [profile.productVariantId, profile]))
+
+    let best: PortalCartFillSuggestion<T> | null = null
+
+    for (const item of items) {
+        const profile = profilesByVariantId.get(item.variantId)
+        if (!profile || profile.status !== "READY" || !profile.logistics) continue
+
+        const additionalPackages = Math.floor(remainingVolumeM3 / profile.logistics.packageVolumeM3)
+        if (additionalPackages < 1) continue
+
+        const leftoverVolumeM3 = remainingVolumeM3 - additionalPackages * profile.logistics.packageVolumeM3
+        const additionalUnits = additionalPackages * profile.logistics.unitsPerPackage
+
+        if (!best || leftoverVolumeM3 < best.leftoverVolumeM3) {
+            best = { item, additionalUnits, leftoverVolumeM3 }
+        }
+    }
+
+    return best
+}

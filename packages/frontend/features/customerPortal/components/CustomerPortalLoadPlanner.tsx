@@ -6,6 +6,7 @@ import {
     Boxes,
     Gauge,
     PackageCheck,
+    PackagePlus,
     RotateCcw,
     Scale,
 } from "lucide-react"
@@ -15,10 +16,14 @@ import { CustomerPortalLoadGraphic } from "@/features/customerPortal/components/
 import { usePortalCartLoad } from "@/features/customerPortal/hooks/usePortalCartLoad"
 import {
     findPortalCarrierLoad,
+    resolvePortalCartFillSuggestion,
     type PortalCartCarrierId,
     type PortalCartLoadIssue,
 } from "@/features/customerPortal/logistics/cartLoad"
-import type { PortalRequestDraftItem } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
+import {
+    usePortalRequestDraftStore,
+    type PortalRequestDraftItem,
+} from "@/features/customerPortal/stores/usePortalRequestDraftStore"
 import { cn } from "@/lib/utils"
 
 type Props = {
@@ -68,6 +73,7 @@ function formatIssueSummary(issues: readonly PortalCartLoadIssue[]) {
 export function CustomerPortalLoadPlanner({ items }: Props) {
     const [manualCarrierId, setManualCarrierId] = useState<PortalCartCarrierId | null>(null)
     const { logisticsQuery, summary } = usePortalCartLoad(items)
+    const updateQuantity = usePortalRequestDraftStore((state) => state.updateQuantity)
 
     const fallbackLoad = useMemo(
         () => summary.carrierLoads.find((load) => load.requiredVehicleCount <= 1)
@@ -79,6 +85,14 @@ export function CustomerPortalLoadPlanner({ items }: Props) {
         ?? fallbackLoad.carrier.id
     const selectedLoad = findPortalCarrierLoad(summary, selectedCarrierId)
     const isAutomaticMode = manualCarrierId === null
+
+    // Seçili taşıyıcının SON aracında/paletinde boş kalan hacmi en iyi
+    // dolduracak kalemi önerir (bkz. resolvePortalCartFillSuggestion) — müşteri
+    // zaten bu alanın ücretini ödüyor, boş gitmesin diye bir "tamamla" teşviki.
+    const fillSuggestion = useMemo(
+        () => resolvePortalCartFillSuggestion(items, logisticsQuery.data ?? [], selectedLoad),
+        [items, logisticsQuery.data, selectedLoad],
+    )
 
     if (items.length === 0) return null
 
@@ -264,6 +278,29 @@ export function CustomerPortalLoadPlanner({ items }: Props) {
                             })}
                         </div>
                     </div>
+
+                    {fillSuggestion ? (
+                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/30 bg-brand/6 px-3.5 py-3.5">
+                            <div className="flex min-w-0 items-start gap-2.5">
+                                <PackagePlus className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+                                <p className="text-sm leading-6 text-neutral-800">
+                                    <span className="font-semibold text-neutral-950">{fillSuggestion.item.productName}</span>
+                                    {"'dan "}
+                                    <span className="font-semibold text-brand">{fillSuggestion.additionalUnits} adet</span>
+                                    {` daha eklerseniz ${selectedLoad.carrier.compactLabel} tamamen dolu gönderilir — ödediğiniz alan boşa gitmesin.`}
+                                </p>
+                            </div>
+                            <Button
+                                type="button"
+                                size="sm"
+                                className="shrink-0 rounded-full"
+                                onClick={() => updateQuantity(fillSuggestion.item.variantId, fillSuggestion.item.quantity + fillSuggestion.additionalUnits)}
+                            >
+                                <PackagePlus className="h-3.5 w-3.5" aria-hidden="true" />
+                                Kalan Alanı Doldur
+                            </Button>
+                        </div>
+                    ) : null}
 
                     {summary.issues.length > 0 ? (
                         <div className="flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm leading-6 text-amber-950">

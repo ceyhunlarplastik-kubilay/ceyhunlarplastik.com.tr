@@ -4,6 +4,7 @@ import {
     PORTAL_CART_CARRIERS,
     normalizePortalCartVariantIds,
     resolvePortalCarrierLoad,
+    resolvePortalCartFillSuggestion,
     selectPortalCartVariantIds,
     summarizePortalCartLoad,
 } from "./cartLoad"
@@ -129,5 +130,63 @@ describe("summarizePortalCartLoad", () => {
 
         expect(summary.issues[0].status).toBe("PROFILE_MISSING")
         expect(summary.hasKnownVolume).toBe(false)
+    })
+})
+
+describe("resolvePortalCartFillSuggestion", () => {
+    const euroPallet = PORTAL_CART_CARRIERS[0]
+
+    it("birden fazla adayda EN AZ boşluk bırakanı önerir (best fit)", () => {
+        // 2.6 m³ kapasiteli europalette 2.0 m³ dolu → 0.6 m³ boş kaldı.
+        const load = resolvePortalCarrierLoad(2.0, euroPallet)
+        const items = [{ variantId: A, quantity: 5 }, { variantId: B, quantity: 3 }]
+        const profiles = [
+            // 2 koli sığar (0.5 m³), 0.1 m³ boşluk kalır.
+            readyProfile(A, { unitsPerPackage: 4, packageVolumeM3: 0.25 }),
+            // 1 koli sığar (0.4 m³), 0.2 m³ boşluk kalır — A daha iyi sığar.
+            readyProfile(B, { unitsPerPackage: 2, packageVolumeM3: 0.4 }),
+        ]
+
+        const suggestion = resolvePortalCartFillSuggestion(items, profiles, load)
+
+        expect(suggestion?.item.variantId).toBe(A)
+        expect(suggestion?.additionalUnits).toBe(8)
+        expect(suggestion?.leftoverVolumeM3).toBeCloseTo(0.1)
+    })
+
+    it("yalnız READY profili olan kalemleri aday sayar", () => {
+        const load = resolvePortalCarrierLoad(2.0, euroPallet)
+        const items = [
+            { variantId: A, quantity: 1 },
+            { variantId: B, quantity: 1 },
+            { variantId: C, quantity: 1 },
+        ]
+        const profiles = [
+            { productVariantId: B, status: "INCOMPLETE_PACKAGE_DATA" as const, logistics: null },
+            readyProfile(C, { unitsPerPackage: 3, packageVolumeM3: 0.3 }),
+            // A için hiç profil yok (API'de bulunmadı).
+        ]
+
+        const suggestion = resolvePortalCartFillSuggestion(items, profiles, load)
+
+        expect(suggestion?.item.variantId).toBe(C)
+    })
+
+    it("hiçbir kalem bir koli daha sığdıramıyorsa null döner", () => {
+        // 2.55 m³ dolu → yalnız 0.05 m³ boşluk kaldı, en küçük koli 0.25 m³.
+        const load = resolvePortalCarrierLoad(2.55, euroPallet)
+        const items = [{ variantId: A, quantity: 1 }]
+        const profiles = [readyProfile(A, { unitsPerPackage: 4, packageVolumeM3: 0.25 })]
+
+        expect(resolvePortalCartFillSuggestion(items, profiles, load)).toBeNull()
+    })
+
+    it("araç zaten tam doluysa (boşluk yok) null döner", () => {
+        const load = resolvePortalCarrierLoad(euroPallet.capacityM3, euroPallet)
+        const items = [{ variantId: A, quantity: 1 }]
+        const profiles = [readyProfile(A, { unitsPerPackage: 4, packageVolumeM3: 0.01 })]
+
+        expect(load.lastVehicleFillPercent).toBe(100)
+        expect(resolvePortalCartFillSuggestion(items, profiles, load)).toBeNull()
     })
 })
