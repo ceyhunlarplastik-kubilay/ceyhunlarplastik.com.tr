@@ -1,8 +1,8 @@
 "use client"
 
-import { useId, useMemo, useState, type MouseEvent } from "react"
-import { AnimatePresence, motion, useReducedMotion } from "motion/react"
-import { CircleHelp, Loader2, Hash, ChevronRight, ExternalLink } from "lucide-react"
+import { useId, useMemo, useState } from "react"
+import { motion, useReducedMotion } from "motion/react"
+import { CircleHelp, Hash, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
@@ -28,13 +28,18 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    type CarouselApi,
+} from "@/components/ui/carousel"
+import {
     formatMeasurementValue,
     resolveMeasurementName,
     resolveMeasurementUnit,
 } from "@/features/public/products/utils/measurement"
 import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
-import ProductVariantNavigationOverlay from "@/features/public/products/components/ProductVariantNavigationOverlay"
 import type { SupportedLocale } from "@core/i18n/locales"
 
 export type MeasurementTypeDetails = {
@@ -199,16 +204,6 @@ function MeasurementHelpDialogButton({
     )
 }
 
-function isModifiedClick(event: MouseEvent) {
-    return (
-        event.metaKey ||
-        event.altKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.button !== 0
-    )
-}
-
 // Renk kolonunda üst üste binen rozetler ekrana sığmalı; kalanlar "+N" ile
 // kırpılır (bkz. avatar.tsx AvatarGroup/AvatarGroupCount). Ham madde daha az
 // gösterir: isim genelde renkten uzun, kolon genişlemesin diye.
@@ -240,17 +235,20 @@ export default function ProductVariantTable({
 }: ProductVariantTableProps) {
     const t = useTranslations("public.productVariant.table")
     const titleId = useId()
-    const reduceMotion = useReducedMotion()
     const { data: session } = useSession()
-    const [pendingVariantKey, setPendingVariantKey] = useState<string | null>(null)
+    // DENEME (kullanıcı talebiyle): ok butonuna basılınca ölçü tablosu sola
+    // kayıp yerine "Mevcut Varyant Kodları" gelsin diye — sağdaki mevcut
+    // panel SİLİNMEDİ, aynı içerik `variantCodesPanel` olarak iki yerde de
+    // (sağ panel + bu carousel'in 2. slaytı) render ediliyor. Şimdilik ok
+    // butonu ayrı bir sayfaya NAVİGE ETMİYOR (kullanıcı talebiyle kaldırıldı)
+    // — yalnız seçimi günceller ve carousel'i 2. slayta kaydırır.
+    const [carouselApi, setCarouselApi] = useState<CarouselApi>()
     const [selectedKey, setSelectedKey] = useQueryState(
         "m",
         parseAsString.withOptions({ history: "replace", shallow: true }),
     )
 
-    const isNavigatingToVariant = pendingVariantKey !== null
     const selected = options.find((option) => option.key === selectedKey) ?? options[0]
-    const pendingOption = options.find((option) => option.key === pendingVariantKey)
     const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
     const canManageVariants = groups.includes("owner") || groups.includes("admin")
     const adminVariantsUrl = `/admin/products/${productId}/variants`
@@ -290,6 +288,86 @@ export default function ProductVariantTable({
         )
     }
 
+    // Aynı içerik hem sağdaki mevcut panelde hem carousel'in 2. slaytında
+    // render edilir (kullanıcı talebiyle: "diğer componentleri silme") — tek
+    // bir element referansı iki DOM konumunda güvenle kullanılabiliyor.
+    const variantCodesPanel = (
+        <div className={cn(
+            "flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-card",
+            wideTable ? "p-3 sm:p-4" : "p-4 shadow-sm"
+        )}>
+            <div className="flex flex-col gap-1.5">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                    <Hash className="size-4 text-muted-foreground" />
+                    {t("codesTitle")}
+                </h3>
+                {wideTable ? (
+                    <p className="text-xs leading-relaxed text-muted-foreground">{selected.label}</p>
+                ) : null}
+            </div>
+            {selected.variants.length === 0 ? (
+                <p className="text-xs text-muted-foreground">{t("codesEmpty")}</p>
+            ) : (
+                <div className="min-w-0 overflow-hidden rounded-lg border border-border *:data-[slot=table-container]:max-h-72 *:data-[slot=table-container]:overflow-auto">
+                    <Table className={cn(
+                        "border-separate border-spacing-0 [&_td]:px-2.5 [&_td]:py-2 [&_th]:h-8 [&_th]:px-2.5 [&_th]:py-1.5 [&_th]:font-medium",
+                        wideTable ? "[&_td]:text-xs [&_th]:text-xs" : "[&_td]:text-[11px] [&_th]:text-[9px] [&_th]:tracking-wider [&_th]:uppercase"
+                    )}>
+                        <TableHeader>
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
+                                    {t("colCode")}
+                                </TableHead>
+                                <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
+                                    {t("colColor")}
+                                </TableHead>
+                                <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
+                                    {t("colMaterial")}
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {selected.variants.map((variant) => {
+                                const color = variant.colorId
+                                    ? selected.colors.find((entry) => entry?.id === variant.colorId)
+                                    : null
+                                const materialNames = variant.materialIds
+                                    .map((materialId) => selected.materials.find((entry) => entry?.id === materialId)?.name)
+                                    .filter((name): name is string => Boolean(name))
+
+                                return (
+                                    <TableRow key={variant.id} className="border-b border-border last:border-0 hover:bg-muted/50">
+                                        <TableCell className="font-mono font-semibold text-foreground">
+                                            {variant.fullCode}
+                                        </TableCell>
+                                        <TableCell>
+                                            {color ? (
+                                                <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                                                    <span
+                                                        className="size-3.5 shrink-0 rounded-full border border-border"
+                                                        style={{ backgroundColor: color.hex || "#ddd" }}
+                                                    />
+                                                    {formatColorLabel(color)}
+                                                </span>
+                                            ) : (
+                                                <span className="text-muted-foreground">-</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="whitespace-normal text-muted-foreground">
+                                            {materialNames.length > 0 ? materialNames.join(", ") : (
+                                                <span className="text-muted-foreground">-</span>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
+        </div>
+    )
+
     return (
         <div
             className={cn(
@@ -298,50 +376,7 @@ export default function ProductVariantTable({
                     ? "flex flex-col gap-5"
                     : "overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
             )}
-            aria-busy={isNavigatingToVariant}
-            aria-live="polite"
         >
-            <AnimatePresence>
-                {isNavigatingToVariant ? (
-                    <ProductVariantNavigationOverlay measurementLabel={pendingOption?.label} />
-                ) : null}
-            </AnimatePresence>
-
-            <span className="sr-only" role="status">
-                {isNavigatingToVariant
-                    ? t("srNavigating")
-                    : t("srReady")}
-            </span>
-
-            {wideTable || isNavigatingToVariant ? (
-                <div className={cn(
-                    "flex flex-wrap items-start justify-end gap-3",
-                    !wideTable && "border-b border-border bg-muted/50 px-6 py-4"
-                )}>
-                    {/* Boş `wideTable` durumunda bu sarmalayıcı bilerek MONTE
-                        kalır (aksi halde AnimatePresence exit animasyonu oynamadan
-                        `isNavigatingToVariant` false olur olmaz tüm blok söküldüğü
-                        için rozet aniden kaybolurdu). */}
-                    <AnimatePresence initial={false}>
-                        {isNavigatingToVariant ? (
-                            <motion.div
-                                key="variant-nav-status"
-                                initial={reduceMotion ? false : { opacity: 0, y: -6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
-                                transition={{ duration: reduceMotion ? 0 : 0.16, ease: "easeOut" }}
-                                className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-medium text-foreground"
-                            >
-                                <Loader2 className="size-3.5 motion-safe:animate-spin" />
-                                {pendingOption?.label
-                                    ? t("navigatingLabel", { label: pendingOption.label })
-                                    : t("navigatingGeneric")}
-                            </motion.div>
-                        ) : null}
-                    </AnimatePresence>
-                </div>
-            ) : null}
-
             <div className={cn(
                 "grid min-w-0 items-start gap-5",
                 wideTable
@@ -349,6 +384,12 @@ export default function ProductVariantTable({
                     : "p-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]"
             )}>
                 <div className="min-w-0">
+                {/* DENEME: ok butonuna basılınca 1. slayttan (ölçü tablosu) 2. slayta
+                    ("Mevcut Varyant Kodları") sola kayarak geçiş — bkz. carouselApi.
+                    Sürükleme kapalı (watchDrag: false): geçiş yalnız programatik. */}
+                <Carousel setApi={setCarouselApi} opts={{ watchDrag: false }} className="w-full">
+                    <CarouselContent>
+                        <CarouselItem>
                     {/* Table's own container owns both scroll axes so sticky headings
                         remain attached to the vertical viewport, including on mobile. */}
                     <div
@@ -416,13 +457,6 @@ export default function ProductVariantTable({
                             <TableBody>
                                 {options.map((option) => {
                                     const isActive = selected?.key === option.key
-                                    const isPending = pendingVariantKey === option.key && isNavigatingToVariant
-                                    const variantDetailsHref = {
-                                        pathname:
-                                            variantDetailsPathname ??
-                                            `/urun/${productSlug}/varyantlar`,
-                                        query: { m: option.key },
-                                    }
 
                                     return (
                                         <TableRow
@@ -546,28 +580,23 @@ export default function ProductVariantTable({
                                             <TableCell className="px-2 py-2 pe-3 text-end align-middle">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <ButtonShine
-                                                        href={variantDetailsHref}
                                                         onClick={(event) => {
                                                             event.stopPropagation()
 
-                                                            if (isModifiedClick(event)) {
-                                                                return
-                                                            }
-
-                                                            setPendingVariantKey(option.key)
+                                                            // DENEME (kullanıcı talebiyle): şimdilik
+                                                            // ayrı bir sayfaya navigasyon YOK — yalnız
+                                                            // seçimi güncelle ve "Mevcut Varyant Kodları"
+                                                            // slaytına kay.
+                                                            setSelectedKey(option.key)
+                                                            carouselApi?.scrollTo(1)
                                                         }}
-                                                        ariaLabel={isPending ? t("opening") : t("showVariantsAria", { label: option.label })}
+                                                        ariaLabel={t("showVariantsAria", { label: option.label })}
                                                         className={cn(
                                                             "shrink-0 rounded-full border border-border p-0 shadow-none motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-105",
-                                                            wideTable ? "size-8 text-white hover:text-neutral-950" : "size-7",
-                                                            isPending && "cursor-wait"
+                                                            wideTable ? "size-8 text-white hover:text-neutral-950" : "size-7"
                                                         )}
                                                     >
-                                                        {isPending ? (
-                                                            <Loader2 className="size-3.5 motion-safe:animate-spin" />
-                                                        ) : (
-                                                            <ChevronRight className="h-3.5 w-3.5" />
-                                                        )}
+                                                        <ChevronRight className="h-3.5 w-3.5" />
                                                     </ButtonShine>
                                                     {canManageVariants && adminVariantsUrl && !focusOnMeasurements ? (
                                                         <Button
@@ -595,6 +624,27 @@ export default function ProductVariantTable({
                             </TableBody>
                         </Table>
                     </div>
+                        </CarouselItem>
+                        <CarouselItem>
+                            <div className="flex min-w-0 flex-col gap-3">
+                                {/* Geri dönüş: kullanıcı talebiyle — 2. slayttan (Mevcut
+                                    Varyant Kodları) 1. slayta (Ölçü ve Seçenekler) manuel
+                                    dönebilmeli. */}
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-fit gap-1.5 rounded-full bg-brand/10 font-semibold text-brand hover:bg-brand/15 hover:text-brand"
+                                    onClick={() => carouselApi?.scrollTo(0)}
+                                >
+                                    <ChevronLeft className="size-3.5" />
+                                    {t("backToMeasurements")}
+                                </Button>
+                                {variantCodesPanel}
+                            </div>
+                        </CarouselItem>
+                    </CarouselContent>
+                </Carousel>
                 </div>
 
                 <div className="flex min-w-0 flex-col gap-4">
@@ -607,81 +657,8 @@ export default function ProductVariantTable({
                         </div>
                     ) : null}
 
-                    {/* Mevcut Varyant Kodları */}
-                    <div className={cn(
-                        "flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-card",
-                        wideTable ? "p-3 sm:p-4" : "p-4 shadow-sm"
-                    )}>
-                        <div className="flex flex-col gap-1.5">
-                            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                                <Hash className="size-4 text-muted-foreground" />
-                                {t("codesTitle")}
-                            </h3>
-                            {wideTable ? (
-                                <p className="text-xs leading-relaxed text-muted-foreground">{selected.label}</p>
-                            ) : null}
-                        </div>
-                        {selected.variants.length === 0 ? (
-                            <p className="text-xs text-muted-foreground">{t("codesEmpty")}</p>
-                        ) : (
-                            <div className="min-w-0 overflow-hidden rounded-lg border border-border *:data-[slot=table-container]:max-h-72 *:data-[slot=table-container]:overflow-auto">
-                                <Table className={cn(
-                                    "border-separate border-spacing-0 [&_td]:px-2.5 [&_td]:py-2 [&_th]:h-8 [&_th]:px-2.5 [&_th]:py-1.5 [&_th]:font-medium",
-                                    wideTable ? "[&_td]:text-xs [&_th]:text-xs" : "[&_td]:text-[11px] [&_th]:text-[9px] [&_th]:tracking-wider [&_th]:uppercase"
-                                )}>
-                                    <TableHeader>
-                                        <TableRow className="hover:bg-transparent">
-                                            <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
-                                                {t("colCode")}
-                                            </TableHead>
-                                            <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
-                                                {t("colColor")}
-                                            </TableHead>
-                                            <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
-                                                {t("colMaterial")}
-                                            </TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {selected.variants.map((variant) => {
-                                            const color = variant.colorId
-                                                ? selected.colors.find((entry) => entry?.id === variant.colorId)
-                                                : null
-                                            const materialNames = variant.materialIds
-                                                .map((materialId) => selected.materials.find((entry) => entry?.id === materialId)?.name)
-                                                .filter((name): name is string => Boolean(name))
-
-                                            return (
-                                                <TableRow key={variant.id} className="border-b border-border last:border-0 hover:bg-muted/50">
-                                                    <TableCell className="font-mono font-semibold text-foreground">
-                                                        {variant.fullCode}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {color ? (
-                                                            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                                                                <span
-                                                                    className="size-2.5 shrink-0 rounded-full border border-border"
-                                                                    style={{ backgroundColor: color.hex || "#ddd" }}
-                                                                />
-                                                                {formatColorLabel(color)}
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-muted-foreground">-</span>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="whitespace-normal text-muted-foreground">
-                                                        {materialNames.length > 0 ? materialNames.join(", ") : (
-                                                            <span className="text-muted-foreground">-</span>
-                                                        )}
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}
-                    </div>
+                    {/* Mevcut Varyant Kodları — aynı içerik carousel'in 2. slaytında da var. */}
+                    {variantCodesPanel}
                 </div>
             </div>
         </div>

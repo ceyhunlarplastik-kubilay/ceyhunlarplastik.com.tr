@@ -76,6 +76,12 @@ const ALLOWED: ReadonlyArray<{ file: string; pattern: string; reason: string }> 
         reason: "Ortalama — dialog.tsx ile aynı gerekçe (`-translate-x-1/2` ile eşleşiyor).",
     },
     {
+        file: "components/ui/carousel.tsx",
+        pattern: "left-1/2",
+        reason: "Dikey (vertical) yönlendirmede önceki/sonraki düğmesinin yatay ortalaması — "
+            + "dialog.tsx ile aynı gerekçe (`-translate-x-1/2` ile eşleşiyor).",
+    },
+    {
         file: "features/public/products/components/ProductYoutubeEmbed.tsx",
         pattern: "ml-0.5",
         reason: PLAY_ICON_REASON,

@@ -837,6 +837,7 @@
                 "srNavigating": "Seçilen varyant detay sayfası açılıyor.",
                 "srReady": "Varyant tablosu hazır.",
                 "title": "Ölçü ve Seçenekler",
+                "backToMeasurements": "Ölçü Tablosuna Dön",
                 "descFocus": "Ölçüler tekilleştirilmiştir. Başlıklardaki yardım ikonundan aynı açıklama videosunu açabilir, tabloyu ölçü matrisi gibi inceleyebilirsiniz.",
                 "descDefault": "Ölçüler tekilleştirilmiştir. Bir ölçü seçtiğinizde o ölçüye ait renk ve ham madde seçeneklerini görebilirsiniz.",
                 "navigatingLabel": "{label} açılıyor",

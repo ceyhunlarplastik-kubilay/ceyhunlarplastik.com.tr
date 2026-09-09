@@ -837,6 +837,7 @@
                 "srNavigating": "Opening the selected variant detail page.",
                 "srReady": "Variant table ready.",
                 "title": "Dimensions & Options",
+                "backToMeasurements": "Back to Dimension Table",
                 "descFocus": "Dimensions are deduplicated. You can open the same explanation video from the help icon in the headers and review the table as a dimension matrix.",
                 "descDefault": "Dimensions are deduplicated. When you select a dimension, you can see the color and raw material options for that dimension.",
                 "navigatingLabel": "Opening {label}",
