@@ -14,9 +14,11 @@ export function SustainabilityIntro() {
                 {/* ================= HEADER (Centered) ================= */}
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="max-w-6xl space-y-6">
-                        <h2 className="text-3xl md:text-4xl font-semibold text-neutral-900">
+                        {/* Bu sayfada başka h1 yok (Enviroment dekoratif/paylaşılan bir
+                            bileşen) — sayfanın ana başlığı (tipografi Dilim 2). */}
+                        <h1 className="text-3xl md:text-4xl font-semibold text-foreground">
                             {t("heroTitle")}
-                        </h2>
+                        </h1>
 
                         <p className="text-muted-foreground">
                             {t("heroBody")}
@@ -28,7 +30,7 @@ export function SustainabilityIntro() {
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
 
                     {/* IMAGE (Sola tam yaslı) */}
-                    <div className="w-full lg:w-1/2 h-[350px] md:h-[450px] lg:h-[550px] relative">
+                    <div className="w-full lg:w-1/2 h-87.5 md:h-112.5 lg:h-137.5 relative">
                         <Image
                             src="/logos/cloud.jpg"
                             alt={t("imageAlt")}
@@ -46,7 +48,7 @@ export function SustainabilityIntro() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                                className="text-2xl md:text-3xl lg:text-4xl font-semibold text-neutral-900 leading-snug"
+                                className="text-2xl md:text-3xl lg:text-4xl font-semibold text-foreground leading-snug"
                             >
                                 {t.rich("protectTitle", {
                                     highlight: (chunks) => (
@@ -59,7 +61,7 @@ export function SustainabilityIntro() {
                                                 duration: 0.6,
                                                 ease: [0.16, 1, 0.3, 1],
                                             }}
-                                            className="text-[var(--color-brand)] block sm:inline"
+                                            className="text-(--color-brand) block sm:inline"
                                         >
                                             {chunks}
                                         </motion.span>
@@ -88,7 +90,7 @@ export function SustainabilityIntro() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center border-t border-neutral-100 pt-16">
                             {/* 1 */}
                             {/* </div><div className="relative h-[120px] flex items-center justify-center grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition duration-500"> */}
-                            <div className="relative h-[120px] flex items-center justify-center transition duration-500">
+                            <div className="relative h-30 flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-1-150x150.png"
                                     alt={t("certAlt", { number: 1 })}
@@ -99,7 +101,7 @@ export function SustainabilityIntro() {
                             </div>
 
                             {/* 2 */}
-                            <div className="relative h-[120px] flex items-center justify-center transition duration-500">
+                            <div className="relative h-30 flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-2-150x150.png"
                                     alt={t("certAlt", { number: 2 })}
@@ -110,7 +112,7 @@ export function SustainabilityIntro() {
                             </div>
 
                             {/* 3 */}
-                            <div className="relative h-[120px] flex items-center justify-center transition duration-500">
+                            <div className="relative h-30 flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-3-150x150.png"
                                     alt={t("certAlt", { number: 3 })}
@@ -121,7 +123,7 @@ export function SustainabilityIntro() {
                             </div>
 
                             {/* 4 */}
-                            <div className="relative h-[120px] flex items-center justify-center transition duration-500">
+                            <div className="relative h-30 flex items-center justify-center transition duration-500">
                                 <Image
                                     src="/logos/sust-cert-4-150x150.png"
                                     alt={t("certAlt", { number: 4 })}

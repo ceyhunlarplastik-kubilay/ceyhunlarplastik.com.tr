@@ -51,7 +51,7 @@ export function MachiningContent() {
                         <h4 className="text-xl font-semibold text-(--color-brand)">
                             {t("serviceLabel")}
                         </h4>
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900 -mt-4">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground -mt-4">
                             {t("introTitle")}
                         </h2>
 

@@ -42,9 +42,9 @@ export function MaterialCertificateCard({ title, subtitle, certificate }: Props)
                     </div>
 
                     <div className="text-center">
-                        <p className="line-clamp-2 text-sm font-semibold text-neutral-900">{title}</p>
+                        <p className="line-clamp-2 text-sm font-semibold text-foreground">{title}</p>
                         {subtitle ? (
-                            <p className="mt-1 text-xs text-neutral-500">{subtitle}</p>
+                            <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
                         ) : null}
                     </div>
 

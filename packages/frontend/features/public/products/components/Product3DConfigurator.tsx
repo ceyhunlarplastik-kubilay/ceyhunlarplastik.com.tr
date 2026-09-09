@@ -113,7 +113,7 @@ export default function Product3DConfigurator({
     }
 
     return (
-        <div className="grid min-h-[430px] grid-rows-[1fr_auto]">
+        <div className="grid min-h-107.5 grid-rows-[1fr_auto]">
             {useParametricViewer && config ? (
                 <ProductR3FModelViewer
                     key={src}
@@ -131,7 +131,7 @@ export default function Product3DConfigurator({
             {useParametricViewer && selection ? (
                 <div className="grid gap-3 border-t border-neutral-200 bg-white p-4 sm:grid-cols-3">
                     <label className="space-y-1.5">
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             <Ruler className="size-3.5" aria-hidden="true" />
                             {selectorLabels.measurement}
                         </span>
@@ -151,7 +151,7 @@ export default function Product3DConfigurator({
                     </label>
 
                     <label className="space-y-1.5">
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             <Palette className="size-3.5" aria-hidden="true" />
                             {selectorLabels.color}
                         </span>
@@ -181,7 +181,7 @@ export default function Product3DConfigurator({
                     </label>
 
                     <label className="space-y-1.5">
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             <Layers3 className="size-3.5" aria-hidden="true" />
                             {selectorLabels.material}
                         </span>
@@ -206,7 +206,7 @@ export default function Product3DConfigurator({
                         </Select>
                     </label>
 
-                    <div className="sm:col-span-3 flex items-center gap-2 text-[11px] text-neutral-500">
+                    <div className="sm:col-span-3 flex items-center gap-2 text-[11px] text-muted-foreground">
                         <Box className="size-3.5" aria-hidden="true" />
                         <span className="font-mono">{selection.variant?.fullCode}</span>
                     </div>

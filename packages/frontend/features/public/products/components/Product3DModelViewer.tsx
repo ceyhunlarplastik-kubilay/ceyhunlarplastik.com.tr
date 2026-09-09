@@ -200,7 +200,7 @@ export default function Product3DModelViewer({
                                 style={{ transform: `translateX(-${100 - progress}%)` }}
                             />
                         </div>
-                        <span className="mt-2 text-xs tabular-nums text-neutral-500">%{progress}</span>
+                        <span className="mt-2 text-xs tabular-nums text-muted-foreground">%{progress}</span>
                     </div>
                 ) : null}
 
@@ -209,14 +209,14 @@ export default function Product3DModelViewer({
                         <span className="inline-flex size-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-700">
                             <AlertTriangle className="size-5" aria-hidden="true" />
                         </span>
-                        <p className="mt-4 text-sm font-semibold text-neutral-900">{errorTitle}</p>
-                        <p className="mt-1 max-w-sm text-xs leading-5 text-neutral-600">{errorDescription}</p>
+                        <p className="mt-4 text-sm font-semibold text-foreground">{errorTitle}</p>
+                        <p className="mt-1 max-w-sm text-xs leading-5 text-muted-foreground">{errorDescription}</p>
                     </div>
                 ) : null}
             </div>
 
-            <div className="flex items-center gap-2 border-t border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-600">
-                <MousePointer2 className="size-4 shrink-0 text-neutral-500" aria-hidden="true" />
+            <div className="flex items-center gap-2 border-t border-neutral-200 bg-white px-4 py-3 text-xs text-muted-foreground">
+                <MousePointer2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                 <span>{interactionHint}</span>
             </div>
         </div>

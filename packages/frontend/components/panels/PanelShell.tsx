@@ -59,10 +59,18 @@ type Props = {
 function PanelTopbar({
     title,
     subtitle,
+    navGroups,
     user,
     actionSlot,
-}: Pick<Props, "title" | "subtitle" | "user" | "actionSlot">) {
+}: Pick<Props, "title" | "subtitle" | "navGroups" | "user" | "actionSlot">) {
     const { state } = useSidebar()
+    const pathname = usePathname()
+    // Dinamik hâle getirildi (eskiden her sayfada aynı sabit panel adı
+    // yazıyordu) ama BİLEREK h1 DEĞİL: içerik alanındaki sayfalar çoğunlukla
+    // kendi h1'ini basıyor (`CustomerPortalPageHeader` gibi) — bu çubuk kalıcı
+    // gezinme/konum bilgisi (chrome), sayfa içeriğinin başlığı değil. Aynı,
+    // testli çözümleyici mobil çubukla paylaşılıyor (tipografi: panel Dilim 1).
+    const activeLabel = resolveActivePanelNavLabel(navGroups, pathname)
 
     return (
         <header className="sticky top-0 z-30 hidden border-b border-slate-200/70 bg-white/85 backdrop-blur-xl md:block">
@@ -84,9 +92,9 @@ function PanelTopbar({
                         <p className="text-[11px] font-medium tracking-[0.24em] text-slate-400 uppercase">
                             {subtitle}
                         </p>
-                        <h1 className="truncate text-sm font-semibold text-slate-900 md:text-base">
-                            {title}
-                        </h1>
+                        <p className="truncate text-sm font-semibold text-slate-900 md:text-base">
+                            {activeLabel ?? title}
+                        </p>
                     </div>
                 </div>
 
@@ -139,9 +147,9 @@ function PanelMobileBar({
                     <div className="text-[10px] font-medium tracking-[0.22em] text-neutral-400 uppercase">
                         {subtitle}
                     </div>
-                    <h2 className="truncate text-sm font-semibold text-neutral-900">
+                    <p className="truncate text-sm font-semibold text-neutral-900">
                         {activeLabel ?? title}
-                    </h2>
+                    </p>
                 </div>
             </div>
 
@@ -198,6 +206,7 @@ export function PanelShell({
                 <PanelTopbar
                     title={title}
                     subtitle={subtitle}
+                    navGroups={navGroups}
                     user={user}
                     actionSlot={actionSlot}
                 />

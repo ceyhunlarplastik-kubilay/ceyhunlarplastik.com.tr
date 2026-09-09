@@ -17,7 +17,7 @@ export function SustainabilityEnergy() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.7, ease: "easeOut" }}
-                    className="relative w-full h-[420px] md:h-[500px] rounded-3xl overflow-hidden"
+                    className="relative w-full h-105 md:h-125 rounded-3xl overflow-hidden"
                 >
                     <Image
                         src="/logos/st3.jpg"
@@ -36,10 +36,10 @@ export function SustainabilityEnergy() {
                     className="space-y-6"
                 >
                     {/* TITLE */}
-                    <h3 className="text-2xl md:text-3xl font-semibold text-neutral-900 leading-snug">
+                    <h3 className="text-2xl md:text-3xl font-semibold text-foreground leading-snug">
                         {t.rich("title", {
                             highlight: (chunks) => (
-                                <span className="text-[var(--color-brand)]">{chunks}</span>
+                                <span className="text-(--color-brand)">{chunks}</span>
                             ),
                         })}
                     </h3>
@@ -56,7 +56,7 @@ export function SustainabilityEnergy() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: 0.2 }}
-                            className="relative h-[120px] rounded-xl overflow-hidden"
+                            className="relative h-30 rounded-xl overflow-hidden"
                         >
                             <Image
                                 src="/logos/st4.jpg"
@@ -71,7 +71,7 @@ export function SustainabilityEnergy() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="relative h-[120px] rounded-xl overflow-hidden"
+                            className="relative h-30 rounded-xl overflow-hidden"
                         >
                             <Image
                                 src="/logos/st5.jpg"

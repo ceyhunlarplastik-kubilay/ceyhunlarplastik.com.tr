@@ -238,9 +238,9 @@ function UsageAreasRowsTable({
                                 ref={isLastRow ? lastRowRef : undefined}
                                 className="hover:bg-neutral-50/50 transition-colors"
                             >
-                                <TableCell className="px-4 text-neutral-500">{index + 1}</TableCell>
-                                <TableCell className="px-4 font-medium text-neutral-900">{row.sector}</TableCell>
-                                <TableCell className="px-4 text-neutral-600">{row.productionGroup}</TableCell>
+                                <TableCell className="px-4 text-muted-foreground">{index + 1}</TableCell>
+                                <TableCell className="px-4 font-medium text-foreground">{row.sector}</TableCell>
+                                <TableCell className="px-4 text-muted-foreground">{row.productionGroup}</TableCell>
                                 <TableCell className="px-4 text-neutral-700">
                                     <div className="font-medium">{row.usageArea}</div>
                                 </TableCell>
@@ -258,7 +258,7 @@ function UsageAreasRowsTable({
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+                                            <div className="mt-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                                                 {t("openToZoom")}
                                             </div>
                                         </div>
@@ -271,7 +271,7 @@ function UsageAreasRowsTable({
                                         </div>
                                     )}
                                 </TableCell>
-                                <TableCell className="max-w-xl px-4 text-neutral-600">
+                                <TableCell className="max-w-xl px-4 text-muted-foreground">
                                     <UsageFunctionPreview
                                         title={row.usageArea}
                                         sector={row.sector}
@@ -368,10 +368,10 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
                 <Activity className="h-5 w-5" />
             </div>
-            <h3 className="mt-4 text-base font-semibold text-neutral-950">
+            <h3 className="mt-4 text-base font-semibold text-foreground">
                 {t("emptyTitle")}
             </h3>
-            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-neutral-500">
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
                 {t("emptyDesc")}
             </p>
         </div>
@@ -382,14 +382,14 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
 
     return (
         <section id="usage-area-table" className="pt-10">
-            <div className="mb-4">
+            {/* <div className="mb-4">
                 <h2 className="text-xl font-semibold tracking-tight">
                     {t("sectionTitle")}
                 </h2>
-                <p className="text-sm text-neutral-500">
+                <p className="text-sm text-muted-foreground">
                     {t("sectionSubtitle")}
                 </p>
-            </div>
+            </div> */}
 
             {collapsible ? (
                 <motion.div
@@ -431,7 +431,7 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                         onValueChange={(val) => setIsOpen(val === "usage-areas")}
                     >
                         <AccordionItem value="usage-areas" className="border-b-0">
-                            <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-neutral-900 hover:no-underline hover:bg-brand/2 transition-colors duration-200">
+                            <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-foreground hover:no-underline hover:bg-brand/2 transition-colors duration-200">
                                 <div className="flex flex-1 items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-brand">
@@ -448,10 +448,10 @@ export default function ProductUsageAreasTable({ product, collapsible = false }:
                                             </motion.div>
                                         </div>
                                         <div className="text-start">
-                                            <p className="font-semibold text-neutral-900">
+                                            <p className="font-semibold text-foreground">
                                                 {t("accordionTitle")}
                                             </p>
-                                            <p className="text-xs font-normal text-neutral-500 hidden sm:block">
+                                            <p className="text-xs font-normal text-muted-foreground hidden sm:block">
                                                 {t("accordionSubtitle")}
                                             </p>
                                         </div>

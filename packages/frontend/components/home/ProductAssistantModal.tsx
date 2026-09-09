@@ -329,10 +329,10 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         </motion.div>
 
                                         <div className="space-y-4 max-w-sm">
-                                            <h2 className="text-4xl font-bold tracking-tight text-neutral-900 leading-tight">
+                                            <h2 className="text-4xl font-bold tracking-tight text-foreground leading-tight">
                                                 {t("welcome.greeting")} <span className="inline-block animate-bounce">👋</span>
                                             </h2>
-                                            <p className="text-base text-neutral-600 leading-relaxed">
+                                            <p className="text-base text-muted-foreground leading-relaxed">
                                                 {t("welcome.question")}
                                             </p>
                                         </div>
@@ -348,7 +348,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                             <Button
                                                 variant="ghost"
                                                 onClick={closeAndReset}
-                                                className="h-12 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 px-4"
+                                                className="h-12 text-muted-foreground hover:text-foreground hover:bg-neutral-50 px-4"
                                             >
                                                 {t("welcome.decline")}
                                             </Button>
@@ -366,7 +366,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                     >
                                         <div>
                                             <h3 className="text-lg font-semibold">{t("sector.title")}</h3>
-                                            <p className="text-sm text-neutral-500">{t("sector.hint")}</p>
+                                            <p className="text-sm text-muted-foreground">{t("sector.hint")}</p>
                                         </div>
                                         <ScrollArea type="always" scrollHideDelay={0} className="h-107.5 rounded-lg border border-neutral-200/70 p-2 pe-3">
                                             <div className="grid grid-cols-2 gap-2 pb-2 md:grid-cols-3 lg:grid-cols-4">
@@ -392,7 +392,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                     className="object-contain p-1 transition duration-300 group-hover:scale-105"
                                                                 />
                                                             ) : (
-                                                                <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                                                                <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
                                                                     {t("noImage")}
                                                                 </div>
                                                             )}
@@ -417,7 +417,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                     >
                                         <div>
                                             <h3 className="text-lg font-semibold">{t("usage.title")}</h3>
-                                            <p className="text-sm text-neutral-500">{t("usage.hint")}</p>
+                                            <p className="text-sm text-muted-foreground">{t("usage.hint")}</p>
                                         </div>
 
                                         <ScrollArea type="always" scrollHideDelay={0} className="rounded-lg border border-neutral-200/70 px-2 py-2">
@@ -492,7 +492,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                                             className="object-contain p-1 transition duration-300 group-hover:scale-105"
                                                                                         />
                                                                                     ) : (
-                                                                                        <div className="flex h-full w-full items-center justify-center text-[11px] text-neutral-500">
+                                                                                        <div className="flex h-full w-full items-center justify-center text-[11px] text-muted-foreground">
                                                                                             {t("noImage")}
                                                                                         </div>
                                                                                     )}
@@ -509,7 +509,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                         )
                                                     })}
                                                     {totalFilteredUsageAreaCount === 0 && (
-                                                        <p className="px-1 py-6 text-center text-sm text-neutral-500">
+                                                        <p className="px-1 py-6 text-center text-sm text-muted-foreground">
                                                             {t("usage.noResults")}
                                                         </p>
                                                     )}

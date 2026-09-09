@@ -40,7 +40,7 @@ export function MassProductionMetal() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                             {t("sectionLabel")}
                         </h2>
                         <h4 className="text-xl font-semibold text-(--color-brand) -mt-4">

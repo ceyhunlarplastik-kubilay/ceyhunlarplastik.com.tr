@@ -75,7 +75,7 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
             <div className="rounded-[28px] border border-neutral-200 bg-white p-4 shadow-sm sm:p-6">
                 <div className="space-y-4">
                     <div className="grid items-stretch gap-3 lg:grid-cols-2">
-                        <div className="relative flex h-full min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:min-h-[420px]">
+                        <div className="relative flex h-full min-h-80 items-center justify-center overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:min-h-105">
                             {(primaryAsset?.url ?? fallbackAsset?.url) ? (
                                 <Image
                                     src={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
@@ -91,12 +91,14 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                             )}
                         </div>
 
-                        <div className="flex h-full min-h-[320px] flex-col justify-between gap-6 rounded-2xl border border-neutral-200 bg-neutral-50/70 p-4 sm:min-h-[420px] sm:p-6">
+                        <div className="flex h-full min-h-80 flex-col justify-between gap-6 rounded-2xl border border-neutral-200 bg-neutral-50/70 p-4 sm:min-h-105 sm:p-6">
                             <div>
-                                <h1 className="text-3xl font-semibold tracking-tight">
+                                {/* Sayfanın h1'i PanelShell topbar'ında (aktif nav etiketi) —
+                                    burası h2 (tipografi: panel Dilim 1). */}
+                                <h2 className="text-3xl font-semibold tracking-tight">
                                     <AnimatedSplitProductTitle title={product.name} />
-                                </h1>
-                                <div className="mt-2 space-y-1 text-sm text-neutral-500">
+                                </h2>
+                                <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                                     <p>Katalog Kodu: {product.code}</p>
                                     <p className="leading-6">
                                         Ölçüler: {selectedMeasurementSummary}
@@ -117,14 +119,14 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                     </div>
 
                     <div className="grid items-stretch gap-3 lg:grid-cols-2">
-                        <div className="relative flex h-full min-h-[360px] items-center rounded-2xl border border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-5 shadow-sm">
+                        <div className="relative flex h-full min-h-90 items-center rounded-2xl border border-neutral-200 bg-linear-to-br from-neutral-50 to-white p-5 shadow-sm">
                             <div className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-brand" />
                             <p className="pl-3 text-sm leading-relaxed text-neutral-700 sm:text-base">
                                 {product.description || "Ürün açıklaması henüz eklenmemiştir."}
                             </p>
                         </div>
 
-                        <div className="flex h-full min-h-[360px] min-w-0 flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3 shadow-sm sm:p-4">
+                        <div className="flex h-full min-h-90 min-w-0 flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3 shadow-sm sm:p-4">
                             <div className="min-h-0 min-w-0 flex-1 overflow-hidden rounded-xl border border-neutral-200 bg-white">
                                 <ProductTechnicalDrawingSection product={product} compact mediaOnly />
                             </div>

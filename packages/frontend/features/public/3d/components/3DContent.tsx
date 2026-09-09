@@ -48,7 +48,7 @@ export function DContent() {
                         viewport={{ once: true }}
                         className="space-y-5"
                     >
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                             {t("introTitle")}
                         </h2>
 

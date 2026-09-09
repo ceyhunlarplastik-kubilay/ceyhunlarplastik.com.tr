@@ -15,7 +15,7 @@ export function ContactContent() {
         <main className="bg-white">
 
             {/* ================= MAP ================= */}
-            <section className="w-full h-[520px] md:h-[600px]">
+            <section className="w-full h-130 md:h-150">
                 <iframe
                     src="https://www.google.com/maps?q=Ceyhunlar+Plastik&output=embed"
                     className="w-full h-full border-0"
@@ -36,20 +36,21 @@ export function ContactContent() {
                         transition={{ duration: 0.6 }}
                     >
                         <div className="rounded-3xl border border-neutral-200 p-8 md:p-10 shadow-sm bg-white h-full flex flex-col">
-                            <h2 className="text-3xl font-semibold mb-6">
+                            {/* Bu sayfada başka h1 yok — sayfanın ana başlığı (tipografi Dilim 2). */}
+                            <h1 className="text-3xl md:text-4xl font-semibold mb-6">
                                 {t("infoTitle")}
-                            </h2>
+                            </h1>
 
                             <p className="text-muted-foreground leading-relaxed mb-10">
                                 {t("infoBody")}
                             </p>
 
                             {/* CONTACT ITEMS */}
-                            <div className="space-y-8 text-neutral-700 mb-10">
+                            <div className="space-y-8 text-foreground mb-10">
                                 {/* PHONE */}
                                 <div className="flex gap-4 items-start">
-                                    <div className="bg-[var(--color-brand)]/10 p-3 rounded-xl">
-                                        <Phone className="text-[var(--color-brand)] w-6 h-6" />
+                                    <div className="bg-(--color-brand)/10 p-3 rounded-xl">
+                                        <Phone className="text-(--color-brand) w-6 h-6" />
                                     </div>
 
                                     <div className="flex flex-col gap-2">
@@ -57,7 +58,7 @@ export function ContactContent() {
                                         {/* SABİT TELEFON */}
                                         <a
                                             href="tel:+902327002946"
-                                            className="font-medium text-neutral-900 hover:text-[var(--color-brand)] transition"
+                                            className="font-medium text-foreground hover:text-(--color-brand) transition"
                                         >
                                             +90 232 700 29 46
                                         </a>
@@ -66,7 +67,7 @@ export function ContactContent() {
                                         <a
                                             href="https://wa.me/905530602946"
                                             target="_blank"
-                                            className="flex items-center gap-2 font-medium text-neutral-900 hover:text-green-600 transition"
+                                            className="flex items-center gap-2 font-medium text-foreground hover:text-green-600 transition"
                                         >
                                             <SiWhatsapp className="w-4 h-4 text-green-500" />
                                             +90 553 060 29 46
@@ -77,21 +78,21 @@ export function ContactContent() {
 
                                 {/* EMAIL */}
                                 <div className="flex gap-4 items-start">
-                                    <div className="bg-[var(--color-brand)]/10 p-3 rounded-xl">
-                                        <Mail className="text-[var(--color-brand)] w-6 h-6" />
+                                    <div className="bg-(--color-brand)/10 p-3 rounded-xl">
+                                        <Mail className="text-(--color-brand) w-6 h-6" />
                                     </div>
                                     <div className="flex flex-col gap-1 text-sm md:text-base">
-                                        <span className="font-medium text-neutral-900">siparis@ceyhunlarplastik.com.tr</span>
-                                        <span className="font-medium text-neutral-900">info@ceyhunlarplastik.com.tr</span>
+                                        <span className="font-medium text-foreground">siparis@ceyhunlarplastik.com.tr</span>
+                                        <span className="font-medium text-foreground">info@ceyhunlarplastik.com.tr</span>
                                     </div>
                                 </div>
 
                                 {/* ADDRESS */}
                                 <div className="flex gap-4 items-start">
-                                    <div className="bg-[var(--color-brand)]/10 p-3 rounded-xl">
-                                        <MapPin className="text-[var(--color-brand)] w-6 h-6" />
+                                    <div className="bg-(--color-brand)/10 p-3 rounded-xl">
+                                        <MapPin className="text-(--color-brand) w-6 h-6" />
                                     </div>
-                                    <span className="leading-relaxed font-medium text-neutral-900">
+                                    <span className="leading-relaxed font-medium text-foreground">
                                         {t("addressLine1")}<br />
                                         {t("addressLine2")}
                                     </span>
@@ -103,7 +104,7 @@ export function ContactContent() {
                                 <Button
                                     className="
                                         w-full
-                                        bg-[var(--color-brand)] text-white
+                                        bg-(--color-brand) text-white
                                         hover:bg-black hover:text-white
                                         flex items-center justify-center gap-2
                                         py-6 rounded-xl text-base font-semibold
@@ -130,9 +131,9 @@ export function ContactContent() {
                         transition={{ duration: 0.6 }}
                     >
                         <div className="rounded-3xl border border-neutral-200 p-8 md:p-10 shadow-sm bg-white h-full flex flex-col">
-                            <h3 className="text-3xl font-semibold mb-2">
+                            <h2 className="text-3xl font-semibold mb-2">
                                 {t("formTitle")}
-                            </h3>
+                            </h2>
 
                             <p className="text-muted-foreground mb-10">
                                 {t("formSubtitle1")}
@@ -143,23 +144,23 @@ export function ContactContent() {
                             <form className="space-y-5 flex-1 flex flex-col">
                                 <input
                                     placeholder={tf("fullName")}
-                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-[var(--color-brand)] transition"
+                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-(--color-brand) transition"
                                 />
 
                                 <input
                                     placeholder={tf("email")}
-                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-[var(--color-brand)] transition"
+                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-(--color-brand) transition"
                                 />
 
                                 <input
                                     placeholder={tf("phone")}
-                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-[var(--color-brand)] transition"
+                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-(--color-brand) transition"
                                 />
 
                                 <textarea
                                     placeholder={tf("message")}
                                     rows={4}
-                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-[var(--color-brand)] transition"
+                                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 bg-neutral-50/50 focus:bg-white focus:outline-(--color-brand) transition"
                                 />
 
                                 {/* CONSENT */}
@@ -172,7 +173,7 @@ export function ContactContent() {
                                     <Button
                                         className="
                                             w-full
-                                            bg-[var(--color-brand)] text-white
+                                            bg-(--color-brand) text-white
                                             hover:bg-black
                                             py-6 rounded-xl text-base font-semibold
                                         "
@@ -189,9 +190,9 @@ export function ContactContent() {
                 {/* ================= ROUTES (Ulaşım Bilgileri) ================= */}
                 <div className="mt-24 space-y-12">
                     <div className="text-center space-y-3">
-                        <h3 className="text-3xl font-bold text-neutral-900">
+                        <h2 className="text-3xl font-bold text-foreground">
                             {tr("sectionTitle")}
-                        </h3>
+                        </h2>
                         <p className="text-muted-foreground max-w-2xl mx-auto">
                             {tr("sectionSubtitle")}
                         </p>
@@ -206,9 +207,9 @@ export function ContactContent() {
                             className="bg-neutral-50 p-8 rounded-3xl border border-neutral-100 flex flex-col items-center text-center space-y-4"
                         >
                             <div className="bg-white p-4 rounded-2xl shadow-sm">
-                                <Plane className="w-8 h-8 text-[var(--color-brand)]" />
+                                <Plane className="w-8 h-8 text-(--color-brand)" />
                             </div>
-                            <h4 className="text-lg font-semibold">{tr("air.title")}</h4>
+                            <h3 className="text-lg font-semibold">{tr("air.title")}</h3>
                             <p className="text-sm text-muted-foreground leading-relaxed">
                                 {tr("air.text")}
                             </p>
@@ -223,9 +224,9 @@ export function ContactContent() {
                             className="bg-neutral-50 p-8 rounded-3xl border border-neutral-100 flex flex-col items-center text-center space-y-4"
                         >
                             <div className="bg-white p-4 rounded-2xl shadow-sm">
-                                <Bus className="w-8 h-8 text-[var(--color-brand)]" />
+                                <Bus className="w-8 h-8 text-(--color-brand)" />
                             </div>
-                            <h4 className="text-lg font-semibold">{tr("road.title")}</h4>
+                            <h3 className="text-lg font-semibold">{tr("road.title")}</h3>
                             <p className="text-sm text-muted-foreground leading-relaxed">
                                 {tr("road.text")}
                             </p>
@@ -240,9 +241,9 @@ export function ContactContent() {
                             className="bg-neutral-50 p-8 rounded-3xl border border-neutral-100 flex flex-col items-center text-center space-y-4"
                         >
                             <div className="bg-white p-4 rounded-2xl shadow-sm">
-                                <Train className="w-8 h-8 text-[var(--color-brand)]" />
+                                <Train className="w-8 h-8 text-(--color-brand)" />
                             </div>
-                            <h4 className="text-lg font-semibold">{tr("rail.title")}</h4>
+                            <h3 className="text-lg font-semibold">{tr("rail.title")}</h3>
                             <p className="text-sm text-muted-foreground leading-relaxed">
                                 {tr("rail.text")}
                             </p>

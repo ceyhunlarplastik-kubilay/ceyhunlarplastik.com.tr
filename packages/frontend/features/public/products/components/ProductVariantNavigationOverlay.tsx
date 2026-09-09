@@ -23,7 +23,7 @@ export default function ProductVariantNavigationOverlay({
         >
             <div className="flex h-full flex-col justify-between p-4 sm:p-5">
                 <div className="flex justify-end">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/92 px-3 py-1.5 text-xs font-medium text-neutral-600 shadow-sm">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/92 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
                         <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" />
                         {t("opening")}
                     </div>
@@ -33,10 +33,10 @@ export default function ProductVariantNavigationOverlay({
                     <div className="mb-3 inline-flex size-11 items-center justify-center rounded-2xl bg-brand/10 text-brand">
                         <Loader2 className="h-5 w-5 animate-spin" />
                     </div>
-                    <p className="text-sm font-semibold text-neutral-900">
+                    <p className="text-sm font-semibold text-foreground">
                         {t("preparing")}
                     </p>
-                    <p className="mt-1 text-xs leading-5 text-neutral-500">
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
                         {measurementLabel
                             ? t("openingLabel", { label: measurementLabel })
                             : t("openingGeneric")}

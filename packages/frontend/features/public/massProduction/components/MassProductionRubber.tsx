@@ -33,7 +33,7 @@ export function MassProductionRubber() {
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="relative w-full aspect-[3/4] lg:aspect-auto lg:h-full rounded-2xl overflow-hidden"
+                        className="relative w-full aspect-3/4 lg:aspect-auto lg:h-full rounded-2xl overflow-hidden"
                     >
                         <Image
                             src="/logos/rubber.png"
@@ -51,10 +51,10 @@ export function MassProductionRubber() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                             {t("sectionLabel")}
                         </h2>
-                        <h4 className="text-xl font-semibold text-[var(--color-brand)] -mt-4">
+                        <h4 className="text-xl font-semibold text-(--color-brand) -mt-4">
                             {t("tabs.rubber")}
                         </h4>
 

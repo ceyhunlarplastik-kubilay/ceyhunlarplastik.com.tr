@@ -16,10 +16,13 @@ type Props = {
     /** `media` ile harici medya verildiğinde gerekmez. */
     role?: string
     badgeIcon?: ReactNode
-    badgeLabel: string
-    title: string
+    /** Verilmezse rozet hiç render edilmez (ör. yalnız görsel gösteren kompakt kullanım). */
+    badgeLabel?: string
+    /** Verilmezse (veya `showTitle=false` ise) başlık render edilmez. */
+    title?: string
     description: string
-    openButtonLabel: string
+    /** Verilmezse "Aç" bağlantısı render edilmez. */
+    openButtonLabel?: string
     requestInfoLabel: string
     offerImageAlt: string
     missingMessage?: string
@@ -73,6 +76,7 @@ export default function ProductAssetFeatureSection({
     const isPdf = asset?.mimeType === "application/pdf"
     const isVideo = asset?.mimeType?.startsWith("video/")
     const imageMinHeight = imageMinHeightPx ?? (compact ? 180 : 280)
+    const mediaTitle = [productName, title].filter(Boolean).join(" ")
 
     return (
         <section className={compact ? "" : "mt-10"}>
@@ -91,20 +95,20 @@ export default function ProductAssetFeatureSection({
                         ) : hasAsset && isPdf ? (
                             <iframe
                                 src={previewSrc}
-                                title={`${productName} ${title}`}
+                                title={mediaTitle}
                                 className="h-full w-full"
                                 style={{ minHeight: imageMinHeight }}
                             />
                         ) : interactiveImage && hasAsset ? (
                             <InteractiveZoomImage
                                 src={previewSrc}
-                                alt={hasAsset ? `${productName} ${title}` : offerImageAlt}
+                                alt={hasAsset ? mediaTitle : offerImageAlt}
                                 compact={compact}
                             />
                         ) : (
                             <Image
                                 src={previewSrc}
-                                alt={hasAsset ? `${productName} ${title}` : offerImageAlt}
+                                alt={hasAsset ? mediaTitle : offerImageAlt}
                                 fill
                                 className={`object-contain ${compact ? "p-2" : "p-3"}`}
                                 sizes="(min-width: 1024px) 60vw, 100vw"
@@ -115,19 +119,21 @@ export default function ProductAssetFeatureSection({
                     {!mediaOnly ? (
                         <div className={`flex flex-col justify-between ${compact ? "p-4" : "p-6 lg:p-8"}`}>
                             <div>
-                                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-700">
-                                    {badgeIcon}
-                                    {badgeLabel}
-                                </div>
+                                {badgeLabel ? (
+                                    <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-medium text-neutral-700">
+                                        {badgeIcon}
+                                        {badgeLabel}
+                                    </div>
+                                ) : null}
 
-                                {showTitle ? (
-                                    <h3 className={`${compact ? "text-lg" : "text-2xl"} font-semibold tracking-tight text-neutral-900`}>
+                                {showTitle && title ? (
+                                    <h3 className={`${compact ? "text-lg" : "text-2xl"} font-semibold tracking-tight text-foreground`}>
                                         {title}
                                     </h3>
                                 ) : null}
 
                                 {showDescription ? (
-                                    <p className={descriptionClassName ?? `mt-3 text-sm text-neutral-600 ${compact ? "leading-5" : "leading-6"}`}>
+                                    <p className={descriptionClassName ?? `mt-3 text-sm text-muted-foreground ${compact ? "leading-5" : "leading-6"}`}>
                                         {description}
                                     </p>
                                 ) : null}
@@ -140,7 +146,7 @@ export default function ProductAssetFeatureSection({
                             </div>
 
                             <div className={`${compact ? "mt-4" : "mt-6"} flex flex-wrap gap-3`}>
-                                {hasAsset && (
+                                {hasAsset && openButtonLabel && (
                                     <Link
                                         href={openHref ?? previewSrc}
                                         target="_blank"

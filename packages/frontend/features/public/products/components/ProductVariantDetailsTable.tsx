@@ -87,8 +87,8 @@ export default function ProductVariantDetailsTable({
                 className="rounded-xl border border-neutral-200 bg-white overflow-hidden"
             >
                 <div className="border-b border-neutral-100 px-4 py-3">
-                    <h2 className="text-base font-semibold text-neutral-900">{t("variantsTitle")}</h2>
-                    <p className="text-sm text-neutral-500 mt-1">
+                    <h2 className="text-base font-semibold text-foreground">{t("variantsTitle")}</h2>
+                    <p className="text-sm text-muted-foreground mt-1">
                         {categoryName
                             ? t("introCategory", { category: categoryName, product: productName })
                             : t("intro", { product: productName })}

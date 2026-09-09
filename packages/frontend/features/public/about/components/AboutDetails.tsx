@@ -37,7 +37,7 @@ export function AboutDetails() {
                         className="max-w-5xl mx-auto space-y-6 leading-relaxed text-muted-foreground"
                     >
 
-                        <p className="text-lg md:text-xl text-neutral-900 font-medium">
+                        <p className="text-lg md:text-xl text-foreground font-medium">
                             {t("devIntro")}
                         </p>
 
@@ -53,7 +53,7 @@ export function AboutDetails() {
                             {t("devEndToEnd")}
                         </p>
 
-                        <p className="font-medium text-neutral-900">
+                        <p className="font-medium text-foreground">
                             {t("devClosing")}
                         </p>
                     </motion.div>
@@ -94,7 +94,7 @@ export function AboutDetails() {
                         className="space-y-6 relative z-10"
                     >
 
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                             {t.rich("mottoTitle", {
                                 highlight: (chunks) => (
                                     <span className="text-[--color-brand]">{chunks}</span>

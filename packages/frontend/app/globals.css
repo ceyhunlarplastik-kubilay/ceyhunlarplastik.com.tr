@@ -131,6 +131,32 @@
     body {
       @apply bg-background text-foreground;
     }
+
+    /* Site geneli başlık/gövde varsayılanı. @layer base'te olduğu için bir
+       bileşenin KENDİ text- veya font- class'ı her zaman kazanır — Tailwind
+       utility katmanı base katmanını ezer. BİLEREK `color` YOK: PageHero/
+       AboutHero/HrHero gibi banner başlıkları rengi kendi üzerlerinde değil,
+       üst div'in `text-white`'ından MİRAS alıyor — h1/h2'ye burada `color`
+       yazmak (miras zincirini kırıp) bu banner'ları koyu/karanlık renge
+       düşürüyordu (deploy öncesi yakalandı). Font zinciri `.font-heading`
+       ile birebir aynı tutulmalı. */
+    h1,
+    h2 {
+      font-family: var(--font-heading), var(--font-arabic), var(--font-devanagari), var(--font-cjk);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+    }
+
+    h3,
+    h4 {
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    p {
+      text-wrap: pretty;
+    }
   }
 
   /* =========================================
@@ -206,6 +232,18 @@
   :root:lang(zh) {
     --font-cjk: var(--font-sc);
   }
+
+/* Product section links keep native hash navigation and reduced-motion behavior. */
+@media (prefers-reduced-motion: no-preference) {
+  html:has([data-product-detail]) {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Product actions preserve white brand labels until hovered. */
+[data-product-detail] [data-slot="button"][data-variant="brand"]:hover {
+  color: #171717;
+}
 
   /* @import "tailwindcss";
 @import "tw-animate-css";

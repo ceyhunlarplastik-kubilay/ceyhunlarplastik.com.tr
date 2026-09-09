@@ -19,11 +19,11 @@ export default function AboutContent() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5 }}
                 >
-                    <span className="text-sm font-semibold tracking-wider text-[var(--color-brand)] uppercase">
+                    <span className="text-sm font-semibold tracking-wider text-(--color-brand) uppercase">
                         {tCommon("siteName")}
                     </span>
 
-                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-neutral-900">
+                    <h2 className="mt-2 text-3xl md:text-4xl font-bold text-foreground">
                         {t("title")}
                     </h2>
                 </motion.div>
@@ -93,7 +93,7 @@ export default function AboutContent() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="mt-12 relative h-[320px] md:h-[420px] rounded-3xl overflow-hidden shadow-xl"
+                    className="mt-12 relative h-80 md:h-105 rounded-3xl overflow-hidden shadow-xl"
                 >
                     <Image
                         src="/logos/hakkimizda.jpg"
@@ -103,7 +103,7 @@ export default function AboutContent() {
                     />
 
                     {/* subtle overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                 </motion.div>
             </div>
         </section>

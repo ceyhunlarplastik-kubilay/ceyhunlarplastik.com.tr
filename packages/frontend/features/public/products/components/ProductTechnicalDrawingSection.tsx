@@ -27,18 +27,18 @@ export default function ProductTechnicalDrawingSection({ product, compact = fals
             productName={product.name}
             assets={product.assets}
             role="TECHNICAL_DRAWING"
-            badgeIcon={<FileText size={14} />}
-            badgeLabel={t("assets.technicalDrawing.badge")}
-            title={t("assets.technicalDrawing.title")}
+            badgeIcon={mediaOnly ? undefined : <FileText size={14} />}
+            badgeLabel={mediaOnly ? undefined : t("assets.technicalDrawing.badge")}
+            title={mediaOnly ? undefined : t("assets.technicalDrawing.title")}
             description={t("assets.technicalDrawing.description")}
-            openButtonLabel={t("assets.technicalDrawing.open")}
+            openButtonLabel={mediaOnly ? undefined : t("assets.technicalDrawing.open")}
             requestInfoLabel={t("assetSection.requestInfo")}
             offerImageAlt={t("assetSection.offerImageAlt")}
             compact={compact}
             interactiveImage
             showTitle={!compact}
             showDescription={!compact}
-            descriptionClassName={compact ? "mt-2 text-xs leading-5 text-neutral-600" : undefined}
+            descriptionClassName={compact ? "mt-2 text-xs leading-5 text-muted-foreground" : undefined}
             imageMinHeightPx={compact ? 280 : 360}
             mediaOnly={mediaOnly}
         />

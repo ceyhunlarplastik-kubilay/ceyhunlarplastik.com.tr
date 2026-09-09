@@ -46,7 +46,7 @@ export function CatalogCard({ category }: { category: any }) {
                     </div>
 
                     <div className="text-center">
-                        <p className="text-sm font-semibold text-neutral-900 line-clamp-2">
+                        <p className="text-sm font-semibold text-foreground line-clamp-2">
                             {category.name}
                         </p>
                     </div>

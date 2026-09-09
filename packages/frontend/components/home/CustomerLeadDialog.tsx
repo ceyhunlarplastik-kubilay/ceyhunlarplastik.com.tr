@@ -327,13 +327,13 @@ export default function CustomerLeadDialog({
                                             </motion.div>
 
                                             <div className="space-y-3 max-w-l">
-                                                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 leading-tight">
+                                                <h2 className="text-3xl font-bold tracking-tight text-foreground leading-tight">
                                                     {t("welcomeTitle")} <span className="inline-block animate-bounce">👋</span>
                                                 </h2>
-                                                <p className="text-base text-neutral-600 leading-relaxed">
+                                                <p className="text-base text-muted-foreground leading-relaxed">
                                                     {t("welcomeBody1")}
                                                 </p>
-                                                <p className="text-base text-neutral-600 leading-relaxed">
+                                                <p className="text-base text-muted-foreground leading-relaxed">
                                                     {t("welcomeBody2")}
                                                 </p>
                                             </div>
@@ -350,7 +350,7 @@ export default function CustomerLeadDialog({
                                         >
                                             <div>
                                                 <h3 className="text-lg font-semibold">{t("sectorTitle")}</h3>
-                                                <p className="text-sm text-neutral-500">{t("sectorSubtitle")}</p>
+                                                <p className="text-sm text-muted-foreground">{t("sectorSubtitle")}</p>
                                             </div>
 
                                             <ScrollArea
@@ -396,7 +396,7 @@ export default function CustomerLeadDialog({
                                                                         className="object-cover transition duration-300 group-hover:scale-105"
                                                                     />
                                                                 ) : (
-                                                                    <div className="flex h-full w-full items-center justify-center text-xs text-neutral-500">
+                                                                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
                                                                         {t("imageMissing")}
                                                                     </div>
                                                                 )}
@@ -491,7 +491,7 @@ export default function CustomerLeadDialog({
 
                                                 <ScrollArea type="always" className="h-80 p-2 pe-3">
                                                     {filteredUsageAreas.length === 0 ? (
-                                                        <div className="py-8 text-center text-sm text-neutral-500">{t("noResults")}</div>
+                                                        <div className="py-8 text-center text-sm text-muted-foreground">{t("noResults")}</div>
                                                     ) : (
                                                         <div className="space-y-1">
                                                             {filteredUsageAreas.map((value) => (

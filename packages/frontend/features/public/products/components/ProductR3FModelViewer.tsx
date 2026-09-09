@@ -81,7 +81,7 @@ function LoadingProgress({ label }: { label: string }) {
                     style={{ transform: `scaleX(${roundedProgress / 100})` }}
                 />
             </div>
-            <span className="mt-2 text-xs tabular-nums text-neutral-500">%{roundedProgress}</span>
+            <span className="mt-2 text-xs tabular-nums text-muted-foreground">%{roundedProgress}</span>
         </div>
     )
 }
@@ -151,7 +151,7 @@ export default function ProductR3FModelViewer({
     return (
         <div
             ref={fullscreenRef}
-            className="grid min-h-[430px] grid-rows-[1fr_auto] bg-neutral-100"
+            className="grid min-h-107.5 grid-rows-[1fr_auto] bg-neutral-100"
             aria-label={alt}
             aria-busy={!isLoaded && !hasError}
         >
@@ -164,7 +164,7 @@ export default function ProductR3FModelViewer({
                             camera={{ position: [2.8, 2.1, 3.2], fov: 42, near: 0.01, far: 1000 }}
                             gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
                             shadows
-                            className="h-full min-h-[430px] w-full bg-neutral-100"
+                            className="h-full min-h-107.5 w-full bg-neutral-100"
                             onCreated={({ gl }) => {
                                 gl.domElement.setAttribute("aria-label", alt)
                                 gl.domElement.addEventListener("webglcontextlost", () => setHasError(true), { once: true })
@@ -196,13 +196,13 @@ export default function ProductR3FModelViewer({
                         <span className="inline-flex size-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-700">
                             <AlertTriangle className="size-5" aria-hidden="true" />
                         </span>
-                        <p className="mt-4 text-sm font-semibold text-neutral-900">{errorTitle}</p>
-                        <p className="mt-1 max-w-sm text-xs leading-5 text-neutral-600">{errorDescription}</p>
+                        <p className="mt-4 text-sm font-semibold text-foreground">{errorTitle}</p>
+                        <p className="mt-1 max-w-sm text-xs leading-5 text-muted-foreground">{errorDescription}</p>
                     </div>
                 ) : null}
 
                 {!hasError ? (
-                    <div className="absolute end-3 top-3 z-30 flex gap-2">
+                    <div className="absolute inset-e-3 top-3 z-30 flex gap-2">
                         <button
                             type="button"
                             onClick={resetView}
@@ -227,14 +227,14 @@ export default function ProductR3FModelViewer({
                 ) : null}
             </div>
 
-            <div className="flex min-h-12 flex-wrap items-center gap-3 border-t border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-600">
+            <div className="flex min-h-12 flex-wrap items-center gap-3 border-t border-neutral-200 bg-white px-4 py-3 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-2">
-                    <MousePointer2 className="size-4 shrink-0 text-neutral-500" aria-hidden="true" />
+                    <MousePointer2 className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                     {interactionHint}
                 </span>
 
                 {dimensions ? (
-                    <span className="ms-auto font-mono tabular-nums text-neutral-500">
+                    <span className="ms-auto font-mono tabular-nums text-muted-foreground">
                         X {(dimensions.x * 1000).toFixed(1)} × Y {(dimensions.y * 1000).toFixed(1)} × Z {(dimensions.z * 1000).toFixed(1)} mm
                     </span>
                 ) : null}

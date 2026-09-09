@@ -33,7 +33,7 @@ export default function SimilarProductsRow({
         <section className="pt-10">
             <div className="mb-4">
                 <h2 className="text-xl font-semibold tracking-tight">{t("title")}</h2>
-                <p className="text-sm text-neutral-500">{t("subtitle")}</p>
+                <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
             </div>
 
             <MotionMarquee speed={10} direction="left" gap="gap-4">
@@ -43,7 +43,7 @@ export default function SimilarProductsRow({
                     const image = primary?.url || fallback?.url || "/placeholder.webp"
 
                     return (
-                        <div key={product.id} className="w-[210px] shrink-0">
+                        <div key={product.id} className="w-52.5 shrink-0">
                             <ProductCard
                                 title={product.name}
                                 code={product.code}

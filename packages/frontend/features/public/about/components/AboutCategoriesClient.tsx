@@ -35,7 +35,7 @@ export default function AboutCategoriesClient({
 
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <h2 className="text-3xl font-bold text-neutral-900">
+                    <h2 className="text-3xl font-bold text-foreground">
                         {t("title")}
                     </h2>
 
@@ -96,7 +96,7 @@ export default function AboutCategoriesClient({
 
                 {/* EMPTY */}
                 {filtered.length === 0 && (
-                    <div className="mt-16 text-center text-neutral-500">
+                    <div className="mt-16 text-center text-muted-foreground">
                         {t("noResults")}
                     </div>
                 )}

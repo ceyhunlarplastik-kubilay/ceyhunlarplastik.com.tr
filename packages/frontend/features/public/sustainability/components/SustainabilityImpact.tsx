@@ -20,7 +20,7 @@ export function SustainabilityImpact() {
 
                     {/* TEXT */}
                     <div className="space-y-4">
-                        <h3 className="text-3xl font-semibold text-neutral-900">
+                        <h3 className="text-3xl font-semibold text-foreground">
                             {t("title")}
                         </h3>
 
@@ -54,7 +54,7 @@ export function SustainabilityImpact() {
                 </div>
 
                 {/* RIGHT IMAGE */}
-                <div className="relative w-full h-[420px] rounded-2xl overflow-hidden">
+                <div className="relative w-full h-105 rounded-2xl overflow-hidden">
                     <Image
                         src="/logos/sustainability3.webp"
                         alt={t("imageAlt")}

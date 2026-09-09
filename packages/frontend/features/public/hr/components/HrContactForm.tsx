@@ -69,11 +69,11 @@ export default function HrContactForm() {
                     transition={{ duration: 0.5 }}
                     className="rounded-3xl bg-white shadow-xl p-8 md:p-10"
                 >
-                    <h2 className="text-3xl font-semibold text-neutral-900 text-center">
+                    <h2 className="text-3xl font-semibold text-foreground text-center">
                         {t("title")}
                     </h2>
 
-                    <p className="mt-3 text-base text-neutral-600 text-center">
+                    <p className="mt-3 text-base text-muted-foreground text-center">
                         {t("subtitle")}
                     </p>
 

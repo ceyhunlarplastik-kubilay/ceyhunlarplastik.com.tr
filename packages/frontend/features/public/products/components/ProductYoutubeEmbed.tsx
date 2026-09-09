@@ -15,6 +15,8 @@ type Props = {
     title: string
     playLabel: string
     minHeightPx?: number
+    /** Dialog previews already receive an explicit play action. */
+    initiallyActivated?: boolean
 }
 
 /**
@@ -31,8 +33,9 @@ export default function ProductYoutubeEmbed({
     title,
     playLabel,
     minHeightPx,
+    initiallyActivated = false,
 }: Props) {
-    const [isActivated, setIsActivated] = useState(false)
+    const [isActivated, setIsActivated] = useState(initiallyActivated)
     const prefersReducedMotion = useReducedMotion()
     const videoId = extractYoutubeVideoId(url)
 
@@ -81,7 +84,7 @@ export default function ProductYoutubeEmbed({
 
                         <span className="absolute inset-0 flex items-center justify-center">
                             <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg transition-transform group-hover:scale-105 group-focus-visible:scale-105">
-                                <Play className="ml-0.5 h-7 w-7 fill-neutral-900 text-neutral-900" />
+                                <Play className="ml-0.5 h-7 w-7 fill-foreground text-foreground" />
                             </span>
                         </span>
                     </motion.button>

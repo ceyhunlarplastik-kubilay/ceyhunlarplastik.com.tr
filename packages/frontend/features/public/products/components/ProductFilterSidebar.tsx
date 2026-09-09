@@ -116,7 +116,7 @@ function ProductSidebarSearchControl({
 
     return (
         <section className="space-y-2">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 {label}
             </div>
             <div className="relative">
@@ -532,7 +532,7 @@ export default function ProductFilterSidebar({
                     />
                 ) : (
                     <div className="space-y-1.5">
-                        <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                        <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             {attr.name}
                         </h3>
                         {values.map((val) => {
@@ -629,7 +629,7 @@ export default function ProductFilterSidebar({
 
                     {!hideCategoryFilter && (
                         <section>
-                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                 {t("categoriesTitle")}
                             </h3>
                             <div className="flex flex-wrap gap-2">
@@ -657,10 +657,10 @@ export default function ProductFilterSidebar({
                     {productFilterAttributes.length > 0 ? (
                         <section className="space-y-3">
                             <div>
-                                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                     {t("productFiltersTitle")}
                                 </h3>
-                                <p className="mt-1 text-xs leading-5 text-neutral-500">
+                                <p className="mt-1 text-xs leading-5 text-muted-foreground">
                                     {t("productFiltersDesc")}
                                 </p>
                             </div>
@@ -717,7 +717,7 @@ export default function ProductFilterSidebar({
                         </section>
                     ) : null}
 
-                    <div className="flex items-center gap-2 text-xs text-neutral-500">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                         {isPending ? t("filtering") : t("ready")}
                     </div>

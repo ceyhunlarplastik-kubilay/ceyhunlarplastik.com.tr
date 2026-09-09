@@ -90,7 +90,7 @@ export function MassProductionContent() {
                                     onClick={(e) => scrollToSection(e, tab.id)}
                                     className={cn(
                                         "relative px-5 py-2 text-sm font-medium transition-colors duration-300 rounded-full",
-                                        isActive ? "text-white" : "text-neutral-500 hover:text-neutral-900"
+                                        isActive ? "text-white" : "text-muted-foreground hover:text-foreground"
                                     )}
                                 >
                                     {isActive && (

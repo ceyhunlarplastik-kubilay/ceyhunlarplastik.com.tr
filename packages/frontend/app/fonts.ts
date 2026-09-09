@@ -11,9 +11,14 @@ import {
 
 // İki root layout ([locale] ve (panels)) aynı font setini paylaşır;
 // tek yerde tanımlı olması drift'i önler.
-// Montserrat yalnızca .font-heading ile Enviroment section'ında kullanılıyor
-// (font-light=300 ve font-extrabold=800). Diğer weight'ler boşuna indiriliyordu;
-// 300 ise hiç yüklenmediği için font-light yanlış weight'e düşüyordu.
+// Montserrat artık `.font-heading` ile SİTE GENELİNDE h1/h2 varsayılanı
+// (bkz. globals.css @layer base) — Enviroment section'ın kendi font-light(300)/
+// font-extrabold(800) gibi özel ağırlıkları da aynı ailede sürüyor. Sabit
+// `weight: ["300","800"]` iki statik dosyaya kilitliyordu; normal başlıklarda
+// gereken ara ağırlıklar (600/700) o iki dosyada YOK sayılıp tarayıcının en
+// yakın statik ağırlığa (300 ya da 800) düşmesine ya da sahte kalınlaştırmaya
+// yol açardı. Montserrat'ın Google Fonts'taki `wght` ekseni (100-900) `variable`
+// ile tek dosyada geliyor — her ağırlık doğru render olur, ek dosya inmez.
 // latin-ext ŞART: Türkçe (ı, ğ, ş) ve Lehçe (ł, ą, ę, ż) harfleri `latin`
 // unicode-range'inin dışında. Eksik olduğunda tarayıcı o harflerde sistem
 // fontuna düşüyor ve kelime ortasında karakter değişiyor. Maliyeti yok sayılır:
@@ -29,7 +34,7 @@ import {
 const montserrat = Montserrat({
     subsets: ["latin", "latin-ext", "cyrillic"],
     variable: "--font-heading",
-    weight: ["300", "800"],
+    weight: "variable",
 });
 
 const geistSans = Geist({

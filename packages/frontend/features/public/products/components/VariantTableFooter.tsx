@@ -39,11 +39,11 @@ export async function VariantTableFooter({ meta, shownCount, basePath }: Props) 
 
     return (
         <div className="mt-4 space-y-3">
-            {isTruncated ? (
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            {/* {isTruncated ? (
+                <p className="text-sm text-muted-foreground">
                     {t("showingOf", { total: meta.total, shown: shownCount })}
                 </p>
-            ) : null}
+            ) : null} */}
 
             {hasPagination ? (
                 <nav aria-label={t("paginationLabel")} className="flex flex-wrap items-center gap-1">

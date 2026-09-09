@@ -49,7 +49,7 @@ export function ArgeContent() {
                         viewport={{ once: true }}
                         className="space-y-5"
                     >
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                             {t("block1Title")}
                         </h2>
 
@@ -64,7 +64,7 @@ export function ArgeContent() {
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="relative h-[320px] rounded-2xl overflow-hidden"
+                        className="relative h-80 rounded-2xl overflow-hidden"
                     >
                         <Image
                             src="/logos/arge-1.webp"
@@ -77,7 +77,7 @@ export function ArgeContent() {
             </section>
 
             {/* ================= 2. BLOCK ================= */}
-            <section className="py-20 bg-[var(--color-section-bg)]">
+            <section className="py-20 bg-(--color-section-bg)">
                 <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
 
                     {/* IMAGE */}
@@ -86,7 +86,7 @@ export function ArgeContent() {
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="relative h-[320px] rounded-2xl overflow-hidden"
+                        className="relative h-80 rounded-2xl overflow-hidden"
                     >
                         <Image
                             src="/logos/arge-2.webp"
@@ -104,7 +104,7 @@ export function ArgeContent() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                             {t("block2Title")}
                         </h2>
 
@@ -131,7 +131,7 @@ export function ArgeContent() {
                         viewport={{ once: true }}
                         className="space-y-4"
                     >
-                        <h2 className="text-2xl md:text-3xl font-semibold text-neutral-900">
+                        <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
                             {t("block3Title")}
                         </h2>
 
@@ -151,7 +151,7 @@ export function ArgeContent() {
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="relative h-[320px] rounded-2xl overflow-hidden"
+                        className="relative h-80 rounded-2xl overflow-hidden"
                     >
                         <Image
                             src="/logos/arge-3.png"
@@ -164,14 +164,14 @@ export function ArgeContent() {
             </section>
 
             {/* ================= 4. BLOCK ================= */}
-            <section className="py-20 bg-[var(--color-section-bg)]">
+            <section className="py-20 bg-(--color-section-bg)">
                 <div className="max-w-7xl mx-auto px-6 text-center">
                     <motion.p
                         variants={fadeUp}
                         initial="hidden"
                         whileInView="show"
                         viewport={{ once: true }}
-                        className="text-xl md:text-lg font-medium text-[var(--color-brand)] leading-relaxed"
+                        className="text-xl md:text-lg font-medium text-(--color-brand) leading-relaxed"
                     >
                         {t("closing")}
                     </motion.p>
