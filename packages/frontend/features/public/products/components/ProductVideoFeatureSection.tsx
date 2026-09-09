@@ -1,6 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { AspectRatio } from "@/components/ui/aspect-ratio"
 import ProductAssetFeatureSection from "@/features/public/products/components/ProductAssetFeatureSection"
 import ProductYoutubeEmbed from "@/features/public/products/components/ProductYoutubeEmbed"
 
@@ -50,7 +51,7 @@ export default function ProductVideoFeatureSection({
     const player = videoUrl ? (
         <ProductYoutubeEmbed
             url={videoUrl}
-            title={`${productName} — ${title}`}
+            title={`${productName} - ${title}`}
             playLabel={playLabel}
             minHeightPx={imageMinHeightPx ?? (videoOnly ? 220 : compact ? 180 : 280)}
         />
@@ -59,10 +60,15 @@ export default function ProductVideoFeatureSection({
     if (videoOnly) {
         if (!player) return null
 
+        // YouTube standardı 16:9 — eskiden yalnız `minHeightPx` tabanlı bir taban
+        // vardı, gerçek en/boy oranı sütun genişliğine göre kayıyordu.
         return (
-            <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-black shadow-sm">
+            <AspectRatio
+                ratio={16 / 9}
+                className="overflow-hidden rounded-2xl border border-neutral-200 bg-black shadow-sm"
+            >
                 {player}
-            </div>
+            </AspectRatio>
         )
     }
 

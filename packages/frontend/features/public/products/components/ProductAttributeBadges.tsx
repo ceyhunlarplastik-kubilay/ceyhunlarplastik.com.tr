@@ -4,7 +4,7 @@ import { motion } from "motion/react"
 import { useTranslations } from "next-intl"
 import { Badge } from "@/components/ui/badge"
 // Locale-aware router: /urunler/filtre'ye giderken EN'de /en öneki korunur.
-import { useRouter } from "@/i18n/navigation"
+import { useRouter, Link } from "@/i18n/navigation"
 
 type ProductAttributeValue = {
     id: string
@@ -23,6 +23,7 @@ type AttributeGroup = {
 
 type Props = {
     attributeValues: ProductAttributeValue[]
+    subtle?: boolean
 }
 
 function formatAttributeName(value: unknown, fallback: string) {
@@ -37,7 +38,7 @@ function formatAttributeName(value: unknown, fallback: string) {
         .join(" ")
 }
 
-export default function ProductAttributeBadges({ attributeValues }: Props) {
+export default function ProductAttributeBadges({ attributeValues, subtle = false }: Props) {
     const router = useRouter()
     const t = useTranslations("public.productDetail")
     const attributeFallback = t("attributeFallback")
@@ -72,6 +73,29 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
 
     const visibleNormalEntries = normalEntries
 
+    if (subtle) {
+        return (
+            <dl className="flex flex-wrap gap-x-6 gap-y-3">
+                {allEntries.map(([attributeCode, group]) => (
+                    <div key={attributeCode} className="flex flex-col gap-1.5">
+                        <dt className="text-xs text-muted-foreground">
+                            {formatAttributeName(group.attributeName, attributeFallback)}
+                        </dt>
+                        <dd className="flex flex-wrap gap-1.5">
+                            {group.values.map((value) => (
+                                <Badge key={value.id} variant="brand" asChild>
+                                    <Link href={`/urunler/filtre?${new URLSearchParams({ [attributeCode]: value.slug }).toString()}`}>
+                                        {value.name}
+                                    </Link>
+                                </Badge>
+                            ))}
+                        </dd>
+                    </div>
+                ))}
+            </dl>
+        )
+    }
+
     return (
         <div className="space-y-4">
 
@@ -87,7 +111,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                     >
 
                         {/* ATTRIBUTE TITLE */}
-                        <p className="whitespace-nowrap text-xs font-semibold tracking-[0.01em] text-neutral-500">
+                        <p className="whitespace-nowrap text-xs font-semibold tracking-[0.01em] text-muted-foreground">
                             {formatAttributeName(group.attributeName, attributeFallback)}:
                         </p>
 
@@ -133,13 +157,13 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
             transition-all
             duration-200
 
-            bg-[var(--color-brand)]
-            text-[var(--color-brand-foreground)]
-            border-[var(--color-brand)]/80
+            bg-(--color-brand)
+            text-(--color-brand-foreground)
+            border-brand/80
 
             hover:bg-white
-            hover:text-[var(--color-brand)]
-            hover:border-[var(--color-brand)]
+            hover:text-(--color-brand)
+            hover:border-(--color-brand)
         "
                                     >
                                         {val.name}
@@ -165,7 +189,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                             transition={{ delay: index * 0.04 }}
                             className="space-y-1.5"
                         >
-                            <p className="text-[11px] font-semibold tracking-[0.01em] text-neutral-500">
+                            <p className="text-[11px] font-semibold tracking-[0.01em] text-muted-foreground">
                                 {formatAttributeName(group.attributeName, attributeFallback)}:
                             </p>
                             <div className="flex flex-wrap gap-1.5">
@@ -185,10 +209,10 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                             router.push(`/urunler/filtre?${params.toString()}`)
                                         }}
                                         className="
-                                            cursor-pointer rounded-full border border-[var(--color-brand)]/75
-                                            bg-[var(--color-brand)]/10 px-2 py-0.5 text-xs
-                                            text-[var(--color-brand)] transition-colors
-                                            hover:bg-[var(--color-brand)] hover:text-[var(--color-brand-foreground)]
+                                            cursor-pointer rounded-full border border-brand/75
+                                            bg-(--color-brand)/10 px-2 py-0.5 text-xs
+                                            text-(--color-brand) transition-colors
+                                            hover:bg-(--color-brand) hover:text-(--color-brand-foreground)
                                         "
                                     >
                                         {val.name}
@@ -199,7 +223,7 @@ export default function ProductAttributeBadges({ attributeValues }: Props) {
                                 group.values.length > 5 && (
                                     <button
                                         onClick={() => setUsageAreasExpanded((prev) => !prev)}
-                                        className="text-xs text-[var(--color-brand)] hover:underline"
+                                        className="text-xs text-(--color-brand) hover:underline"
                                     >
                                         {usageAreasExpanded
                                             ? t("showLess")

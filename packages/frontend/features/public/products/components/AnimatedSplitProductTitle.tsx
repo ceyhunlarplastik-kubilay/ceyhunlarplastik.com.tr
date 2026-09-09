@@ -2,22 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { motion } from "motion/react"
-
-function splitTitleLines(title: string) {
-    const words = title.trim().split(/\s+/).filter(Boolean)
-
-    if (words.length <= 2) {
-        return {
-            firstLine: words.join(" "),
-            secondLine: "",
-        }
-    }
-
-    return {
-        firstLine: words.slice(0, 2).join(" "),
-        secondLine: words.slice(2).join(" "),
-    }
-}
+import { splitProductTitleLines } from "@/features/public/products/utils/splitProductTitleLines"
 
 type Props = {
     title: string
@@ -28,7 +13,7 @@ export function AnimatedSplitProductTitle({ title, fitToContainer = true }: Prop
     const rootRef = useRef<HTMLSpanElement | null>(null)
     const [fontSizePx, setFontSizePx] = useState<number | null>(null)
     const lines = useMemo(() => {
-        const { firstLine, secondLine } = splitTitleLines(title)
+        const { firstLine, secondLine } = splitProductTitleLines(title)
         return [firstLine, secondLine].filter(Boolean)
     }, [title])
 
