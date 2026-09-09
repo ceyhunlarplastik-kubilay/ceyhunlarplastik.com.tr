@@ -5989,6 +5989,1047 @@ merge edildi → `main` `e368f93`. Prod migration `add_asset_product_supplier_co
 `sst deploy --stage prod` kullanıcı tarafından başarıyla tamamlandı (2026-09-04) —
 özellik uçtan uca canlıda. İş tamamen kapandı, PLAN'da açık madde kalmadı.
 
+## Public tipografi — Dilim 1: marka başlık fontu + temel katman (2026-09-05) *(kullanıcı talebiyle eklendi)*
+- Ne: Site genelinde başlık fontu olan Montserrat (`--font-heading` /
+  `.font-heading`) daha önce yalnızca ana sayfanın "Doğa Dostu Üretim"
+  bölümünde kullanılıyordu; geri kalan ~40 başlık gövde fontuyla (Geist)
+  render oluyordu. Ayrıca başlık rengi/ağırlığı proje genelinde tutarsızdı
+  (`text-neutral-900` hardcode vs. semantic `text-foreground`,
+  `font-semibold`/`font-bold` karışık kullanım).
+- [app/globals.css](packages/frontend/app/globals.css) `@layer base`'e `h1,h2`
+  (marka fontu + `text-foreground` + `font-weight:700` + `tracking-tight` +
+  `text-wrap:balance`), `h3,h4` (Geist'te kalıp `font-weight:600` + tutarlı
+  renk) ve `p` (`text-wrap:pretty`) varsayılanları eklendi. `@layer base`
+  kullanıldığı için bir bileşenin KENDİ `text-*`/`font-*` class'ı (ör.
+  Enviroment'ın `text-white`'ı) Tailwind utility>base katman önceliği
+  sayesinde HER ZAMAN kazanır — hiçbir mevcut sayfa görsel olarak bozulmadı,
+  yalnızca hiç renk/font belirtilmemiş başlıklar yeni varsayılanı aldı. Bu
+  değişiklik `(panels)` admin layout'unu da kapsar (aynı `globals.css`).
+- [app/fonts.ts](packages/frontend/app/fonts.ts): Montserrat sabit
+  `weight: ["300","800"]`'den `weight: "variable"`a çevrildi (aynı subset/i18n
+  fallback zinciri korunarak) — artık normal başlıklarda kullanılan ara
+  ağırlıklar (600/700) o iki statik dosyada YOK sayılıp en yakın ağırlığa
+  düşmek yerine doğru render olur; Enviroment'ın özel `font-light`(300)/
+  `font-extrabold`(800) çift ağırlığı aynı tek (artık variable) dosyadan
+  gelmeye devam eder.
+- Kapsam bilinçli dar tutuldu: proje zengin metin/prose alanı (blockquote,
+  tablo, kod bloğu) içermediği için shadcn'in typography örneğindeki o
+  kısımları taşımadım — yalnız başlık hiyerarşisi + gövde metni.
+- Doğrulama: `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (157
+  warning, hepsi önceden var) ✅ · `test -w frontend` 357/357 ✅. Görsel
+  doğrulama (birkaç public sayfa + en az bir admin sayfası) kubi'de
+  yapılmalı.
+- Ne kaldı: Dilim 2 (public başlık boyut hiyerarşisi + semantic renk
+  yayılımı) ve admin panel tipografisi PLAN'a açık madde olarak eklendi.
+
+**Ek düzenleme — base katmanından `color` kaldırıldı (2026-09-05, aynı gün, deploy öncesi yakalandı):**
+kubi'de ilk denemede CSS syntax hatası çıktı (yorum içindeki `text-*/font-*`
+yazımı `*/` ile yorumu erken kapatmıştı — düzeltildi, ayrı konu). Kullanıcı
+"çalışıyor" deyip Dilim 2'ye geçince, Dilim 2 için PageHero/AboutHero/HrHero
+gibi banner bileşenlerini incelerken KRİTİK bir ikinci sorun ortaya çıktı:
+bu üç bileşen (16+ route'ta kullanılıyor) başlık rengini KENDİ üzerlerinde
+değil, üst div'in `text-white`'ından MİRAS alıyordu (`motion.h1`'in kendi
+`className`'inde renk YOK). `@layer base`'deki `h1,h2{color:var(--foreground)}`
+kuralı — düşük öncelikli katmanda olsa bile — CSS mirasından ÖNCE gelir (bir
+elementi eşleştiren HERHANGİ bir kural, katmanı ne olursa olsun, mirası
+ezer). Yani bu üç bileşenin (ve onları kullanan neredeyse TÜM iç sayfaların)
+banner başlığı koyu/karanlık renge düşüyordu — kullanıcı henüz bu sayfaları
+ziyaret etmediği için fark edilmemişti. `app/globals.css`'teki `h1,h2` ve
+`h3,h4` kurallarından `color` satırları tamamen kaldırıldı (font-family/
+font-weight/letter-spacing/text-wrap kaldı — bunlar için aynı miras riski
+yok, kodda ata elementin renk DIŞINDA bir font/ağırlık class'ıyla sarılmış
+başlık örneği bulunamadı). Doğrulama: `typecheck`/`lint`/`test` yine yeşil;
+PostCSS parse tekrar doğrulandı.
+
+## Public tipografi — Dilim 2: h1/h2/h3 hiyerarşisi + semantic renk (2026-09-05) *(kullanıcı talebiyle eklendi)*
+- **h1 çakışması/eksikliği (gerçek bug, stil dışı):**
+  [ProductHero.tsx](packages/frontend/features/public/products/components/ProductHero.tsx)
+  ve
+  [InquiryCartPageClient.tsx](packages/frontend/features/public/cart/components/InquiryCartPageClient.tsx)
+  kendi `<h1>`'lerini basıyordu ama aynı sayfada (`/urun/[slug]`, `/sepet`)
+  paylaşılan [PageHero.tsx](packages/frontend/components/sections/PageHero.tsx)
+  ZATEN aynı metni (`product.name` / `heroTitle`) `motion.h1` ile basıyor —
+  her iki sayfada da DOM'da iki `<h1>` vardı. İkisi de `h2`'ye indirgendi;
+  `PageHero` 16 route'ta kullanılan tutarlı "sayfa h1'i" kaynağı olarak
+  bırakıldı, tek tek değiştirilmedi.
+  [ContactContent.tsx](packages/frontend/features/public/contact/components/ContactContent.tsx)
+  (`/iletisim`) ve
+  [SustainabilityIntro.tsx](packages/frontend/features/public/sustainability/components/SustainabilityIntro.tsx)
+  (`/surdurulebilirlik`) sayfalarında hiç `h1` yoktu (ne `PageHero` ne başka
+  bir Hero kullanıyorlar) — o sayfanın gerçek ilk/en büyük başlığı `h1`'e
+  yükseltildi. `ContactContent`'in geri kalan hiyerarşisi de düzeltildi
+  (`h2`→`h1`, form kartı + "Ulaşım Bilgileri" `h3`→`h2`, üç ulaşım kartı
+  `h4`→`h3`) — artık temiz `h1>h2>h3` iniyor.
+- **Hardcoded renk → semantic token:** `text-neutral-900` → `text-foreground`,
+  `text-neutral-500`/`600` → `text-muted-foreground`; her değişiklikten önce
+  o elementin arka planı (`bg-white`/açık gri mi, koyu/renkli mi) kontrol
+  edildi — koyu bir arka plan üstünde miras yoluyla `text-white` alan hiçbir
+  yere DOKUNULMADI (bkz. yukarıdaki base-katmanı düzeltmesi). Dosyalar:
+  `3DContent`, `MassProductionPlastic/Metal/Rubber/Bakalite` (4), `ArgeContent`
+  (×3 başlık), `AboutDetails`, `AboutContent`, `AboutCategoriesClient`,
+  `HrContactForm`, `MachiningContent`, `SustainabilityImpact`,
+  `SustainabilityEnergy`, `ProductVariantDetailsTable`,
+  `ProductAssetFeatureSection`, `urun/[slug]/varyantlar/page.tsx` — toplam
+  ~20 dosya. Heading-bazlı `text-neutral-900` sayısı 24 → 4'e indi (kalan 4:
+  2 modal başlığı + zaten incelenip güvenli bulunan 2 nokta); genel
+  `text-neutral-500/600` 64 → 54.
+- **Bilinçli dokunulmayanlar:** ana sayfanın kendi section `h2`'leri
+  (`AboutSection`/`ServicesSection`/`QualitySection` vb.) zaten
+  `text-foreground` ya da bilinçli `text-white` kullanıyordu — hardcoded
+  renk sorunu yoktu, boyut çeşitliliği (3xl/4xl vs 4xl/5xl) kasıtlı görsel
+  ritim olarak bırakıldı. `CustomerLeadDialog`/`ProductAssistantModal` modal
+  başlıkları (`text-neutral-900`) ayrı bir UI rolü (dialog) olduğu için bu
+  turda atlandı — PLAN'a not düşüldü.
+- Doğrulama: `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (157
+  warning) ✅ · `test -w frontend` 357/357 ✅. Görsel doğrulama (özellikle
+  `/iletisim`, `/surdurulebilirlik`, `/urun/[slug]`, `/sepet`) kubi'de
+  yapılmalı.
+- Ne kaldı: PLAN'daki "Public tipografi — kalan küçük parçalar" (modal
+  başlıkları + site geneli kalan `text-neutral-500/600`) ve "Admin panel
+  tipografisi" — ikisi de opsiyonel, ayrı dilim.
+
+## Panel tipografisi — Dilim 1: paylaşılan kabuk h1'i + müşteri paneli denetimi (2026-09-05) *(kullanıcı talebiyle eklendi)*
+- **Kök sorun (TÜM panelleri etkiliyordu):**
+  [PanelShell.tsx](packages/frontend/components/panels/PanelShell.tsx) —
+  admin, veri-girişi, satış, satınalma, tedarikçi VE müşteri panelinin ORTAK
+  kabuğu — topbar'da ve mobil çubukta `<h1>`/`<h2>` içinde HER SAYFADA aynı
+  sabit panel adını (`title` prop'u, ör. "Müşteri Paneli") basıyordu; h1 hiç
+  hangi sayfada olunduğunu söylemiyordu. Mobil çubuk zaten
+  `resolveActivePanelNavLabel(navGroups, pathname)` ile aktif nav etiketini
+  çözüyordu (testli, `panelNavigationState.test.ts`) — aynı çözümleyici artık
+  masaüstü `PanelTopbar`'a da bağlandı (`navGroups` prop'u eklendi).
+- **İkinci tur düzeltme — h1 DEĞİL, `<p>`:** İlk denemede ikisini de `<h1>`
+  yaptım, ama müşteri panelini denetlerken
+  [CustomerPortalPageHeader.tsx](packages/frontend/features/customerPortal/components/CustomerPortalPageHeader.tsx)'nin
+  ZATEN kendi zengin `<h1>`'ini bastığını ve 9+ müşteri paneli sayfasında
+  kullanıldığını gördüm — kabuğu da h1 yapmak bu sayfalarda İKİ h1 üretecekti.
+  Kabuk kalıcı gezinme/konum bilgisi (chrome) taşıyor, sayfa İÇERİĞİNİN
+  başlığı değil — o yüzden ikisi de (topbar + mobil çubuk) `<p>` oldu, yalnızca
+  metin dinamikleşti.
+- **Müşteri paneli — gerçek duplicate-h1 bulguları:**
+  [ProductHero.tsx](packages/frontend/features/public/products/components/ProductHero.tsx)
+  (public'te zaten `PageHero` için h2 yapılmıştı) ve
+  `app/(panels)/musteri/tum-urunler/urun/[slug]/varyantlar/page.tsx`'in kendi
+  inline `<h1>{product.name}</h1>`'i — ikisi de müşteri panelinde
+  kullanılıyor ve artık kabuk `<p>` olduğu için asıl h1 kaynağı olmaları
+  gerekmiyordu (`CustomerPortalProductDetailHeader`/`CustomerPortalVariantPageHeader`
+  bu sayfalarda başlık BASMIYOR, yalnız breadcrumb/geri butonu). Varyant
+  sayfasının inline başlığı `h2`'ye çevrildi, `text-neutral-500` →
+  `text-muted-foreground`.
+- **Denetlenip DOKUNULMAYAN (bilinçli):** 9+ `CustomerPortalPageHeader`
+  kullanıcısı (Profil, Genel Bakış, Tüm/Tanımlı/Kampanyalı Ürünler, Talepler,
+  RequestCreate) doğru `h1>h2>h3` iniyor — değişiklik gerekmedi.
+  `CustomerPortalSpecialPricesPageClient` kasıtlı özel tasarımlı bir hero
+  kartı (gradient + CTA) kullanıyor, kendi `h1`'i var, `CustomerPortalPageHeader`'a
+  ZORLANMADI (görsel bir flourish, mekanik tutarlılık için kaldırmaya değmez).
+  `CustomerPortalOrdersPageClient` → paylaşılan
+  [OrdersPageClient.tsx](packages/frontend/features/orders/components/OrdersPageClient.tsx)
+  `scope==="portal"` dalında zaten `CustomerPortalPageHeader` kullanıyor —
+  sorun yok; ama `scope!=="portal"` (admin/satış) dalı kendi hardcoded
+  `text-neutral-900`/`text-neutral-500` `<h1>`'ini basıyor — bu, sıradaki
+  admin panel turunun canlı örneği (PLAN'a not düşüldü). Müşteri panelinin
+  kendi `text-neutral-950`/`text-slate-950`/`600` renk paleti (public'in
+  900/500/600'ünden farklı ama KENDİ İÇİNDE tutarlı) bu turda dokunulmadı —
+  görsel etkisi ihmal edilebilir (950 ile foreground token'ı arasındaki fark
+  gözle neredeyse hiç seçilmiyor), ayrı/opsiyonel bir hijyen işi.
+- Doğrulama: `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (157
+  warning) ✅ · `test -w frontend` 357/357 ✅ (`panelNavigationState.test.ts`
+  dahil — çözümleyici değişmedi, yalnız ikinci bir tüketicisi eklendi).
+  Görsel doğrulama TÜM panellerde (topbar artık dinamik metin gösteriyor)
+  ve özellikle `/musteri/tum-urunler/urun/[slug]/varyantlar` kubi'de yapılmalı.
+- Ne kaldı: PLAN'daki "Panel tipografisi — sıradaki: admin, veri-girişi,
+  satış, satınalma" — admin/satış/satınalma'nın KENDİ sayfa içerikleri henüz
+  denetlenmedi.
+
+## Public tipografi — kalan küçük parçalar kapatıldı (2026-09-05) *(kullanıcı talebiyle eklendi)*
+Uygulamadan önce etkilenecek sayfaların tam listesi kullanıcıya verildi, onay
+alındıktan sonra uygulandı.
+- **2 modal başlığı:** `components/home/CustomerLeadDialog.tsx` (navbar'dan
+  her public sayfada açılabilir) ve `components/home/ProductAssistantModal.tsx`
+  (yalnız ana sayfa) — `text-neutral-900`/`600`/`500` → `text-foreground`/
+  `text-muted-foreground`, dosya başına ~5-7 satır. `h2` yerine shadcn
+  `DialogTitle` kullanılmaması ayrı, opsiyonel bir gözlem olarak PLAN'a
+  eklendi (bu turun kapsamı değildi).
+- **`text-neutral-500`/`600` süpürmesi — 19 dosya, ~50 satır, tamamı ikincil
+  metin/etiket/ikon (hiçbiri başlık değil):** en yoğunu `/urun/[slug]` (10
+  dosya: `ProductAttributeBadges`, `ProductVariantTable`,
+  `ProductTechnicalDrawingSection`, `ProductDetailMediaPreview`,
+  `ProductVariantNavigationOverlay`, `ProductUsageAreasTable`,
+  `Product3DModelViewer`, `Product3DConfigurator`, `ProductR3FModelViewer`,
+  `SimilarProductsRow`), ardından `/urun-kategori/[slug]` + `/urunler/filtre`
+  (`ProductFilterSidebar`, `ProductFilterList`), `/urun/[slug]/varyantlar`
+  (`VariantTableFooter`), `/ham-madde-sertifikalari`
+  (`MaterialCertificateCard`), `/seri-uretim` (`MassProductionContent` sekme
+  rengi), `/sepet` ve `/hakkimizda`'da Dilim 2'de atlanmış birer satır
+  (`InquiryCartPageClient`, `AboutCategoriesClient`). `VariantTableFooter`'daki
+  `text-neutral-600 dark:text-neutral-400` çifti tek `text-muted-foreground`
+  token'ına indirgendi (zaten dark mode'u doğru karşılıyor).
+- **Dosyaları tararken bulunan EK `text-neutral-900`/`950` (orijinal sayımda
+  yoktu, aynı turda fırsatçı temizlendi):** `ProductUsageAreasTable` (+3),
+  `ProductFilterList` (+1), `ProductDetailMediaPreview` (+1),
+  `ProductVariantNavigationOverlay` (+1), `ProductR3FModelViewer` (+1),
+  `Product3DModelViewer` (+1), `MaterialCertificateCard` (+1),
+  `ProductYoutubeEmbed` (+1, ikon rengi), `CatalogCard` (+1),
+  `AboutDetails` (+2 — sarmalayıcı zaten `text-muted-foreground` idi, vurgu
+  satırları güvenle `text-foreground`'a çevrildi).
+- **Bilinçli DOKUNULMAYAN `text-neutral-900` (6 kalan, hepsi canlı koda
+  etkisiz veya kasıtlı):** `ProductVariantTable.tsx`'teki 4 tanesi
+  YORUMDA — "Renk Seçenekleri"/"Ham Madde Seçenekleri" (kullanıcı önceki bir
+  dilimde kendi yorum satırına almıştı), canlı koda hiç girmiyor.
+  `AboutContent.tsx`'teki 2 tanesi (`intro`, `mission` paragrafları) sarmalayıcı
+  `text-neutral-700` (hardcoded, token DEĞİL) üzerine BİLİNÇLİ bir vurgu
+  farkı taşıyor — sarmalayıcıyı `text-muted-foreground`'a çevirmek gövde
+  metnini gözle görülür şekilde açardı (700→556 oklch lightness, `AboutDetails`
+  örneğindeki muted-foreground sarmalayıcı durumundan farklı); görsel QA'sız
+  yapılmadı, ayrı bir küçük iş olarak bırakıldı.
+- Doğrulama: `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (157
+  warning) ✅ · `test -w frontend` 357/357 ✅.
+- Ne kaldı: `AboutContent.tsx`'in `text-neutral-700` sarmalayıcısı (görsel
+  QA gerektirir) ve `shadcn DialogTitle` gözlemi — ikisi de PLAN'a küçük not
+  olarak eklendi. Sıradaki asıl iş: admin/veri-girişi/satış/satınalma panel
+  tipografisi.
+
+## Müşteri haritası — liste görünümü Dilim 1: harita noktalarını müşteri bazında grupla (2026-09-07) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Admin müşteri haritası (`/admin/musteriler/harita`) sonrası dilimlerde
+  filtre uygulandığında haritayı doğrudan açmak yerine önce bir müşteri listesi
+  (accordion) göstereceğiz — böylece Google Maps yükü yalnız kullanıcı bilinçli
+  olarak "Haritada Göster" dediğinde tetiklenecek. Bu dilim yalnız veri katmanı:
+  `features/customerLocations/types.ts`'e `CustomerMapCustomerAddress` /
+  `CustomerMapCustomerGroup` tipleri eklendi; yeni saf fonksiyon
+  `groupCustomerMapPoints.ts` harita ucunun (`/sales/customers/map`) ADRES bazlı
+  satırlarını (`CustomerMapPoint[]`) `customerId`'ye göre gruplayıp müşteri
+  başına tek satıra (birden fazla adresi olan içinde) indiriyor.
+- **Neden:** `/sales/customers/map` bir müşterinin her adresi için ayrı satır
+  dönüyor; liste görünümü müşteri başına tek accordion satırı göstereceği için
+  gruplama gerekiyor. Backend'e dokunulmadı — mevcut uç ve `useCustomerMapData`
+  aynen kalıyor, gruplama saf client-side fonksiyon.
+- **Nasıl doğrulandı:** `groupCustomerMapPoints.test.ts` (3 test — çoklu adresi
+  birleştirme, farklı müşterileri ayrı grupta ilk-görülme sırasıyla tutma, boş
+  liste). `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (157 warning,
+  değişmedi) ✅ · `test -w frontend` 360/360 ✅ (357 + yeni 3).
+- **Ne kaldı:** Dilim 2 — `CustomerMapPageClient`'a `view: "list" | "map"`
+  durumu + `CustomerMapCustomerAccordion.tsx` (shadcn `Accordion`, çoklu seçim)
+  ve haritanın yalnız kullanıcı isteğiyle mount edilmesi. Dilim 3 (opsiyonel) —
+  aynı Accordion'un `LeadCustomersPageClient`'a da taşınması, ayrı onay gerekir.
+  Bu dilim UI'ya dokunmadığı için kubi'de görsel doğrulama gerekmiyor.
+
+## Müşteri haritası — liste görünümü Dilim 2: accordion + iki aşamalı akış (2026-09-07) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `CustomerMapPageClient.tsx`'e nuqs ile `view: "list" | "map"` durumu
+  eklendi (varsayılan `"list"`). "Listele" (eski "Haritada Göster") butonuna basınca
+  segment verisi çekilir ve ÖNCE `CustomerMapCustomerAccordion.tsx` (yeni, shadcn
+  `Accordion type="multiple"`) ile müşteri listesi gösterilir — her müşteri tek
+  accordion satırı (`groupCustomerMapPoints`, Dilim 1), açılınca adresleri
+  (etiket/özet/birincil/sevkiyat rozetleri) görünür. `useBulkSelection` ile çoklu
+  seçim: "Seçilenleri Haritada Göster", "Tümünü Haritada Göster" (üst toolbar) ve
+  her satırda "Bu Müşteriyi Haritada Göster" (tekil) — üçü de `showOnMap(ids)`'e
+  çıkar, `view: "map"`'e geçer ve `mapCustomerIds` ile hangi noktaların
+  gösterileceğini belirler (`null` = tümü). `ManagedCustomerMap` (dolayısıyla
+  `GoogleMapsApiProvider`/Google Maps JS script'i) artık yalnız `view === "map"`
+  iken JSX'te render ediliyor — `!applied` durumunda önceden her zaman mount
+  edilip (0 nokta ile de olsa) script'i yüklüyordu, şimdi hiç mount edilmiyor.
+  `CustomerMapFilterBar.tsx`'te buton/metin "Haritada Göster" → "Listele" (ikon
+  `MapPinned` → `List`), durum satırı "Haritada X müşteri" → "Eşleşen X müşteri"
+  (harita/liste ayrımından bağımsız, `resultCount` artık müşteri sayısı —
+  `groups.length` — adres sayısı değil).
+- **Neden:** Kullanıcı talebi — segment filtrelendikten sonra doğrudan haritayı
+  açmak yerine önce liste (accordion) gösterip haritayı yalnız istendiğinde
+  açmak; hem Google Maps API kullanım maliyetini düşürüyor (asıl kazanç: harita
+  artık sayfa her ziyaret edildiğinde DEĞİL, yalnız kullanıcı bilinçli olarak
+  "Haritada Göster" dediğinde mount ediliyor) hem de veri girişi panelindeki
+  müşteri tablosuna benzer, daha kontrollü bir inceleme akışı sağlıyor.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (157 warning, değişmedi) ✅ · `test -w frontend` 360/360 ✅ (Dilim 1'in testleri
+  dahil, bu dilimde UI'ya yeni test eklenmedi — saf mantık zaten Dilim 1'de
+  testli). **Kubi'de manuel doğrulama kullanıcıda:**
+  1. `/admin/musteriler/harita` açılışında haritanın (Google Maps) hiç
+     yüklenmediğini doğrula (sayfa açılır açılmaz boş dashed kutu görünmeli,
+     harita DEĞİL).
+  2. Bir segment seçip "Listele"ye bas — accordion listesi gelmeli, harita
+     hâlâ mount edilmemiş olmalı.
+  3. Birden fazla adresi olan bir müşteride accordion açılınca tüm adreslerin
+     göründüğünü doğrula.
+  4. Checkbox ile birkaç müşteri seç → "Seçilenleri Haritada Göster" → yalnız
+     seçilenlerin pin'lendiğini doğrula; "Listeye Dön" ile geri dönüp "Tümünü
+     Haritada Göster" ile tüm segmentin pin'lendiğini doğrula.
+  5. Tek bir müşteride "Bu Müşteriyi Haritada Göster" → yalnız o müşterinin
+     pin'i (birden fazla adresi varsa hepsi) gösterilmeli.
+- **Ne kaldı:** Dilim 3 (opsiyonel) — aynı Accordion'un `LeadCustomersPageClient`'a
+  taşınması, PLAN'da ayrı madde. `view`/`applied` URL'de tutulduğu için filtre
+  linkini paylaşmak segment + görünümü birlikte taşıyor (harita view'ı paylaşılırsa
+  alıcı tarafta da Google Maps yüklenir — beklenen davranış, harita URL'i bilinçli
+  paylaşılıyor demektir).
+
+## Müşteri haritası — liste görünümü Dilim 2b: client-side sayfalama (2026-09-07) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Dilim 2'nin accordion listesi segmentin TAMAMINI (backend
+  `listCustomersForMap`'te `take: MAP_CUSTOMER_LIMIT = 500` — bir seferde 500
+  müşteriye kadar dönebiliyor, `packages/core/.../customers/repository.ts:663`)
+  tek seferde basıyordu; 200+ müşterilik bir segmentte accordion aşırı uzun
+  olurdu. `CustomerMapPageClient.tsx`'e `page`/`limit` nuqs durumu eklendi,
+  mevcut admin liste bileşeni `AdminListPagination` reuse edildi (AGENTS.md
+  "Admin list surfaces — reuse, do not rebuild" kuralı) — **ek ağ isteği YOK**,
+  zaten tek seferde çekilmiş `groups` dizisi (`Math.ceil`/`.slice`) client-side
+  dilimleniyor. Sayfa/limit değişince veya filtre yeniden uygulanınca sayfa 1'e
+  döner; eski sayfa numarası yeni toplam sayfa sayısının dışında kalırsa
+  (`currentListPage = Math.min(listPage, totalPages)`) otomatik kenetlenir.
+  "Bu sayfadaki N kaydı seç" checkbox'ı da eklendi (`LeadCustomersPageClient`
+  deseni) — toplu seçim (`useBulkSelection`) sayfalar arası zaten korunuyordu
+  ("Seçilenleri Haritada Göster" tüm sayfalardaki seçimi kapsar), "Tümünü
+  Haritada Göster" zaten tüm segmenti (sayfalamadan bağımsız) kapsıyordu,
+  değişmedi.
+- **Neden:** Kullanıcı gözlemi — "200 müşteri aynı anda listelense çok uzun bir
+  liste olur." Backend zaten müşteri sayısını 500'le sınırlıyor ama bunun
+  altında bile (ör. 100-200) tek sayfada accordion kullanışsız olurdu.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (157 warning, değişmedi) ✅ · `test -w frontend` 360/360 ✅ (bu dilimde yeni
+  saf mantık yok — dilimleme `Math.ceil`/`.slice`, ayrı test gerektirmeyecek
+  kadar basit; `AdminListPagination` ve `useBulkSelection` zaten testli). Kubi'de
+  60+ müşterilik bir segmentte sayfalama/seçim davranışının görsel doğrulaması
+  kullanıcıda.
+- **Ne kaldı:** Dilim 3 (opsiyonel) hâlâ açık — `LeadCustomersPageClient`'a aynı
+  Accordion'un taşınması.
+
+## Müşteri haritası — liste görünümü Dilim 2c: peek + sayfalama kombinasyonu (2026-09-07) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı, `features/public/products/components/ProductUsageAreasTable.tsx`'teki
+  "peek" desenini (kapalıyken ilk birkaç satır + blur bandı + "Tümünü Göster",
+  ama sayfalama YOK) örnek göstererek müşteri haritası listesinde HEM peek HEM
+  sayfalama istedi. `CustomerMapCustomerAccordion.tsx`'e `isPeeking`/`totalCount`/
+  `onExpandRequest` prop'ları eklendi — `isPeeking` true iken son görünen satırın
+  altına sabit yükseklikli (`h-24`) bir beyaz gradyan bant + ortalanmış "Tümünü
+  Göster (N)" pill düğmesi biner (`ProductUsageAreasTable`'daki `UsageAreasPeek`
+  ile aynı görsel dil, ama `ResizeObserver` ile satır yüksekliği ÖLÇÜLMEDİ —
+  accordion satırları kapalıyken zaten yeterince sabit yükseklikte, sabit bant
+  yeterli, gereksiz karmaşıklık eklenmedi). `CustomerMapPageClient.tsx`'te
+  `PEEK_CUSTOMER_COUNT = 3` ve `isListExpanded` durumu eklendi: segment
+  uygulandığında (`applyFilters`/`clearFilters`) liste PEEK modunda başlar
+  (`isListExpanded=false`), yalnız ilk 3 müşteri görünür; "Tümünü Göster"e
+  basılınca `isListExpanded=true` olur ve Dilim 2b'nin sayfalanmış tam listesi
+  (`AdminListPagination` + "bu sayfadaki N kaydı seç") devreye girer — bu ikisi
+  aynı anda gösterilmiyor (`isPeeking` true iken sayfalama/toplu-seç satırı
+  gizli, mantıksız olurdu).
+- **Neden:** Kullanıcı talebi — "kombinasyon şeklinde yapabiliriz, hem birkaçı
+  gözüksün hem de pagination olsun." Segment küçükse (≤3 müşteri) peek hiç
+  devreye girmiyor, doğrudan tam liste gösteriliyor.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (157 warning, değişmedi) ✅ · `test -w frontend` 360/360 ✅ (yeni saf mantık
+  yok — peek eşiği/dilimleme trivial `Array.slice`, ayrı test gerektirmiyor).
+  **Kubi'de görsel doğrulama kullanıcıda:** 4+ müşterilik bir segmentte önce
+  yalnız 3 müşterinin + blur bandı + "Tümünü Göster (N)" düğmesinin göründüğünü,
+  düğmeye basınca sayfalanmış tam listenin (ve "bu sayfadaki N kaydı seç"
+  satırının) geldiğini, ≤3 müşterilik bir segmentte peek/bandın hiç görünmediğini
+  doğrula.
+- **Ne kaldı:** Dilim 3 (opsiyonel) hâlâ açık.
+
+## Müşteri haritası — liste görünümü Dilim 2d: "Gizle" ile peek'e geri dönüş (2026-09-07) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Dilim 2c "Tümünü Göster" ile genişletmeyi ekledi ama geri
+  daraltma yoktu. `CustomerMapPageClient.tsx`'te liste başlığının yanına, yalnız
+  `isListExpanded && groups.length > PEEK_CUSTOMER_COUNT` iken görünen bir
+  "Gizle" düğmesi eklendi — basınca `isListExpanded=false` + `listPage=1`
+  (bir sonraki genişletme sayfa 1'den başlasın diye) olur, liste tekrar 3
+  müşterilik peek moduna döner. Toplu seçim (`selection`) korunur — daraltma
+  seçimi sıfırlamıyor, kullanıcı "Gizle" deyip tekrar "Tümünü Göster" dediğinde
+  işaretli müşteriler işaretli kalır.
+- **Neden:** Kullanıcı talebi — "Tümünü Göster dediği gibi Gizle... seçeneği
+  de eklenmelidir."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (157 warning, değişmedi) ✅ · `test -w frontend` 360/360 ✅. Kubi'de: 4+
+  müşterilik bir segmentte "Tümünü Göster" → "Gizle" → tekrar "Tümünü Göster"
+  döngüsünün seçim durumu korunarak çalıştığının görsel doğrulaması kullanıcıda.
+- **Ne kaldı:** Dilim 3 (opsiyonel) hâlâ açık.
+
+## Müşteri haritası — liste görünümü Dilim 2e: Gizle/Haritada Göster çubuğu sticky (2026-09-07) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı ekran görüntüsüyle gösterdi: aşağı scroll edilince
+  "Gizle"/"Tümünü Haritada Göster" çubuğu ekranın üstünde kalıp görünmez
+  oluyordu. `CustomerMapPageClient.tsx`'e `usePanelHeaderOffset()` adında küçük
+  bir yerel hook eklendi — `document.querySelector("header")` ile panel
+  şablonunun (`PanelShell`) masaüstü üst çubuğunun (`sticky top-0 z-30`)
+  yüksekliğini `ResizeObserver` ile DOM'dan ölçer (sabit piksel yazmak şablon
+  değişince sessizce kayardı; kod tabanında bu ilişkiyi tutan paylaşılan bir
+  CSS değişkeni/hook henüz yoktu). Liste görünümündeki kontrol satırı ("X
+  müşteri" + Gizle/Seçilenleri/Tümünü Haritada Göster + "bu sayfadaki N kaydı
+  seç") artık `bg-white/95 backdrop-blur` kartlı, `sticky` ve `top: <ölçülen
+  yükseklik>` ile panel üst çubuğunun hemen altına sabitleniyor; `z-20`
+  (panel çubuğunun `z-30`'unun altında) ile çakışmıyor. Sticky'nin "kapsayıcı
+  blok"u zaten mevcut `space-y-3` sarmalayıcı olduğu için ek bir yapı
+  değişikliği gerekmedi — çubuk yalnız accordion+sayfalama boyunca ekranda
+  kalır, "Harita Notları" kartına gelindiğinde normal akışa döner. Mobilde
+  panel üst çubuğu `hidden md:block` olduğundan (`getBoundingClientRect()`
+  gizli elemanda 0 döner) offset otomatik 0 olur, çubuk doğrudan viewport
+  üstüne yapışır.
+- **Neden:** Kullanıcı gözlemi — "Gizle butonu aşağı scroll yapınca doğal
+  olarak yukarıda kalıyor ve ekranda göremiyorum... tablo bitimine kadar
+  ekranda gösterebilirsek çok daha iyi olur."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (157 warning, değişmedi) ✅ · `test -w frontend` 360/360 ✅ (saf mantık yok,
+  yalnız DOM ölçümü — otomatik testi yok, kubi'de görsel doğrulama gerekiyor).
+  **Kubi'de doğrulama kullanıcıda:** 10+ müşterilik genişletilmiş bir listede
+  aşağı scroll edildiğinde çubuğun panel üst çubuğunun hemen altında sabit
+  kaldığını, liste bitip "Harita Notları" kartına gelindiğinde çubuğun normal
+  akışa döndüğünü, mobil genişlikte de (panel üst çubuğu gizliyken) çubuğun
+  viewport üstüne doğru yapıştığını kontrol et.
+- **Ne kaldı:** Dilim 3 (opsiyonel) hâlâ açık.
+
+## Tedarikçi sözlüğü teknik resmi — prod'da CDN 404 (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı prod'da `/veri-girisi/products/.../variants` sayfasında
+  yüklenen teknik resimlerin `cdn.ceyhunlarplastik.xyz/product-supplier-codes/...`
+  üzerinden 404 döndüğünü, ama aynı S3 nesnesinin presigned URL ile (S3 konsolundan)
+  sorunsuz açıldığını bildirdi. Kök neden bulundu: `infra/router.ts`'teki
+  `Ceyhunlar-AppRouter` (`cdn.` dahil `*.${domain}` alias'ı tek router üzerinden
+  path'e göre bucket/frontend'e yönlendiriyor) `/product-supplier-codes` için hiç
+  `routeBucket` kaydı taşımıyordu — diğer sekiz prefix (`/categories`,
+  `/products`, `/product-variants` vb.) kayıtlıyken bu YENİ prefix (teknik resim
+  özelliği, bu oturumun önceki turlarında eklendi) eklenmemişti. Sonuç: bu path'e
+  gelen istek hiçbir bucket kuralına uymuyor, router isteği frontend Next.js
+  uygulamasına düşürüyor, orada da eşleşen route olmadığı için 404 dönüyordu.
+  S3 tarafı (presign, yükleme, `AssetLifecycle/confirmProductSupplierCodeAssetUpload`
+  onayı — `infra/assetLifecycle.ts`'te `filterPrefix: "product-supplier-codes/"`
+  doğru tanımlı) tamamen sorunsuzdu; eksik olan yalnız CDN path yönlendirmesiydi.
+  Düzeltme: `infra/router.ts`'e diğerleriyle aynı desende tek satır —
+  `appRouter.routeBucket("/product-supplier-codes", publicBucket);`.
+- **Neden:** "Teknik resim" özelliği (Dilim 2-4, önceki commit'ler) eklenirken
+  `infra/assetLifecycle.ts`'teki S3 bildirim prefix'i eklenmiş ama `infra/router.ts`'teki
+  CDN path yönlendirmesi unutulmuş — iki ayrı infra dosyası, aynı yeni prefix için
+  ikisinin de güncellenmesi gerekiyordu.
+- **Nasıl doğrulandı:** `router.ts`'e izole `npx tsc` filtreli kontrolü temiz.
+  Bu bir **infra değişikliği** — CLAUDE.md kuralı gereği yalnız kullanıcı deploy
+  eder, kod tarafında başka bir şey yapılmadı.
+- **Ne kaldı (kullanıcıda):** `sst deploy --stage prod` (bu satır yalnızca
+  CloudFront/Router'a yeni bir path davranışı ekliyor, mevcut route'lara
+  dokunmuyor — düşük riskli additive değişiklik). Deploy sonrası aynı URL'nin
+  (`https://cdn.ceyhunlarplastik.xyz/product-supplier-codes/...`) tarayıcıda
+  açıldığını doğrula. Deploy'dan ÖNCE zaten yüklenmiş teknik resimler S3'te zaten
+  var olduğu için ek bir backfill/re-upload gerekmiyor — yalnız yönlendirme
+  eksikti.
+
+## Ürün detay sayfası — başlık 2 satıra bölünüyor + QuickNav ikonları büyütüldü (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `ProductDetailOverview.tsx`'teki ürün adı artık ilk 2 kelime üst
+  satırda, kalan kelimeler alt satırda gösteriliyor. Bu bölme mantığı zaten
+  `AnimatedSplitProductTitle.tsx`'te (hero başlık animasyonu) yerel bir fonksiyon
+  olarak vardı (`splitTitleLines`) — kopyalamak yerine paylaşılan
+  `features/public/products/utils/splitProductTitleLines.ts`'e çıkarıldı (+ 4
+  testli: 2 kelimeden fazla, 2/1 kelime, fazla boşluk normalize, boş metin) ve
+  `AnimatedSplitProductTitle` de bu paylaşılan fonksiyona geçirildi (iki yerde
+  aynı kural, tek kaynak). `ProductDetailOverview`'daki kullanım STATİK (server
+  component, animasyon/font-fit yok) — yalnız `<span className="block">` ile iki
+  satır. Ayrıca aynı sayfadaki `ProductQuickNav` (`variant="strip"`) ikonları
+  `lg:` ve üstü ekranlarda (macbook/masaüstü) 2 katına çıkarıldı: `size-4` →
+  `size-4 lg:size-8`. `ProductHero`'nun kullandığı `variant="grid"` (`size-7`)
+  dokunulmadı — talep yalnız bu sayfa (strip) içindi.
+- **Neden:** Kullanıcı talebi — ürün adının okunabilirliği için 2+kalan satır
+  bölünmesi, QuickNav ikonlarının büyük ekranda daha görünür olması.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (157 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅ (360 + yeni 4).
+  Kubi'de görsel doğrulama kullanıcıda: `/urun/[slug]` sayfasında 3+ kelimeli ve
+  ≤2 kelimeli ürün adlarıyla başlık bölünmesini, lg+ ekranda QuickNav ikon
+  boyutunu kontrol et.
+- **Ne kaldı:** Yok — bilinen bir ek iş çıkmadı.
+
+## PageHero breadcrumb'ı banner'dan ayrı, sade bir şeride taşındı (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `components/sections/PageHero.tsx` (13 public sayfada kullanılan
+  paylaşılan hero, 9'unda breadcrumb'lı) — breadcrumb artık resimli/renkli sabit
+  yükseklikteki (`h-25`..`h-45`) banner'ın İÇİNDE değil, onun ÜSTÜNDE ayrı, düz
+  beyaz arka planlı ince bir `<nav>` şeridinde (`border-b`, `py-2.5`, `text-xs
+  sm:text-sm`, shadcn `Breadcrumb` varsayılan muted renkleri — artık koyu resim
+  üstü beyaz metin değil). Şerit tek satır ve `overflow-x-auto` — uzun bir iz
+  (ör. `/urun/[slug]`'daki 4 seviyeli Ana Sayfa/Ürünler/Kategori/Ürün adı) artık
+  banner'ı büyütmüyor, gerekirse yatay kaydırılıyor; her etiket ayrıca
+  `max-w-28 truncate sm:max-w-48 md:max-w-none` ile kırpılıyor (native `title`
+  tooltip'i ile tam metin korunuyor) — çoğu durumda kaydırmaya bile gerek
+  kalmıyor. Banner artık yalnız başlığı taşıyor, dikey ortalanması sadeleşti.
+  Referans: kullanıcının paylaştığı navbar.gallery/type/breadcrumbs örnekleri
+  (sade, düz, tek satır breadcrumb şeritleri).
+- **Neden:** Kullanıcı gözlemi — breadcrumb'taki arka plan resmi gereksiz yer
+  kaplıyor ve responsive'de asıl içeriğin (ör. ürün) önüne geçiyordu; uzun ürün
+  adı gibi etiketlerde banner satır kayıp büyüyordu.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (157 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅ (bu component'e
+  ait otomatik test yok, tamamen görsel). Paylaşılan component 13 sayfayı
+  etkiliyor — **kubi'de görsel doğrulama kullanıcıda**, özellikle:
+  `/ham-madde-sertifikalari` (kullanıcının bahsettiği sayfa, kısa 2 seviyeli iz),
+  `/urun/[slug]` (en uzun iz, 4 seviye + uzun ürün adı — kırpma/kaydırma
+  davranışı), `/urunler/filtre` (client-side breadcrumb, `ProductFilterPageHero`
+  üzerinden aynı `PageHero`'yu kullanıyor, ayrı kod yolu yok).
+- **Ne kaldı:** Yok — bilinen bir ek iş çıkmadı.
+
+## PageHero: breadcrumb + banner ayrı reusable component'lere bölündü, banner geçici yorumda (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Önceki turda `PageHero.tsx` içine gömülen breadcrumb şeridi
+  artık kendi bağımsız component'i: `components/sections/PageBreadcrumb.tsx`
+  (`items` prop'u, `href`'siz son öğe = içinde bulunulan sayfa). Banner (görsel +
+  başlık) da ayrıldı: `components/sections/PageHeroBanner.tsx`. `PageHero.tsx`
+  artık yalnız ikisini birleştiren ince bir sarmalayıcı — 13 sayfanın kullandığı
+  `title`/`breadcrumbs`/`backgroundImage` prop imzası DEĞİŞMEDİ, hiçbiri
+  güncellenmedi. Her iki alt component de tek başına da import edilebilir (ör.
+  ileride banner istemeyen bir sayfa yalnız `PageBreadcrumb` kullanabilir).
+  `PageBreadcrumb` artık `motion`/`Image` kullanmadığı için `"use client"`
+  gerektirmiyor (Server Component) — client tarafı yalnız `PageHeroBanner`'da
+  (motion animasyonu). Ayrıca stil ince ayarı: iz metni `text-neutral-700`'a
+  koyulaştırıldı (önceki turda shadcn varsayılanı `text-muted-foreground`'du,
+  biraz daha soluktu); son öğe (içinde bulunulan sayfa, ör. "Bakalit
+  Tutamaklar") artık `font-semibold text-brand` — kalın + marka rengiyle diğer
+  (tıklanabilir) öğelerden ayrışıyor, altı çizili yapılmadı (tıklanabilir
+  sanılmasın diye).
+  **GEÇİCİ:** Kullanıcı yalnız breadcrumb'ı incelemek istediği için
+  `PageHero.tsx`'teki `<PageHeroBanner .../>` çağrısı YORUMA ALINDI — şu an 13
+  sayfanın hiçbirinde görsel/başlık banner'ı görünmüyor, yalnız breadcrumb
+  şeridi var. Geri açmak tek satırlık yorum kaldırma.
+- **Neden:** Kullanıcı talebi — breadcrumb metni dikkat çekmesi için daha koyu
+  ve son öğe vurgulu olsun; breadcrumb (ve banner) 13+ sayfada kullanıldığı ve
+  daha da çok yerde kullanılabileceği için reusable, ayrı component'ler olarak
+  tutulsun; banner'ı geçici olarak kapatıp yalnız breadcrumb'ı incelemek istedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning — **+1, GEÇİCİ**: `PageHeroBanner` importu banner yorumdayken
+  kullanılmıyor, banner geri açılınca 157'ye döner) ✅ · `test -w frontend`
+  364/364 ✅. Görsel doğrulama kullanıcıda.
+- **Ne kaldı (kullanıcıda):** Banner'ı geri açmak isteyince söylemesi yeterli —
+  `PageHero.tsx`'teki yorum satırının kaldırılması tek işlem. O ana kadar
+  **prod'a deploy edilmemeli** (tüm public sayfalarda H1 başlık/banner kayboluyor
+  — yalnız kubi'de geçici inceleme amaçlı).
+
+**Ek düzenleme (aynı gün):** Kullanıcı `/urun-kategori/[slug]` ekran görüntüsüyle
+şeridin "biraz sade/tasarımsız" durduğunu bildirdi. `PageBreadcrumb.tsx`'e görsel
+ince ayar: arka plan `bg-white` → `bg-neutral-50` (navbar'ın hemen altında saf
+beyazın üstüne "yapışık" durmasın diye hafif bir ton farkı), dikey boşluk
+`py-2.5` → `py-3`, ayırıcı chevron rengi `text-neutral-400` (artık metinden daha
+soluk, hiyerarşiyi netleştiriyor). İlk öğeye (Ana Sayfa) `lucide-react` `Home`
+ikonu eklendi — dar ekranda yalnız ikon görünür, metin `sm:`den itibaren eklenir
+(mobilde yer tasarrufu + görsel çapa). Doğrulama: `typecheck` ✅ · `lint` 0
+error (158 warning, değişmedi) ✅ · `test` 364/364 ✅. Görsel doğrulama yine
+kullanıcıda.
+
+## PageHero sonrası içerik boşluğu 9 public sayfada standardize edildi (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı `ham-madde-sertifikalari` ve `urun-kategori/[slug]`
+  sayfalarının PageHero-sonrası section'larını karşılaştırıp aynı olmadığını
+  fark etti. Dokuz `<PageHero>` kullanan sayfa tek tek çıkarıldı — gerçekten
+  üç farklı desen vardı: genişlik `max-w-[1400px]`/`max-w-350` (4 sayfa:
+  `ham-madde-sertifikalari` ×2, `kataloglar`, `urun/[slug]`) vs `max-w-7xl`
+  (5 sayfa); yatay padding `px-4 sm:px-6 lg:px-8` vs düz `px-6` vs
+  `px-4 sm:px-6`; üst boşluk `py-6`'dan `py-20`'ye kadar dağınık. Üstelik 3
+  sayfada (`ham-madde-sertifikalari` ×2, `kataloglar`) muhtemelen kazara bir
+  hata vardı: `py-16 md:py-8` — masaüstünde padding mobilden AZALIYORDU.
+  Yeni paylaşılan component: `components/sections/PageSection.tsx` —
+  `mx-auto max-w-7xl px-6 py-12` sabitliyor. `max-w-7xl` seçildi çünkü
+  `PageBreadcrumb`/`PageHeroBanner` zaten bu genişliği kullanıyor — artık hero
+  ile içerik sol/sağ kenardan hizalı. Dokuz sayfanın hepsi (+`sepet` sayfasının
+  içeriği olan `InquiryCartPageClient.tsx`) `<section className="...">`'i
+  `<PageSection>`'a çevirdi; sayfaya özgü ekstra class'lar (`space-y-6`,
+  `grid gap-6 lg:grid-cols-12`, vb.) `className` prop'uyla korundu — `cn`/
+  `tailwind-merge` çakışan `py-*`/`px-*`'i doğru çözüyor. `urun/[slug]`'ın
+  birbirine bitişik iki section'ı özel durum: ilki `pb-6` (üstü standart
+  `py-12`'den geliyor), ikincisi `pt-0 pb-20` (üstteki section'a bitişik kalsın
+  diye üst boşluk yok) + sayfaya özgü `**:[[id]]:scroll-mt-28` korundu.
+- **Neden:** Kullanıcı gözlemi — PageHero ile altındaki içerik arasındaki
+  boşluk sayfadan sayfaya farklıydı, standart olmalıydı. Ayrıca PageHero ile
+  `<main>` arasında hiç boşluk olmaması sorgulandı — bu KASITLI (hero/breadcrumb
+  navbar'a yaslı durur, boşluk hero'nun ALTINDAKİ içerikle arasına konur),
+  değişiklik gerekmedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning — değişmeyen, ayrı bir geçici duruma ait, bkz. önceki not) ✅ ·
+  `test -w frontend` 364/364 ✅. Bu 9+1 dosyayı etkileyen görsel bir değişiklik —
+  **kubi'de görsel doğrulama kullanıcıda**, özellikle genişliği 1400px'ten
+  1280px'e inen 4 sayfa (`ham-madde-sertifikalari` ×2, `kataloglar`,
+  `urun/[slug]`) daha dar görünecek.
+- **Ne kaldı:** Yok — bilinen bir ek iş çıkmadı. (PageHero banner'ı hâlâ önceki
+  turdan yorumda — ayrı, bekleyen bir madde, PLAN'da not edildi.)
+
+## ProductVariantTable — wideTable başlığı tablo kartına taşındı (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `wideTable` (yalnız `/urun/[slug]` ana sayfasında kullanılıyor
+  — panel varyant sayfası `wideTable` geçmiyor, orada başlık zaten hiç
+  gösterilmiyordu) modunda `<h2>{t("title")}</h2>` tablonun ÜSTÜNDE, kendi
+  kutusu/arka planı olmayan çıplak bir flex satırında duruyordu — tablodan
+  görsel olarak kopuk. Başlık artık tablonun KENDİ kartının (`role="region"`,
+  `rounded-xl border`) İÇİNE, `<Table>`'dan önce bir "kart başlığı" satırı
+  olarak taşındı (`border-b border-border bg-muted/40 px-4 py-3`) — `aria-labelledby={titleId}`
+  zaten bu bölgeyi işaret ediyordu, artık görsel olarak da aynı kartın parçası.
+  Font boyutu/ağırlığı DEĞİŞMEDİ (`text-xl sm:text-2xl font-semibold`) —
+  yalnız konum değişti, kapsam dışı büyütme/küçültme yapılmadı. Üstteki eski
+  sarmalayıcı yalnız "varyanta gidiliyor" durum rozetini (`isNavigatingToVariant`)
+  taşımaya devam ediyor; `wideTable || isNavigatingToVariant` mount koşulu
+  BİLEREK korundu (kaldırılsaydı `AnimatePresence` exit animasyonu oynamadan
+  rozet aniden kaybolurdu).
+- **Neden:** Kullanıcı gözlemi — başlık "tablodan bağımsızmış gibi duruyor",
+  daha iyi bir yere konumlandırılmalı.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅. Görsel doğrulama
+  kullanıcıda — `/urun/[slug]` sayfasında "varyantlar" bölümüne bakılmalı.
+- **Ne kaldı:** Yok.
+
+## ProductDetailOverview — özellik rozetleri "Ölçü ve Seçenekler" ile alt alta, montaj videosu yalnız kare olarak (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `ProductDetailOverview.tsx`'te `ProductAttributeBadges`
+  (Bağlantı Tipi/Model Tipi rozetleri) açıklamanın altındaki kendi satırından
+  alt kısımdaki aksiyon satırına taşındı — artık "Ölçü ve Seçenekler" düğmesiyle
+  AYNI dikey sütunda, rozetler üstte düğme altta (`flex-col`). Bu sütunun
+  sağında montaj videosu (`product.assemblyVideoUrl` varsa) göstermeye devam
+  ediyor ama artık `ProductDetailMediaPreview`'e yeni `mediaOnly` prop'u
+  (`ProductTechnicalDrawingSection`'daki aynı isimli prop'la aynı kural: metni
+  gizle, yalnız medya) — başlık/alt yazı/ok ikonu kaldırıldı, yalnız YouTube
+  thumbnail + oynat ikonu kalan bir kare (`w-32 sm:w-40`, `h-full`) kaldı. Satır
+  `items-stretch` oldu ki video karesi sol taraftaki (rozet+düğme) sütunun
+  yüksekliğine otomatik uzasın — sabit piksel yazılmadı, flex stretch ile
+  kendiliğinden ayarlanıyor. Video artık daha büyük/dikkat çekici.
+- **Neden:** Kullanıcı talebi — rozetler düğmeyle alt alta olmalı, montaj
+  videosu yazısız yalnız video karesi olarak daha dikkat çekmeli.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅. Görsel doğrulama
+  kullanıcıda — `/urun/[slug]` sayfasında montaj videosu olan bir üründe
+  kontrol edilmeli.
+- **Ne kaldı:** Yok.
+
+**Ek düzenleme (aynı gün):** Kullanıcı ekran görüntüsüyle rozet+düğme sütunu
+ile video karesi arasında büyük bir boşluk olduğunu gösterdi — sebep, sol
+sütunun `flex-1` ile satırın TÜM kalan genişliğini doldurması, video karesini
+satırın en sağına itmesiydi (2 rozetle az yer kaplayan sütun büyürken video
+sağa kayıyordu). `flex-1` kaldırıldı — sütun artık yalnız kendi içeriği kadar
+genişlik kaplıyor, video `gap-5` kadar hemen yanında duruyor. 4 rozetli bir
+üründe de sorun çıkmaz: rozetler kendi `flex-wrap`'li satırında sarar, sütunun
+dış genişlik talebini büyütmez. Doğrulama: `typecheck` ✅ (bir denemede
+`.next/types/validator.ts`'te var olmayan admin/satış route'larına işaret eden
+GEÇİCİ bir hata çıktı — eşzamanlı çalışan kubi dev sunucusunun ürettiği bayat
+bir tip dosyasıydı, ikinci denemede temizdi, değişiklikle ilgisiz) · `lint` 0
+error (158 warning, değişmedi) ✅ · `test` 364/364 ✅.
+
+## "İlgili Ürünler" — manuel insan seçimi tamamen kaldırıldı, yalnızca profil eşleşmesi kaldı (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `CustomerFeaturedProduct` modeli ve ona bağlı tüm manuel seçim
+  yolu silindi. "İlgili Ürünler" kavramı kalıyor ama artık YALNIZCA profil
+  eşleşmesinden türer (müşteri sektör/üretim grubu/kullanım alanı ↔
+  `ProductIndustrialUsage`, `customerProfileMatching.ts`). Admin / satış müdürü /
+  satış temsilcisi ürün seçemez.
+  - **Migration:** `20260908120000_drop_customer_featured_product` — `DROP TABLE
+    "CustomerFeaturedProduct"` (+ 3 FK drop). schema.prisma'dan model + 3 ilişki
+    alanı (`User.createdCustomerFeaturedProducts`, `Customer.featuredProducts`,
+    `Product.featuredByCustomers`) çıkarıldı; client `prisma generate` ile
+    yenilendi.
+  - **core:** `getCustomerFeaturedAndMatchedProducts.ts` manuel dalı atıldı, yalnız
+    `ATTRIBUTE_MATCH` döner (`source` tipi tekilleşti, `isProfileMatched: true`
+    sabit). `customers/repository.ts`'ten `listFeaturedProducts` /
+    `replaceFeaturedProducts` / `customerDetailInclude.featuredProducts` /
+    `_count.featuredProducts` / `CustomerFeaturedProductWithRelations` silindi;
+    `customerProductInclude` artık `satisfies Prisma.CustomerFeaturedProductInclude`
+    yerine düz `{ product: { include: Prisma.ProductInclude } }`. `mapCustomerForApi`
+    `featuredProducts` map'i + `mapCustomerProductForApi` helper'ı kalktı.
+    `users/repository.ts` + `deleteUser.ts` `createdCustomerFeaturedProducts`
+    blocker'ı kaldırıldı.
+  - **functions:** AdminApi `list/replaceCustomerFeaturedProducts` action + 2 handler
+    dosyası + `IReplace(Customer)FeaturedProductsEvent` tipleri +
+    `replaceCustomerFeaturedProductsValidator` silindi. ProtectedApi/crm
+    `list/replaceManagedCustomerFeaturedProducts` action+handler+tip silindi,
+    overview handler'dan `featuredProductCount` çıktı. `getPortalCustomerFeaturedProducts`
+    ucu + `customerFeaturedProductsResponseValidator` + `featuredProductSchema`
+    KALDI (portal artık bu uçtan eşleşen ürünleri alıyor); `featuredProductSchema.source`
+    `["ATTRIBUTE_MATCH"]`'e daraltıldı, `customerSchema.featuredProducts` alanı
+    kaldırıldı.
+  - **infra:** `AdminApi.ts` GET+PUT `/customers/{id}/featured-products`,
+    `ProtectedApi.ts` GET+PUT `/sales/customers/{id}/featured-products` route'ları
+    silindi. `GET /portal/customer/featured-products` duruyor.
+  - **frontend:** admin `/admin/customers/[id]/products` + satış
+    `/satis/musteriler/[id]/products` route'ları, `CustomerFeaturedProductsPageClient`
+    + 4 hook/api dosyası silindi. `CustomerWorkspaceShell`'den "İlgili Ürünler"
+    nav sekmesi ve "İlgili Ürün" sayaç tile'ı kaldırıldı (grid 4→3).
+    `CustomerPortalProductsPageClient` açıklaması güncellendi, "Satış temsilcisi
+    seçimi" rozeti kaldırıldı (her ürün artık profil eşleşmesi). Overview + profil
+    özet kartındaki "İlgili Ürün" sayacı `usePortalFeaturedProducts().data.length`
+    ile client tarafında hesaplanıyor (server `featuredProductCount` alanı kalktı).
+    `api/types.ts`: `AdminCustomer.featuredProducts` kaldırıldı, `CustomerFeaturedProduct`
+    tipi profil-eşleşmesi şekline daraltıldı (portal hâlâ kullanıyor).
+- **Neden:** Kullanıcı, "İlgili Ürünler" listesine admin/satış müdürü/satış
+  temsilcisinin elle ürün eklemesini istemiyor; liste tamamen profil
+  eşleşmesinden gelmeli.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅
+  (ilk denemede bayat `.next/types` deleted-route hatası; `rm -rf .next/types`
+  sonrası temiz) · `lint -w frontend` 0 error (158 warning, değişmedi) ✅ ·
+  core 613/613 · functions 338/338 (validatorCompilation dahil) · frontend
+  364/364 ✅. ARCHITECTURE.md CRM/portal bölümleri güncellendi.
+- **Ne kaldı:** kubi migration + portal testi kullanıcı tarafından yapıldı, çalışıyor
+  (2026-09-08). **Prod'a migration + deploy** zamanı gelince kullanıcı yapacak
+  (prod'da müşteri kullanımı yok, veri kaybı sorun değil):
+  `npx sst shell --stage prod -- npx prisma migrate deploy` ardından deploy.
+
+## Public sayfalar için özel 404/hata sayfaları eklendi (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı public'te olmayan bir sayfaya gidince Next.js'in
+  çıplak varsayılan 404'ünü gördüğünü bildirdi, Pages Router'ın eski
+  `custom-error` dokümanını referans verdi. Proje App Router olduğu için
+  oradaki `_error.js`/`pages/404.js` deseni yerine App Router karşılığı
+  uygulandı: `app/[locale]/(public)/not-found.tsx` (eşleşmeyen route) ve
+  `app/[locale]/(public)/error.tsx` (render sırasında atılan runtime hatası —
+  Next.js gereği `"use client"`). İkisi de `(public)/layout.tsx`'in İÇİNDE
+  render edildiği için `Navbar`/`Footer` korunuyor, yalnız içerik alanı
+  değişiyor — artık marka diliyle tutarlı (ikon, başlık, açıklama, Ana Sayfa/
+  Ürünler CTA'ları). `not-found.tsx` route params ALMAZ; next-intl'in
+  `getRequestConfig`'i (`i18n/request.ts`) `requestLocale`'i middleware'den
+  okuduğu için `params` olmadan da doğru locale çözülüyor — özel bir işlem
+  gerekmedi. Yeni çeviri namespace'i: `shared.errors.notFound` (title/
+  description/homeCta/productsCta) ve `shared.errors.serverError` (title/
+  description/retryCta/homeCta), `tr.json`/`en.json`'a eşit sayıda eklendi
+  (781/781 anahtar, doğrulandı).
+- **Neden:** Kullanıcı talebi — "Public sayfalardan başlamak üzere... custom
+  hata sayfalarımız olsa daha güzel olur."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅ (i18n anahtar
+  sayısı eşitliği `node` betiğiyle ayrıca doğrulandı, katalog testleri de
+  suite içinde geçti). Görsel doğrulama kullanıcıda — var olmayan bir public
+  URL'e gidip (`/urunler/olmayan-bir-sayfa` gibi) yeni 404 ekranını kontrol et.
+- **Ne kaldı:** Panel (`/admin`, `/satis` vb.) ve auth route grupları için aynı
+  özel 404/hata sayfaları henüz yok — kullanıcı bilinçli olarak "public'ten
+  başlamak üzere" dedi, PLAN'a açık madde olarak eklendi.
+
+**Düzeltme (aynı gün):** Kullanıcı kubi'de denedi, `/urunler/olmayan-bir-sayfa`
+hâlâ Next.js'in çıplak varsayılan 404'ünü gösteriyordu (dev sunucusu yeniden
+başlatılsa bile). Kök neden Next.js dokümantasyonundan doğrulandı:
+`[locale]/(public)/not-found.tsx` gibi İÇ İÇE bir `not-found.tsx` YALNIZ route
+İÇİNDE `notFound()` fonksiyonu ÇAĞRILDIĞINDA devreye girer (ör.
+`urun/[slug]/page.tsx`'teki `if (!product) notFound()`). Dosya sisteminde HİÇ
+eşleşmeyen bir path (`/urunler/olmayan-bir-sayfa` gibi — `urunler/` altında
+böyle bir segment hiç yok) için Next.js yalnız KÖK seviyesindeki
+`app/not-found.tsx`'i kullanır; bu proje TEK bir ortak `app/layout.tsx`
+taşımıyor (`[locale]/layout.tsx` ve `(panels)/layout.tsx` ayrı ayrı kök) —
+Next.js'in kendi dokümantasyonu bu durumu ("birden fazla kök layout" / "üst
+segment dinamik param") normal kök `not-found.tsx`'in YETERSİZ kaldığı,
+deneysel `global-not-found` özelliğinin gerektiği senaryo olarak tanımlıyor.
+Uygulanan düzeltme: `next.config.ts`'e `experimental.globalNotFound: true` +
+yeni `app/global-not-found.tsx` — bu dosya normal layout ağacını (Navbar/
+Footer, next-intl context) BAYPAS eder, kendi TAM `<html><body>` belgesini
+kurar (`./globals.css`'i kendi import eder), next-intl context'i olmadığı için
+metinler TR sabit yazıldı (mevcut `shared.errors.notFound` çeviri anahtarları
+bu dosyada KULLANILAMIYOR — next-intl request context'i burada kurulmuyor;
+o anahtarlar hâlâ geçerli, yalnız `notFound()`-çağrılan senaryo için). Ayrıca
+Next'in `no-html-link-for-pages` lint kuralı `<a href>` yerine `next/link`
+(next-intl'in locale-aware `Link`'i DEĞİL — bu sayfa context dışı) zorunlu
+kıldığı için düz `next/link` kullanıldı. Doğrulama: `typecheck` ✅ · `lint`
+0 error (158 warning, değişmedi — ilk yazımda `<a>` kullanınca 8 error
+çıkmıştı, `next/link`'e geçilince düzeldi) ✅ · `test` 364/364 ✅. **Kubi'de
+tekrar doğrulama gerekiyor** — bu sefer `/urunler/olmayan-bir-sayfa` gibi
+GERÇEKTEN hiç eşleşmeyen bir path'in yeni `global-not-found.tsx`'i, `/urun/
+olmayan-bir-slug` gibi (var olan dinamik route + `notFound()` çağrısı) bir
+path'in ise `[locale]/(public)/not-found.tsx`'i gösterdiğini kontrol et — ikisi
+FARKLI senaryolar, ikisi de artık ele alınmış olmalı.
+
+## TopBar mobilde responsive yapıldı (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `TopBar.tsx` (en üstteki sosyal medya/telefon/ürün-katalog
+  talep/dil şeridi) `justify-between` içinde SABİT genişlikte üç blok
+  taşıyordu — telefonlar zaten `md:` altında gizliydi ama sağ taraftaki "Ürün
+  Talep Et"/"Katalog Talep Et" ikon+metin düğmeleri ve dil seçici HER zaman
+  tam metinle görünüyordu; dar telefon ekranlarında (320-400px) 3 sosyal ikon
+  + iki metinli düğme + dil seçici tek satıra sığmıyordu. `ProductRequestDialog`
+  ve `CatalogRequestDialog` (Footer'da da kullanılıyor — bkz. aşağı) yeni bir
+  `hideLabelOnMobile` prop'u aldı: `true` iken tetikleyicideki etiket metni
+  `<span className="hidden sm:inline">` ile sarılıyor (ikon her zaman görünür,
+  metin yalnız `sm:` — 640px — ve üstünde geri döner) + buton her zaman
+  `aria-label` taşıyor (metin gizliyken erişilebilirlik kaybolmasın diye).
+  `TopBar.tsx` bu prop'u kullanıyor VE kendi eklediği fazladan ikonları
+  (`PackageSearch`/`BookOpenText` — dialog'un zaten kendi ikonu var, TopBar'da
+  ikisi üst üste biniyordu) mobilde gizleyip yalnız `sm:`den itibaren
+  gösteriyor. `Footer.tsx`'teki kullanım (prop verilmedi, varsayılan `false`)
+  DEĞİŞMEDİ — orada metin her zaman görünür kalmaya devam ediyor. Ayrıca
+  telefon numaralarının görünme eşiği `md:` (768px) → `lg:` (1024px)'e
+  çekildi — sağdaki metinler `sm:`de (640px) geri dönünce 640-768px aralığı
+  (küçük tablet/yatay telefon) hâlâ sıkışık kalabilirdi, bu bilinçli ek bir
+  ayar (talep edilenin biraz ötesinde, düşük riskli).
+- **Neden:** Kullanıcı gözlemi — "TopBar en tepede duruyor ancak mobil
+  ekranlar için responsive değil."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅. Görsel doğrulama
+  kullanıcıda — kubi'de dar bir viewport'ta (ör. 375px) herhangi bir public
+  sayfada TopBar'ın tek satıra sığdığını, Footer'daki "Ürün Talep Et"/"Katalog
+  Talep Et" metinlerinin hâlâ göründüğünü kontrol et.
+- **Ne kaldı:** Yok.
+
+## Ürün detay sayfası — montaj videosu büyütüldü (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı `/urun/[slug]` sayfasında montaj videosu kartının
+  ürün görseline göre çok küçük kaldığını belirtti, lokal kubi URL'i verdi.
+  Chrome üzerinden gerçek render'ı ölçtüm: video kartı (`ProductDetailMediaPreview`
+  `mediaOnly` dalı) 1440px genişlikte yalnız 224×170px'ti (16:9 thumbnail
+  kısmı yalnız 126px yükseklikte), ürün görseli ise 536×420px — video 3 kata
+  yakın küçüktü. `ProductDetailOverview.tsx`'teki video/rozet-buton grid'inin
+  sabit sütun genişliği büyütüldü: `12rem`/`14rem` → `16rem`/`18rem` —
+  `aspect-video` sayesinde ORANTI (16:9) otomatik korunuyor, yalnız genişlik
+  büyüyünce yükseklik de orantılı büyüyor (distorsiyon yok). Ayrıca ürün
+  görselinin (`ProductDetailMediaPreview` görsel dalı) sabit yükseklikleri
+  bir tık artırıldı: `h-72 sm:h-80 md:h-96 lg:h-105` → `h-80 sm:h-88 md:h-104
+  lg:h-115` — satırın genel dikey ölçeği büyüyünce video da orantılı olarak
+  daha büyük görünüyor, görsel kendi `object-contain`/aspect'i korunarak
+  (distorsiyon yok, yalnız çerçeve büyüdü). Chrome'da 1440px'te doğrulandı:
+  video kartı artık ~288×258px (thumbnail ~288×162px) — belirgin şekilde
+  daha büyük, rozet+buton sütunu hâlâ rahat sığıyor, sarma/taşma yok.
+- **Neden:** Kullanıcı talebi — "assemblyVideoUrl için ... orantısını
+  koruyarak büyük göstermek."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅. Ayrıca Chrome
+  DevTools ile gerçek render ölçüldü (öncesi/sonrası piksel karşılaştırması,
+  yukarıda). Dar container (mobil, `@min-[30rem]` altı) davranışı
+  DOKUNULMADI — yalnız `@min-[30rem]` ve üstü sütun genişlikleri büyüdü.
+- **Ne kaldı:** Yok.
+
+## Ürün detay sayfası — rozet+buton sütunu video ile eşit yükseklik, ortalandı (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Bir önceki turda montaj videosu büyütülünce (206px) sol
+  taraftaki rozet+buton sütunu (108px, doğal içerik yüksekliği) belirgin
+  şekilde kısa kaldı. `ProductDetailOverview.tsx`'teki iç grid `items-start` →
+  `items-stretch` — CSS grid'in varsayılan davranışıyla kısa sütun artık uzun
+  sütunun (video) yüksekliğine otomatik geriliyor (JS/sabit piksel gerekmedi).
+  Gerilen sütunun içeriği (`ProductAttributeBadges` + "Ölçü ve Seçenekler"
+  butonu) üstte yapışık kalmasın diye sarmalayıcıya `justify-center` eklendi —
+  artık boşluk üstte/altta eşit dağılıp içerik dikeyde ortalanıyor. Buton
+  `@min-[30rem]:w-fit` override'ı kaldırıldı — artık her zaman `w-full`,
+  sütunun tüm genişliğini kaplıyor (öncesinde 30rem+ container'da içeriğe
+  göre daralıyordu). Video tarafına da (`ProductDetailMediaPreview` mediaOnly
+  buton) simetri için `h-full` eklendi — hangi taraf daha uzun içerik
+  üretirse üretsin (ör. bir üründe 4 rozet 2 satıra sarıp sütunu doğal olarak
+  uzatırsa) iki taraf hep birbirine eşitlenir.
+- **Neden:** Kullanıcı talebi — "ProductDetailMediaPreview ve sağ taraftaki
+  elementlerin yüksekliği aynı olsun. ProductAttributeBadges ... ortalansın,
+  ArrowDown buton da ortalansın ve alabildiği kadar genişlik alsın."
+- **Nasıl doğrulandı:** Chrome'da localhost:3000'de gerçek render ölçüldü —
+  değişiklik öncesi video 206px / rozet+buton sütunu 108px; sonrası ikisi de
+  206.125px (birebir eşit). `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅.
+- **Ne kaldı:** Yok.
+
+## Ürün detay sayfası — ürün görseli ile sağ blok alt çizgisi hizalandı (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı ekran görüntüsünde ok çizerek gösterdi: ürün
+  görselinin alt kenarı ile montaj videosunun alt kenarı aynı hizada değildi.
+  Kök neden: dış grid `items-center` kullanıyordu — sağ blok (başlık+açıklama+
+  rozet/video satırı) sol görselden daha uzun olduğu için `items-center`
+  kısa olan görseli satırın ortasına hizalıyor, üstte de altta da boşluk
+  bırakıyordu. `items-center` → `items-end` — artık iki sütun ALTTAN
+  hizalanıyor (görselin sabit yüksekliği ile sağ bloğun değişken yüksekliği
+  ne olursa olsun alt kenarları hep eşleşir; üstte boşluk kalması kabul
+  edilebilir, kullanıcının işaret ettiği asıl sorun buydu). Ayrıca sağ bloğun
+  sarmalayıcısındaki `py-2` (üst+alt padding) `pt-2`'ye indirildi — alttaki
+  8px'lik dolgu, hizalamayı görselin alt kenarına göre 8px kaydırıyordu.
+- **Neden:** Kullanıcı gözlemi (ok işaretli ekran görüntüsü) — "resmin alt
+  çizgisi ile videonun alt çizgisi aynı hizaya gelmiyor."
+- **Nasıl doğrulandı:** Chrome'da localhost:3000'de gerçek render ölçüldü —
+  düzeltme öncesi görsel alt kenarı 646px / video alt kenarı 638px (8px fark);
+  `items-end` sonrası hâlâ 646/638 (grid hizalama düzeldi ama `py-2`'nin alt
+  boşluğu kalmıştı); `pt-2`'ye indirilince ikisi de 646px — birebir eşleşti.
+  `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (158 warning,
+  değişmedi) ✅ · `test -w frontend` 364/364 ✅.
+- **Ne kaldı:** Yok.
+
+## Ürün görseli 800×1000 formatını koruyacak şekilde aspect-ratio'ya geçti (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Bir önceki turda alt kenar hizalaması `items-end` +
+  breakpoint başına sabit `h-*` değerleriyle (h-80..lg:h-115) çözülmüştü —
+  ama bu sabit yükseklikler ürün fotoğraflarının gerçek formatını (800×1000,
+  4:5 portre) yansıtmıyordu; konteyner oranı ekran genişliğine göre değişiyor,
+  görselin etrafında tutarsız miktarda boşluk kalıyordu. `ProductDetailMediaPreview.tsx`'in
+  görsel dalındaki sabit yükseklik class'ları (`h-80 sm:h-88 md:h-104 lg:h-115`)
+  kaldırılıp `aspect-[800/1000]` ile değiştirildi — artık konteyner HER
+  genişlikte ürün fotoğrafının gerçek en-boy oranını koruyor, `w-full` ile
+  esnek genişlik + orandan türeyen yükseklik. `items-end` hizalaması buna
+  rağmen bozulmadı (grid'in alt hizalaması konteynerin nasıl
+  boyutlandığından bağımsız çalışır) — Chrome'da doğrulandı: görsel alt
+  kenarı ve video alt kenarı hâlâ birebir aynı piksel (848.77px).
+- **Neden:** Kullanıcı talebi — "bunu resmin formatını da koruyacak şekilde
+  yap 800 x 1000."
+- **Nasıl doğrulandı:** Chrome'da localhost:3000'de gerçek render ölçüldü —
+  görsel artık 536×670px (oran tam 0.8 = 4:5, 800:1000 ile birebir), alt
+  kenar video ile hâlâ eşleşiyor (848.77/848.77). Ekran görüntüsüyle de
+  kontrol edildi — ürün fotoğrafı artık konteyneri daha iyi dolduruyor,
+  gereksiz yatay/dikey boşluk azaldı. `typecheck -w frontend` ✅ ·
+  `lint -w frontend` 0 error (158 warning, değişmedi) ✅ · `test -w frontend`
+  364/364 ✅. `ProductDetailMediaPreview` yalnız `ProductDetailOverview.tsx`'te
+  kullanılıyor (grep ile doğrulandı) — başka sayfayı etkilemedi.
+- **Ne kaldı:** Yok.
+
+## Ürün görseli küçültüldü — ProductQuickNav MacBook Air'de scroll'suz görünüyor (2026-09-08) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** 800×1000 formatına geçilince (bir önceki not) görsel dikeyde
+  çok büyümüştü (536×670px, 1440px ekranda) — `ProductQuickNav` şeridi
+  MacBook Air'de (1470×801 kullanılabilir viewport, gerçek ölçüldü) görünüm
+  dışında kalıyordu. Kök neden: sol sütun `md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]`
+  ile KAPSAYICI genişliğinin oranıyla büyüyordu; `aspect-[800/1000]` sayesinde
+  genişlik büyüdükçe yükseklik de orantılı büyüyordu. Çözüm: sol sütunu ORANSAL
+  değil SABİT genişliğe çevirdim — `md:grid-cols-[380px_minmax(0,1fr)]`. Artık
+  görsel HER masaüstü/laptop genişliğinde 380px sabit (aspect-ratio sayesinde
+  yükseklik hep 475px = 380×1.25), sağ metin sütunu kalan tüm genişliği
+  alıyor. Oran (4:5, 800:1000) BOZULMADI — yalnız genişlik/yükseklik birlikte,
+  orantılı küçüldü (kullanıcının istediği tam olarak buydu).
+- **Neden:** Kullanıcı talebi — "resim yüksekliği oranı koruyarak biraz
+  azaltmalısın ki macbook air ekranında ve en çok kullanılan bilgisayar
+  ekranlarında ProductQuickNav da aynı sayfada gözükebilsin."
+- **Nasıl doğrulandı:** Chrome'da localhost:3000'de gerçek render ölçüldü:
+  1470×801 (MacBook Air) viewport'ta artık `ProductQuickNav`'ın alt kenarı
+  759px — **viewport'a (801px) 42px payla sığıyor, hiç scroll gerekmiyor**
+  (öncesinde 962px'e taşıyordu). Aynı viewport genişliğinde 745px yükseklikte
+  (1366×768'e yakın bir senaryo) navBottom 759px — yalnız 14px taşıyor, neredeyse
+  sığıyor (bilinçli kabul edilen küçük bir sınır durumu — MacBook Air'in
+  açıkça istenen hedef olması nedeniyle görseli daha da küçültmedim). Alt
+  kenar hizalaması (`items-end`, önceki not) bozulmadı. Ekran görüntüsüyle de
+  doğrulandı. `typecheck -w frontend` ✅ · `lint -w frontend` 0 error (158
+  warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅.
+- **Ne kaldı:** Yok — çok kısa (≤~745px) viewport'larda birkaç piksellik
+  scroll kalabilir, bilinçli bir ödünleşim olarak not edildi.
+
+## "Yeni Ürün"/"Yeni Varyant" rozetleri — Slice 1: public katalog (2026-09-09) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Yeni oluşturulan bir ürün modelinin ve yeni eklenen bir
+  varyantın müşterilere listelerde belirtilmesi istendi. Migration YOK —
+  `Product.createdAt`/`ProductVariant.createdAt` zaten şemada. Yeni core
+  helper `packages/core/.../products/productFreshness.ts`:
+  `NEW_ITEM_WINDOW_DAYS = 60` sabiti + saf, test edilebilir
+  `isWithinNewItemWindow(date, referenceDate)` fonksiyonu (5 test — pencere
+  sınırı `gte` dahil, string/Date tarih kabulü). `productRepository.listProducts`'ın
+  card görünümü include'u (`listCardInclude` → `buildListCardInclude(cutoff)`
+  fonksiyonuna çevrildi) artık `variants: { where: { createdAt: { gte: cutoff } },
+  select: { id: true }, take: 1 }` taşıyor — ürün başına EN FAZLA 1 varyant id'si
+  ("var mı yok mu" sorusu), ham liste asla dönmez, 6MB Lambda limiti riske
+  girmiyor. `listProductsHandler.toProductCardDTO`'da tarih matematiği
+  YALNIZ backend'de yapılıp `isNew`/`hasNewVariant` boolean'a çevriliyor —
+  frontend saat dilimi/skew riski taşımadan yalnız boolean okuyor. Response
+  validator'daki `productSchema`'ya (`.loose()` olduğu için teknik olarak
+  zorunlu değildi ama netlik için) `isNew`/`hasNewVariant` opsiyonel alan
+  olarak eklendi. Frontend: `Product` tipi + `slimProductCards.ts` bu iki
+  alanı da taşıyacak şekilde güncellendi. `components/ui/badge.tsx`'e iki
+  yeni CVA varyantı (`newProduct` — marka rengi, `newVariant` — teal, kasıtlı
+  farklı renkler). `ProductCard.tsx`'e `isNew`/`hasNewVariant` prop'ları + kod
+  rozetinin (sol üst) karşısına, sağ üst köşede `motion/react` ile hafif bir
+  "kalp atışı" scale pulse'ı (`prefers-reduced-motion` duyarlı,
+  `useReducedMotion()`). `ProductFilterList.tsx` bu prop'ları `product.isNew`/
+  `product.hasNewVariant`'tan geçiriyor. Yeni çeviri anahtarları
+  `shared.productCard.newProductBadge`/`newVariantBadge`, `tr.json`/`en.json`'a
+  eşit sayıda eklendi (783/783).
+- **Neden:** Kullanıcı talebi — yeni ürün modeli/yeni varyant müşterilere
+  rozet ile belirtilsin, 2 ay eşiği, iki farklı renk, hafif pulse animasyonu.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · core `test:ci` 618/618 ✅
+  (yeni 5 dahil) · functions `test` 338/338 ✅ (validator derleme testi (293)
+  dahil — response şeması bozulmadı) · frontend `typecheck` ✅ · `lint` 0
+  error (158 warning, değişmedi) ✅ · `test` 364/364 ✅. Kubi Public API'si
+  DOĞRUDAN sorgulandı (`curl .../products?category=bakalit-tutamaklar&view=card`):
+  2026-09-01'de oluşturulan "1.23"/"1.24" ürünleri `isNew: true`, Mart
+  ayındaki eski ürünler `isNew: false` — uçtan uca gerçek veriyle doğrulandı.
+  Chrome'da görsel doğrulama: rozet doğru renk/konum/metinle görünüyor
+  (kullanıcı da kubi'de doğruladı). `hasNewVariant` şu an test veri setinde
+  HİÇBİR üründe true değil (son 60 günde eklenmiş varyant yok) — mantık
+  `isNew` ile birebir aynı mekanizmayı kullandığı için doğru çalıştığına
+  güveniliyor ama gerçek "Yeni Varyant" rozetinin görsel doğrulaması henüz
+  yapılamadı (veri yok).
+- **Ne kaldı:** Slice 2 (müşteri portalı — "full" view'a aynı alanlar,
+  PLAN'a eklendi). `hasNewVariant`'ın gerçek veriyle görsel doğrulaması —
+  yakın zamanda bir varyant eklenince kontrol edilebilir.
+
+## "Yeni Ürün"/"Yeni Varyant" rozetleri — Slice 2: müşteri portalı (2026-09-09) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Slice 1'in devamı — aynı rozetlerin müşteri portalının
+  "Tüm Ürünler" listesinde de görünmesi. Önce veri akışı izlendi:
+  `CustomerPortalAllProductsPageClient` public sayfalarla AYNI hook'u
+  (`useProducts` → `fetchProducts`) ve AYNI `/products` (PublicApi) ucunu
+  kullanıyor, ama `view=card` GÖNDERMİYOR (`ProductFilterList` gönderiyor).
+  `listProductsHandler.ts` incelenince kritik bir gerçek ortaya çıktı:
+  handler `productRepository.listProducts(...)`'ı `query.view`'dan
+  BAĞIMSIZ olarak HER ZAMAN `{ view: "card" }` ile çağırıyor —
+  `query.view` yalnız ÇIKTI şekillendirmesini (`toProductCardDTO` vs. ham
+  `mapped`) kontrol ediyor, DB include'unu değil. Yani repository zaten her
+  zaman `product.variants` (eşik sonrası ≤1 id) ve `product.createdAt`
+  içeren card-seviyeli veriyi dönüyordu; eksik olan tek şey "full" (card
+  olmayan) çıktı dalının bu veriden `isNew`/`hasNewVariant` HESAPLAMAMASIYDI.
+  `mapProductWithAssets` da `...product` spread ETMEDİĞİ (whitelist obje
+  kuruyor) için ham `variants` dizisinin yanıta sızma riski hiç yoktu —
+  ekstra bir "strip" adımına gerek çıkmadı. Düzeltme: `mapped` üretilirken
+  (view'dan BAĞIMSIZ, tek yerde) `isNew`/`hasNewVariant` hesaplanıp objeye
+  eklendi; `toProductCardDTO` artık kendi recompute ETMİYOR, zaten hesaplanmış
+  boolean'ları kopyalıyor (çifte hesaplama/`hasNewVariant` yanlış `false`'a
+  düşme riski böyle önlendi — `mapped` objesinde ham `variants` alanı yok).
+  `CustomerPortalAllProductsPageClient.tsx`'teki `<ProductCard>` çağrısına
+  `isNew={product.isNew}`/`hasNewVariant={product.hasNewVariant}` eklendi
+  (portal `Product` tipini public'le paylaştığı için ekstra tip işi yok).
+  `repository.ts`'teki mevcut `buildListFullInclude` (Slice 1 sonunda
+  eklenmişti) DEĞİŞMEDİ — şu an her iki gerçek çağıran (`PublicApi` ve
+  `AdminApi` handler'ları) `{view:"card"}` gönderdiği için pratikte
+  ulaşılmıyor, ama `listProducts`'ı `view` OLMADAN çağıracak gelecekteki bir
+  çağıran için doğru/güvenli varsayılan (`baseInclude` + `variants` cutoff)
+  olarak bilinçli bırakıldı — ölü kod değil, savunmacı varsayılan.
+  Yorumlar güncellendi: `validators/products.ts`'teki `isNew`/`hasNewVariant`
+  notu ve frontend `types.ts`'teki karşılığı artık "yalnız view=card" DEĞİL,
+  "liste ucunda her iki görünümde de dolu" diyor.
+- **Neden:** Kullanıcı talebi — "Git commit yapmıcam şuan sen, Slice 2 ile
+  devam et" (Slice 1'in müşteri panelini kapsayan devamı).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ (repository.ts'teki
+  card/full include cast'i `as typeof baseInclude` → `as unknown as typeof
+  baseInclude`'a çevrildi; iki include artık farklı alan kümesi taşıdığı
+  için tsc'nin "yeterince örtüşmüyor" hatası düzeltildi) · core `test:ci`
+  618/618 ✅ · functions `test` 338/338 ✅ (293 validator derleme testi
+  dahil) · frontend `typecheck` ✅ · `lint -w frontend` 0 error (158
+  warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅. Kubi Public
+  API'si HEM `view` parametresiz (portalın gerçek çağrı şekli) HEM
+  `?view=card` ile doğrudan `curl` edildi: parametresiz çağrıda "1.23"/"1.24"
+  (2026-09-01 oluşturuldu) `isNew: true, hasNewVariant: true` döndü, ham
+  `variants` alanı yanıtta YOK (sızma yok); Mart ayı ürünleri `false/false`.
+  Bu sorgu ayrıca Slice 1'de "gerçek veriyle görsel doğrulanamadı" diye not
+  edilen `hasNewVariant: true` durumunu da ilk kez gerçek veriyle doğruladı
+  (1.23/1.24'ün yakın zamanda eklenmiş varyantları var). Card view (`?view=card`)
+  regresyon kontrolü de yapıldı — aynı iki ürün orada da `true/true`.
+- **Ne kaldı:** Kullanıcının kubi'de portal "Tüm Ürünler" sayfasını (`/musteri/tum-urunler`)
+  tarayıcıda görsel olarak doğrulaması — API doğrulaması yapıldı ama Chrome'da
+  henüz bakılmadı. Commit KULLANICI tarafından yapılacak (bu dilimde bilinçli
+  olarak commit edilmedi).
+
+## `MeasurementCode` enum'una R3/H3 eklendi (2026-09-09) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı iki yeni ölçü kodu istedi: `R3` ("Çap (R3)") ve
+  `H3` ("Yükseklik"). `schema.prisma`'daki `MeasurementCode` enum'una eklendi
+  — mevcut değerler DEĞİŞMEDİ, yalnız iki yeni değer eklendiği için var olan
+  `MeasurementType`/`ProductMeasurementRequirement` kayıtları etkilenmedi.
+  Kodda bu enum'un TEK KAYNAKTAN gelmediği, dokuz ayrı dosyada elle
+  kopyalanmış hardcoded liste/union olarak tekrarlandığı tespit edildi
+  (Prisma enum'ları TS tarafında otomatik union üretmiyor, her tüketici kendi
+  kopyasını tutuyor) — hepsi grep ile bulunup güncellendi: backend
+  `AdminApi/validators/measurementTypes.ts` (zod `z.enum`),
+  `AdminApi/functions/measurementTypes/handlers/listMeasurementTypesHandler.ts`
+  (filtre normalize dizisi), `AdminApi/types/measurementTypes.ts` (union tip);
+  frontend `features/admin/measurementTypes/api/types.ts`
+  (`MeasurementTypeCode` union + `MEASUREMENT_TYPE_CODES` dizisi — hem admin
+  hem `veri-girisi` panelinin PAYLAŞTIĞI `MeasurementTypesTable`/
+  `MeasurementTypesPageClient` bu dosyayı kullanıyor, ayrı bir veri-girişi
+  sayfası YOK), `features/admin/measurementTypes/hooks/useMeasurementTypes.ts`
+  (zod parametre şeması), `features/admin/measurementTypes/components/
+  MeasurementTypeFormDialog.tsx` (form zod şeması + `Select` seçenekleri
+  `MEASUREMENT_TYPE_CODES`'tan otomatik geldiği için ayrı iş gerekmedi),
+  `features/admin/productVariants/api/createMeasurementTypeReference.ts`
+  (kullanılmayan ama tutarlılık için güncellenen union). `packages/core/prisma/generated/`
+  Prisma client'ı `DATABASE_URL`/`DIRECT_URL` olmadan (placeholder değerlerle,
+  DB'ye HİÇ bağlanmadan) `npx prisma generate` ile yeniden üretildi — yalnız
+  TS tip/enum çıktısı tazelendi, hiçbir DB'ye dokunulmadı.
+- **Neden:** Kullanıcı talebi — yeni ölçü tipleri tanımlarken seçilebilir
+  R3/H3 kodları gerekiyor.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ (Prisma client yenilenmeden
+  önce üç dosyada "R3 is not assignable to MeasurementCode" hatası alındı —
+  bu, generated client'ın schema ile senkron tutulması gerektiğini doğruladı)
+  · core `test:ci` 618/618 ✅ · functions `test` 338/338 ✅ (293 validator
+  derleme testi dahil — yeni zod enum'ları ajv'de sorunsuz derleniyor) ·
+  frontend `typecheck` ✅ · `lint -w frontend` 0 error (158 warning,
+  değişmedi) ✅ · `test -w frontend` 364/364 ✅.
+- **Migration — KULLANICI tarafından kubi'de uygulandı:** Kullanıcı migration'ı
+  kendisi oluşturup çalıştırmayı tercih etti ("kodu güncelle, migration'ı ben
+  çalıştırayım"). Sonuç: `packages/core/prisma/migrations/
+  20260908232145_add_r3_h3_measurement_codes/migration.sql`
+  (`ALTER TYPE "MeasurementCode" ADD VALUE 'R3'/'H3'`) kubi'nin Neon branch'ine
+  uygulandı. Kullanıcı doğruladı: **"kubi için migration oluşturdum ve 1 kere
+  çalıştırdım ve veri girişi panelinde R3 ve H3 seçebiliyorum"** — hem admin
+  hem veri-girişi paneli aynı `MeasurementTypesTable`/`MeasurementTypeFormDialog`'ı
+  paylaştığı için tek doğrulama ikisini de kapsar.
+- **Ne kaldı:** PROD (RDS) tarafı — aynı migration dosyası oradaki `migrate
+  deploy` akışıyla (VPC tünel gerektirir) ayrı bir onay turunda uygulanacak;
+  PLAN'a madde olarak eklendi. Kod tarafında ekstra bir şey yok — yeni enum
+  değerleri backend/frontend'de zaten opsiyonel/geriye dönük uyumlu şekilde
+  eklendi.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

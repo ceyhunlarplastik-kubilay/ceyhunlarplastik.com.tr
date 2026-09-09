@@ -18,6 +18,28 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
+### `MeasurementCode` R3/H3 — prod migration planı *(kullanıcı talebiyle, kubi ✅ 2026-09-09 LOG)*
+- Kubi'de tamamlandı ve kullanıcı doğruladı (veri girişi panelinde R3/H3
+  seçilebiliyor). Kalan: aynı migration'ı (`20260908232145_add_r3_h3_measurement_codes`
+  — `ALTER TYPE "MeasurementCode" ADD VALUE 'R3'/'H3'`) PROD RDS'e uygulamak
+  için ayrı bir plan+onay — kullanıcı "kubi'de test edelim, prod'u sonra
+  planlarız" dedi. Prod migration'ı VPC tünel gerektirir (bkz. README
+  "Database Migrations on a Deployed Stage" → Production RDS bölümü) ve
+  `migrate deploy` (mevcut migration dosyasını uygular, yeni dosya oluşturmaz)
+  ile yapılmalı.
+- Etki: **prod deploy** (migration + sonrasında kod deploy'u — kod zaten
+  geriye dönük uyumlu, yeni enum değerlerini opsiyonel olarak kabul ediyor).
+
+### Panel/auth için özel 404/hata sayfaları · kapsam: küçük *(kullanıcı talebiyle, opsiyonel devam)*
+- Public'e (`app/[locale]/(public)/not-found.tsx` + `error.tsx`, 2026-09-08 LOG)
+  eklenen özel 404/runtime-hata ekranları yalnız public route grubunu kapsıyor.
+  Panel route grupları (`app/(panels)/...` — admin/satış/satınalma/müşteri/veri
+  girişi) ve `(auth)` grubu hâlâ Next.js'in çıplak varsayılan 404'ünü/hata
+  ekranını gösteriyor. Kullanıcı bilinçli olarak "public'ten başlamak üzere"
+  dedi — panel tarafı istenirse ayrı bir dilim (panel şablonuna uygun,
+  `PanelShell` chrome'unu koruyan bir `not-found.tsx`/`error.tsx`).
+- Etki: **frontend**, `app/(panels)/**`.
+
 ### P2.2 — next-auth v4 → Auth.js v5 kararı · kapsam: büyük, riskli · ⛔ hiç başlanmadı
 - Ne: v5 migration'ını ayrı bir proje olarak planla; o zamana dek v4 + `overrides` ile yaşa (P0.3'te yapıldı).
 - Neden: v4 bakım modunda ve eski bağımlılık çekiyor (`uuid` moderate açığı — sömürü yolu yok, kalıcı çözüm bu madde). Custom Cognito credentials + refresh akışı ([lib/auth/auth.ts](packages/frontend/lib/auth/auth.ts)) migration'da en kırılgan parça. Acele edilmemeli.
@@ -50,6 +72,44 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 - **Dilim 4 (opsiyonel, kalan tek iş):** günlük `sst.aws.Cron` zombi-sweep — `PENDING_UPLOAD` + `createdAt < now()-24h` olan Asset satırlarını sil (`infra/googleMaps.ts` cron deseni, prod-only ya da tüm stage'ler). İstenirse ürün/materyal/attribute-value asset yükleme akışlarına aynı `createPendingAsset` + notify deseni; 2. tüketici (thumbnail/tarama) gerekirse `bucket.notify` → EventBridge Bus refactor (handler taşıma-bağımsız yazıldı).
 - **Karar (2026-09-04, tekrar tartışma):** `s3:ObjectRemoved` **eklenmeyecek** — silme/güncelleme akışları DB-first ve senkron (`deleteAssetHandler` `deleteS3Object` + satır sil; "değiştir" = yeni presign + eski asset DELETE; metadata `PUT /assets/{id}` S3'e dokunmaz). `ObjectRemoved` yalnız app-dışı silme (Lifecycle expiration / elle konsol) eklenirse anlamlı → o zaman zombi-sweep'in yanına dangling-row reconciler'ı olarak. Filtre ekseni **prefix** (`categories/`), suffix DEĞİL (uzantısız key üretilebiliyor + tüm tipler onaylanmalı). `events: ["s3:ObjectCreated:*"]` zaten "all events"i daraltıyor. Genelleştirmede: çakışmayan kardeş prefix'ler VEYA filtresiz tek notification + Lambda içi `startsWith` yönlendirme (handler hazır).
 - Etki: **infra** (`assetLifecycle.ts` cron) · gerekirse **core/functions** (diğer asset akışları).
+
+### Müşteri haritası — liste (accordion) + harita opsiyonel · Dilim 1-2e ✅ (2026-09-07, LOG) *(kullanıcı talebiyle)*
+- **Yapıldı (LOG):** `groupCustomerMapPoints` + tipler (Dilim 1); `CustomerMapPageClient`'a `view: "list" | "map"` (nuqs) + `CustomerMapCustomerAccordion.tsx` (shadcn `Accordion`, `useBulkSelection`) — filtre uygulanınca ("Listele") önce müşteri listesi gösterilir, `ManagedCustomerMap` (Google Maps JS) yalnız "Haritada Göster" (tümü/seçilenler/tekil) deyince mount edilir (Dilim 2); backend `MAP_CUSTOMER_LIMIT=500` nedeniyle liste `AdminListPagination` ile client-side sayfalandı (Dilim 2b); segment ilk açıldığında yalnız ilk 3 müşteri (peek) + "Tümünü Göster" bandı, açılınca sayfalanmış tam liste (Dilim 2c); genişletilmiş listeyi tekrar peek'e döndüren "Gizle" düğmesi (Dilim 2d); Gizle/Haritada Göster aksiyon çubuğu panel üst çubuğunun altında `sticky` (yüksekliği `ResizeObserver` ile DOM'dan ölçülüyor, sabit piksel yazılmadı) — liste boyunca ekranda kalıyor, panel notlarına gelince normal akışa dönüyor (Dilim 2e). Kubi doğrulaması kullanıcıda.
+- **Dilim 3 (opsiyonel, ayrı onay):** aynı Accordion'u `LeadCustomersPageClient`'ın kendi aç/kapa kartı yerine de kullanmak — riskli çünkü o sayfada silme/toplu seçim/profil düzenleme/detay-paneli akışı var.
+- Etki: **frontend**, `features/customerLocations/**`.
+
+### shadcn `DialogTitle`'a geçiş (opsiyonel gözlem, acil değil)
+- `CustomerLeadDialog.tsx` ve `ProductAssistantModal.tsx` (ayrıca büyük
+  ihtimalle başka dialog'lar da) kendi `<h2>` başlıklarını basıyor, shadcn'in
+  `DialogTitle` primitive'ini kullanmıyor. Renk/tipografi turunda (LOG'da)
+  fark edildi ama kapsamı ayrı — Radix a11y bağlantısı (`aria-labelledby`)
+  şu an muhtemelen eksik. İstenirse ayrı, küçük bir dilim.
+
+### `AboutContent.tsx` gövde metni rengi (opsiyonel, görsel QA gerektirir)
+- `intro`/`mission` paragrafları sarmalayıcının (`text-neutral-700`,
+  hardcoded) üzerine bilinçli bir vurgu farkı taşıyor (`text-neutral-900`).
+  Sarmalayıcıyı `text-muted-foreground`'a çevirmek (diğer dosyalarda yapıldığı
+  gibi) gövde metnini gözle görülür şekilde açar — kubi'de görsel onay
+  olmadan yapılmadı.
+
+### Panel tipografisi — sıradaki: admin, veri-girişi, satış, satınalma · kapsam: denetlenmedi *(kullanıcı talebiyle)*
+- **Yapıldı (müşteri paneli, LOG'da):** `PanelShell.tsx`'in TÜM panellerde
+  paylaşılan topbar/mobil-çubuk başlığı artık `usePathname` + aktif nav
+  etiketiyle dinamik (eskiden her sayfada aynı sabit panel adını basıyordu) —
+  bu düzeltme admin/veri-girişi/satış/satınalma/tedarikçi panellerine de
+  otomatik yayıldı. Müşteri panelinin kendi sayfa başlıkları
+  (`CustomerPortalPageHeader` — 9+ sayfa) denetlendi, gerçek bir duplicate-h1
+  bulundu ve düzeltildi (`ProductHero`/varyant sayfası inline başlığı artık
+  h2 — bkz. LOG).
+- **Kalan:** Admin/veri-girişi/satış/satınalma panellerinin KENDİ sayfa
+  içeriklerinde (liste sayfaları, dialog'lar, form başlıkları) aynı denetim
+  henüz yapılmadı — hem h1/h2 hiyerarşisi hem hardcoded renk (`OrdersPageClient`
+  `scope!=="portal"` dalında zaten `text-neutral-900`/`500` hardcode olduğu
+  görüldü) muhtemelen public'teki gibi dağınık. `CustomerPortalOrdersPageClient`
+  bunun canlı örneği: portal'da `CustomerPortalPageHeader` kullanıyor, admin/satış
+  tarafı kendi `<h1>`'ini basıyor — aynı `OrdersPageClient` içinde iki farklı
+  yol var.
+- Etki: **frontend**, kapsam admin panellerine bakılınca netleşecek.
 
 ### i18n — kalan fazlar (P1.1 devamı)
 
@@ -88,6 +148,8 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
+- **⚠️ PageHero banner'ı yorumda (2026-09-08, LOG)** — `components/sections/PageHero.tsx`'teki `<PageHeroBanner .../>` çağrısı kullanıcının isteğiyle geçici olarak yorumda; 13 public sayfada görsel/başlık banner'ı şu an görünmüyor, yalnız breadcrumb var. **Bu haliyle prod'a deploy EDİLMEMELİ.** Banner geri istenince tek satırlık yorum kaldırma.
+- **Tedarikçi sözlüğü teknik resmi CDN 404 düzeltmesi deploy edilmeli** (2026-09-08, LOG) — `infra/router.ts`'e `/product-supplier-codes` bucket route'u eklendi (kod hazır, commit edilmedi). `sst deploy --stage prod` sonrası `https://cdn.ceyhunlarplastik.xyz/product-supplier-codes/...` URL'lerinin açıldığını doğrula.
 - **SNS e-posta aboneliği onayı** — `kubilayuysal.ceyhunlarplastik@gmail.com` adresine gelen AWS "Subscription Confirmation" linkine tıklanmalı. Tıklanana kadar 6MB payload alarmı + concurrency/throttle alarmları tetiklense de **bildirim gönderilmez** (istek 3 günde düşer). Teyit: `aws sns list-subscriptions-by-topic` → `SubscriptionArn` "PendingConfirmation" değil.
 - **`.env` temizliği** — `RDS_PASSWORD`, `GMAIL_SMTP_USER`, `GMAIL_SMTP_APP_PASSWORD`, `DEEPL_API_KEY` satırları silinebilir; kod artık SST Secret'tan okuyor (P1.3). `.env`'de KALMASI gerekenler: `AWS_REGION`, `HOSTED_ZONE_ID`, `DOMAIN`, `DOMAIN_CERTIFICATE_ARN`, `DEEPL_GLOSSARY_ID`, `DIRECT_RDS_HOST`.
 - **Müşteri haritası rota optimizasyonu** (2026-08-28) — kubi doğrulaması bekliyor. Adımlar LOG'daki "Müşteri haritası: rota optimizasyonu" notunun "Kullanıcıda kalan" bölümünde.
