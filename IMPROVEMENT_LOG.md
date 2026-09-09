@@ -7176,6 +7176,119 @@ ayar istedi, son mesajda "tamam çalıştı" ile onayladı:**
   görsel olarak isteniyorsa (lisans/tedarik netleştikten sonra) ayrı, bilinçli
   bir "custom icon" ekleme turu gerekir.
 
+## Hacim Planlayıcı — "Kalan Alanı Doldur" teşviki eklendi (2026-09-09) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `CustomerPortalLoadPlanner.tsx`'e (Sipariş Talebi Oluştur
+  sayfasındaki hacim/araç planlayıcı) yeni bir teşvik banner'ı eklendi: seçili
+  taşıyıcının (europalet, konteyner, tır) SON aracında/paletinde boş kalan
+  hacmi, sepetteki hangi kalemin miktarı artırılarak EN İYİ dolduracağını
+  hesaplayıp öneriyor — "X adet daha eklerseniz [taşıyıcı] tamamen dolu
+  gönderilir" + "Kalan Alanı Doldur" düğmesi. Düğmeye basınca
+  `usePortalRequestDraftStore.updateQuantity` ile o kalemin miktarı doğrudan
+  artırılıyor (sepete gidip elle miktar değiştirmeye gerek yok).
+  Hesaplama saf, testli bir fonksiyona çıkarıldı: `cartLoad.ts` →
+  `resolvePortalCartFillSuggestion(items, profiles, load)`. Yalnız hacim
+  profili HAZIR (`READY`) olan kalemler aday olur (koli ölçüsü/adedi eksikse
+  atlanır); birden fazla aday varsa boşluğu EN AZ bırakan ("best fit") kalem
+  seçilir — müşteriye gereğinden fazla adet önerilmesin diye. Öneri, boşluk
+  hiçbir kalemin bir koli daha almasına yetmiyorsa (ör. taşıyıcı zaten
+  neredeyse tam dolu) hiç gösterilmez. Seçili taşıyıcı değiştikçe (5 seçenek
+  karşılaştırma satırından) öneri de otomatik yeniden hesaplanır.
+- **Neden:** Kullanıcı talebi — e-ticaret sitelerindeki "kargo bedava için
+  X TL daha ekle" teşvikine benzer bir mantık: müşteri zaten bir europaletin/
+  konteynerin ücretini ödüyorsa içinin boş gitmesini istemeyebilir, bu yüzden
+  tamamlayıcı bir alışveriş teşviki sağlanması istendi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning, değişmedi) ✅ · `test -w frontend` 368/368 ✅ (yeni 4 test:
+  best-fit seçimi, yalnız READY profillerin aday sayılması, hiçbir kalem
+  sığmayınca `null`, taşıyıcı zaten tam doluyken `null`). Görsel doğrulama
+  kullanıcıda — kullanıcının hacimsel verisi olan test varyantını sepete
+  ekleyip banner'ı ve "Doldur" düğmesinin miktarı doğru artırdığını kontrol
+  etmesi gerekiyor.
+- **Ne kaldı:** Yok — bilinen bir ek iş çıkmadı. (Not: birden fazla aday
+  kalem varken şu an otomatik "best fit" seçiliyor, kullanıcıya seçim
+  sunulmuyor — istenirse ayrı bir turda bir seçici eklenebilir.)
+
+## Sipariş Talebi sayfasına tam ekran yüklenme animasyonu — reusable + garantili gösterim (2026-09-09) *(kullanıcı talebiyle)*
+
+- **İlk deneme ve neden yetersiz kaldı:** İlk turda route'a özel bir
+  `loading.tsx` (Next.js App Router Suspense fallback'i) eklendi. Kullanıcı
+  Cmd+Shift+R ile sert yenilediğinde animasyonu HİÇ göremediğini bildirdi.
+  Kök neden: `loading.tsx` yalnız sayfanın SUNUCU tarafında gerçekten askıda
+  kalan bir async sınırı varsa devreye girer; bu sayfanın `page.tsx`'i hiç
+  `await` içermiyor (veri client-side bir Zustand store'undan senkron
+  okunuyor), sunucu render'ı anında tamamlanıyor ve fallback'in gösterilecek
+  hiçbir anı olmuyor — özellikle sert yenilemede (tam SSR) kesinlikle
+  görünmüyor, yalnız yumuşak/istemci navigasyonlarında segment JS'i
+  indirilirken kısaca görünebilirdi (kısa bir sürede kaybolan bir yanıp
+  sönme, kullanıcı fark etmemiş olabilir). `loading.tsx` dosyası bu yüzden
+  SİLİNDİ, yerine aşağıdaki daha güvenilir yaklaşım kondu.
+- **Ne yapıldı (final + reusable):** Kullanıcı ayrıca bileşenlerin başka
+  sayfalarda da kullanılabilecek şekilde mantıklı bir yerde saklanmasını
+  istedi. İki reusable component `packages/frontend/components/feedback/`
+  altında (yeni klasör — `navigation/`, `sections/`, `dialogs/` gibi mevcut
+  paylaşılan component klasörleriyle aynı seviyede) oluşturuldu:
+  - `PageLoadingOverlay.tsx`: tam ekran, hafif şeffaf (`bg-white/70
+    backdrop-blur-sm`), yüksek z-index (`z-100`) overlay. Verilen ikonun
+    (`icon` prop, `LucideIcon` tipinde — bağımlı değil, her sayfa kendi
+    ikonunu geçer) iki kopyası üst üste bindirilir; dolgu kopyasının
+    `clip-path` üst inset'i `motion/react` ile %100↔%0 arası animasyonla
+    gidip gelerek gerçek SVG mask'e gerek kalmadan "alttan yukarı dolan
+    sıvı" efekti verir (`useReducedMotion`da statik %65 dolu hale düşer).
+  - `PageLoadingGate.tsx`: `overlay`'i EN AZ `minDurationMs` (varsayılan
+    900ms) süresince gösterip sonra `children`'a geçen küçük bir client
+    wrapper — YAPAY bir minimum gösterim süresi (sayfa aslında anında hazır
+    olsa bile). Bu, yukarıdaki `loading.tsx` kısıtından TAMAMEN bağımsızdır:
+    sayfanın kendi render'ı içinde çalıştığı için sert/yumuşak navigasyon
+    farkı gözetmeksizin HER yüklemede overlay'in görünmesini garanti eder.
+  `siparis-talebi/page.tsx` artık `CustomerPortalRequestCreatePageClient`'ı
+  `<PageLoadingGate overlay={<PageLoadingOverlay icon={Forklift} .../>}>`
+  ile sarıyor.
+- **İkon kaynağı:** Kullanıcı yine Koboyo'daki (koboyo.com)
+  "forklift-lifting-pallet" SVG'sini referans gösterdi. Aynı gerekçeyle
+  (bkz. "Müşteri portalı sepet dock'u sadeleştirildi" girdisi — proje
+  `lucide-react` konvansiyonu, lisansı netleşmemiş üçüncü parti SVG
+  gömülmedi) `lucide-react`'in zaten sağladığı `Forklift` ikonu kullanıldı.
+- **Neden (yapay gecikme kararı):** Kullanıcı talebi net bir şekilde "her
+  yüklemede görmek istiyorum" yönündeydi (sert yenilemede bile). Sayfanın
+  gerçek bir async yükleme süresi olmadığı için bu ancak YAPAY bir minimum
+  gösterim süresiyle garanti edilebilir — bu, gerçek performansı değil
+  ALGILANAN gecikmeyi artıran bilinçli bir ödünleşim, `PageLoadingGate`'in
+  kendi dosya içi yorumunda da açıkça belirtildi.
+- **Bug + fix aynı turda — RSC serialization hatası:** Kullanıcı kubi'de
+  `"Only plain objects can be passed to Client Components from Server
+  Components. Classes or other objects with methods are not supported."`
+  hatası aldığını bildirdi (`page.tsx:10`, `icon={Forklift}` satırı). Kök
+  neden: `page.tsx` bir Server Component; `icon: LucideIcon` prop'u ile
+  `Forklift` bileşen REFERANSINI (bir `forwardRef` objesi —
+  `{$$typeof, render}`) doğrudan Client Component'e (`PageLoadingOverlay`)
+  prop olarak geçiriyordu. Server→Client sınırında yalnız düz elementler
+  (React'in `$$typeof: Symbol(react.element)` objeleri) veya serileştirilebilir
+  düz veri geçebilir — bir bileşen TİPİ (render edilmemiş referans) geçemez.
+  Düzeltme: `PageLoadingOverlay`'in `icon` prop'u `LucideIcon` (tip) yerine
+  `ReactNode` (zaten render edilmiş element) alacak şekilde değiştirildi;
+  `page.tsx` artık `icon={<Forklift className="size-20" strokeWidth={1.5} />}`
+  geçiriyor (ikonun kendisi RENK belirtmiyor — component içeride iki kopyayı
+  `text-neutral-300`/`text-brand` sarmalayıcılarla `currentColor` üzerinden
+  renklendiriyor, aynı element iki farklı yerde güvenle render edilebiliyor).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0
+  error (158 warning, değişmedi) ✅ · `test -w frontend` 368/368 ✅ (saf
+  görsel/zamanlama bileşenleri, otomatik test yazılmadı — bu RSC serialization
+  hatası tsc/lint/vitest'in HİÇBİRİ tarafından yakalanmıyor, yalnız gerçek
+  Next.js render'ında ortaya çıkıyor; DoD koşumu geçmiş olması runtime'da
+  hatasız çalışacağının garantisi değildi, kullanıcının kubi'de canlı test
+  etmesi bu yüzden kritikti). Görsel doğrulama kullanıcıda — kubi'de hem sert
+  yenileme hem normal navigasyonla `/musteri/talepler/siparis-talebi`'i
+  tekrar kontrol etmesi gerekiyor.
+- **Ne kaldı:** `PageLoadingOverlay`/`PageLoadingGate` başka sayfalarda
+  ihtiyaç oldukça reuse edilebilir (`components/feedback/` altında hazır) —
+  yeni tüketiciler de `icon` prop'una render edilmiş bir element geçmeli,
+  bileşen referansı DEĞİL (bkz. yukarıdaki RSC hatası).
+  Kullanıcı gerçek Koboyo SVG'sini görmek isterse (lisans/tedarik
+  netleştikten sonra) ayrı bir "custom icon" ekleme turu gerekir — bu konu
+  artık iki kez gündeme geldi, PLAN'a henüz eklenmedi (açık bir onay/tedarik
+  yolu olmadığı için).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
