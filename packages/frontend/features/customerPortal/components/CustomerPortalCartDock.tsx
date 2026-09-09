@@ -2,27 +2,17 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowRight, ShoppingBag, Sparkles } from "lucide-react"
+import { ArrowRight, ShoppingCart } from "lucide-react"
 import { motion, useReducedMotion } from "motion/react"
 
 import { CartShortcutKbd } from "@/features/customerPortal/components/CartShortcutKbd"
-import { buildCurrencySummary, resolveCustomerPortalCartCta } from "@/features/customerPortal/components/requestComposer/helpers"
-import { usePortalCartLoad } from "@/features/customerPortal/hooks/usePortalCartLoad"
-import { useCartDrawerStore } from "@/features/customerPortal/stores/useCartDrawerStore"
+import { resolveCustomerPortalCartCta } from "@/features/customerPortal/components/requestComposer/helpers"
 import { usePortalRequestDraftStore } from "@/features/customerPortal/stores/usePortalRequestDraftStore"
-import { formatMoney } from "@/lib/customers/pricing"
+import { useCartDrawerStore } from "@/features/customerPortal/stores/useCartDrawerStore"
 import { cn } from "@/lib/utils"
 
 type Props = {
     mode: "topbar" | "mobile-sticky"
-}
-
-const VOLUME_FORMATTER = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 2 })
-const PERCENT_FORMATTER = new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 })
-
-function compactFillLabel(fillPercent: number) {
-    if (fillPercent > 0 && fillPercent < 1) return "%1'den az"
-    return `%${PERCENT_FORMATTER.format(fillPercent)}`
 }
 
 export function CustomerPortalCartDock({ mode }: Props) {
@@ -30,10 +20,7 @@ export function CustomerPortalCartDock({ mode }: Props) {
     const shouldReduceMotion = useReducedMotion()
     const items = usePortalRequestDraftStore((state) => state.items)
     const openCartDrawer = useCartDrawerStore((state) => state.open)
-    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0)
     const hasItems = items.length > 0
-    const currencySummary = buildCurrencySummary(items)
-    const { logisticsQuery, summary } = usePortalCartLoad(items)
     const cta = resolveCustomerPortalCartCta({ pathname, hasItems })
 
     function handleOrderPageScroll() {
@@ -46,31 +33,12 @@ export function CustomerPortalCartDock({ mode }: Props) {
         panel?.focus?.()
     }
 
-    const totalLabel = currencySummary.length === 1
-        ? formatMoney(currencySummary[0].customerTotal, currencySummary[0].currency)
-        : currencySummary.length > 1
-            ? currencySummary
-                .map((entry) => formatMoney(entry.customerTotal, entry.currency))
-                .join(" • ")
-            : null
-
-    const logisticsLabel = !hasItems
-        ? null
-        : logisticsQuery.isPending
-            ? "Hacim hesaplanıyor"
-            : logisticsQuery.isError
-                ? "Hacim hesaplanamadı"
-                : !summary.isComplete
-                    ? summary.hasKnownVolume
-                        ? `${VOLUME_FORMATTER.format(summary.totalVolumeM3)} m³+ • koli verisi eksik`
-                        : "Koli verisi eksik"
-                    : summary.automaticLoad
-                        ? `${VOLUME_FORMATTER.format(summary.totalVolumeM3)} m³ • ${summary.automaticLoad.requiredVehicleCount > 1
-                            ? `${summary.automaticLoad.requiredVehicleCount} × `
-                            : ""}${summary.automaticLoad.carrier.compactLabel} • ${summary.automaticLoad.requiredVehicleCount > 1
-                            ? "son "
-                            : ""}${compactFillLabel(summary.automaticLoad.lastVehicleFillPercent)}`
-                        : null
+    // Sade: yalnız sepet ikonu (+ eklenen varyant ÇEŞİDİ sayısı rozeti — miktar
+    // toplamı değil, `items.length`) ve klavye kısayolu görünür. Görünür metin
+    // kalmadığı için erişilebilir ad `aria-label` üzerinden veriliyor.
+    const accessibleLabel = hasItems
+        ? `Sipariş sepeti, ${items.length} ürün çeşidi`
+        : "Hazır sepet"
 
     const card = (
         <motion.div
@@ -88,48 +56,35 @@ export function CustomerPortalCartDock({ mode }: Props) {
                     : "border-neutral-200 bg-white/95 text-neutral-900",
             )}
         >
-            <div className="flex items-center gap-3">
-                <div className={cn(
-                    "inline-flex size-11 shrink-0 items-center justify-center rounded-2xl",
-                    hasItems ? "bg-brand/15 text-brand" : "bg-brand/10 text-brand",
-                )}>
-                    {cta.mode === "scroll"
-                        ? <Sparkles className="h-5 w-5" aria-hidden="true" />
-                        : <ShoppingBag className="h-5 w-5" aria-hidden="true" />}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                    <div className="flex min-w-0 items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                        <span className="shrink-0">{hasItems ? "Sipariş Sepeti" : "Hazır Sepet"}</span>
-                        {logisticsLabel ? (
-                            <>
-                                <span aria-hidden="true">•</span>
-                                <span className="truncate normal-case tracking-normal text-neutral-700">
-                                    {logisticsLabel}
-                                </span>
-                            </>
-                        ) : null}
+            <div className="flex items-center justify-between gap-3">
+                <div className="relative inline-flex shrink-0">
+                    <div className={cn(
+                        "inline-flex size-11 items-center justify-center rounded-2xl",
+                        hasItems ? "bg-brand/15 text-brand" : "bg-brand/10 text-brand",
+                    )}>
+                        <ShoppingCart className="h-5 w-5" aria-hidden="true" />
                     </div>
-                    <div className="mt-0.5 flex min-w-0 items-center gap-2 text-sm font-semibold">
-                        <span className="shrink-0">
-                            {hasItems ? `${items.length} kalem • ${totalQuantity} adet` : "Ürün seçerek sipariş akışını başlatın"}
+
+                    {hasItems ? (
+                        <span
+                            className="absolute -top-1 -inset-e-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-[11px] font-semibold text-white"
+                            aria-hidden="true"
+                        >
+                            {items.length}
                         </span>
-                        {totalLabel ? (
-                            <span className="truncate rounded-full bg-white/70 px-2 py-0.5 text-[11px] font-medium text-neutral-800">
-                                {totalLabel}
-                            </span>
-                        ) : null}
-                    </div>
+                    ) : null}
                 </div>
 
-                {hasItems && mode === "topbar" ? (
-                    <CartShortcutKbd className="hidden [&>kbd]:bg-brand/10 [&>kbd]:text-brand lg:flex" />
-                ) : null}
+                <div className="flex shrink-0 items-center gap-3">
+                    {hasItems && mode === "topbar" ? (
+                        <CartShortcutKbd className="hidden [&>kbd]:bg-brand/10 [&>kbd]:text-brand lg:flex" />
+                    ) : null}
 
-                <ArrowRight
-                    className="h-4 w-4 shrink-0 text-neutral-500 transition group-hover:translate-x-0.5 motion-reduce:transform-none motion-reduce:transition-none"
-                    aria-hidden="true"
-                />
+                    <ArrowRight
+                        className="h-4 w-4 shrink-0 text-neutral-500 transition group-hover:translate-x-0.5 motion-reduce:transform-none motion-reduce:transition-none"
+                        aria-hidden="true"
+                    />
+                </div>
             </div>
         </motion.div>
     )
@@ -149,16 +104,16 @@ export function CustomerPortalCartDock({ mode }: Props) {
         >
             {cta.mode === "link" ? (
                 hasItems ? (
-                    <button type="button" onClick={openCartDrawer} className={wrapperClassName}>
+                    <button type="button" onClick={openCartDrawer} className={wrapperClassName} aria-label={accessibleLabel}>
                         {card}
                     </button>
                 ) : (
-                    <Link href={cta.href} className={wrapperClassName}>
+                    <Link href={cta.href} className={wrapperClassName} aria-label={accessibleLabel}>
                         {card}
                     </Link>
                 )
             ) : (
-                <button type="button" onClick={handleOrderPageScroll} className={wrapperClassName}>
+                <button type="button" onClick={handleOrderPageScroll} className={wrapperClassName} aria-label={accessibleLabel}>
                     {card}
                 </button>
             )}

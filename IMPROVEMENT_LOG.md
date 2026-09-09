@@ -7141,6 +7141,41 @@ ayar istedi, son mesajda "tamam çalıştı" ile onayladı:**
   görünüm istenirse ayrı bir dilimde ara bir breakpoint eklenebilir. Görsel/
   video alt kenar hizası piksel bazında kubi'de son kez doğrulanmalı.
 
+## Müşteri portalı sepet dock'u sadeleştirildi (2026-09-09) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** `CustomerPortalCartDock.tsx` (hem `topbar` hem `mobile-sticky`
+  modu — aynı `card` JSX'ini paylaşıyorlar) baştan sona metin ağırlıklı bir
+  özet kartıyken artık yalnız ikon + rozet + kısayol/ok'tan oluşan sade bir
+  widget. Kaldırılanlar: "Sipariş Sepeti"/"Hazır Sepet" etiketi, lojistik özeti
+  (hacim/araç dolum metni), "N kalem • N adet" yazısı, para tutarı rozeti —
+  bunları besleyen `usePortalCartLoad`, `buildCurrencySummary`, `formatMoney`,
+  `VOLUME_FORMATTER`/`PERCENT_FORMATTER`/`compactFillLabel` de artık
+  kullanılmadığı için dosyadan temizlendi (ölü kod bırakılmadı). Kalanlar:
+  sepet ikonu üzerinde eklenen varyant ÇEŞİDİ sayısı rozeti (`items.length` —
+  toplam adet `totalQuantity` DEĞİL), klavye kısayolu (`CartShortcutKbd`,
+  yalnız topbar), ok ikonu. İkon `ShoppingBag` → `ShoppingCart`'a çevrildi
+  (kullanıcı: "alışveriş arabası" görünümü istiyordu); `cta.mode === "scroll"`
+  durumunda ayrıca gösterilen `Sparkles` ikonu da kaldırıldı — kullanıcı
+  talebiyle artık HER durumda `ShoppingCart` sabit. Görünür metin kalmadığı
+  için tıklanabilir buton/link'e `aria-label` eklendi (erişilebilirlik
+  kaybolmasın diye — "Sipariş sepeti, N ürün çeşidi" / "Hazır sepet").
+- **Neden:** Kullanıcı talebi — dock'ta gereksiz yazılar sadeleşsin, yalnız
+  ikon/rozet/kısayol kalsın; ikon "alışveriş arabası" gibi görünsün.
+  Kullanıcı harici bir ikon setini (koboyo.com) referans gösterdi; proje
+  konvansiyonu (AGENTS.md: "Prefer `lucide-react` for icons") ve lisans
+  belirsizliği nedeniyle üçüncü parti SVG gömülmedi, bunun yerine
+  `lucide-react`'in zaten sağladığı `ShoppingCart` kullanıldı — kullanıcıya
+  bu tercih ve gerekçesi açıklandı, itiraz gelmedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅
+  (`usePortalCartLogistics.test.ts` dahil — o hook'un KENDİSİ silinmedi,
+  yalnız bu bileşendeki çağrısı kaldırıldı; başka tüketicileri varsa
+  etkilenmedi). Görsel doğrulama kullanıcıda — portal topbar'ında ve mobil alt
+  çubukta yeni sade görünüm kontrol edilmeli.
+- **Ne kaldı:** Yok — bilinen bir ek iş çıkmadı. Koboyo'daki spesifik ikon
+  görsel olarak isteniyorsa (lisans/tedarik netleştikten sonra) ayrı, bilinçli
+  bir "custom icon" ekleme turu gerekir.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
