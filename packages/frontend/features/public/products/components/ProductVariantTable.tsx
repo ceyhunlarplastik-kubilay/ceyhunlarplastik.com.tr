@@ -1,16 +1,17 @@
 "use client"
 
-import { useMemo, useState, type MouseEvent } from "react"
-import { AnimatePresence, motion } from "motion/react"
-import { CircleHelp, Loader2, Palette, Ruler, Layers3, Hash } from "lucide-react"
+import { useId, useMemo, useState, type MouseEvent } from "react"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import { CircleHelp, Loader2, Hash, ChevronRight, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { parseAsString, useQueryState } from "nuqs"
 
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar"
 import { ButtonShine } from "@/components/ui/button-shine"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import {
     Dialog,
@@ -124,6 +125,11 @@ interface ProductVariantTableProps {
     variantDetailsPathname?: string
     focusOnMeasurements?: boolean
     measurementHelpVideoUrl?: string
+    /**
+     * Sağ panel (teknik resim) yalnız görsel gösterdiğinde dar kalabiliyor;
+     * bu sayfalarda tabloya daha fazla yer ayırmak için kullanılır.
+     */
+    wideTable?: boolean
     // P1.8f: veri fetch'i BAŞARISIZ olduğunda true. Boş varyant listesi "varyant
     // yok" değil "yüklenemedi" olarak gösterilsin diye — yanıltıcı empty state'i
     // hata state'inden ayırır.
@@ -133,23 +139,26 @@ interface ProductVariantTableProps {
 function MeasurementHelpDialogButton({
     measurementCode,
     videoUrl,
+    quiet = false,
 }: {
     measurementCode: string
     videoUrl: string
+    quiet?: boolean
 }) {
     const t = useTranslations("public.productVariant.help")
+    const reduceMotion = useReducedMotion()
     return (
         <Dialog>
             <DialogTrigger asChild>
                 <button
                     type="button"
                     aria-label={t("videoAria", { code: measurementCode })}
-                    className="relative inline-flex size-5 items-center justify-center rounded-full text-brand transition hover:text-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
+                    className="relative inline-flex size-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     onClick={(event) => event.stopPropagation()}
                 >
-                    <motion.span
+                    {!quiet ? <motion.span
                         className="absolute inset-0 rounded-full bg-brand/15"
-                        animate={{
+                        animate={reduceMotion ? undefined : {
                             scale: [1, 1.55, 1],
                             opacity: [0.25, 0.75, 0.25],
                         }}
@@ -158,10 +167,10 @@ function MeasurementHelpDialogButton({
                             repeat: Infinity,
                             ease: "easeInOut",
                         }}
-                    />
-                    <motion.span
+                    /> : null}
+                    {!quiet ? <motion.span
                         className="absolute inset-0 rounded-full border border-brand/40"
-                        animate={{
+                        animate={reduceMotion ? undefined : {
                             scale: [1, 1.85],
                             opacity: [0.55, 0],
                         }}
@@ -170,7 +179,7 @@ function MeasurementHelpDialogButton({
                             repeat: Infinity,
                             ease: "easeOut",
                         }}
-                    />
+                    /> : null}
                     <CircleHelp className="relative z-10 size-3.5" />
                 </button>
             </DialogTrigger>
@@ -200,6 +209,24 @@ function isModifiedClick(event: MouseEvent) {
     )
 }
 
+// Renk kolonunda üst üste binen rozetler ekrana sığmalı; kalanlar "+N" ile
+// kırpılır (bkz. avatar.tsx AvatarGroup/AvatarGroupCount). Ham madde daha az
+// gösterir: isim genelde renkten uzun, kolon genişlemesin diye.
+const MAX_VISIBLE_COLORS = 3
+const MAX_VISIBLE_MATERIALS = 2
+
+/**
+ * `material.code` zaten kısa bir iş kodu (PP, PVC, ABS gibi — bkz. schema.prisma
+ * Material.code), olduğu gibi gösterilir. Kod yoksa harf kısaltması ANLAŞILMAZ
+ * çıkıyordu ("Bakalit Amyantsız" → "BA" görüldüğünde ne olduğu anlaşılmıyor) —
+ * bunun yerine tam isim yazılır; sığdırma CSS `truncate` ile yapılır (bkz.
+ * kullanım yeri), tam metin `title` tooltip'inde kalır.
+ */
+function materialShortLabel(material: VariantMaterial) {
+    if (material.code?.trim()) return material.code.trim().toUpperCase()
+    return material.name.trim()
+}
+
 export default function ProductVariantTable({
     options,
     productSlug,
@@ -209,8 +236,11 @@ export default function ProductVariantTable({
     focusOnMeasurements = false,
     measurementHelpVideoUrl = "https://www.youtube.com/embed/42mrTRiExjs?autoplay=1",
     loadError = false,
+    wideTable = false,
 }: ProductVariantTableProps) {
     const t = useTranslations("public.productVariant.table")
+    const titleId = useId()
+    const reduceMotion = useReducedMotion()
     const { data: session } = useSession()
     const [pendingVariantKey, setPendingVariantKey] = useState<string | null>(null)
     const [selectedKey, setSelectedKey] = useQueryState(
@@ -254,7 +284,7 @@ export default function ProductVariantTable({
     if (!options.length) {
         // P1.8f: fetch hatasında "varyant yok" değil, "yüklenemedi" göster.
         return (
-            <div className={cn("text-sm", loadError ? "text-red-600" : "text-neutral-400")}>
+            <div className={cn("text-sm", loadError ? "text-destructive" : "text-muted-foreground")}>
                 {loadError ? t("loadError") : t("empty")}
             </div>
         )
@@ -262,7 +292,12 @@ export default function ProductVariantTable({
 
     return (
         <div
-            className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+            className={cn(
+                "relative min-w-0",
+                wideTable
+                    ? "flex flex-col gap-5"
+                    : "overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+            )}
             aria-busy={isNavigatingToVariant}
             aria-live="polite"
         >
@@ -278,28 +313,26 @@ export default function ProductVariantTable({
                     : t("srReady")}
             </span>
 
-            <div className="border-b border-neutral-100 px-6 py-4 bg-neutral-50/50">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <h2 className="text-base font-semibold text-neutral-900">{t("title")}</h2>
-                        <p className="mt-1 max-w-3xl text-xs leading-relaxed text-neutral-500">
-                            {focusOnMeasurements
-                                ? t("descFocus")
-                                : t("descDefault")}
-                        </p>
-                    </div>
-
+            {wideTable || isNavigatingToVariant ? (
+                <div className={cn(
+                    "flex flex-wrap items-start justify-end gap-3",
+                    !wideTable && "border-b border-border bg-muted/50 px-6 py-4"
+                )}>
+                    {/* Boş `wideTable` durumunda bu sarmalayıcı bilerek MONTE
+                        kalır (aksi halde AnimatePresence exit animasyonu oynamadan
+                        `isNavigatingToVariant` false olur olmaz tüm blok söküldüğü
+                        için rozet aniden kaybolurdu). */}
                     <AnimatePresence initial={false}>
                         {isNavigatingToVariant ? (
                             <motion.div
                                 key="variant-nav-status"
-                                initial={{ opacity: 0, y: -6 }}
+                                initial={reduceMotion ? false : { opacity: 0, y: -6 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ duration: 0.16, ease: "easeOut" }}
-                                className="inline-flex items-center gap-2 rounded-full border border-brand/15 bg-brand/10 px-3 py-1.5 text-[11px] font-medium text-brand"
+                                exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
+                                transition={{ duration: reduceMotion ? 0 : 0.16, ease: "easeOut" }}
+                                className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-medium text-foreground"
                             >
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                <Loader2 className="size-3.5 motion-safe:animate-spin" />
                                 {pendingOption?.label
                                     ? t("navigatingLabel", { label: pendingOption.label })
                                     : t("navigatingGeneric")}
@@ -307,52 +340,76 @@ export default function ProductVariantTable({
                         ) : null}
                     </AnimatePresence>
                 </div>
-            </div>
+            ) : null}
 
-            <div className="grid gap-5 p-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]">
-                <div className="space-y-2">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">{t("optionsTitle")}</p>
-                    <div className="relative max-h-215 overflow-auto rounded-xl border border-neutral-200 bg-neutral-50/10 shadow-inner">
+            <div className={cn(
+                "grid min-w-0 items-start gap-5",
+                wideTable
+                    ? "lg:grid-cols-[minmax(0,1.9fr)_minmax(260px,1fr)]"
+                    : "p-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]"
+            )}>
+                <div className="min-w-0">
+                    {/* Table's own container owns both scroll axes so sticky headings
+                        remain attached to the vertical viewport, including on mobile. */}
+                    <div
+                        role="region"
+                        aria-labelledby={wideTable ? titleId : undefined}
+                        aria-label={wideTable ? undefined : t("title")}
+                        className={cn(
+                            "overflow-hidden rounded-xl border border-border bg-card *:data-[slot=table-container]:overflow-auto",
+                            wideTable
+                                ? "*:data-[slot=table-container]:max-h-[min(34rem,70dvh)]"
+                                : "*:data-[slot=table-container]:max-h-215"
+                        )}
+                    >
+                        {wideTable ? (
+                            <h2
+                                id={titleId}
+                                className="border-b border-border bg-muted/40 px-4 py-3 text-center text-xl font-semibold tracking-tight text-foreground sm:px-5 sm:text-2xl"
+                            >
+                                {t("title")}
+                            </h2>
+                        ) : null}
                         <Table className={cn(
-                            focusOnMeasurements ? "min-w-155" : "min-w-195",
-                            "[&_td]:px-3 [&_td]:py-2.5 [&_td]:text-xs [&_th]:h-10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-[10px] [&_th]:font-bold [&_th]:tracking-wider [&_th]:uppercase [&_tr]:leading-tight border-separate border-spacing-0"
+                            "border-separate border-spacing-0 [&_th]:px-3 [&_th]:font-semibold [&_tr]:leading-snug",
+                            wideTable
+                                ? "min-w-140 [&_td]:px-3 [&_td]:py-2.5 [&_td]:text-sm [&_th]:h-14 [&_th]:py-2.5 [&_th]:text-xs"
+                                : "min-w-155 [&_td]:px-2.5 [&_td]:py-2 [&_td]:text-[11px] [&_th]:h-9 [&_th]:py-1.5 [&_th]:text-[9.5px] [&_th]:tracking-wider [&_th]:uppercase"
                         )}>
                             <TableHeader>
                                 <TableRow className="hover:bg-transparent">
                                     {measurementColumns.map((column) => (
                                         <TableHead
                                             key={column.id}
-                                            className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]"
+                                            className="sticky top-0 z-10 border-b border-border bg-muted text-center text-foreground"
                                         >
-                                            <div className="flex items-center gap-1.5">
-                                                <span className="whitespace-nowrap">{column.name}</span>
-                                                <span className="font-mono text-[10px] font-normal text-neutral-500">
-                                                    {column.code}
+                                            <div className="flex flex-col items-center gap-0.5">
+                                                <span className="min-w-20 whitespace-normal leading-snug">{column.name}</span>
+                                                <span className="flex items-center gap-1 text-muted-foreground">
+                                                    <span className={cn("font-mono font-normal", wideTable ? "text-xs" : "text-[9px]")}>
+                                                        {column.code}
+                                                    </span>
+                                                    <MeasurementHelpDialogButton
+                                                        measurementCode={column.code}
+                                                        videoUrl={measurementHelpVideoUrl}
+                                                        quiet={wideTable}
+                                                    />
                                                 </span>
-                                                <MeasurementHelpDialogButton
-                                                    measurementCode={column.code}
-                                                    videoUrl={measurementHelpVideoUrl}
-                                                />
                                             </div>
                                         </TableHead>
                                     ))}
                                     {!focusOnMeasurements ? (
-                                        <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
+                                        <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-center text-foreground">
                                             {t("colColor")}
                                         </TableHead>
                                     ) : null}
                                     {!focusOnMeasurements ? (
-                                        <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
+                                        <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-center text-foreground">
                                             {t("colMaterial")}
                                         </TableHead>
                                     ) : null}
-                                    {!focusOnMeasurements ? (
-                                        <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
-                                            {t("colCode")}
-                                        </TableHead>
-                                    ) : null}
-                                    <TableHead className="sticky top-0 z-20 border-b border-neutral-200 bg-neutral-100 text-center text-neutral-700 shadow-[inset_0_-1px_0_rgba(229,229,229,0.95),0_8px_14px_-12px_rgba(15,23,42,0.32)]">
-                                        {t("colDetail")}
+                                    <TableHead className="sticky top-0 z-10 w-12 border-b border-border bg-muted text-center text-foreground">
+                                        <span className="sr-only">{t("colDetail")}</span>
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -371,13 +428,21 @@ export default function ProductVariantTable({
                                         <TableRow
                                             key={option.key}
                                             data-state={isActive ? "selected" : undefined}
+                                            tabIndex={0}
                                             className={cn(
-                                                "cursor-pointer transition-all duration-150 border-b border-neutral-100",
+                                                "group cursor-pointer border-b border-border transition-colors duration-150 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                                                 isActive
-                                                    ? "bg-brand/4 hover:bg-brand/6 font-medium"
-                                                    : "hover:bg-neutral-50/70"
+                                                    ? "bg-brand/10 font-medium hover:bg-brand/15 data-[state=selected]:bg-brand/10"
+                                                    : "hover:bg-muted/50"
                                             )}
                                             onClick={() => setSelectedKey(option.key)}
+                                            onKeyDown={(event) => {
+                                                if (event.target !== event.currentTarget) return
+                                                if (event.key === "Enter" || event.key === " ") {
+                                                    event.preventDefault()
+                                                    void setSelectedKey(option.key)
+                                                }
+                                            }}
                                         >
                                             {measurementColumns.map((column, index) => {
                                                 const measurement = option.measurements.find(
@@ -389,11 +454,11 @@ export default function ProductVariantTable({
                                                         <TableCell
                                                             key={`${option.key}-${column.id}`}
                                                             className={cn(
-                                                                "text-neutral-300 text-center font-normal px-3 py-2.5",
+                                                                "text-muted-foreground text-center font-normal px-3 py-2.5",
                                                                 index === 0 && isActive && "border-s-2 border-s-brand"
                                                             )}
                                                         >
-                                                            —
+                                                            -
                                                         </TableCell>
                                                     )
                                                 }
@@ -405,15 +470,15 @@ export default function ProductVariantTable({
                                                     <TableCell
                                                         key={`${option.key}-${column.id}`}
                                                         className={cn(
-                                                            "px-3 py-2.5 text-neutral-800",
+                                                            "px-3 py-2.5 text-center text-foreground tabular-nums",
                                                             index === 0 && isActive
-                                                                ? "border-s-2 border-s-brand text-brand font-bold"
+                                                                ? "border-s-2 border-s-brand font-bold"
                                                                 : "font-semibold"
                                                         )}
                                                     >
                                                         {formatMeasurementValue(measurement)}
                                                         {unit ? (
-                                                            <span className="text-[10px] text-neutral-400 font-normal ms-0.5">
+                                                            <span className={cn("ms-1 font-normal text-muted-foreground", wideTable ? "text-xs" : "text-[10px]")}>
                                                                 {unit}
                                                             </span>
                                                         ) : null}
@@ -421,26 +486,65 @@ export default function ProductVariantTable({
                                                 )
                                             })}
                                             {!focusOnMeasurements ? (
-                                                <TableCell className="text-center px-3 py-2.5">
-                                                    <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
-                                                        {t("colorCount", { count: option.colors.length })}
-                                                    </Badge>
+                                                <TableCell className="text-center px-2.5 py-2">
+                                                    {option.colors.length === 0 ? (
+                                                        <span className="text-muted-foreground">-</span>
+                                                    ) : (
+                                                        <AvatarGroup className="justify-center">
+                                                            {option.colors.slice(0, MAX_VISIBLE_COLORS).map((color) => (
+                                                                <Avatar key={color.id} size="sm" title={formatColorLabel(color)}>
+                                                                    <AvatarFallback
+                                                                        style={{ backgroundColor: color.hex || "#d4d4d4" }}
+                                                                    />
+                                                                </Avatar>
+                                                            ))}
+                                                            {option.colors.length > MAX_VISIBLE_COLORS ? (
+                                                                <AvatarGroupCount
+                                                                    title={option.colors
+                                                                        .slice(MAX_VISIBLE_COLORS)
+                                                                        .map((color) => formatColorLabel(color))
+                                                                        .join(", ")}
+                                                                >
+                                                                    +{option.colors.length - MAX_VISIBLE_COLORS}
+                                                                </AvatarGroupCount>
+                                                            ) : null}
+                                                        </AvatarGroup>
+                                                    )}
                                                 </TableCell>
                                             ) : null}
                                             {!focusOnMeasurements ? (
-                                                <TableCell className="text-center px-3 py-2.5">
-                                                    <Badge variant="secondary" className="bg-neutral-100 text-neutral-600 font-medium border-none hover:bg-neutral-100 rounded-md">
-                                                        {t("materialCount", { count: option.materials.length })}
-                                                    </Badge>
+                                                <TableCell className="px-2.5 py-2 text-center">
+                                                    {option.materials.length === 0 ? (
+                                                        <span className="text-muted-foreground">-</span>
+                                                    ) : (
+                                                        <div className="flex flex-nowrap items-center justify-center gap-1">
+                                                            {option.materials.slice(0, MAX_VISIBLE_MATERIALS).map((material) => (
+                                                                <Badge
+                                                                    key={material.id}
+                                                                    title={material.name}
+                                                                    variant="secondary"
+                                                                    className={cn("min-w-0", wideTable ? "max-w-28" : "max-w-20")}
+                                                                >
+                                                                    <span className="truncate">{materialShortLabel(material)}</span>
+                                                                </Badge>
+                                                            ))}
+                                                            {option.materials.length > MAX_VISIBLE_MATERIALS ? (
+                                                                <Badge
+                                                                    variant="secondary"
+                                                                    title={option.materials
+                                                                        .slice(MAX_VISIBLE_MATERIALS)
+                                                                        .map((material) => material.name)
+                                                                        .join(", ")}
+                                                                >
+                                                                    +{option.materials.length - MAX_VISIBLE_MATERIALS}
+                                                                </Badge>
+                                                            ) : null}
+                                                        </div>
+                                                    )}
                                                 </TableCell>
                                             ) : null}
-                                            {!focusOnMeasurements ? (
-                                                <TableCell className="text-center px-3 py-2.5 font-mono text-[11px] text-neutral-500">
-                                                    {t("codeCount", { count: option.fullCodes.length })}
-                                                </TableCell>
-                                            ) : null}
-                                            <TableCell className="px-3 py-2.5 pe-4 text-end align-middle">
-                                                <div className="flex items-center justify-end gap-1.5 leading-none">
+                                            <TableCell className="px-2 py-2 pe-3 text-end align-middle">
+                                                <div className="flex items-center justify-end gap-1">
                                                     <ButtonShine
                                                         href={variantDetailsHref}
                                                         onClick={(event) => {
@@ -452,32 +556,34 @@ export default function ProductVariantTable({
 
                                                             setPendingVariantKey(option.key)
                                                         }}
-                                                        /* target="_blank"
-                                                        rel="noopener noreferrer" */
-                                                        ariaLabel={t("showVariantsAria", { label: option.label })}
+                                                        ariaLabel={isPending ? t("opening") : t("showVariantsAria", { label: option.label })}
                                                         className={cn(
-                                                            "h-7 min-w-33 rounded-full border border-brand/80 bg-(--color-brand) px-2.5 text-[11px] font-medium text-(--color-brand-foreground) shadow-sm shadow-brand/10 transition-all duration-200 hover:border-(--color-brand) hover:bg-white hover:text-(--color-brand) active:scale-95",
-                                                            isActive && "ring-2 ring-brand/20 ring-offset-1",
+                                                            "shrink-0 rounded-full border border-border p-0 shadow-none motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-105",
+                                                            wideTable ? "size-8 text-white hover:text-neutral-950" : "size-7",
                                                             isPending && "cursor-wait"
                                                         )}
                                                     >
-                                                        <span className="inline-flex items-center gap-1.5">
-                                                            {isPending ? (
-                                                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                                            ) : null}
-                                                            {isPending ? t("opening") : t("showVariants")}
-                                                        </span>
+                                                        {isPending ? (
+                                                            <Loader2 className="size-3.5 motion-safe:animate-spin" />
+                                                        ) : (
+                                                            <ChevronRight className="h-3.5 w-3.5" />
+                                                        )}
                                                     </ButtonShine>
                                                     {canManageVariants && adminVariantsUrl && !focusOnMeasurements ? (
                                                         <Button
                                                             asChild
-                                                            size="sm"
-                                                            className="h-7 bg-red-600 px-2.5 text-[11px] text-white hover:bg-red-700 active:scale-95"
+                                                            size="icon-xs"
+                                                            variant="ghost"
+                                                            className="shrink-0 rounded-full"
                                                             onClick={(e) => e.stopPropagation()}
-                                                            disabled={isNavigatingToVariant}
                                                         >
-                                                            <Link href={adminVariantsUrl} target="_blank" rel="noopener noreferrer">
-                                                                {t("openInAdmin")}
+                                                            <Link
+                                                                href={adminVariantsUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                aria-label={t("openInAdmin")}
+                                                            >
+                                                                <ExternalLink className="h-3.5 w-3.5" />
                                                             </Link>
                                                         </Button>
                                                     ) : null}
@@ -491,126 +597,88 @@ export default function ProductVariantTable({
                     </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="flex min-w-0 flex-col gap-4">
                     {technicalDrawing ? (
-                        <div className="w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50/30 p-2.5 shadow-sm">
+                        <div className={cn(
+                            "w-full overflow-hidden",
+                            !wideTable && "rounded-xl border border-border bg-muted/30 p-2.5 shadow-sm"
+                        )}>
                             {technicalDrawing}
                         </div>
                     ) : null}
 
-                    {/* Seçilen Ölçü Detayları */}
-                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                        <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-4">
-                            <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm">
-                                <Ruler className="w-4 h-4 text-brand" />
-                                <span>{t("selectedDetailsTitle")}</span>
-                            </div>
-                            {focusOnMeasurements ? (
-                                <div className="flex items-center gap-1.5">
-                                    <MeasurementHelpDialogButton
-                                        measurementCode="GENEL"
-                                        videoUrl={measurementHelpVideoUrl}
-                                    />
-                                    <span className="text-[10px] text-neutral-400">{t("helpVideo")}</span>
-                                </div>
+                    {/* Mevcut Varyant Kodları */}
+                    <div className={cn(
+                        "flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-card",
+                        wideTable ? "p-3 sm:p-4" : "p-4 shadow-sm"
+                    )}>
+                        <div className="flex flex-col gap-1.5">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                                <Hash className="size-4 text-muted-foreground" />
+                                {t("codesTitle")}
+                            </h3>
+                            {wideTable ? (
+                                <p className="text-xs leading-relaxed text-muted-foreground">{selected.label}</p>
                             ) : null}
                         </div>
-                        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
-                            {selected.measurements.map((measurement) => {
-                                const unit = resolveMeasurementUnit(measurement)
-
-                                return (
-                                    <div
-                                        key={measurement.id}
-                                        className="flex items-center justify-between rounded-xl border border-neutral-100 bg-neutral-50/50 p-2.5 hover:border-brand/30 transition-all duration-200"
-                                    >
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-bold text-brand tracking-wider uppercase">
-                                                {measurement.measurementType.code}
-                                            </span>
-                                            <span className="text-xs text-neutral-500 font-medium leading-normal">
-                                                {resolveMeasurementName(measurement)}
-                                            </span>
-                                        </div>
-                                        <div className="rounded-lg bg-white border border-neutral-200/60 px-3 py-1 text-sm font-bold text-neutral-900 shadow-sm font-mono">
-                                            {formatMeasurementValue(measurement)}
-                                            {unit ? ` ${unit}` : ""}
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Mevcut Varyant Kodları */}
-                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                        <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
-                            <Hash className="w-4 h-4 text-brand" />
-                            <span>{t("codesTitle")}</span>
-                        </div>
-                        {selected.fullCodes.length === 0 ? (
-                            <p className="text-xs text-neutral-400">{t("codesEmpty")}</p>
+                        {selected.variants.length === 0 ? (
+                            <p className="text-xs text-muted-foreground">{t("codesEmpty")}</p>
                         ) : (
-                            <div className="flex flex-wrap gap-1.5">
-                                {selected.fullCodes.map((fullCode) => (
-                                    <Badge
-                                        key={fullCode}
-                                        variant="outline"
-                                        className="font-mono text-xs font-semibold px-2.5 py-1 bg-neutral-50/50 text-neutral-700 hover:bg-neutral-50/50 border-neutral-200/80 rounded-lg shadow-sm"
-                                    >
-                                        {fullCode}
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                            <div className="min-w-0 overflow-hidden rounded-lg border border-border *:data-[slot=table-container]:max-h-72 *:data-[slot=table-container]:overflow-auto">
+                                <Table className={cn(
+                                    "border-separate border-spacing-0 [&_td]:px-2.5 [&_td]:py-2 [&_th]:h-8 [&_th]:px-2.5 [&_th]:py-1.5 [&_th]:font-medium",
+                                    wideTable ? "[&_td]:text-xs [&_th]:text-xs" : "[&_td]:text-[11px] [&_th]:text-[9px] [&_th]:tracking-wider [&_th]:uppercase"
+                                )}>
+                                    <TableHeader>
+                                        <TableRow className="hover:bg-transparent">
+                                            <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
+                                                {t("colCode")}
+                                            </TableHead>
+                                            <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
+                                                {t("colColor")}
+                                            </TableHead>
+                                            <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
+                                                {t("colMaterial")}
+                                            </TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {selected.variants.map((variant) => {
+                                            const color = variant.colorId
+                                                ? selected.colors.find((entry) => entry?.id === variant.colorId)
+                                                : null
+                                            const materialNames = variant.materialIds
+                                                .map((materialId) => selected.materials.find((entry) => entry?.id === materialId)?.name)
+                                                .filter((name): name is string => Boolean(name))
 
-                    {/* Renk Seçenekleri */}
-                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                        <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
-                            <Palette className="w-4 h-4 text-brand" />
-                            <span>{t("colorsTitle")}</span>
-                        </div>
-                        {selected.colors.length === 0 ? (
-                            <p className="text-xs text-neutral-400">{t("colorsEmpty")}</p>
-                        ) : (
-                            <div className="flex flex-wrap gap-2">
-                                {selected.colors.map((color) => (
-                                    <span
-                                        key={color.id}
-                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-neutral-100 bg-neutral-50/50 hover:bg-white hover:border-brand/40 hover:shadow-sm text-xs text-neutral-700 font-medium transition-all duration-200"
-                                    >
-                                        <span
-                                            className="w-3.5 h-3.5 rounded-full border border-neutral-200 shadow-inner"
-                                            style={{ backgroundColor: color.hex || "#ddd" }}
-                                        />
-                                        {formatColorLabel(color)}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Ham Madde Seçenekleri */}
-                    <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                        <div className="flex items-center gap-2 text-neutral-900 font-semibold text-sm border-b border-neutral-100 pb-3 mb-3">
-                            <Layers3 className="w-4 h-4 text-brand" />
-                            <span>{t("materialsTitle")}</span>
-                        </div>
-                        {selected.materials.length === 0 ? (
-                            <p className="text-xs text-neutral-400">{t("materialsEmpty")}</p>
-                        ) : (
-                            <div className="flex flex-wrap gap-1.5">
-                                {selected.materials.map((material) => (
-                                    <Badge
-                                        key={material.id}
-                                        variant="outline"
-                                        className="text-xs font-semibold px-2.5 py-1 bg-brand/5 text-brand border-brand/20 hover:bg-brand/10 rounded-lg"
-                                    >
-                                        {material.name}
-                                        {material.code ? ` (${material.code})` : ""}
-                                    </Badge>
-                                ))}
+                                            return (
+                                                <TableRow key={variant.id} className="border-b border-border last:border-0 hover:bg-muted/50">
+                                                    <TableCell className="font-mono font-semibold text-foreground">
+                                                        {variant.fullCode}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {color ? (
+                                                            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                                                                <span
+                                                                    className="size-2.5 shrink-0 rounded-full border border-border"
+                                                                    style={{ backgroundColor: color.hex || "#ddd" }}
+                                                                />
+                                                                {formatColorLabel(color)}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-muted-foreground">-</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="whitespace-normal text-muted-foreground">
+                                                        {materialNames.length > 0 ? materialNames.join(", ") : (
+                                                            <span className="text-muted-foreground">-</span>
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        })}
+                                    </TableBody>
+                                </Table>
                             </div>
                         )}
                     </div>
