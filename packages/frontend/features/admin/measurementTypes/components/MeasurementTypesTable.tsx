@@ -67,11 +67,11 @@ export function MeasurementTypesTable({ measurementTypes, isFetching = false }: 
                     <TableHeader>
                         <TableRow>
                             <TableHead>Ölçü Tipi</TableHead>
-                            <TableHead className="w-[120px]">Kod</TableHead>
-                            <TableHead className="w-[120px]">Birim</TableHead>
-                            <TableHead className="w-[120px]">Sıra</TableHead>
-                            <TableHead className="w-[130px]">Güncellenme</TableHead>
-                            <TableHead className="w-[120px] text-right">İşlemler</TableHead>
+                            <TableHead className="w-30">Kod</TableHead>
+                            <TableHead className="w-30">Birim</TableHead>
+                            <TableHead className="w-30">Sıra</TableHead>
+                            <TableHead className="w-32.5">Güncellenme</TableHead>
+                            <TableHead className="w-30 text-right">İşlemler</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

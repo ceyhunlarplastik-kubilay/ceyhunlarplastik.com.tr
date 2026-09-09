@@ -5,6 +5,7 @@ export type MeasurementTypeCode =
     | "R"
     | "R1"
     | "R2"
+    | "R3"
     | "L"
     | "L1"
     | "L2"
@@ -14,6 +15,7 @@ export type MeasurementTypeCode =
     | "H"
     | "H1"
     | "H2"
+    | "H3"
     | "PT"
     | "M"
     | "R_L"
@@ -64,6 +66,7 @@ export const MEASUREMENT_TYPE_CODES: readonly MeasurementTypeCode[] = [
     "R",
     "R1",
     "R2",
+    "R3",
     "L",
     "L1",
     "L2",
@@ -73,6 +76,7 @@ export const MEASUREMENT_TYPE_CODES: readonly MeasurementTypeCode[] = [
     "H",
     "H1",
     "H2",
+    "H3",
     "PT",
     "M",
     "R_L",
