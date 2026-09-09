@@ -7030,6 +7030,117 @@ FARKLI senaryolar, ikisi de artık ele alınmış olmalı.
   değerleri backend/frontend'de zaten opsiyonel/geriye dönük uyumlu şekilde
   eklendi.
 
+## Müşteri portalı ürün detay sayfası — public tasarımını kullanacak şekilde birleştirildi (2026-09-09) *(kullanıcı talebiyle)*
+
+- **Ne yapıldı:** Kullanıcı public `urun/[slug]` sayfasının yerleşimini beğendi
+  ve aynı tasarımın müşteri portalı `musteri/tum-urunler/urun/[slug]`
+  sayfasında da kullanılmasını istedi (iki sayfanın layout'u —
+  `[locale]/(public)/layout.tsx` vs `(panels)/musteri/layout.tsx` — farklı
+  kalmaya devam ediyor, yalnız SAYFA İÇERİĞİ hizalandı).
+  `CustomerPortalProductDetailHeader` (portal'a özgü başlık/breadcrumb)
+  korundu, `data fetching`/logic (locale'siz `getProductBySlug`, sayfalanmış
+  `getProductVariantTable`, `focusOnMeasurements`,
+  `variantDetailsPathname="/musteri/tum-urunler/urun/.../varyantlar"`,
+  `basePath`/`hrefBasePath`) HİÇ değişmedi. Portalın kendi eski
+  `ProductHero` + `rounded-[28px] border ... p-6 shadow-sm` kart sarmalayıcısı
+  kaldırıldı; yerine public'in kullandığı `ProductDetailOverview` (görsel +
+  başlık + açıklama + rozet/"Ölçü ve Seçenekler" düğmesi + montaj videosu
+  önizlemesi + `ProductQuickNav` şeridi) doğrudan reuse edildi — bu bileşen
+  zaten Server Component ve `product` dışında prop almıyor, portal'ın kendi
+  `product` objesiyle birebir uyumlu. `ProductVariantTable`'a `wideTable`,
+  `technicalDrawing` slotundaki `ProductTechnicalDrawingSection`'a `mediaOnly`
+  eklendi — public'teki TAM aynı görsel yoğunluk/başlık-içi-kart deseni artık
+  portalda da var (`focusOnMeasurements`/`variantDetailsPathname` gibi
+  portal'a özgü prop'lar korunarak). `ProductQuickNav`'ın hedeflediği altı
+  anchor (`product-variants`, `usage-area-table`, `product-3d-model`,
+  `product-assembly-video`, `product-promo-video`, `product-certificate`)
+  zaten portalda birebir aynı id'lerle mevcuttu — ekstra bir eşleştirme
+  gerekmedi. Sayfa genelinde `**:[[id]]:scroll-mt-24` eklendi ki
+  QuickNav'dan tıklanan bölümler `PanelShell`'in sticky masaüstü üst
+  çubuğunun ALTINDA kalmasın (public'in kendi Navbar'ı için kullandığı
+  `scroll-mt-28` değeri panel topbar'ının yüksekliği farklı olduğu için
+  BİREBİR kopyalanmadı, `24` yaklaşık bir tahmin — kesin piksel ölçümü
+  yapılmadı, kubi'de görsel doğrulama gerekiyor).
+- **Neden:** Kullanıcı talebi — "Amacımız müşteri portalındaki ... sayfasındaki
+  tasarımı, yapıyı public sayfa ... kullanmaktır ancak burada
+  CustomerPortalProductDetailHeader kullanmaya devam edebiliriz... Müşteri
+  ürün sayfasındaki logic değişmeyecek."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0
+  error (158 warning, değişmedi) ✅ · `test -w frontend` 364/364 ✅. Backend'e
+  dokunulmadı, i18n anahtarı eklenmedi (yalnız zaten var olan
+  `public.productDetail` namespace'i reuse edildi). Görsel doğrulama
+  kullanıcıda — `/musteri/tum-urunler/urun/[slug]` sayfasında hem masaüstü
+  hem mobilde (özellikle QuickNav anchor scroll ve `scroll-mt-24` tahmini)
+  kontrol edilmeli.
+- **Ne kaldı:** `ProductDetailOverview.tsx`'in üstündeki eski "portal keeps
+  its existing ProductHero layout" yorumu güncellendi. Eski
+  `features/public/products/components/ProductHero.tsx` artık bu sayfa
+  tarafından RENDER edilmiyor (yalnız `ProductDetailOverview`'in prop
+  tipini türetmek için `import type` olarak referans veriliyor) — başka bir
+  yerde kullanılmıyorsa ileride kaldırılabilecek ölü kod, bu turun kapsamı
+  dışında bırakıldı.
+
+**Ek düzenlemeler (aynı gün) — kullanıcı Chrome/kubi'de canlı görüp art arda ince
+ayar istedi, son mesajda "tamam çalıştı" ile onayladı:**
+- **`ProductAttributeBadges.tsx` (`subtle` dalı, yalnız bu sayfa kullanıyor):**
+  attribute adı+değerleri `flex-col` (alt alta) → `flex-wrap items-center gap-2`
+  (yan yana) + `:` eklendi; ad rengi `text-muted-foreground` → `text-foreground
+  font-semibold` (silik görünüyordu). Dış `<dl>`'e `justify-around` denendi.
+- **`ProductDetailOverview.tsx` — masaüstü (`lg:`) düzeni TAMAMEN yeniden
+  kuruldu:** eski CSS Grid (`md:grid-cols-[380px_minmax(0,1fr)]`, video metin
+  sütununun köşesinde küçük bir kart) yerine tek bir flex satırı — `lg:`de
+  görsel / montaj videosu / metin (başlık+açıklama+rozet+buton) ÜÇ ayrı sütun,
+  `items-stretch` ile aynı başlangıç-bitiş hizasında. `lg`'nin altında
+  (mobil+tablet, artık tek breakpoint) hepsi tek sütunda alt alta — video/
+  görseli İKİ KEZ RENDER ETMEMEK için (performans: `ProductDetailMediaPreview`
+  `"use client"` + görsel `priority` ile eager yükleniyor, `hidden`/`lg:hidden`
+  ikili ağaç kullanılsaydı ikisi de iki kez ağa inerdi) TEK DOM ağacı
+  kullanıldı, yalnız `lg:` aynı elemanların düzenini (`flex-col`→`flex-row`)
+  değiştiriyor. Bu basitleştirme sonucu eski `md:` (768-1024px, tablet) 2-sütun
+  görünümü kayboldu — o aralık artık mobildeki gibi tek sütun (kullanıcıya
+  bildirildi, itiraz gelmedi).
+  Görsel oranı üç kez değişti: `aspect-800/1000` (portre) → `aspect-square`
+  (kare, ara adım) → **`aspect-4/3`** (final — kare kaldırıldı ki genişleyip
+  videoyla aynı hesaplanmış yüksekliğe (~285px) gelebilsin). Genişlikler:
+  görsel `lg:w-95` (380px), video `lg:w-md` (448px) — ikisi de ~285px
+  yükseklikte eşleşecek şekilde hesaplandı (video: 448×9/16 thumbnail + ince
+  alt bant; görsel: 380×3/4). Video `lg:self-start` ile satırın ÜSTÜNE hizalı
+  (üst kenar KESİN eşleşir, alt kenar hesaba dayalı yaklaşık — piksel-mükemmel
+  garanti yok, iki farklı en-boy oranı aynı anda tam eşleşemez). **Bug + fix
+  aynı turda:** video sarmalayıcısındaki `self-start` başta `lg:` ile
+  sınırlanmamıştı — `flex-col` (mobil) içinde cross axis YATAY olduğu için
+  mobilde videoyu görselin aksine tam genişlik yerine kendi doğal genişliğine
+  küçültüp sola yaslıyordu; `lg:self-start`'a taşınarak düzeltildi.
+  Metin sütunu `justify-between` (üstte başlık/açıklama, altta rozet/buton) →
+  **`justify-start`** (kullanıcı talebiyle: tüm içerik üstte kümelensin, buton
+  o sırada kullanıcı tarafından disk'te yorum satırına alınmıştı — bkz. aşağı).
+  Ürün adı `text-2xl lg:text-3xl` → `text-xl` (lg override kaldırıldı, tek
+  boyut). "Ölçü ve Seçenekler" butonu (`justify-between`→`justify-center`,
+  `text-start`→`text-center`, `lg:w-auto lg:self-center lg:px-12` — büyük
+  ekranda tam genişlik değil, ortalı) düzenlendi, SONRA kullanıcı JSX'i
+  kendisi diskte yorum satırına aldı (butonu geçici kaldırmak istedi) — buna
+  DOKUNULMADI, yalnız artık kullanılmayan `Button`/`ArrowDown` import'ları
+  (TS "declared but never read" hatası veriyordu) temizlendi.
+- **`ProductDetailMediaPreview.tsx` (`mediaOnly`/video dalı — bu bileşenin TEK
+  tüketicisi `ProductDetailOverview.tsx` olduğu için serbestçe değiştirildi):**
+  `@min-[30rem]` container-query'ye bağlı koşullu düzen (dar konteynerde yatay
+  küçük kart, genişte dikey kart) tamamen kaldırıldı — artık HER ZAMAN dikey:
+  thumbnail tam genişlik üstte, "Montaj Videosu" etiketi altında ince, tek
+  satırlık bir bant (`text-xs`, `truncate`, küçültülmüş ikon). Görsel dalının
+  oranı yukarıda anlatıldığı gibi `aspect-square`→`aspect-4/3` oldu.
+- **`ProductDescriptionDisclosure.tsx` (yalnız bu sayfa kullanıyor):** önizleme
+  metni `text-sm leading-6 max-h-24` → `text-xs leading-5 max-h-20`, `lg:`de
+  bir tık daha: `lg:text-[11px] lg:leading-4 lg:max-h-16` (satır-yükseklik ×
+  4 satır = max-h ile birebir örtüşecek şekilde hesaplandı).
+- **Doğrulama (her alt adımda tekrarlandı):** `typecheck -w frontend` ✅ ·
+  `lint -w frontend` 0 error (158 warning, değişmedi) ✅ · `test -w frontend`
+  364/364 ✅.
+- **Ne kaldı:** "Ölçü ve Seçenekler" butonu şu an JSX'te yorumda — kullanıcı
+  geri isteyince `Button`/`ArrowDown` import'larını + yorumdaki JSX'i geri
+  açmak yeterli. 768-1024px (tablet) aralığındaki basitleştirilmiş tek-sütun
+  görünüm istenirse ayrı bir dilimde ara bir breakpoint eklenebilir. Görsel/
+  video alt kenar hizası piksel bazında kubi'de son kez doğrulanmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

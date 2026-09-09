@@ -12,7 +12,7 @@ type Props = {
     productName: string
     imageUrl?: string
     videoUrl?: string
-    /** Compact landscape preview with a visible video label. */
+    /** Compact stacked preview: full-width thumbnail on top, thin video label below. */
     mediaOnly?: boolean
 }
 
@@ -37,10 +37,10 @@ export default function ProductDetailMediaPreview({ productName, imageUrl, video
                 {videoId && mediaOnly ? (
                     <button
                         type="button"
-                        className="group flex h-full w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg border border-border bg-muted/30 text-start outline-none transition-colors hover:border-brand hover:bg-brand/5 focus-visible:ring-2 focus-visible:ring-ring motion-safe:active:scale-[0.98] @min-[30rem]:flex-col @min-[30rem]:items-stretch @min-[30rem]:gap-0"
+                        className="group flex h-full w-full min-w-0 flex-col items-stretch overflow-hidden rounded-lg border border-border bg-muted/30 text-start outline-none transition-colors hover:border-brand hover:bg-brand/5 focus-visible:ring-2 focus-visible:ring-ring motion-safe:active:scale-[0.98]"
                         aria-label={t("assets.assemblyVideo.open")}
                     >
-                        <span className="relative block aspect-video w-28 shrink-0 overflow-hidden bg-muted @min-[30rem]:w-full">
+                        <span className="relative block aspect-video w-full shrink-0 overflow-hidden bg-muted">
                             {/* eslint-disable-next-line @next/next/no-img-element -- same YouTube facade source as ProductYoutubeEmbed */}
                             <img src={buildYoutubeThumbnailUrl(videoId)} alt="" className="absolute inset-0 size-full object-cover" loading="lazy" />
                             <span className="absolute inset-0 flex items-center justify-center bg-neutral-950/20 transition-colors group-hover:bg-neutral-950/30">
@@ -49,9 +49,11 @@ export default function ProductDetailMediaPreview({ productName, imageUrl, video
                                 </span>
                             </span>
                         </span>
-                        <span className="flex min-w-0 flex-1 items-center justify-between gap-2 py-3 pe-3 @min-[30rem]:px-3">
-                            <span className="text-sm font-medium leading-snug text-foreground">{title}</span>
-                            <ArrowUpRight className="size-4 shrink-0 text-brand" aria-hidden="true" />
+                        {/* İnce alt bant — "az alan kaplamalı" (kullanıcı talebiyle): video artık
+                            tam genişlik, etiket yalnız tek satırlık bir altbilgi. */}
+                        <span className="flex min-w-0 items-center justify-between gap-2 px-3 py-2">
+                            <span className="truncate text-xs font-medium leading-snug text-foreground">{title}</span>
+                            <ArrowUpRight className="size-3.5 shrink-0 text-brand" aria-hidden="true" />
                         </span>
                     </button>
                 ) : videoId ? (
@@ -72,7 +74,7 @@ export default function ProductDetailMediaPreview({ productName, imageUrl, video
                         <ArrowUpRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                     </button>
                 ) : (
-                    <button type="button" aria-label={t("imageDialogTitle")} className="group relative aspect-800/1000 w-full cursor-zoom-in overflow-hidden rounded-xl border border-border bg-white outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <button type="button" aria-label={t("imageDialogTitle")} className="group relative aspect-4/3 w-full cursor-zoom-in overflow-hidden rounded-xl border border-border bg-white outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <Image src={imageUrl!} alt={productName} fill priority sizes="(min-width: 1536px) 560px, (min-width: 768px) 43vw, 100vw" className="object-contain p-4" />
                         <span className="absolute inset-e-3 bottom-3 flex size-8 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 text-muted-foreground">
                             <Maximize2 className="size-4" aria-hidden="true" />

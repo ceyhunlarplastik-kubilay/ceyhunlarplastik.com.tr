@@ -75,11 +75,11 @@ export default function ProductAttributeBadges({ attributeValues, subtle = false
 
     if (subtle) {
         return (
-            <dl className="flex flex-wrap gap-x-6 gap-y-3">
+            <dl className="flex flex-wrap justify-around gap-x-6 gap-y-3">
                 {allEntries.map(([attributeCode, group]) => (
-                    <div key={attributeCode} className="flex flex-col gap-1.5">
-                        <dt className="text-xs text-muted-foreground">
-                            {formatAttributeName(group.attributeName, attributeFallback)}
+                    <div key={attributeCode} className="flex flex-wrap items-center gap-2">
+                        <dt className="whitespace-nowrap text-xs font-semibold text-foreground">
+                            {formatAttributeName(group.attributeName, attributeFallback)}:
                         </dt>
                         <dd className="flex flex-wrap gap-1.5">
                             {group.values.map((value) => (

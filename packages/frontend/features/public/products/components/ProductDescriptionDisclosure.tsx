@@ -43,7 +43,7 @@ export default function ProductDescriptionDisclosure({ description, productName 
                 ref={previewRef}
                 tabIndex={hasOverflow === null ? 0 : undefined}
                 className={cn(
-                    "max-h-24 w-full whitespace-pre-line wrap-break-word text-sm leading-6 text-muted-foreground",
+                    "max-h-20 w-full whitespace-pre-line wrap-break-word text-xs leading-5 text-muted-foreground lg:max-h-16 lg:text-[11px] lg:leading-4",
                     // Before hydration (and without JavaScript), the full text remains scrollable.
                     hasOverflow === null ? "overflow-y-auto" : "line-clamp-4",
                 )}

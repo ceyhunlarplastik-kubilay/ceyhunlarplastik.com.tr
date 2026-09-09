@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 
-import ProductHero from "@/features/public/products/components/ProductHero"
+import ProductDetailOverview from "@/features/public/products/components/ProductDetailOverview"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import ProductUsageAreasTable from "@/features/public/products/components/ProductUsageAreasTable"
@@ -44,18 +44,15 @@ export default async function CustomerPortalProductDetailPage({
     const groupedVariantOptions = variantTable.options
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 **:[[id]]:scroll-mt-24">
             <CustomerPortalProductDetailHeader
                 categoryName={product.category?.name}
                 productName={product.name}
                 description="Ürün modelini inceleyin, ölçü gruplarına göre varyant seçeneklerini görüntüleyin ve portal içinden varyant detayına geçin."
             />
 
-            <div className="rounded-[28px] border border-neutral-200 bg-white p-6 shadow-sm">
-                <ProductHero
-                    product={product}
-                    showAssemblyVideoInline
-                />
+            <div id="product-hero">
+                <ProductDetailOverview product={product} />
             </div>
 
             <div id="product-variants">
@@ -64,9 +61,10 @@ export default async function CustomerPortalProductDetailPage({
                     loadError={variantTable.error}
                     productSlug={product.slug}
                     productId={product.id}
+                    wideTable
                     technicalDrawing={(
                         <div id="product-technical-drawing">
-                            <ProductTechnicalDrawingSection product={product} compact />
+                            <ProductTechnicalDrawingSection product={product} compact mediaOnly />
                         </div>
                     )}
                     variantDetailsPathname={`/musteri/tum-urunler/urun/${product.slug}/varyantlar`}
