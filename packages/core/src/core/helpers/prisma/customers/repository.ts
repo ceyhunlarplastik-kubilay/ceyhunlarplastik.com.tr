@@ -120,10 +120,9 @@ const addressTransactionOptions = {
 /** Harita tek görünümde sınırsız pin çizmez; yakınlaşma zaten daraltır. */
 const MAP_CUSTOMER_LIMIT = 500
 
+// "İlgili Ürünler" ürün ağacı: portal profil-eşleşmesi sorgusu (`.product.include`)
+// ve `customerAssignedProductVariantInclude` bu şekli paylaşır.
 export const customerProductInclude = {
-    createdByUser: {
-        select: customerUserSummarySelect,
-    },
     product: {
         include: {
             category: true,
@@ -182,7 +181,7 @@ export const customerProductInclude = {
             },
         },
     },
-} satisfies Prisma.CustomerFeaturedProductInclude
+} satisfies { product: { include: Prisma.ProductInclude } }
 
 export const customerAssignedProductVariantInclude = {
     createdByUser: {
@@ -199,12 +198,6 @@ export const customerAssignedProductVariantInclude = {
 
 const customerDetailInclude = {
     ...customerBaseInclude,
-    featuredProducts: {
-        orderBy: {
-            displayOrder: "asc",
-        },
-        include: customerProductInclude,
-    },
     assignedProducts: {
         orderBy: {
             displayOrder: "asc",
@@ -267,15 +260,15 @@ const customerDetailInclude = {
 
 // Panel ilk-yük pattern'i: portal overview sayfası ürünleri RENDER ETMEZ, yalnız
 // sayaçlarını gösterir. customerDetailInclude'un en ağır kısmı olan
-// featuredProducts/assignedProducts ürün ağaçları (ürün başına ~175KB sınıfı)
-// burada _count'a indirilir; profil/iletişim/adres/kullanım-alanı blokları kalır.
+// assignedProducts ürün ağacı (ürün başına ~175KB sınıfı) burada _count'a
+// indirilir; profil/iletişim/adres/kullanım-alanı blokları kalır. "İlgili Ürünler"
+// sayısı artık profil eşleşmesinden türediği için burada sayaç yok.
 const customerPortalOverviewInclude = {
     ...customerBaseInclude,
     portalUsers: customerDetailInclude.portalUsers,
     addresses: customerDetailInclude.addresses,
     _count: {
         select: {
-            featuredProducts: true,
             assignedProducts: true,
         },
     },
@@ -295,10 +288,6 @@ export type CustomerDetail = Prisma.CustomerGetPayload<{
 
 export type CustomerAttributeValueAssignmentWithRelations = Prisma.CustomerAttributeValueAssignmentGetPayload<{
     include: typeof customerBaseInclude.attributeValueAssignments.include
-}>
-
-export type CustomerFeaturedProductWithRelations = Prisma.CustomerFeaturedProductGetPayload<{
-    include: typeof customerProductInclude
 }>
 
 export type CustomerAssignedProductWithRelations = Prisma.CustomerAssignedProductGetPayload<{
@@ -432,12 +421,6 @@ export interface IPrismaCustomerRepository {
         }>,
     ): Promise<CustomerWithRelations>
     convertCustomer(id: string, convertedByUserId: string): Promise<CustomerWithRelations>
-    replaceFeaturedProducts(
-        customerId: string,
-        productIds: string[],
-        createdByUserId: string,
-    ): Promise<CustomerFeaturedProductWithRelations[]>
-    listFeaturedProducts(customerId: string): Promise<CustomerFeaturedProductWithRelations[]>
     replaceAssignedProducts(
         customerId: string,
         productVariantIds: string[],
@@ -938,42 +921,6 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             include: customerBaseInclude,
         })
 
-    const listFeaturedProducts = async (customerId: string) =>
-        prisma.customerFeaturedProduct.findMany({
-            where: { customerId },
-            orderBy: {
-                displayOrder: "asc",
-            },
-            include: customerProductInclude,
-        })
-
-    const replaceFeaturedProducts = async (
-        customerId: string,
-        productIds: string[],
-        createdByUserId: string,
-    ) => {
-        const uniqueProductIds = Array.from(new Set(productIds.filter(Boolean)))
-
-        await prisma.$transaction(async (tx) => {
-            await tx.customerFeaturedProduct.deleteMany({
-                where: { customerId },
-            })
-
-            if (uniqueProductIds.length > 0) {
-                await tx.customerFeaturedProduct.createMany({
-                    data: uniqueProductIds.map((productId, index) => ({
-                        customerId,
-                        productId,
-                        displayOrder: index,
-                        createdByUserId,
-                    })),
-                })
-            }
-        })
-
-        return listFeaturedProducts(customerId)
-    }
-
     const listAssignedProducts = async (customerId: string) =>
         prisma.customerAssignedProduct.findMany({
             where: { customerId },
@@ -1115,8 +1062,6 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         deleteAddress,
         replaceCompanyContactAssignments,
         convertCustomer,
-        replaceFeaturedProducts,
-        listFeaturedProducts,
         replaceAssignedProducts,
         listAssignedProducts,
         addCustomerFavoriteVariant,

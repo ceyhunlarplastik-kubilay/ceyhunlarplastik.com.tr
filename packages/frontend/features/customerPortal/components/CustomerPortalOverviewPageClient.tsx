@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { CustomerContactCarousel } from "@/components/ui/customer-contact-carousel"
 import { Spinner } from "@/components/ui/spinner"
 import { usePortalCustomerOverview } from "@/features/customerPortal/hooks/usePortalCustomerOverview"
+import { usePortalFeaturedProducts } from "@/features/customerPortal/hooks/usePortalFeaturedProducts"
 import type { PortalCustomerOverview } from "@/features/customerPortal/api/getPortalCustomerOverview"
 import {
     CustomerPortalPageHeader,
@@ -38,7 +39,9 @@ export function CustomerPortalOverviewPageClient({
     // Panel ilk-yük pattern'i: overview ürün AĞACI indirmez, sayaçlar API'den gelir.
     const query = usePortalCustomerOverview({ initialData: initialOverview })
     const customer = query.data
-    const featuredProductCount = customer?.featuredProductCount ?? customer?.featuredProducts?.length ?? 0
+    // "İlgili Ürünler" artık profil eşleşmesinden türer; sayısı ayrı uçtan gelir.
+    const featuredProductsQuery = usePortalFeaturedProducts()
+    const featuredProductCount = featuredProductsQuery.data?.length ?? 0
     const assignedProductCount = customer?.assignedProductCount ?? customer?.assignedProducts?.length ?? 0
     const assignedSalesDisplayName = customer?.assignedSalesUser
         ? getUserDisplayName(customer.assignedSalesUser)

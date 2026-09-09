@@ -105,19 +105,17 @@ const customerProductSummarySchema = z.object({
     attributeValues: z.array(customerValueSchema).optional(),
 }).loose()
 
+// "İlgili Ürünler" artık yalnızca profil eşleşmesinden gelir (manuel insan seçimi
+// kaldırıldı); `source` sabit "ATTRIBUTE_MATCH".
 const featuredProductSchema = z.object({
     id: z.uuid(),
     customerId: z.uuid(),
     productId: z.uuid(),
     displayOrder: z.number(),
-    source: z.enum(["MANUAL", "ATTRIBUTE_MATCH"]).optional(),
+    source: z.enum(["ATTRIBUTE_MATCH"]).optional(),
     isProfileMatched: z.boolean().optional(),
     matchedAttributeValueIds: z.array(z.uuid()).optional(),
     matchedAttributeLabels: z.array(z.string()).optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-    createdByUserId: z.uuid().optional(),
-    createdByUser: userSummarySchema.optional(),
     product: customerProductSummarySchema,
 }).loose()
 
@@ -272,7 +270,6 @@ const customerSchema = z.object({
     assignedSalesUser: userSummarySchema.nullable().optional(),
     convertedByUser: userSummarySchema.nullable().optional(),
     portalUsers: z.array(userSummarySchema).optional(),
-    featuredProducts: z.array(featuredProductSchema).optional(),
     assignedProducts: z.array(assignedProductVariantSchema).optional(),
     addresses: z.array(customerAddressSchema).optional(),
     visits: z.array(customerVisitSchema).optional(),
@@ -364,21 +361,6 @@ export const updateCustomerValidator = validatorWrapper(
     }),
     {
         requiredRootFields: ["pathParameters", "body"],
-    },
-)
-
-export const replaceCustomerFeaturedProductsValidator = validatorWrapper(
-    z.object({
-        pathParameters: z.object({
-            id: z.uuid(),
-        }),
-        body: z.object({
-            productIds: z.array(z.uuid()).max(50),
-        }),
-    }),
-    {
-        requiredRootFields: ["pathParameters", "body"],
-        requiredBodyFields: ["productIds"],
     },
 )
 

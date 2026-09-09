@@ -1,5 +1,4 @@
 import { prisma } from "@/core/db/prisma"
-import { CUSTOMER_ATTRIBUTE_CODES } from "@/core/helpers/crm/customerAttributes"
 import { customerProductInclude } from "@/core/helpers/prisma/customers/repository"
 import {
     buildCustomerProfileProductWhereClauses,
@@ -14,7 +13,10 @@ export {
 } from "@/core/helpers/crm/customerProfileMatching"
 export type { CustomerProfileHierarchy } from "@/core/helpers/crm/customerProfileMatching"
 
-export type CustomerFeaturedAndMatchedProductSource = "MANUAL" | "ATTRIBUTE_MATCH"
+// "İlgili Ürünler" artık yalnızca profil eşleşmesinden türer; manuel insan seçimi
+// (CustomerFeaturedProduct) kaldırıldı. `source` alanı geriye dönük uyum için
+// sabit "ATTRIBUTE_MATCH" olarak kalıyor.
+export type CustomerFeaturedAndMatchedProductSource = "ATTRIBUTE_MATCH"
 
 type ProductWithRelations = Prisma.ProductGetPayload<{
     include: typeof customerProductInclude.product.include
@@ -25,15 +27,11 @@ export type CustomerFeaturedAndMatchedProduct = {
     customerId: string
     productId: string
     displayOrder: number
-    createdByUserId?: string | null
-    createdAt?: Date
-    updatedAt?: Date
-    createdByUser?: any
     product: ProductWithRelations
     source: CustomerFeaturedAndMatchedProductSource
-    isProfileMatched?: boolean
-    matchedAttributeValueIds?: string[]
-    matchedAttributeLabels?: string[]
+    isProfileMatched: true
+    matchedAttributeValueIds: string[]
+    matchedAttributeLabels: string[]
 }
 
 function collectMatchedHierarchyValues(
@@ -117,12 +115,6 @@ export async function getCustomerFeaturedAndMatchedProducts(
                     },
                 },
             },
-            featuredProducts: {
-                orderBy: {
-                    displayOrder: "asc",
-                },
-                include: customerProductInclude,
-            },
         },
     })
 
@@ -132,21 +124,8 @@ export async function getCustomerFeaturedAndMatchedProducts(
 
     const productWhereClauses = buildCustomerProfileProductWhereClauses(selectedHierarchy)
 
-    const buildManualItems = (matchedProductsById = new Map<string, ReturnType<typeof collectMatchedHierarchyValues>>()) =>
-        customer.featuredProducts.map((item) => {
-            const matched = matchedProductsById.get(item.productId)
-
-            return {
-                ...item,
-                source: "MANUAL" as const,
-                isProfileMatched: Boolean(matched),
-                matchedAttributeValueIds: matched?.matchedAttributeValueIds ?? [],
-                matchedAttributeLabels: matched?.matchedAttributeLabels ?? [],
-            }
-        }) satisfies CustomerFeaturedAndMatchedProduct[]
-
     if (productWhereClauses.length === 0) {
-        return buildManualItems()
+        return []
     }
 
     const matchedProducts = await prisma.product.findMany({
@@ -159,34 +138,19 @@ export async function getCustomerFeaturedAndMatchedProducts(
         },
     })
 
-    const matchedProductsById = new Map(
-        matchedProducts.map((product) => [
-            product.id,
-            collectMatchedHierarchyValues(product, selectedHierarchy),
-        ]),
-    )
+    return matchedProducts.map((product, index) => {
+        const matched = collectMatchedHierarchyValues(product, selectedHierarchy)
 
-    const manualItems = buildManualItems(matchedProductsById)
-
-    const manualProductIds = new Set(manualItems.map((item) => item.productId))
-
-    const attributeMatchedItems = matchedProducts
-        .filter((product) => !manualProductIds.has(product.id))
-        .map((product, index) => {
-            const matched = matchedProductsById.get(product.id) ?? collectMatchedHierarchyValues(product, selectedHierarchy)
-
-            return {
-                id: product.id,
-                customerId,
-                productId: product.id,
-                displayOrder: manualItems.length + index,
-                product,
-                source: "ATTRIBUTE_MATCH" as const,
-                isProfileMatched: true,
-                matchedAttributeValueIds: matched.matchedAttributeValueIds,
-                matchedAttributeLabels: matched.matchedAttributeLabels,
-            }
-        })
-
-    return [...manualItems, ...attributeMatchedItems]
+        return {
+            id: product.id,
+            customerId,
+            productId: product.id,
+            displayOrder: index,
+            product,
+            source: "ATTRIBUTE_MATCH" as const,
+            isProfileMatched: true,
+            matchedAttributeValueIds: matched.matchedAttributeValueIds,
+            matchedAttributeLabels: matched.matchedAttributeLabels,
+        }
+    })
 }

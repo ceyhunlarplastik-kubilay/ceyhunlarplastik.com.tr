@@ -178,19 +178,20 @@ export type CustomerVariantSpecialPrice = {
     pricing: CustomerVariantResolvedPricing
 }
 
+/**
+ * Portal "İlgili Ürünler": artık yalnızca profil eşleşmesinden gelir (müşteri
+ * sektör/üretim grubu/kullanım alanı ↔ ProductIndustrialUsage). Manuel insan
+ * seçimi kaldırıldığı için `source` sabit "ATTRIBUTE_MATCH".
+ */
 export type CustomerFeaturedProduct = {
     id: string
     customerId: string
     productId: string
     displayOrder: number
-    createdByUserId?: string
-    createdAt?: string
-    updatedAt?: string
-    source?: "MANUAL" | "ATTRIBUTE_MATCH"
+    source?: "ATTRIBUTE_MATCH"
     isProfileMatched?: boolean
     matchedAttributeValueIds?: string[]
     matchedAttributeLabels?: string[]
-    createdByUser?: UserSummary
     product: Product
 }
 
@@ -307,7 +308,6 @@ export type AdminCustomer = {
     assignedSalesUser?: UserSummary | null
     convertedByUser?: UserSummary | null
     portalUsers?: UserSummary[]
-    featuredProducts?: CustomerFeaturedProduct[]
     assignedProducts?: CustomerAssignedProduct[]
     addresses?: CustomerAddress[]
     visits?: CustomerVisit[]

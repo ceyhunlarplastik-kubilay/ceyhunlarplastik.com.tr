@@ -16,7 +16,6 @@ import { getUserDisplayName } from "@/lib/users/displayName"
 
 const navItems = [
     { label: "Genel Bilgiler", href: "" },
-    { label: "İlgili Ürünler", href: "/products" },
     { label: "Tanımlı Varyantlar", href: "/defined-products" },
     { label: "Özel Fiyatlar", href: "/special-prices" },
     { label: "Ziyaretler", href: "/visits" },
@@ -132,17 +131,11 @@ export function CustomerWorkspaceShell({
                 </div>
 
                 {customer ? (
-                    <div className="grid min-w-[280px] gap-3 rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm sm:grid-cols-2 xl:w-[560px] xl:grid-cols-4">
+                    <div className="grid min-w-70 gap-3 rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm sm:grid-cols-2 xl:w-[560px] xl:grid-cols-3">
                         <div className="rounded-2xl bg-neutral-50 px-4 py-3">
                             <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Satış Temsilcisi</div>
                             <div className="mt-2 text-sm font-medium text-neutral-900">
                                 {assignedSalesDisplayName || "Atama yok"}
-                            </div>
-                        </div>
-                        <div className="rounded-2xl bg-neutral-50 px-4 py-3">
-                            <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">İlgili Ürün</div>
-                            <div className="mt-2 text-sm font-medium text-neutral-900">
-                                {customer.featuredProducts?.length ?? 0}
                             </div>
                         </div>
                         <div className="rounded-2xl bg-neutral-50 px-4 py-3">
@@ -181,7 +174,7 @@ export function CustomerWorkspaceShell({
                                             : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900",
                                     )}
                                 >
-                                    {item.label === "İlgili Ürünler" || item.label === "Tanımlı Varyantlar" ? <Boxes className="h-4 w-4" /> : null}
+                                    {item.label === "Tanımlı Varyantlar" ? <Boxes className="h-4 w-4" /> : null}
                                     {item.label === "Özel Fiyatlar" ? <BadgePercent className="h-4 w-4" /> : null}
                                     {item.label === "Ziyaretler" ? <CalendarDays className="h-4 w-4" /> : null}
                                     {item.label === "Genel Bilgiler" ? <Building2 className="h-4 w-4" /> : null}

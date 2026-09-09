@@ -37,13 +37,11 @@ import {
     listManagedCustomerSpecialPricesHandler,
     listManagedCompanyContactsHandler,
     listManagedCustomerAssignedProductsHandler,
-    listManagedCustomerFeaturedProductsHandler,
     listManagedCustomersHandler,
     listManagedCustomerVisitsHandler,
     listManagedSuppliersHandler,
     listPortalCustomerSpecialPricesHandler,
     replaceManagedCustomerAssignedProductsHandler,
-    replaceManagedCustomerFeaturedProductsHandler,
     updateManagedCustomerAddressHandler,
     updateManagedCustomerSpecialPriceHandler,
     updateManagedCustomerHandler,
@@ -72,7 +70,6 @@ import type {
     IManagedSupplierEvent,
     IPortalCustomerSpecialPricesEvent,
     IReplaceManagedCustomerAssignedProductsEvent,
-    IReplaceManagedCustomerFeaturedProductsEvent,
     IUpdateManagedCustomerAddressEvent,
     IUpdateManagedCustomerSpecialPriceEvent,
     IUpdateManagedCustomerEvent,
@@ -90,7 +87,6 @@ import {
     customerVisitsResponseValidator,
     listCustomersResponseValidator,
     replaceCustomerAssignedProductsValidator,
-    replaceCustomerFeaturedProductsValidator,
     updateCustomerValidator,
     updateCustomerVisitValidator,
 } from "@/functions/AdminApi/validators/customers"
@@ -223,25 +219,6 @@ export const convertManagedCustomer = lambdaHandler(
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerResponseValidator,
-    },
-)
-
-export const listManagedCustomerFeaturedProducts = lambdaHandler(
-    async (event) => listManagedCustomerFeaturedProductsHandler(deps)(event as IManagedCustomerEvent),
-    {
-        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
-        requestValidator: customerIdValidator,
-        responseValidator: customerFeaturedProductsResponseValidator,
-    },
-)
-
-export const replaceManagedCustomerFeaturedProducts = lambdaHandler(
-    async (event) =>
-        replaceManagedCustomerFeaturedProductsHandler(deps)(event as IReplaceManagedCustomerFeaturedProductsEvent),
-    {
-        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
-        requestValidator: replaceCustomerFeaturedProductsValidator,
-        responseValidator: customerFeaturedProductsResponseValidator,
     },
 )
 
@@ -379,8 +356,8 @@ export const getPortalCustomerOverview = lambdaHandler(
     async (event) => getPortalCustomerOverviewHandler(deps)(event as IManagedCustomerEvent),
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
-        // customerSchema `.loose()` → ek featuredProductCount/assignedProductCount
-        // alanları customer objesi içinde kabul edilir (AJV ile doğrulandı).
+        // customerSchema `.loose()` → ek assignedProductCount alanı customer objesi
+        // içinde kabul edilir (AJV ile doğrulandı).
         responseValidator: customerResponseValidator,
     },
 )

@@ -3,11 +3,11 @@ import type { AdminCustomer } from "@/features/admin/customers/api/types"
 import type { ApiEnvelope } from "@/lib/http/types"
 
 /**
- * Panel ilk-yük pattern'i: /portal/customer'ın hafif hali. featured/assigned
- * ürün AĞAÇLARI gelmez (alanlar undefined kalır), yerine sayılar gelir.
+ * Panel ilk-yük pattern'i: /portal/customer'ın hafif hali. assigned ürün AĞACI
+ * gelmez (alan undefined kalır), yerine sayısı gelir. "İlgili Ürünler" sayısı
+ * profil eşleşmesinden türediği için ayrı uçtan (usePortalFeaturedProducts) alınır.
  */
 export type PortalCustomerOverview = AdminCustomer & {
-    featuredProductCount?: number
     assignedProductCount?: number
 }
 

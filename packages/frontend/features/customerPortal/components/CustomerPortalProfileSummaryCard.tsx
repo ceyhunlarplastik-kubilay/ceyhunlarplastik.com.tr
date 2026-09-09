@@ -28,7 +28,8 @@ type Props = {
     customer: AdminCustomer
     assignedSalesDisplayName?: string
     // Panel ilk-yük pattern'i: overview slim endpoint'i ürün dizilerini göndermez,
-    // sayıları API'den geçirir. Verilmezse dizilerin length'ine düşülür.
+    // sayıları geçirir. "İlgili Ürünler" sayısı profil eşleşmesinden türer ve
+    // overview client'ında ayrı uçtan alınıp buraya geçilir.
     featuredProductCount?: number
     assignedProductCount?: number
 }
@@ -203,7 +204,7 @@ export function CustomerPortalProfileSummaryCard({
                         {customer.addresses?.length ?? 0} adres
                     </Badge>
                     <Badge variant="outline" className="bg-white">
-                        {featuredProductCount ?? customer.featuredProducts?.length ?? 0} ilgili ürün
+                        {featuredProductCount ?? 0} ilgili ürün
                     </Badge>
                     <Badge variant="outline" className="bg-white">
                         {assignedProductCount ?? customer.assignedProducts?.length ?? 0} tanımlı varyant

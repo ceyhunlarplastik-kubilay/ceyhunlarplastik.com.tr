@@ -25,10 +25,6 @@ function getBlockingLabels(blockers: UserDeletionBlockers) {
         labels.push("is talebi gecmisi")
     }
 
-    if (blockers.createdCustomerFeaturedProducts > 0) {
-        labels.push("onecikan urun kayitlari")
-    }
-
     if (blockers.createdCustomerAssignedProducts > 0) {
         labels.push("atanan varyant kayitlari")
     }

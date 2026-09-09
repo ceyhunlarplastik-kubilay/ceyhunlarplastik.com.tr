@@ -61,16 +61,6 @@ function mapCustomerUserForApi(user: any) {
     }
 }
 
-function mapCustomerProductForApi(item: any) {
-    if (!item) return item
-
-    return {
-        ...item,
-        createdByUser: mapCustomerUserForApi(item.createdByUser),
-        product: item.product ? mapProductWithAssets(item.product) : item.product,
-    }
-}
-
 function mapCustomerVariantMeasurementForApi(measurement: any) {
     if (!measurement) return measurement
 
@@ -200,7 +190,6 @@ export function mapCustomerForApi(
             customer.attributeValueAssignments?.map(mapCustomerAttributeAssignmentForApi) ?? [],
         companyContactAssignments: mappedCompanyContactAssignments,
         portalUsers: customer.portalUsers?.map(mapCustomerUserForApi) ?? [],
-        featuredProducts: customer.featuredProducts?.map(mapCustomerProductForApi),
         assignedProducts: customer.assignedProducts?.map(mapCustomerAssignedProductForApi),
         addresses: customer.addresses?.map(mapCustomerAddressForApi) ?? [],
         visits: customer.visits?.map(mapCustomerVisitForApi),

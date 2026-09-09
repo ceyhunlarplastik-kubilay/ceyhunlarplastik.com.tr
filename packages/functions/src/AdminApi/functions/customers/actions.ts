@@ -9,10 +9,8 @@ import {
     deleteCustomerVisitHandler,
     getCustomerHandler,
     listCustomerAssignedProductsHandler,
-    listCustomerFeaturedProductsHandler,
     listCustomersHandler,
     listCustomerVisitsHandler,
-    replaceCustomerFeaturedProductsHandler,
     replaceCustomerAssignedProductsHandler,
     updateCustomerHandler,
     updateCustomerVisitHandler,
@@ -25,7 +23,6 @@ import {
     IReplaceCustomerAssignedProductsEvent,
     IListCustomerVisitsEvent,
     IListCustomersEvent,
-    IReplaceCustomerFeaturedProductsEvent,
     IUpdateCustomerEvent,
     IUpdateCustomerVisitEvent,
 } from "@/functions/AdminApi/types/customers"
@@ -41,7 +38,6 @@ import {
 import {
     createCustomerVisitValidator,
     customerAssignedProductsResponseValidator,
-    customerFeaturedProductsResponseValidator,
     customerIdValidator,
     customerResponseValidator,
     customerVisitResponseValidator,
@@ -49,7 +45,6 @@ import {
     customerVisitsResponseValidator,
     listCustomersResponseValidator,
     replaceCustomerAssignedProductsValidator,
-    replaceCustomerFeaturedProductsValidator,
     updateCustomerValidator,
     updateCustomerVisitValidator,
 } from "@/functions/AdminApi/validators/customers"
@@ -110,24 +105,6 @@ export const convertCustomer = lambdaHandler(
         auth: { requiredPermissionGroups: ["admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerResponseValidator,
-    },
-)
-
-export const listCustomerFeaturedProducts = lambdaHandler(
-    async (event) => listCustomerFeaturedProductsHandler(deps)(event as IGetCustomerEvent),
-    {
-        auth: { requiredPermissionGroups: ["admin", "owner"] },
-        requestValidator: customerIdValidator,
-        responseValidator: customerFeaturedProductsResponseValidator,
-    },
-)
-
-export const replaceCustomerFeaturedProducts = lambdaHandler(
-    async (event) => replaceCustomerFeaturedProductsHandler(deps)(event as IReplaceCustomerFeaturedProductsEvent),
-    {
-        auth: { requiredPermissionGroups: ["admin", "owner"] },
-        requestValidator: replaceCustomerFeaturedProductsValidator,
-        responseValidator: customerFeaturedProductsResponseValidator,
     },
 )
 

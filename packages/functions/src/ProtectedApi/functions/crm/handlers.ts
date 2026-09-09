@@ -47,7 +47,6 @@ import {
     IPortalCustomerSpecialPricesEvent,
     IProtectedCrmDependencies,
     IReplaceManagedCustomerAssignedProductsEvent,
-    IReplaceManagedCustomerFeaturedProductsEvent,
     IUpdateManagedCustomerAddressEvent,
     IUpdateManagedCustomerSpecialPriceEvent,
     IUpdateManagedCustomerEvent,
@@ -413,50 +412,6 @@ export const convertManagedCustomerHandler = ({ customerRepository }: IProtected
         return apiResponseDTO({
             statusCode: 200,
             payload: { customer: mapCustomerForApi(updated) },
-        })
-    }
-}
-
-export const listManagedCustomerFeaturedProductsHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
-    return async (event: IManagedCustomerEvent) => {
-        const customer = await customerRepository.getCustomer(event.pathParameters.id)
-        if (!customer) throw new createError.NotFound("Customer not found")
-
-        assertCustomerManagementAccess(event.user, customer)
-
-        const data = await customerRepository.listFeaturedProducts(customer.id)
-
-        return apiResponseDTO({
-            statusCode: 200,
-            payload: { data: mapFeaturedProducts(data) },
-        })
-    }
-}
-
-export const replaceManagedCustomerFeaturedProductsHandler = ({
-    customerRepository,
-    productRepository,
-}: IProtectedCrmDependencies) => {
-    return async (event: IReplaceManagedCustomerFeaturedProductsEvent) => {
-        if (!productRepository) {
-            throw new createError.InternalServerError("Product repository not configured")
-        }
-        const requester = event.user
-        if (!requester) throw new createError.Unauthorized("Authentication required")
-
-        const customer = await customerRepository.getCustomer(event.pathParameters.id)
-        if (!customer) throw new createError.NotFound("Customer not found")
-
-        assertCustomerManagementAccess(requester, customer)
-
-        const productIds = Array.from(new Set((event.body?.productIds ?? []).filter(Boolean)))
-        await Promise.all(productIds.map((productId) => productRepository.getProduct(productId)))
-
-        const data = await customerRepository.replaceFeaturedProducts(customer.id, productIds, requester.id)
-
-        return apiResponseDTO({
-            statusCode: 200,
-            payload: { data: mapFeaturedProducts(data) },
         })
     }
 }
@@ -866,10 +821,11 @@ export const getPortalCustomerHandler = ({ customerRepository }: IProtectedCrmDe
 
 /**
  * Portal overview (panel ilk-yük pattern'i): getPortalCustomer'ın hafif hali.
- * Overview sayfası ürünleri render etmez; featured/assigned ürün AĞAÇLARI yerine
- * yalnız sayıları döner (customer objesi içinde, customerSchema `.loose()` kabul
- * eder). mapCustomerForApi optional-safe olduğundan aynen kullanılır; `_count`
- * spread'e sızmasın diye ayrıştırılır.
+ * Overview sayfası ürünleri render etmez; assigned ürün AĞACI yerine yalnız sayısı
+ * döner (customer objesi içinde, customerSchema `.loose()` kabul eder).
+ * "İlgili Ürünler" sayısı artık profil eşleşmesinden türer, bu uçtan gelmez —
+ * frontend portal featured-products ucundan alır. mapCustomerForApi optional-safe
+ * olduğundan aynen kullanılır; `_count` spread'e sızmasın diye ayrıştırılır.
  */
 export const getPortalCustomerOverviewHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
     return async (event: IManagedCustomerEvent) => {
@@ -888,7 +844,6 @@ export const getPortalCustomerOverviewHandler = ({ customerRepository }: IProtec
             payload: {
                 customer: {
                     ...mapCustomerForApi(profile),
-                    featuredProductCount: _count.featuredProducts,
                     assignedProductCount: _count.assignedProducts,
                 },
             },

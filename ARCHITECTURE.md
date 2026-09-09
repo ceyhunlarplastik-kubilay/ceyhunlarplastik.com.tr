@@ -226,9 +226,13 @@ The repo intentionally separates APIs by audience and trust level.
 When adding a new endpoint, place it in the narrowest boundary that matches the required permissions.
 
 ### Customer CRM and portal model
-Customer management now distinguishes between two different product relationships:
-- `Customer.featuredProducts`
-  Customer-facing "İlgili Ürünler" list. These are relevance or showcase products surfaced in the portal.
+Customer management distinguishes between two different product relationships:
+- Customer-facing "İlgili Ürünler" list — surfaced in the portal, **derived only from
+  profile matching** (customer sector / production group / usage area ↔
+  `ProductIndustrialUsage`, via `customerProfileMatching.ts`). There is no manual
+  human curation: admin / sales director / sales representative cannot pick these
+  products. The `CustomerFeaturedProduct` model and its `PUT` endpoints were removed
+  on 2026-09-08.
 - `Customer.assignedProducts`
   Operational "Tanımlı Ürünler" list. These represent frequently sold or strategically defined products for that customer.
 
@@ -329,11 +333,12 @@ Customer portal cart visibility is treated as part of portal chrome, not as an a
 - mobile customer layouts can use a safe-area-aware sticky bottom bar
 - the cart preview data in the portal draft store may include client-only preview fields such as product image URLs, but these should not be forwarded into backend request payloads
 
-The `/musteri/tanimli-urunler` experience is now a merged view:
-- manual `featuredProducts` remain curated by sales/admin users
-- hierarchy-based matched products are appended from the customer profile assignment layer
-- duplicates are removed by `productId`
-- manual selections stay first
+The `/musteri/tanimli-urunler` experience lists **only** hierarchy-based matched
+products from the customer profile assignment layer (`getCustomerFeaturedAndMatchedProducts`
+→ `buildCustomerProfileProductWhereClauses`). Manual curation was removed:
+- no `PUT /(sales/)customers/{id}/featured-products` endpoints, no admin/sales "İlgili
+  Ürünler" workspace tab
+- `GET /portal/customer/featured-products` stays; it now returns matched products only
 - `assignedProducts` and `/musteri/musteriye-tanimli-urunler` remain strictly manual and operational
 
 ### Sales and purchasing role topology
@@ -670,7 +675,6 @@ Current CRM structure includes:
 - `Customer.convertedAt` and `Customer.convertedByUserId`
 - `Supplier.assignedPurchasingSuppliers` ↔ `User.assignedPurchasingSuppliers` (many-to-many purchasing assignment)
 - `User.customerId` for customer portal users
-- `CustomerFeaturedProduct` for manually curated customer-facing products
 - `CustomerVisit` for planned/completed/canceled visit tracking
 
 Operational meaning:
@@ -727,10 +731,11 @@ Typical authenticated operational flow:
 ### Customer portal flow
 Current customer portal lifecycle:
 1. A `Customer` record exists as `LEAD` or `CUSTOMER`.
-2. Admin/owner can assign a sales representative and featured products.
+2. Admin/owner can assign a sales representative. "İlgili Ürünler" is not assigned by
+   hand — it is derived from the customer's profile (sector / production group / usage area).
 3. A Cognito user in the `customer` group can be linked to that `Customer` through `User.customerId`.
 4. The customer signs in through the same custom auth surface after access is activated by an internal user.
-5. `/musteri` reads only the linked customer record and its featured products.
+5. `/musteri` reads only the linked customer record plus its profile-matched products.
 
 Portal scope is intentionally narrow in v1:
 - overview

@@ -39,7 +39,7 @@ function CustomerPortalFeaturedProductsContent() {
     const content = {
         chip: "Müşteriye Özel Ürünler",
         title: "İlgili Ürünler",
-        description: "Satış temsilcimizin öne çıkardığı ürünleri ve profil eşleşmenize göre ilgili bulunan ürünleri burada bulabilirsiniz.",
+        description: "Profil eşleşmenize göre firmanızla ilgili bulunan ürünleri burada bulabilirsiniz.",
         countDescription: "Firmanızla ilişkili ürünler",
         emptyMessage: "Henüz firmanız için ilgili ürün bulunmuyor.",
     }
@@ -104,22 +104,13 @@ function CustomerPortalFeaturedProductsContent() {
 
 function ProductRecommendationReason({ item }: { item: CustomerFeaturedProduct }) {
     const recommendation = useMemo(() => buildUsageAreaRecommendation(item), [item])
-    const isManual = item.source !== "ATTRIBUTE_MATCH"
-    const isProfileMatched = item.isProfileMatched || item.source === "ATTRIBUTE_MATCH"
 
     if (!recommendation) {
         return (
             <div className="flex min-h-8 flex-wrap items-center justify-center gap-1.5 px-1">
-                {isManual ? (
-                    <span className="inline-flex max-w-full items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
-                        Satış temsilcisi seçimi
-                    </span>
-                ) : null}
-                {isProfileMatched ? (
-                    <span className="inline-flex max-w-full items-center rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
-                        Profil eşleşmesi
-                    </span>
-                ) : null}
+                <span className="inline-flex max-w-full items-center rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
+                    Profil eşleşmesi
+                </span>
             </div>
         )
     }
@@ -131,18 +122,10 @@ function ProductRecommendationReason({ item }: { item: CustomerFeaturedProduct }
     return (
         <Dialog>
             <div className="flex min-h-8 flex-wrap items-center justify-center gap-1.5 px-1">
-                {isManual ? (
-                    <span className="inline-flex max-w-full items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
-                        Satış temsilcisi seçimi
-                    </span>
-                ) : null}
-
-                {isProfileMatched ? (
-                    <span className="inline-flex max-w-full items-center rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
-                        {/*Mantıksal olarak >  Profil eşleşmesi */}
-                        Kullanıldığı Endüstriyel Ürünler
-                    </span>
-                ) : null}
+                <span className="inline-flex max-w-full items-center rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
+                    {/*Mantıksal olarak >  Profil eşleşmesi */}
+                    Kullanıldığı Endüstriyel Ürünler
+                </span>
 
                 {visibleAreas.map((name) => (
                     <span

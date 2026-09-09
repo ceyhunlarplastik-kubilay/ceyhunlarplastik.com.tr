@@ -84,7 +84,6 @@ export type UserWithRelations = Prisma.UserGetPayload<{
 export type UserDeletionBlockers = {
     sentCustomerInvitations: number
     requestedBusinessRequests: number
-    createdCustomerFeaturedProducts: number
     createdCustomerAssignedProducts: number
     ownedCustomerVisits: number
     createdCustomerVisits: number
@@ -213,7 +212,6 @@ export const userRepository = (): IPrismaUserRepository => {
         const [
             sentCustomerInvitations,
             requestedBusinessRequests,
-            createdCustomerFeaturedProducts,
             createdCustomerAssignedProducts,
             ownedCustomerVisits,
             createdCustomerVisits,
@@ -221,7 +219,6 @@ export const userRepository = (): IPrismaUserRepository => {
         ] = await Promise.all([
             prisma.userInvitation.count({ where: { invitedByUserId: id } }),
             prisma.businessRequest.count({ where: { requestedByUserId: id } }),
-            prisma.customerFeaturedProduct.count({ where: { createdByUserId: id } }),
             prisma.customerAssignedProduct.count({ where: { createdByUserId: id } }),
             prisma.customerVisit.count({ where: { ownerUserId: id } }),
             prisma.customerVisit.count({ where: { createdByUserId: id } }),
@@ -231,7 +228,6 @@ export const userRepository = (): IPrismaUserRepository => {
         return {
             sentCustomerInvitations,
             requestedBusinessRequests,
-            createdCustomerFeaturedProducts,
             createdCustomerAssignedProducts,
             ownedCustomerVisits,
             createdCustomerVisits,

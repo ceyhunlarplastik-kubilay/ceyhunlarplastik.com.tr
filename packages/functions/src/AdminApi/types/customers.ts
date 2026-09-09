@@ -86,18 +86,9 @@ export type IConvertCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     { id: string }
 >
 
-export type IReplaceFeaturedProductsBody = {
-    productIds: string[]
-}
-
 export type IReplaceAssignedProductVariantsBody = {
     productVariantIds: string[]
 }
-
-export type IReplaceCustomerFeaturedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
-    IReplaceFeaturedProductsBody,
-    { id: string }
->
 
 export type IReplaceCustomerAssignedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
     IReplaceAssignedProductVariantsBody,

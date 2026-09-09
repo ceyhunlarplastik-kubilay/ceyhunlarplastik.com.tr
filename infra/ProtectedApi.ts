@@ -378,16 +378,6 @@ protectedApi.route('GET /sales/orders', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
-protectedApi.route('GET /sales/customers/{id}/featured-products', {
-    handler: `${folderPrefix}/crm/actions.listManagedCustomerFeaturedProducts`,
-    ...defaultRouteOptions
-}, { ...defaultAuthOptions });
-
-protectedApi.route('PUT /sales/customers/{id}/featured-products', {
-    handler: `${folderPrefix}/crm/actions.replaceManagedCustomerFeaturedProducts`,
-    ...defaultRouteOptions
-}, { ...defaultAuthOptions });
-
 protectedApi.route('GET /sales/customers/{id}/assigned-products', {
     handler: `${folderPrefix}/crm/actions.listManagedCustomerAssignedProducts`,
     ...defaultRouteOptions

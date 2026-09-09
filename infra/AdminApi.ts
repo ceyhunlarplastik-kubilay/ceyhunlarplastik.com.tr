@@ -204,16 +204,6 @@ adminApi.route("POST /customers/{id}/convert", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
-adminApi.route("GET /customers/{id}/featured-products", {
-    handler: `${folderPrefix}/customers/actions.listCustomerFeaturedProducts`,
-    ...defaultRouteOptions,
-}, { ...defaultAuthOptions });
-
-adminApi.route("PUT /customers/{id}/featured-products", {
-    handler: `${folderPrefix}/customers/actions.replaceCustomerFeaturedProducts`,
-    ...defaultRouteOptions,
-}, { ...defaultAuthOptions });
-
 adminApi.route("GET /customers/{id}/assigned-products", {
     handler: `${folderPrefix}/customers/actions.listCustomerAssignedProducts`,
     ...defaultRouteOptions,

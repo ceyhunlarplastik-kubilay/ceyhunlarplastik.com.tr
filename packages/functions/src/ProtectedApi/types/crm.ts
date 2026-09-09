@@ -294,11 +294,6 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     { id: string }
 >
 
-export type IReplaceManagedCustomerFeaturedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
-    { productIds: string[] },
-    { id: string }
->
-
 export type IReplaceManagedCustomerAssignedProductsEvent = IAPIGatewayProxyEventWithUserGeneric<
     { productVariantIds: string[] },
     { id: string }
