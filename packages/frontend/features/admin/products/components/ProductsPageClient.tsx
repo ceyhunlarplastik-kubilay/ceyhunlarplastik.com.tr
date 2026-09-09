@@ -5,7 +5,7 @@ import { useState } from "react"
 import { ProductMatchedCustomersPanel } from "@/features/productMatchedCustomers/components/ProductMatchedCustomersPanel"
 import { useProductListFilters } from "@/features/admin/products/hooks/useProductListFilters"
 import { useProducts } from "@/features/admin/products/hooks/useProducts"
-import { ProductsTable } from "@/features/admin/products/components/ProductsTable"
+import { ProductsGrid } from "@/features/admin/products/components/ProductsGrid"
 
 import type { Category } from "@/features/public/categories/types"
 
@@ -55,7 +55,7 @@ export function ProductsPageClient({
 
     return (
         <div className="space-y-6">
-            <ProductsTable
+            <ProductsGrid
                 products={data?.data ?? []}
                 meta={data?.meta}
                 categories={categories}

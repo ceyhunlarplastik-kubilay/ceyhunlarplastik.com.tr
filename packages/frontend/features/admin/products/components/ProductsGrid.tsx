@@ -4,15 +4,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 
 import { CreateProductDialog } from "@/features/admin/products/components/CreateProductDialog"
 import { EditProductDialog } from "@/features/admin/products/components/EditProductDialog"
@@ -34,6 +27,7 @@ import {
     Loader2,
     Hash,
     Users,
+    CalendarDays,
 } from "lucide-react"
 
 import { AnimatePresence, motion } from "motion/react"
@@ -67,16 +61,16 @@ type Props = {
     /** Varyant ekranının kök yolu — panel bazında değişir. */
     variantsBasePath?: string
     /**
-     * Verilirse satırda "Müşteriler" düğmesi çıkar (ürün → müşteri eşleşmesi).
-     * Opsiyonel: bu tablo veri girişi panelinde de kullanılıyor ve `content_editor`
+     * Verilirse kartta "Müşteriler" düğmesi çıkar (ürün → müşteri eşleşmesi).
+     * Opsiyonel: bu grid veri girişi panelinde de kullanılıyor ve `content_editor`
      * ticari CRM verisi görmemeli.
      */
     onViewCustomers?: (product: Product) => void
-    /** Müşteri paneli açık olan ürün — satır vurgusu için. */
+    /** Müşteri paneli açık olan ürün — kart vurgusu için. */
     customersProductId?: string
 }
 
-const MotionRow = motion(TableRow)
+const MotionLi = motion.li
 
 type ProductAssetLite = {
     id?: string
@@ -115,7 +109,7 @@ function countByType(product: Product) {
     }
 }
 
-export function ProductsTable({
+export function ProductsGrid({
     products,
     meta,
     categories,
@@ -198,35 +192,20 @@ export function ProductsTable({
                 onRefreshIntervalChange={onRefreshIntervalChange}
             />
 
-            {/* TABLE */}
-            <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+            {/* GRID */}
+            <div className="relative" aria-busy={isFetching}>
                 {isFetching && (
-                    <div className="h-1 w-full animate-pulse bg-[var(--color-brand)]" />
+                    <div className="absolute -top-2 left-0 h-0.5 w-full animate-pulse rounded-full bg-(--color-brand)" />
                 )}
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[140px]">
-                                Ürün Kodu
-                            </TableHead>
-                            <TableHead>
-                                Ürün Adı
-                            </TableHead>
-                            <TableHead className="w-[240px]">
-                                Medya
-                            </TableHead>
-                            <TableHead className="w-[180px]">
-                                Kategori
-                            </TableHead>
-                            <TableHead className="w-[140px]">
-                                Eklenme
-                            </TableHead>
-                            <TableHead className={onViewCustomers ? "text-right w-[260px]" : "text-right w-[120px]"}>
-                                İşlemler
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+
+                {products.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-16 text-center">
+                        <p className="text-sm text-neutral-500">
+                            Seçilen filtrelere göre ürün bulunamadı.
+                        </p>
+                    </div>
+                ) : (
+                    <ul className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         <AnimatePresence>
                             {products.map(product => {
                                 const thumb = pickThumb(product)
@@ -236,88 +215,95 @@ export function ProductsTable({
                                     c => c.id === product.categoryId
                                 )
                                 const isDeleting = deletingId === product.id
+                                const isCustomersOpen = customersProductId === product.id
 
                                 return (
-                                    <MotionRow
+                                    <MotionLi
                                         key={product.id}
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="border-b hover:bg-neutral-50"
+                                        className={`group flex flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all duration-300 hover:shadow-lg ${
+                                            isCustomersOpen ? "border-(--color-brand) ring-1 ring-(--color-brand)" : "border-neutral-200"
+                                        }`}
                                     >
-                                        <TableCell>
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-100 text-neutral-700 font-mono text-sm">
-                                                <Hash className="w-3.5 h-3.5 text-neutral-400" />
+                                        {/* IMAGE */}
+                                        <div className="relative aspect-square w-full border-b border-neutral-100 bg-white p-3">
+                                            <Badge
+                                                className="absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-full border border-white/30 bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm"
+                                            >
+                                                <Hash className="h-3 w-3" />
                                                 {product.code}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
+                                            </Badge>
+
+                                            <div className="absolute right-2 top-2 z-10 flex items-center gap-1">
+                                                {counts.images > 0 && (
+                                                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                                                        <ImageIcon className="h-3 w-3 text-blue-600" />
+                                                    </span>
+                                                )}
+                                                {counts.videos > 0 && (
+                                                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                                                        <Film className="h-3 w-3 text-purple-600" />
+                                                    </span>
+                                                )}
+                                                {counts.pdfs > 0 && (
+                                                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                                                        <FileText className="h-3 w-3 text-orange-600" />
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {thumb ? (
+                                                <Image
+                                                    src={thumb}
+                                                    alt={product.name}
+                                                    fill
+                                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                                    className="object-contain p-4 transition-transform duration-300 group-hover:scale-[1.03]"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center">
+                                                    <Box className="h-8 w-8 text-neutral-300" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* CONTENT */}
+                                        <div className="flex flex-1 flex-col gap-2 p-3">
                                             <div>
-                                                <p className="font-semibold">
+                                                <p className="line-clamp-2 text-sm font-semibold leading-tight text-neutral-900">
                                                     {product.name}
                                                 </p>
-                                                <p className="text-xs text-neutral-500">
+                                                <p className="mt-0.5 truncate text-xs text-neutral-500">
                                                     /{product.slug}
                                                 </p>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-lg border overflow-hidden flex items-center justify-center">
-                                                    {thumb ? (
-                                                        <Image
-                                                            src={thumb}
-                                                            className="h-full w-full object-cover"
-                                                            alt={product.name}
-                                                            width={48}
-                                                            height={48}
-                                                        />
-                                                    ) : (
-                                                        <Box className="h-5 w-5 text-neutral-300" />
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {counts.images > 0 && (
-                                                        <ImageIcon className="w-4 h-4 text-blue-600" />
-                                                    )}
 
-                                                    {counts.videos > 0 && (
-                                                        <Film className="w-4 h-4 text-purple-600" />
-                                                    )}
-
-                                                    {counts.pdfs > 0 && (
-                                                        <FileText className="w-4 h-4 text-orange-600" />
-                                                    )}
-
-                                                </div>
+                                            <div className="flex flex-wrap items-center gap-1.5">
+                                                {category ? (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] text-neutral-700">
+                                                        <Tag className="h-3 w-3" />
+                                                        {category.name}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-neutral-400">
+                                                        Kategori yok
+                                                    </span>
+                                                )}
+                                                <span className="inline-flex items-center gap-1 text-[11px] text-neutral-400">
+                                                    <CalendarDays className="h-3 w-3" />
+                                                    {new Date(product.createdAt).toLocaleDateString("tr-TR")}
+                                                </span>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            {category ? (
-                                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 rounded-full text-xs">
-                                                    <Tag className="w-3 h-3" />
-                                                    {category.name}
-                                                </span>
-                                            ) : (
-                                                <span className="text-neutral-400 text-xs">
-                                                    -
-                                                </span>
 
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-xs text-neutral-500">
-                                                {new Date(product.createdAt)
-                                                    .toLocaleDateString("tr-TR")}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end gap-1">
+                                            {/* ACTIONS */}
+                                            <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-2">
                                                 {onViewCustomers ? (
                                                     <Button
                                                         size="sm"
-                                                        variant={customersProductId === product.id ? "default" : "outline"}
-                                                        className="gap-1.5"
+                                                        variant={isCustomersOpen ? "default" : "outline"}
+                                                        className="h-7 gap-1 px-2 text-xs"
                                                         onClick={() => onViewCustomers(product)}
                                                     >
                                                         <Users className="h-3.5 w-3.5" />
@@ -329,45 +315,43 @@ export function ProductsTable({
                                                         asChild
                                                         size="sm"
                                                         variant="secondary"
+                                                        className="h-7 gap-1 px-2 text-xs"
                                                     >
                                                         <Link href={`${variantsBasePath}/${product.id}/variants`}>
                                                             Varyantlar
                                                         </Link>
                                                     </Button>
                                                 ) : null}
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    onClick={() => setSelectedProduct(product)}
-                                                >
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    onClick={() => handleDelete(product)}
-                                                    disabled={isDeleting}
-                                                >
-                                                    {isDeleting
-                                                        ? <Loader2 className="h-4 w-4 animate-spin" />
-                                                        : <Trash2 className="h-4 w-4" />
-                                                    }
-                                                </Button>
+                                                <div className="ms-auto flex items-center gap-0.5">
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-7 w-7"
+                                                        onClick={() => setSelectedProduct(product)}
+                                                    >
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-7 w-7"
+                                                        onClick={() => handleDelete(product)}
+                                                        disabled={isDeleting}
+                                                    >
+                                                        {isDeleting
+                                                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                                            : <Trash2 className="h-3.5 w-3.5" />
+                                                        }
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </TableCell>
-                                    </MotionRow>
+                                        </div>
+                                    </MotionLi>
                                 )
                             })}
                         </AnimatePresence>
-                        {products.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={6} className="py-10 text-center text-sm text-neutral-500">
-                                    Seçilen filtrelere göre ürün bulunamadı.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                    </ul>
+                )}
             </div>
 
             <AdminListPagination
