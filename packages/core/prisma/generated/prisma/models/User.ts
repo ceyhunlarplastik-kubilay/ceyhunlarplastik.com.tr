@@ -316,7 +316,6 @@ export type UserWhereInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductListRelationFilter
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductListRelationFilter
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignListRelationFilter
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementListRelationFilter
@@ -362,7 +361,6 @@ export type UserOrderByWithRelationInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepOrderByRelationAggregateInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepOrderByRelationAggregateInput
   activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductOrderByRelationAggregateInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductOrderByRelationAggregateInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignOrderByRelationAggregateInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementOrderByRelationAggregateInput
@@ -411,7 +409,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductListRelationFilter
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductListRelationFilter
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignListRelationFilter
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementListRelationFilter
@@ -509,7 +506,6 @@ export type UserCreateInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -553,7 +549,6 @@ export type UserUncheckedCreateInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -597,7 +592,6 @@ export type UserUpdateInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -641,7 +635,6 @@ export type UserUncheckedUpdateInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -1052,20 +1045,6 @@ export type UserUncheckedUpdateManyWithoutSupplierNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
-export type UserCreateNestedOneWithoutCreatedCustomerFeaturedProductsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomerFeaturedProductsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneRequiredWithoutCreatedCustomerFeaturedProductsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomerFeaturedProductsInput
-  upsert?: Prisma.UserUpsertWithoutCreatedCustomerFeaturedProductsInput
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUpdateWithoutCreatedCustomerFeaturedProductsInput>, Prisma.UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput>
-}
-
 export type UserCreateNestedOneWithoutCreatedCustomerAssignedProductsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerAssignedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerAssignedProductsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCustomerAssignedProductsInput
@@ -1290,7 +1269,6 @@ export type UserCreateWithoutNotificationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -1333,7 +1311,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -1392,7 +1369,6 @@ export type UserUpdateWithoutNotificationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -1435,7 +1411,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -1477,7 +1452,6 @@ export type UserCreateWithoutAssignedSalesCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -1520,7 +1494,6 @@ export type UserUncheckedCreateWithoutAssignedSalesCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -1568,7 +1541,6 @@ export type UserCreateWithoutConvertedCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -1611,7 +1583,6 @@ export type UserUncheckedCreateWithoutConvertedCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -1659,7 +1630,6 @@ export type UserCreateWithoutCustomerInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -1702,7 +1672,6 @@ export type UserUncheckedCreateWithoutCustomerInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -1766,7 +1735,6 @@ export type UserUpdateWithoutAssignedSalesCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -1809,7 +1777,6 @@ export type UserUncheckedUpdateWithoutAssignedSalesCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -1863,7 +1830,6 @@ export type UserUpdateWithoutConvertedCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -1906,7 +1872,6 @@ export type UserUncheckedUpdateWithoutConvertedCustomersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -1993,7 +1958,6 @@ export type UserCreateWithoutCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -2036,7 +2000,6 @@ export type UserUncheckedCreateWithoutCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -2084,7 +2047,6 @@ export type UserCreateWithoutSentCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -2127,7 +2089,6 @@ export type UserUncheckedCreateWithoutSentCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -2186,7 +2147,6 @@ export type UserUpdateWithoutCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -2229,7 +2189,6 @@ export type UserUncheckedUpdateWithoutCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -2283,7 +2242,6 @@ export type UserUpdateWithoutSentCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -2326,7 +2284,6 @@ export type UserUncheckedUpdateWithoutSentCustomerInvitationsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -2368,7 +2325,6 @@ export type UserCreateWithoutAssignedPurchasingSuppliersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -2411,7 +2367,6 @@ export type UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -2459,7 +2414,6 @@ export type UserCreateWithoutSupplierInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -2502,7 +2456,6 @@ export type UserUncheckedCreateWithoutSupplierInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -2558,194 +2511,6 @@ export type UserUpdateManyWithWhereWithoutSupplierInput = {
   data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutSupplierInput>
 }
 
-export type UserCreateWithoutCreatedCustomerFeaturedProductsInput = {
-  id?: string
-  cognitoSub: string
-  email: string
-  identifier: string
-  firstName?: string | null
-  lastName?: string | null
-  imageKey?: string | null
-  phone?: string | null
-  groups?: Prisma.UserCreategroupsInput | string[]
-  accessStatus?: $Enums.UserAccessStatus
-  accessStatusChangedAt?: Date | string | null
-  accessStatusChangedByUserId?: string | null
-  accessStatusReason?: string | null
-  customerContactTitle?: string | null
-  customerContactDepartment?: string | null
-  isPrimaryCustomerContact?: boolean
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
-  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
-  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
-  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
-  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
-  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
-  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
-  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
-  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
-  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
-  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
-  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
-  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
-  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
-  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
-  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
-  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
-  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
-  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
-  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
-}
-
-export type UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput = {
-  id?: string
-  cognitoSub: string
-  email: string
-  identifier: string
-  firstName?: string | null
-  lastName?: string | null
-  imageKey?: string | null
-  phone?: string | null
-  groups?: Prisma.UserCreategroupsInput | string[]
-  accessStatus?: $Enums.UserAccessStatus
-  accessStatusChangedAt?: Date | string | null
-  accessStatusChangedByUserId?: string | null
-  accessStatusReason?: string | null
-  supplierId?: string | null
-  customerId?: string | null
-  customerContactTitle?: string | null
-  customerContactDepartment?: string | null
-  isPrimaryCustomerContact?: boolean
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
-  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
-  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
-  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
-  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
-  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
-  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
-  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
-  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
-  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
-  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
-  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
-  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
-  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
-  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
-  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
-  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
-  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
-}
-
-export type UserCreateOrConnectWithoutCreatedCustomerFeaturedProductsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
-}
-
-export type UserUpsertWithoutCreatedCustomerFeaturedProductsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedCreateWithoutCreatedCustomerFeaturedProductsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutCreatedCustomerFeaturedProductsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCustomerFeaturedProductsInput, Prisma.UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput>
-}
-
-export type UserUpdateWithoutCreatedCustomerFeaturedProductsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  identifier?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  groups?: Prisma.UserUpdategroupsInput | string[]
-  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
-  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
-  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
-  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
-  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
-  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
-  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
-  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
-  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
-  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
-  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
-  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
-  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
-  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
-  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
-  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
-  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
-  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
-  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
-  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
-  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutCreatedCustomerFeaturedProductsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  identifier?: Prisma.StringFieldUpdateOperationsInput | string
-  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  groups?: Prisma.UserUpdategroupsInput | string[]
-  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
-  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
-  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
-  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
-  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
-  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
-  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
-  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
-  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
-  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
-  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
-  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
-  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
-  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
-}
-
 export type UserCreateWithoutCreatedCustomerAssignedProductsInput = {
   id?: string
   cognitoSub: string
@@ -2776,7 +2541,6 @@ export type UserCreateWithoutCreatedCustomerAssignedProductsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
   ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
@@ -2819,7 +2583,6 @@ export type UserUncheckedCreateWithoutCreatedCustomerAssignedProductsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
   ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
@@ -2878,7 +2641,6 @@ export type UserUpdateWithoutCreatedCustomerAssignedProductsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
   ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
@@ -2921,7 +2683,6 @@ export type UserUncheckedUpdateWithoutCreatedCustomerAssignedProductsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
   ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
@@ -2964,7 +2725,6 @@ export type UserCreateWithoutVerifiedCustomerAddressesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -3007,7 +2767,6 @@ export type UserUncheckedCreateWithoutVerifiedCustomerAddressesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -3066,7 +2825,6 @@ export type UserUpdateWithoutVerifiedCustomerAddressesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -3109,7 +2867,6 @@ export type UserUncheckedUpdateWithoutVerifiedCustomerAddressesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -3152,7 +2909,6 @@ export type UserCreateWithoutOwnedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -3195,7 +2951,6 @@ export type UserUncheckedCreateWithoutOwnedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -3243,7 +2998,6 @@ export type UserCreateWithoutCreatedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -3286,7 +3040,6 @@ export type UserUncheckedCreateWithoutCreatedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -3345,7 +3098,6 @@ export type UserUpdateWithoutOwnedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -3388,7 +3140,6 @@ export type UserUncheckedUpdateWithoutOwnedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -3442,7 +3193,6 @@ export type UserUpdateWithoutCreatedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -3485,7 +3235,6 @@ export type UserUncheckedUpdateWithoutCreatedCustomerVisitsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -3528,7 +3277,6 @@ export type UserCreateWithoutCreatedProductVariantCampaignsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
   ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
@@ -3571,7 +3319,6 @@ export type UserUncheckedCreateWithoutCreatedProductVariantCampaignsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
   ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
@@ -3630,7 +3377,6 @@ export type UserUpdateWithoutCreatedProductVariantCampaignsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
   ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
@@ -3673,7 +3419,6 @@ export type UserUncheckedUpdateWithoutCreatedProductVariantCampaignsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
   ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
@@ -3716,7 +3461,6 @@ export type UserCreateWithoutCreatedCampaignAnnouncementsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
@@ -3759,7 +3503,6 @@ export type UserUncheckedCreateWithoutCreatedCampaignAnnouncementsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
@@ -3818,7 +3561,6 @@ export type UserUpdateWithoutCreatedCampaignAnnouncementsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
@@ -3861,7 +3603,6 @@ export type UserUncheckedUpdateWithoutCreatedCampaignAnnouncementsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
@@ -3904,7 +3645,6 @@ export type UserCreateWithoutCreatedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -3947,7 +3687,6 @@ export type UserUncheckedCreateWithoutCreatedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -3995,7 +3734,6 @@ export type UserCreateWithoutApprovedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -4038,7 +3776,6 @@ export type UserUncheckedCreateWithoutApprovedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -4097,7 +3834,6 @@ export type UserUpdateWithoutCreatedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -4140,7 +3876,6 @@ export type UserUncheckedUpdateWithoutCreatedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -4194,7 +3929,6 @@ export type UserUpdateWithoutApprovedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -4237,7 +3971,6 @@ export type UserUncheckedUpdateWithoutApprovedCustomerSpecialPricesInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -4279,7 +4012,6 @@ export type UserCreateWithoutRequestedBusinessRequestsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -4322,7 +4054,6 @@ export type UserUncheckedCreateWithoutRequestedBusinessRequestsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -4381,7 +4112,6 @@ export type UserUpdateWithoutRequestedBusinessRequestsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -4424,7 +4154,6 @@ export type UserUncheckedUpdateWithoutRequestedBusinessRequestsInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -4467,7 +4196,6 @@ export type UserCreateWithoutRequestedOrdersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -4510,7 +4238,6 @@ export type UserUncheckedCreateWithoutRequestedOrdersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -4569,7 +4296,6 @@ export type UserUpdateWithoutRequestedOrdersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -4612,7 +4338,6 @@ export type UserUncheckedUpdateWithoutRequestedOrdersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -4655,7 +4380,6 @@ export type UserCreateWithoutAssignedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -4698,7 +4422,6 @@ export type UserUncheckedCreateWithoutAssignedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -4746,7 +4469,6 @@ export type UserCreateWithoutDecidedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -4789,7 +4511,6 @@ export type UserUncheckedCreateWithoutDecidedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -4848,7 +4569,6 @@ export type UserUpdateWithoutAssignedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -4891,7 +4611,6 @@ export type UserUncheckedUpdateWithoutAssignedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -4945,7 +4664,6 @@ export type UserUpdateWithoutDecidedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -4988,7 +4706,6 @@ export type UserUncheckedUpdateWithoutDecidedBusinessRequestStepsInput = {
   requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -5031,7 +4748,6 @@ export type UserCreateWithoutActivityLogsInput = {
   requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
@@ -5074,7 +4790,6 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
@@ -5133,7 +4848,6 @@ export type UserUpdateWithoutActivityLogsInput = {
   requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -5176,7 +4890,6 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -5242,7 +4955,6 @@ export type UserUpdateWithoutCustomerInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -5285,7 +4997,6 @@ export type UserUncheckedUpdateWithoutCustomerInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -5374,7 +5085,6 @@ export type UserUpdateWithoutAssignedPurchasingSuppliersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -5417,7 +5127,6 @@ export type UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -5484,7 +5193,6 @@ export type UserUpdateWithoutSupplierInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
@@ -5527,7 +5235,6 @@ export type UserUncheckedUpdateWithoutSupplierInput = {
   assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
   decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
-  createdCustomerFeaturedProducts?: Prisma.CustomerFeaturedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
   createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
@@ -5578,7 +5285,6 @@ export type UserCountOutputType = {
   assignedBusinessRequestSteps: number
   decidedBusinessRequestSteps: number
   activityLogs: number
-  createdCustomerFeaturedProducts: number
   createdCustomerAssignedProducts: number
   createdProductVariantCampaigns: number
   createdCampaignAnnouncements: number
@@ -5601,7 +5307,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   assignedBusinessRequestSteps?: boolean | UserCountOutputTypeCountAssignedBusinessRequestStepsArgs
   decidedBusinessRequestSteps?: boolean | UserCountOutputTypeCountDecidedBusinessRequestStepsArgs
   activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
-  createdCustomerFeaturedProducts?: boolean | UserCountOutputTypeCountCreatedCustomerFeaturedProductsArgs
   createdCustomerAssignedProducts?: boolean | UserCountOutputTypeCountCreatedCustomerAssignedProductsArgs
   createdProductVariantCampaigns?: boolean | UserCountOutputTypeCountCreatedProductVariantCampaignsArgs
   createdCampaignAnnouncements?: boolean | UserCountOutputTypeCountCreatedCampaignAnnouncementsArgs
@@ -5679,13 +5384,6 @@ export type UserCountOutputTypeCountDecidedBusinessRequestStepsArgs<ExtArgs exte
  */
 export type UserCountOutputTypeCountActivityLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ActivityLogWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountCreatedCustomerFeaturedProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CustomerFeaturedProductWhereInput
 }
 
 /**
@@ -5798,7 +5496,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   assignedBusinessRequestSteps?: boolean | Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs>
   decidedBusinessRequestSteps?: boolean | Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
-  createdCustomerFeaturedProducts?: boolean | Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs>
   createdCustomerAssignedProducts?: boolean | Prisma.User$createdCustomerAssignedProductsArgs<ExtArgs>
   createdProductVariantCampaigns?: boolean | Prisma.User$createdProductVariantCampaignsArgs<ExtArgs>
   createdCampaignAnnouncements?: boolean | Prisma.User$createdCampaignAnnouncementsArgs<ExtArgs>
@@ -5901,7 +5598,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   assignedBusinessRequestSteps?: boolean | Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs>
   decidedBusinessRequestSteps?: boolean | Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
-  createdCustomerFeaturedProducts?: boolean | Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs>
   createdCustomerAssignedProducts?: boolean | Prisma.User$createdCustomerAssignedProductsArgs<ExtArgs>
   createdProductVariantCampaigns?: boolean | Prisma.User$createdProductVariantCampaignsArgs<ExtArgs>
   createdCampaignAnnouncements?: boolean | Prisma.User$createdCampaignAnnouncementsArgs<ExtArgs>
@@ -5937,7 +5633,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     assignedBusinessRequestSteps: Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>[]
     decidedBusinessRequestSteps: Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>[]
     activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
-    createdCustomerFeaturedProducts: Prisma.$CustomerFeaturedProductPayload<ExtArgs>[]
     createdCustomerAssignedProducts: Prisma.$CustomerAssignedProductPayload<ExtArgs>[]
     createdProductVariantCampaigns: Prisma.$ProductVariantCampaignPayload<ExtArgs>[]
     createdCampaignAnnouncements: Prisma.$CampaignAnnouncementPayload<ExtArgs>[]
@@ -6376,7 +6071,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   assignedBusinessRequestSteps<T extends Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedBusinessRequestStepsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   decidedBusinessRequestSteps<T extends Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$decidedBusinessRequestStepsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessRequestApprovalStepPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activityLogs<T extends Prisma.User$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  createdCustomerFeaturedProducts<T extends Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCustomerFeaturedProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerFeaturedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdCustomerAssignedProducts<T extends Prisma.User$createdCustomerAssignedProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCustomerAssignedProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAssignedProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdProductVariantCampaigns<T extends Prisma.User$createdProductVariantCampaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdProductVariantCampaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantCampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdCampaignAnnouncements<T extends Prisma.User$createdCampaignAnnouncementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCampaignAnnouncementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignAnnouncementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7066,30 +6760,6 @@ export type User$activityLogsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ActivityLogScalarFieldEnum | Prisma.ActivityLogScalarFieldEnum[]
-}
-
-/**
- * User.createdCustomerFeaturedProducts
- */
-export type User$createdCustomerFeaturedProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CustomerFeaturedProduct
-   */
-  select?: Prisma.CustomerFeaturedProductSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the CustomerFeaturedProduct
-   */
-  omit?: Prisma.CustomerFeaturedProductOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CustomerFeaturedProductInclude<ExtArgs> | null
-  where?: Prisma.CustomerFeaturedProductWhereInput
-  orderBy?: Prisma.CustomerFeaturedProductOrderByWithRelationInput | Prisma.CustomerFeaturedProductOrderByWithRelationInput[]
-  cursor?: Prisma.CustomerFeaturedProductWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CustomerFeaturedProductScalarFieldEnum | Prisma.CustomerFeaturedProductScalarFieldEnum[]
 }
 
 /**

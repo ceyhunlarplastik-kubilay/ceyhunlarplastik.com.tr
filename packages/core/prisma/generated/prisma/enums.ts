@@ -75,6 +75,7 @@ export const MeasurementCode = {
   R: 'R',
   R1: 'R1',
   R2: 'R2',
+  R3: 'R3',
   L: 'L',
   L1: 'L1',
   L2: 'L2',
@@ -84,6 +85,7 @@ export const MeasurementCode = {
   H: 'H',
   H1: 'H1',
   H2: 'H2',
+  H3: 'H3',
   PT: 'PT',
   M: 'M',
   R_L: 'R_L'

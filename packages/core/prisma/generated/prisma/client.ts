@@ -244,11 +244,6 @@ export type MeasurementTypeTranslation = Prisma.MeasurementTypeTranslationModel
  */
 export type Supplier = Prisma.SupplierModel
 /**
- * Model CustomerFeaturedProduct
- * 
- */
-export type CustomerFeaturedProduct = Prisma.CustomerFeaturedProductModel
-/**
  * Model CustomerAssignedProduct
  * 
  */

@@ -47,7 +47,6 @@ model User {
   assignedBusinessRequestSteps    BusinessRequestApprovalStep[] @relation("BusinessRequestStepAssignedUser")
   decidedBusinessRequestSteps     BusinessRequestApprovalStep[] @relation("BusinessRequestStepDecidedBy")
   activityLogs                    ActivityLog[]                 @relation("ActivityLogActor")
-  createdCustomerFeaturedProducts CustomerFeaturedProduct[]     @relation("CustomerFeaturedProductCreatedBy")
   createdCustomerAssignedProducts CustomerAssignedProduct[]     @relation("CustomerAssignedProductCreatedBy")
   createdProductVariantCampaigns  ProductVariantCampaign[]      @relation("ProductVariantCampaignCreatedBy")
   createdCampaignAnnouncements    CampaignAnnouncement[]        @relation("CampaignAnnouncementCreatedBy")
@@ -219,7 +218,6 @@ model Product {
   attributeValues     ProductAttributeValue[]
   industrialUsages    ProductIndustrialUsage[]
   translations        ProductTranslation[]
-  featuredByCustomers CustomerFeaturedProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -424,7 +422,6 @@ model Customer {
   companyContactAssignments CustomerCompanyContactAssignment[]
   portalUsers               User[]                             @relation("CustomerPortalUsers")
   userInvitations           UserInvitation[]
-  featuredProducts          CustomerFeaturedProduct[]
   assignedProducts          CustomerAssignedProduct[]
   addresses                 CustomerAddress[]
   visits                    CustomerVisit[]
@@ -905,6 +902,7 @@ enum MeasurementCode {
   R // Radius (R) / Çap (R)
   R1 // Çap (R1)
   R2 // Çap (R2)
+  R3 // Çap (R3)
   L // Length (Uzunluk)
   L1 // Uzunluk (L1)
   L2 // Uzunluk (L2)
@@ -914,6 +912,7 @@ enum MeasurementCode {
   H // Height (Yükseklik) / Ürün Yüksekliği
   H1 // Ürün Yüksekliği (H1)
   H2 // Civata Uzunluğu (H2)
+  H3 // Yükseklik (H3)
   PT // Profile Thickness (Profil Kalınlığı)
   M // Metric thread size (M8, M6...)
   R_L // R-L
@@ -979,28 +978,9 @@ model Supplier {
   @@unique([name])
 }
 
-model CustomerFeaturedProduct {
-  id String @id @default(uuid())
-
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  displayOrder Int @default(0)
-
-  createdByUserId String
-  createdByUser   User   @relation("CustomerFeaturedProductCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([customerId, productId])
-  @@index([customerId, displayOrder])
-  @@index([productId])
-  @@index([createdByUserId])
-}
+/// "İlgili Ürünler" artık yalnızca profil eşleşmesinden türer (müşteri
+/// sektör/üretim grubu/kullanım alanı ↔ ProductIndustrialUsage); manuel insan
+/// seçimi kaldırıldığı için CustomerFeaturedProduct modeli de kaldırıldı.
 
 /// Portalda "Favori Ürün Varyantlarım" olarak gösterilir. İki kaynaktan beslenir:
 /// temsilci/admin ataması (STAFF) ve müşterinin kendi kalp işareti (CUSTOMER).

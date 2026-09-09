@@ -417,7 +417,6 @@ export const ModelName = {
   MeasurementType: 'MeasurementType',
   MeasurementTypeTranslation: 'MeasurementTypeTranslation',
   Supplier: 'Supplier',
-  CustomerFeaturedProduct: 'CustomerFeaturedProduct',
   CustomerAssignedProduct: 'CustomerAssignedProduct',
   CustomerAddress: 'CustomerAddress',
   GeocodingCache: 'GeocodingCache',
@@ -452,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "variantVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerFeaturedProduct" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "variantVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2898,80 +2897,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    CustomerFeaturedProduct: {
-      payload: Prisma.$CustomerFeaturedProductPayload<ExtArgs>
-      fields: Prisma.CustomerFeaturedProductFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CustomerFeaturedProductFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CustomerFeaturedProductFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
-        }
-        findFirst: {
-          args: Prisma.CustomerFeaturedProductFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CustomerFeaturedProductFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
-        }
-        findMany: {
-          args: Prisma.CustomerFeaturedProductFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>[]
-        }
-        create: {
-          args: Prisma.CustomerFeaturedProductCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
-        }
-        createMany: {
-          args: Prisma.CustomerFeaturedProductCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.CustomerFeaturedProductCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>[]
-        }
-        delete: {
-          args: Prisma.CustomerFeaturedProductDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
-        }
-        update: {
-          args: Prisma.CustomerFeaturedProductUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
-        }
-        deleteMany: {
-          args: Prisma.CustomerFeaturedProductDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CustomerFeaturedProductUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.CustomerFeaturedProductUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>[]
-        }
-        upsert: {
-          args: Prisma.CustomerFeaturedProductUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerFeaturedProductPayload>
-        }
-        aggregate: {
-          args: Prisma.CustomerFeaturedProductAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerFeaturedProduct>
-        }
-        groupBy: {
-          args: Prisma.CustomerFeaturedProductGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CustomerFeaturedProductGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CustomerFeaturedProductCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CustomerFeaturedProductCountAggregateOutputType> | number
-        }
-      }
-    }
     CustomerAssignedProduct: {
       payload: Prisma.$CustomerAssignedProductPayload<ExtArgs>
       fields: Prisma.CustomerAssignedProductFieldRefs
@@ -4946,19 +4871,6 @@ export const SupplierScalarFieldEnum = {
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
 
 
-export const CustomerFeaturedProductScalarFieldEnum = {
-  id: 'id',
-  customerId: 'customerId',
-  productId: 'productId',
-  displayOrder: 'displayOrder',
-  createdByUserId: 'createdByUserId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type CustomerFeaturedProductScalarFieldEnum = (typeof CustomerFeaturedProductScalarFieldEnum)[keyof typeof CustomerFeaturedProductScalarFieldEnum]
-
-
 export const CustomerAssignedProductScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
@@ -6002,7 +5914,6 @@ export type GlobalOmitConfig = {
   measurementType?: Prisma.MeasurementTypeOmit
   measurementTypeTranslation?: Prisma.MeasurementTypeTranslationOmit
   supplier?: Prisma.SupplierOmit
-  customerFeaturedProduct?: Prisma.CustomerFeaturedProductOmit
   customerAssignedProduct?: Prisma.CustomerAssignedProductOmit
   customerAddress?: Prisma.CustomerAddressOmit
   geocodingCache?: Prisma.GeocodingCacheOmit

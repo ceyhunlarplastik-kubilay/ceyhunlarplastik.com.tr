@@ -84,7 +84,6 @@ export const ModelName = {
   MeasurementType: 'MeasurementType',
   MeasurementTypeTranslation: 'MeasurementTypeTranslation',
   Supplier: 'Supplier',
-  CustomerFeaturedProduct: 'CustomerFeaturedProduct',
   CustomerAssignedProduct: 'CustomerAssignedProduct',
   CustomerAddress: 'CustomerAddress',
   GeocodingCache: 'GeocodingCache',
@@ -649,19 +648,6 @@ export const SupplierScalarFieldEnum = {
 } as const
 
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
-
-
-export const CustomerFeaturedProductScalarFieldEnum = {
-  id: 'id',
-  customerId: 'customerId',
-  productId: 'productId',
-  displayOrder: 'displayOrder',
-  createdByUserId: 'createdByUserId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type CustomerFeaturedProductScalarFieldEnum = (typeof CustomerFeaturedProductScalarFieldEnum)[keyof typeof CustomerFeaturedProductScalarFieldEnum]
 
 
 export const CustomerAssignedProductScalarFieldEnum = {
