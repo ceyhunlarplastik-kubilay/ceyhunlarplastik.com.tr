@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { CatalogCard } from "@/features/public/catalogs/components/CatalogCard"
 import { getCategories } from "@/features/public/categories/server/getCategories"
 import { PageHero } from "@/components/sections/PageHero"
+import { PageSection } from "@/components/sections/PageSection"
 import { buildStaticAlternates } from "@/i18n/alternates";
 import { getOgLocale } from "@/i18n/localeMetadata";
 
@@ -51,10 +52,7 @@ export default async function CatalogPage({ params }: PageProps) {
                 ]}
             />
 
-            <section
-                className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-8"
-                aria-labelledby="catalogs-heading"
-            >
+            <PageSection aria-labelledby="catalogs-heading">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 md:gap-8">
                     {catalogs.map((category: any) => (
                         <CatalogCard
@@ -63,7 +61,7 @@ export default async function CatalogPage({ params }: PageProps) {
                         />
                     ))}
                 </div>
-            </section>
+            </PageSection>
         </main>
     )
 }

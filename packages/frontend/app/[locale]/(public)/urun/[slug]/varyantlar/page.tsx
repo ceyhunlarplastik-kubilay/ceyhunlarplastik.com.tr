@@ -5,6 +5,7 @@ import type { Metadata } from "next"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { PageHero } from "@/components/sections/PageHero"
+import { PageSection } from "@/components/sections/PageSection"
 import ProductVariantDetailsTable from "@/features/public/products/components/ProductVariantDetailsTable"
 import ProductVariantHeaderActions from "@/features/public/products/components/ProductVariantHeaderActions"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
@@ -125,7 +126,7 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
                 ]}
             />
 
-            <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 space-y-6">
+            <PageSection className="space-y-6">
                 <div className="grid gap-6 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-6 lg:grid-cols-2 lg:gap-8">
                     <div className="relative aspect-4/3 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 shadow-sm">
                         {primaryAsset?.url ? (
@@ -144,8 +145,8 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
                     </div>
 
                     <div className="flex flex-col justify-center space-y-4">
-                        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">{product.name}</h2>
-                        <p className="text-sm text-neutral-500">{t("productCode", { code: product.code })}</p>
+                        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{product.name}</h2>
+                        <p className="text-sm text-muted-foreground">{t("productCode", { code: product.code })}</p>
                         {product.description && (
                             <p className="text-sm leading-7 text-neutral-700">{product.description}</p>
                         )}
@@ -168,7 +169,7 @@ export default async function ProductVariantDetailsPage({ params, searchParams }
                     productName={product.name}
                     categoryName={product.category?.name}
                 />
-            </section>
+            </PageSection>
         </main>
     )
 }

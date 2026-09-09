@@ -4,12 +4,12 @@ import { redirect } from "@/i18n/navigation"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 
 import { PageHero } from "@/components/sections/PageHero"
+import { PageSection } from "@/components/sections/PageSection"
 import { getProductBySlug } from "@/features/public/products/server/getProductBySlug"
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
 import { getProductsByCategory } from "@/features/public/products/server/getProductsByCategory"
 
-import ProductHero from "@/features/public/products/components/ProductHero"
-import ProductMediaRow from "@/features/public/products/components/ProductMediaRow"
+import ProductDetailOverview from "@/features/public/products/components/ProductDetailOverview"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
 import Product3DModelSection from "@/features/public/products/components/Product3DModelSection"
 import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
@@ -119,7 +119,7 @@ export default async function ProductPage({ params }: PageProps) {
     const groupedVariantOptions = variantTable.options
 
     return (
-        <main>
+        <main data-product-detail>
 
             <PageHero
                 title={product.name}
@@ -131,24 +131,16 @@ export default async function ProductPage({ params }: PageProps) {
                 ]}
             />
 
-            <section className="mx-auto w-full max-w-384 px-4 py-5 lg:px-5">
+            <PageSection className="pb-6">
 
                 {/* PRODUCT HERO */}
                 <div id="product-hero">
-                    <ProductHero
-                        product={product}
-                        showAssemblyVideoInline
-                    />
+                    <ProductDetailOverview product={product} />
                 </div>
 
-                {/* MEDIA ROW */}
-                {/* <div id="product-media">
-                    <ProductMediaRow product={product} />
-                </div> */}
+            </PageSection>
 
-            </section>
-
-            <section className="mx-auto w-full max-w-384 px-4 pb-20 lg:px-5">
+            <PageSection className="pt-0 pb-20 **:[[id]]:scroll-mt-28">
 
                 <div id="product-variants">
                     <ProductVariantTable
@@ -156,9 +148,10 @@ export default async function ProductPage({ params }: PageProps) {
                         loadError={variantTable.error}
                         productSlug={product.slug}
                         productId={product.id}
+                        wideTable
                         technicalDrawing={
                             <div id="product-technical-drawing">
-                                <ProductTechnicalDrawingSection product={product} compact />
+                                <ProductTechnicalDrawingSection product={product} compact mediaOnly />
                             </div>
                         }
                     />
@@ -182,7 +175,7 @@ export default async function ProductPage({ params }: PageProps) {
                 </div>
                 <SimilarProductsRow products={similarProducts} />
 
-            </section>
+            </PageSection>
 
         </main>
     )

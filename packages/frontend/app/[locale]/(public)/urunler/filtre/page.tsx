@@ -9,6 +9,7 @@ import ProductFilterList from "@/features/public/products/components/ProductFilt
 import ProductGridSkeleton from "@/features/public/products/components/ProductGridSkeleton"
 
 import { PageHero } from "@/components/sections/PageHero";
+import { PageSection } from "@/components/sections/PageSection";
 import { ProductFilterPageHero } from "@/features/public/products/components/ProductFilterPageHero";
 
 // searchParams KULLANILMAZ — okunduğu anda route dynamic'e düşer, CDN'de hazır kopya
@@ -66,7 +67,7 @@ export default async function Page({
 
             {/* FILTER + PRODUCTS — kategori sayfası ve müşteri paneliyle aynı yerleşim:
                 sabit 320px filtre kolonu + esnek içerik, lg altında alt alta yığılır. */}
-            <section className="mx-auto max-w-7xl px-6 py-12">
+            <PageSection>
                 <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8">
 
                     {/* LEFT FILTER — Sektörel Ürünler: yalnız endüstriyel taksonomi */}
@@ -96,7 +97,7 @@ export default async function Page({
                     </div>
 
                 </div>
-            </section>
+            </PageSection>
 
         </main>
     )

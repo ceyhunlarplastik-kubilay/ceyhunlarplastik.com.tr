@@ -7,6 +7,7 @@ import { getAttributesForFilter } from "@/features/public/productAttributes/serv
 import { getCategoryProducts } from "@/features/public/products/server/getCategoryProducts";
 import { slimCategoryFilterAttributes } from "@/features/public/productAttributes/utils/slimCategoryFilterAttributes";
 import { PageHero } from "@/components/sections/PageHero";
+import { PageSection } from "@/components/sections/PageSection";
 import ProductFilterSidebar from "@/features/public/products/components/ProductFilterSidebar";
 import ProductFilterList from "@/features/public/products/components/ProductFilterList";
 import { getOgLocale } from "@/i18n/localeMetadata";
@@ -124,7 +125,7 @@ export default async function CategoryPage(
                 aynısı — sabit 320px filtre kolonu + esnek içerik. Eski `grid-cols-12` +
                 `col-span-3` responsive kırılım taşımadığı için sidebar mobilde %25'e
                 sıkışıyordu; artık lg altında alt alta yığılır. */}
-            <section className="mx-auto max-w-7xl px-6 py-12">
+            <PageSection>
                 <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-8">
                     <aside className="min-w-0">
                         {/* KN-1: useSearchParams kullanan filtre bileşenleri Suspense'e sarılır;
@@ -160,7 +161,7 @@ export default async function CategoryPage(
                         </Suspense>
                     </div>
                 </div>
-            </section>
+            </PageSection>
 
         </main>
     )

@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Trash2, Send, ShoppingCart } from "lucide-react"
 import { toast } from "sonner"
 
+import { PageSection } from "@/components/sections/PageSection"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -89,11 +90,13 @@ export default function InquiryCartPageClient() {
     }
 
     return (
-        <section className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-12">
+        <PageSection className="grid gap-6 lg:grid-cols-12">
             <div className="lg:col-span-7 space-y-4">
                 <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-5">
-                    <h1 className="text-2xl font-semibold text-neutral-900">{t("title")}</h1>
-                    <p className="mt-1 text-sm text-neutral-500">
+                    {/* PageHero (bkz. sepet/page.tsx) sayfanın h1'i — burası aynı başlığı
+                        tekrar h1 yapmasın diye h2 (bkz. IMPROVEMENT_LOG.md tipografi Dilim 2). */}
+                    <h2 className="text-2xl font-semibold text-foreground">{t("title")}</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
                         {t("subtitle")}
                     </p>
                 </div>
@@ -108,7 +111,7 @@ export default function InquiryCartPageClient() {
                     </div>
 
                     {items.length === 0 ? (
-                        <div className="p-5 text-sm text-neutral-500">
+                        <div className="p-5 text-sm text-muted-foreground">
                             {t("emptyText")}{" "}
                             <Link href="/urunler/filtre" className="text-(--color-brand) underline">
                                 {t("emptyLink")}
@@ -120,12 +123,12 @@ export default function InquiryCartPageClient() {
                             {items.map((item) => (
                                 <div key={`${item.productId}:${item.variantKey}:${item.variantId ?? ""}`} className="flex items-start justify-between gap-3 p-4 sm:p-5">
                                     <div className="space-y-1 min-w-0">
-                                        <p className="text-sm font-semibold text-neutral-900 truncate">{item.productName}</p>
-                                        <p className="text-xs text-neutral-500">{t("codeLabel")} {item.productCode}</p>
-                                        <p className="text-xs text-neutral-600">
+                                        <p className="text-sm font-semibold text-foreground truncate">{item.productName}</p>
+                                        <p className="text-xs text-muted-foreground">{t("codeLabel")} {item.productCode}</p>
+                                        <p className="text-xs text-muted-foreground">
                                             {t("variantLabel")} {item.variantFullCode || item.variantKey}
                                         </p>
-                                        <p className="text-xs text-neutral-600">{t("quantityLabel")} {item.quantity}</p>
+                                        <p className="text-xs text-muted-foreground">{t("quantityLabel")} {item.quantity}</p>
                                     </div>
                                     <Button
                                         type="button"
@@ -134,7 +137,7 @@ export default function InquiryCartPageClient() {
                                         aria-label={t("removeAria")}
                                         onClick={() => removeItem(item.productId, item.variantKey, item.variantId)}
                                     >
-                                        <Trash2 className="h-4 w-4 text-neutral-500" />
+                                        <Trash2 className="h-4 w-4 text-muted-foreground" />
                                     </Button>
                                 </div>
                             ))}
@@ -145,8 +148,8 @@ export default function InquiryCartPageClient() {
 
             <div className="lg:col-span-5">
                 <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-5">
-                    <h2 className="text-lg font-semibold text-neutral-900">{t("formTitle")}</h2>
-                    <p className="mt-1 text-sm text-neutral-500">{t("formSubtitle")}</p>
+                    <h2 className="text-lg font-semibold text-foreground">{t("formTitle")}</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("formSubtitle")}</p>
 
                     <form className="mt-4 space-y-3" onSubmit={handleSubmit(onSubmit)}>
                         <div className="space-y-1">
@@ -170,7 +173,7 @@ export default function InquiryCartPageClient() {
                         </div>
 
                         {submitMessage && (
-                            <p className="text-sm text-neutral-600">{submitMessage}</p>
+                            <p className="text-sm text-muted-foreground">{submitMessage}</p>
                         )}
 
                         <Button
@@ -193,6 +196,6 @@ export default function InquiryCartPageClient() {
                     </form>
                 </div>
             </div>
-        </section>
+        </PageSection>
     )
 }

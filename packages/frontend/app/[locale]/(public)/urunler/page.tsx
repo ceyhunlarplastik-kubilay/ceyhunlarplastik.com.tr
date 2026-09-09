@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { getCategories } from "@/features/public/categories/server/getCategories"
 
 import { PageHero } from "@/components/sections/PageHero"
+import { PageSection } from "@/components/sections/PageSection"
 import { CategoryCard } from "@/components/navigation/CategoryCard"
 import { buildStaticAlternates } from "@/i18n/alternates";
 import { getOgLocale } from "@/i18n/localeMetadata";
@@ -47,7 +48,7 @@ export default async function ProductsPage({ params }: PageProps) {
                 ]}
             />
 
-            <section className="mx-auto max-w-7xl px-6 py-20">
+            <PageSection>
 
                 {categories.length === 0 && (
                     <div className="text-center text-muted-foreground">
@@ -85,7 +86,7 @@ export default async function ProductsPage({ params }: PageProps) {
 
                 </ul>
 
-            </section>
+            </PageSection>
 
         </main>
     )

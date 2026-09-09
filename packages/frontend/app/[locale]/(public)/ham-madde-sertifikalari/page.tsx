@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getTranslations, setRequestLocale } from "next-intl/server"
 import { PageHero } from "@/components/sections/PageHero"
+import { PageSection } from "@/components/sections/PageSection"
 import { MaterialCertificateCard } from "@/features/public/materials/components/MaterialCertificateCard"
 import { getMaterials } from "@/features/public/materials/server/getMaterials"
 import { buildStaticAlternates } from "@/i18n/alternates";
@@ -56,10 +57,7 @@ export default async function MaterialCertificatesPage({ params }: PageProps) {
                 ]}
             />
 
-            <section
-                className="mx-auto max-w-[1400px] px-4 py-16 sm:px-6 md:py-8 lg:px-8"
-                aria-labelledby="material-certificates-heading"
-            >
+            <PageSection aria-labelledby="material-certificates-heading">
                 {certificateItems.length === 0 ? (
                     <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center text-sm text-neutral-500">
                         {t("empty")}
@@ -76,7 +74,7 @@ export default async function MaterialCertificatesPage({ params }: PageProps) {
                         ))}
                     </div>
                 )}
-            </section>
+            </PageSection>
         </main>
     )
 }
