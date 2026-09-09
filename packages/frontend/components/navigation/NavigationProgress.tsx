@@ -31,6 +31,22 @@ export function NavigationProgress() {
     // koşul kendiliğinden bozulur, yani "bitti" için effect içinde setState gerekmez
     // (effect içi senkron setState cascading render'a yol açar — lint de engelliyor).
     const [navFrom, setNavFrom] = useState<string | null>(null);
+
+    // Rota GERÇEKTEN değiştiğinde `navFrom`'u RENDER SIRASINDA (effect içinde
+    // DEĞİL — lint "cascading renders" diye engelliyor) sıfırla. Aksi halde:
+    // A'dan B'ye tıklayıp gidince `navFrom` "A" olarak takılı kalıyordu (yalnız
+    // derived `isNavigating` false'a düşüyordu, state'in kendisi hiç
+    // temizlenmiyordu). Kullanıcı B'de tarayıcı GERİ tuşuna basıp A'ya dönünce —
+    // bu bir <a> tıklaması olmadığı için aşağıdaki `onClick` hiç tetiklenmiyor —
+    // pathname yine "A" olunca `navFrom === pathname` tesadüfen tekrar true
+    // oluyor ve sayfa çoktan yüklenmişken "Sayfa yükleniyor" rozeti gereksiz
+    // yere çıkıyordu. Desen: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+    const [lastSeenPathname, setLastSeenPathname] = useState(pathname);
+    if (pathname !== lastSeenPathname) {
+        setLastSeenPathname(pathname);
+        if (navFrom !== null) setNavFrom(null);
+    }
+
     const isNavigating = navFrom !== null && navFrom === pathname;
 
     // Navigasyon başlangıcı: iç linke yapılan gerçek tıklamayı yakala.
@@ -85,7 +101,7 @@ export function NavigationProgress() {
                     {/* Üst ilerleme çubuğu — navbar'ın (z-50) üstünde */}
                     <motion.div
                         key="bar"
-                        className="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-brand"
+                        className="fixed inset-x-0 top-0 z-60 h-0.5 origin-left bg-brand"
                         initial={{ scaleX: 0, opacity: 1 }}
                         animate={{
                             scaleX: reduce ? 1 : 0.9,
@@ -100,7 +116,7 @@ export function NavigationProgress() {
                     {/* Yükleniyor rozeti — içerik görünür kalır, ekran bloklanmaz */}
                     <motion.div
                         key="badge"
-                        className="fixed left-1/2 top-4 z-[60] -translate-x-1/2"
+                        className="fixed left-1/2 top-4 z-60 -translate-x-1/2"
                         initial={reduce ? { opacity: 1 } : { opacity: 0, y: -8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
