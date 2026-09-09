@@ -18,9 +18,11 @@ import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
 
 type Props = {
     className?: string;
+    /** Dar ekranda (ör. `TopBar`) yalnız ikon kalsın, etiket `sm:`den itibaren görünsün. */
+    hideLabelOnMobile?: boolean;
 };
 
-export function CatalogRequestDialog({ className }: Props) {
+export function CatalogRequestDialog({ className, hideLabelOnMobile = false }: Props) {
     const t = useTranslations("chrome.dialogs.catalogRequest");
     const tv = useTranslations("chrome.dialogs.catalogRequest.validation");
     const schema = useMemo(() => buildCatalogRequestSchema(tv), [tv]);
@@ -40,10 +42,15 @@ export function CatalogRequestDialog({ className }: Props) {
             defaultValues={defaultValues}
             trigger={
                 <button
+                    aria-label={t("trigger")}
                     className={`flex items-center gap-2 transition ${className ?? "text-white/70 hover:text-white"}`}
                 >
-                    <BookOpen className="h-3.5 w-3.5 text-[var(--color-brand)]" />
-                    {t("trigger")}
+                    <BookOpen className="h-3.5 w-3.5 shrink-0 text-(--color-brand)" />
+                    {hideLabelOnMobile ? (
+                        <span className="hidden sm:inline">{t("trigger")}</span>
+                    ) : (
+                        t("trigger")
+                    )}
                 </button>
             }
         >

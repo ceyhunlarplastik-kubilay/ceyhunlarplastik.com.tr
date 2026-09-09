@@ -19,9 +19,11 @@ import { FormInputWithIcon } from "@/components/ui/FormInputWithIcon";
 
 type Props = {
     className?: string;
+    /** Dar ekranda (ör. `TopBar`) yalnız ikon kalsın, etiket `sm:`den itibaren görünsün. */
+    hideLabelOnMobile?: boolean;
 };
 
-export function ProductRequestDialog({ className }: Props) {
+export function ProductRequestDialog({ className, hideLabelOnMobile = false }: Props) {
     const t = useTranslations("chrome.dialogs.productRequest");
     const tv = useTranslations("chrome.dialogs.productRequest.validation");
     const schema = useMemo(() => buildProductRequestSchema(tv), [tv]);
@@ -42,10 +44,15 @@ export function ProductRequestDialog({ className }: Props) {
             defaultValues={defaultValues}
             trigger={
                 <button
+                    aria-label={t("trigger")}
                     className={`flex items-center gap-2 transition ${className ?? "text-white/70 hover:text-white"}`}
                 >
-                    <FileText className="h-3.5 w-3.5 text-[var(--color-brand)]" />
-                    {t("trigger")}
+                    <FileText className="h-3.5 w-3.5 shrink-0 text-(--color-brand)" />
+                    {hideLabelOnMobile ? (
+                        <span className="hidden sm:inline">{t("trigger")}</span>
+                    ) : (
+                        t("trigger")
+                    )}
                 </button>
             }
         >

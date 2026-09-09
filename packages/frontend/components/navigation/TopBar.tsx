@@ -18,17 +18,17 @@ import { LanguageSwitcher } from "@/components/navigation/LanguageSwitcher";
 export function TopBar() {
     return (
         <div className="w-full bg-neutral-100 border-b text-[12px] text-neutral-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[34px] flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 h-8.5 flex items-center justify-between gap-2">
 
                 {/* LEFT */}
-                <div className="flex items-center gap-5">
+                <div className="flex min-w-0 items-center gap-3 sm:gap-5">
 
                     {/* SOCIAL */}
-                    <div className="flex items-center gap-3 text-neutral-500">
+                    <div className="flex shrink-0 items-center gap-2.5 text-neutral-500 sm:gap-3">
                         <Link
                             href="https://www.facebook.com/Ceyhunlarplastik/"
                             target="_blank"
-                            className="hover:text-[var(--color-brand)]"
+                            className="hover:text-(--color-brand)"
                         >
                             <SiFacebook size={14} />
                         </Link>
@@ -36,7 +36,7 @@ export function TopBar() {
                         <Link
                             href="https://www.instagram.com/ceyhunlarplastik/"
                             target="_blank"
-                            className="hover:text-[var(--color-brand)]"
+                            className="hover:text-(--color-brand)"
                         >
                             <SiInstagram size={14} />
                         </Link>
@@ -44,19 +44,19 @@ export function TopBar() {
                         <Link
                             href="https://www.youtube.com/@ceyhunlarplastik9455"
                             target="_blank"
-                            className="hover:text-[var(--color-brand)]"
+                            className="hover:text-(--color-brand)"
                         >
                             <SiYoutube size={14} />
                         </Link>
                     </div>
 
-                    {/* PHONES */}
-                    <div className="hidden md:flex items-center gap-4">
+                    {/* PHONES — dar ekranda yer olmadığı için gizli, lg'den itibaren görünür */}
+                    <div className="hidden lg:flex items-center gap-4">
 
                         {/* FIXED PHONE */}
                         <Link
                             href="tel:+902327002946"
-                            className="link-underline flex items-center gap-2 hover:text-[var(--color-brand)]"
+                            className="link-underline flex items-center gap-2 hover:text-(--color-brand)"
                         >
                             <Phone size={14} />
                             0 (232) 700 29 46
@@ -68,7 +68,7 @@ export function TopBar() {
                         <Link
                             href="https://wa.me/905530602946"
                             target="_blank"
-                            className="link-underline flex items-center gap-2 hover:text-[var(--color-brand)]"
+                            className="link-underline flex items-center gap-2 hover:text-(--color-brand)"
                         >
                             <SiWhatsapp size={14} className="text-green-600" />
                             0 (553) 060 29 46
@@ -78,17 +78,24 @@ export function TopBar() {
 
                 </div>
 
-                {/* RIGHT */}
-                <div className="flex items-center gap-6">
+                {/* RIGHT — dar ekranda yalnız ikonlar (bkz. hideLabelOnMobile),
+                    metinler sm:'den itibaren geri döner. */}
+                <div className="flex shrink-0 items-center gap-3 sm:gap-6">
 
                     <div className="flex items-center gap-1 text-black">
-                        <PackageSearch className="w-3.5 h-3.5" />
-                        <ProductRequestDialog className="link-underline text-black hover:text-[var(--color-brand)]" />
+                        <PackageSearch className="hidden h-3.5 w-3.5 shrink-0 sm:block" />
+                        <ProductRequestDialog
+                            hideLabelOnMobile
+                            className="link-underline text-black hover:text-(--color-brand)"
+                        />
                     </div>
 
                     <div className="flex items-center gap-1 text-black">
-                        <BookOpenText className="w-3.5 h-3.5" />
-                        <CatalogRequestDialog className="link-underline text-black hover:text-[var(--color-brand)]" />
+                        <BookOpenText className="hidden h-3.5 w-3.5 shrink-0 sm:block" />
+                        <CatalogRequestDialog
+                            hideLabelOnMobile
+                            className="link-underline text-black hover:text-(--color-brand)"
+                        />
                     </div>
 
                     <LanguageSwitcher />
