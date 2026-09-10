@@ -324,6 +324,14 @@ protectedApi.route('GET /sales/company-contacts', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Harita/filtre dropdown'ları için dar ürün özelliği listesi — AdminApi'nin
+// /product-attributes/with-values ucu content_editor/admin'e özel taksonomi
+// yönetim yüzeyi olduğu için sales/sales_director buradan besleniyor.
+protectedApi.route('GET /sales/product-attributes/with-values', {
+    handler: `${folderPrefix}/crm/actions.listManagedProductAttributesForFilter`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('PUT /sales/customers/{id}', {
     handler: `${folderPrefix}/crm/actions.updateManagedCustomer`,
     ...defaultRouteOptions

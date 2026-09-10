@@ -1,6 +1,7 @@
 import { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
 import { IPrismaSupplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+import { IPrismaProductAttributeRepository } from "@/core/helpers/prisma/productAttributes/repository"
 import { IPrismaProductRepository } from "@/core/helpers/prisma/products/repository"
 import { IPrismaCompanyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
 import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
@@ -18,6 +19,7 @@ export interface IProtectedCrmDependencies {
     customerRepository: IPrismaCustomerRepository
     supplierRepository: IPrismaSupplierRepository
     productAttributeValueRepository?: IPrismaProductAttributeValueRepository
+    productAttributeRepository?: IPrismaProductAttributeRepository
     productRepository?: IPrismaProductRepository
     productVariantRepository?: IPrismaProductVariantRepository
     companyContactRepository?: IPrismaCompanyContactRepository

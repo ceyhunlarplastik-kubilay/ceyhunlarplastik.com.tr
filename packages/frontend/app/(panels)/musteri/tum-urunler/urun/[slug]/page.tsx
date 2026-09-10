@@ -42,6 +42,12 @@ export default async function CustomerPortalProductDetailPage({
 
     const similarProducts = toSimilarProductItems(productsByCategory, product.id)
     const groupedVariantOptions = variantTable.options
+    const primaryAsset = product.assets?.find(
+        (asset) => asset?.role === "PRIMARY" && (asset?.type === "IMAGE" || asset?.type === undefined),
+    )
+    const fallbackAsset = product.assets?.find(
+        (asset) => asset?.type === "IMAGE" || asset?.type === undefined,
+    )
 
     return (
         <div className="space-y-6 **:[[id]]:scroll-mt-24">
@@ -69,6 +75,13 @@ export default async function CustomerPortalProductDetailPage({
                     )}
                     variantDetailsPathname={`/musteri/tum-urunler/urun/${product.slug}/varyantlar`}
                     focusOnMeasurements
+                    portalCartContext={{
+                        productName: product.name,
+                        productCode: product.code,
+                        productCategoryId: product.categoryId,
+                        categoryName: product.category?.name,
+                        productImageUrl: primaryAsset?.url ?? fallbackAsset?.url ?? null,
+                    }}
                 />
                 <VariantTableFooter
                     meta={variantTable.meta}

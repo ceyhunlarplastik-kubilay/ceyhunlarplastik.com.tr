@@ -280,3 +280,29 @@ export const optimizedCustomerRouteResponseValidator = z.toJSONSchema(
         }),
     }).loose(),
 )
+
+// Harita/filtre dropdown'ları için dar DTO — AdminApi'nin taksonomi yönetim
+// şemasından (çeviri, assets, isCustomerAssignable) bilinçli olarak sadeleştirildi.
+const managedProductAttributeForFilterSchema = z.object({
+    id: z.uuid(),
+    code: z.string(),
+    name: z.string(),
+    values: z.array(
+        z.object({
+            id: z.uuid(),
+            name: z.string(),
+        }).loose(),
+    ),
+}).loose()
+
+export const listManagedProductAttributesForFilterResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(managedProductAttributeForFilterSchema),
+            }),
+        }),
+    }).loose(),
+)

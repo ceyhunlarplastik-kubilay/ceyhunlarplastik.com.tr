@@ -348,6 +348,35 @@ export const listManagedCompanyContactsHandler = ({ companyContactRepository }: 
     }
 }
 
+// Satış/harita filtre dropdown'ları için dar, amaca özel uç — AdminApi'nin
+// /product-attributes/with-values'ı gibi tam taksonomi yönetim verisi DEĞİL,
+// yalnız id/code/name + değerlerin id/name'i (çeviri satırları, assets,
+// isCustomerAssignable gibi yönetim alanları dışarı sızmaz).
+export const listManagedProductAttributesForFilterHandler = ({ productAttributeRepository }: IProtectedCrmDependencies) => {
+    return async () => {
+        if (!productAttributeRepository) {
+            throw new createError.InternalServerError("Product attribute repository not configured")
+        }
+
+        const attributes = await productAttributeRepository.listAttributesForFilter(undefined, { includeTranslations: false })
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: {
+                data: attributes.map((attribute) => ({
+                    id: attribute.id,
+                    code: attribute.code,
+                    name: attribute.name,
+                    values: attribute.values.map((value) => ({
+                        id: value.id,
+                        name: value.name,
+                    })),
+                })),
+            },
+        })
+    }
+}
+
 export const getManagedCustomerHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
     return async (event: IManagedCustomerEvent) => {
         const customer = await customerRepository.getCustomer(event.pathParameters.id)

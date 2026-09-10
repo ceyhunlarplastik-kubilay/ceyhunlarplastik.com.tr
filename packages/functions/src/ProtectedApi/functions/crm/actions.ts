@@ -5,6 +5,7 @@ import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import { companyContactRepository } from "@/core/helpers/prisma/companyContacts/repository"
 import { supplierRepository } from "@/core/helpers/prisma/suppliers/repository"
 import { productAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
+import { productAttributeRepository } from "@/core/helpers/prisma/productAttributes/repository"
 import { productRepository } from "@/core/helpers/prisma/products/repository"
 import { productVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { customerVariantSpecialPriceRepository } from "@/core/helpers/prisma/customerVariantSpecialPrices/repository"
@@ -33,6 +34,7 @@ import {
     getPortalCustomerHandler,
     getPortalCustomerOverviewHandler,
     listManagedCustomersMapHandler,
+    listManagedProductAttributesForFilterHandler,
     optimizeManagedCustomerRouteHandler,
     listManagedCustomerSpecialPricesHandler,
     listManagedCompanyContactsHandler,
@@ -100,6 +102,7 @@ import {
     deletePortalCustomerAddressValidator,
     customerMapPointsResponseValidator,
     listManagedCustomersMapValidator,
+    listManagedProductAttributesForFilterResponseValidator,
     optimizeManagedCustomerRouteValidator,
     optimizedCustomerRouteResponseValidator,
     updateManagedCustomerAddressValidator,
@@ -136,6 +139,7 @@ const deps = {
     customerRepository: customerRepository(),
     supplierRepository: supplierRepository(),
     productAttributeValueRepository: productAttributeValueRepository(),
+    productAttributeRepository: productAttributeRepository(),
     productRepository: productRepository(),
     productVariantRepository: productVariantRepository(),
     companyContactRepository: companyContactRepository(),
@@ -193,6 +197,14 @@ export const getManagedCustomer = lambdaHandler(
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerIdValidator,
         responseValidator: customerResponseValidator,
+    },
+)
+
+export const listManagedProductAttributesForFilter = lambdaHandler(
+    async () => listManagedProductAttributesForFilterHandler(deps)(),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        responseValidator: listManagedProductAttributesForFilterResponseValidator,
     },
 )
 

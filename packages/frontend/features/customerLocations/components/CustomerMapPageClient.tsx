@@ -14,7 +14,7 @@ import {
 } from "@/features/customerLocations/components/CustomerMapFilterBar"
 import { useCustomerMapData } from "@/features/customerLocations/hooks/useCustomerMapData"
 import { useProtectedUsers } from "@/features/customerLocations/hooks/useProtectedUsers"
-import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
+import { useManagedProductAttributesForFilter } from "@/features/customerLocations/hooks/useManagedProductAttributesForFilter"
 import { useBulkSelection } from "@/features/admin/shared/hooks/useBulkSelection"
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
 import { DEFAULT_ADMIN_LIST_PAGE_SIZE, normalizeAdminPageSize } from "@/features/admin/shared/config"
@@ -216,7 +216,7 @@ export function CustomerMapPageClient({
         accessStatus: "ACTIVE",
     }, allowSalesFilter)
 
-    const attributesQuery = useAttributesForFilter()
+    const attributesQuery = useManagedProductAttributesForFilter()
 
     const salesUsers = useMemo(
         () => (usersQuery.data?.data ?? [])

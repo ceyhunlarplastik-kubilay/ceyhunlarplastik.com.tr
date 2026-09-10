@@ -30,12 +30,6 @@ import {
     type CustomerSpecialPriceRequestInitialSelection,
 } from "@/features/customerPortal/specialPrices/components/CustomerPortalSpecialPriceRequestDialog"
 import {
-    mapSpecialPriceToPortalDraftPreview,
-    resolvePortalDraftPricing,
-    type ResolvedPortalDraftPricing,
-    type PortalDraftSpecialPricePreview,
-} from "@/features/customerPortal/pricing/portalDraftPricing"
-import {
     buildVariantFilterDefaultValues,
     countActiveVariantFilters,
     normalizeVariantPriceRange,
@@ -50,9 +44,18 @@ import {
     usePortalFavoriteVariantIds,
     usePortalFavoriteVariants,
 } from "@/features/customerPortal/hooks/usePortalFavoriteVariant"
-import type { CustomerVariantSpecialPrice } from "@/features/admin/customers/api/types"
-import { formatMoney, resolveCustomerDiscountedPrice } from "@/lib/customers/pricing"
+import { formatMoney } from "@/lib/customers/pricing"
 import { resolveMeasurementUnit } from "@core/helpers/productVariants/measurementDisplay"
+import {
+    buildCompactMaterialSummary,
+    buildCompactMeasurementSummary,
+    buildWhatsappPriceRequestUrl,
+    formatPriceDate,
+    resolveBasePricing,
+    resolveMinListPrice,
+    resolvePortalPricing,
+    toPriceBound,
+} from "@/features/customerPortal/pricing/portalVariantRowPricing"
 
 interface Props {
     variants: VariantTableData[]
@@ -70,103 +73,10 @@ interface Props {
 const VARIANT_TABLE_HEAD_CLASS =
     "h-9 px-2 text-center align-middle text-[11px] font-semibold uppercase tracking-[0.08em] text-neutral-500"
 const VARIANT_TABLE_CELL_CLASS = "px-2 py-2 text-center align-middle text-[13px]"
-const WHATSAPP_PHONE = "905530602946"
-
-function decimalLikeToText(
-    value: number | string | { s?: number; e?: number; d?: number[] } | null | undefined,
-) {
-    if (value === null || value === undefined) return ""
-    if (typeof value === "number") return value.toFixed(2)
-    if (typeof value === "string") return value
-
-    const sign = value.s === -1 ? "-" : ""
-    const digits = Array.isArray(value.d) ? value.d.join("") : ""
-    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
-    if (!digits) return ""
-
-    if (exponent >= digits.length - 1) {
-        return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
-    }
-
-    if (exponent < 0) {
-        return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
-    }
-
-    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
-}
-
-function resolveMinListPrice(variant: VariantTableData) {
-    const priced = (variant.variantSuppliers ?? [])
-        .map((supplier) => ({
-            value: Number(decimalLikeToText(supplier.listPrice)),
-            currency: supplier.currency ?? "TRY",
-            pricingUpdatedAt: supplier.pricingUpdatedAt ?? supplier.updatedAt ?? null,
-        }))
-        .filter((item) => Number.isFinite(item.value))
-
-    if (priced.length === 0) return null
-    return priced.reduce((min, current) => current.value < min.value ? current : min)
-}
-
-function formatPriceDate(value: string | null | undefined) {
-    if (!value) return "-"
-
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return "-"
-
-    return new Intl.DateTimeFormat("tr-TR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-    }).format(date)
-}
-
-function toPriceBound(value: number) {
-    return Number(value.toFixed(2))
-}
-
-function formatVariantMeasurementsForMessage(variant: VariantTableData) {
-    return variant.measurements
-        .slice()
-        .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder)
-        .map((measurement) => {
-            const withUnit =
-                resolveMeasurementUnit(measurement) ? ` ${resolveMeasurementUnit(measurement)}` : ""
-
-            return `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}${withUnit}`
-        })
-        .join(" / ")
-}
-
-/**
- * Sepet drawer'ının dar satırına sığması için etiketsiz, yalnız değer bazlı
- * özet — tam ölçü adı/kodu için varyantFullCode ve tam sayfa tablo yeterli.
- */
-function buildCompactMeasurementSummary(variant: VariantTableData) {
-    return variant.measurements
-        .slice()
-        .sort((a, b) => a.measurementType.displayOrder - b.measurementType.displayOrder)
-        .map((measurement) => {
-            const unit = resolveMeasurementUnit(measurement)
-            return `${formatMeasurementValue(measurement)}${unit ? ` ${unit}` : ""}`
-        })
-        .join(" × ")
-}
-
-function buildCompactMaterialSummary(variant: VariantTableData) {
-    return variant.materials
-        .map((material) => material.code ? `${material.name} (${material.code})` : material.name)
-        .join(", ")
-}
 
 type PreparedVariant = {
     variant: VariantTableData
     minListPrice: ReturnType<typeof resolveMinListPrice>
-}
-
-type PortalVariantPricing = ResolvedPortalDraftPricing & {
-    specialPrice: CustomerVariantSpecialPrice | undefined
-    specialPricePreview: PortalDraftSpecialPricePreview | null
 }
 
 export function CustomerPortalVariantDetailsTable({
@@ -366,45 +276,16 @@ export function CustomerPortalVariantDetailsTable({
         return Math.min(100000, Math.round(raw))
     }
 
-    function resolveBasePricing(variant: VariantTableData) {
-        const minListPrice = resolveMinListPrice(variant)
-        const discountedPricing = resolveCustomerDiscountedPrice(minListPrice?.value, customerDiscountPercent)
-
-        return {
-            listUnitPrice: minListPrice?.value ?? null,
-            customerUnitPrice: discountedPricing?.customerUnitPrice ?? minListPrice?.value ?? null,
-            appliedDiscountPercent: discountedPricing?.appliedDiscountPercent ?? 0,
-            currency: minListPrice?.currency ?? "TRY",
-            priceSource: discountedPricing && discountedPricing.appliedDiscountPercent > 0
-                ? "CUSTOMER_GENERAL_DISCOUNT" as const
-                : "LIST_PRICE" as const,
-        }
-    }
-
-    function resolvePortalPricing(variant: VariantTableData, quantity?: number): PortalVariantPricing {
-        const minListPrice = resolveMinListPrice(variant)
-        const specialPrice = specialPriceByVariantId.get(variant.id)
-        const specialPricePreview = mapSpecialPriceToPortalDraftPreview(specialPrice)
-        const resolved = resolvePortalDraftPricing({
-            quantity,
-            listUnitPrice: specialPrice?.pricing.listPrice ?? minListPrice?.value ?? null,
-            currency: minListPrice?.currency ?? specialPrice?.pricing.currency ?? specialPrice?.currency ?? "TRY",
-            generalDiscountPercent: customerDiscountPercent,
-            campaignDiscountPercent: campaignPercentByVariantId.get(variant.id) ?? null,
-            specialPrice: specialPricePreview,
-        })
-
-        return {
-            ...resolved,
-            specialPrice,
-            specialPricePreview,
-        }
-    }
-
     function handleAddToDraft(variant: VariantTableData) {
         const quantity = resolveQuantity(variant.id)
         const existingQuantity = draftItemByVariantId.get(variant.id)?.quantity ?? 0
-        const pricing = resolvePortalPricing(variant, existingQuantity + quantity)
+        const pricing = resolvePortalPricing({
+            variant,
+            quantity: existingQuantity + quantity,
+            customerDiscountPercent,
+            campaignDiscountPercent: campaignPercentByVariantId.get(variant.id) ?? null,
+            specialPrice: specialPriceByVariantId.get(variant.id),
+        })
         addItem({
             productId,
             productSlug,
@@ -460,21 +341,14 @@ export function CustomerPortalVariantDetailsTable({
     }
 
     function handleWhatsappPriceRequest(variant: VariantTableData) {
-        const currentUrl = window.location.href
-        const variantMeasurements = formatVariantMeasurementsForMessage(variant)
-        const messageLines = [
-            "Merhaba. Müşteri portalında incelediğim ürün için hızlı fiyat almak istiyorum.",
-            categoryName ? `Kategori: ${categoryName}` : null,
-            `Ürün Modeli: ${productName}`,
-            `Katalog Kodu: ${productCode}`,
-            variant.name ? `Varyant: ${variant.name}` : null,
-            `Varyant Kodu: ${variant.fullCode}`,
-            variant.versionCode ? `Versiyon: ${variant.versionCode}` : null,
-            selectedMeasurements.length > 0 ? `Seçili Ölçü Grubu: ${selectedMeasurements.map((measurement) => `${measurement.measurementType.name} (${measurement.measurementType.code}): ${formatMeasurementValue(measurement)}`).join(" / ")}` : null,
-            variantMeasurements ? `Varyant Ölçüleri: ${variantMeasurements}` : null,
-            `Sayfa Linki: ${currentUrl}`,
-        ].filter((line): line is string => Boolean(line))
-        const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(messageLines.join("\n"))}`
+        const whatsappUrl = buildWhatsappPriceRequestUrl({
+            variant,
+            productName,
+            productCode,
+            categoryName,
+            selectedMeasurements,
+            currentUrl: window.location.href,
+        })
 
         window.open(whatsappUrl, "_blank", "noopener,noreferrer")
     }
@@ -600,11 +474,17 @@ export function CustomerPortalVariantDetailsTable({
                             </TableHeader>
                             <TableBody>
                                 {filteredVariants.map(({ variant, minListPrice }, index) => {
-                                    const basePricing = resolveBasePricing(variant)
+                                    const basePricing = resolveBasePricing(variant, customerDiscountPercent)
                                     const selectedQuantity = resolveQuantity(variant.id)
                                     const existingDraftQuantity = draftItemByVariantId.get(variant.id)?.quantity ?? 0
                                     const effectiveQuantity = existingDraftQuantity + selectedQuantity
-                                    const selectedPricing = resolvePortalPricing(variant, effectiveQuantity)
+                                    const selectedPricing = resolvePortalPricing({
+                                        variant,
+                                        quantity: effectiveQuantity,
+                                        customerDiscountPercent,
+                                        campaignDiscountPercent: campaignPercentByVariantId.get(variant.id) ?? null,
+                                        specialPrice: specialPriceByVariantId.get(variant.id),
+                                    })
                                     const specialPricePreview = selectedPricing.specialPricePreview
                                     const hasSpecialPrice = Boolean(specialPricePreview)
                                     const specialPriceApplied = selectedPricing.priceSource === "CUSTOMER_SPECIAL_PRICE"

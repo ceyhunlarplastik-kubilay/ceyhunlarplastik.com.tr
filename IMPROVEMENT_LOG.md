@@ -7289,6 +7289,205 @@ ayar istedi, son mesajda "tamam çalıştı" ile onayladı:**
   artık iki kez gündeme geldi, PLAN'a henüz eklenmedi (açık bir onay/tedarik
   yolu olmadığı için).
 
+## ProductVariantTable — DENEME: ok butonunda "Mevcut Varyant Kodları"na slide geçişi (2026-09-09) *(kullanıcı talebiyle, deneysel)*
+
+- **Ne yapıldı:** Kullanıcının kurduğu shadcn `components/ui/carousel.tsx`
+  (embla-carousel-react tabanlı) kullanılarak, ölçü tablosunun (sol sütun)
+  satırındaki sağ ok düğmesine (`ChevronRight`/`ButtonShine`) basıldığında:
+  (1) seçim (`selectedKey`) o satırın ölçüsüne güncelleniyor, (2) tablo
+  konteyneri bir `Carousel`e sarılıp `carouselApi.scrollTo(1)` ile 1. slayttan
+  (ölçü tablosu) 2. slayta ("Mevcut Varyant Kodları") SOLA doğru kayarak
+  geçiyor. Kullanıcının "diğer componentleri silme" talimatı gereği sağdaki
+  MEVCUT "Mevcut Varyant Kodları" paneli KALDIRILMADI — aynı içerik
+  (`variantCodesPanel` olarak tek bir JSX elementine çıkarıldı) hem eski
+  konumunda hem carousel'in 2. slaytında render ediliyor (aynı React elementi
+  iki DOM konumunda güvenle reuse edilebiliyor). Carousel `watchDrag: false`
+  ile sürüklemeye KAPALI — geçiş yalnız programatik (ok butonu), tabloyla
+  etkileşim (satır tıklama, yatay scroll) sürükleme jestleriyle çakışmasın
+  diye. Asıl navigasyon (`variantDetailsHref`, "ölçü detayına git") KALDIRILMADI
+  — ok butonu hâlâ o sayfaya gidiyor, slide geçişi navigasyon başlamadan
+  önceki kısa an içinde görünür oluyor.
+- **Yan düzeltmeler (kullanıcının kurduğu shadcn dosyasında):**
+  - `carousel.tsx`'in `import { cn } from "cn"` satırı `@/lib/utils`'e
+    çevrildi — proje TÜM shadcn primitive'lerinde kendi `cn` yardımcısını
+    kullanıyor (bkz. `components/ui/attachment.tsx`'te de aynı "cn" paketi
+    kullanımı var, o AYRI, dokunulmadı — bu turun kapsamı değildi).
+  - `carousel.tsx`'te embla `api`'nin ilk `onSelect(api)` çağrısı bir
+    `useEffect` gövdesinde SENKRON `setState` tetiklediği için ESLint
+    "Calling setState synchronously within an effect can trigger cascading
+    renders" HATASI veriyordu (DoD'u kırıyordu) — `queueMicrotask`'e
+    ertelenerek düzeltildi (bu repo'da `NavigationProgress.tsx`'te de
+    yaşanmış aynı sınıf sorun).
+  - `logicalProperties.test.ts` (RTL mantıksal yön testi, `components/ui`
+    taranıyor): `carousel.tsx`'teki `-ml-4`/`pl-4` (yatay track kaydırma/
+    boşluk) mantıksal `-ms-4`/`ps-4`'e çevrildi (RTL'de doğru yönde
+    kaymalı). Dikey yönlendirmedeki önceki/sonraki düğmesinin `left-1/2`'si
+    (`-translate-x-1/2` ile EŞLEŞEN saf ortalama, `dialog.tsx`/
+    `NavigationProgress.tsx`'teki AYNI gerekçeyle) mantıksala çevrilmedi —
+    testin `ALLOWED` listesine yeni bir gerekçeli istisna eklendi.
+- **Neden:** Kullanıcı talebi — sağ ok butonuna basılınca "Mevcut Varyant
+  Kodları" güncellenmesi korunsun VE bir slide-geçiş efektiyle tablo sola
+  kayıp yerini bu tabloya bıraksın; "önce bir görelim nasıl olacak" (deneysel,
+  kesin karar değil).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0
+  error (158 warning, değişmedi — carousel.tsx'in kendi ESLint hatası da
+  düzeltilip 0'a döndü) ✅ · `test -w frontend` 368/368 ✅ (RTL logical
+  properties testi dahil — yeni ALLOWED istisnası doğrulandı). Bu deneysel
+  bir UI turu — otomatik test yazılmadı, görsel doğrulama TAMAMEN
+  kullanıcıda: kubi'de `/urun/[slug]` sayfasında bir satırın ok butonuna
+  basıp geçişi görmesi ve devam edip etmeyeceğine karar vermesi gerekiyor.
+- **Ne kaldı (kullanıcının kararına bağlı):** Bu deneme onaylanırsa: (1) sağ
+  panel + carousel'in 2. slaytı aynı içeriği ikileme sorunu olarak kalıyor
+  mu yoksa sağ panel kaldırılıp yalnız carousel mi kalsın karar verilmeli,
+  (2) geri dönüş (`CarouselPrevious`) düğmesi eklenmedi — kullanıcı 2.
+  slayttan 1.'e manuel dönmek isterse ayrı bir iş.
+
+**Ek düzenleme (aynı gün) — navigasyon ve "hazırlanıyor" animasyonu kaldırıldı:**
+Kullanıcı geçişin navigasyon yüzünden anlık görünüp kaybolduğunu bildirdi ve
+"şimdilik" (2) maddesindeki navigasyonu TAMAMEN kaldırmaya, ok butonunu
+YALNIZ seçim+slide'a indirmeye karar verdi. `ButtonShine`'ın `href` prop'u
+(opsiyonel — verilmezse component gerçek bir `<a>`/`Link` DEĞİL, düz bir
+`<button>` render ediyor, bkz. `button-shine.tsx`) kaldırıldı; artık ok
+butonu hiçbir yere gitmiyor, yalnız `setSelectedKey` + `carouselApi.scrollTo(1)`
+çağırıyor. Bununla birlikte artık anlamsız kalan TÜM "navigasyon bekleniyor"
+altyapısı da temizlendi: `pendingVariantKey`/`isNavigatingToVariant`/
+`pendingOption` state'leri, `ProductVariantNavigationOverlay` render'ı (import
+kaldırıldı — dosyanın KENDİSİ silinmedi, başka hiçbir yerde kullanılmıyor,
+"şimdilik" geri dönüşe hazır durumda bekliyor), satır içi "Loader2 + X
+hazırlanıyor" rozeti, sr-only "navigating/ready" durum anonsu, `isModifiedClick`
+fonksiyonu (yalnız link-tıklama senaryosu için anlamlıydı, düz butonda
+gereksiz) — hepsi kaldırıldı. `productSlug`/`variantDetailsPathname` prop'ları
+BİLEREK KORUNDU (yalnız artık kullanılmıyorlar, 2 yeni "unused var" lint
+warning'i var — 158→160, hata değil) — "şimdilik" ifadesi geri dönüşü
+işaret ettiği için navigasyon tekrar istenirse `variantDetailsHref`'i
+yeniden kurmak için bu prop'lara ihtiyaç olacak.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0
+  error (160 warning, +2 — yukarıda açıklanan bilinçli unused-prop uyarıları)
+  ✅ · `test -w frontend` 368/368 ✅.
+- **Ne kaldı:** Görsel doğrulama kullanıcıda — artık ok butonuna basınca
+  sayfa hiç değişmeden, yalnız slide ile "Mevcut Varyant Kodları"nın
+  göründüğünü kubi'de kontrol etmesi gerekiyor.
+
+**Ek düzenleme (aynı gün) — geri dönüş düğmesi:** Kullanıcı, kubi'de test
+ettikten sonra "hazırlanıyor" animasyonunun hâlâ göründüğünü bildirdi — kod
+taramasıyla bu davranışı üretecek HİÇBİR kod kalmadığı doğrulandı (Turbopack
+modül önbelleği bayatlaması, `sst dev --stage kubi` yeniden başlatılınca
+düzeldi — bu projede tekrarlayan, bilinen bir durum). Ardından kullanıcı bir
+önceki dilimde açık bırakılan (2) maddesini istedi: 2. slayttan ("Mevcut
+Varyant Kodları") 1. slayta ("Ölçü ve Seçenekler") MANUEL dönebilme.
+`ProductVariantTable.tsx`'in 2. `CarouselItem`'ına `ChevronLeft` ikonlu,
+`variant="ghost"` bir "Ölçü Tablosuna Dön" düğmesi eklendi
+(`carouselApi.scrollTo(0)`) — yalnız carousel slaytında (sağdaki sabit
+panelde DEĞİL, orada "geri" kavramı anlamsız). shadcn'in hazır
+`CarouselPrevious`/`CarouselNext` düğmeleri KULLANILMADI — bunlar konteyner
+dışına taşan negatif offset'li (`-left-12`/`-right-12`) mutlak konumlandırma
+kullanıyor, bu dar tablo hücresi bağlamında taşma/kırpılma riski taşıyordu;
+onun yerine panel içine gömülü, sade bir metin düğmesi tercih edildi. Yeni
+çeviri anahtarı `public.productVariant.table.backToMeasurements`
+("Ölçü Tablosuna Dön" / "Back to Dimension Table") `tr.json`/`en.json`'a
+eşit sayıda eklendi (865/865).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0
+  error (160 warning, değişmedi) ✅ · `test -w frontend` 368/368 ✅ ·
+  i18n anahtar sayısı eşitliği (865/865) doğrulandı.
+- **Ne kaldı:** Görsel doğrulama kullanıcıda — kubi'de (yeniden başlatılmış
+  `sst dev --stage kubi` ile) ok butonuyla 2. slayta geçip "Ölçü Tablosuna
+  Dön" ile 1. slayta dönebildiğini kontrol etmesi gerekiyor.
+
+### Satış paneli haritası — 403 "Bu işlem için yetkiniz yok" hatası düzeltildi (2026-09-09, kullanıcı bildirimiyle)
+
+- **Ne yapıldı:** `/satis/harita` sayfası `sales`/`sales_director` kullanıcıları
+  için açılışta 403 veriyordu. Kök neden: `CustomerMapPageClient.tsx` (admin VE
+  satış panelinde ortak kullanılıyor) sektör/kullanım-alanı filtre dropdown'ları
+  için `useAttributesForFilter()`'ı KOŞULSUZ çağırıyordu; bu hook AdminApi'nin
+  `GET /product-attributes/with-values` ucunu vuruyor ve o uç bilinçli olarak
+  `["admin", "content_editor"]` ile kısıtlı (ürün taksonomisi yönetim yüzeyi).
+  Admin/owner oturumu farkında olmadan geçiyordu, `sales`/`sales_director`
+  oturumu `authMiddleware.ts`'te `ForbiddenError` alıyordu (kullanıcının
+  paylaştığı CloudWatch logu: Lambda
+  `admin-productAttributes-listAttributesWi-*`, `ForbiddenError: User does not
+  have permission`, `authMiddleware.ts:201`).
+  Admin ucunun yetkisini genişletmek yerine (content_editor/admin taksonomi
+  sınırını bulanıklaştırırdı) `ProtectedApi/functions/crm/` altına, CRM okuma
+  uçlarıyla aynı yetki kalıbına (`["sales", "sales_director", "admin",
+  "owner"]`) sahip yeni, dar kapsamlı bir uç eklendi:
+  `GET /sales/product-attributes/with-values`
+  (`listManagedProductAttributesForFilterHandler` → aynı core metodu
+  `productAttributeRepository().listAttributesForFilter(undefined,
+  { includeTranslations: false })`). Yanıt DTO'su bilinçli olarak dar tutuldu
+  (yalnız `id`/`code`/`name` + `values[].id`/`values[].name`) — AdminApi'nin
+  tam taksonomi yönetim şemasındaki çeviri satırları, `assets`,
+  `isCustomerAssignable` gibi alanlar dışarı sızmıyor
+  (`/product-variant-matrix/references` ile aynı "dar, amaca özel uç" deseni).
+  Frontend'de yeni `useManagedProductAttributesForFilter` hook'u +
+  `getManagedProductAttributesForFilter` API fonksiyonu
+  (`features/customerLocations/`) eklendi; `CustomerMapPageClient.tsx` artık
+  admin dahil TÜM kullanıcılar için bu yeni ProtectedApi ucunu kullanıyor
+  (basitleştirme — admin de zaten yeni ucun izinli grupları arasında).
+  Eski `useAttributesForFilter`/AdminApi ucu dokunulmadan bırakıldı, admin
+  panelinin `/admin/urun-ozellikleri` taksonomi yönetim ekranı hâlâ onu
+  kullanıyor.
+- **Neden:** Kullanıcı `/satis/harita`'da "bu işlem için yetkiniz yok" hatasını
+  bildirdi, ardından tam CloudWatch log kaydını paylaştı; kök neden bu logdan
+  ve kod izinden kesin olarak doğrulandı.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+  `lint -w frontend` 0 error (160 warning, değişmedi) ✅ ·
+  `test:ci -w @ceyhunlarweb/core` 618/618 ✅ ·
+  `test -w @ceyhunlarweb/functions` 339/339 ✅ (`validatorCompilation.test.ts`
+  yeni response validator'ı da derledi) · `test -w frontend` 368/368 ✅.
+  i18n kataloglarına dokunulmadı.
+- **Ne kaldı:** Kullanıcının kubi'de gerçek bir `sales` rolü hesabıyla
+  doğrulaması gerekiyor: (1) `/satis/harita` artık 403 vermeden açılıyor mu,
+  (2) sektör/kullanım-alanı filtre dropdown'ları dolu geliyor mu, (3) müşteri
+  listesi/harita hâlâ yalnız o satış temsilcisine atanmış müşterileri
+  gösteriyor mu (bu kısıtlama zaten mevcuttu, dokunulmadı). Deploy sonrası:
+  `npx sst deploy --stage kubi` gerekiyor (yeni Lambda + route).
+
+### Müşteri portalı — "Mevcut Varyant Kodları" panelinde kompakt sepet/fiyat aksiyonları (2026-09-09, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Ürün sayfasındaki "Ölçü ve Seçenekler" tablosunun ok
+  butonuyla açılan "Mevcut Varyant Kodları" paneli (bkz. carousel slide
+  geçişi notları), `/varyantlar` sayfasındaki tam tablonun (`CustomerPortalVariantDetailsTable`)
+  3 aksiyon butonuna (Sepete Ekle / Özel Fiyat Talep Et / Hızlı Fiyat Al)
+  kavuştu — ancak "çok fazla yer kaplamasın" isteği gereği kompakt, ikon-only,
+  miktar girişi olmayan bir sürüm olarak (`PortalVariantQuickActions`, adet
+  sabit 1 — kullanıcı istersen sepet çekmecesinden artırır).
+  Bu panel (`GroupedVariantRow`) bilinçli olarak fiyatsız/hafif veriyle
+  besleniyor (public sayfada da render edildiği için), bu yüzden yeni bir
+  istemci hook'u (`usePortalProductVariantsByMeasurement`) eklendi — YENİ bir
+  backend ucu DEĞİL, `/varyantlar` sayfasının zaten kullandığı
+  `GET /portal/customer/products/{id}/variant-measurements` ucunu TanStack
+  Query ile sarıyor, yalnız portal bağlamında (`portalCartContext` prop'u
+  sağlandığında) ve seçili ölçü değiştiğinde çalışıyor.
+  Fiyat/kampanya/özel fiyat/whatsapp-mesaj hesapları `CustomerPortalVariantDetailsTable.tsx`
+  içinde kopya kopya duruyordu; ortak bir dosyaya
+  (`features/customerPortal/pricing/portalVariantRowPricing.ts`) çıkarılıp
+  İKİ yerde de (tam tablo + yeni kompakt panel) aynı fonksiyonlar kullanıldı —
+  AGENTS.md "Domain helpers" kuralı gereği tek kaynak.
+  `ProductVariantTable.tsx` (public + portal ortak bileşen) `features/customerPortal`'dan
+  doğrudan statik import YAPMIYOR — `next/dynamic(..., { ssr: false })` ile
+  yükleniyor, böylece anonim ziyaretçinin gördüğü public katalog sayfasının
+  JS paketine sepet/kampanya/özel-fiyat/WhatsApp mantığı sızmıyor (yalnız
+  portal rotası `portalCartContext` geçtiğinde gerçekten indirilir).
+  `portalVariantRowPricing.ts` için 10 testlik yeni bir birim test dosyası
+  eklendi (`decimalLikeToText`, `resolveMinListPrice`, `resolveBasePricing`,
+  `resolvePortalPricing`, özet/whatsapp mesaj üreticileri).
+- **Neden:** "Müşteri panelindeki slide transition ile açılan 'Mevcut Varyant
+  Kodları' tablosunda ... 3 tane buton yer almalıdır ancak çok fazla yer
+  kaplamasın, ui/ux olarak konumlandırmayı şimdilik sana bırakıyorum."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0
+  error (159 warning — bir öncekinden 1 az, `productSlug` artık kullanılıyor)
+  ✅ · `test -w frontend` 378/378 ✅ (368 mevcut + 10 yeni). Backend/core'a
+  dokunulmadı, i18n kataloglarına dokunulmadı (mevcut `colDetail` anahtarı
+  yeniden kullanıldı).
+- **Ne kaldı:** Kullanıcının kubi'de görsel doğrulaması gerekiyor: ürün
+  sayfasında ok butonuyla "Mevcut Varyant Kodları"na geçip her satırda 3
+  ikon butonun (kompakt, sığdığı) göründüğünü, Sepete Ekle'nin sepet
+  çekmecesini açtığını, Özel Fiyat Talep Et'in dialog'u doğru varyantla
+  önettiğini, Hızlı Fiyat Al'ın WhatsApp'ı doğru mesajla açtığını kontrol
+  etmesi. Public katalog sayfasında (login'siz) bu panelin ESKİSİ GİBİ
+  yalnız kod/renk/hammadde gösterdiğini (aksiyon butonu YOK) de doğrulamakta
+  fayda var.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

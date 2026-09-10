@@ -4,6 +4,7 @@ import { useId, useMemo, useState } from "react"
 import { motion, useReducedMotion } from "motion/react"
 import { CircleHelp, Hash, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { parseAsString, useQueryState } from "nuqs"
@@ -40,7 +41,18 @@ import {
 } from "@/features/public/products/utils/measurement"
 import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption"
 import { formatColorLabel } from "@/lib/color/formatColorLabel"
+import { usePortalProductVariantsByMeasurement } from "@/features/customerPortal/hooks/usePortalProductVariantsByMeasurement"
 import type { SupportedLocale } from "@core/i18n/locales"
+
+// Dinamik import BİLİNÇLİ: bu bileşen public katalog SAYFASINDA da render
+// edilir (anonim ziyaretçi) — sepet/kampanya/özel fiyat/whatsapp mantığını
+// taşıyan portal-özel aksiyon kümesi yalnız `portalCartContext` sağlandığında
+// (portal rotası) gerçekten kullanılır. Statik import public bundle'a portal
+// kodunu (Zustand cart store, dialog, WhatsApp ikonu) sızdırırdı.
+const PortalVariantQuickActions = dynamic(
+    () => import("@/features/customerPortal/components/PortalVariantQuickActions").then((mod) => mod.PortalVariantQuickActions),
+    { ssr: false },
+)
 
 export type MeasurementTypeDetails = {
     id: string
@@ -139,6 +151,19 @@ interface ProductVariantTableProps {
     // yok" değil "yüklenemedi" olarak gösterilsin diye — yanıltıcı empty state'i
     // hata state'inden ayırır.
     loadError?: boolean
+    /**
+     * Sağlandığında "Mevcut Varyant Kodları" panelindeki her satıra kompakt
+     * Sepete Ekle / Özel Fiyat Talep Et / Hızlı Fiyat Al ikon butonları eklenir
+     * (yalnız portal — public katalog sayfası bu prop'u hiç geçmez). Fiyat/
+     * kampanya verisi bu bileşen içinde, seçili ölçü için ayrıca çekilir.
+     */
+    portalCartContext?: {
+        productName: string
+        productCode: string
+        productCategoryId?: string | null
+        categoryName?: string
+        productImageUrl?: string | null
+    }
 }
 
 function MeasurementHelpDialogButton({
@@ -232,6 +257,7 @@ export default function ProductVariantTable({
     measurementHelpVideoUrl = "https://www.youtube.com/embed/42mrTRiExjs?autoplay=1",
     loadError = false,
     wideTable = false,
+    portalCartContext,
 }: ProductVariantTableProps) {
     const t = useTranslations("public.productVariant.table")
     const titleId = useId()
@@ -249,6 +275,17 @@ export default function ProductVariantTable({
     )
 
     const selected = options.find((option) => option.key === selectedKey) ?? options[0]
+    // Portal aksiyon butonları için fiyatlı veri yalnız seçili ölçü değiştiğinde,
+    // yalnız portal bağlamında (`portalCartContext` sağlandığında) çekilir.
+    const portalVariantsQuery = usePortalProductVariantsByMeasurement(
+        productId,
+        selected?.key ?? "",
+        Boolean(portalCartContext),
+    )
+    const pricedVariantById = useMemo(
+        () => new Map((portalVariantsQuery.data?.variants ?? []).map((variant) => [variant.id, variant])),
+        [portalVariantsQuery.data?.variants],
+    )
     const groups: string[] = ((session?.user as { groups?: string[] } | undefined)?.groups) ?? []
     const canManageVariants = groups.includes("owner") || groups.includes("admin")
     const adminVariantsUrl = `/admin/products/${productId}/variants`
@@ -324,6 +361,11 @@ export default function ProductVariantTable({
                                 <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-foreground">
                                     {t("colMaterial")}
                                 </TableHead>
+                                {portalCartContext ? (
+                                    <TableHead className="sticky top-0 z-10 border-b border-border bg-muted text-end text-foreground">
+                                        <span className="sr-only">{t("colDetail")}</span>
+                                    </TableHead>
+                                ) : null}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -334,6 +376,7 @@ export default function ProductVariantTable({
                                 const materialNames = variant.materialIds
                                     .map((materialId) => selected.materials.find((entry) => entry?.id === materialId)?.name)
                                     .filter((name): name is string => Boolean(name))
+                                const pricedVariant = portalCartContext ? pricedVariantById.get(variant.id) : undefined
 
                                 return (
                                     <TableRow key={variant.id} className="border-b border-border last:border-0 hover:bg-muted/50">
@@ -358,6 +401,24 @@ export default function ProductVariantTable({
                                                 <span className="text-muted-foreground">-</span>
                                             )}
                                         </TableCell>
+                                        {portalCartContext ? (
+                                            <TableCell className="text-end">
+                                                {pricedVariant ? (
+                                                    <PortalVariantQuickActions
+                                                        variant={pricedVariant}
+                                                        productId={productId}
+                                                        productSlug={productSlug}
+                                                        productName={portalCartContext.productName}
+                                                        productCode={portalCartContext.productCode}
+                                                        productCategoryId={portalCartContext.productCategoryId}
+                                                        categoryName={portalCartContext.categoryName}
+                                                        customerDiscountPercent={portalVariantsQuery.data?.customerDiscountPercent}
+                                                        selectedMeasurements={selected.measurements as VariantMeasurement[]}
+                                                        productImageUrl={portalCartContext.productImageUrl}
+                                                    />
+                                                ) : null}
+                                            </TableCell>
+                                        ) : null}
                                     </TableRow>
                                 )
                             })}
