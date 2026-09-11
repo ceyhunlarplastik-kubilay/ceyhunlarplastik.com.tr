@@ -1,7 +1,6 @@
 import createError from "http-errors"
 
 import { prisma } from "@/core/db/prisma"
-import { buildAssetUrl } from "@/core/helpers/assets/buildAssetUrl"
 import {
     prepareCustomerAddressInput,
     type CustomerAddressBody,
@@ -9,13 +8,13 @@ import {
 import { CUSTOMER_ATTRIBUTE_CODES, resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
 import { normalizeWebsiteUrl } from "@/core/helpers/crm/customerWebsite"
 import {
-    buildCustomerProfileProductWhereClauses,
-    resolveCustomerProfileHierarchy,
-} from "@/core/helpers/crm/customerProfileMatching"
+    getCustomerProfileMatchedProducts,
+    type CustomerProfileMatchedProduct,
+} from "@/core/helpers/crm/customerProfileMatchedProducts"
 import { mapCustomerAddressForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import type { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
-import { AssetRole, Prisma } from "@/prisma/generated/prisma/client"
+import { Prisma } from "@/prisma/generated/prisma/client"
 import {
     LEAD_CUSTOMER_DELETION_COUNT_SELECT,
     planLeadCustomerDeletion,
@@ -34,8 +33,6 @@ import {
  * dokunur. Cari müşteriye dönmüş bir kaydın profili buradan değiştirilemez.
  */
 
-/** Önizlemede gösterilecek en fazla ürün. Sayının tamamı ayrıca döner. */
-export const LEAD_CUSTOMER_MATCH_PREVIEW_LIMIT = 12
 
 export type LeadCustomerAttributeValue = {
     id: string
@@ -60,15 +57,8 @@ export type LeadCustomerSummary = {
     updatedAt: Date
 }
 
-export type LeadCustomerMatchedProduct = {
-    id: string
-    code: string
-    name: string
-    slug: string
-    categoryName: string | null
-    primaryImageUrl: string | null
-    matchedLabels: string[]
-}
+/** Ortak CRM tipi — potansiyel/cari ayrımı yok. */
+export type LeadCustomerMatchedProduct = CustomerProfileMatchedProduct
 
 export type LeadCustomerDetail = LeadCustomerSummary & {
     matchedProductCount: number
@@ -309,90 +299,13 @@ async function getLeadCustomerRowOrThrow(id: string) {
 }
 
 /**
- * Profil eşleşmesinin ÖNİZLEMESİ — eşleşme kuralları
- * `buildCustomerProfileProductWhereClauses` ile ortak, ama `select` incedir.
- * `getCustomerFeaturedAndMatchedProducts` ürün başına 3 seviyeli taksonomi
- * zinciri taşıyor; bu ekran için o ağırlık gereksiz (ve 6MB sınıfı risk).
+ * Profil eşleşmesinin ÖNİZLEMESİ. Eşleşme kuralları + ince `select`
+ * `getCustomerProfileMatchedProducts` (paylaşılan CRM helper) içinde; burada
+ * yalnız potansiyel müşteri detay yanıtının beklediği iki alan alınır
+ * (`hasProfile` bu yüzeyde `sectorValue`/`usageAreaValues`'tan istemcide türer).
  */
 async function getMatchedProductPreview(customerId: string) {
-    const profile = await prisma.customer.findUnique({
-        where: { id: customerId },
-        select: {
-            sectorValueId: true,
-            productionGroupValueId: true,
-            usageAreaValues: { select: { id: true } },
-            attributeValueAssignments: {
-                select: {
-                    attributeValueId: true,
-                    attributeValue: {
-                        select: { attribute: { select: { code: true } } },
-                    },
-                },
-            },
-        },
-    })
-
-    if (!profile) return { matchedProductCount: 0, matchedProducts: [] }
-
-    const hierarchy = resolveCustomerProfileHierarchy(profile)
-    const whereClauses = buildCustomerProfileProductWhereClauses(hierarchy)
-
-    if (whereClauses.length === 0) {
-        return { matchedProductCount: 0, matchedProducts: [] }
-    }
-
-    const where: Prisma.ProductWhereInput = { OR: whereClauses }
-
-    const [matchedProductCount, products] = await Promise.all([
-        prisma.product.count({ where }),
-        prisma.product.findMany({
-            where,
-            orderBy: { code: "asc" },
-            take: LEAD_CUSTOMER_MATCH_PREVIEW_LIMIT,
-            select: {
-                id: true,
-                code: true,
-                name: true,
-                slug: true,
-                category: { select: { name: true } },
-                assets: { select: { key: true, role: true, type: true } },
-                industrialUsages: {
-                    where: {
-                        usageAreaValueId: { in: hierarchy.usageAreaValueIds },
-                    },
-                    select: {
-                        usageAreaValue: { select: { name: true } },
-                    },
-                    take: 5,
-                },
-            },
-        }),
-    ])
-
-    const matchedProducts: LeadCustomerMatchedProduct[] = products.map((product) => {
-        const primaryAsset =
-            product.assets.find((asset) => asset.role === AssetRole.PRIMARY && asset.type === "IMAGE") ??
-            product.assets.find((asset) => asset.type === "IMAGE")
-
-        const matchedLabels = Array.from(
-            new Set(
-                product.industrialUsages
-                    .map((usage) => usage.usageAreaValue?.name)
-                    .filter((name): name is string => Boolean(name)),
-            ),
-        )
-
-        return {
-            id: product.id,
-            code: product.code,
-            name: product.name,
-            slug: product.slug,
-            categoryName: product.category?.name ?? null,
-            primaryImageUrl: primaryAsset ? buildAssetUrl(primaryAsset.key) : null,
-            matchedLabels,
-        }
-    })
-
+    const { matchedProductCount, matchedProducts } = await getCustomerProfileMatchedProducts(customerId)
     return { matchedProductCount, matchedProducts }
 }
 

@@ -391,6 +391,13 @@ protectedApi.route('GET /sales/customers/{id}/assigned-products', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+// Müşteri profiliyle eşleşen ürünler (veri girişi panelindeki önizlemenin
+// cari müşteride de çalışan sürümü) — satır accordion'u açılınca tembel çekilir.
+protectedApi.route('GET /sales/customers/{id}/matched-products', {
+    handler: `${folderPrefix}/crm/actions.getManagedCustomerMatchedProducts`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('PUT /sales/customers/{id}/assigned-products', {
     handler: `${folderPrefix}/crm/actions.replaceManagedCustomerAssignedProducts`,
     ...defaultRouteOptions

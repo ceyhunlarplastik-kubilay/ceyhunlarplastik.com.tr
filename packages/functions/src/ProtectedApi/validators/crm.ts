@@ -306,3 +306,31 @@ export const listManagedProductAttributesForFilterResponseValidator = z.toJSONSc
         }),
     }).loose(),
 )
+
+// Müşteri profiliyle eşleşen ürün önizlemesi — veri girişi panelindeki
+// potansiyel müşteri detayıyla aynı şekil (`getCustomerProfileMatchedProducts`).
+const customerProfileMatchedProductSchema = z.object({
+    id: z.uuid(),
+    code: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    categoryName: z.string().nullable(),
+    primaryImageUrl: z.string().nullable(),
+    matchedLabels: z.array(z.string()),
+}).loose()
+
+export const customerMatchedProductsResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.object({
+                    hasProfile: z.boolean(),
+                    matchedProductCount: z.number(),
+                    matchedProducts: z.array(customerProfileMatchedProductSchema),
+                }),
+            }),
+        }),
+    }).loose(),
+)

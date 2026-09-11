@@ -7488,6 +7488,60 @@ eşit sayıda eklendi (865/865).
   yalnız kod/renk/hammadde gösterdiğini (aksiyon butonu YOK) de doğrulamakta
   fayda var.
 
+### Müşteri haritası — Dilim 4: satır açılınca "Profille Eşleşen Ürünler" (reusable) (2026-09-10, kullanıcı talebiyle)
+
+- **Ne yapıldı:** `/satis/harita` müşteri listesi accordion'unda satır AÇILINCA
+  (sayfa yükünde değil — tembel), o müşterinin endüstriyel profiliyle eşleşen
+  ürünler adreslerin altında gösteriliyor. Veri girişi panelindeki potansiyel
+  müşteri detayının (`LeadCustomerDetailPanel`) aynı görseli, ama artık
+  paylaşılan bir bileşenden geliyor ve cari (CUSTOMER) müşteride de çalışıyor.
+  - **core:** `getMatchedProductPreview`'ın gövdesi yeni
+    `packages/core/src/core/helpers/crm/customerProfileMatchedProducts.ts` →
+    `getCustomerProfileMatchedProducts(customerId)` olarak dışa açıldı
+    (dönüş: `{ hasProfile, matchedProductCount, matchedProducts }`). Statü-agnostik
+    — yalnız `customerId` üzerinden profil okur, LEAD/CUSTOMER ayırt etmez.
+    `leadCustomers.ts` bu helper'ı çağırıyor; potansiyel müşteri detay yanıtı
+    byte-aynı (yalnız `matchedProductCount` + `matchedProducts` alınıyor,
+    `hasProfile` o yüzeyde zaten istemcide türüyor). `LeadCustomerMatchedProduct`
+    tipi → `CustomerProfileMatchedProduct` alias.
+  - **functions (ProtectedApi/crm):** yeni `getManagedCustomerMatchedProductsHandler`
+    + `getManagedCustomerMatchedProducts` action —
+    `GET /sales/customers/{id}/matched-products`, auth
+    `["sales","sales_director","admin","owner"]`, `assertCustomerManagementAccess`
+    ile satış temsilcisi YALNIZ kendi atanmış müşterisini sorgulayabiliyor.
+    Response validator `customerMatchedProductsResponseValidator` eklendi
+    (`ProtectedApi/validators/crm.ts`); `validatorCompilation.test.ts` derledi.
+  - **infra:** `infra/ProtectedApi.ts`'e route.
+  - **frontend:** yeni `features/crm/` klasörü — `types.ts`
+    (`CustomerProfileMatchedProduct`), `components/CustomerProfileMatchedProducts.tsx`
+    (presentational, `LeadCustomerDetailPanel`'in `matchSection`'ından çıkarıldı;
+    empty-state metinleri prop'la özelleştirilebilir — satış panelinde
+    "Kullanım Alanı Ürün Atamaları sekmesi" metni yerine sade metin),
+    `api/getManagedCustomerMatchedProducts.ts`, `hooks/useManagedCustomerMatchedProducts.ts`
+    (`enabled` flag, 5dk staleTime). `LeadCustomerDetailPanel` yeni bileşene
+    geçirildi (davranış aynı). `CustomerMapCustomerAccordion` → shadcn Accordion
+    kontrollü yapıldı (`value`/`onValueChange`); her satır kendi alt-bileşenine
+    (`CustomerMapCustomerAccordionItem`) çıkarıldı ki hook `enabled: isOpen` ile
+    yalnız açık satır için çalışsın. Statü ayrımı yok — lead + cari hepsine
+    gösteriliyor (kullanıcı talebi: satış/admin panelinde bu listeleme yalnız
+    potansiyel müşteriye özel değil).
+- **Neden:** Kullanıcı `/satis/harita` accordion'unda adrese ek olarak "müşteri
+  profili ile eşleşen ürün" istedi; sayfa yükünde değil, seçilen/açılan satır
+  için. Bileşen reusable olmalı (veri girişi + satış, ileride satış müdürü +
+  admin).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  618/618 ✅ · `test -w @ceyhunlarweb/functions` 340/340 ✅
+  (`validatorCompilation` 295, +1) · `typecheck -w frontend` ✅ ·
+  `lint -w frontend` 0 error (159 warning, değişmedi) ✅ · `test -w frontend`
+  378/378 ✅. i18n kataloglarına dokunulmadı (bu paneller zaten hardcoded TR).
+- **Ne kaldı:** (1) `npx sst deploy --stage kubi` (yeni Lambda + route).
+  (2) Kullanıcı doğrulaması: kubi'de bir satış temsilcisi hesabıyla
+  `/satis/harita` → segment listele → bir müşteri satırını aç → adreslerin
+  altında "Profille Eşleşen Ürünler" tembel yükleniyor mu, profilsiz müşteride
+  bilgi mesajı çıkıyor mu, başka temsilcinin müşterisine erişilemiyor mu
+  (403). (3) Veri girişi panelinde eşleşen ürün listesinin ESKİSİ GİBİ
+  çalıştığını teyit. (4) Dilim 5 (satış müdürü + admin bağlama) PLAN'da.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

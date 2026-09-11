@@ -7,6 +7,7 @@ import { mapProductWithAssets } from "@/core/helpers/assets/mapProductWithAssets
 import { createCustomerPortalUserInvitation } from "@/core/helpers/customerPortalInvitations/service"
 import { mapCustomerAssignedProductForApi, mapCustomerForApi } from "@/core/helpers/crm/mapCustomerForApi"
 import { getCustomerFeaturedAndMatchedProducts } from "@/core/helpers/crm/getCustomerFeaturedAndMatchedProducts"
+import { getCustomerProfileMatchedProducts } from "@/core/helpers/crm/customerProfileMatchedProducts"
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import {
@@ -457,6 +458,28 @@ export const listManagedCustomerAssignedProductsHandler = ({ customerRepository 
         return apiResponseDTO({
             statusCode: 200,
             payload: { data: mapAssignedProducts(data) },
+        })
+    }
+}
+
+/**
+ * Müşteri profiliyle EŞLEŞEN ürünler — veri girişi panelindeki potansiyel
+ * müşteri detayının aynısı, ama cari müşteri için de çalışır (statü-agnostik
+ * core helper). Satış temsilcisi yalnız KENDİ atanmış müşterisini sorgulayabilir
+ * (`assertCustomerManagementAccess`); tembel çekilir (satır accordion'u açılınca).
+ */
+export const getManagedCustomerMatchedProductsHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IManagedCustomerEvent) => {
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerManagementAccess(event.user, customer)
+
+        const data = await getCustomerProfileMatchedProducts(customer.id)
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { data },
         })
     }
 }

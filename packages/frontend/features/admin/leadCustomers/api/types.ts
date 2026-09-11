@@ -1,5 +1,6 @@
 import type { CustomerAddress } from "@/features/admin/customers/api/types"
 import type { ApiEnvelope } from "@/lib/http/types"
+import type { CustomerProfileMatchedProduct } from "@/features/crm/types"
 
 export type LeadCustomerAttributeValue = {
     id: string
@@ -23,15 +24,8 @@ export type LeadCustomer = {
     updatedAt: string
 }
 
-export type LeadCustomerMatchedProduct = {
-    id: string
-    code: string
-    name: string
-    slug: string
-    categoryName: string | null
-    primaryImageUrl: string | null
-    matchedLabels: string[]
-}
+/** Ortak CRM tipi — potansiyel/cari ayrımı yok. */
+export type LeadCustomerMatchedProduct = CustomerProfileMatchedProduct
 
 export type LeadCustomerDetail = LeadCustomer & {
     matchedProductCount: number
