@@ -7601,6 +7601,32 @@ eşit sayıda eklendi (865/865).
   filtrelerinin ve URL paylaşılabilirliğinin eskisi gibi çalıştığını
   doğrulamalı.
 
+## CI `npm audit` (critical) hatası — `next` critical CVE düzeltildi (2026-09-11, kullanıcı bildirimiyle)
+
+- **Ne yapıldı:** Kullanıcı push sonrası GitHub Actions'ta "Audit (critical —
+  bloklayıcı)" adımının kırmızı düştüğünü bildirdi. `.github/workflows/ci.yml`
+  incelendi — job doğru yapılandırılmış (`npm audit --omit=dev
+  --audit-level=critical`), sorun CI konfigürasyonunda değildi. Lokalde aynı
+  komut çalıştırılarak kök neden bulundu: kurulu `next@16.3.0` iki critical
+  CVE taşıyordu — `GHSA-p293-qw3h-jr36` (Windows'ta host edilen sunucularda
+  unauthenticated RCE) ve `GHSA-2xp9-vwfh-vxw4` (Image Optimization API'de
+  AVIF ile unauthenticated RCE). `npm audit fix` (force gerekmeden)
+  çalıştırıldı; `package.json`'daki `^16.3.0` range'i zaten kapsadığı için
+  yalnızca `package-lock.json` değişti, `next` 16.3.0 → 16.3.4'e yükseldi.
+  Diğer bulgular (hono, fast-uri, ip-address, nanoid, mysql2, sharp,
+  nodemailer, adm-zip, uuid, valibot, deepmerge-ts, baseline-browser-mapping)
+  `high`/`moderate` seviyesinde — CI'da zaten advisory (bloklamıyor), ci.yml
+  yorumlarındaki bilinen kalemlerle tutarlı, dokunulmadı.
+- **Nasıl doğrulandı:** `npm audit --omit=dev --audit-level=critical` exit
+  code 0 (6 vulnerabilities: 2 moderate, 4 high, 0 critical) ✅ ·
+  `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · `lint -w frontend` 0
+  error (159 warning, değişmedi) ✅ · `test:ci -w @ceyhunlarweb/core` 618/618
+  ✅ · `test -w @ceyhunlarweb/functions` 340/340 ✅ · `test -w frontend`
+  378/378 ✅. i18n kataloglarına dokunulmadı.
+- **Ne kaldı:** Kullanıcı `package-lock.json`'ı commit edip push etmeli; CI'da
+  `audit` job'ının artık yeşil geçtiğini doğrulamalı. kubi'de runtime
+  doğrulaması gerekmiyor (yalnız dependency lockfile değişikliği).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
