@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useQueryState } from "nuqs"
+import { parseAsString, useQueryStates } from "nuqs"
 import { CalendarClock, Megaphone, Pencil, Plus, Search, Tag, Trash2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -58,8 +58,14 @@ function formatDate(value: string | null | undefined) {
 }
 
 export function CampaignsPageClient() {
-    const [search, setSearch] = useQueryState("q", { defaultValue: "" })
-    const [status, setStatus] = useQueryState("durum", { defaultValue: "" })
+    // TEK `useQueryStates` çağrısı — nuqs'ın "ilişkili parametre grubu" için
+    // önerdiği yöntem (nuqs.dev/docs/batching), `CustomerMapPageClient` ile aynı
+    // desen. Önceden iki ayrı `useQueryState` çağrısıydı ve eski `{ defaultValue }`
+    // sözdizimini kullanıyordu; modern `parseAsString.withDefault(...)`'a geçirildi.
+    const [{ q: search, durum: status }, setQueryState] = useQueryStates({
+        q: parseAsString.withDefault(""),
+        durum: parseAsString.withDefault(""),
+    })
     const [dialogOpen, setDialogOpen] = useState(false)
     const [editing, setEditing] = useState<ProductVariantCampaign | null>(null)
     const [announcing, setAnnouncing] = useState<ProductVariantCampaign | null>(null)
@@ -116,7 +122,7 @@ export function CampaignsPageClient() {
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                         <Input
                             value={search}
-                            onChange={(event) => void setSearch(event.target.value || null)}
+                            onChange={(event) => setQueryState({ q: event.target.value || null })}
                             placeholder="Kampanya ara"
                             className="pl-9"
                         />
@@ -124,7 +130,7 @@ export function CampaignsPageClient() {
 
                     <Select
                         value={status || "ALL"}
-                        onValueChange={(value) => void setStatus(value === "ALL" ? null : value)}
+                        onValueChange={(value) => setQueryState({ durum: value === "ALL" ? null : value })}
                     >
                         <SelectTrigger className="w-47.5">
                             <SelectValue placeholder="Durum" />

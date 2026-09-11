@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useQueryState } from "nuqs"
+import { parseAsString, useQueryStates } from "nuqs"
 import { CalendarClock, Megaphone, Plus, Search, Users } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -32,8 +32,14 @@ function formatDate(value: string) {
 }
 
 export function AnnouncementsPageClient() {
-    const [campaignId, setCampaignId] = useQueryState("kampanya", { defaultValue: "" })
-    const [status, setStatus] = useQueryState("durum", { defaultValue: "" })
+    // TEK `useQueryStates` çağrısı — nuqs'ın "ilişkili parametre grubu" için
+    // önerdiği yöntem (nuqs.dev/docs/batching), `CustomerMapPageClient` ile aynı
+    // desen. Önceden iki ayrı `useQueryState` çağrısıydı ve eski `{ defaultValue }`
+    // sözdizimini kullanıyordu; modern `parseAsString.withDefault(...)`'a geçirildi.
+    const [{ kampanya: campaignId, durum: status }, setQueryState] = useQueryStates({
+        kampanya: parseAsString.withDefault(""),
+        durum: parseAsString.withDefault(""),
+    })
     const [customerSearch, setCustomerSearch] = useState("")
     const [composerOpen, setComposerOpen] = useState(false)
 
@@ -91,7 +97,7 @@ export function AnnouncementsPageClient() {
                 <div className="flex flex-wrap items-center gap-3 border-t border-neutral-100 px-5 py-4 sm:px-7">
                     <Select
                         value={campaignId || "ALL"}
-                        onValueChange={(value) => void setCampaignId(value === "ALL" ? null : value)}
+                        onValueChange={(value) => setQueryState({ kampanya: value === "ALL" ? null : value })}
                     >
                         <SelectTrigger className="w-60">
                             <SelectValue placeholder="Kampanya" />
@@ -108,7 +114,7 @@ export function AnnouncementsPageClient() {
 
                     <Select
                         value={status || "ALL"}
-                        onValueChange={(value) => void setStatus(value === "ALL" ? null : value)}
+                        onValueChange={(value) => setQueryState({ durum: value === "ALL" ? null : value })}
                     >
                         <SelectTrigger className="w-45">
                             <SelectValue placeholder="Durum" />

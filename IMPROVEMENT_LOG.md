@@ -7568,6 +7568,39 @@ eşit sayıda eklendi (865/865).
   Sonraki dilim: repodaki diğer ham `useQueryState` kullanımlarının (varsa)
   gözden geçirilmesi.
 
+### Diğer `useQueryState` kullanımlarının gözden geçirilmesi — Dilim 2 (2026-09-11, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Repodaki (`node_modules` hariç) tüm `useQueryState(` kullanımları
+  tek tek incelendi:
+  - **Değiştirildi (2 dosya) — ilişkili filtre çifti, `useQueryStates`'e taşındı:**
+    `features/sales/campaigns/components/CampaignsPageClient.tsx` (`q` + `durum`)
+    ve `features/sales/campaignAnnouncements/components/AnnouncementsPageClient.tsx`
+    (`kampanya` + `durum`). İkisi de ayrıca eski nuqs v1 stili
+    `useQueryState(key, { defaultValue: "" })` sözdizimini kullanıyordu; bu
+    fırsatla codebase'in geri kalanıyla tutarlı modern `parseAsString.withDefault("")`
+    parser'ına geçirildi. Davranış aynı: her Select/Input kendi anahtarını
+    tek başına güncelliyordu, şimdi aynı işi `setQueryState({ tekAnahtar: değer })`
+    ile yapıyor (birebir aynı sonuç, yalnız tek bir state kaynağı).
+  - **DEĞİŞTİRİLMEDİ (bilinçli, 3 dosya) — TEK ve bağımsız parametre,
+    `useQueryState` zaten doğru araç:**
+    `features/customerPortal/components/CustomerPortalCampaignsPageClient.tsx`
+    (`kapsam` — sekme seçimi), `features/customerPortal/components/CustomerPortalFavoriteVariantsPageClient.tsx`
+    (`kaynak` — sekme seçimi), `features/public/products/components/ProductVariantTable.tsx`
+    (`m` — seçili ölçü). nuqs'ın kendi önerisi `useQueryStates`'i yalnız
+    "ilişkili bir parametre GRUBU" için öneriyor (nuqs.dev/docs/batching); tek
+    başına bir parametreyi `useQueryStates`'e taşımak gereksiz dolaylama
+    eklerdi, bu üçü olduğu gibi bırakıldı.
+  - `features/admin/leadCustomers/hooks/useLeadCustomerListFilters.ts` ve
+    `CustomerMapPageClient.tsx` zaten `useQueryStates` kullanıyordu (ikincisi
+    bu partinin Dilim 1'i) — dokunulmadı.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (159 warning, değişmedi) ✅ · `test -w frontend` 378/378 ✅. Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de satış panelindeki Kampanyalar
+  (`/satis/kampanyalar`) ve Kampanya Duyuruları sayfalarında arama/durum
+  filtrelerinin ve URL paylaşılabilirliğinin eskisi gibi çalıştığını
+  doğrulamalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
