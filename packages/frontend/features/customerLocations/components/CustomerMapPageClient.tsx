@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ChevronUp, List, MapPinned } from "lucide-react"
 import { toast } from "sonner"
-import { parseAsBoolean, parseAsInteger, parseAsString, parseAsStringLiteral, useQueryState } from "nuqs"
+import { parseAsBoolean, parseAsInteger, parseAsString, parseAsStringLiteral, useQueryStates } from "nuqs"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ManagedCustomerMap } from "@/features/customerLocations/components/ManagedCustomerMap"
@@ -119,29 +119,53 @@ export function CustomerMapPageClient({
     // basılınca gider (DB yükü azalır). Harita (`view === "map"`) bundan ayrı
     // bir sonraki adım — DB isteğinden bağımsız olarak Google Maps JS'in kendisi
     // yalnız kullanıcı "Haritada Göster" deyince yüklenir.
-    const [search, setSearch] = useQueryState("q", parseAsString.withDefault(""))
-    const [status, setStatus] = useQueryState("status", parseAsString.withDefault("ALL"))
-    const [rep, setRep] = useQueryState("rep", parseAsString.withDefault("ALL"))
-    const [sector, setSector] = useQueryState("sector", parseAsString.withDefault(""))
-    const [usage, setUsage] = useQueryState("usage", parseAsString.withDefault(""))
-    const [countryId, setCountryId] = useQueryState("country", parseAsInteger)
-    const [stateId, setStateId] = useQueryState("state", parseAsInteger)
-    const [cityId, setCityId] = useQueryState("city", parseAsInteger)
-    const [applied, setApplied] = useQueryState("applied", parseAsBoolean.withDefault(false))
-    // Filtre uygulanınca ÖNCE liste gösterilir; harita yalnız kullanıcı bir
-    // "Haritada Göster" aksiyonuna basınca (Google Maps JS bu anda yüklenir).
-    const [view, setView] = useQueryState("view", parseAsStringLiteral(["list", "map"] as const).withDefault("list"))
+    //
+    // TEK `useQueryStates` çağrısı — nuqs'ın "ilişkili parametre grubu" için
+    // önerdiği yöntem (bkz. `useLeadCustomerListFilters`, aynı desen). Önceden
+    // dokuz ayrı `useQueryState` çağrısıydı; birbirine bağlı alanlar (ör.
+    // `applyFilters`'taki applied+view+page) ayrı ayrı set çağrılarıyla
+    // güncelleniyordu. Tek çağrı bunları TEK state güncellemesinde ve TEK URL
+    // yazımında birleştirir (nuqs.dev/docs/batching) — davranış birebir aynı.
+    const [queryState, setQueryState] = useQueryStates({
+        q: parseAsString.withDefault(""),
+        status: parseAsString.withDefault("ALL"),
+        rep: parseAsString.withDefault("ALL"),
+        sector: parseAsString.withDefault(""),
+        usage: parseAsString.withDefault(""),
+        country: parseAsInteger,
+        state: parseAsInteger,
+        city: parseAsInteger,
+        applied: parseAsBoolean.withDefault(false),
+        // Filtre uygulanınca ÖNCE liste gösterilir; harita yalnız kullanıcı bir
+        // "Haritada Göster" aksiyonuna basınca (Google Maps JS bu anda yüklenir).
+        view: parseAsStringLiteral(["list", "map"] as const).withDefault("list"),
+        // Liste görünümü tek istekte gelen (backend `take: 500`) TÜM segmenti
+        // aynı anda accordion olarak basmaz — 200+ müşteri tek sayfada ele
+        // alınamaz uzunlukta olur. Sayfalama client-side: ek istek yok, zaten
+        // çekilmiş `groups` dizisi dilimlenir (admin listeleriyle aynı bileşen:
+        // `AdminListPagination`).
+        page: parseAsInteger.withDefault(1),
+        limit: parseAsInteger.withDefault(DEFAULT_ADMIN_LIST_PAGE_SIZE),
+    })
+    const {
+        q: search,
+        status,
+        rep,
+        sector,
+        usage,
+        country: countryId,
+        state: stateId,
+        city: cityId,
+        applied,
+        view,
+        page: listPage,
+        limit: listLimit,
+    } = queryState
+    const normalizedListLimit = normalizeAdminPageSize(listLimit)
     // `null` = filtreyle eşleşen TÜM müşteriler haritada; dolu dizi = yalnız
     // liste görünümünden seçilen/tekil müşteri(ler).
     const [mapCustomerIds, setMapCustomerIds] = useState<string[] | null>(null)
     const selection = useBulkSelection()
-    // Liste görünümü tek istekte gelen (backend `take: 500`) TÜM segmenti aynı
-    // anda accordion olarak basmaz — 200+ müşteri tek sayfada ele alınamaz
-    // uzunlukta olur. Sayfalama client-side: ek istek yok, zaten çekilmiş
-    // `groups` dizisi dilimlenir (admin listeleriyle aynı bileşen: `AdminListPagination`).
-    const [listPage, setListPage] = useQueryState("page", parseAsInteger.withDefault(1))
-    const [listLimit, setListLimit] = useQueryState("limit", parseAsInteger.withDefault(DEFAULT_ADMIN_LIST_PAGE_SIZE))
-    const normalizedListLimit = normalizeAdminPageSize(listLimit)
     // Segment yeni uygulandığında liste PEEK modunda başlar (bkz. PEEK_CUSTOMER_COUNT).
     const [isListExpanded, setIsListExpanded] = useState(false)
 
@@ -265,27 +289,28 @@ export function CustomerMapPageClient({
     )
 
     function patchFilters(patch: Partial<CustomerMapFilters>) {
-        if (patch.search !== undefined) setSearch(patch.search)
-        if (patch.status !== undefined) setStatus(patch.status)
-        if (patch.assignedSalesUserId !== undefined) setRep(patch.assignedSalesUserId)
-        if (patch.sectorValueId !== undefined) setSector(patch.sectorValueId)
-        if (patch.usageAreaValueId !== undefined) setUsage(patch.usageAreaValueId)
-        if (patch.countryId !== undefined) setCountryId(patch.countryId)
-        if (patch.stateId !== undefined) setStateId(patch.stateId)
-        if (patch.cityId !== undefined) setCityId(patch.cityId)
-        // Değişiklik henüz uygulanmadı: buton tekrar basılana kadar otomatik
-        // istek atılmaz.
-        setApplied(false)
+        setQueryState({
+            ...(patch.search !== undefined ? { q: patch.search } : {}),
+            ...(patch.status !== undefined ? { status: patch.status } : {}),
+            ...(patch.assignedSalesUserId !== undefined ? { rep: patch.assignedSalesUserId } : {}),
+            ...(patch.sectorValueId !== undefined ? { sector: patch.sectorValueId } : {}),
+            ...(patch.usageAreaValueId !== undefined ? { usage: patch.usageAreaValueId } : {}),
+            ...(patch.countryId !== undefined ? { country: patch.countryId } : {}),
+            ...(patch.stateId !== undefined ? { state: patch.stateId } : {}),
+            ...(patch.cityId !== undefined ? { city: patch.cityId } : {}),
+            // Değişiklik henüz uygulanmadı: buton tekrar basılana kadar otomatik
+            // istek atılmaz.
+            applied: false,
+        })
     }
 
     function applyFilters() {
-        setApplied(true)
         // Yeni segment ÖNCE liste olarak gösterilir; önceki "haritada göster"
-        // seçimi/görünümü yeni segmentle anlamsızlaşır.
-        setView("list")
+        // seçimi/görünümü yeni segmentle anlamsızlaşır. Üç alan TEK URL
+        // yazımında birlikte güncellenir.
+        setQueryState({ applied: true, view: "list", page: 1 })
         setMapCustomerIds(null)
         selection.clear()
-        setListPage(1)
         setIsListExpanded(false)
         setFocusPending(false)
         // İstek mevcut harita viewport'uyla KISITLANMASIN (bölgeler arası
@@ -301,7 +326,7 @@ export function CustomerMapPageClient({
      */
     function showOnMap(customerIds: string[] | null) {
         setMapCustomerIds(customerIds)
-        setView("map")
+        setQueryState({ view: "map" })
         // Harita yeni mount edildiği için segmente odaklanmalı.
         setFocusToken((token) => token + 1)
         setFocusPending(true)
@@ -309,19 +334,21 @@ export function CustomerMapPageClient({
     }
 
     function clearFilters() {
-        setSearch("")
-        setStatus("ALL")
-        setRep("ALL")
-        setSector("")
-        setUsage("")
-        setCountryId(null)
-        setStateId(null)
-        setCityId(null)
-        setApplied(false)
-        setView("list")
+        setQueryState({
+            q: "",
+            status: "ALL",
+            rep: "ALL",
+            sector: "",
+            usage: "",
+            country: null,
+            state: null,
+            city: null,
+            applied: false,
+            view: "list",
+            page: 1,
+        })
         setMapCustomerIds(null)
         selection.clear()
-        setListPage(1)
         setIsListExpanded(false)
         setFocusPending(false)
     }
@@ -456,7 +483,7 @@ export function CustomerMapPageClient({
             ) : view === "map" ? (
                 <div className="space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                        <Button type="button" variant="outline" className="rounded-2xl" onClick={() => setView("list")}>
+                        <Button type="button" variant="outline" className="rounded-2xl" onClick={() => setQueryState({ view: "list" })}>
                             <List className="h-4 w-4" />
                             Listeye Dön
                         </Button>
@@ -502,7 +529,7 @@ export function CustomerMapPageClient({
                                         className="rounded-2xl"
                                         onClick={() => {
                                             setIsListExpanded(false)
-                                            setListPage(1)
+                                            setQueryState({ page: 1 })
                                         }}
                                     >
                                         <ChevronUp className="h-4 w-4" />
@@ -569,11 +596,8 @@ export function CustomerMapPageClient({
                             total={groups.length}
                             limit={normalizedListLimit}
                             itemLabel="müşteri"
-                            onPageChange={setListPage}
-                            onLimitChange={(next) => {
-                                setListLimit(next)
-                                setListPage(1)
-                            }}
+                            onPageChange={(next) => setQueryState({ page: next })}
+                            onLimitChange={(next) => setQueryState({ limit: next, page: 1 })}
                         />
                     ) : null}
                 </div>

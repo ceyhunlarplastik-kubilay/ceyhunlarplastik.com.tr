@@ -7542,6 +7542,32 @@ eşit sayıda eklendi (865/865).
   (403). (3) Veri girişi panelinde eşleşen ürün listesinin ESKİSİ GİBİ
   çalıştığını teyit. (4) Dilim 5 (satış müdürü + admin bağlama) PLAN'da.
 
+### `CustomerMapPageClient` — dokuz `useQueryState` → tek `useQueryStates` (2026-09-11, kullanıcı talebiyle, Dilim 1)
+
+- **Ne yapıldı:** nuqs'ın "ilişkili parametre grubu" için önerdiği yöntem
+  (nuqs.dev/docs/batching) uygulandı: `q/status/rep/sector/usage/country/state/
+  city/applied/view/page/limit` için ayrı ayrı olan dokuz `useQueryState`
+  çağrısı TEK `useQueryStates` çağrısında birleştirildi (repodaki
+  `useLeadCustomerListFilters` ile aynı desen — "Önceden sekiz ayrı
+  `useQueryState` çağrısıydı" notuyla aynı gerekçe). `patchFilters`,
+  `applyFilters`, `showOnMap`, `clearFilters` ve sayfalama callback'leri artık
+  ilgili alanları tek bir `setQueryState({...})` çağrısıyla (dolayısıyla tek URL
+  yazımıyla) güncelliyor — ör. `applyFilters`'ta `applied`+`view`+`page` önceden
+  üç ayrı set çağrısıyken artık tek çağrı. Fonksiyonellik/URL şekli/parser'lar
+  birebir aynı kaldı, yalnız state yönetimi deseni değişti.
+- **Neden:** Kullanıcı bu component'teki `useQueryState` kullanımını nuqs'ın
+  önerdiği best-practice'e (`useQueryStates`) geçirilmesini istedi; sonraki
+  dilimde diğer `useQueryState` kullanımları ayrıca gözden geçirilecek.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (159 warning, değişmedi) ✅ · `test -w frontend` 378/378 ✅ (bu component'e
+  özel test yok, davranış kod okuması ve mevcut testlerle doğrulandı). Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de `/admin/musteriler/harita` ve `/satis/harita`
+  üzerinde filtre uygula/temizle/haritada göster/sayfalama akışlarını ve URL'in
+  (paylaşılabilirlik, geri tuşu) beklendiği gibi çalıştığını doğrulamalı.
+  Sonraki dilim: repodaki diğer ham `useQueryState` kullanımlarının (varsa)
+  gözden geçirilmesi.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
