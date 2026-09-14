@@ -147,6 +147,7 @@ export default async function CategoryPage(
                                 attributeSelectorVariant="popover"
                                 showProductFiltersOnlyWhenCategorySelected
                                 hideIndustrialFiltersWhenCategorySelected
+                                showNewItemFilters
                             />
                         </Suspense>
                     </aside>

@@ -32,7 +32,17 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
     const [, startTransition] = useTransition()
     const [navigatingProductId, setNavigatingProductId] = useState<string | null>(null)
     const portalCustomerQuery = usePortalCustomer()
-    const { category, search, attributes: selectedAttributes, page, limit, setFromUrl } = useFilterStore()
+    const {
+        category,
+        search,
+        attributes: selectedAttributes,
+        page,
+        limit,
+        isNew,
+        hasNewVariant,
+        onCampaign,
+        setFromUrl,
+    } = useFilterStore()
 
     useEffect(() => {
         setFromUrl(new URLSearchParams(searchParams.toString()))
@@ -73,6 +83,10 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
             nextParams.search = search.trim()
         }
 
+        if (isNew) nextParams.isNew = "true"
+        if (hasNewVariant) nextParams.hasNewVariant = "true"
+        if (onCampaign) nextParams.onCampaign = "true"
+
         Object.entries(selectedAttributes).forEach(([key, values]) => {
             if (!knownAttributeCodes.has(key)) return
 
@@ -86,7 +100,7 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
         })
 
         return nextParams
-    }, [categorySlug, knownAttributeCodes, limit, page, search, selectedAttributes])
+    }, [categorySlug, hasNewVariant, isNew, knownAttributeCodes, limit, onCampaign, page, search, selectedAttributes])
 
     const productsQuery = useProducts(params)
     const products = productsQuery.data?.data ?? []
@@ -164,6 +178,8 @@ export function CustomerPortalAllProductsPageClient({ categories, attributes }: 
                         hideIndustrialFiltersWhenCategorySelected
                         customerUsageAreaSlugs={portalUsageAreaSlugs}
                         customerUsageAreaFilterPending={portalCustomerQuery.isLoading}
+                        showNewItemFilters
+                        showCampaignFilter
                     />
                 </div>
 

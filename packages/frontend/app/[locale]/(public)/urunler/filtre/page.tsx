@@ -85,6 +85,7 @@ export default async function Page({
                                 showProductSearch
                                 attributeSelectorVariant="popover"
                                 basePath="/urunler/filtre"
+                                showNewItemFilters
                             />
                         </Suspense>
                     </aside>

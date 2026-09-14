@@ -22,7 +22,7 @@ export default function ProductFilterList({
     initialProducts?: ProductListPayload | null
 }) {
     const t = useTranslations("public.productFilter")
-    const { category, search, attributes, page, limit } = useFilterStore()
+    const { category, search, attributes, page, limit, isNew, hasNewVariant } = useFilterStore()
 
     const params: Record<string, string | number> = {
         page,
@@ -43,6 +43,9 @@ export default function ProductFilterList({
         params.search = search.trim()
     }
 
+    if (isNew) params.isNew = "true"
+    if (hasNewVariant) params.hasNewVariant = "true"
+
     // 🔥 attributes flatten
     Object.entries(attributes).forEach(([key, values]) => {
         if (values.length) {
@@ -53,7 +56,7 @@ export default function ProductFilterList({
     // initialData YALNIZ filtresiz varsayılan görünüme uygulanmalı; aksi halde filtre/sayfa
     // değişince yeni query key'e yanlışlıkla filtresiz veri seed edilir.
     const hasAttributeFilters = Object.values(attributes).some((values) => values.length > 0)
-    const isDefaultView = page === 1 && !search.trim() && !hasAttributeFilters
+    const isDefaultView = page === 1 && !search.trim() && !hasAttributeFilters && !isNew && !hasNewVariant
 
     const { data, isLoading, isFetching } = useProducts(params, {
         initialData: isDefaultView ? initialProducts ?? undefined : undefined,

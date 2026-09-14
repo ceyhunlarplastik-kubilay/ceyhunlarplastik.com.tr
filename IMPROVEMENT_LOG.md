@@ -7824,6 +7824,161 @@ eşit sayıda eklendi (865/865).
   "bulunamadı" gösterecek — bu ayrı, bilinen bir sınırlama). (4) Liste fiyatı
   gösterimi gerçekten isteniyorsa ayrı bir dilim olarak planlanmalı.
 
+### Ürün listesi filtreleri: "Yeni Ürün"/"Yeni Varyant"/"Kampanyalı" — Dilim 1: backend (2026-09-14, kullanıcı talebiyle)
+
+- **Ne yapıldı:** `GET /products` (PublicApi, `listProducts`) artık 3 yeni
+  opsiyonel query parametresi destekliyor: `isNew=true`, `hasNewVariant=true`,
+  `onCampaign=true`. Üçü de mevcut, kanıtlanmış yapı taşları üzerine kuruldu —
+  yeni migration YOK:
+  - `isNew`/`hasNewVariant`: `ProductCard` rozetleriyle AYNI eşiği kullanır
+    (`getNewItemCutoffDate()`, `productFreshness.ts`) — bu fonksiyon zaten
+    `listProducts` içinde hesaplanıyordu (rozet var/yok kontrolü için), şimdi
+    aynı `Date` bir `WHERE` koşuluna da besleniyor
+    (`createdAt: { gte: cutoff }` / `variants: { some: { createdAt: { gte: cutoff } } }`).
+  - `onCampaign`: müşteri portalının "Kampanyalı Ürünler" sayfasının
+    (`listActiveCampaigns`) kullandığı AYNI "şu an geçerli kampanya" tanımını
+    kullanır — `productVariantCampaigns/repository.ts`'teki
+    `currentValidityWhere()` (`status: ACTIVE` + `validFrom/validUntil`
+    penceresi) `export` edilip `products/repository.ts`'e import edildi,
+    ikinci bir tanım YOK. Zincir: `Product.variants → ProductVariant.campaignItems
+    → ProductVariantCampaignItem.campaign` — gereken tüm index'ler zaten şemada
+    (`ProductVariantCampaign.@@index([status, validFrom, validUntil])` dahil).
+  - **Bulunup düzeltilen bir hata (implementasyon sırasında):** `hasNewVariant`
+    ve `onCampaign` ikisi de Prisma `where` objesinde `variants` anahtarını
+    kullanıyor — ayrı ayrı üst seviye spread edilselerdi (`...(cond && {variants:...})`)
+    ikincisi birincisini SESSİZCE ezerdi (aynı anahtar iki kez tanımlanmış
+    gibi). Çözüm: tüm ek koşullar (attribute filtreleri dahil) TEK bir
+    `extraWhereClauses` dizisinde toplanıp `AND` altında birleştiriliyor.
+  - **Bulunup düzeltilen ikinci bir tuzak:** `listProductsHandler.ts`'te bilinen
+    liste dışındaki HER query key'i "attribute kodu" sayan bir mekanizma var
+    (`attributeFilters = Object.entries(query).filter(([key]) => ![...].includes(key))`).
+    `isNew`/`hasNewVariant`/`onCampaign` bu dışlama listesine eklenmezse,
+    var olmayan bir "isNew" attribute kodu aranır ve sonuç SESSİZCE boşalırdı
+    (hata fırlatmaz). Üçü de listeye eklendi.
+- **Neden:** Kullanıcı `ProductCard`'daki "Yeni Ürün"/"Yeni Varyant" rozetlerinin
+  ve müşteri portalındaki "Kampanyalı Ürünler" sayfasının aynı zamanda ana
+  ürün listesinin (`ProductFilterSidebar`) filtresi olarak da kullanılabilmesini
+  istedi; fizibilite incelendi (şema yeterli bulundu, migration gerekmedi),
+  "Kampanyalı" filtresinin şimdilik yalnız müşteri portalında istendiği
+  netleşti (public katalog için ayrı değerlendirilecek).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  623/623 ✅ (618 mevcut + 5 yeni — `products/repository.test.ts`'e eklenen
+  `listProducts` filtre testleri, `AND` çakışması regresyonu dahil) ·
+  `test -w @ceyhunlarweb/functions` 340/340 ✅. Frontend'e HENÜZ dokunulmadı
+  (Dilim 2/3), o yüzden frontend DoD adımları bu dilimde çalıştırılmadı.
+- **Ne kaldı (PLAN'a madde olarak yazıldı):** Dilim 2 — `useFilterStore`'a
+  `isNew`/`hasNewVariant`/`onCampaign` state'i + `ProductFilterSidebar.tsx`'e
+  yeni bir bölüm (checkbox'lar), `showCampaignFilter` gibi opt-in prop'larla
+  ("Kampanyalı" yalnız müşteri portalı "Tüm Ürünler" sayfasında açık olacak,
+  "Yeni Ürün"/"Yeni Varyant" hem public hem portalda açılabilir). Dilim 3 —
+  tüketen sayfalara (`ProductFilterList.tsx`, `CustomerPortalAllProductsPageClient.tsx`)
+  bağlama + `messages/tr.json`/`en.json`'a yeni çeviri anahtarları (parity
+  kontrolü). Backend uçları henüz hiçbir arayüzden çağrılmıyor (yalnız hazır
+  ve testli), kubi'de runtime doğrulaması Dilim 3 sonrasında yapılmalı.
+
+### Ürün listesi filtreleri: "Yeni Ürün"/"Yeni Varyant"/"Kampanyalı" — Dilim 2: frontend state + UI (2026-09-14, kullanıcı talebiyle)
+
+- **Ne yapıldı:**
+  - `messages/tr.json` ve `en.json`'ın `public.productFilter` namespace'ine 5
+    yeni anahtar eklendi: `lifecycleFiltersTitle`, `lifecycleFiltersDesc`,
+    `filterIsNewLabel`, `filterHasNewVariantLabel`, `filterOnCampaignLabel`.
+    Parity doğrulandı: tr/en ikisi de 789 leaf-key.
+  - `useFilterStore.ts`'e `isNew`/`hasNewVariant`/`onCampaign` boolean alanları
+    + `setIsNew`/`setHasNewVariant`/`setOnCampaign` (her biri `page: 1`'e
+    resetler, `setCategory`/`setSearch` ile aynı desen) eklendi. `toQueryString`
+    ve `setFromUrl` üçünü de okuyup yazıyor. `setFromUrl`'ün "bilinmeyen key
+    = attribute kodu" tuzağına (Dilim 1'de backend'de bulunan AYNI sınıf hata,
+    bkz. yukarıki not) düşmemesi için üç key de `KNOWN_QUERY_KEYS` dışlama
+    listesine eklendi — eklenmeseydi `?isNew=true` sessizce
+    `attributes.isNew = ["true"]` gibi hayali bir filtreye dönüşür, gerçek
+    boolean state'e hiç yansımazdı.
+  - `ProductFilterSidebar.tsx`'e iki opt-in prop eklendi: `showNewItemFilters`
+    ve `showCampaignFilter` (ikisi de varsayılan `false`). Kategori bölümüyle
+    ürün-attribute bölümü arasına, mevcut checkbox görsel deseniyle
+    (`Label` + `Checkbox`, `renderAttributeFilter`'daki non-popover dal ile
+    aynı sınıflar) yeni bir "Ürün Durumu" bölümü eklendi; her checkbox kendi
+    prop'uyla ayrı ayrı kapalı tutulabiliyor. `pushStateToUrl` artık her
+    çağrıda `useFilterStore.getState()`'ten taze `isNew`/`hasNewVariant`/
+    `onCampaign` okuyup URL'e yazıyor (limit'in zaten yaptığı gibi) — böylece
+    kategori/attribute değişse bile bu üç bayrak URL'de kaybolmuyor. Yeni
+    `handleLifecycleToggle` fonksiyonu store'u güncelleyip aynı `pushStateToUrl`
+    üzerinden URL'i senkronluyor. `hasActiveFilters` ve `clearAll()` (fixed-
+    category dalı) üçünü de kapsayacak şekilde güncellendi — aksi halde
+    "Temizle" butonu bu checkbox'ları temizlemezdi.
+- **Neden:** Dilim 1'in devamı — kullanıcı "Dilimi uygula bakalım" → "Evet
+  Dilim 2'ye geç" dedi. "Kampanyalı Ürünler" kullanıcı talebiyle yalnız
+  müşteri portalı "Tüm Ürünler" sayfasında açılacak (`showCampaignFilter`);
+  "Yeni Ürün"/"Yeni Varyant" hem public katalogda hem portalda açılabilir
+  (`showNewItemFilters`) — henüz hiçbir sayfa bu prop'ları vermiyor (Dilim 3).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (159 warning, değişmedi) ✅ · `test -w frontend` 384/384 ✅ (yeni saf mantık
+  eklenmedi, mevcut testler kırılmadı) · i18n parity tr=en=789 ✅.
+- **Ne kaldı (PLAN'a madde olarak yazıldı):** Dilim 3 — `showNewItemFilters`'ı
+  hem public katalog hem portal `ProductFilterSidebar` kullanımlarına,
+  `showCampaignFilter`'ı YALNIZ `CustomerPortalAllProductsPageClient.tsx`'e
+  ver; her iki tüketici sayfanın `useProducts`'a giden `params` inşasına
+  `isNew`/`hasNewVariant`/`onCampaign`'i ekle. Bu iki dosya henüz
+  düzenlenmedi. Backend uçları hâlâ hiçbir arayüzden çağrılmıyor; kubi'de
+  runtime doğrulaması Dilim 3 sonrasında yapılmalı.
+
+### Ürün listesi filtreleri: "Yeni Ürün"/"Yeni Varyant"/"Kampanyalı" — Dilim 3: sayfalara bağlama (2026-09-14, kullanıcı talebiyle)
+
+- **Ne yapıldı:**
+  - `ProductFilterList.tsx` (public liste/grid, hem `/urunler/filtre` hem
+    `/urun-kategori/[slug]` tarafından paylaşılıyor) artık store'dan
+    `isNew`/`hasNewVariant` okuyup `useProducts` param'larına ekliyor.
+    **Bulunup düzeltilen bir tuzak:** `isDefaultView` (SSR'dan gelen
+    `initialProducts`'ı client fetch'e "initialData" olarak seed eden bayrak)
+    yalnız `search`/`attributes`'i kontrol ediyordu; `isNew`/`hasNewVariant`
+    eklenmezse, biri açıkken sayfa 1'e dönüldüğünde filtrelenmiş sorgu
+    anahtarına YANLIŞLIKLA filtresiz SSR verisi seed edilirdi (attribute
+    filtreleri için zaten var olan `hasAttributeFilters` korumasıyla aynı
+    sınıf hata). `isDefaultView` artık ikisini de kontrol ediyor.
+  - `app/[locale]/(public)/urun-kategori/[slug]/page.tsx`'teki
+    `ProductFilterSidebar`'a `showNewItemFilters` verildi — bu, gerçek
+    ürün-attribute filtreleri gösteren kategori sayfası (portalla "aynı
+    yerleşim" olduğu zaten kod içi yorumla belirtilmişti). `/urunler/filtre`
+    (Sektörel Ürünler) BİLİNÇLİ OLARAK dışarıda bırakıldı: o sayfa
+    `showOnlyIndustrialFilters` ile TÜM kategori-kapsamlı ürün filtrelerini
+    zaten gizliyor, amacı yalnızca sektör/üretim grubu/kullanım alanı
+    seçimi — "Yeni Ürün" oraya eklemek talep edilmedi ve sayfanın dar
+    kapsamıyla çelişirdi.
+  - `CustomerPortalAllProductsPageClient.tsx`: store'dan `isNew`/`hasNewVariant`/
+    `onCampaign` okunup `params` `useMemo`'suna eklendi; `ProductFilterSidebar`'a
+    hem `showNewItemFilters` HEM `showCampaignFilter` verildi (kullanıcı
+    talebiyle "Kampanyalı" yalnız burada).
+  - `SalesProductCatalogSection.tsx` (satış paneli) ve
+    `CustomerAssignedVariantsPageClient.tsx` (admin varyant atama picker'ı)
+    BİLİNÇLİ OLARAK dokunulmadı — plan yalnız "public katalog + müşteri
+    portalı" kapsıyordu, bu ikisi ayrı bir talep/onay gerektirir.
+- **Neden:** Dilim 1-2'nin devamı — kullanıcı "Dilim 3'e devam et" dedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (159 warning, değişmedi) ✅ · `test -w frontend` 384/384 ✅ (bu dilimde saf
+  mantık eklenmedi, mevcut testler kırılmadı). i18n kataloglarına dokunulmadı
+  (Dilim 2'de eklenmişti, 789/789 parity zaten doğrulanmıştı).
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — (1) `/urun-kategori/<slug>`
+  sayfasında "Yeni Ürünler"/"Yeni Eklenen Varyantlar" checkbox'ları filtreliyor
+  mu; (2) `/musteri/tum-urunler`'de üçü de (+ "Kampanyalı Ürünler") çalışıyor
+  mu, "Temizle" hepsini temizliyor mu, sayfa yenilemede (URL'den) durum
+  korunuyor mu; (3) `/urunler/filtre`de bu filtrelerin GÖRÜNMEDİĞİ (bilinçli)
+  doğrulanmalı. Bu doğrulamalar tamamlanınca özellik bütünüyle teslim edilmiş
+  olur — açık dilim kalmadı.
+
+  **GÜNCELLEME (2026-09-14, aynı gün):** Kullanıcı (1) ve (2)'yi kubi'de
+  doğruladı ("Evet çalışıyor") ve (3)'teki kararı BİLİNÇLİ OLARAK tersine
+  çevirdi — `/urunler/filtre` (Sektörel Ürünler) sayfasında da "Yeni Ürünler"/
+  "Yeni Eklenen Varyantlar" checkbox'larının görünmesini istedi (yalnız bu iki
+  filtre — "Kampanyalı Ürünler" hâlâ yalnız portalda, bu değişmedi). Yapılan
+  tek değişiklik `app/[locale]/(public)/urunler/filtre/page.tsx`'teki
+  `ProductFilterSidebar`'a `showNewItemFilters` eklemekti — `ProductFilterList.tsx`
+  Dilim 3'te zaten store'dan `isNew`/`hasNewVariant` okuyup her sayfaya
+  uyguluyordu, o yüzden başka hiçbir dosyada değişiklik gerekmedi.
+  `showOnlyIndustrialFilters` bu yeni bölümü etkilemiyor (yalnız
+  `productFilterAttributes`'ı `[]` yapıyor), yani iki bölüm çakışmadan yan
+  yana duruyor. Doğrulandı: `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Kalan: kullanıcı
+  kubi'de `/urunler/filtre`'de bu iki checkbox'ı da görüp test etmeli.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
