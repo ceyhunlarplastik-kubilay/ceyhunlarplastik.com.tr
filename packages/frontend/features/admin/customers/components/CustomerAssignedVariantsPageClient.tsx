@@ -20,9 +20,12 @@ import type { Category } from "@/features/public/categories/types"
 import ProductActiveFilters from "@/features/public/products/components/ProductActiveFilters"
 import ProductFilterPagination from "@/features/public/products/components/ProductFilterPagination"
 import ProductFilterSidebar from "@/features/public/products/components/ProductFilterSidebar"
-import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable"
 import { useProducts } from "@/features/public/products/hooks/useProducts"
 import { useProductVariantTable } from "@/features/public/products/hooks/useProductVariantTable"
+import {
+    flattenGroupedVariantOptions,
+    type FlatGroupedVariant,
+} from "@/features/public/products/utils/flattenGroupedVariantOptions"
 import type { ProductAttribute } from "@/features/public/productAttributes/types"
 import type { Product } from "@/features/public/products/types"
 import { protectedApiClient } from "@/lib/http/client"
@@ -80,15 +83,18 @@ function useReplaceManagedCustomerAssignedProducts(customerId: string) {
 
 function mapVariantTableDataToAssignedVariant(
     product: Product,
-    variant: VariantTableData,
+    variant: FlatGroupedVariant,
 ): CustomerAssignedProduct["productVariant"] {
     return {
         id: variant.id,
         productId: product.id,
         name: variant.name,
         fullCode: variant.fullCode,
-        versionCode: variant.versionCode ?? null,
-        sizeCode: variant.sizeCode ?? null,
+        // `/variant-table` gruplanmış (ölçüye göre) döner, kod segmentleri
+        // (versiyon/ölçü no) satırda ayrı taşınmaz — bu ekranda da kullanılmıyor
+        // (bkz. formatAssignedProductVariantSummary: color/measurements/materials/name).
+        versionCode: null,
+        sizeCode: null,
         color: variant.color
             ? {
                 id: variant.color.id,
@@ -257,6 +263,12 @@ export function CustomerAssignedVariantsPageClient({
         return products.find((product) => product.id === selectedProductId) ?? null
     }, [products, selectedProductId])
     const variantsQuery = useProductVariantTable(selectedProduct?.id ?? "")
+    // `/variant-table` ölçüye göre GRUPLANMIŞ satır döner (bkz. flattenGroupedVariantOptions
+    // dosya başı yorumu) — gerçek varyant seçimi/kaydı için düzleştirilmiş liste kullanılır.
+    const flattenedVariants = useMemo(
+        () => flattenGroupedVariantOptions(variantsQuery.data ?? []),
+        [variantsQuery.data],
+    )
     const assignedVariantIds = useMemo(
         () => assignedProducts.map((item) => item.productVariantId),
         [assignedProducts],
@@ -271,13 +283,13 @@ export function CustomerAssignedVariantsPageClient({
         }
 
         if (selectedProduct) {
-            for (const variant of variantsQuery.data ?? []) {
+            for (const variant of flattenedVariants) {
                 next[variant.id] = mapVariantTableDataToAssignedVariant(selectedProduct, variant)
             }
         }
 
         return next
-    }, [assignedProducts, selectedProduct, variantsQuery.data])
+    }, [assignedProducts, selectedProduct, flattenedVariants])
 
     const selectedItems = useMemo(() => {
         const assignedByVariantId = new Map(
@@ -299,11 +311,11 @@ export function CustomerAssignedVariantsPageClient({
 
     const selectedProductVariants = useMemo(
         () =>
-            (variantsQuery.data ?? []).map((variant) => ({
+            flattenedVariants.map((variant) => ({
                 raw: variant,
                 mapped: selectedProduct ? mapVariantTableDataToAssignedVariant(selectedProduct, variant) : null,
             })),
-        [selectedProduct, variantsQuery.data],
+        [selectedProduct, flattenedVariants],
     )
     const selectedVariantCountForProduct = useMemo(
         () =>
@@ -524,7 +536,7 @@ export function CustomerAssignedVariantsPageClient({
                                     </div>
                                     {selectedProduct ? (
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <Badge variant="outline">{(variantsQuery.data ?? []).length} varyant</Badge>
+                                            <Badge variant="outline">{flattenedVariants.length} varyant</Badge>
                                             <Badge variant="secondary">{selectedVariantCountForProduct} seçili</Badge>
                                         </div>
                                     ) : null}

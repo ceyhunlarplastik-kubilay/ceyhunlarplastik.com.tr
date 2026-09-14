@@ -49,7 +49,10 @@ import type { Category } from "@/features/public/categories/types"
 import { useProducts } from "@/features/public/products/hooks/useProducts"
 import type { Product } from "@/features/public/products/types"
 import { useProductVariantTable } from "@/features/public/products/hooks/useProductVariantTable"
-import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable"
+import {
+    flattenGroupedVariantOptions,
+    type FlatGroupedVariant,
+} from "@/features/public/products/utils/flattenGroupedVariantOptions"
 import { formatMeasurementValue, toMeasurementLabel } from "@/features/public/products/utils/measurement"
 import { PRICE_CURRENCY_OPTIONS } from "@/lib/pricing/currencies"
 import { formatMoney } from "@/lib/customers/pricing"
@@ -73,8 +76,6 @@ type Props = {
     onOpenChange?: (open: boolean) => void
     initialSelection?: CustomerSpecialPriceRequestInitialSelection | null
 }
-
-type DecimalLike = number | string | { s?: number; e?: number; d?: number[] } | null | undefined
 
 const naturalCodeCollator = new Intl.Collator("tr-TR", {
     numeric: true,
@@ -103,56 +104,21 @@ function compareProducts(left: Product, right: Product) {
     return naturalCodeCollator.compare(left.code, right.code) || naturalCodeCollator.compare(left.name, right.name)
 }
 
-function compareVariants(left: VariantTableData, right: VariantTableData) {
+function compareVariants(left: FlatGroupedVariant, right: FlatGroupedVariant) {
     return naturalCodeCollator.compare(left.fullCode, right.fullCode) || naturalCodeCollator.compare(left.name, right.name)
 }
 
-function decimalLikeToText(value: DecimalLike) {
-    if (value === null || value === undefined) return ""
-    if (typeof value === "number") return value.toFixed(2)
-    if (typeof value === "string") return value
-
-    const sign = value.s === -1 ? "-" : ""
-    const digits = Array.isArray(value.d) ? value.d.join("") : ""
-    const exponent = typeof value.e === "number" ? value.e : digits.length - 1
-    if (!digits) return ""
-
-    if (exponent >= digits.length - 1) return `${sign}${digits}${"0".repeat(exponent - (digits.length - 1))}`
-    if (exponent < 0) return `${sign}0.${"0".repeat(Math.abs(exponent) - 1)}${digits}`
-    return `${sign}${digits.slice(0, exponent + 1)}.${digits.slice(exponent + 1)}`
+// `/variant-table` (public) tedarikçi/fiyat verisi HİÇ taşımaz (bkz.
+// GroupedVariantRow — bilinçli olarak yok, public'te fiyat/tedarikçi
+// çekilmez). Bu yüzden bu fonksiyon her zaman `null` döner; arayüz zaten
+// "aktif liste fiyatı bulunamadı" boş durumunu gösteriyor.
+function getActiveVariantListPrice(variant?: FlatGroupedVariant | null, preferredCurrency?: string | null) {
+    void variant
+    void preferredCurrency
+    return null as { currency: string; value: number } | null
 }
 
-function decimalLikeToNumber(value: DecimalLike) {
-    const parsed = Number(decimalLikeToText(value))
-    return Number.isFinite(parsed) ? parsed : null
-}
-
-function getActiveVariantListPrice(variant?: VariantTableData | null, preferredCurrency?: string | null) {
-    const prices = (variant?.variantSuppliers ?? [])
-        .map((supplier) => {
-            if (supplier.isActive === false) return null
-            const value = decimalLikeToNumber(supplier.listPrice)
-            if (value === null) return null
-
-            return {
-                value,
-                currency: supplier.currency ?? "TRY",
-            }
-        })
-        .filter((item): item is { value: number; currency: string } => Boolean(item))
-        .sort((left, right) => {
-            if (preferredCurrency && left.currency !== right.currency) {
-                if (left.currency === preferredCurrency) return -1
-                if (right.currency === preferredCurrency) return 1
-            }
-
-            return naturalCodeCollator.compare(left.currency, right.currency) || left.value - right.value
-        })
-
-    return prices[0] ?? null
-}
-
-function getVariantMeasurementChips(variant: VariantTableData) {
+function getVariantMeasurementChips(variant: FlatGroupedVariant) {
     return [...(variant.measurements ?? [])]
         .sort((left, right) => left.measurementType.displayOrder - right.measurementType.displayOrder)
         .map((measurement) => ({
@@ -161,7 +127,7 @@ function getVariantMeasurementChips(variant: VariantTableData) {
         }))
 }
 
-function getVariantSummary(variant: VariantTableData) {
+function getVariantSummary(variant: FlatGroupedVariant) {
     const measurements = variant.measurements?.length ? toMeasurementLabel(variant.measurements) : null
     const materials = variant.materials?.length ? variant.materials.map((material) => material.name).join(", ") : null
 
@@ -234,7 +200,7 @@ export function CustomerPortalSpecialPriceRequestDialog({
     const deferredProductSearch = useDeferredValue(productSearch)
     const variantsQuery = useProductVariantTable(formValues.productId)
     const variants = useMemo(
-        () => [...(variantsQuery.data ?? [])].sort(compareVariants),
+        () => flattenGroupedVariantOptions(variantsQuery.data ?? []).sort(compareVariants),
         [variantsQuery.data],
     )
     const filteredCategories = useMemo(() => {

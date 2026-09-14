@@ -7759,6 +7759,71 @@ eşit sayıda eklendi (865/865).
   beliriyor mu; `prefers-reduced-motion` açıkken kaydırmanın anlık (animasyonsuz)
   olduğunu da (isteğe bağlı) kontrol edebilir.
 
+### `useProductVariantTable` tüketicilerinde varyant seçimi kırık — kök neden + 4 dosyada düzeltme (2026-09-14, kubi'de yakalandı)
+
+- **Ne yapıldı:** Kullanıcı `/satis/musteriler/[id]/defined-products`'ta
+  ("Tanımlı Ürün Varyantları") varyant eklemeye çalışırken React "duplicate
+  key" uyarısı + backend'den 400 (`productVariantIds/0` geçersiz UUID) aldı.
+  Kök neden: `/products/{id}/variant-table` ucu ÖLÇÜYE göre GRUPLANMIŞ satır
+  döner (`groupVariantTableRows`, P1.8(d) — satırın kendisinde `id`/`fullCode`
+  yok, onlar satırın `variants[]` alt dizisinde). İstemci tarafı
+  `features/public/products/api/getProductVariantTable.ts` (yalnız
+  `useProductVariantTable` hook'unun kullandığı dosya) yanıtı YANLIŞ olarak
+  düz `VariantTableData[]` tipliyordu — sunucu tarafı eşdeğeri
+  (`features/public/products/server/getProductVariantTable.ts`, `/urun/[slug]`
+  sayfasının kullandığı) bunu doğru `GroupedMeasurementOption[]` tipliyordu.
+  Bu yanlış tip TypeScript'i atlatıyordu (derleme zamanında yakalanmadı,
+  yalnız bir iddiaydı) ve 4 ekranın hepsi `variant.id`/`.fullCode`/`.name`'i
+  doğrudan (grup satırında hiç olmayan alanlar) okuyordu:
+  1. `features/admin/customers/components/CustomerAssignedVariantsPageClient.tsx`
+     (admin + satış "Tanımlı Ürün Varyantları" — kullanıcının bulduğu hata)
+  2. `features/sales/campaigns/components/CampaignVariantPicker.tsx` (kampanya
+     varyant seçimi)
+  3. `features/admin/customers/components/CustomerSpecialPricesPageClient.tsx`
+     (admin/satış özel fiyat yönetimi)
+  4. `features/customerPortal/specialPrices/components/CustomerPortalSpecialPriceRequestDialog.tsx`
+     (müşteri portalı özel fiyat talebi)
+  **Düzeltme:**
+  - `getProductVariantTable.ts`'in tipi `GroupedMeasurementOption[]`'a
+    düzeltildi (gerçek kök neden — kod okuma yerine artık TypeScript'in
+    kendisi bu sınıf hatayı yakalıyor).
+  - Yeni paylaşılan yardımcı:
+    `features/public/products/utils/flattenGroupedVariantOptions.ts` —
+    gruplanmış satırları GERÇEK varyant düzeyine açar (`colorId`/`materialIds`'i
+    satırın `colors`/`materials` dizisinden çözer — `ProductVariantTable.tsx`'in
+    `variantCodesPanel`'inde zaten kullanılan aynı desen). `name` alanı GERÇEK
+    `ProductVariant.name` DEĞİLDİR (bu uç onu hiç taşımaz) — ölçü etiketi +
+    renk/hammadde özetinden sentezlenir, yalnız görüntüleme amaçlı. 6 testlik
+    yeni bir birim test dosyası eklendi.
+  - 4 dosyanın hepsi bu yardımcıyı kullanacak şekilde güncellendi
+    (`VariantTableData` → `FlatGroupedVariant`).
+  - **Ayrı, ÇÖZÜLMEMİŞ bir bulgu (bilinçli olarak bu dilimin dışında
+    bırakıldı):** `CustomerSpecialPricesPageClient.tsx` ve
+    `CustomerPortalSpecialPriceRequestDialog.tsx`'teki `getActiveVariantListPrice`
+    (varyant seçilince "Normal Liste Fiyatı" gösteren fonksiyon) HER ZAMAN
+    `null` dönüyordu ve dönmeye devam ediyor — `/variant-table` PUBLIC uç
+    olduğu için tedarikçi/fiyat verisi hiç taşımıyor (bilinçli tasarım, bkz.
+    `GroupedVariantRow` yorum satırı). Arayüz zaten "aktif liste fiyatı
+    bulunamadı" boş durumunu gösterdiği için ÇÖKMÜYOR, yalnız hiçbir zaman
+    gerçek bir fiyat göstermiyor. Gerçek liste fiyatı isteniyorsa admin/satış
+    tarafında AUTH'lu bir varyant+fiyat ucu (ör. `useSupplierVariantPrices`)
+    kullanılması gerekir — ayrı bir dilim, kullanıcı onayı gerektirir.
+- **Neden:** Kullanıcı "Tanımlı Ürün Varyantları"na varyant eklemeye çalışırken
+  hata aldığını bildirdi (React key uyarısı + backend 400), kök nedeni
+  sorguladı, "Onaylıyorum, önerdiğin gibi yap" dedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ (yanlış tip düzeltilince
+  TypeScript'in kendisi 4 dosyadaki hatalı `variant.id`/`.fullCode`/`.name`
+  okumalarını TEK TEK yakaladı — kod okumasıyla değil derleyiciyle doğrulandı)
+  · `lint -w frontend` 0 error (159 warning, değişmedi) ✅ · `test -w frontend`
+  384/384 ✅ (378 mevcut + 6 yeni). Backend'e dokunulmadı (yalnız frontend tip/
+  tüketim hatasıydı, uç zaten doğru veriyi dönüyordu).
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı: (1) "Tanımlı Ürün Varyantları"nda
+  artık React key uyarısı olmadan varyant seçilip kaydedilebiliyor mu; (2)
+  kampanya oluştururken varyant seçimi çalışıyor mu; (3) admin/satış özel fiyat
+  diyaloglarında varyant seçimi ve kaydetme çalışıyor mu (fiyat alanı hâlâ
+  "bulunamadı" gösterecek — bu ayrı, bilinen bir sınırlama). (4) Liste fiyatı
+  gösterimi gerçekten isteniyorsa ayrı bir dilim olarak planlanmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

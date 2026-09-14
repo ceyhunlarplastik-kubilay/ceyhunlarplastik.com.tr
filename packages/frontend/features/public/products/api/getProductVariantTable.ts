@@ -1,9 +1,19 @@
 import { publicApiClient } from "@/lib/http/client"
-import type { VariantTableData } from "@/features/public/products/components/ProductVariantTable"
+import type { GroupedMeasurementOption } from "@/features/public/products/utils/groupedMeasurementOption"
 import type { ApiEnvelope } from "@/lib/http/types"
 
+/**
+ * `/products/{id}/variant-table` satır başına TEK varyant DEĞİL, ÖLÇÜYE göre
+ * GRUPLANMIŞ satır döner (`groupVariantTableRows`, P1.8(d)) — bu dosya eskiden
+ * yanıtı düz `VariantTableData[]` olarak tipliyordu (yanlış; sunucu tarafı eşdeğeri
+ * `features/public/products/server/getProductVariantTable.ts` bunu doğru
+ * tipliyordu). Bu yanlış tip, `useProductVariantTable`'ı tüketen 4 ekranın
+ * (varyant seçimi gereken kampanya/özel fiyat/tanımlı-varyant yüzeyleri)
+ * `variant.id`/`.fullCode` okuyup `undefined` almasına yol açıyordu — bkz.
+ * `flattenGroupedVariantOptions`.
+ */
 type ProductVariantTableResponse = ApiEnvelope<{
-    data: VariantTableData[]
+    data: GroupedMeasurementOption[]
     meta: {
         page: number
         limit: number
@@ -16,7 +26,7 @@ type ProductVariantTableResponse = ApiEnvelope<{
 export async function getProductVariantTable(
     productId: string,
     options: { locale?: string } = {},
-): Promise<VariantTableData[]> {
+): Promise<GroupedMeasurementOption[]> {
     const res = await publicApiClient.get<ProductVariantTableResponse>(
         `/products/${productId}/variant-table`,
         {

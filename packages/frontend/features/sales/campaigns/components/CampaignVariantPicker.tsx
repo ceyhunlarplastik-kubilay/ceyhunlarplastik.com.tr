@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Spinner } from "@/components/ui/spinner"
 import { useProducts } from "@/features/public/products/hooks/useProducts"
 import { useProductVariantTable } from "@/features/public/products/hooks/useProductVariantTable"
+import { flattenGroupedVariantOptions } from "@/features/public/products/utils/flattenGroupedVariantOptions"
 import { cn } from "@/lib/utils"
 
 export type PickedVariant = {
@@ -37,7 +38,13 @@ export function CampaignVariantPicker({ value, onChange }: Props) {
     const selectedProduct = products.find((product) => product.id === selectedProductId) ?? null
 
     const variantsQuery = useProductVariantTable(selectedProductId ?? "")
-    const variants = variantsQuery.data ?? []
+    // `/variant-table` ölçüye göre gruplanmış satır döner (bkz.
+    // flattenGroupedVariantOptions dosya başı yorumu) — gerçek varyant kimliği
+    // (`id`/`fullCode`) için düzleştirilmiş liste kullanılır.
+    const variants = useMemo(
+        () => flattenGroupedVariantOptions(variantsQuery.data ?? []),
+        [variantsQuery.data],
+    )
 
     const selectedIds = useMemo(
         () => new Set(value.map((item) => item.productVariantId)),
