@@ -82,6 +82,16 @@ type Props = {
      * için veri gelene kadar aşağıdaki iskelet gösterilir.
      */
     lazyIndustrialAttributes?: boolean
+    /**
+     * true: "Yeni Ürünler" / "Yeni Eklenen Varyantlar" checkbox'ları gösterilir.
+     * Hem public katalogda hem müşteri portalında açılabilir.
+     */
+    showNewItemFilters?: boolean
+    /**
+     * true: "Kampanyalı Ürünler" checkbox'ı gösterilir. Kullanıcı talebiyle yalnız
+     * müşteri portalı "Tüm Ürünler" sayfasında açık.
+     */
+    showCampaignFilter?: boolean
 }
 
 const INDUSTRIAL_ATTRIBUTE_CODES = ["sector", "production_group", "usage_area"] as const
@@ -159,6 +169,8 @@ export default function ProductFilterSidebar({
     customerUsageAreaSlugs = [],
     customerUsageAreaFilterPending = false,
     lazyIndustrialAttributes = false,
+    showNewItemFilters = false,
+    showCampaignFilter = false,
 }: Props) {
     const t = useTranslations("public.productFilter")
     const searchPlaceholder = productSearchPlaceholder ?? t("searchPlaceholder")
@@ -170,9 +182,15 @@ export default function ProductFilterSidebar({
         category,
         search,
         attributes: storeAttributes,
+        isNew,
+        hasNewVariant,
+        onCampaign,
         setCategory,
         setSearch,
         setAttributes,
+        setIsNew,
+        setHasNewVariant,
+        setOnCampaign,
         setFromUrl,
     } = useFilterStore()
 
@@ -276,6 +294,11 @@ export default function ProductFilterSidebar({
         if (nextSearch.trim()) params.set("search", nextSearch.trim())
         params.set("page", "1")
         params.set("limit", String(useFilterStore.getState().limit))
+
+        const lifecycleState = useFilterStore.getState()
+        if (lifecycleState.isNew) params.set("isNew", "true")
+        if (lifecycleState.hasNewVariant) params.set("hasNewVariant", "true")
+        if (lifecycleState.onCampaign) params.set("onCampaign", "true")
 
         Object.entries(nextAttributes).forEach(([key, values]) => {
             if (values.length > 0) params.set(key, values.join(","))
@@ -423,10 +446,21 @@ export default function ProductFilterSidebar({
         pushStateToUrl(category, next)
     }
 
+    function handleLifecycleToggle(field: "isNew" | "hasNewVariant" | "onCampaign", value: boolean) {
+        if (field === "isNew") setIsNew(value)
+        else if (field === "hasNewVariant") setHasNewVariant(value)
+        else setOnCampaign(value)
+
+        pushStateToUrl(category, useFilterStore.getState().attributes)
+    }
+
     function clearAll() {
         if (fixedCategorySlug) {
             setSearch("")
             setAttributes({})
+            setIsNew(false)
+            setHasNewVariant(false)
+            setOnCampaign(false)
             pushStateToUrl(fixedCategorySlug, {}, "")
             return
         }
@@ -438,8 +472,15 @@ export default function ProductFilterSidebar({
 
     const hasActiveFilters = useMemo(() => {
         const hasCategoryFilter = !fixedCategorySlug && Boolean(category)
-        return hasCategoryFilter || Boolean(search.trim()) || Object.keys(storeAttributes).length > 0
-    }, [category, fixedCategorySlug, search, storeAttributes])
+        return (
+            hasCategoryFilter ||
+            Boolean(search.trim()) ||
+            Object.keys(storeAttributes).length > 0 ||
+            isNew ||
+            hasNewVariant ||
+            onCampaign
+        )
+    }, [category, fixedCategorySlug, search, storeAttributes, isNew, hasNewVariant, onCampaign])
 
     const selectedSectorSlugs = useMemo(() => storeAttributes["sector"] ?? [], [storeAttributes])
     const selectedProductionGroupSlugs = useMemo(() => storeAttributes["production_group"] ?? [], [storeAttributes])
@@ -653,6 +694,46 @@ export default function ProductFilterSidebar({
                             </div>
                         </section>
                     )}
+
+                    {showNewItemFilters || showCampaignFilter ? (
+                        <section className="space-y-1.5">
+                            <div>
+                                <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                    {t("lifecycleFiltersTitle")}
+                                </h3>
+                                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                                    {t("lifecycleFiltersDesc")}
+                                </p>
+                            </div>
+                            {showNewItemFilters ? (
+                                <Label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-[13px] transition hover:bg-neutral-50">
+                                    <Checkbox
+                                        checked={isNew}
+                                        onCheckedChange={() => handleLifecycleToggle("isNew", !isNew)}
+                                    />
+                                    {t("filterIsNewLabel")}
+                                </Label>
+                            ) : null}
+                            {showNewItemFilters ? (
+                                <Label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-[13px] transition hover:bg-neutral-50">
+                                    <Checkbox
+                                        checked={hasNewVariant}
+                                        onCheckedChange={() => handleLifecycleToggle("hasNewVariant", !hasNewVariant)}
+                                    />
+                                    {t("filterHasNewVariantLabel")}
+                                </Label>
+                            ) : null}
+                            {showCampaignFilter ? (
+                                <Label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-neutral-200 px-3 py-1.5 text-[13px] transition hover:bg-neutral-50">
+                                    <Checkbox
+                                        checked={onCampaign}
+                                        onCheckedChange={() => handleLifecycleToggle("onCampaign", !onCampaign)}
+                                    />
+                                    {t("filterOnCampaignLabel")}
+                                </Label>
+                            ) : null}
+                        </section>
+                    ) : null}
 
                     {productFilterAttributes.length > 0 ? (
                         <section className="space-y-3">
