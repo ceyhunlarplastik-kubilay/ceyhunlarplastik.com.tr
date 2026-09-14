@@ -7,6 +7,8 @@ const prismaMock = vi.hoisted(() => ({
     },
     product: {
         findUniqueOrThrow: vi.fn(),
+        findMany: vi.fn(),
+        count: vi.fn(),
     },
 }))
 
@@ -103,5 +105,66 @@ describe("productRepository getProductBySlug", () => {
 
         await expect(productRepository().getProductBySlug("bilinmeyen-slug", "tr"))
             .rejects.toThrow()
+    })
+})
+
+/**
+ * Regresyon: `isNew`/`hasNewVariant`/`onCampaign` filtreleri (2026-09-14, "yeni
+ * ürün/varyant/kampanyalı" filtre özelliği). Varsayılan sıralama "code" olduğu
+ * için `listProducts` önce `finalWhere` ile yalnız `{id, code}` çeker (natural
+ * sort için) — testler o ilk `findMany` çağrısının `where`'ini doğrular.
+ */
+describe("productRepository listProducts lifecycle/campaign filters", () => {
+    beforeEach(() => {
+        prismaMock.product.findMany.mockReset()
+        prismaMock.product.count.mockReset()
+        prismaMock.product.findMany.mockResolvedValue([])
+    })
+
+    it("isNew: Product.createdAt eşiğini AND dizisine ekler", async () => {
+        await productRepository().listProducts({ page: 1, limit: 20, isNew: true })
+
+        const where = prismaMock.product.findMany.mock.calls[0]?.[0]?.where
+        expect(where.AND).toContainEqual({ createdAt: { gte: expect.any(Date) } })
+    })
+
+    it("hasNewVariant: ProductVariant.createdAt üzerinden 'en az bir varyant' koşulu ekler", async () => {
+        await productRepository().listProducts({ page: 1, limit: 20, hasNewVariant: true })
+
+        const where = prismaMock.product.findMany.mock.calls[0]?.[0]?.where
+        expect(where.AND).toContainEqual({
+            variants: { some: { createdAt: { gte: expect.any(Date) } } },
+        })
+    })
+
+    it("onCampaign: yalnız ACTIVE + tarih penceresi içindeki kampanyaların varyantlarını arar", async () => {
+        await productRepository().listProducts({ page: 1, limit: 20, onCampaign: true })
+
+        const where = prismaMock.product.findMany.mock.calls[0]?.[0]?.where
+        const [campaignClause] = where.AND as any[]
+
+        expect(campaignClause.variants.some.campaignItems.some.campaign.status).toBe("ACTIVE")
+        expect(campaignClause.variants.some.campaignItems.some.campaign.AND).toBeDefined()
+    })
+
+    it("hasNewVariant + onCampaign BİRLİKTE istenirse ikisi de kalır (aynı 'variants' anahtarı birbirini SESSİZCE ezmez)", async () => {
+        await productRepository().listProducts({ page: 1, limit: 20, hasNewVariant: true, onCampaign: true })
+
+        const where = prismaMock.product.findMany.mock.calls[0]?.[0]?.where
+        const andClauses = where.AND as any[]
+
+        expect(andClauses).toContainEqual({
+            variants: { some: { createdAt: { gte: expect.any(Date) } } },
+        })
+        expect(
+            andClauses.some((clause) => clause?.variants?.some?.campaignItems?.some?.campaign?.status === "ACTIVE"),
+        ).toBe(true)
+    })
+
+    it("hiçbiri istenmezse AND dizisi eklenmez", async () => {
+        await productRepository().listProducts({ page: 1, limit: 20 })
+
+        const where = prismaMock.product.findMany.mock.calls[0]?.[0]?.where
+        expect(where.AND).toBeUndefined()
     })
 })

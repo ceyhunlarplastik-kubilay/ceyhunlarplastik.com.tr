@@ -140,6 +140,7 @@ import { buildPaginationResponse } from "@/core/helpers/pagination/buildPaginati
 import { buildFilterQuery } from "@/core/helpers/filters/buildFilterQuery"
 import { INDUSTRIAL_ATTRIBUTE_CODES } from "@/core/helpers/products/productIndustrialUsages"
 import { getNewItemCutoffDate } from "@/core/helpers/products/productFreshness"
+import { currentValidityWhere } from "@/core/helpers/prisma/productVariantCampaigns/repository"
 import {
     DEFAULT_LOCALE,
     type SupportedLocale,
@@ -328,7 +329,17 @@ export type ProductForUpdate = Prisma.ProductGetPayload<{ select: typeof product
 
 export interface IPrismaProductRepository {
     listProducts(
-        query: IPaginationQuery & { categoryId?: string; category?: string; locale?: SupportedLocale },
+        query: IPaginationQuery & {
+            categoryId?: string
+            category?: string
+            locale?: SupportedLocale
+            /** "Yeni Ürün" penceresi (bkz. productFreshness.ts) — `Product.createdAt`. */
+            isNew?: boolean
+            /** Aynı pencere, ama `ProductVariant.createdAt` üzerinden en az bir varyant. */
+            hasNewVariant?: boolean
+            /** En az bir varyantı şu an AKTİF bir kampanyada (bkz. `currentValidityWhere`). */
+            onCampaign?: boolean
+        },
         options?: { view?: ProductListView },
     ): Promise<{
         data: ProductListItem[]
@@ -357,7 +368,14 @@ export interface IPrismaProductRepository {
 export const productRepository = (): IPrismaProductRepository => {
 
     const listProducts = async (
-        query: IPaginationQuery & { categoryId?: string; category?: string; locale?: SupportedLocale },
+        query: IPaginationQuery & {
+            categoryId?: string
+            category?: string
+            locale?: SupportedLocale
+            isNew?: boolean
+            hasNewVariant?: boolean
+            onCampaign?: boolean
+        },
         options?: { view?: ProductListView },
     ) => {
         // Cast: üç include de baseInclude'un alt/üst kümesi; Prisma.ProductInclude
@@ -556,6 +574,41 @@ export const productRepository = (): IPrismaProductRepository => {
             .map(([attrCode, value]) => buildAttributeWhere(attrCode, value))
             .filter((clause): clause is Prisma.ProductWhereInput => Boolean(clause))
 
+        // Attribute filtreleriyle AYNI diziye toplanır (tümü `AND` altında birleşir) —
+        // `hasNewVariant` ve `onCampaign` ikisi de `variants` anahtarını kullanıyor;
+        // ayrı ayrı üst seviye spread edilselerdi ikincisi birincisini SESSİZCE
+        // ezerdi (aynı object literal'de aynı anahtar iki kez tanımlanmış gibi).
+        const extraWhereClauses: Prisma.ProductWhereInput[] = [...attributeWhereClauses]
+
+        // "Yeni Ürün"/"Yeni Varyant" filtreleri: rozetlerle AYNI eşik
+        // (`newVariantCutoff`, yukarıda zaten hesaplanıyor — bkz. productFreshness.ts).
+        if (query.isNew) {
+            extraWhereClauses.push({ createdAt: { gte: newVariantCutoff } })
+        }
+        if (query.hasNewVariant) {
+            extraWhereClauses.push({ variants: { some: { createdAt: { gte: newVariantCutoff } } } })
+        }
+        // "Kampanyalı Ürünler": en az bir varyantı şu an AKTİF bir kampanyada.
+        // `currentValidityWhere` müşteri portalı "Kampanyalı Ürünler" sayfasının
+        // (`listActiveCampaigns`) kullandığı AYNI "şu an geçerli" tanımı — iki
+        // yerde ayrışmasın diye oradan import edilir.
+        if (query.onCampaign) {
+            extraWhereClauses.push({
+                variants: {
+                    some: {
+                        campaignItems: {
+                            some: {
+                                campaign: {
+                                    status: "ACTIVE",
+                                    ...currentValidityWhere(new Date()),
+                                },
+                            },
+                        },
+                    },
+                },
+            })
+        }
+
         const finalWhere: Prisma.ProductWhereInput = {
             ...where,
             ...filterWhere,
@@ -565,8 +618,8 @@ export const productRepository = (): IPrismaProductRepository => {
                     slug: query.category
                 }
             }),
-            ...(attributeWhereClauses.length > 0 && {
-                AND: attributeWhereClauses,
+            ...(extraWhereClauses.length > 0 && {
+                AND: extraWhereClauses,
             }),
         }
 

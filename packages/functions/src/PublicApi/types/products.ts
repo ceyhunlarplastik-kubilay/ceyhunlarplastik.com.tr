@@ -32,6 +32,11 @@ export type IListProductsEvent =
             attributeValueIds?: string
             /** "card": katalog kartı DTO'su (slim yanıt). Bkz. listProductsHandler. */
             view?: string
+            /** "true" → yalnız "Yeni Ürün"/"Yeni Varyant" penceresindeki kayıtlar (bkz. productFreshness.ts). */
+            isNew?: string
+            hasNewVariant?: string
+            /** "true" → yalnız en az bir varyantı şu an AKTİF bir kampanyada olan ürünler. */
+            onCampaign?: string
         }
     >
 

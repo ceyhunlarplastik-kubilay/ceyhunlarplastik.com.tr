@@ -85,8 +85,14 @@ export interface IPrismaProductVariantCampaignRepository {
     deleteCampaign(id: string): Promise<ProductVariantCampaignWithRelations>
 }
 
-/** Tarih penceresi: uç değerler null ise sınırsız sayılır. */
-function currentValidityWhere(now: Date): Prisma.ProductVariantCampaignWhereInput {
+/**
+ * Tarih penceresi: uç değerler null ise sınırsız sayılır.
+ *
+ * Dışa açık: `products/repository.ts`'teki "Kampanyalı Ürünler" filtresi
+ * (müşteri portalı ürün listesi) `status: "ACTIVE"` ile birlikte AYNI pencereyi
+ * kullanır — kampanyanın "şu an geçerli" tanımı tek yerde kalsın diye.
+ */
+export function currentValidityWhere(now: Date): Prisma.ProductVariantCampaignWhereInput {
     return {
         AND: [
             { OR: [{ validFrom: null }, { validFrom: { lte: now } }] },

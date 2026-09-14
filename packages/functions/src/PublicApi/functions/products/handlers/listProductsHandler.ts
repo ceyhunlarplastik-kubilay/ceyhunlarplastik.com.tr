@@ -125,8 +125,18 @@ export const listProductsHandler =
                         // "view" bilinen bir parametredir; burada dışlanmazsa attribute
                         // filtresi sanılır ve sorgu sonucunu bozar.
                         "view",
+                        // Aynı gerekçe: bilinen liste dışındaki HER key "attribute kodu"
+                        // sanılıyor — bunlar dışlanmazsa `attributeValues: { some: {
+                        // attribute: { code: "isNew" } } }` gibi hiçbir zaman eşleşmeyen
+                        // bir koşula dönüşüp sonucu SESSİZCE boşaltır (2026-09-14).
+                        "isNew",
+                        "hasNewVariant",
+                        "onCampaign",
                     ].includes(key)
             )
+            const isNew = query.isNew === "true"
+            const hasNewVariant = query.hasNewVariant === "true"
+            const onCampaign = query.onCampaign === "true"
 
 
             const { page, limit, search, sort, order } =
@@ -174,7 +184,10 @@ export const listProductsHandler =
                     locale,
                     categoryId,
                     attributeFilters,
-                    attributeValueIds
+                    attributeValueIds,
+                    isNew,
+                    hasNewVariant,
+                    onCampaign,
                 }, { view: "card" })
 
                 // Public yüzey admin'e özel çeviri satırlarını taşımaz. `isNew`/
