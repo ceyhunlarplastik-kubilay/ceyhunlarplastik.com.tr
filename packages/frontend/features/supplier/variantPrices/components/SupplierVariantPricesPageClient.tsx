@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Search } from "lucide-react"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { useQuery } from "@tanstack/react-query"
 
 import { Button } from "@/components/ui/button"
@@ -11,14 +12,16 @@ import { useProductListFilters } from "@/features/admin/products/hooks/useProduc
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
 import { CreateSupplierVariantRequestDialog } from "@/features/supplier/businessRequests/components/CreateSupplierVariantRequestDialog"
 import { EditSupplierPriceDialog } from "@/features/supplier/variantPrices/components/EditSupplierPriceDialog"
+import { SalesProductCatalogSection } from "@/features/supplier/variantPrices/components/SalesProductCatalogSection"
 import { useSupplierProducts } from "@/features/supplier/variantPrices/hooks/useSupplierProducts"
 import { useSupplierVariantPrices } from "@/features/supplier/variantPrices/hooks/useSupplierVariantPrices"
 import type { SupplierVariantPrice } from "@/features/supplier/variantPrices/api/types"
 import { WorkspaceProductsTable } from "@/features/workspaceProducts/components/WorkspaceProductsTable"
-import type { WorkspaceProductRow } from "@/features/workspaceProducts/components/WorkspaceProductsTable"
 import { ProductMatchedCustomersPanel } from "@/features/productMatchedCustomers/components/ProductMatchedCustomersPanel"
 import { getProductFilterCategories } from "@/features/workspaceProducts/api/getProductFilterCategories"
 import type { ProductVariant } from "@/features/admin/productVariants/api/types"
+import type { Category } from "@/features/public/categories/types"
+import type { ProductAttribute } from "@/features/public/productAttributes/types"
 
 type VariantPricePanelMode = "supplier" | "purchasing" | "sales"
 type VariantPriceViewerMode = "full" | "supplier" | "purchasing" | "sales"
@@ -26,7 +29,18 @@ type VariantPriceViewerMode = "full" | "supplier" | "purchasing" | "sales"
 type Props = {
     mode?: VariantPricePanelMode
     viewerMode?: VariantPriceViewerMode
+    /**
+     * Yalnız `mode === "sales"` sayfası (SSR) geçer — müşteri portalı ürün
+     * kataloğuyla AYNI kategori/özellik verisi (bkz. `SalesProductCatalogSection`).
+     * supplier/purchasing modları kendi `getProductFilterCategories` isteğini
+     * kullanmaya devam eder.
+     */
+    categories?: Category[]
+    attributes?: ProductAttribute[]
 }
+
+/** "Müşteriler" panelini açmak için gereken en dar bilgi — hem tablo hem kart ızgarası bunu üretebilir. */
+type CustomersPanelProduct = { id: string; code: string; name: string }
 
 function sortVariantList(variants: ProductVariant[]) {
     return [...variants].sort((left, right) => {
@@ -127,8 +141,17 @@ function groupVariantPriceRows(rows: SupplierVariantPrice[]) {
     return sortVariantList(Array.from(variantsById.values()))
 }
 
-export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode }: Props) {
+export function SupplierVariantPricesPageClient({
+    mode = "supplier",
+    viewerMode,
+    categories: salesCategories = [],
+    attributes: salesAttributes = [],
+}: Props) {
     const [selectedProductId, setSelectedProductId] = useState("")
+    // Yalnız satış kart ızgarasında kullanılır: o modun veri kaynağı
+    // (`useProducts`, tam katalog) `useSupplierProducts`'tan bağımsız olduğu
+    // için "Varyantlar" başlığındaki ürün adı satır tıklamasından taşınır.
+    const [salesSelectedProductName, setSalesSelectedProductName] = useState("")
     const [variantSearch, setVariantSearch] = useState("")
     const [variantPage, setVariantPage] = useState(1)
     const [variantLimit, setVariantLimit] = useState(20)
@@ -136,7 +159,38 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
     const [variantRequestOpen, setVariantRequestOpen] = useState(false)
     // Ürün → müşteri eşleşmesi şimdilik yalnız satış panelinde; ürünün kimliğini
     // tutuyoruz ki liste sayfa değiştiğinde de başlık doğru kalsın.
-    const [customersProduct, setCustomersProduct] = useState<WorkspaceProductRow | null>(null)
+    const [customersProduct, setCustomersProduct] = useState<CustomersPanelProduct | null>(null)
+
+    const reduceMotion = useReducedMotion()
+    const variantsPanelRef = useRef<HTMLDivElement>(null)
+    const customersPanelRef = useRef<HTMLDivElement>(null)
+
+    // Karttaki "Varyantlar"/"Müşteriler" düğmesine basınca ilgili panel
+    // sayfada aşağıda kalabiliyordu (kullanıcı fark etti) — düğmeye basınca
+    // ilgili panele yumuşak kaydırma + hafif giriş animasyonu (ProductQuickNav'daki
+    // "bölüme geçiş" hissiyle aynı fikir). `requestAnimationFrame`: panel
+    // (özellikle Müşteriler) ilk seçimde henüz DOM'a commit edilmemiş olabilir.
+    useEffect(() => {
+        if (!selectedProductId) return
+        const frame = requestAnimationFrame(() => {
+            variantsPanelRef.current?.scrollIntoView({
+                behavior: reduceMotion ? "auto" : "smooth",
+                block: "start",
+            })
+        })
+        return () => cancelAnimationFrame(frame)
+    }, [selectedProductId, reduceMotion])
+
+    useEffect(() => {
+        if (!customersProduct) return
+        const frame = requestAnimationFrame(() => {
+            customersPanelRef.current?.scrollIntoView({
+                behavior: reduceMotion ? "auto" : "smooth",
+                block: "start",
+            })
+        })
+        return () => cancelAnimationFrame(frame)
+    }, [customersProduct, reduceMotion])
 
     const {
         filters,
@@ -148,6 +202,7 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
         setRefreshIntervalSeconds,
     } = useProductListFilters()
 
+    const isSalesGridMode = mode === "sales"
     const endpointPrefix = mode === "sales" ? "sales" : mode === "purchasing" ? "purchasing" : "supplier"
     const effectiveViewerMode: VariantPriceViewerMode =
         viewerMode ?? (mode === "sales" ? "sales" : mode === "purchasing" ? "purchasing" : "supplier")
@@ -157,17 +212,27 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
     const canEdit = effectiveViewerMode !== "sales"
     const allowAdvancedFields = effectiveViewerMode === "full"
 
+    // supplier/purchasing: WorkspaceProductsTable kendi kategori listesini
+    // buradan alır. Satışta kategoriler SSR prop'uyla (`salesCategories`) geliyor,
+    // bu isteğe gerek yok.
     const categoriesQuery = useQuery({
         queryKey: ["workspace-product-filter-categories"],
         queryFn: getProductFilterCategories,
         staleTime: 1000 * 60 * 10,
+        enabled: !isSalesGridMode,
     })
 
+    // `useSupplierProducts` yalnız `ProductVariantSupplier` satırı olan ürünleri
+    // döner (bkz. `listProductsBySupplier`) — supplier/purchasing için doğru
+    // (kendi tedarik ettikleri ürünler), ama satış artık TÜM katalogu
+    // (`SalesProductCatalogSection` → `useProducts`) gösteriyor; bu istek o
+    // modda tamamen atlanır (`enabled: false`).
     const productsQuery = useSupplierProducts({
         endpointPrefix,
         ...params,
         sort: "name",
         order: "asc",
+        enabled: !isSalesGridMode,
         autoRefreshIntervalMs: filters.refreshIntervalSeconds > 0
             ? filters.refreshIntervalSeconds * 1000
             : false,
@@ -205,11 +270,19 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
     const variantTotalPages = Math.max(1, Math.ceil(groupedVariants.length / variantLimit))
 
     const selectedProductName = useMemo(() => {
+        if (isSalesGridMode) return salesSelectedProductName
+
         const selectedProduct = products.find((product) => product.id === selectedProductId)
         if (selectedProduct) return selectedProduct.name
 
         return variantsQuery.data?.data?.[0]?.variant?.product?.name ?? ""
-    }, [products, selectedProductId, variantsQuery.data?.data])
+    }, [isSalesGridMode, salesSelectedProductName, products, selectedProductId, variantsQuery.data?.data])
+
+    function handleSelectVariants(productId: string, productName: string) {
+        setSelectedProductId(productId)
+        setSalesSelectedProductName(productName)
+        setVariantPage(1)
+    }
 
     const productTitle =
         mode === "purchasing"
@@ -221,53 +294,82 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
         mode === "purchasing"
             ? "Tedarikçilerden gelen ürün modellerini admin ekranıyla aynı filtre ve tablo yapısında inceleyin."
             : mode === "sales"
-                ? "Satış ekibinin görebildiği ürün modellerini admin ekranına paralel liste yapısıyla yönetin."
+                ? "Müşteri portalındaki katalog görünümüyle aynı düzende: kategori/arama filtreleyin, bir ürün kartından varyant fiyatlarına veya eşleşen müşterilere geçin."
                 : "Tedarikçinize bağlı ürün modellerini admin ürün ekranıyla aynı iskelette görüntüleyin."
 
     return (
         <div className="space-y-6">
-            <WorkspaceProductsTable
-                title={productTitle}
-                description={productDescription}
-                emptyMessage="Seçilen filtrelere göre ürün bulunamadı."
-                products={products}
-                meta={productMeta}
-                categories={categoriesQuery.data ?? []}
-                searchQuery={filters.search}
-                onSearchQueryChange={setSearch}
-                categoryId={filters.categoryId}
-                onCategoryIdChange={(value) => {
-                    setCategoryId(value)
-                    setSelectedProductId("")
-                    setVariantPage(1)
-                }}
-                page={filters.page}
-                onPageChange={setPage}
-                limit={filters.limit}
-                onLimitChange={setLimit}
-                isFetching={productsQuery.isFetching || categoriesQuery.isFetching}
-                dataUpdatedAt={productsQuery.dataUpdatedAt}
-                onRefresh={() => void productsQuery.refetch()}
-                refreshIntervalSeconds={filters.refreshIntervalSeconds}
-                onRefreshIntervalChange={setRefreshIntervalSeconds}
-                selectedProductId={selectedProductId}
-                onViewVariants={(productId) => {
-                    setSelectedProductId(productId)
-                    setVariantPage(1)
-                }}
-                onViewCustomers={mode === "sales" ? setCustomersProduct : undefined}
-            />
+            {isSalesGridMode ? (
+                <div className="space-y-4">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{productTitle}</h1>
+                        <p className="mt-1 text-sm text-neutral-500">{productDescription}</p>
+                    </div>
 
-            {mode === "sales" && customersProduct ? (
-                <ProductMatchedCustomersPanel
-                    productId={customersProduct.id}
-                    productCode={customersProduct.code}
-                    productName={customersProduct.name}
-                    onClose={() => setCustomersProduct(null)}
+                    <SalesProductCatalogSection
+                        categories={salesCategories}
+                        attributes={salesAttributes}
+                        selectedProductId={selectedProductId}
+                        onSelectVariants={handleSelectVariants}
+                        onSelectCustomers={setCustomersProduct}
+                    />
+                </div>
+            ) : (
+                <WorkspaceProductsTable
+                    title={productTitle}
+                    description={productDescription}
+                    emptyMessage="Seçilen filtrelere göre ürün bulunamadı."
+                    products={products}
+                    meta={productMeta}
+                    categories={categoriesQuery.data ?? []}
+                    searchQuery={filters.search}
+                    onSearchQueryChange={setSearch}
+                    categoryId={filters.categoryId}
+                    onCategoryIdChange={(value) => {
+                        setCategoryId(value)
+                        setSelectedProductId("")
+                        setVariantPage(1)
+                    }}
+                    page={filters.page}
+                    onPageChange={setPage}
+                    limit={filters.limit}
+                    onLimitChange={setLimit}
+                    isFetching={productsQuery.isFetching || categoriesQuery.isFetching}
+                    dataUpdatedAt={productsQuery.dataUpdatedAt}
+                    onRefresh={() => void productsQuery.refetch()}
+                    refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                    onRefreshIntervalChange={setRefreshIntervalSeconds}
+                    selectedProductId={selectedProductId}
+                    onViewVariants={(productId) => {
+                        setSelectedProductId(productId)
+                        setVariantPage(1)
+                    }}
+                    onViewCustomers={undefined}
                 />
-            ) : null}
+            )}
 
-            <div className="space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
+            <AnimatePresence>
+                {mode === "sales" && customersProduct ? (
+                    <motion.div
+                        ref={customersPanelRef}
+                        key={customersProduct.id}
+                        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        transition={{ duration: 0.22, ease: "easeOut" }}
+                        className="scroll-mt-24"
+                    >
+                        <ProductMatchedCustomersPanel
+                            productId={customersProduct.id}
+                            productCode={customersProduct.code}
+                            productName={customersProduct.name}
+                            onClose={() => setCustomersProduct(null)}
+                        />
+                    </motion.div>
+                ) : null}
+            </AnimatePresence>
+
+            <div ref={variantsPanelRef} className="scroll-mt-24 space-y-4 rounded-2xl border bg-white p-4 shadow-sm">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                     <div className="space-y-1">
                         <h2 className="text-xl font-semibold tracking-tight text-neutral-950">Varyantlar</h2>
@@ -301,39 +403,49 @@ export function SupplierVariantPricesPageClient({ mode = "supplier", viewerMode 
                     </div>
                 ) : null}
 
-                {selectedProductId ? (
-                    <ProductVariantsTable
-                        variants={paginatedVariants}
-                        emptyTitle="Varyant bulunamadı"
-                        emptyDescription="Seçili ürün modeli için görüntülenecek varyant kaydı yok."
-                        pricingVisibility={{
-                            showPrice: canSeeCost,
-                            showOperationalCostRate: canSeeCost,
-                            showNetCost: canSeeCost,
-                            showProfitRate: effectiveViewerMode === "full",
-                            showListPrice: canSeeListPrice,
-                        }}
-                        pricingLabels={{
-                            price: "Maliyet",
-                            operationalCostRate: "Op. Maliyet",
-                            netCost: "Net Maliyet",
-                            profitRate: "Kâr Oranı",
-                            listPrice: "Liste Fiyatı",
-                        }}
-                        summaryPricingField={canSeeListPrice ? "listPrice" : "netCost"}
-                        onEdit={canEdit
-                            ? (variant) => {
-                                const activeSupplier = variant.variantSuppliers.find((supplier) => supplier.isActive) ?? variant.variantSuppliers[0]
-                                const nextRow = variantsQuery.data?.data?.find((row) => row.id === activeSupplier?.id) ?? null
-                                setEditingRow(nextRow)
-                            }
-                            : undefined}
-                    />
-                ) : (
-                    <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-12 text-center text-sm text-neutral-500">
-                        Varyant listesini açmak için yukarıdan bir ürün modeli seçin.
-                    </div>
-                )}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={selectedProductId || "empty"}
+                        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                    >
+                        {selectedProductId ? (
+                            <ProductVariantsTable
+                                variants={paginatedVariants}
+                                emptyTitle="Varyant bulunamadı"
+                                emptyDescription="Seçili ürün modeli için görüntülenecek varyant kaydı yok."
+                                pricingVisibility={{
+                                    showPrice: canSeeCost,
+                                    showOperationalCostRate: canSeeCost,
+                                    showNetCost: canSeeCost,
+                                    showProfitRate: effectiveViewerMode === "full",
+                                    showListPrice: canSeeListPrice,
+                                }}
+                                pricingLabels={{
+                                    price: "Maliyet",
+                                    operationalCostRate: "Op. Maliyet",
+                                    netCost: "Net Maliyet",
+                                    profitRate: "Kâr Oranı",
+                                    listPrice: "Liste Fiyatı",
+                                }}
+                                summaryPricingField={canSeeListPrice ? "listPrice" : "netCost"}
+                                onEdit={canEdit
+                                    ? (variant) => {
+                                        const activeSupplier = variant.variantSuppliers.find((supplier) => supplier.isActive) ?? variant.variantSuppliers[0]
+                                        const nextRow = variantsQuery.data?.data?.find((row) => row.id === activeSupplier?.id) ?? null
+                                        setEditingRow(nextRow)
+                                    }
+                                    : undefined}
+                            />
+                        ) : (
+                            <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-6 py-12 text-center text-sm text-neutral-500">
+                                Varyant listesini açmak için yukarıdan bir ürün modeli seçin.
+                            </div>
+                        )}
+                    </motion.div>
+                </AnimatePresence>
 
                 {selectedProductId ? (
                     <AdminListPagination

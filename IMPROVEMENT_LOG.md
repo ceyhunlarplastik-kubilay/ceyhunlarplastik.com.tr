@@ -7627,6 +7627,138 @@ eşit sayıda eklendi (865/865).
   `audit` job'ının artık yeşil geçtiğini doğrulamalı. kubi'de runtime
   doğrulaması gerekmiyor (yalnız dependency lockfile değişikliği).
 
+### Satış paneli "Satış Ürünleri" (`/satis/urunler`) — müşteri portalı görünümüne geçiş, Dilim 1: görsel (2026-09-11, kullanıcı talebiyle)
+
+- **Ne yapıldı:** `SupplierVariantPricesPageClient.tsx`'te **yalnız `mode === "sales"`**
+  için ürün listesi `WorkspaceProductsTable`'dan (satır tablosu), müşteri
+  portalındaki (`CustomerPortalAllProductsPageClient`) ile aynı görsel dile —
+  `ProductFilterSidebar` (sol) + `ProductCard` ızgarası (sağ) + `ProductFilterPagination` —
+  geçirildi. `supplier`/`purchasing` modları hiç dokunulmadan eski tablo akışında
+  kalıyor (kullanıcı yalnız `/satis/urunler`'i referans verdi).
+  - Her `ProductCard`'a 2 buton eklendi: **Varyantlar** (aşağıdaki mevcut
+    "Varyantlar" panelini açar — `setSelectedProductId`, davranış birebir eskisiyle
+    aynı) ve **Müşteriler** (mevcut `ProductMatchedCustomersPanel`'i açar —
+    `setCustomersProduct`, yine birebir eskisiyle aynı). Kartın kendisine
+    tıklamak da "Varyantlar"la aynı işi yapar (satır tıklaması = detay açma,
+    tablo deseninin doğal karşılığı).
+  - **`ProductCard.tsx`'e 2 yeni opsiyonel prop** (geriye dönük UYUMLU — mevcut
+    hiçbir çağıran bunları geçmiyor, davranışları değişmedi):
+    `actions?: ReactNode` (kartın altında, ana `<Link>`'in DIŞINDA render edilen
+    aksiyon düğmeleri — `<button>` `<a>` içine gömülmesin ve yanlışlıkla
+    navigasyon tetiklenmesin diye bilinçli olarak dışarıda) ve
+    `onCardClick?: () => void` (sağlanırsa kart gerçek bir `<Link>` yerine
+    `role="button"` + `tabIndex`'li erişilebilir bir `<div>` olarak render edilir,
+    `href`'e navigasyon YAPILMAZ — bu iş akışında `href`'in anlamlı bir hedefi
+    yok, gerçek bir "ürün detay sayfası" hiç yok).
+  - **Bilinçli sınırlama:** `ProductFilterSidebar`'a `attributes={[]}` geçildi —
+    bu ekranın veri kaynağı (`useSupplierProducts` → `/{prefix}/products`)
+    yalnız arama + kategori destekliyor, sektör/kullanım alanı gibi özellik
+    bazlı filtreleri HİÇ tanımıyor. Onları göstermek işe yaramayan checkbox'lar
+    sunardı; kullanıcının "aynı mantıkla" isteği burada sidebar'ın kategori +
+    arama + URL senkronizasyon mekanizmasına (`useFilterStore`, portalla AYNI)
+    karşılık geliyor.
+  - Sidebar `useFilterStore` (Zustand + URL, `basePath="/satis/urunler"`) yazıyor;
+    sayfa bu store'u okuyup (`categories.find(slug→id)` ile kategori id'sine
+    çevirerek) `useSupplierProducts`'a besliyor — `supplier`/`purchasing`
+    modları hâlâ `useProductListFilters` (nuqs) kullanıyor, iki mekanizma
+    `mode`'a göre ayrışıyor.
+- **Neden:** "/satis/urunler sayfasındaki ürünlerin listelenmesi
+  /musteri/tum-urunler sayfasına benzeyecek... ProductCard kullanılabilir,
+  2 buton (Müşteriler/Varyantlar) eklenebilir... ProductFilterSidebar olsun
+  aynı mantıkla."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (159 warning, değişmedi) ✅ · `test -w frontend` 378/378 ✅
+  (`logicalProperties.test.ts` dahil — `ProductCard.tsx` taranan
+  `components/navigation` altında, yeni fiziksel yön class'ı yok). Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de `/satis/urunler`'i görsel olarak doğrulamalı:
+  sidebar kategori/arama filtreleri çalışıyor mu, kart üzerindeki
+  Varyantlar/Müşteriler butonları (ve kartın kendisi) doğru panelleri açıyor
+  mu, sayfalama URL'de doğru mu. `supplier`/`purchasing` panellerinin
+  (`/tedarikci/urunler`, `/satinalma/urunler` gibi) ESKİSİ GİBİ tablo
+  görünümünde kaldığını da teyit etmekte fayda var. Sonraki dilim (kullanıcı
+  onayı gerekir): bu tasarımın supplier/purchasing'e de yayılması istenirse
+  ayrı bir dilimde ele alınmalı.
+
+### Satış paneli "Satış Ürünleri" — Dilim 2: veri kaynağı müşteri kataloğuna geçirildi, tam filtre (2026-09-11, kubi testinde bulunan eksik üzerine)
+
+- **Ne yapıldı:** Dilim 1'de `/satis/urunler`'in ürün listesi görsel olarak
+  değişmişti ama VERİ KAYNAĞI hâlâ `useSupplierProducts`'tı — bu uç
+  (`listProductsBySupplier`) yalnız en az bir `ProductVariantSupplier` satırı
+  olan ürünleri döner, kullanıcı kubi'de test ederken varyantsız/tedarikçi
+  fiyatı girilmemiş ürünlerin listede HİÇ görünmediğini fark etti. Kullanıcı
+  "müşteri panelindeki gibi bütün ürünler listelensin (eşleşen müşteri,
+  varyant olsun veya olmasın)" ve "yan filtre aynı müşteri sayfasındaki gibi
+  (ProductCategoryFilterRail + ProductFilterSidebar) olsun" dedi.
+  - Veri kaynağı **tamamen** müşteri portalıyla aynı uca (`useProducts`, public
+    `/products`) taşındı — `useSupplierProducts` artık `mode === "sales"`'te
+    HİÇ çağrılmıyor (`enabled: false`, yeni eklenen prop). Bu uç customer
+    portal ile birebir aynı görünürlük kuralına tabi (yayındaki tüm ürünler),
+    dolayısıyla artık varyantı/tedarikçi fiyatı olmayan ürünler de listede.
+  - Yeni, kendi kendine yeten bileşen:
+    `features/supplier/variantPrices/components/SalesProductCatalogSection.tsx`
+    — `CustomerPortalAllProductsPageClient` ile AYNI mekanizma
+    (`useFilterStore` + `ProductCategoryFilterRail` üstte + `ProductFilterSidebar`
+    solda + `ProductFilterPagination`). Dilim 1'deki "attributes={[]}" kısıtı
+    ARTIK GEÇERSİZ — veri kaynağı değiştiği için sektör/kullanım alanı gibi
+    özellik filtreleri de tam çalışıyor (`lazyIndustrialAttributes` ile,
+    kategori sayfasıyla aynı desen). Portaldan farkı: müşteriye özel "bana
+    uygun" kısayolu yok (satış temsilcisinin kendi profili kavramı yok) ve
+    ürün detay sayfasına gitme yok — kart tıklaması/butonları aynı sayfadaki
+    mevcut "Varyantlar"/"Müşteriler" panellerini açıyor.
+  - `/satis/urunler/page.tsx` müşteri portalı sayfasıyla AYNI SSR deseniyle
+    async'e çevrildi: `getCategories()` + `getAttributesForFilter()` +
+    `slimCategoryFilterAttributes(..., { excludeIndustrial: true })`,
+    `SupplierVariantPricesPageClient`'a yeni opsiyonel `categories`/`attributes`
+    prop'larıyla geçiriliyor (supplier/purchasing sayfaları bunları hiç
+    vermiyor, kendi `getProductFilterCategories` isteğinde kalıyor).
+  - "Varyantlar" panelinin başlığındaki ürün adı artık kart tıklamasından
+    taşınıyor (`onSelectVariants(id, name)`) — eskiden `useSupplierProducts`
+    sonucundan aranıyordu, o uç artık sales'te hiç çağrılmadığı için isim
+    kaynağı değişti (davranış: panel başlığı doğru isimle açılıyor).
+    `customersProduct` state tipi `WorkspaceProductRow`'dan dar bir
+    `{id, code, name}` tipine indirildi (yalnız `ProductMatchedCustomersPanel`'in
+    ihtiyacı budur, satış artık `WorkspaceProductRow` üretmiyor).
+  - `useSupplierProducts` hook'una `enabled` opsiyonu eklendi (varsayılan
+    `true` — supplier/purchasing davranışı değişmedi).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (159 warning, değişmedi) ✅ · `test -w frontend` 378/378 ✅. Backend'e
+  dokunulmadı (public `/products` ucu zaten mevcut ve zaten authsuz erişilebilir
+  — customer portal da aynı ucu client'tan çağırıyor).
+- **Ne kaldı:** Kullanıcı kubi'de tekrar doğrulamalı: (1) varyantsız/tedarikçi
+  fiyatı olmayan bir ürünün artık listede göründüğünü, "Varyantlar"a
+  basıldığında boş durum ("Varyant bulunamadı") gösterdiğini; (2) üstte
+  kategori rayının, solda tam özellik filtresinin (sektör/üretim grubu/kullanım
+  alanı dahil) müşteri sayfasındaki gibi çalıştığını; (3) `supplier`/`purchasing`
+  panellerinin ESKİSİ GİBİ (`useSupplierProducts`, tablo) kaldığını.
+
+### Satış paneli "Satış Ürünleri" — Dilim 3: panellere yumuşak kaydırma + geçiş animasyonu (2026-09-11, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Kart üzerindeki "Varyantlar"/"Müşteriler" düğmesine (veya
+  karta) basınca ilgili panel sayfada aşağıda kalıyordu, kullanıcı fark etmesin
+  diye kaydırma yoktu. İki panele de `ref` + `scrollIntoView({ behavior:
+  "smooth", block: "start" })` eklendi (`requestAnimationFrame` ile ertelenmiş
+  — "Müşteriler" paneli ilk seçimde henüz mount edilmemiş olabiliyordu).
+  Ayrıca `motion/react` ile hafif giriş animasyonu: "Müşteriler" paneli
+  `AnimatePresence` + fade/slide (mount/unmount'a bağlı, `key={customersProduct.id}`);
+  "Varyantlar" panelinin İÇERİĞİ (tablo/boş durum) `AnimatePresence mode="wait"`
+  + `key={selectedProductId}` ile ürün değişince aynı şekilde fade/slide yapıyor
+  (panelin kendisi hep mount'lı kalıyor, yalnız içeriği değişiyor). Referans
+  desen: `ProductVariantMatrixPageClient.tsx`'teki `scrollIntoView` +
+  `useReducedMotion` (proje genelinde zaten kullanılan iki kalıp, `ProductQuickNav`'ın
+  kendisi yalnız düz `<a href="#...">` — asıl animasyon örneği matrix sayfasındaydı).
+  `prefers-reduced-motion`: `useReducedMotion()` ile hem `scrollIntoView`'ın
+  `behavior`'ı (`smooth`→`auto`) hem giriş animasyonu (`initial={false}`) statikleşiyor.
+- **Neden:** "Müşteriler/Varyantlar butonuna tıklandığında ilgili panele
+  navigate olunsun hafif bir animasyon ile."
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error
+  (159 warning, değişmedi) ✅ · `test -w frontend` 378/378 ✅. Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı: karttan "Varyantlar"/"Müşteriler"e
+  basınca sayfa ilgili panele yumuşak kayıyor mu, panel hafif fade/slide ile
+  beliriyor mu; `prefers-reduced-motion` açıkken kaydırmanın anlık (animasyonsuz)
+  olduğunu da (isteğe bağlı) kontrol edebilir.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type MouseEvent } from "react";
+import { useState, type KeyboardEvent, type MouseEvent } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -31,6 +31,24 @@ interface ProductCardProps {
     /** Ürünün varyantlarından en az biri son N günde eklendiyse "Yeni Varyant" rozeti. */
     hasNewVariant?: boolean;
 
+    /**
+     * Kartın altında, ana `<Link>`'in DIŞINDA render edilen aksiyon düğmeleri
+     * (ör. satış panelinde "Varyantlar" / "Müşteriler"). Dışarıda olması bilinçli:
+     * kart tamamen bir `<Link>` içinde, düğmeleri de oraya koymak geçersiz iç içe
+     * interaktif eleman (`<button>` `<a>` içinde) + yanlışlıkla navigasyon riski
+     * doğururdu. `asNavigationItem` (nav dropdown) modunda hiç render edilmez.
+     */
+    actions?: ReactNode;
+
+    /**
+     * Sağlanırsa kart gerçek bir `<Link>` yerine tıklanabilir bir `<div role="button">`
+     * olarak render edilir ve `href`'e navigasyon YAPILMAZ — çağıran kendi aksiyonunu
+     * (ör. varyant panelini açmak) tetikler. Bu, `href`'in anlamlı bir hedefi
+     * olmadığı iş akışları için (satış/tedarikçi çalışma alanı gibi) —
+     * `onNavigationStart`/`navigationPending` bu modda kullanılmaz.
+     */
+    onCardClick?: () => void;
+
     /** 👇 SADECE NAVIGATION'DA true */
     asNavigationItem?: boolean;
     showSpecialAttributeValues?: boolean;
@@ -49,6 +67,8 @@ export function ProductCard({
     children,
     isNew = false,
     hasNewVariant = false,
+    actions,
+    onCardClick,
     asNavigationItem = false,
     showSpecialAttributeValues = false,
     onNavigationStart,
@@ -84,20 +104,14 @@ export function ProductCard({
         );
     }
 
-    const CardContent = (
-        <Link
-            href={href}
-            onClick={(event) => {
-                if (isModifiedClick(event)) {
-                    return;
-                }
-                onNavigationStart?.();
-            }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            className="block select-none space-y-2 rounded-lg p-2 leading-none no-underline outline-none transition hover:bg-transparent"
-            aria-busy={navigationPending}
-        >
+    function handleCardKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        onCardClick?.();
+    }
+
+    const cardBody = (
+        <>
             {/* IMAGE */}
             <div className="relative w-full aspect-square rounded-md overflow-hidden bg-white mb-2 flex items-center justify-center p-2 border border-neutral-100">
                 <Badge
@@ -203,6 +217,38 @@ export function ProductCard({
                     </div>
                 )}
             </div>
+        </>
+    );
+
+    const sharedClassName = "block select-none space-y-2 rounded-lg p-2 leading-none outline-none transition hover:bg-transparent";
+
+    const CardContent = onCardClick ? (
+        <div
+            role="button"
+            tabIndex={0}
+            onClick={onCardClick}
+            onKeyDown={handleCardKeyDown}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            className={`${sharedClassName} cursor-pointer`}
+        >
+            {cardBody}
+        </div>
+    ) : (
+        <Link
+            href={href}
+            onClick={(event) => {
+                if (isModifiedClick(event)) {
+                    return;
+                }
+                onNavigationStart?.();
+            }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            className={`${sharedClassName} no-underline`}
+            aria-busy={navigationPending}
+        >
+            {cardBody}
         </Link>
     );
 
@@ -211,6 +257,11 @@ export function ProductCard({
     ) : (
         <div className="group block rounded-xl border border-transparent bg-white hover:border-neutral-200/60 hover:shadow-lg transition-all duration-300 overflow-hidden">
             {CardContent}
+            {actions ? (
+                <div className="flex items-center gap-2 border-t border-neutral-100 px-3 pb-3 pt-2.5">
+                    {actions}
+                </div>
+            ) : null}
         </div>
     );
 }
