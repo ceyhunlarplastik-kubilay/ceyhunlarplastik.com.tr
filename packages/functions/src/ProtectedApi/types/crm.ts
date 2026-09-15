@@ -13,7 +13,7 @@ import { IUserInvitationRepository } from "@/core/helpers/prisma/userInvitations
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
 import type { Prisma } from "@/prisma/generated/prisma/client"
-import type { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
+import type { CustomerStatus, CustomerVisitStatus, CustomerVisitType, CustomerVisitOutcome } from "@/prisma/generated/prisma/enums"
 
 export interface IProtectedCrmDependencies {
     customerRepository: IPrismaCustomerRepository
@@ -304,10 +304,14 @@ export type IReplaceManagedCustomerAssignedProductsEvent = IAPIGatewayProxyEvent
 export type ICreateManagedCustomerVisitEvent = IAPIGatewayProxyEventWithUserGeneric<
     {
         ownerUserId: string
+        addressId?: string | null
         scheduledAt: string
         title: string
         note?: string | null
         status?: CustomerVisitStatus
+        type?: CustomerVisitType
+        outcome?: CustomerVisitOutcome | null
+        nextActionAt?: string | null
     },
     { id: string }
 >
@@ -315,10 +319,14 @@ export type ICreateManagedCustomerVisitEvent = IAPIGatewayProxyEventWithUserGene
 export type IUpdateManagedCustomerVisitEvent = IAPIGatewayProxyEventWithUserGeneric<
     {
         ownerUserId?: string
+        addressId?: string | null
         scheduledAt?: string
         title?: string
         note?: string | null
         status?: CustomerVisitStatus
+        type?: CustomerVisitType
+        outcome?: CustomerVisitOutcome | null
+        nextActionAt?: string | null
         completedAt?: string | null
     },
     { id: string; visitId: string }
@@ -327,6 +335,23 @@ export type IUpdateManagedCustomerVisitEvent = IAPIGatewayProxyEventWithUserGene
 export type IDeleteManagedCustomerVisitEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     { id: string; visitId: string }
+>
+
+export type IListManagedCustomerVisitsReportEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    {},
+    {
+        page?: string
+        limit?: string
+        ownerUserId?: string
+        status?: CustomerVisitStatus
+        type?: CustomerVisitType
+        outcome?: CustomerVisitOutcome
+        scheduledFrom?: string
+        scheduledTo?: string
+        stateId?: string
+        cityId?: string
+    }
 >
 
 export type IListManagedSuppliersEvent = IAPIGatewayProxyEventWithUserGeneric<

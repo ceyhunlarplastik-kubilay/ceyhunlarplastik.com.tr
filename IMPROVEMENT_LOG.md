@@ -8032,6 +8032,55 @@ eşit sayıda eklendi (865/865).
   bildirimi. Kubi'de runtime doğrulaması Dilim 1-3 sonrasında yapılmalı
   (bugüne kadar yalnız şema/migration, hiçbir handler/UI değişmedi).
 
+### Müşteri ziyaretleri (saha CRM) — Dilim 1: backend rapor altyapısı (2026-09-15, kullanıcı talebiyle)
+
+- **Ne yapıldı:**
+  - `customerRepository`'e `listVisitsForReport` eklendi — `listVisits`'in
+    aksine tek bir `customerId`'ye kilitli değil, çapraz-müşteri, sayfalı
+    (`buildPaginationQuery`/`buildPaginationResponse`, mevcut `listCustomers`
+    deseniyle aynı). Filtreler: `ownerUserId`, `status`, `type`, `outcome`,
+    `scheduledFrom`/`scheduledTo` (`scheduledAt` üzerinde `gte`/`lte`),
+    `stateId`/`cityId` (ziyaretin `address` ilişkisi üzerinden — Prisma'nın
+    opsiyonel to-one relation filtresi `XOR<RelationFilter, WhereInput>`
+    olduğu için doğrudan `{stateId, cityId}` verilebiliyor, `is:`/`isNot:`
+    sarmalamaya gerek yok). Yeni `customerVisitReportInclude`: `ownerUser`/
+    `createdByUser` özetiyle birlikte `customer` (id/companyName/fullName/
+    status/assignedSalesUserId) ve `address` (city/district/stateId/cityId/
+    stateRef/cityRef) de taşıyor — rapor tablosunun ihtiyaç duyduğu her şey
+    tek sorguda geliyor.
+  - `GET /customer-visits` (AdminApi, admin/owner) — filtreleri serbestçe
+    kullanabilir.
+  - `GET /sales/customer-visits` (ProtectedApi, sales/sales_director/admin/
+    owner) — sıradan `sales` rolü `ownerUserId`'yi KENDİ id'sine sabitler
+    (sorguda başka biri gönderilse bile yok sayılır), `sales_director`/admin/
+    owner serbestçe filtreler. Aynı desen `listManagedCustomersMapHandler`'ın
+    `assignedSalesUserId` zorlamasıyla birebir aynı (CRM erişim mimarisi
+    tutarlılığı).
+  - `createCustomerVisit`/`updateCustomerVisit` (hem admin hem satış ucu —
+    validator'lar zaten paylaşılıyordu, `AdminApi/validators/customers.ts`)
+    artık `addressId`, `type`, `outcome`, `nextActionAt` alanlarını da kabul
+    ediyor; `customerVisitSchema` (response) bu 4 alanı da içerecek şekilde
+    genişletildi.
+  - Query tarih aralığı gün bazlı (`YYYY-MM-DD`, `z.iso.date()`) — saat/dilim
+    gerektirmiyor; handler `scheduledFrom`'u günün başına, `scheduledTo`'yu
+    günün sonuna genişletiyor (`T00:00:00.000Z`/`T23:59:59.999Z`).
+  - `packages/core/src/core/helpers/prisma/customers/visitReport.test.ts`
+    (yeni, 9 test): where boş/ownerUserId/status+type birlikte/tarih aralığı
+    (ikisi birlikte ve yalnız `scheduledFrom`)/il-ilçe (ikisi birlikte ve
+    yalnız `stateId`)/sayfalama meta/sıralama.
+- **Neden:** Dilim 0'ın devamı — kullanıcı "Evet Dilim 1'e geç" dedi.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  632/632 ✅ (623 mevcut + 9 yeni) · `test -w @ceyhunlarweb/functions` 342/342
+  ✅ (340 mevcut + 2 yeni — `validatorCompilation.test.ts` yeni iki validator'ı
+  otomatik derledi).
+- **Ne kaldı (PLAN'a madde olarak yazıldı):** Dilim 2 — satış paneli
+  (`/satis/ziyaretlerim`, temsilcinin ziyaret girebileceği İLK arayüz). Dilim
+  3 — admin/satış müdürü rapor sayfası (filtre çubuğu: temsilci `Select`,
+  tarih aralığı, il/ilçe `features/geo` selector'ları + `AdminListPagination`
+  ile tablo). Dilim 4 (opsiyonel) — harita entegrasyonu + hatırlatma
+  bildirimi. Backend uçları hâlâ hiçbir arayüzden çağrılmıyor; kubi'de runtime
+  doğrulaması Dilim 2-3 sonrasında yapılmalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

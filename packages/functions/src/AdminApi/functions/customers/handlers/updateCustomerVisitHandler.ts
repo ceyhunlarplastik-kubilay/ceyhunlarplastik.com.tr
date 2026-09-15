@@ -19,10 +19,18 @@ export const updateCustomerVisitHandler = ({ customerRepository }: ICustomerDepe
         const body = event.body ?? {}
         const visit = await customerRepository.updateVisit(currentVisit.id, {
             ...(body.ownerUserId !== undefined ? { ownerUser: { connect: { id: body.ownerUserId } } } : {}),
+            ...(body.addressId !== undefined
+                ? { address: body.addressId ? { connect: { id: body.addressId } } : { disconnect: true } }
+                : {}),
             ...(body.scheduledAt !== undefined ? { scheduledAt: new Date(body.scheduledAt) } : {}),
             ...(body.title !== undefined ? { title: body.title } : {}),
             ...(body.note !== undefined ? { note: body.note } : {}),
             ...(body.status !== undefined ? { status: body.status } : {}),
+            ...(body.type !== undefined ? { type: body.type } : {}),
+            ...(body.outcome !== undefined ? { outcome: body.outcome } : {}),
+            ...(body.nextActionAt !== undefined
+                ? { nextActionAt: body.nextActionAt ? new Date(body.nextActionAt) : null }
+                : {}),
             ...(body.completedAt !== undefined
                 ? { completedAt: body.completedAt ? new Date(body.completedAt) : null }
                 : body.status === CustomerVisitStatus.COMPLETED

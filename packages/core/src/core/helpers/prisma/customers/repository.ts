@@ -11,6 +11,8 @@ import {
     CustomerAddressLocationSource,
     CustomerStatus,
     CustomerVisitStatus,
+    CustomerVisitType,
+    CustomerVisitOutcome,
 } from "@/prisma/generated/prisma/enums"
 import { Customer, CustomerAssignedProductSource, Prisma } from "@/prisma/generated/prisma/client"
 import { productVariantStructureIncludeBasic } from "@/core/helpers/prisma/productVariants/repository"
@@ -302,6 +304,43 @@ export type CustomerVisitWithRelations = Prisma.CustomerVisitGetPayload<{
     include: typeof customerDetailInclude.visits.include
 }>
 
+// Çapraz-müşteri rapor sorgusu: `listVisits` gibi tek müşteriye kilitli değil,
+// bu yüzden müşteri özeti (temsilci/il-ilçe filtreleriyle birlikte gösterilecek
+// firma adı) ve ziyaret edilen adresin il/ilçe bilgisini de taşır.
+const customerVisitReportInclude = {
+    ownerUser: {
+        select: customerUserSummarySelect,
+    },
+    createdByUser: {
+        select: customerUserSummarySelect,
+    },
+    customer: {
+        select: {
+            id: true,
+            companyName: true,
+            fullName: true,
+            status: true,
+            assignedSalesUserId: true,
+        },
+    },
+    address: {
+        select: {
+            id: true,
+            label: true,
+            city: true,
+            district: true,
+            stateId: true,
+            cityId: true,
+            stateRef: { select: { id: true, name: true } },
+            cityRef: { select: { id: true, name: true } },
+        },
+    },
+} satisfies Prisma.CustomerVisitInclude
+
+export type CustomerVisitReportRecord = Prisma.CustomerVisitGetPayload<{
+    include: typeof customerVisitReportInclude
+}>
+
 export type CustomerAddressMutationInput = {
     label: string
     contactName?: string | null
@@ -440,6 +479,31 @@ export interface IPrismaCustomerRepository {
     createVisit(data: Prisma.CustomerVisitCreateInput): Promise<CustomerVisitWithRelations>
     updateVisit(id: string, data: Prisma.CustomerVisitUpdateInput): Promise<CustomerVisitWithRelations>
     deleteVisit(id: string): Promise<CustomerVisitWithRelations>
+    /**
+     * Admin/satış müdürü raporu: temsilci/tarih aralığı/il-ilçe/durum filtreli,
+     * tüm müşterilere çapraz sayfalı liste. `listVisits`'in aksine tek bir
+     * `customerId`'ye kilitli değildir.
+     */
+    listVisitsForReport(
+        query: IPaginationQuery & {
+            ownerUserId?: string
+            status?: CustomerVisitStatus
+            type?: CustomerVisitType
+            outcome?: CustomerVisitOutcome
+            scheduledFrom?: Date
+            scheduledTo?: Date
+            stateId?: number
+            cityId?: number
+        }
+    ): Promise<{
+        data: CustomerVisitReportRecord[]
+        meta: {
+            page: number
+            limit: number
+            total: number
+            totalPages: number
+        }
+    }>
 }
 
 export const customerRepository = (): IPrismaCustomerRepository => {
@@ -1048,6 +1112,63 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             include: customerDetailInclude.visits.include,
         })
 
+    const listVisitsForReport = async (
+        query: IPaginationQuery & {
+            ownerUserId?: string
+            status?: CustomerVisitStatus
+            type?: CustomerVisitType
+            outcome?: CustomerVisitOutcome
+            scheduledFrom?: Date
+            scheduledTo?: Date
+            stateId?: number
+            cityId?: number
+        },
+    ) => {
+        const { skip, take, page, limit } = buildPaginationQuery<Prisma.CustomerVisitWhereInput>(query)
+
+        const finalWhere: Prisma.CustomerVisitWhereInput = {
+            ...(query.ownerUserId ? { ownerUserId: query.ownerUserId } : {}),
+            ...(query.status ? { status: query.status } : {}),
+            ...(query.type ? { type: query.type } : {}),
+            ...(query.outcome ? { outcome: query.outcome } : {}),
+            ...((query.scheduledFrom || query.scheduledTo)
+                ? {
+                    scheduledAt: {
+                        ...(query.scheduledFrom ? { gte: query.scheduledFrom } : {}),
+                        ...(query.scheduledTo ? { lte: query.scheduledTo } : {}),
+                    },
+                }
+                : {}),
+            ...((query.stateId || query.cityId)
+                ? {
+                    address: {
+                        ...(query.stateId ? { stateId: query.stateId } : {}),
+                        ...(query.cityId ? { cityId: query.cityId } : {}),
+                    },
+                }
+                : {}),
+        }
+
+        const data = await prisma.customerVisit.findMany({
+            where: finalWhere,
+            orderBy: [
+                { scheduledAt: "desc" },
+                { createdAt: "desc" },
+            ],
+            skip,
+            take,
+            include: customerVisitReportInclude,
+        })
+        const total = await prisma.customerVisit.count({ where: finalWhere })
+
+        return buildPaginationResponse(data, {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        })
+    }
+
     return {
         listCustomers,
         listCustomersForMap,
@@ -1070,6 +1191,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         createVisit,
         updateVisit,
         deleteVisit,
+        listVisitsForReport,
     }
 }
 

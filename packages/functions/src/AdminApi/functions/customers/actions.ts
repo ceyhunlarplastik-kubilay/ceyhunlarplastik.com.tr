@@ -11,6 +11,7 @@ import {
     listCustomerAssignedProductsHandler,
     listCustomersHandler,
     listCustomerVisitsHandler,
+    listCustomerVisitsReportHandler,
     replaceCustomerAssignedProductsHandler,
     updateCustomerHandler,
     updateCustomerVisitHandler,
@@ -22,6 +23,7 @@ import {
     IGetCustomerEvent,
     IReplaceCustomerAssignedProductsEvent,
     IListCustomerVisitsEvent,
+    IListCustomerVisitsReportEvent,
     IListCustomersEvent,
     IUpdateCustomerEvent,
     IUpdateCustomerVisitEvent,
@@ -43,7 +45,9 @@ import {
     customerVisitResponseValidator,
     customerVisitIdValidator,
     customerVisitsResponseValidator,
+    customerVisitsReportResponseValidator,
     listCustomersResponseValidator,
+    listCustomerVisitsReportValidator,
     replaceCustomerAssignedProductsValidator,
     updateCustomerValidator,
     updateCustomerVisitValidator,
@@ -159,5 +163,18 @@ export const deleteCustomerVisit = lambdaHandler(
         auth: { requiredPermissionGroups: ["admin", "owner"] },
         requestValidator: customerVisitIdValidator,
         responseValidator: customerVisitResponseValidator,
+    },
+)
+
+/**
+ * Çapraz-müşteri ziyaret raporu — temsilci/tarih aralığı/il-ilçe/durum filtreli.
+ * `listCustomerVisits`'in aksine tek bir müşteriye kilitli değildir.
+ */
+export const listCustomerVisitsReport = lambdaHandler(
+    async (event) => listCustomerVisitsReportHandler(deps)(event as IListCustomerVisitsReportEvent),
+    {
+        auth: { requiredPermissionGroups: ["admin", "owner"] },
+        requestValidator: listCustomerVisitsReportValidator,
+        responseValidator: customerVisitsReportResponseValidator,
     },
 )

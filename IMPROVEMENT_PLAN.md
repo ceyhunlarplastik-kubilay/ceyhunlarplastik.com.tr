@@ -18,26 +18,19 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
-### Müşteri ziyaretleri (saha CRM) — Dilim 1-4 *(kullanıcı talebiyle, Dilim 0 ✅ 2026-09-15 LOG)*
+### Müşteri ziyaretleri (saha CRM) — Dilim 2-4 *(kullanıcı talebiyle, Dilim 0-1 ✅ 2026-09-15 LOG)*
 - **Yapıldı (LOG):** `CustomerVisit` şeması zenginleştirildi — `type`
   (IN_PERSON/PHONE/VIDEO), `outcome` (POSITIVE/FOLLOW_UP_NEEDED/NOT_INTERESTED/
-  ORDER_PLACED), `nextActionAt`, `addressId` (→ `CustomerAddress`, il/ilçe +
-  harita entegrasyonu için). Migration kubi'de uygulandı. Detaylar LOG'daki
-  "Müşteri ziyaretleri... Dilim 0" notunda.
-- **Mevcut durum (araştırmayla doğrulandı, hâlâ geçerli):** Per-müşteri CRUD hem
-  admin (`/admin/customers/{id}/visits`, admin/owner) hem satış tarafında
-  (`/sales/customers/{id}/visits`, sales/sales_director/admin/owner) zaten
-  vardı; `ownerUserId` çağıran tarafça seçiliyor (admin/satış müdürü başka bir
-  temsilciye atama zaten API düzeyinde mümkün). Eksik olan: (1) satış
-  panelinde HİÇBİR arayüz yok, (2) çapraz-müşteri rapor/liste (temsilci/tarih/
-  il-ilçe filtreli) hiçbir yerde yok, repository yalnız `listVisits(customerId)`
-  destekliyor.
-- **Dilim 1 (backend rapor altyapısı):** `listVisitsForReport` (customer+address
-  join, ownerUserId/tarih aralığı/il-ilçe/status filtreli, sayfalı) +
-  `GET /customer-visits` (AdminApi, admin/owner) + `GET /sales/customer-visits`
-  (ProtectedApi, sales kendi ownerUserId'sine sabit, sales_director/admin/owner
-  serbest filtreler — mevcut `assignedSalesUserId` zorlama desenine uygun);
-  create/update uçları yeni 4 alanı da kabul edecek şekilde genişler.
+  ORDER_PLACED), `nextActionAt`, `addressId` (Dilim 0). Backend rapor
+  altyapısı: `listVisitsForReport` + `GET /customer-visits` (AdminApi,
+  admin/owner) + `GET /sales/customer-visits` (ProtectedApi, `sales` kendi
+  ownerUserId'sine sabit, sales_director/admin/owner serbest filtreler);
+  create/update uçları yeni 4 alanı kabul ediyor (Dilim 1). Detaylar LOG'daki
+  "Müşteri ziyaretleri... Dilim 0/Dilim 1" notlarında.
+- **Mevcut durum (araştırmayla doğrulandı, hâlâ geçerli):** Backend artık
+  tamamen hazır ve testli. Eksik olan yalnız FRONTEND: (1) satış panelinde
+  HİÇBİR arayüz yok — temsilci hiçbir yerden ziyaret giremiyor, (2) admin/
+  satış müdürü rapor sayfası hiçbir yerde yok.
 - **Dilim 2 (satış paneli):** `/satis/ziyaretlerim` — kendi ziyaretlerini
   gör, yeni ziyaret planla (müşteri + tarih + tür + not), tamamlandı işaretle
   (outcome + not). Bugün temsilcinin ziyaret girebileceği tek yer bu olacak.

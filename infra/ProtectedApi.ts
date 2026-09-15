@@ -448,6 +448,11 @@ protectedApi.route('DELETE /sales/customers/{id}/visits/{visitId}', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /sales/customer-visits', {
+    handler: `${folderPrefix}/crm/actions.listManagedCustomerVisitsReport`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/approval-requests', {
     handler: `${folderPrefix}/businessRequests/actions.listSalesBusinessRequests`,
     ...defaultRouteOptions,

@@ -35,6 +35,7 @@ import {
     ICustomerAddressBody,
     ICustomerSpecialPriceBody,
     IListManagedCustomerSpecialPricesEvent,
+    IListManagedCustomerVisitsReportEvent,
     IListManagedCustomersEvent,
     IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
@@ -740,11 +741,17 @@ export const createManagedCustomerVisitHandler = ({ customerRepository }: IProte
         const visit = await customerRepository.createVisit({
             customer: { connect: { id: customer.id } },
             ownerUser: { connect: { id: event.body.ownerUserId } },
+            ...(event.body.addressId ? { address: { connect: { id: event.body.addressId } } } : {}),
             createdByUser: { connect: { id: requester.id } },
             scheduledAt: new Date(event.body.scheduledAt),
             title: event.body.title,
             note: event.body.note ?? null,
             status: event.body.status ?? CustomerVisitStatus.PLANNED,
+            ...(event.body.type ? { type: event.body.type } : {}),
+            ...(event.body.outcome !== undefined ? { outcome: event.body.outcome } : {}),
+            ...(event.body.nextActionAt !== undefined
+                ? { nextActionAt: event.body.nextActionAt ? new Date(event.body.nextActionAt) : null }
+                : {}),
             ...(event.body.status === CustomerVisitStatus.COMPLETED ? { completedAt: new Date() } : {}),
         })
 
@@ -769,10 +776,18 @@ export const updateManagedCustomerVisitHandler = ({ customerRepository }: IProte
         const body = event.body ?? {}
         const visit = await customerRepository.updateVisit(currentVisit.id, {
             ...(body.ownerUserId !== undefined ? { ownerUser: { connect: { id: body.ownerUserId } } } : {}),
+            ...(body.addressId !== undefined
+                ? { address: body.addressId ? { connect: { id: body.addressId } } : { disconnect: true } }
+                : {}),
             ...(body.scheduledAt !== undefined ? { scheduledAt: new Date(body.scheduledAt) } : {}),
             ...(body.title !== undefined ? { title: body.title } : {}),
             ...(body.note !== undefined ? { note: body.note } : {}),
             ...(body.status !== undefined ? { status: body.status } : {}),
+            ...(body.type !== undefined ? { type: body.type } : {}),
+            ...(body.outcome !== undefined ? { outcome: body.outcome } : {}),
+            ...(body.nextActionAt !== undefined
+                ? { nextActionAt: body.nextActionAt ? new Date(body.nextActionAt) : null }
+                : {}),
             ...(body.completedAt !== undefined
                 ? { completedAt: body.completedAt ? new Date(body.completedAt) : null }
                 : body.status === CustomerVisitStatus.COMPLETED
@@ -805,6 +820,46 @@ export const deleteManagedCustomerVisitHandler = ({ customerRepository }: IProte
         return apiResponseDTO({
             statusCode: 200,
             payload: { visit },
+        })
+    }
+}
+
+/**
+ * Çapraz-müşteri ziyaret raporu. Sıradan `sales` yalnız KENDİ ziyaretlerini
+ * görebilir — sorguda başka bir `ownerUserId` gelse bile kendi id'sine
+ * sabitlenir (`listManagedCustomersMapHandler`'daki `assignedSalesUserId`
+ * zorlama desenininin aynısı). `sales_director`/admin/owner serbestçe filtreler.
+ */
+export const listManagedCustomerVisitsReportHandler = ({ customerRepository }: IProtectedCrmDependencies) => {
+    return async (event: IListManagedCustomerVisitsReportEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        const query = event.queryStringParameters ?? {}
+        const stateId = query.stateId ? Number(query.stateId) : undefined
+        const cityId = query.cityId ? Number(query.cityId) : undefined
+
+        const ownerUserId =
+            requester.isSalesDirector || requester.isAdmin || requester.isOwner
+                ? query.ownerUserId
+                : requester.id
+
+        const result = await customerRepository.listVisitsForReport({
+            page: query.page ? Number(query.page) : undefined,
+            limit: query.limit ? Number(query.limit) : undefined,
+            ownerUserId,
+            status: query.status,
+            type: query.type,
+            outcome: query.outcome,
+            scheduledFrom: query.scheduledFrom ? new Date(`${query.scheduledFrom}T00:00:00.000Z`) : undefined,
+            scheduledTo: query.scheduledTo ? new Date(`${query.scheduledTo}T23:59:59.999Z`) : undefined,
+            stateId: Number.isFinite(stateId) ? stateId : undefined,
+            cityId: Number.isFinite(cityId) ? cityId : undefined,
+        })
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: result,
         })
     }
 }

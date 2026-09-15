@@ -234,6 +234,11 @@ adminApi.route("DELETE /customers/{id}/visits/{visitId}", {
     ...defaultRouteOptions,
 }, { ...defaultAuthOptions });
 
+adminApi.route("GET /customer-visits", {
+    handler: `${folderPrefix}/customers/actions.listCustomerVisitsReport`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
 /*----------------------- COMPANY CONTACTS -----------------------*/
 adminApi.route("GET /company-contacts", {
     handler: `${folderPrefix}/companyContacts/actions.listCompanyContacts`,

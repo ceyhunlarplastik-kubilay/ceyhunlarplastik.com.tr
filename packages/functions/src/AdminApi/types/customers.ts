@@ -4,7 +4,7 @@ import { IPrismaProductRepository } from "@/core/helpers/prisma/products/reposit
 import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
-import type { CustomerStatus, CustomerVisitStatus } from "@/prisma/generated/prisma/enums"
+import type { CustomerStatus, CustomerVisitStatus, CustomerVisitType, CustomerVisitOutcome } from "@/prisma/generated/prisma/enums"
 
 export interface ICustomerDependencies {
     customerRepository: IPrismaCustomerRepository
@@ -102,10 +102,14 @@ export type IListCustomerVisitsEvent = IAPIGatewayProxyEventWithUserGeneric<
 
 export type ICreateCustomerVisitBody = {
     ownerUserId: string
+    addressId?: string | null
     scheduledAt: string
     title: string
     note?: string | null
     status?: CustomerVisitStatus
+    type?: CustomerVisitType
+    outcome?: CustomerVisitOutcome | null
+    nextActionAt?: string | null
 }
 
 export type ICreateCustomerVisitEvent = IAPIGatewayProxyEventWithUserGeneric<
@@ -115,10 +119,14 @@ export type ICreateCustomerVisitEvent = IAPIGatewayProxyEventWithUserGeneric<
 
 export type IUpdateCustomerVisitBody = {
     ownerUserId?: string
+    addressId?: string | null
     scheduledAt?: string
     title?: string
     note?: string | null
     status?: CustomerVisitStatus
+    type?: CustomerVisitType
+    outcome?: CustomerVisitOutcome | null
+    nextActionAt?: string | null
     completedAt?: string | null
 }
 
@@ -130,4 +138,21 @@ export type IUpdateCustomerVisitEvent = IAPIGatewayProxyEventWithUserGeneric<
 export type IDeleteCustomerVisitEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     { id: string; visitId: string }
+>
+
+export type IListCustomerVisitsReportEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {},
+    {},
+    {
+        page?: string
+        limit?: string
+        ownerUserId?: string
+        status?: CustomerVisitStatus
+        type?: CustomerVisitType
+        outcome?: CustomerVisitOutcome
+        scheduledFrom?: string
+        scheduledTo?: string
+        stateId?: string
+        cityId?: string
+    }
 >

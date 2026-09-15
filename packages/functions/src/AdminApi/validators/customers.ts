@@ -179,16 +179,59 @@ const customerVisitSchema = z.object({
     id: z.uuid(),
     customerId: z.uuid(),
     ownerUserId: z.uuid(),
+    addressId: z.uuid().nullable().optional(),
     scheduledAt: z.string(),
     status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]),
+    type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
     title: z.string(),
     note: z.string().nullable().optional(),
+    outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).nullable().optional(),
+    nextActionAt: z.string().nullable().optional(),
     completedAt: z.string().nullable().optional(),
     createdByUserId: z.uuid(),
     createdAt: z.string(),
     updatedAt: z.string(),
     ownerUser: userSummarySchema.optional(),
     createdByUser: userSummarySchema.optional(),
+}).loose()
+
+// Çapraz-müşteri rapor satırı: `customerVisitSchema`'ya ek olarak müşteri özeti
+// ve ziyaret edilen adresin il/ilçe bilgisini taşır.
+const customerVisitReportItemSchema = z.object({
+    id: z.uuid(),
+    customerId: z.uuid(),
+    ownerUserId: z.uuid(),
+    addressId: z.uuid().nullable().optional(),
+    scheduledAt: z.string(),
+    status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]),
+    type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
+    title: z.string(),
+    note: z.string().nullable().optional(),
+    outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).nullable().optional(),
+    nextActionAt: z.string().nullable().optional(),
+    completedAt: z.string().nullable().optional(),
+    createdByUserId: z.uuid(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+    ownerUser: userSummarySchema.optional(),
+    createdByUser: userSummarySchema.optional(),
+    customer: z.object({
+        id: z.uuid(),
+        companyName: z.string().nullable().optional(),
+        fullName: z.string().nullable().optional(),
+        status: z.enum(["LEAD", "CUSTOMER"]),
+        assignedSalesUserId: z.uuid().nullable().optional(),
+    }).loose().optional(),
+    address: z.object({
+        id: z.uuid(),
+        label: z.string(),
+        city: z.string(),
+        district: z.string().nullable().optional(),
+        stateId: z.number().int().nullable().optional(),
+        cityId: z.number().int().nullable().optional(),
+        stateRef: z.object({ id: z.number(), name: z.string() }).loose().nullable().optional(),
+        cityRef: z.object({ id: z.number(), name: z.string() }).loose().nullable().optional(),
+    }).loose().nullable().optional(),
 }).loose()
 
 const customerAddressSchema = z.object({
@@ -386,10 +429,14 @@ export const createCustomerVisitValidator = validatorWrapper(
         }),
         body: z.object({
             ownerUserId: z.uuid(),
+            addressId: z.uuid().nullable().optional(),
             scheduledAt: z.iso.datetime(),
             title: z.string().trim().min(2).max(255),
             note: z.string().trim().max(5000).nullable().optional(),
             status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]).optional(),
+            type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
+            outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).nullable().optional(),
+            nextActionAt: z.iso.datetime().nullable().optional(),
         }),
     }),
     {
@@ -406,15 +453,41 @@ export const updateCustomerVisitValidator = validatorWrapper(
         }),
         body: z.object({
             ownerUserId: z.uuid().optional(),
+            addressId: z.uuid().nullable().optional(),
             scheduledAt: z.iso.datetime().optional(),
             title: z.string().trim().min(2).max(255).optional(),
             note: z.string().trim().max(5000).nullable().optional(),
             status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]).optional(),
+            type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
+            outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).nullable().optional(),
+            nextActionAt: z.iso.datetime().nullable().optional(),
             completedAt: z.iso.datetime().nullable().optional(),
         }),
     }),
     {
         requiredRootFields: ["pathParameters", "body"],
+    },
+)
+
+export const listCustomerVisitsReportValidator = validatorWrapper(
+    z.object({
+        queryStringParameters: z.object({
+            page: z.coerce.number().int().positive().optional(),
+            limit: z.coerce.number().int().positive().optional(),
+            ownerUserId: z.uuid().optional(),
+            status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]).optional(),
+            type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
+            outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).optional(),
+            // Gün bazlı aralık ("YYYY-MM-DD"): saat/dilim eklemeden aralık filtresi
+            // için yeterli, `datetime-local` gibi tam ISO gerektirmez.
+            scheduledFrom: z.iso.date().optional(),
+            scheduledTo: z.iso.date().optional(),
+            stateId: z.coerce.number().int().positive().optional(),
+            cityId: z.coerce.number().int().positive().optional(),
+        }),
+    }).loose(),
+    {
+        requiredRootFields: ["queryStringParameters"],
     },
 )
 
@@ -491,6 +564,24 @@ export const customerVisitResponseValidator = z.toJSONSchema(
             statusCode: z.number(),
             payload: z.object({
                 visit: customerVisitSchema,
+            }),
+        }),
+    }).loose(),
+)
+
+export const customerVisitsReportResponseValidator = z.toJSONSchema(
+    z.object({
+        statusCode: z.number(),
+        body: z.object({
+            statusCode: z.number(),
+            payload: z.object({
+                data: z.array(customerVisitReportItemSchema),
+                meta: z.object({
+                    page: z.number(),
+                    limit: z.number(),
+                    total: z.number(),
+                    totalPages: z.number(),
+                }),
             }),
         }),
     }).loose(),

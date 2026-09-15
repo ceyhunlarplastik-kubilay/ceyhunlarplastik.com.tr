@@ -42,6 +42,7 @@ import {
     getManagedCustomerMatchedProductsHandler,
     listManagedCustomersHandler,
     listManagedCustomerVisitsHandler,
+    listManagedCustomerVisitsReportHandler,
     listManagedSuppliersHandler,
     listPortalCustomerSpecialPricesHandler,
     replaceManagedCustomerAssignedProductsHandler,
@@ -61,6 +62,7 @@ import type {
     IDeleteManagedCustomerVisitEvent,
     IDeletePortalCustomerAddressEvent,
     IListManagedCustomerSpecialPricesEvent,
+    IListManagedCustomerVisitsReportEvent,
     IListManagedCustomersEvent,
     IListManagedCustomersMapEvent,
     IListManagedSuppliersEvent,
@@ -88,7 +90,9 @@ import {
     customerVisitIdValidator,
     customerVisitResponseValidator,
     customerVisitsResponseValidator,
+    customerVisitsReportResponseValidator,
     listCustomersResponseValidator,
+    listCustomerVisitsReportValidator,
     replaceCustomerAssignedProductsValidator,
     updateCustomerValidator,
     updateCustomerVisitValidator,
@@ -347,6 +351,19 @@ export const deleteManagedCustomerVisit = lambdaHandler(
         auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
         requestValidator: customerVisitIdValidator,
         responseValidator: customerVisitResponseValidator,
+    },
+)
+
+/**
+ * Çapraz-müşteri ziyaret raporu. `sales` yalnız kendi ziyaretlerini görür
+ * (handler'da zorlanır); `sales_director`/admin/owner serbestçe filtreler.
+ */
+export const listManagedCustomerVisitsReport = lambdaHandler(
+    async (event) => listManagedCustomerVisitsReportHandler(deps)(event as IListManagedCustomerVisitsReportEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: listCustomerVisitsReportValidator,
+        responseValidator: customerVisitsReportResponseValidator,
     },
 )
 
