@@ -8136,6 +8136,57 @@ eşit sayıda eklendi (865/865).
   eklenirse orada da aynı korumanın eklenmesi gerekir. (4) PLAN'a madde
   olarak yazıldı: Dilim 3 (admin/satış müdürü rapor sayfası).
 
+  **GÜNCELLEME (2026-09-15, aynı gün) — UI/UX yeniden tasarımı:** Kullanıcı
+  ilk sürümü (kart listesi, filtresiz, `useState`) beğenmedi; tek-satır tablo
+  + sayfalama + filtre çubuğu istedi, referans olarak
+  `ProductVariantTable.tsx` (tablo), `CustomerMapFilterBar.tsx` (filtre
+  çubuğu deseni) ve `MeasurementRequirementsEditorDialog.tsx`'i (geniş,
+  responsive dialog) gösterdi. Önce `components/ui/` içinde reuse edilecek
+  bir şey var mı diye bakıldı (kullanıcı talebiyle) — `table.tsx`,
+  `searchable-select.tsx`, `scroll-area.tsx` zaten kullanılıyordu; tarih
+  ARALIĞI seçici (Calendar+Popover ikilisi) hiç yoktu, en yakını tekil
+  `mode="single"` bir takvim kartıydı — bu yüzden onun yerine düz iki adet
+  `<Input type="date">` kullanıldı (backend zaten gün bazlı `YYYY-MM-DD`
+  bekliyordu, ekstra parse gerekmedi).
+  - Yeni `features/sales/visits/hooks/useSalesVisitsFilters.ts` — nuqs
+    `useQueryStates` ile URL'de kalıcı filtre/sayfalama state'i
+    (`useCustomerListFilters.ts`'teki dedike-hook deseniyle aynı, sayfaya
+    inline yazılmadı). Yalnız backend'in (Dilim 1) zaten desteklediği
+    alanlar filtrelenebilir: durum/tür/sonuç/tarih aralığı/il-ilçe — yeni
+    bir backend yeteneği icat edilmedi.
+  - `useManagedCustomerVisitsReport` artık `useManagedCustomers` ile aynı
+    desende zod şemasıyla (`z.object({...}).parse`) parametreleri doğruluyor.
+  - Yeni `SalesVisitsFilterBar.tsx` — `CustomerMapFilterBar` ile aynı görsel
+    dil (`SearchableSelect`, `GeoAddressFilterFields`, "Temizle" düğmesi),
+    ama filtreler DEĞİŞTİKÇE otomatik uygulanıyor (haritadaki gibi ayrı bir
+    "Uygula" adımı yok — burada pahalı bir mount maliyeti olmadığı için
+    daha yaygın olan admin-liste deseni tercih edildi).
+  - `SalesVisitsPageClient.tsx` tamamen yeniden yazıldı: tek-satır `Table`
+    (Durum/Tarih/Müşteri/Tür/Konum/Sonuç/Not/Aksiyon kolonları,
+    `overflow-x-auto` — `Table` bileşeni bunu zaten kendi container'ında
+    yapıyor, ikinci sarmalayıcı eklenmedi), `AdminListPagination`, ilk yükte
+    `Skeleton` satırları, arka plan yenilemesinde `AdminSectionLoadingOverlay`
+    (AGENTS.md refetch-feedback deseni, `placeholderData: (prev) => prev`
+    ile birlikte — içerik ekranda kalır, üstüne hafif katman biner).
+  - `CreateVisitDialog.tsx` `max-w-lg` → `max-w-2xl`'e genişletildi, tek
+    sütunlu dar yerleşim yerine `MeasurementRequirementsEditorDialog`
+    deseniyle iki sütunlu responsive grid'e (`sm:grid-cols-[1.1fr_1fr]`) —
+    müşteri seçici solda, tarih/tür/başlık sağda, not alta tam genişlik.
+    `CompleteVisitDialog.tsx` da tutarlılık için `max-w-md` → `max-w-lg`
+    genişletildi, sonuç+takip tarihi iki sütuna alındı.
+  - Her şey mobilde tek sütuna, `sm`/`lg` breakpoint'lerinde çok sütuna
+    daralıp genişleyecek şekilde test edildi (Tailwind responsive sınıfları
+    ile; gerçek tarayıcı testi yapılmadı, kubi'de doğrulanmalı).
+- **Nasıl doğrulandı (güncelleme):** `typecheck -w frontend` ✅ ·
+  `lint -w frontend` 0 error/159 warning ✅ · `test -w frontend` 384/384 ✅.
+  Backend'e dokunulmadı (yalnız zaten var olan filtreler kullanıldı).
+- **Ne kaldı (güncelleme):** Kullanıcı kubi'de dar (mobil) ve geniş ekranda
+  tabloyu/dialogları/filtreleri görsel olarak onaylamalı; tarih aralığı
+  filtresinin `<input type="date">` ile yeterli mi yoksa ileride bir
+  Calendar+Popover aralık seçiciye mi geçilmeli buna karar vermeli (şu an
+  hiçbir yerde böyle bir bileşen yok, ilk kez bu sayfada gerekirse
+  eklenebilir).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

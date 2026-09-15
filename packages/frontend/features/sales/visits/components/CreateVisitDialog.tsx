@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useSession } from "next-auth/react"
-import { Search } from "lucide-react"
+import { CalendarClock, Search, Users } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -41,7 +41,7 @@ type Props = {
 export function CreateVisitDialog({ open, onOpenChange }: Props) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto">
+            <DialogContent className="max-h-[92vh] max-w-2xl overflow-y-auto">
                 {/* Gövde key ile taze mount edilir → dialog her açılışta sıfırlanır. */}
                 {open ? <ComposerBody key="create-visit" onDone={() => onOpenChange(false)} /> : null}
             </DialogContent>
@@ -104,19 +104,33 @@ function ComposerBody({ onDone }: { onDone: () => void }) {
     return (
         <>
             <DialogHeader>
-                <DialogTitle>Yeni Ziyaret Planla</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                    <CalendarClock className="size-4" />
+                    Yeni Ziyaret Planla
+                </DialogTitle>
                 <DialogDescription>
                     Bir müşteri seçip ziyaret tarihini ve türünü belirleyin.
                 </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4">
+            <div className="grid gap-5 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
                 <div className="space-y-2">
-                    <Label>Müşteri</Label>
+                    <Label className="flex items-center gap-1.5">
+                        <Users className="size-3.5 text-neutral-400" />
+                        Müşteri
+                    </Label>
                     {selectedCustomer ? (
-                        <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm">
-                            <span className="font-medium text-emerald-900">{selectedCustomer.name}</span>
-                            <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedCustomer(null)}>
+                        <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm">
+                            <span className="min-w-0 truncate font-medium text-emerald-900">
+                                {selectedCustomer.name}
+                            </span>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="shrink-0"
+                                onClick={() => setSelectedCustomer(null)}
+                            >
                                 Değiştir
                             </Button>
                         </div>
@@ -131,13 +145,13 @@ function ComposerBody({ onDone }: { onDone: () => void }) {
                                     className="pl-9"
                                 />
                             </div>
-                            <ScrollArea className="h-48 rounded-xl border border-neutral-200">
+                            <ScrollArea className="h-56 rounded-xl border border-neutral-200 sm:h-72">
                                 {customersQuery.isLoading ? (
-                                    <div className="flex h-48 items-center justify-center">
+                                    <div className="flex h-56 items-center justify-center sm:h-72">
                                         <Spinner className="size-4" />
                                     </div>
                                 ) : customers.length === 0 ? (
-                                    <div className="flex h-48 items-center justify-center text-sm text-neutral-500">
+                                    <div className="flex h-56 items-center justify-center text-center text-sm text-neutral-500 sm:h-72">
                                         Müşteri bulunamadı
                                     </div>
                                 ) : (
@@ -149,7 +163,7 @@ function ComposerBody({ onDone }: { onDone: () => void }) {
                                                     key={customer.id}
                                                     type="button"
                                                     onClick={() => setSelectedCustomer({ id: customer.id, name })}
-                                                    className="block w-full px-3 py-2 text-left text-sm hover:bg-neutral-50"
+                                                    className="block w-full truncate px-3 py-2.5 text-left text-sm hover:bg-neutral-50"
                                                 >
                                                     {name}
                                                 </button>
@@ -162,7 +176,7 @@ function ComposerBody({ onDone }: { onDone: () => void }) {
                     )}
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="visit-scheduled-at">Tarih</Label>
                         <Input
@@ -185,19 +199,18 @@ function ComposerBody({ onDone }: { onDone: () => void }) {
                             </SelectContent>
                         </Select>
                     </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="visit-title">Başlık</Label>
+                        <Input
+                            id="visit-title"
+                            value={title}
+                            onChange={(event) => setTitle(event.target.value)}
+                            placeholder="Ör. Tanışma ziyareti"
+                        />
+                    </div>
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="visit-title">Başlık</Label>
-                    <Input
-                        id="visit-title"
-                        value={title}
-                        onChange={(event) => setTitle(event.target.value)}
-                        placeholder="Ör. Tanışma ziyareti"
-                    />
-                </div>
-
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="visit-note">Not</Label>
                     <Textarea
                         id="visit-note"

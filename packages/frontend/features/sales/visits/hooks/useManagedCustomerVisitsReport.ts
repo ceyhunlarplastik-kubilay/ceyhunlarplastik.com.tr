@@ -1,17 +1,30 @@
 "use client"
 
+import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
-import {
-    getManagedCustomerVisitsReport,
-    type GetManagedCustomerVisitsReportParams,
-} from "@/features/sales/visits/api/getManagedCustomerVisitsReport"
+import { z } from "zod"
+import { getManagedCustomerVisitsReport } from "@/features/sales/visits/api/getManagedCustomerVisitsReport"
 
 export const MANAGED_CUSTOMER_VISITS_REPORT_QUERY_KEY = "sales-managed-customer-visits-report"
 
-export function useManagedCustomerVisitsReport(params: GetManagedCustomerVisitsReportParams) {
+const schema = z.object({
+    page: z.number().int().positive(),
+    limit: z.number().int().positive().max(100),
+    status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]).optional(),
+    type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
+    outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).optional(),
+    scheduledFrom: z.string().optional(),
+    scheduledTo: z.string().optional(),
+    stateId: z.number().int().positive().optional(),
+    cityId: z.number().int().positive().optional(),
+})
+
+export function useManagedCustomerVisitsReport(params: z.input<typeof schema>) {
+    const normalized = useMemo(() => schema.parse(params), [params])
+
     return useQuery({
-        queryKey: [MANAGED_CUSTOMER_VISITS_REPORT_QUERY_KEY, params],
-        queryFn: () => getManagedCustomerVisitsReport(params),
+        queryKey: [MANAGED_CUSTOMER_VISITS_REPORT_QUERY_KEY, normalized],
+        queryFn: () => getManagedCustomerVisitsReport(normalized),
         placeholderData: (prev) => prev,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,

@@ -36,7 +36,7 @@ type Props = {
 export function CompleteVisitDialog({ visit, onOpenChange }: Props) {
     return (
         <Dialog open={Boolean(visit)} onOpenChange={(open) => { if (!open) onOpenChange(false) }}>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto">
                 {visit ? (
                     <Body key={visit.id} visit={visit} onDone={() => onOpenChange(false)} />
                 ) : null}
@@ -102,21 +102,32 @@ function Body({ visit, onDone }: { visit: CustomerVisitReportItem; onDone: () =>
                 </div>
 
                 {status === "COMPLETED" ? (
-                    <div className="space-y-2">
-                        <Label>Sonuç</Label>
-                        <Select
-                            value={outcome}
-                            onValueChange={(value) => setOutcome(value as CustomerVisitOutcome)}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Sonuç seçin" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {Object.entries(VISIT_OUTCOME_LABELS).map(([value, label]) => (
-                                    <SelectItem key={value} value={value}>{label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label>Sonuç</Label>
+                            <Select
+                                value={outcome}
+                                onValueChange={(value) => setOutcome(value as CustomerVisitOutcome)}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Sonuç seçin" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {Object.entries(VISIT_OUTCOME_LABELS).map(([value, label]) => (
+                                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="complete-visit-next-action">Sonraki Takip (opsiyonel)</Label>
+                            <Input
+                                id="complete-visit-next-action"
+                                type="datetime-local"
+                                value={nextActionAt}
+                                onChange={(event) => setNextActionAt(event.target.value)}
+                            />
+                        </div>
                     </div>
                 ) : null}
 
@@ -129,18 +140,6 @@ function Body({ visit, onDone }: { visit: CustomerVisitReportItem; onDone: () =>
                         onChange={(event) => setNote(event.target.value)}
                     />
                 </div>
-
-                {status === "COMPLETED" ? (
-                    <div className="space-y-2">
-                        <Label htmlFor="complete-visit-next-action">Sonraki Takip Tarihi (opsiyonel)</Label>
-                        <Input
-                            id="complete-visit-next-action"
-                            type="datetime-local"
-                            value={nextActionAt}
-                            onChange={(event) => setNextActionAt(event.target.value)}
-                        />
-                    </div>
-                ) : null}
             </div>
 
             <DialogFooter>
