@@ -75,6 +75,8 @@ export type CustomerCompanyContactAssignment = {
 
 export type CustomerStatus = "LEAD" | "CUSTOMER"
 export type CustomerVisitStatus = "PLANNED" | "COMPLETED" | "CANCELED"
+export type CustomerVisitType = "IN_PERSON" | "PHONE" | "VIDEO"
+export type CustomerVisitOutcome = "POSITIVE" | "FOLLOW_UP_NEEDED" | "NOT_INTERESTED" | "ORDER_PLACED"
 export type CustomerVariantPriceSource =
     | "CUSTOMER_SPECIAL_PRICE"
     | "CAMPAIGN_DISCOUNT"
@@ -269,16 +271,58 @@ export type CustomerVisit = {
     id: string
     customerId: string
     ownerUserId: string
+    addressId?: string | null
     scheduledAt: string
     status: CustomerVisitStatus
+    type?: CustomerVisitType
     title: string
     note?: string | null
+    outcome?: CustomerVisitOutcome | null
+    nextActionAt?: string | null
     completedAt?: string | null
     createdByUserId: string
     createdAt: string
     updatedAt: string
     ownerUser?: UserSummary
     createdByUser?: UserSummary
+}
+
+/**
+ * Çapraz-müşteri rapor satırı (`GET /customer-visits` admin, `GET
+ * /sales/customer-visits` satış) — `CustomerVisit`'e ek olarak müşteri özeti
+ * ve ziyaret edilen adresin il/ilçe bilgisini taşır.
+ */
+export type CustomerVisitReportItem = CustomerVisit & {
+    customer?: {
+        id: string
+        companyName?: string | null
+        fullName?: string | null
+        status: CustomerStatus
+        assignedSalesUserId?: string | null
+    }
+    address?: {
+        id: string
+        label: string
+        city: string
+        district?: string | null
+        stateId?: number | null
+        cityId?: number | null
+        stateRef?: { id: number; name: string } | null
+        cityRef?: { id: number; name: string } | null
+    } | null
+}
+
+export type CustomerVisitsReportResponse = {
+    statusCode: number
+    payload: {
+        data: CustomerVisitReportItem[]
+        meta: {
+            page: number
+            limit: number
+            total: number
+            totalPages: number
+        }
+    }
 }
 
 export type AdminCustomer = {

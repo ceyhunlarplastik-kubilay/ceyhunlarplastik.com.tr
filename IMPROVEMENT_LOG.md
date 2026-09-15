@@ -8081,6 +8081,61 @@ eşit sayıda eklendi (865/865).
   bildirimi. Backend uçları hâlâ hiçbir arayüzden çağrılmıyor; kubi'de runtime
   doğrulaması Dilim 2-3 sonrasında yapılmalı.
 
+### Müşteri ziyaretleri (saha CRM) — Dilim 2: satış paneli (2026-09-15, kullanıcı talebiyle)
+
+- **Ne yapıldı:**
+  - Yeni `/satis/ziyaretlerim` sayfası — satış temsilcisinin ziyaret
+    girebileceği İLK arayüz (öncesinde hiç yoktu). Nav'a "Müşteriler" grubuna
+    "Ziyaretlerim" eklendi (`salesNav.ts`, yeni `calendar-clock` ikonu
+    `panelNavIcons.ts`'e eklendi).
+  - Yeni `features/sales/visits/` (api/hooks/components/lib): liste
+    `GET /sales/customer-visits`'i (Dilim 1) kullanıyor — bu uç `sales` rolü
+    için zaten `ownerUserId`'yi kendine sabitliyordu, o yüzden "ziyaretlerim"
+    için ekstra filtre parametresi GEREKMEDİ. Durum filtresi (Tümü/Planlı/
+    Tamamlandı/İptal) + `AdminListPagination` (AGENTS.md "reuse before
+    adding" — sıfırdan sayfalama yazılmadı).
+  - `CreateVisitDialog.tsx`: müşteri arama/seçim `useManagedCustomers`
+    (`sales/campaignAnnouncements/components/AnnouncementComposerDialog.tsx`
+    ile AYNI desen) + tarih/tür/başlık/not. `ownerUserId` `useSession()`'dan
+    `session.user.dbUserId` ile okunuyor.
+  - **Bulunup düzeltilen bir yetki boşluğu (implementasyon sırasında):**
+    `createManagedCustomerVisitHandler` (Dilim 1) `ownerUserId`'yi HER ZAMAN
+    istekten okuyordu — sıradan bir `sales` kullanıcısı teorik olarak başka
+    bir temsilcinin adına ziyaret oluşturabilirdi (rapor ucundaki
+    `assignedSalesUserId` zorlaması yalnız LİSTELEME'de vardı, CREATE'te
+    yoktu). Düzeltildi: sıradan `sales` için `ownerUserId` her zaman
+    `requester.id`'ye sabitleniyor artık (istekte başka biri gelse bile göz
+    ardı edilir); `sales_director`/admin/owner için davranış değişmedi
+    (istediği temsilciye atayabilir). `UpdateManagedCustomerVisitInput`
+    (frontend) bilinçli olarak `ownerUserId` İÇERMİYOR — bu sayfadan asla
+    yeniden atama yapılamaz, yalnız admin'in per-customer ekranı bunu yapar.
+  - `CompleteVisitDialog.tsx`: PLANNED bir ziyareti Tamamlandı (+ sonuç kodu +
+    opsiyonel sonraki takip tarihi) veya İptal olarak işaretler; not alanı
+    düzenlenebilir (orijinal plan notu üzerine yazılabilir, kaybolmaz —
+    varsayılan değer mevcut nottur).
+  - `admin/customers/api/types.ts`'e `CustomerVisitType`/`CustomerVisitOutcome`
+    tipleri ve `CustomerVisit`'e Dilim 0'ın 4 yeni alanı eklendi;
+    `CustomerVisitReportItem`/`CustomerVisitsReportResponse` (rapor uçlarının
+    ortak yanıt şekli, Dilim 3'te admin tarafı da BURADAN reuse edecek).
+- **Neden:** Dilim 1'in devamı — kullanıcı "Evet Dilim 2'ye geç" dedi.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ (handler değişikliği için) ·
+  `test -w @ceyhunlarweb/functions` 342/342 ✅ (değişmedi, mevcut testler
+  kırılmadı — yeni davranış için ayrı bir test eklenmedi, ne kaldı'da not
+  edildi) · `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159
+  warning ✅ · `test -w frontend` 384/384 ✅. Kubi'de tarayıcı testi
+  YAPILMADI (auth gerektiriyor, kullanıcıya bırakıldı — bu oturum boyunca
+  izlenen desenin aynısı).
+- **Ne kaldı:** (1) Kullanıcı kubi'de doğrulamalı — satış kullanıcısıyla
+  girip ziyaret planlama/listeleme/tamamlama akışının uçtan uca çalıştığını.
+  (2) `createManagedCustomerVisitHandler`'daki `ownerUserId` sabitlemesi için
+  ayrı bir birim testi eklenmedi (mevcut `validatorCompilation.test.ts`
+  yalnız şema derlemesini kapsıyor, davranışı değil) — istenirse ayrı bir
+  minik dilim olarak eklenebilir. (3) `updateManagedCustomerVisitHandler`
+  aynı `ownerUserId` sabitlemesinden YOKSUN bırakıldı (bilinçli, bu dilimde
+  UI hiç göndermiyor) — ileride bir "yeniden atama" UI'ı satış tarafına
+  eklenirse orada da aynı korumanın eklenmesi gerekir. (4) PLAN'a madde
+  olarak yazıldı: Dilim 3 (admin/satış müdürü rapor sayfası).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

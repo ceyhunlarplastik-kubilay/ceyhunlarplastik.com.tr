@@ -18,27 +18,34 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
-### Müşteri ziyaretleri (saha CRM) — Dilim 2-4 *(kullanıcı talebiyle, Dilim 0-1 ✅ 2026-09-15 LOG)*
-- **Yapıldı (LOG):** `CustomerVisit` şeması zenginleştirildi — `type`
-  (IN_PERSON/PHONE/VIDEO), `outcome` (POSITIVE/FOLLOW_UP_NEEDED/NOT_INTERESTED/
-  ORDER_PLACED), `nextActionAt`, `addressId` (Dilim 0). Backend rapor
-  altyapısı: `listVisitsForReport` + `GET /customer-visits` (AdminApi,
-  admin/owner) + `GET /sales/customer-visits` (ProtectedApi, `sales` kendi
-  ownerUserId'sine sabit, sales_director/admin/owner serbest filtreler);
-  create/update uçları yeni 4 alanı kabul ediyor (Dilim 1). Detaylar LOG'daki
-  "Müşteri ziyaretleri... Dilim 0/Dilim 1" notlarında.
-- **Mevcut durum (araştırmayla doğrulandı, hâlâ geçerli):** Backend artık
-  tamamen hazır ve testli. Eksik olan yalnız FRONTEND: (1) satış panelinde
-  HİÇBİR arayüz yok — temsilci hiçbir yerden ziyaret giremiyor, (2) admin/
-  satış müdürü rapor sayfası hiçbir yerde yok.
-- **Dilim 2 (satış paneli):** `/satis/ziyaretlerim` — kendi ziyaretlerini
-  gör, yeni ziyaret planla (müşteri + tarih + tür + not), tamamlandı işaretle
-  (outcome + not). Bugün temsilcinin ziyaret girebileceği tek yer bu olacak.
-- **Dilim 3 (admin/satış müdürü raporu):** filtre çubuğu (temsilci, tarih
-  aralığı, il/ilçe — mevcut `features/geo` selector'ları ve
-  `AdminListPagination` ile) + tablo.
+### Müşteri ziyaretleri (saha CRM) — Dilim 3-4 *(kullanıcı talebiyle, Dilim 0-2 ✅ 2026-09-15 LOG)*
+- **Yapıldı (LOG):** Şema (`type`/`outcome`/`nextActionAt`/`addressId`, Dilim 0)
+  + backend rapor altyapısı (`listVisitsForReport`, `GET /customer-visits`
+  admin, `GET /sales/customer-visits` satış — `sales` kendi ownerUserId'sine
+  sabit, Dilim 1) + satış paneli (`/satis/ziyaretlerim`: liste, yeni ziyaret
+  planlama, tamamlama/iptal — temsilcinin ziyaret girebileceği İLK arayüz,
+  Dilim 2). Dilim 2'de ayrıca bir yetki boşluğu kapatıldı:
+  `createManagedCustomerVisitHandler` artık sıradan `sales` için
+  `ownerUserId`'yi zorla kendine sabitliyor. Detaylar LOG'daki "Müşteri
+  ziyaretleri... Dilim 0/1/2" notlarında.
+- **Mevcut durum (hâlâ geçerli):** Admin/satış müdürü tarafında ÇAPRAZ-müşteri
+  rapor/liste (temsilci/tarih/il-ilçe filtreli) hâlâ hiçbir yerde yok — tek
+  eksik parça bu.
+- **Dilim 3 (admin/satış müdürü raporu):** Yeni sayfa (`/admin/musteri-ziyaretleri`
+  önerilir) — filtre çubuğu (temsilci `Select` — `useUsers`, tarih aralığı,
+  il/ilçe — mevcut `features/geo` selector'ları) + tablo, `AdminListPagination`
+  ile. `GET /customer-visits` (admin/owner serbest) kullanılacak; backend zaten
+  hazır. `sales_director`'ın da bu raporu görebilmesi isteniyorsa (mevcut kod
+  taramasında sales_director'ın AdminApi'ye erişimi YOK) ayrı bir ProtectedApi
+  sayfası/route (`/satis/musteri-ziyaretleri` gibi, `GET /sales/customer-visits`
+  ile — backend zaten sales_director'ı destekliyor) gerekir; bu netleştirilmeli.
 - **Dilim 4 (opsiyonel):** satış haritasındaki müşteri accordion'una "Ziyaret
   Planla" hızlı aksiyonu; ziyaret hatırlatma bildirimi (`UserNotification`).
+- **Küçük, isteğe bağlı takip maddeleri (LOG'da not edildi, PLAN'a madde
+  açılmadı):** `createManagedCustomerVisitHandler`'ın yeni `ownerUserId`
+  sabitlemesi için davranış testi; `updateManagedCustomerVisitHandler`'a aynı
+  sabitlemenin eklenmesi (bugün hiçbir UI reassignment göndermiyor, riski
+  düşük ama savunma amaçlı tutarlılık için değerlendirilebilir).
 - Etki: **core** (`customers/repository.ts`), **functions** (AdminApi +
   ProtectedApi crm), **frontend** (yeni satış sayfası + yeni admin/satış
   müdürü rapor sayfası + mevcut `CustomerVisitsPageClient.tsx` genişletme).

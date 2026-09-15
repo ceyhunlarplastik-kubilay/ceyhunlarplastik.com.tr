@@ -738,9 +738,20 @@ export const createManagedCustomerVisitHandler = ({ customerRepository }: IProte
 
         assertCustomerManagementAccess(requester, customer)
 
+        // Sıradan `sales` yalnız KENDİ adına ziyaret oluşturabilir — istekte
+        // başka bir ownerUserId gelse bile göz ardı edilir (rapor uç'undaki
+        // `assignedSalesUserId` zorlama desenininin aynısı). `sales_director`/
+        // admin/owner isteklerinde gönderilen değer aynen kullanılır — bir
+        // müşteriyi seçip başka bir temsilciye ziyaret ataması bu sayede
+        // mümkün.
+        const ownerUserId =
+            requester.isSalesDirector || requester.isAdmin || requester.isOwner
+                ? event.body.ownerUserId
+                : requester.id
+
         const visit = await customerRepository.createVisit({
             customer: { connect: { id: customer.id } },
-            ownerUser: { connect: { id: event.body.ownerUserId } },
+            ownerUser: { connect: { id: ownerUserId } },
             ...(event.body.addressId ? { address: { connect: { id: event.body.addressId } } } : {}),
             createdByUser: { connect: { id: requester.id } },
             scheduledAt: new Date(event.body.scheduledAt),

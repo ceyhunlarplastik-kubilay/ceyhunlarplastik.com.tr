@@ -3,6 +3,7 @@ import {
     BookMarked,
     Boxes,
     Building2,
+    CalendarClock,
     ClipboardCheck,
     ClipboardList,
     FileSpreadsheet,
@@ -55,4 +56,5 @@ export const panelNavIcons = {
     discount: BadgePercent,
     "package-search": PackageSearch,
     "package-check": PackageCheck,
+    "calendar-clock": CalendarClock,
 } as const

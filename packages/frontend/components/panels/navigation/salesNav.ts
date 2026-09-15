@@ -16,6 +16,7 @@ export function buildSalesNavGroups(groups: string[]): PanelNavGroup[] {
             items: [
                 { href: "/satis", label: "Atanmış Müşteriler", icon: "users", match: "exact" },
                 { href: "/satis/harita", label: "Harita", icon: "map" },
+                { href: "/satis/ziyaretlerim", label: "Ziyaretlerim", icon: "calendar-clock" },
             ],
         },
         {
