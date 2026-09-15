@@ -140,6 +140,25 @@ export const CustomerVisitStatus = {
 export type CustomerVisitStatus = (typeof CustomerVisitStatus)[keyof typeof CustomerVisitStatus]
 
 
+export const CustomerVisitType = {
+  IN_PERSON: 'IN_PERSON',
+  PHONE: 'PHONE',
+  VIDEO: 'VIDEO'
+} as const
+
+export type CustomerVisitType = (typeof CustomerVisitType)[keyof typeof CustomerVisitType]
+
+
+export const CustomerVisitOutcome = {
+  POSITIVE: 'POSITIVE',
+  FOLLOW_UP_NEEDED: 'FOLLOW_UP_NEEDED',
+  NOT_INTERESTED: 'NOT_INTERESTED',
+  ORDER_PLACED: 'ORDER_PLACED'
+} as const
+
+export type CustomerVisitOutcome = (typeof CustomerVisitOutcome)[keyof typeof CustomerVisitOutcome]
+
+
 export const ProductVariantCampaignStatus = {
   DRAFT: 'DRAFT',
   ACTIVE: 'ACTIVE',

@@ -28,10 +28,14 @@ export type CustomerVisitMinAggregateOutputType = {
   id: string | null
   customerId: string | null
   ownerUserId: string | null
+  addressId: string | null
   scheduledAt: Date | null
   status: $Enums.CustomerVisitStatus | null
+  type: $Enums.CustomerVisitType | null
   title: string | null
   note: string | null
+  outcome: $Enums.CustomerVisitOutcome | null
+  nextActionAt: Date | null
   completedAt: Date | null
   createdByUserId: string | null
   createdAt: Date | null
@@ -42,10 +46,14 @@ export type CustomerVisitMaxAggregateOutputType = {
   id: string | null
   customerId: string | null
   ownerUserId: string | null
+  addressId: string | null
   scheduledAt: Date | null
   status: $Enums.CustomerVisitStatus | null
+  type: $Enums.CustomerVisitType | null
   title: string | null
   note: string | null
+  outcome: $Enums.CustomerVisitOutcome | null
+  nextActionAt: Date | null
   completedAt: Date | null
   createdByUserId: string | null
   createdAt: Date | null
@@ -56,10 +64,14 @@ export type CustomerVisitCountAggregateOutputType = {
   id: number
   customerId: number
   ownerUserId: number
+  addressId: number
   scheduledAt: number
   status: number
+  type: number
   title: number
   note: number
+  outcome: number
+  nextActionAt: number
   completedAt: number
   createdByUserId: number
   createdAt: number
@@ -72,10 +84,14 @@ export type CustomerVisitMinAggregateInputType = {
   id?: true
   customerId?: true
   ownerUserId?: true
+  addressId?: true
   scheduledAt?: true
   status?: true
+  type?: true
   title?: true
   note?: true
+  outcome?: true
+  nextActionAt?: true
   completedAt?: true
   createdByUserId?: true
   createdAt?: true
@@ -86,10 +102,14 @@ export type CustomerVisitMaxAggregateInputType = {
   id?: true
   customerId?: true
   ownerUserId?: true
+  addressId?: true
   scheduledAt?: true
   status?: true
+  type?: true
   title?: true
   note?: true
+  outcome?: true
+  nextActionAt?: true
   completedAt?: true
   createdByUserId?: true
   createdAt?: true
@@ -100,10 +120,14 @@ export type CustomerVisitCountAggregateInputType = {
   id?: true
   customerId?: true
   ownerUserId?: true
+  addressId?: true
   scheduledAt?: true
   status?: true
+  type?: true
   title?: true
   note?: true
+  outcome?: true
+  nextActionAt?: true
   completedAt?: true
   createdByUserId?: true
   createdAt?: true
@@ -187,10 +211,14 @@ export type CustomerVisitGroupByOutputType = {
   id: string
   customerId: string
   ownerUserId: string
+  addressId: string | null
   scheduledAt: Date
   status: $Enums.CustomerVisitStatus
+  type: $Enums.CustomerVisitType
   title: string
   note: string | null
+  outcome: $Enums.CustomerVisitOutcome | null
+  nextActionAt: Date | null
   completedAt: Date | null
   createdByUserId: string
   createdAt: Date
@@ -222,16 +250,21 @@ export type CustomerVisitWhereInput = {
   id?: Prisma.StringFilter<"CustomerVisit"> | string
   customerId?: Prisma.StringFilter<"CustomerVisit"> | string
   ownerUserId?: Prisma.StringFilter<"CustomerVisit"> | string
+  addressId?: Prisma.StringNullableFilter<"CustomerVisit"> | string | null
   scheduledAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
   status?: Prisma.EnumCustomerVisitStatusFilter<"CustomerVisit"> | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFilter<"CustomerVisit"> | $Enums.CustomerVisitType
   title?: Prisma.StringFilter<"CustomerVisit"> | string
   note?: Prisma.StringNullableFilter<"CustomerVisit"> | string | null
+  outcome?: Prisma.EnumCustomerVisitOutcomeNullableFilter<"CustomerVisit"> | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.DateTimeNullableFilter<"CustomerVisit"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"CustomerVisit"> | Date | string | null
   createdByUserId?: Prisma.StringFilter<"CustomerVisit"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   ownerUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  address?: Prisma.XOR<Prisma.CustomerAddressNullableScalarRelationFilter, Prisma.CustomerAddressWhereInput> | null
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -239,16 +272,21 @@ export type CustomerVisitOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
+  addressId?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
   ownerUser?: Prisma.UserOrderByWithRelationInput
+  address?: Prisma.CustomerAddressOrderByWithRelationInput
   createdByUser?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -259,16 +297,21 @@ export type CustomerVisitWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CustomerVisitWhereInput | Prisma.CustomerVisitWhereInput[]
   customerId?: Prisma.StringFilter<"CustomerVisit"> | string
   ownerUserId?: Prisma.StringFilter<"CustomerVisit"> | string
+  addressId?: Prisma.StringNullableFilter<"CustomerVisit"> | string | null
   scheduledAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
   status?: Prisma.EnumCustomerVisitStatusFilter<"CustomerVisit"> | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFilter<"CustomerVisit"> | $Enums.CustomerVisitType
   title?: Prisma.StringFilter<"CustomerVisit"> | string
   note?: Prisma.StringNullableFilter<"CustomerVisit"> | string | null
+  outcome?: Prisma.EnumCustomerVisitOutcomeNullableFilter<"CustomerVisit"> | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.DateTimeNullableFilter<"CustomerVisit"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"CustomerVisit"> | Date | string | null
   createdByUserId?: Prisma.StringFilter<"CustomerVisit"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   ownerUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  address?: Prisma.XOR<Prisma.CustomerAddressNullableScalarRelationFilter, Prisma.CustomerAddressWhereInput> | null
   createdByUser?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
@@ -276,10 +319,14 @@ export type CustomerVisitOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
+  addressId?: Prisma.SortOrderInput | Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcome?: Prisma.SortOrderInput | Prisma.SortOrder
+  nextActionAt?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -296,10 +343,14 @@ export type CustomerVisitScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CustomerVisit"> | string
   customerId?: Prisma.StringWithAggregatesFilter<"CustomerVisit"> | string
   ownerUserId?: Prisma.StringWithAggregatesFilter<"CustomerVisit"> | string
+  addressId?: Prisma.StringNullableWithAggregatesFilter<"CustomerVisit"> | string | null
   scheduledAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerVisit"> | Date | string
   status?: Prisma.EnumCustomerVisitStatusWithAggregatesFilter<"CustomerVisit"> | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeWithAggregatesFilter<"CustomerVisit"> | $Enums.CustomerVisitType
   title?: Prisma.StringWithAggregatesFilter<"CustomerVisit"> | string
   note?: Prisma.StringNullableWithAggregatesFilter<"CustomerVisit"> | string | null
+  outcome?: Prisma.EnumCustomerVisitOutcomeNullableWithAggregatesFilter<"CustomerVisit"> | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerVisit"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CustomerVisit"> | Date | string | null
   createdByUserId?: Prisma.StringWithAggregatesFilter<"CustomerVisit"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerVisit"> | Date | string
@@ -310,13 +361,17 @@ export type CustomerVisitCreateInput = {
   id?: string
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutVisitsInput
   ownerUser: Prisma.UserCreateNestedOneWithoutOwnedCustomerVisitsInput
+  address?: Prisma.CustomerAddressCreateNestedOneWithoutVisitsInput
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerVisitsInput
 }
 
@@ -324,10 +379,14 @@ export type CustomerVisitUncheckedCreateInput = {
   id?: string
   customerId: string
   ownerUserId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdByUserId: string
   createdAt?: Date | string
@@ -338,13 +397,17 @@ export type CustomerVisitUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutVisitsNestedInput
   ownerUser?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomerVisitsNestedInput
+  address?: Prisma.CustomerAddressUpdateOneWithoutVisitsNestedInput
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerVisitsNestedInput
 }
 
@@ -352,10 +415,14 @@ export type CustomerVisitUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -366,10 +433,14 @@ export type CustomerVisitCreateManyInput = {
   id?: string
   customerId: string
   ownerUserId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdByUserId: string
   createdAt?: Date | string
@@ -380,8 +451,11 @@ export type CustomerVisitUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -391,10 +465,14 @@ export type CustomerVisitUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,10 +493,14 @@ export type CustomerVisitCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
+  addressId?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  outcome?: Prisma.SortOrder
+  nextActionAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -429,10 +511,14 @@ export type CustomerVisitMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
+  addressId?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  outcome?: Prisma.SortOrder
+  nextActionAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -443,10 +529,14 @@ export type CustomerVisitMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
+  addressId?: Prisma.SortOrder
   scheduledAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   title?: Prisma.SortOrder
   note?: Prisma.SortOrder
+  outcome?: Prisma.SortOrder
+  nextActionAt?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -579,30 +669,88 @@ export type CustomerVisitUncheckedUpdateManyWithoutCustomerNestedInput = {
   deleteMany?: Prisma.CustomerVisitScalarWhereInput | Prisma.CustomerVisitScalarWhereInput[]
 }
 
+export type CustomerVisitCreateNestedManyWithoutAddressInput = {
+  create?: Prisma.XOR<Prisma.CustomerVisitCreateWithoutAddressInput, Prisma.CustomerVisitUncheckedCreateWithoutAddressInput> | Prisma.CustomerVisitCreateWithoutAddressInput[] | Prisma.CustomerVisitUncheckedCreateWithoutAddressInput[]
+  connectOrCreate?: Prisma.CustomerVisitCreateOrConnectWithoutAddressInput | Prisma.CustomerVisitCreateOrConnectWithoutAddressInput[]
+  createMany?: Prisma.CustomerVisitCreateManyAddressInputEnvelope
+  connect?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+}
+
+export type CustomerVisitUncheckedCreateNestedManyWithoutAddressInput = {
+  create?: Prisma.XOR<Prisma.CustomerVisitCreateWithoutAddressInput, Prisma.CustomerVisitUncheckedCreateWithoutAddressInput> | Prisma.CustomerVisitCreateWithoutAddressInput[] | Prisma.CustomerVisitUncheckedCreateWithoutAddressInput[]
+  connectOrCreate?: Prisma.CustomerVisitCreateOrConnectWithoutAddressInput | Prisma.CustomerVisitCreateOrConnectWithoutAddressInput[]
+  createMany?: Prisma.CustomerVisitCreateManyAddressInputEnvelope
+  connect?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+}
+
+export type CustomerVisitUpdateManyWithoutAddressNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerVisitCreateWithoutAddressInput, Prisma.CustomerVisitUncheckedCreateWithoutAddressInput> | Prisma.CustomerVisitCreateWithoutAddressInput[] | Prisma.CustomerVisitUncheckedCreateWithoutAddressInput[]
+  connectOrCreate?: Prisma.CustomerVisitCreateOrConnectWithoutAddressInput | Prisma.CustomerVisitCreateOrConnectWithoutAddressInput[]
+  upsert?: Prisma.CustomerVisitUpsertWithWhereUniqueWithoutAddressInput | Prisma.CustomerVisitUpsertWithWhereUniqueWithoutAddressInput[]
+  createMany?: Prisma.CustomerVisitCreateManyAddressInputEnvelope
+  set?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  disconnect?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  delete?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  connect?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  update?: Prisma.CustomerVisitUpdateWithWhereUniqueWithoutAddressInput | Prisma.CustomerVisitUpdateWithWhereUniqueWithoutAddressInput[]
+  updateMany?: Prisma.CustomerVisitUpdateManyWithWhereWithoutAddressInput | Prisma.CustomerVisitUpdateManyWithWhereWithoutAddressInput[]
+  deleteMany?: Prisma.CustomerVisitScalarWhereInput | Prisma.CustomerVisitScalarWhereInput[]
+}
+
+export type CustomerVisitUncheckedUpdateManyWithoutAddressNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerVisitCreateWithoutAddressInput, Prisma.CustomerVisitUncheckedCreateWithoutAddressInput> | Prisma.CustomerVisitCreateWithoutAddressInput[] | Prisma.CustomerVisitUncheckedCreateWithoutAddressInput[]
+  connectOrCreate?: Prisma.CustomerVisitCreateOrConnectWithoutAddressInput | Prisma.CustomerVisitCreateOrConnectWithoutAddressInput[]
+  upsert?: Prisma.CustomerVisitUpsertWithWhereUniqueWithoutAddressInput | Prisma.CustomerVisitUpsertWithWhereUniqueWithoutAddressInput[]
+  createMany?: Prisma.CustomerVisitCreateManyAddressInputEnvelope
+  set?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  disconnect?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  delete?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  connect?: Prisma.CustomerVisitWhereUniqueInput | Prisma.CustomerVisitWhereUniqueInput[]
+  update?: Prisma.CustomerVisitUpdateWithWhereUniqueWithoutAddressInput | Prisma.CustomerVisitUpdateWithWhereUniqueWithoutAddressInput[]
+  updateMany?: Prisma.CustomerVisitUpdateManyWithWhereWithoutAddressInput | Prisma.CustomerVisitUpdateManyWithWhereWithoutAddressInput[]
+  deleteMany?: Prisma.CustomerVisitScalarWhereInput | Prisma.CustomerVisitScalarWhereInput[]
+}
+
 export type EnumCustomerVisitStatusFieldUpdateOperationsInput = {
   set?: $Enums.CustomerVisitStatus
+}
+
+export type EnumCustomerVisitTypeFieldUpdateOperationsInput = {
+  set?: $Enums.CustomerVisitType
+}
+
+export type NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput = {
+  set?: $Enums.CustomerVisitOutcome | null
 }
 
 export type CustomerVisitCreateWithoutOwnerUserInput = {
   id?: string
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutVisitsInput
+  address?: Prisma.CustomerAddressCreateNestedOneWithoutVisitsInput
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerVisitsInput
 }
 
 export type CustomerVisitUncheckedCreateWithoutOwnerUserInput = {
   id?: string
   customerId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdByUserId: string
   createdAt?: Date | string
@@ -623,23 +771,31 @@ export type CustomerVisitCreateWithoutCreatedByUserInput = {
   id?: string
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutVisitsInput
   ownerUser: Prisma.UserCreateNestedOneWithoutOwnedCustomerVisitsInput
+  address?: Prisma.CustomerAddressCreateNestedOneWithoutVisitsInput
 }
 
 export type CustomerVisitUncheckedCreateWithoutCreatedByUserInput = {
   id?: string
   customerId: string
   ownerUserId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -678,10 +834,14 @@ export type CustomerVisitScalarWhereInput = {
   id?: Prisma.StringFilter<"CustomerVisit"> | string
   customerId?: Prisma.StringFilter<"CustomerVisit"> | string
   ownerUserId?: Prisma.StringFilter<"CustomerVisit"> | string
+  addressId?: Prisma.StringNullableFilter<"CustomerVisit"> | string | null
   scheduledAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
   status?: Prisma.EnumCustomerVisitStatusFilter<"CustomerVisit"> | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFilter<"CustomerVisit"> | $Enums.CustomerVisitType
   title?: Prisma.StringFilter<"CustomerVisit"> | string
   note?: Prisma.StringNullableFilter<"CustomerVisit"> | string | null
+  outcome?: Prisma.EnumCustomerVisitOutcomeNullableFilter<"CustomerVisit"> | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.DateTimeNullableFilter<"CustomerVisit"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"CustomerVisit"> | Date | string | null
   createdByUserId?: Prisma.StringFilter<"CustomerVisit"> | string
   createdAt?: Prisma.DateTimeFilter<"CustomerVisit"> | Date | string
@@ -708,22 +868,30 @@ export type CustomerVisitCreateWithoutCustomerInput = {
   id?: string
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   ownerUser: Prisma.UserCreateNestedOneWithoutOwnedCustomerVisitsInput
+  address?: Prisma.CustomerAddressCreateNestedOneWithoutVisitsInput
   createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerVisitsInput
 }
 
 export type CustomerVisitUncheckedCreateWithoutCustomerInput = {
   id?: string
   ownerUserId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdByUserId: string
   createdAt?: Date | string
@@ -756,13 +924,77 @@ export type CustomerVisitUpdateManyWithWhereWithoutCustomerInput = {
   data: Prisma.XOR<Prisma.CustomerVisitUpdateManyMutationInput, Prisma.CustomerVisitUncheckedUpdateManyWithoutCustomerInput>
 }
 
+export type CustomerVisitCreateWithoutAddressInput = {
+  id?: string
+  scheduledAt: Date | string
+  status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
+  title: string
+  note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutVisitsInput
+  ownerUser: Prisma.UserCreateNestedOneWithoutOwnedCustomerVisitsInput
+  createdByUser: Prisma.UserCreateNestedOneWithoutCreatedCustomerVisitsInput
+}
+
+export type CustomerVisitUncheckedCreateWithoutAddressInput = {
+  id?: string
+  customerId: string
+  ownerUserId: string
+  scheduledAt: Date | string
+  status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
+  title: string
+  note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerVisitCreateOrConnectWithoutAddressInput = {
+  where: Prisma.CustomerVisitWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerVisitCreateWithoutAddressInput, Prisma.CustomerVisitUncheckedCreateWithoutAddressInput>
+}
+
+export type CustomerVisitCreateManyAddressInputEnvelope = {
+  data: Prisma.CustomerVisitCreateManyAddressInput | Prisma.CustomerVisitCreateManyAddressInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerVisitUpsertWithWhereUniqueWithoutAddressInput = {
+  where: Prisma.CustomerVisitWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerVisitUpdateWithoutAddressInput, Prisma.CustomerVisitUncheckedUpdateWithoutAddressInput>
+  create: Prisma.XOR<Prisma.CustomerVisitCreateWithoutAddressInput, Prisma.CustomerVisitUncheckedCreateWithoutAddressInput>
+}
+
+export type CustomerVisitUpdateWithWhereUniqueWithoutAddressInput = {
+  where: Prisma.CustomerVisitWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerVisitUpdateWithoutAddressInput, Prisma.CustomerVisitUncheckedUpdateWithoutAddressInput>
+}
+
+export type CustomerVisitUpdateManyWithWhereWithoutAddressInput = {
+  where: Prisma.CustomerVisitScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerVisitUpdateManyMutationInput, Prisma.CustomerVisitUncheckedUpdateManyWithoutAddressInput>
+}
+
 export type CustomerVisitCreateManyOwnerUserInput = {
   id?: string
   customerId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdByUserId: string
   createdAt?: Date | string
@@ -773,10 +1005,14 @@ export type CustomerVisitCreateManyCreatedByUserInput = {
   id?: string
   customerId: string
   ownerUserId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -786,22 +1022,30 @@ export type CustomerVisitUpdateWithoutOwnerUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutVisitsNestedInput
+  address?: Prisma.CustomerAddressUpdateOneWithoutVisitsNestedInput
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerVisitsNestedInput
 }
 
 export type CustomerVisitUncheckedUpdateWithoutOwnerUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -811,10 +1055,14 @@ export type CustomerVisitUncheckedUpdateWithoutOwnerUserInput = {
 export type CustomerVisitUncheckedUpdateManyWithoutOwnerUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -825,23 +1073,31 @@ export type CustomerVisitUpdateWithoutCreatedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutVisitsNestedInput
   ownerUser?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomerVisitsNestedInput
+  address?: Prisma.CustomerAddressUpdateOneWithoutVisitsNestedInput
 }
 
 export type CustomerVisitUncheckedUpdateWithoutCreatedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -851,10 +1107,14 @@ export type CustomerVisitUncheckedUpdateManyWithoutCreatedByUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -863,10 +1123,14 @@ export type CustomerVisitUncheckedUpdateManyWithoutCreatedByUserInput = {
 export type CustomerVisitCreateManyCustomerInput = {
   id?: string
   ownerUserId: string
+  addressId?: string | null
   scheduledAt: Date | string
   status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
   title: string
   note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
   completedAt?: Date | string | null
   createdByUserId: string
   createdAt?: Date | string
@@ -877,22 +1141,30 @@ export type CustomerVisitUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ownerUser?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomerVisitsNestedInput
+  address?: Prisma.CustomerAddressUpdateOneWithoutVisitsNestedInput
   createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerVisitsNestedInput
 }
 
 export type CustomerVisitUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -902,10 +1174,82 @@ export type CustomerVisitUncheckedUpdateWithoutCustomerInput = {
 export type CustomerVisitUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  addressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
   title?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerVisitCreateManyAddressInput = {
+  id?: string
+  customerId: string
+  ownerUserId: string
+  scheduledAt: Date | string
+  status?: $Enums.CustomerVisitStatus
+  type?: $Enums.CustomerVisitType
+  title: string
+  note?: string | null
+  outcome?: $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Date | string | null
+  completedAt?: Date | string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerVisitUpdateWithoutAddressInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutVisitsNestedInput
+  ownerUser?: Prisma.UserUpdateOneRequiredWithoutOwnedCustomerVisitsNestedInput
+  createdByUser?: Prisma.UserUpdateOneRequiredWithoutCreatedCustomerVisitsNestedInput
+}
+
+export type CustomerVisitUncheckedUpdateWithoutAddressInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerVisitUncheckedUpdateManyWithoutAddressInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumCustomerVisitStatusFieldUpdateOperationsInput | $Enums.CustomerVisitStatus
+  type?: Prisma.EnumCustomerVisitTypeFieldUpdateOperationsInput | $Enums.CustomerVisitType
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcome?: Prisma.NullableEnumCustomerVisitOutcomeFieldUpdateOperationsInput | $Enums.CustomerVisitOutcome | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -918,16 +1262,21 @@ export type CustomerVisitSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   customerId?: boolean
   ownerUserId?: boolean
+  addressId?: boolean
   scheduledAt?: boolean
   status?: boolean
+  type?: boolean
   title?: boolean
   note?: boolean
+  outcome?: boolean
+  nextActionAt?: boolean
   completedAt?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   ownerUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  address?: boolean | Prisma.CustomerVisit$addressArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerVisit"]>
 
@@ -935,16 +1284,21 @@ export type CustomerVisitSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   customerId?: boolean
   ownerUserId?: boolean
+  addressId?: boolean
   scheduledAt?: boolean
   status?: boolean
+  type?: boolean
   title?: boolean
   note?: boolean
+  outcome?: boolean
+  nextActionAt?: boolean
   completedAt?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   ownerUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  address?: boolean | Prisma.CustomerVisit$addressArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerVisit"]>
 
@@ -952,16 +1306,21 @@ export type CustomerVisitSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   customerId?: boolean
   ownerUserId?: boolean
+  addressId?: boolean
   scheduledAt?: boolean
   status?: boolean
+  type?: boolean
   title?: boolean
   note?: boolean
+  outcome?: boolean
+  nextActionAt?: boolean
   completedAt?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   ownerUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  address?: boolean | Prisma.CustomerVisit$addressArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerVisit"]>
 
@@ -969,30 +1328,37 @@ export type CustomerVisitSelectScalar = {
   id?: boolean
   customerId?: boolean
   ownerUserId?: boolean
+  addressId?: boolean
   scheduledAt?: boolean
   status?: boolean
+  type?: boolean
   title?: boolean
   note?: boolean
+  outcome?: boolean
+  nextActionAt?: boolean
   completedAt?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerVisitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "ownerUserId" | "scheduledAt" | "status" | "title" | "note" | "completedAt" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerVisit"]>
+export type CustomerVisitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "ownerUserId" | "addressId" | "scheduledAt" | "status" | "type" | "title" | "note" | "outcome" | "nextActionAt" | "completedAt" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["customerVisit"]>
 export type CustomerVisitInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   ownerUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  address?: boolean | Prisma.CustomerVisit$addressArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type CustomerVisitIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   ownerUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  address?: boolean | Prisma.CustomerVisit$addressArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type CustomerVisitIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   ownerUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  address?: boolean | Prisma.CustomerVisit$addressArgs<ExtArgs>
   createdByUser?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
@@ -1001,16 +1367,28 @@ export type $CustomerVisitPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {
     customer: Prisma.$CustomerPayload<ExtArgs>
     ownerUser: Prisma.$UserPayload<ExtArgs>
+    address: Prisma.$CustomerAddressPayload<ExtArgs> | null
     createdByUser: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     customerId: string
     ownerUserId: string
+    /**
+     * Ziyaret edilen adres — il/ilçe raporlaması ve satış haritasıyla entegrasyon buradan gelir.
+     * Nullable: telefon/video ziyaretlerde veya adres seçilmeden hızlı girişte boş kalabilir.
+     */
+    addressId: string | null
     scheduledAt: Date
     status: $Enums.CustomerVisitStatus
+    type: $Enums.CustomerVisitType
     title: string
     note: string | null
+    /**
+     * Yalnız status COMPLETED olduğunda anlamlıdır; PLANNED/CANCELED'da boş kalır.
+     */
+    outcome: $Enums.CustomerVisitOutcome | null
+    nextActionAt: Date | null
     completedAt: Date | null
     createdByUserId: string
     createdAt: Date
@@ -1411,6 +1789,7 @@ export interface Prisma__CustomerVisitClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   customer<T extends Prisma.CustomerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ownerUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  address<T extends Prisma.CustomerVisit$addressArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerVisit$addressArgs<ExtArgs>>): Prisma.Prisma__CustomerAddressClient<runtime.Types.Result.GetResult<Prisma.$CustomerAddressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdByUser<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1444,10 +1823,14 @@ export interface CustomerVisitFieldRefs {
   readonly id: Prisma.FieldRef<"CustomerVisit", 'String'>
   readonly customerId: Prisma.FieldRef<"CustomerVisit", 'String'>
   readonly ownerUserId: Prisma.FieldRef<"CustomerVisit", 'String'>
+  readonly addressId: Prisma.FieldRef<"CustomerVisit", 'String'>
   readonly scheduledAt: Prisma.FieldRef<"CustomerVisit", 'DateTime'>
   readonly status: Prisma.FieldRef<"CustomerVisit", 'CustomerVisitStatus'>
+  readonly type: Prisma.FieldRef<"CustomerVisit", 'CustomerVisitType'>
   readonly title: Prisma.FieldRef<"CustomerVisit", 'String'>
   readonly note: Prisma.FieldRef<"CustomerVisit", 'String'>
+  readonly outcome: Prisma.FieldRef<"CustomerVisit", 'CustomerVisitOutcome'>
+  readonly nextActionAt: Prisma.FieldRef<"CustomerVisit", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"CustomerVisit", 'DateTime'>
   readonly createdByUserId: Prisma.FieldRef<"CustomerVisit", 'String'>
   readonly createdAt: Prisma.FieldRef<"CustomerVisit", 'DateTime'>
@@ -1850,6 +2233,25 @@ export type CustomerVisitDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many CustomerVisits to delete.
    */
   limit?: number
+}
+
+/**
+ * CustomerVisit.address
+ */
+export type CustomerVisit$addressArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerAddress
+   */
+  select?: Prisma.CustomerAddressSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerAddress
+   */
+  omit?: Prisma.CustomerAddressOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerAddressInclude<ExtArgs> | null
+  where?: Prisma.CustomerAddressWhereInput
 }
 
 /**

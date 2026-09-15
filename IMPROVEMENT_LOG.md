@@ -7979,6 +7979,59 @@ eşit sayıda eklendi (865/865).
   0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Kalan: kullanıcı
   kubi'de `/urunler/filtre`'de bu iki checkbox'ı da görüp test etmeli.
 
+### Müşteri ziyaretleri (saha CRM) — Dilim 0: şema (2026-09-15, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Kullanıcı, satış temsilcisinin saha ziyaretlerini planlayıp
+  not alabilmesi + admin/satış müdürünün bunu temsilci/tarih/il-ilçe filtreli
+  bir tabloda görebilmesi + admin/satış müdürünün bir müşteriyi seçip bir
+  temsilciye ziyaret ataması yapabilmesi senaryosunu anlattı. Önce mevcut kod
+  araştırıldı (kod yazılmadan): `CustomerVisit` modeli zaten vardı
+  (`ownerUserId`=sorumlu temsilci, `createdByUserId`=oluşturan) ve tam CRUD
+  hem admin (`/admin/customers/{id}/visits`, admin/owner) hem satış tarafında
+  (`/sales/customers/{id}/visits`, sales/sales_director/admin/owner) hazırdı;
+  `ownerUserId` çağıran tarafça seçildiği için "başka temsilciye atama"
+  senaryosu zaten API düzeyinde mümkündü. Eksik olan iki şey netleşti: (1)
+  satış panelinde hiçbir arayüz yok (temsilci hiçbir yerden ziyaret giremiyor),
+  (2) çapraz-müşteri rapor/filtre hiçbir yerde yok — repository yalnız
+  `listVisits(customerId)` (tek müşteri) destekliyordu.
+  Bu bulgular üzerine `CustomerVisit`'e 4 yeni ADDITIVE alan eklendi:
+  - `type` (`CustomerVisitType`: IN_PERSON/PHONE/VIDEO, default IN_PERSON) —
+    saha ziyaretini telefon görüşmesinden ayırt eder.
+  - `outcome` (`CustomerVisitOutcome`: POSITIVE/FOLLOW_UP_NEEDED/
+    NOT_INTERESTED/ORDER_PLACED, nullable) — yalnız COMPLETED'da anlamlı.
+  - `nextActionAt` (DateTime?, index'li) — sonraki takip tarihi; ileride
+    hatırlatma/dashboard sorgusu için şimdiden index'lendi.
+  - `addressId` (→ `CustomerAddress`, `SetNull`) — ziyaret edilen adres; il/ilçe
+    raporlamasının ve satış haritasıyla (`CustomerMapPageClient`) gelecekteki
+    entegrasyonun kaynağı. `CustomerAddress`'e karşılık gelen `visits
+    CustomerVisit[]` ters ilişkisi eklendi.
+  Migration: `20260915034605_add_customer_visit_type_outcome_next_action_address`
+  (`npx sst shell --stage kubi --target Prisma -- ... prisma migrate dev`),
+  kubi'nin Neon veritabanına uygulandı, `prisma generate` ile client
+  yenilendi. Mevcut `note`/`status`/`completedAt` davranışı değişmedi, hiçbir
+  alan zorunlu değil — geriye dönük kırılma yok.
+- **Neden:** Kullanıcı gerçek bir saha-satış CRM ihtiyacını tarif etti (satış
+  temsilcisi ziyaret planlar + not alır; admin/satış müdürü temsilci/tarih/
+  il-ilçe filtreli rapor görür; admin/satış müdürü müşteri seçip temsilciye
+  ziyaret ataması yapabilir) ve "sende fikir daha çok olabilir, bir başlangıç
+  yapalım" dedi. Sunulan iki seçenekten ("Zenginleştirilmiş" vs "Minimal")
+  zenginleştirilmiş kapsamı, "şimdi nasıl ilerleyelim" sorusuna da "Dilim 0'a
+  hemen başla" cevabını verdi; şema diff'i ayrıca gösterilip "Onaylıyorum"
+  denildikten sonra uygulandı.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  623/623 ✅ (değişmedi — bu dilimde yeni test eklenmedi, yalnız şema) ·
+  `test -w @ceyhunlarweb/functions` 340/340 ✅. Migration SQL'i additive
+  (`ADD COLUMN` + iki yeni enum + bir FK), veri kaybı riski yok.
+- **Ne kaldı (PLAN'a madde olarak yazıldı):** Dilim 1 — backend rapor
+  altyapısı (`listVisitsForReport` + `GET /customer-visits` (admin) +
+  `GET /sales/customer-visits` (satış, `sales` kendi ownerUserId'sine
+  sabit) + create/update uçlarına yeni 4 alan). Dilim 2 — satış paneli
+  (`/satis/ziyaretlerim`, bugün temsilcinin ziyaret girebileceği TEK yer
+  olacak). Dilim 3 — admin/satış müdürü rapor sayfası (filtre + tablo).
+  Dilim 4 (opsiyonel) — haritaya "Ziyaret Planla" hızlı aksiyonu + hatırlatma
+  bildirimi. Kubi'de runtime doğrulaması Dilim 1-3 sonrasında yapılmalı
+  (bugüne kadar yalnız şema/migration, hiçbir handler/UI değişmedi).
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

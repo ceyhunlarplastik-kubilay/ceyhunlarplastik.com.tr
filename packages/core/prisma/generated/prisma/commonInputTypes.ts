@@ -579,6 +579,20 @@ export type EnumCustomerVisitStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumCustomerVisitStatusFilter<$PrismaModel> | $Enums.CustomerVisitStatus
 }
 
+export type EnumCustomerVisitTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitType | Prisma.EnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerVisitTypeFilter<$PrismaModel> | $Enums.CustomerVisitType
+}
+
+export type EnumCustomerVisitOutcomeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitOutcome | Prisma.EnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerVisitOutcomeNullableFilter<$PrismaModel> | $Enums.CustomerVisitOutcome | null
+}
+
 export type EnumCustomerVisitStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.CustomerVisitStatus | Prisma.EnumCustomerVisitStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CustomerVisitStatus[] | Prisma.ListEnumCustomerVisitStatusFieldRefInput<$PrismaModel>
@@ -587,6 +601,26 @@ export type EnumCustomerVisitStatusWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCustomerVisitStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCustomerVisitStatusFilter<$PrismaModel>
+}
+
+export type EnumCustomerVisitTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitType | Prisma.EnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerVisitTypeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerVisitType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerVisitTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerVisitTypeFilter<$PrismaModel>
+}
+
+export type EnumCustomerVisitOutcomeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitOutcome | Prisma.EnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerVisitOutcomeNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerVisitOutcome | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerVisitOutcomeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerVisitOutcomeNullableFilter<$PrismaModel>
 }
 
 export type DecimalFilter<$PrismaModel = never> = {
@@ -1367,6 +1401,20 @@ export type NestedEnumCustomerVisitStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumCustomerVisitStatusFilter<$PrismaModel> | $Enums.CustomerVisitStatus
 }
 
+export type NestedEnumCustomerVisitTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitType | Prisma.EnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerVisitTypeFilter<$PrismaModel> | $Enums.CustomerVisitType
+}
+
+export type NestedEnumCustomerVisitOutcomeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitOutcome | Prisma.EnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerVisitOutcomeNullableFilter<$PrismaModel> | $Enums.CustomerVisitOutcome | null
+}
+
 export type NestedEnumCustomerVisitStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.CustomerVisitStatus | Prisma.EnumCustomerVisitStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CustomerVisitStatus[] | Prisma.ListEnumCustomerVisitStatusFieldRefInput<$PrismaModel>
@@ -1375,6 +1423,26 @@ export type NestedEnumCustomerVisitStatusWithAggregatesFilter<$PrismaModel = nev
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCustomerVisitStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCustomerVisitStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerVisitTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitType | Prisma.EnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CustomerVisitType[] | Prisma.ListEnumCustomerVisitTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCustomerVisitTypeWithAggregatesFilter<$PrismaModel> | $Enums.CustomerVisitType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerVisitTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerVisitTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumCustomerVisitOutcomeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CustomerVisitOutcome | Prisma.EnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.CustomerVisitOutcome[] | Prisma.ListEnumCustomerVisitOutcomeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumCustomerVisitOutcomeNullableWithAggregatesFilter<$PrismaModel> | $Enums.CustomerVisitOutcome | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCustomerVisitOutcomeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCustomerVisitOutcomeNullableFilter<$PrismaModel>
 }
 
 export type NestedDecimalFilter<$PrismaModel = never> = {

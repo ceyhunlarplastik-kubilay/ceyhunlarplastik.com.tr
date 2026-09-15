@@ -1063,6 +1063,8 @@ model CustomerAddress {
   cityRef                GeoCity?    @relation(fields: [cityId], references: [id], onDelete: SetNull)
   locationVerifiedByUser User?       @relation("CustomerAddressVerifiedByUser", fields: [locationVerifiedByUserId], references: [id], onDelete: SetNull)
 
+  visits CustomerVisit[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1121,11 +1123,20 @@ model CustomerVisit {
   ownerUserId String
   ownerUser   User   @relation("CustomerVisitOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
 
-  scheduledAt DateTime
-  status      CustomerVisitStatus @default(PLANNED)
-  title       String
-  note        String?             @db.Text
-  completedAt DateTime?
+  /// Ziyaret edilen adres — il/ilçe raporlaması ve satış haritasıyla entegrasyon buradan gelir.
+  /// Nullable: telefon/video ziyaretlerde veya adres seçilmeden hızlı girişte boş kalabilir.
+  addressId String?
+  address   CustomerAddress? @relation(fields: [addressId], references: [id], onDelete: SetNull)
+
+  scheduledAt  DateTime
+  status       CustomerVisitStatus   @default(PLANNED)
+  type         CustomerVisitType     @default(IN_PERSON)
+  title        String
+  note         String?               @db.Text
+  /// Yalnız status COMPLETED olduğunda anlamlıdır; PLANNED/CANCELED'da boş kalır.
+  outcome      CustomerVisitOutcome?
+  nextActionAt DateTime?
+  completedAt  DateTime?
 
   createdByUserId String
   createdByUser   User   @relation("CustomerVisitCreatedBy", fields: [createdByUserId], references: [id], onDelete: Restrict)
@@ -1137,12 +1148,27 @@ model CustomerVisit {
   @@index([customerId, status, scheduledAt])
   @@index([ownerUserId, status, scheduledAt])
   @@index([createdByUserId])
+  @@index([addressId])
+  @@index([nextActionAt])
 }
 
 enum CustomerVisitStatus {
   PLANNED
   COMPLETED
   CANCELED
+}
+
+enum CustomerVisitType {
+  IN_PERSON
+  PHONE
+  VIDEO
+}
+
+enum CustomerVisitOutcome {
+  POSITIVE
+  FOLLOW_UP_NEEDED
+  NOT_INTERESTED
+  ORDER_PLACED
 }
 
 model ProductVariantSupplier {

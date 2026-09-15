@@ -18,6 +18,38 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
+### Müşteri ziyaretleri (saha CRM) — Dilim 1-4 *(kullanıcı talebiyle, Dilim 0 ✅ 2026-09-15 LOG)*
+- **Yapıldı (LOG):** `CustomerVisit` şeması zenginleştirildi — `type`
+  (IN_PERSON/PHONE/VIDEO), `outcome` (POSITIVE/FOLLOW_UP_NEEDED/NOT_INTERESTED/
+  ORDER_PLACED), `nextActionAt`, `addressId` (→ `CustomerAddress`, il/ilçe +
+  harita entegrasyonu için). Migration kubi'de uygulandı. Detaylar LOG'daki
+  "Müşteri ziyaretleri... Dilim 0" notunda.
+- **Mevcut durum (araştırmayla doğrulandı, hâlâ geçerli):** Per-müşteri CRUD hem
+  admin (`/admin/customers/{id}/visits`, admin/owner) hem satış tarafında
+  (`/sales/customers/{id}/visits`, sales/sales_director/admin/owner) zaten
+  vardı; `ownerUserId` çağıran tarafça seçiliyor (admin/satış müdürü başka bir
+  temsilciye atama zaten API düzeyinde mümkün). Eksik olan: (1) satış
+  panelinde HİÇBİR arayüz yok, (2) çapraz-müşteri rapor/liste (temsilci/tarih/
+  il-ilçe filtreli) hiçbir yerde yok, repository yalnız `listVisits(customerId)`
+  destekliyor.
+- **Dilim 1 (backend rapor altyapısı):** `listVisitsForReport` (customer+address
+  join, ownerUserId/tarih aralığı/il-ilçe/status filtreli, sayfalı) +
+  `GET /customer-visits` (AdminApi, admin/owner) + `GET /sales/customer-visits`
+  (ProtectedApi, sales kendi ownerUserId'sine sabit, sales_director/admin/owner
+  serbest filtreler — mevcut `assignedSalesUserId` zorlama desenine uygun);
+  create/update uçları yeni 4 alanı da kabul edecek şekilde genişler.
+- **Dilim 2 (satış paneli):** `/satis/ziyaretlerim` — kendi ziyaretlerini
+  gör, yeni ziyaret planla (müşteri + tarih + tür + not), tamamlandı işaretle
+  (outcome + not). Bugün temsilcinin ziyaret girebileceği tek yer bu olacak.
+- **Dilim 3 (admin/satış müdürü raporu):** filtre çubuğu (temsilci, tarih
+  aralığı, il/ilçe — mevcut `features/geo` selector'ları ve
+  `AdminListPagination` ile) + tablo.
+- **Dilim 4 (opsiyonel):** satış haritasındaki müşteri accordion'una "Ziyaret
+  Planla" hızlı aksiyonu; ziyaret hatırlatma bildirimi (`UserNotification`).
+- Etki: **core** (`customers/repository.ts`), **functions** (AdminApi +
+  ProtectedApi crm), **frontend** (yeni satış sayfası + yeni admin/satış
+  müdürü rapor sayfası + mevcut `CustomerVisitsPageClient.tsx` genişletme).
+
 ### `MeasurementCode` R3/H3 — prod migration planı *(kullanıcı talebiyle, kubi ✅ 2026-09-09 LOG)*
 - Kubi'de tamamlandı ve kullanıcı doğruladı (veri girişi panelinde R3/H3
   seçilebiliyor). Kalan: aynı migration'ı (`20260908232145_add_r3_h3_measurement_codes`
