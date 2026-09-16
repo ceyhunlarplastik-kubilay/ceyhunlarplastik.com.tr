@@ -8187,6 +8187,83 @@ eşit sayıda eklendi (865/865).
   hiçbir yerde böyle bir bileşen yok, ilk kez bu sayfada gerekirse
   eklenebilir).
 
+### Varyant ölçülerinde bileşik giriş ("10*30") — H3 gibi tek sayıya indirgenemeyen ölçüler (2026-09-16, kullanıcı talebiyle)
+
+- **Ne yapıldı:**
+  - Tetikleyici: kullanıcı `1.22` ürün modelinde H3 ölçüsüne `10*30` girmeye
+    çalışınca hata alıyordu — `ProductSizeValue.value` katı bir `Float`.
+  - **Şema (additive):** `ProductSizeValue.rawValue String?` eklendi. `value`
+    DEĞİŞMEDİ — bileşik girişte SIRALAMA SÜRROGATI olarak ilk sayıyı taşımaya
+    devam ediyor ("10*30" → `value=10`); `rawValue` yalnız bileşik girişte
+    dolu, kullanıcının birebir yazdığı metni taşır. Migration
+    `20260916120000_add_product_size_value_raw_value` — tek satır
+    `ALTER TABLE ... ADD COLUMN "rawValue" TEXT`, backfill yok, mevcut veriye
+    sıfır risk. Migration dosyası bu oturumda `prisma migrate diff` ile (DB
+    bağlantısı olmadan, salt şema-şema diff) üretildi; kubi'ye kullanıcı
+    tarafından uygulandı.
+  - **Format kararı (kullanıcı onayıyla):** yalnız `SAYI*SAYI` deseni
+    (`10*30`, `10x30`, `10×30` hepsi kanonik `*`e normalize edilir) — tam
+    serbest metin DEĞİL. Sıralama sürrogatı kararı: İLK SAYI (10). İkisi de
+    `AskUserQuestion` ile netleştirildi.
+  - **Parsing** (`measurementValue.ts`): `parseMeasurementInput`'a bileşik
+    desen dalı eklendi; metrik diş kodlarında (`M`/`D`) geçersiz kalır
+    (kendi deseni önce eşleşmeye çalışır, bileşik dala hiç düşmez).
+  - **İmza/sıralama** (`sizeSignature.ts`): `rawValue` doluysa imza
+    segmentinde birebir kullanılır (`H3#Yükseklik=10*30`) — tekilleştirme
+    hâlâ doğru (10*30 ile 10*40 ayrı `ProductSize` alır); `sortKey`
+    değişmeden sürrogat `value` üzerinden hesaplanır.
+  - **Yazma yolları:** `productVariantWriter.ts` (matris + tekil varyant
+    endpoint'i, tek kaynak) ve `businessRequests/service.ts`
+    (`normalizeVariantSizeValues` — tedarikçi varyant talebi onayı akışı)
+    ikisi de `rawValue`'yu Prisma'ya yazıyor.
+  - **Okuma yolları:** `prisma/productVariants/repository.ts` ve
+    `prisma/productVariantMatrix/repository.ts`'teki AÇIK `select`'lere
+    `rawValue: true` eklendi (`include` kullanan include'lar zaten otomatik
+    geliyordu — Prisma `include` tüm skaler alanları getirir).
+  - **5 Zod validator** (`AdminApi/productVariantMatrix.ts`,
+    `AdminApi/productVariants.ts` ×2, `PublicApi/productVariants.ts`): 2
+    request şeması `^\d+(?:\.\d+)?\*\d+(?:\.\d+)?$` regex'iyle sınırlı
+    `rawValue` kabul ediyor, 3 response şeması `rawValue` dönüyor.
+  - **Görüntüleme** (`measurementDisplay.ts`, core — public/portal/admin
+    ortak): `formatMeasurementValue` ve `buildMeasurementKey` (`?m=` derin
+    link anahtarı, ~16 yerde kullanılıyor) `rawValue`'yu önceliklendirir.
+    `flattenVariantStructure.ts` ve `mapPublicProductVariantTableRow.ts`
+    (public+portal ortak DTO düzleştiricisi) `rawValue`'yu taşıyor —
+    ~50 dosyanın okuduğu tek noktadan otomatik yayılım.
+  - **~9 doğrudan enterpolasyon noktası** `rawValue ?? value` desenine
+    geçirildi: portal cart key builder'ları
+    (`CustomerPortalVariantDetailsTable.tsx`, `PortalVariantQuickActions.tsx`),
+    özel fiyat formatter'ları (`customerPortalSpecialPriceFormatters.ts`,
+    `customerSpecialPriceForm.ts`).
+  - **Bilinçli olarak DOKUNULMADI:** `Product3DConfigurator.tsx`'in
+    parametrik 3D model min/max eşleştirmesi — bu özellik gerçek tek sayı
+    gerektirir, sürrogat `value` zaten bu amaç için var.
+  - **Takip düzeltmesi (aynı gün, kullanıcı bildirimiyle):**
+    `VariantMatrixExistingTable.tsx` (admin VE veri-girişi
+    `/veri-girisi/products/[id]/variants` ile AYNI bileşen, route farkı
+    yalnız prop bayrağı) mevcut varyant satırlarının ölçü sütununda ham
+    `value` basıyordu, `rawValue`'ya hiç dokunmuyordu — public/portal
+    ekranları zaten `formatMeasurementValue` kullandığı için sorunsuzdu, bu
+    tablo o ortak yardımcıyı hiç çağırmıyordu. Import edilip hücre
+    `formatMeasurementValue({ rawValue, value, measurementType: { code } })`
+    ile render edilecek şekilde değiştirildi.
+- **Neden:** kullanıcı H3 gibi ölçülerde tek sayıya indirgenemeyen fiziksel
+  ölçüler (ör. delik aralığı) için "10*30" gibi giriş yapılması gerektiğini
+  belirtti — "çok doğru olmayabilir ama böyle giriş yapılması isteniyor".
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+  `lint -w frontend` 0 error/159 warning (değişmedi) ✅ ·
+  `test:ci -w @ceyhunlarweb/core` 642/642 (10 yeni test: compound parsing,
+  imza/sortKey, rawValue formatlama/anahtar) ✅ ·
+  `test -w @ceyhunlarweb/functions` 342/342 (`validatorCompilation.test.ts`
+  dahil) ✅ · `test -w frontend` 384/384 ✅. Migration kubi'de kullanıcı
+  tarafından uygulandı ve doğrulandı; matris ekranı (giriş + listeleme) hem
+  admin hem veri-girişi rolünde kubi'de görsel olarak teyit edildi.
+- **Ne kaldı:** Yok — kullanıcı kubi'de hem girişi (matris draft input) hem
+  listelemeyi (`VariantMatrixExistingTable`) doğruladı. `Product3DConfigurator`
+  bilinçli olarak kapsam dışı bırakıldı (yukarıda not edildi); ileride
+  parametrik model bileşik ölçülü bir varyanta bağlanmak istenirse ayrı bir
+  karar gerekir.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
