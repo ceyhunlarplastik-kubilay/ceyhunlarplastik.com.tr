@@ -47,7 +47,9 @@ export function buildDraftFromRow(input: {
 
     const measurements: Record<string, string> = {}
     for (const value of size?.values ?? []) {
-        measurements[value.requirementId] = String(value.value)
+        // Bileşik girişte ("10*30") input alanına birebir metin geri konur;
+        // aksi halde `value` yalnız sıralama sürrogatı olduğundan "10" görünürdü.
+        measurements[value.requirementId] = value.rawValue ?? String(value.value)
     }
 
     return createEmptyDraftRow({

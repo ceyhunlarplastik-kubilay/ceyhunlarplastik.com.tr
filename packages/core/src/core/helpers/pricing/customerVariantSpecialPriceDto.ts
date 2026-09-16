@@ -46,6 +46,7 @@ function mapMeasurement(measurement: any) {
     return {
         id: measurement.id,
         value: measurement.value,
+        rawValue: measurement.rawValue ?? null,
         label: measurement.label,
         measurementType: measurement.measurementType,
     }

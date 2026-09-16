@@ -207,6 +207,7 @@ const sizeKeySelect = {
     values: {
         select: {
             value: true,
+            rawValue: true,
             requirement: {
                 select: {
                     isRequired: true,

@@ -68,6 +68,7 @@ export type MeasurementTypeDetails = {
 export type VariantMeasurement = {
     id: string
     value: number
+    rawValue?: string | null
     label: string
     measurementType: MeasurementTypeDetails
 }

@@ -37,10 +37,26 @@ describe("flattenProductVariantStructure", () => {
         expect(flat.measurements).toEqual([{
             id: "sv-1",
             value: 12,
+            rawValue: null,
             label: "Elcik Çapı",
             unit: "cm",
             measurementType: { id: "mt-r", code: "R", name: "Çap", baseUnit: "mm" },
         }])
+    })
+
+    it("bileşik ölçüde rawValue'yu birebir taşır", () => {
+        const flat = flattenProductVariantStructure({
+            size: {
+                values: [{
+                    id: "sv-2",
+                    value: 10,
+                    rawValue: "10*30",
+                    requirement: { label: "H3", unit: "mm", measurementType: { id: "mt-h3", code: "H3" } },
+                }],
+            },
+        })
+        expect(flat.measurements[0].rawValue).toBe("10*30")
+        expect(flat.measurements[0].value).toBe(10)
     })
 
     it("renk ve hammaddeyi version'dan yukarı çeker", () => {

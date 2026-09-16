@@ -10,6 +10,9 @@
 export type MeasurementDisplayInput = {
     id: string
     value: number
+    /** Bileşik girişte ("10*30") kullanıcının birebir yazdığı metin. Doluysa
+     * gösterim ve `?m=` anahtarı bunu kullanır, `value` yalnız sıralama içindir. */
+    rawValue?: string | null
     /** Ürün modeline özel ölçü ADI ("Elcik Çapı") — değer metni DEĞİL. */
     label: string
     /** Şablonda ezilmiş birim; yoksa ölçü tipinin taban birimi. */
@@ -50,11 +53,18 @@ function normalizeNumeric(value: number): string {
  * değerin yerine ölçü adını basardı.
  */
 export function formatMeasurementValue(measurement: MeasurementDisplayInput): string {
+    if (measurement.rawValue) return measurement.rawValue
+
     const numeric = normalizeNumeric(measurement.value)
     const code = measurement.measurementType?.code
 
     if (code && METRIC_THREAD_CODES.includes(code)) return `M${numeric}`
     return numeric
+}
+
+/** Anahtar/karşılaştırma için değer metni — bileşik girişte `rawValue`, aksi halde sabit ondalıklı sayı. */
+function keyValueText(measurement: MeasurementDisplayInput): string {
+    return measurement.rawValue ?? normalizeNumeric(measurement.value)
 }
 
 /** Ölçünün görünen adı: ürün modeline özel etiket, yoksa ölçü tipinin adı. */
@@ -83,7 +93,7 @@ function byDisplayOrder(a: MeasurementDisplayInput, b: MeasurementDisplayInput) 
 export function buildMeasurementKey(measurements: MeasurementDisplayInput[]): string {
     return [...measurements]
         .sort(byDisplayOrder)
-        .map((measurement) => `${measurement.measurementType?.id ?? ""}:${normalizeNumeric(measurement.value)}`)
+        .map((measurement) => `${measurement.measurementType?.id ?? ""}:${keyValueText(measurement)}`)
         .join("|")
 }
 

@@ -96,6 +96,7 @@ const measurementTypeSchema = z.object({
 const measurementSchema = z.object({
     id: z.string(),
     value: z.number(),
+    rawValue: z.string().nullable().optional(),
     label: z.string(),
     unit: z.string().nullable().optional(),
     measurementType: measurementTypeSchema.nullable(),

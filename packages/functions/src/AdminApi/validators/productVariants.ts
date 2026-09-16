@@ -7,6 +7,9 @@ const prismaDecimalSchema = z.object({
     d: z.array(z.number()),
 }).loose()
 
+/** "10*30" — bileşik ölçü girişi. `measurementValue.ts`'in ürettiği kanonik biçimle birebir. */
+const compoundMeasurementRawValue = z.string().regex(/^\d+(?:\.\d+)?\*\d+(?:\.\d+)?$/).max(32)
+
 const productSchema = z.object({
     id: z.string(),
     code: z.string(),
@@ -106,6 +109,7 @@ const measurementTypeSchema = z.object({
 const measurementSchema = z.object({
     id: z.string(),
     value: z.number(),
+    rawValue: z.string().nullable().optional(),
     label: z.string(),
     unit: z.string().nullable().optional(),
     measurementType: measurementTypeSchema.nullable(),
@@ -173,6 +177,7 @@ export const createProductVariantValidator = validatorWrapper(
             measurements: z.array(z.object({
                 requirementId: z.uuid(),
                 value: z.number(),
+                rawValue: compoundMeasurementRawValue.optional(),
             })).min(1),
             supplier: variantSupplierInputSchema.optional(),
         }),

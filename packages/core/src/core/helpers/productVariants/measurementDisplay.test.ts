@@ -43,6 +43,10 @@ describe("formatMeasurementValue", () => {
         expect(formatMeasurementValue(m({ value: 12.5 }))).toBe("12.5")
         expect(formatMeasurementValue(m({ value: 20.0 }))).toBe("20")
     })
+
+    it("rawValue varsa birebir gösterir, sayısal formatlamayı atlar", () => {
+        expect(formatMeasurementValue(m({ value: 10, rawValue: "10*30" }))).toBe("10*30")
+    })
 })
 
 describe("resolveMeasurementName", () => {
@@ -83,6 +87,13 @@ describe("buildMeasurementKey", () => {
         const tr = buildMeasurementKey([m({ label: "Elcik Çapı" })])
         const en = buildMeasurementKey([m({ label: "Handle Diameter" })])
         expect(tr).toBe(en)
+    })
+
+    it("rawValue varsa anahtarda birebir kullanır — 10*30 ile 10*40 farklı anahtar üretir", () => {
+        const a = buildMeasurementKey([m({ value: 10, rawValue: "10*30" })])
+        const b = buildMeasurementKey([m({ value: 10, rawValue: "10*40" })])
+        expect(a).not.toBe(b)
+        expect(a).toBe("mt-r:10*30")
     })
 })
 

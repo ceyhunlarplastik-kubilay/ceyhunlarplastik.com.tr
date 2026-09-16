@@ -131,6 +131,7 @@ export type CustomerSpecialPriceProductVariant = {
     measurements?: Array<{
         id: string
         value: number
+        rawValue?: string | null
         label: string
         measurementType: {
             id: string

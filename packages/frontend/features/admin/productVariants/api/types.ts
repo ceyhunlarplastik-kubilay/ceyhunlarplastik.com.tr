@@ -1,6 +1,8 @@
 export type VariantMeasurement = {
     id: string
     value: number
+    /** Bileşik girişte ("10*30") kullanıcının birebir yazdığı metin, aksi halde yok. */
+    rawValue?: string | null
     /** Ürün modeline özel ölçü etiketi ("Kol Çapı") — ölçü TİPİNİN adı değil. */
     label: string
     /** Şablonda ezilmiş birim; yoksa ölçü tipinin taban birimi. */
@@ -163,7 +165,7 @@ export type UpsertVariantInput = {
     name: string
     colorId?: string
     materialIds: string[]
-    measurements: Array<{ requirementId: string; value: number }>
+    measurements: Array<{ requirementId: string; value: number; rawValue?: string }>
     suppliers: Array<{
         id: string
         isActive?: boolean

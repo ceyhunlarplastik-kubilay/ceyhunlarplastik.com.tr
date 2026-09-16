@@ -17,6 +17,8 @@ import { formatVersionCode } from "./variantCode"
 export type FlatVariantMeasurement = {
     id: string
     value: number
+    /** Bileşik girişte ("10*30") kullanıcının birebir yazdığı metin, aksi halde yok. */
+    rawValue?: string | null
     /** Ürün modeline özel ölçü etiketi — "Kol Çapı". */
     label: string
     unit: string | null
@@ -46,6 +48,7 @@ export function flattenProductVariantStructure(variant: any): FlatVariantStructu
         measurements: sizeValues.map((sizeValue: any) => ({
             id: sizeValue.id,
             value: sizeValue.value,
+            rawValue: sizeValue.rawValue ?? null,
             label: sizeValue.requirement?.label ?? "",
             unit: sizeValue.requirement?.unit ?? sizeValue.requirement?.measurementType?.baseUnit ?? null,
             measurementType: sizeValue.requirement?.measurementType ?? null,

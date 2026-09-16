@@ -107,7 +107,7 @@ export function PortalVariantQuickActions({
             productImageUrl,
             variantId: variant.id,
             variantName: variant.name,
-            variantKey: selectedMeasurements.map((measurement) => `${measurement.measurementType.code}:${measurement.value}`).join("|"),
+            variantKey: selectedMeasurements.map((measurement) => `${measurement.measurementType.code}:${measurement.rawValue ?? measurement.value}`).join("|"),
             variantFullCode: variant.fullCode,
             measurementSummary: buildCompactMeasurementSummary(variant) || null,
             colorName: variant.color?.name ?? null,

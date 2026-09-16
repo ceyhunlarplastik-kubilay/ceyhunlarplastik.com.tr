@@ -807,7 +807,14 @@ model ProductSizeValue {
   requirementId String
   requirement   ProductMeasurementRequirement @relation(fields: [requirementId], references: [id], onDelete: Restrict)
 
+  /// Her zaman dolu: düz sayısal girişte kullanıcının verdiği değer, `rawValue`
+  /// dolu olan bileşik girişte ("10*30") ise SIRALAMA SÜRROGATI — ilk sayı (10).
+  /// Sıralama/kod üretimi (sizeSignature.ts) bu alan üzerinden çalışmaya devam eder.
   value Float
+  /// Kullanıcının birebir girdiği bileşik ölçü metni — yalnız "SAYI*SAYI" deseni
+  /// ("10*30", "10x30", "10×30"). Düz sayısal girişte NULL kalır. Doluysa imza/
+  /// görüntüleme bu metni birebir kullanır, `value` yalnız sıralama içindir.
+  rawValue String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

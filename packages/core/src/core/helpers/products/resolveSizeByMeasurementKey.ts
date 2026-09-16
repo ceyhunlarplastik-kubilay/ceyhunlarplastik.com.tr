@@ -20,6 +20,7 @@ type SizeRowLike = {
     id: string
     values: Array<{
         value: number
+        rawValue?: string | null
         requirement: {
             isRequired?: boolean
             measurementType: { id: string; displayOrder?: number } | null
@@ -38,6 +39,7 @@ function buildSizeKey(size: SizeRowLike, requiredOnly: boolean): string {
             id: "",
             label: "",
             value: value.value,
+            rawValue: value.rawValue,
             measurementType: value.requirement?.measurementType,
         })),
     )

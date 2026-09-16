@@ -32,7 +32,7 @@ export interface IPrismaProductVariantMatrixRepository {
             sortPriority: number
             displayOrder: number
         }>
-        sizes: Array<{ id: string; code: number; values: Array<{ requirementId: string; value: number }> }>
+        sizes: Array<{ id: string; code: number; values: Array<{ requirementId: string; value: number; rawValue: string | null }> }>
         /** Bu üründe KULLANILAN versiyonlar (matris tablosunda gösterilenler). */
         versions: Array<{ id: string; code: string; colorId: string | null; materialIds: string[] }>
         supplierCodes: Array<{ id: string; supplierId: string; supplierName: string; code: string }>
@@ -85,7 +85,7 @@ export const productVariantMatrixRepository = (): IPrismaProductVariantMatrixRep
                 select: {
                     id: true,
                     code: true,
-                    values: { select: { requirementId: true, value: true } },
+                    values: { select: { requirementId: true, value: true, rawValue: true } },
                 },
             }),
             // Matris tablosunda gösterilecek olanlar: bu ürünün varyantlarının

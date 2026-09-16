@@ -73,6 +73,7 @@ export const getProductVariantTableHandler = ({ productVariantRepository }: IPro
             measurements: structure.measurements.map((m) => ({
                 id: m.id,
                 value: m.value,
+                rawValue: m.rawValue ?? null,
                 label: m.label,
                 unit: m.unit,
                 measurementType: m.measurementType ? {

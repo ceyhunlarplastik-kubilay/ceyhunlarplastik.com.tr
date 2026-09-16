@@ -19,7 +19,7 @@ export type MatrixSize = {
     id: string
     /** Kodun 3. segmenti */
     code: number
-    values: Array<{ requirementId: string; value: number }>
+    values: Array<{ requirementId: string; value: number; rawValue?: string | null }>
 }
 
 export type MatrixVersion = {
@@ -115,7 +115,7 @@ export type VariantMatrixResponse = {
 
 export type SaveVariantMatrixRowInput = {
     name: string
-    measurements: Array<{ requirementId: string; value: number }>
+    measurements: Array<{ requirementId: string; value: number; rawValue?: string }>
     colorId?: string
     materialIds?: string[]
     supplier?: {

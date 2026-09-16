@@ -37,6 +37,9 @@ import { negateProductVariantCodes, writeProductVariantCodes } from "./writeProd
 
 type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
 
+/** `rawValue` yalnız bileşik girişte ("10*30") dolu — bkz. `ProductSizeValue.rawValue`. */
+type MeasurementInput = { requirementId: string; value: number; rawValue?: string | null }
+
 export type VariantRowSupplierInput = {
     supplierId: string
     isActive?: boolean
@@ -63,7 +66,7 @@ export type VariantRowSupplierInput = {
 export type VariantRowInput = {
     name: string
     /** Ürün modelinin ölçü şablonundaki gereksinimlere karşılık gelen değerler. */
-    measurements: Array<{ requirementId: string; value: number }>
+    measurements: MeasurementInput[]
     colorId: string | null
     materialIds: string[]
     supplier?: VariantRowSupplierInput | null
@@ -217,11 +220,11 @@ export async function upsertProductVariantRows(
     )
 
     // ── Aşama 1: bellekte çözümle / hazırla (henüz hiçbir şey yazılmıyor) ────────
-    const newSizes: Array<{ id: string; signature: string; sortKey: string; values: Array<{ requirementId: string; value: number }> }> = []
+    const newSizes: Array<{ id: string; signature: string; sortKey: string; values: MeasurementInput[] }> = []
     /** Staged ölçünün değer dizisine referans — sonraki satırlar opsiyonel değer ekleyebilir. */
-    const newSizeValuesById = new Map<string, Array<{ requirementId: string; value: number }>>()
+    const newSizeValuesById = new Map<string, MeasurementInput[]>()
     /** Mevcut bir ölçüye eklenecek/güncellenecek (özellikle opsiyonel) değerler. */
-    const sizeValueUpsertsByKey = new Map<string, { productSizeId: string; requirementId: string; value: number }>()
+    const sizeValueUpsertsByKey = new Map<string, { productSizeId: string } & MeasurementInput>()
 
     /**
      * Zorunlu imzası eşleşen bir ölçüye çözülen satırın taşıdığı değerleri o ölçüye
@@ -230,14 +233,18 @@ export async function upsertProductVariantRows(
      */
     const mergeMeasurementValues = (
         sizeId: string,
-        measurements: ReadonlyArray<{ requirementId: string; value: number }>,
+        measurements: ReadonlyArray<MeasurementInput>,
     ) => {
         const stagedValues = newSizeValuesById.get(sizeId)
         if (stagedValues) {
             for (const measurement of measurements) {
                 const existing = stagedValues.find((value) => value.requirementId === measurement.requirementId)
-                if (existing) existing.value = measurement.value
-                else stagedValues.push({ ...measurement })
+                if (existing) {
+                    existing.value = measurement.value
+                    existing.rawValue = measurement.rawValue
+                } else {
+                    stagedValues.push({ ...measurement })
+                }
             }
             return
         }
@@ -247,6 +254,7 @@ export async function upsertProductVariantRows(
                 productSizeId: sizeId,
                 requirementId: measurement.requirementId,
                 value: measurement.value,
+                rawValue: measurement.rawValue,
             })
         }
     }
@@ -420,6 +428,7 @@ export async function upsertProductVariantRows(
                     productSizeId: size.id,
                     requirementId: value.requirementId,
                     value: value.value,
+                    rawValue: value.rawValue,
                 })),
             ),
         })
@@ -437,7 +446,7 @@ export async function upsertProductVariantRows(
                 },
             },
             create: upsert,
-            update: { value: upsert.value },
+            update: { value: upsert.value, rawValue: upsert.rawValue },
         })
     }
 

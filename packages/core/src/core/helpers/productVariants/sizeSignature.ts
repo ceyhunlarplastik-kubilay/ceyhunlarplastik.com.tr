@@ -38,6 +38,10 @@ export type MeasurementRequirementLike = {
 export type SizeMeasurementValue = {
     requirementId: string
     value: number
+    /** Bileşik girişte ("10*30") kullanıcının birebir yazdığı metin — bkz.
+     * `ProductSizeValue.rawValue`. Doluysa imza bu metni kullanır, `value` yalnız
+     * `buildSizeSortKey`'in sıralama matematiği içindir. */
+    rawValue?: string | null
 }
 
 /**
@@ -71,12 +75,17 @@ export function orderMeasurementRequirements<T extends MeasurementRequirementLik
     })
 }
 
+type LookupEntry = {
+    value: number
+    rawValue?: string | null
+}
+
 function buildValueLookup(
     values: readonly SizeMeasurementValue[],
     requirements: readonly MeasurementRequirementLike[],
-): Map<string, number> {
+): Map<string, LookupEntry> {
     const knownRequirementIds = new Set(requirements.map((requirement) => requirement.id))
-    const lookup = new Map<string, number>()
+    const lookup = new Map<string, LookupEntry>()
 
     for (const entry of values) {
         if (!knownRequirementIds.has(entry.requirementId)) {
@@ -85,10 +94,18 @@ function buildValueLookup(
         if (lookup.has(entry.requirementId)) {
             throw new RangeError(`duplicate measurement value for requirement: ${entry.requirementId}`)
         }
-        lookup.set(entry.requirementId, normalizeMeasurementValue(entry.value))
+        lookup.set(entry.requirementId, {
+            value: normalizeMeasurementValue(entry.value),
+            rawValue: entry.rawValue,
+        })
     }
 
     return lookup
+}
+
+/** İmza segmentindeki `=DEĞER` kısmı: bileşik girişte birebir metin, aksi halde sabit ondalıklı sayı. */
+function formatSignatureValue(entry: LookupEntry): string {
+    return entry.rawValue ? entry.rawValue : entry.value.toFixed(MEASUREMENT_VALUE_PRECISION)
 }
 
 /**
@@ -109,8 +126,8 @@ export function buildSizeSignature(
     return orderMeasurementRequirements(requirements)
         .filter((requirement) => lookup.has(requirement.id))
         .map((requirement) => {
-            const value = lookup.get(requirement.id) as number
-            return `${requirement.measurementCode}#${requirement.label}=${value.toFixed(MEASUREMENT_VALUE_PRECISION)}`
+            const entry = lookup.get(requirement.id) as LookupEntry
+            return `${requirement.measurementCode}#${requirement.label}=${formatSignatureValue(entry)}`
         })
         .join("|")
 }
@@ -136,8 +153,8 @@ export function buildRequiredSignature(
     return orderMeasurementRequirements(requirements)
         .filter((requirement) => requirement.isRequired !== false && lookup.has(requirement.id))
         .map((requirement) => {
-            const value = lookup.get(requirement.id) as number
-            return `${requirement.measurementCode}#${requirement.label}=${value.toFixed(MEASUREMENT_VALUE_PRECISION)}`
+            const entry = lookup.get(requirement.id) as LookupEntry
+            return `${requirement.measurementCode}#${requirement.label}=${formatSignatureValue(entry)}`
         })
         .join("|")
 }
@@ -157,9 +174,10 @@ export function buildSizeSortKey(
 
     return orderMeasurementRequirements(requirements)
         .map((requirement) => {
-            const value = lookup.get(requirement.id)
-            if (value === undefined) return MISSING_VALUE_SEGMENT
+            const entry = lookup.get(requirement.id)
+            if (entry === undefined) return MISSING_VALUE_SEGMENT
 
+            const value = entry.value
             if (Math.abs(value) > SORT_KEY_VALUE_OFFSET) {
                 throw new RangeError(
                     `measurement value out of sortable range (±${SORT_KEY_VALUE_OFFSET}): ${value}`,

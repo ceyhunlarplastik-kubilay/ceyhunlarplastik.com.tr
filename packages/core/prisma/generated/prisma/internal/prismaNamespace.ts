@@ -4811,6 +4811,7 @@ export const ProductSizeValueScalarFieldEnum = {
   productSizeId: 'productSizeId',
   requirementId: 'requirementId',
   value: 'value',
+  rawValue: 'rawValue',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

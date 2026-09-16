@@ -65,3 +65,30 @@ describe("parseMeasurementInput — diğer ölçüler", () => {
         expect(parseMeasurementInput("M4", "L")).toBeNull()
     })
 })
+
+describe("parseMeasurementInput — bileşik ölçü (10*30)", () => {
+    it("'*' ayracıyla girilen bileşik değeri ilk sayıya ve birebir metne çözer", () => {
+        expect(parseMeasurementInput("10*30", "H3")).toEqual({
+            value: 10,
+            normalizedLabel: "10*30",
+            rawValue: "10*30",
+        })
+    })
+
+    it("'x' ve '×' ayraçlarını da kabul eder, kanonik '*'e normalize eder", () => {
+        expect(parseMeasurementInput("10x30", "H3")?.rawValue).toBe("10*30")
+        expect(parseMeasurementInput("10 × 30", "H3")?.rawValue).toBe("10*30")
+    })
+
+    it("virgüllü ondalıkları da destekler", () => {
+        expect(parseMeasurementInput("5,5*105", "H3")).toEqual({
+            value: 5.5,
+            normalizedLabel: "5.5*105",
+            rawValue: "5.5*105",
+        })
+    })
+
+    it("metrik diş kodunda bileşik değeri reddeder", () => {
+        expect(parseMeasurementInput("10*30", "M")).toBeNull()
+    })
+})

@@ -63,7 +63,7 @@ const matrix: ProductVariantMatrix = {
     sizes: [{
         id: "55555555-5555-5555-5555-555555555555",
         code: 1,
-        values: [{ requirementId: "33333333-3333-3333-3333-333333333333", value: 10 }],
+        values: [{ requirementId: "33333333-3333-3333-3333-333333333333", value: 10, rawValue: null }],
     }],
     versions: [{ id: "66666666-6666-6666-6666-666666666666", code: "V1", colorId: null, materialIds: [] }],
     supplierCodes: [{

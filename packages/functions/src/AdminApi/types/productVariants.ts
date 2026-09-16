@@ -53,6 +53,7 @@ export interface ICreateProductVariantBody {
     measurements: {
         requirementId: string
         value: number
+        rawValue?: string
     }[]
     supplier?: IVariantSupplierInput
 }

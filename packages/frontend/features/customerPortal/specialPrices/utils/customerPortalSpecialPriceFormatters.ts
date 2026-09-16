@@ -34,7 +34,7 @@ export function getPortalSpecialPriceProductImageUrl(item: CustomerVariantSpecia
 
 export function buildPortalSpecialPriceVariantKey(item: CustomerVariantSpecialPrice) {
     return (item.productVariant?.measurements ?? [])
-        .map((measurement) => `${measurement.measurementType.code}:${measurement.value}`)
+        .map((measurement) => `${measurement.measurementType.code}:${measurement.rawValue ?? measurement.value}`)
         .join("|")
 }
 
@@ -46,7 +46,7 @@ export function formatPortalSpecialPriceMeasurements(item: CustomerVariantSpecia
         .map((measurement) => {
             const resolvedUnit = resolveMeasurementUnit(measurement)
             const unit = resolvedUnit ? ` ${resolvedUnit}` : ""
-            return `${measurement.measurementType.code}: ${measurement.value}${unit}`
+            return `${measurement.measurementType.code}: ${measurement.rawValue ?? measurement.value}${unit}`
         })
         .join(" / ")
 }
@@ -62,7 +62,7 @@ export function buildCompactSpecialPriceMeasurementSummary(item: CustomerVariant
         .sort((a, b) => (a.measurementType.displayOrder ?? 0) - (b.measurementType.displayOrder ?? 0))
         .map((measurement) => {
             const unit = resolveMeasurementUnit(measurement)
-            return `${measurement.value}${unit ? ` ${unit}` : ""}`
+            return `${measurement.rawValue ?? measurement.value}${unit ? ` ${unit}` : ""}`
         })
         .join(" × ")
 }

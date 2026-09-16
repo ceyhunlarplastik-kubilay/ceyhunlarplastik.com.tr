@@ -9,6 +9,9 @@ const prismaDecimalSchema = z.object({
 
 const decimalLike = z.union([z.number(), z.string(), prismaDecimalSchema]).nullable().optional()
 
+/** "10*30" — bileşik ölçü girişi. `measurementValue.ts`'in ürettiği kanonik biçimle birebir. */
+const compoundMeasurementRawValue = z.string().regex(/^\d+(?:\.\d+)?\*\d+(?:\.\d+)?$/).max(32)
+
 /**
  * Matris satırındaki tedarikçi girdisi.
  *
@@ -53,6 +56,7 @@ export const saveVariantMatrixValidator = validatorWrapper(
                 measurements: z.array(z.object({
                     requirementId: z.uuid(),
                     value: z.number(),
+                    rawValue: compoundMeasurementRawValue.optional(),
                 })).min(1).max(24),
                 colorId: z.uuid().optional(),
                 materialIds: z.array(z.uuid()).max(12).optional(),
@@ -130,6 +134,7 @@ const matrixSchema = z.object({
         values: z.array(z.object({
             requirementId: z.string(),
             value: z.number(),
+            rawValue: z.string().nullable().optional(),
         }).loose()),
     }).loose()),
     versions: z.array(z.object({

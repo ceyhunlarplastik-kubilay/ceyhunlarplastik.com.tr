@@ -108,6 +108,46 @@ describe("buildSizeSignature", () => {
     })
 })
 
+describe("buildSizeSignature — bileşik değer (rawValue)", () => {
+    it("rawValue varsa imzada birebir metni kullanır, sabit ondalık formatlamayı atlar", () => {
+        expect(
+            buildSizeSignature(
+                [{ requirementId: "req-r", value: 10, rawValue: "10*30" }],
+                requirements,
+            ),
+        ).toBe("R#Kol Çapı=10*30")
+    })
+
+    it("aynı sürrogat sayıya (ilk sayı) sahip farklı bileşik girişler ayrı imza alır", () => {
+        const a = buildSizeSignature(
+            [{ requirementId: "req-r", value: 10, rawValue: "10*30" }],
+            requirements,
+        )
+        const b = buildSizeSignature(
+            [{ requirementId: "req-r", value: 10, rawValue: "10*40" }],
+            requirements,
+        )
+        expect(a).not.toBe(b)
+    })
+})
+
+describe("buildSizeSortKey — bileşik değer (rawValue)", () => {
+    it("sıralama sürrogat 'value' üzerinden çalışmaya devam eder", () => {
+        const ordered = [
+            [{ requirementId: "req-r", value: 30, rawValue: "30*5" }],
+            [{ requirementId: "req-r", value: 10, rawValue: "10*30" }],
+        ]
+            .map((entries) => ({
+                sortKey: buildSizeSortKey(entries, requirements),
+                signature: buildSizeSignature(entries, requirements),
+            }))
+            .sort(compareSizeKeys)
+            .map((entry) => entry.signature)
+
+        expect(ordered).toEqual(["R#Kol Çapı=10*30", "R#Kol Çapı=30*5"])
+    })
+})
+
 describe("buildRequiredSignature", () => {
     // "1.23" ürün modeli: R/D/H1 zorunlu, H2 (Civata Uzunluğu) OPSİYONEL.
     const elcikDiameter: MeasurementRequirementLike = { id: "r", measurementCode: "R", label: "Elcik Çapı", sortPriority: 0, displayOrder: 0 }

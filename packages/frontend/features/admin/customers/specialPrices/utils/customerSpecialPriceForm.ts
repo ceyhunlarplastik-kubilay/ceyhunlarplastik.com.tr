@@ -286,7 +286,7 @@ export function customerSpecialPriceVariantSubtitle(specialPrice: CustomerVarian
 
     const color = variant.color?.name
     const measurements = (variant.measurements ?? [])
-        .map((measurement) => `${measurement.measurementType.code}: ${measurement.value}${measurement.measurementType.baseUnit ? ` ${measurement.measurementType.baseUnit}` : ""}`)
+        .map((measurement) => `${measurement.measurementType.code}: ${measurement.rawValue ?? measurement.value}${measurement.measurementType.baseUnit ? ` ${measurement.measurementType.baseUnit}` : ""}`)
         .join(" / ")
 
     return [color, measurements].filter(Boolean).join(" - ") || variant.name || "-"

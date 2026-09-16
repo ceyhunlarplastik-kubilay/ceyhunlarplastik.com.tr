@@ -131,16 +131,19 @@ export function CreateSupplierVariantRequestDialog({
                 stockQty: parseNumber(values.stockQty),
                 currency: values.currency.toUpperCase(),
                 measurements: values.measurements
-                    .map((measurement) => ({
-                        requirementId: measurement.requirementId,
-                        value: parseMeasurementInput(
+                    .map((measurement) => {
+                        const parsed = parseMeasurementInput(
                             measurement.value,
                             requirements.find((r) => r.id === measurement.requirementId)?.measurementCode,
-                        )?.value ?? null,
-                    }))
-                    .filter((measurement): measurement is { requirementId: string; value: number } =>
-                        measurement.value !== null,
-                    ),
+                        )
+                        return {
+                            requirementId: measurement.requirementId,
+                            value: parsed?.value ?? null,
+                            rawValue: parsed?.rawValue,
+                        }
+                    })
+                    .filter((measurement) => measurement.value !== null)
+                    .map((measurement) => ({ ...measurement, value: measurement.value as number })),
             },
         })
 

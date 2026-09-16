@@ -4,11 +4,11 @@ import type {
     VariantVersionDictionaryEntry,
 } from "@/features/admin/productVariantMatrix/api/types"
 import {
-    parseMeasurementValue,
     parseOptionalInteger,
     parseOptionalNumber,
     type VariantMatrixDraftRow,
 } from "@/features/admin/productVariantMatrix/schema/variantMatrixSchema"
+import { parseMeasurementInput } from "@core/helpers/productVariants/measurementValue"
 
 export type DraftRowValidation = {
     index: number
@@ -35,12 +35,12 @@ export function buildSaveRows(input: {
     const errors: DraftRowValidation[] = []
 
     rows.forEach((row, index) => {
-        const measurements: Array<{ requirementId: string; value: number }> = []
+        const measurements: Array<{ requirementId: string; value: number; rawValue?: string }> = []
         const labelParts: string[] = []
 
         for (const requirement of requirements) {
             const raw = row.measurements[requirement.id] ?? ""
-            const parsed = parseMeasurementValue(raw, requirement.measurementCode)
+            const parsed = parseMeasurementInput(raw, requirement.measurementCode)
 
             if (parsed === null) {
                 if (requirement.isRequired) {
@@ -49,7 +49,11 @@ export function buildSaveRows(input: {
                 continue
             }
 
-            measurements.push({ requirementId: requirement.id, value: parsed })
+            measurements.push({
+                requirementId: requirement.id,
+                value: parsed.value,
+                ...(parsed.rawValue ? { rawValue: parsed.rawValue } : {}),
+            })
             labelParts.push(`${requirement.label} ${raw.trim()}${requirement.unit ? ` ${requirement.unit}` : ""}`)
         }
 

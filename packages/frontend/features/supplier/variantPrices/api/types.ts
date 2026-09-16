@@ -52,6 +52,7 @@ export type SupplierVariantPrice = {
             unit?: string | null
             id: string
             value: number
+            rawValue?: string | null
             label: string
             measurementType: {
                 id: string

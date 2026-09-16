@@ -395,7 +395,9 @@ function normalizeStringArray(value: unknown) {
  * modelde iki farklı anlamda kullanılabildiği için (ör. "Kol Çapı R" ve
  * "Elcik Çapı R") tip tek başına yeterli değil.
  */
-function normalizeVariantSizeValues(value: unknown): Array<{ requirementId: string; value: number }> {
+function normalizeVariantSizeValues(
+    value: unknown,
+): Array<{ requirementId: string; value: number; rawValue?: string | null }> {
     if (!Array.isArray(value)) return []
 
     return value.flatMap((item) => {
@@ -403,7 +405,11 @@ function normalizeVariantSizeValues(value: unknown): Array<{ requirementId: stri
         const record = item as Record<string, unknown>
         if (typeof record.requirementId !== "string" || !isFiniteNumber(record.value)) return []
 
-        return [{ requirementId: record.requirementId, value: record.value }]
+        return [{
+            requirementId: record.requirementId,
+            value: record.value,
+            rawValue: typeof record.rawValue === "string" ? record.rawValue : null,
+        }]
     })
 }
 

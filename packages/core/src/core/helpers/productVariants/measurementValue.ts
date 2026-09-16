@@ -5,11 +5,15 @@
  * sunucu tarafı aynı girdiyi farklı yorumlayabiliyordu. Artık matris ekranı da
  * matris endpoint'i de bu modülü kullanır.
  *
- * İki yorum var:
+ * Üç yorum var:
  *  - **Metrik diş** kodları (`M`, `D`): "M4", "M 12", "4" hepsi 4 sayısına ve
  *    "M4" etiketine çözülür. `MeasurementCode` yorumlarında `D` "Metrik (D)"
  *    olarak tanımlı, bu yüzden `M` ile aynı davranır — mevcut davranış birebir
  *    korunmuştur.
+ *  - **Bileşik ölçü** ("10*30", "10x30", "10×30"): tek sayıya indirgenemeyen
+ *    ölçüler için. Metrik diş kodlarında geçersizdir (üstteki dal önce çalışır).
+ *    `value` yalnız SIRALAMA SÜRROGATI olarak ilk sayıyı taşır; kullanıcının
+ *    birebir yazdığı metin `rawValue`'da saklanır (bkz. `ProductSizeValue.rawValue`).
  *  - **Diğer kodlar**: ondalık ayırıcı olarak hem "." hem "," kabul edilir
  *    ("12,5" → 12.5), etiket kullanıcının yazdığı gibi kalır.
  */
@@ -25,10 +29,15 @@ export const METRIC_THREAD_MEASUREMENT_CODES = ["D", "M"] as const
 export const MEASUREMENT_VALUE_PRECISION = 4
 
 const METRIC_THREAD_PATTERN = /^M?\s*(\d+(?:[.,]\d+)?)$/i
+/** "10*30", "10x30", "10×30" — ayraçtan önce/sonra boşluk serbest. */
+const COMPOUND_VALUE_PATTERN = /^(\d+(?:[.,]\d+)?)\s*[x×*]\s*(\d+(?:[.,]\d+)?)$/i
 
 export type ParsedMeasurementValue = {
     value: number
     normalizedLabel: string
+    /** Yalnız bileşik girişte dolu — kullanıcının yazdığı metin, "*" ayracıyla
+     * normalize edilmiş ("10x30" → "10*30"). Düz sayısal/metrik diş girişte yok. */
+    rawValue?: string
 }
 
 export function isMetricThreadMeasurementCode(measurementCode?: string | null): boolean {
@@ -70,6 +79,20 @@ export function parseMeasurementInput(
         return {
             value: normalizeMeasurementValue(numericValue),
             normalizedLabel: `M${match[1].replace(",", ".")}`,
+        }
+    }
+
+    const compoundMatch = normalized.match(COMPOUND_VALUE_PATTERN)
+    if (compoundMatch) {
+        const first = Number(compoundMatch[1].replace(",", "."))
+        const second = Number(compoundMatch[2].replace(",", "."))
+        if (!Number.isFinite(first) || !Number.isFinite(second)) return null
+
+        const rawValue = `${compoundMatch[1].replace(",", ".")}*${compoundMatch[2].replace(",", ".")}`
+        return {
+            value: normalizeMeasurementValue(first),
+            normalizedLabel: rawValue,
+            rawValue,
         }
     }
 

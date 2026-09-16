@@ -39,6 +39,7 @@ export type ProductSizeValueMinAggregateOutputType = {
   productSizeId: string | null
   requirementId: string | null
   value: number | null
+  rawValue: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +49,7 @@ export type ProductSizeValueMaxAggregateOutputType = {
   productSizeId: string | null
   requirementId: string | null
   value: number | null
+  rawValue: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,6 +59,7 @@ export type ProductSizeValueCountAggregateOutputType = {
   productSizeId: number
   requirementId: number
   value: number
+  rawValue: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -76,6 +79,7 @@ export type ProductSizeValueMinAggregateInputType = {
   productSizeId?: true
   requirementId?: true
   value?: true
+  rawValue?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -85,6 +89,7 @@ export type ProductSizeValueMaxAggregateInputType = {
   productSizeId?: true
   requirementId?: true
   value?: true
+  rawValue?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +99,7 @@ export type ProductSizeValueCountAggregateInputType = {
   productSizeId?: true
   requirementId?: true
   value?: true
+  rawValue?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -190,6 +196,7 @@ export type ProductSizeValueGroupByOutputType = {
   productSizeId: string
   requirementId: string
   value: number
+  rawValue: string | null
   createdAt: Date
   updatedAt: Date
   _count: ProductSizeValueCountAggregateOutputType | null
@@ -222,6 +229,7 @@ export type ProductSizeValueWhereInput = {
   productSizeId?: Prisma.StringFilter<"ProductSizeValue"> | string
   requirementId?: Prisma.StringFilter<"ProductSizeValue"> | string
   value?: Prisma.FloatFilter<"ProductSizeValue"> | number
+  rawValue?: Prisma.StringNullableFilter<"ProductSizeValue"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductSizeValue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductSizeValue"> | Date | string
   productSize?: Prisma.XOR<Prisma.ProductSizeScalarRelationFilter, Prisma.ProductSizeWhereInput>
@@ -233,6 +241,7 @@ export type ProductSizeValueOrderByWithRelationInput = {
   productSizeId?: Prisma.SortOrder
   requirementId?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rawValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   productSize?: Prisma.ProductSizeOrderByWithRelationInput
@@ -248,6 +257,7 @@ export type ProductSizeValueWhereUniqueInput = Prisma.AtLeast<{
   productSizeId?: Prisma.StringFilter<"ProductSizeValue"> | string
   requirementId?: Prisma.StringFilter<"ProductSizeValue"> | string
   value?: Prisma.FloatFilter<"ProductSizeValue"> | number
+  rawValue?: Prisma.StringNullableFilter<"ProductSizeValue"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductSizeValue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductSizeValue"> | Date | string
   productSize?: Prisma.XOR<Prisma.ProductSizeScalarRelationFilter, Prisma.ProductSizeWhereInput>
@@ -259,6 +269,7 @@ export type ProductSizeValueOrderByWithAggregationInput = {
   productSizeId?: Prisma.SortOrder
   requirementId?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rawValue?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductSizeValueCountOrderByAggregateInput
@@ -276,6 +287,7 @@ export type ProductSizeValueScalarWhereWithAggregatesInput = {
   productSizeId?: Prisma.StringWithAggregatesFilter<"ProductSizeValue"> | string
   requirementId?: Prisma.StringWithAggregatesFilter<"ProductSizeValue"> | string
   value?: Prisma.FloatWithAggregatesFilter<"ProductSizeValue"> | number
+  rawValue?: Prisma.StringNullableWithAggregatesFilter<"ProductSizeValue"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductSizeValue"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductSizeValue"> | Date | string
 }
@@ -283,6 +295,7 @@ export type ProductSizeValueScalarWhereWithAggregatesInput = {
 export type ProductSizeValueCreateInput = {
   id?: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   productSize: Prisma.ProductSizeCreateNestedOneWithoutValuesInput
@@ -294,6 +307,7 @@ export type ProductSizeValueUncheckedCreateInput = {
   productSizeId: string
   requirementId: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -301,6 +315,7 @@ export type ProductSizeValueUncheckedCreateInput = {
 export type ProductSizeValueUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productSize?: Prisma.ProductSizeUpdateOneRequiredWithoutValuesNestedInput
@@ -312,6 +327,7 @@ export type ProductSizeValueUncheckedUpdateInput = {
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
   requirementId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -321,6 +337,7 @@ export type ProductSizeValueCreateManyInput = {
   productSizeId: string
   requirementId: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -328,6 +345,7 @@ export type ProductSizeValueCreateManyInput = {
 export type ProductSizeValueUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -337,6 +355,7 @@ export type ProductSizeValueUncheckedUpdateManyInput = {
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
   requirementId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -361,6 +380,7 @@ export type ProductSizeValueCountOrderByAggregateInput = {
   productSizeId?: Prisma.SortOrder
   requirementId?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rawValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -374,6 +394,7 @@ export type ProductSizeValueMaxOrderByAggregateInput = {
   productSizeId?: Prisma.SortOrder
   requirementId?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rawValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -383,6 +404,7 @@ export type ProductSizeValueMinOrderByAggregateInput = {
   productSizeId?: Prisma.SortOrder
   requirementId?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  rawValue?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -486,6 +508,7 @@ export type FloatFieldUpdateOperationsInput = {
 export type ProductSizeValueCreateWithoutRequirementInput = {
   id?: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   productSize: Prisma.ProductSizeCreateNestedOneWithoutValuesInput
@@ -495,6 +518,7 @@ export type ProductSizeValueUncheckedCreateWithoutRequirementInput = {
   id?: string
   productSizeId: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -533,6 +557,7 @@ export type ProductSizeValueScalarWhereInput = {
   productSizeId?: Prisma.StringFilter<"ProductSizeValue"> | string
   requirementId?: Prisma.StringFilter<"ProductSizeValue"> | string
   value?: Prisma.FloatFilter<"ProductSizeValue"> | number
+  rawValue?: Prisma.StringNullableFilter<"ProductSizeValue"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ProductSizeValue"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProductSizeValue"> | Date | string
 }
@@ -540,6 +565,7 @@ export type ProductSizeValueScalarWhereInput = {
 export type ProductSizeValueCreateWithoutProductSizeInput = {
   id?: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   requirement: Prisma.ProductMeasurementRequirementCreateNestedOneWithoutSizeValuesInput
@@ -549,6 +575,7 @@ export type ProductSizeValueUncheckedCreateWithoutProductSizeInput = {
   id?: string
   requirementId: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -583,6 +610,7 @@ export type ProductSizeValueCreateManyRequirementInput = {
   id?: string
   productSizeId: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -590,6 +618,7 @@ export type ProductSizeValueCreateManyRequirementInput = {
 export type ProductSizeValueUpdateWithoutRequirementInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productSize?: Prisma.ProductSizeUpdateOneRequiredWithoutValuesNestedInput
@@ -599,6 +628,7 @@ export type ProductSizeValueUncheckedUpdateWithoutRequirementInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -607,6 +637,7 @@ export type ProductSizeValueUncheckedUpdateManyWithoutRequirementInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productSizeId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -615,6 +646,7 @@ export type ProductSizeValueCreateManyProductSizeInput = {
   id?: string
   requirementId: string
   value: number
+  rawValue?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -622,6 +654,7 @@ export type ProductSizeValueCreateManyProductSizeInput = {
 export type ProductSizeValueUpdateWithoutProductSizeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   requirement?: Prisma.ProductMeasurementRequirementUpdateOneRequiredWithoutSizeValuesNestedInput
@@ -631,6 +664,7 @@ export type ProductSizeValueUncheckedUpdateWithoutProductSizeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requirementId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -639,6 +673,7 @@ export type ProductSizeValueUncheckedUpdateManyWithoutProductSizeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   requirementId?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.FloatFieldUpdateOperationsInput | number
+  rawValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -650,6 +685,7 @@ export type ProductSizeValueSelect<ExtArgs extends runtime.Types.Extensions.Inte
   productSizeId?: boolean
   requirementId?: boolean
   value?: boolean
+  rawValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   productSize?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
@@ -661,6 +697,7 @@ export type ProductSizeValueSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   productSizeId?: boolean
   requirementId?: boolean
   value?: boolean
+  rawValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   productSize?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
@@ -672,6 +709,7 @@ export type ProductSizeValueSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   productSizeId?: boolean
   requirementId?: boolean
   value?: boolean
+  rawValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   productSize?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
@@ -683,11 +721,12 @@ export type ProductSizeValueSelectScalar = {
   productSizeId?: boolean
   requirementId?: boolean
   value?: boolean
+  rawValue?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductSizeValueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productSizeId" | "requirementId" | "value" | "createdAt" | "updatedAt", ExtArgs["result"]["productSizeValue"]>
+export type ProductSizeValueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productSizeId" | "requirementId" | "value" | "rawValue" | "createdAt" | "updatedAt", ExtArgs["result"]["productSizeValue"]>
 export type ProductSizeValueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productSize?: boolean | Prisma.ProductSizeDefaultArgs<ExtArgs>
   requirement?: boolean | Prisma.ProductMeasurementRequirementDefaultArgs<ExtArgs>
@@ -715,7 +754,18 @@ export type $ProductSizeValuePayload<ExtArgs extends runtime.Types.Extensions.In
      * Restrict, kullanımdaki bir gereksinimin sessizce silinmesini de engeller.
      */
     requirementId: string
+    /**
+     * Her zaman dolu: düz sayısal girişte kullanıcının verdiği değer, `rawValue`
+     * dolu olan bileşik girişte ("10*30") ise SIRALAMA SÜRROGATI — ilk sayı (10).
+     * Sıralama/kod üretimi (sizeSignature.ts) bu alan üzerinden çalışmaya devam eder.
+     */
     value: number
+    /**
+     * Kullanıcının birebir girdiği bileşik ölçü metni — yalnız "SAYI*SAYI" deseni
+     * ("10*30", "10x30", "10×30"). Düz sayısal girişte NULL kalır. Doluysa imza/
+     * görüntüleme bu metni birebir kullanır, `value` yalnız sıralama içindir.
+     */
+    rawValue: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["productSizeValue"]>
@@ -1147,6 +1197,7 @@ export interface ProductSizeValueFieldRefs {
   readonly productSizeId: Prisma.FieldRef<"ProductSizeValue", 'String'>
   readonly requirementId: Prisma.FieldRef<"ProductSizeValue", 'String'>
   readonly value: Prisma.FieldRef<"ProductSizeValue", 'Float'>
+  readonly rawValue: Prisma.FieldRef<"ProductSizeValue", 'String'>
   readonly createdAt: Prisma.FieldRef<"ProductSizeValue", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProductSizeValue", 'DateTime'>
 }

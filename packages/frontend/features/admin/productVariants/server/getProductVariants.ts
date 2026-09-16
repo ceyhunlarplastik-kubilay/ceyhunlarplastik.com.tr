@@ -3,6 +3,7 @@ import { adminServerClient } from "@/lib/http/serverClient";
 export type VariantMeasurement = {
     id: string;
     value: number;
+    rawValue?: string | null;
     label: string;
     measurementType: {
         id: string;

@@ -44,7 +44,7 @@ export interface IVariantMatrixRowSupplierBody {
 
 export interface IVariantMatrixRowBody {
     name: string
-    measurements: Array<{ requirementId: string; value: number }>
+    measurements: Array<{ requirementId: string; value: number; rawValue?: string }>
     colorId?: string
     materialIds?: string[]
     supplier?: IVariantMatrixRowSupplierBody
