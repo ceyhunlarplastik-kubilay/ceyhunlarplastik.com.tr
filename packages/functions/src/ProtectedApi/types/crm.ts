@@ -54,6 +54,9 @@ export type IListManagedCustomersEvent = IAPIGatewayProxyEventWithUserGeneric<
         usageAreaValueId?: string
         status?: CustomerStatus
         assignedSalesUserId?: string
+        countryId?: string
+        stateId?: string
+        cityId?: string
     }
 >
 

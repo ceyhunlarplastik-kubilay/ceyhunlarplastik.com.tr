@@ -6,6 +6,10 @@ type CustomerLike = {
     assignedSalesUserId?: string | null
 }
 
+type CustomerVisitAccessLike = CustomerLike & {
+    status?: "LEAD" | "CUSTOMER"
+}
+
 type SupplierLike = {
     id: string
     assignedPurchasingSuppliers?: Array<{
@@ -22,6 +26,26 @@ export function canManageCustomer(user: IAuthenticatedUser, customer: CustomerLi
 export function assertCustomerManagementAccess(user: IAuthenticatedUser | undefined, customer: CustomerLike) {
     if (!user || !canManageCustomer(user, customer)) {
         throw new createError.Forbidden("Customer access denied")
+    }
+}
+
+/**
+ * Ziyaretlere ÖZEL, `canManageCustomer`'dan daha gevşek bir kural: potansiyel
+ * müşteriler (LEAD) sahiplenilmemiş açık bir havuzdur (bkz. "Potansiyel
+ * Müşteriler" sayfası — hiçbir sales rep'e kilitli değil), bu yüzden
+ * herhangi bir satış temsilcisi bir lead için saha ziyareti planlayabilir.
+ * Cari müşteriler (CUSTOMER) için mevcut `assignedSalesUserId` kısıtı AYNEN
+ * geçerli kalır. Yalnız ziyaret handler'ları kullanır — adres/özel fiyat/
+ * atanmış ürün gibi diğer CRM uçları hâlâ `canManageCustomer`'a bağlı.
+ */
+export function canManageCustomerVisit(user: IAuthenticatedUser, customer: CustomerVisitAccessLike) {
+    if (canManageCustomer(user, customer)) return true
+    return user.isSales && customer.status === "LEAD"
+}
+
+export function assertCustomerVisitAccess(user: IAuthenticatedUser | undefined, customer: CustomerVisitAccessLike) {
+    if (!user || !canManageCustomerVisit(user, customer)) {
+        throw new createError.Forbidden("Customer visit access denied")
     }
 }
 

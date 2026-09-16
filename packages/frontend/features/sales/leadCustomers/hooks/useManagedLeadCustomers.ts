@@ -11,11 +11,12 @@ export const managedLeadCustomerKeys = {
 
 export function useManagedLeadCustomers(
     params: ListLeadCustomersParams,
-    options: { autoRefreshIntervalMs?: number | false } = {},
+    options: { autoRefreshIntervalMs?: number | false; enabled?: boolean } = {},
 ) {
     return useQuery({
         queryKey: managedLeadCustomerKeys.list(params),
         queryFn: () => getManagedLeadCustomers(params),
+        enabled: options.enabled ?? true,
         placeholderData: (prev) => prev,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,

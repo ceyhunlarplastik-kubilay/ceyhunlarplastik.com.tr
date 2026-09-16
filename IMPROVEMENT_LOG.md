@@ -8452,6 +8452,191 @@ eşit sayıda eklendi (865/865).
   doğru gösterdiği; (4) tema karanlık modda grafik renklerinin okunaklı
   kaldığı.
 
+### `CreateVisitDialog` — potansiyel müşteri seçimi + LEAD ziyaret yetki boşluğu (2026-09-16, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Kullanıcı satış temsilcisinin "Ziyaretlerim"den yeni
+  ziyaret oluştururken potansiyel müşterileri de seçebilmesini istedi.
+  Araştırma sırasında BULUNUP DÜZELTİLEN bir yetki boşluğu: müşteri seçiciyi
+  genişletmek TEK BAŞINA yetmiyordu — `createManagedCustomerVisitHandler`
+  (ve list/update/delete) `assertCustomerManagementAccess` kullanıyordu, bu
+  da sıradan `sales` için `customer.assignedSalesUserId === user.id` şartını
+  arıyordu. Potansiyel müşteriler ("Potansiyel Müşteriler" sayfası
+  kullanıcı talebiyle SAHİPLENİLMEMİŞ açık bir havuz, Dilim daha önce) çoğu
+  zaman `assignedSalesUserId` taşımaz — yani UI'da seçilebilse bile ziyaret
+  oluşturma isteği 403 ile geri dönerdi.
+  - Yeni `core/helpers/crm/access.ts`: `canManageCustomerVisit`/
+    `assertCustomerVisitAccess` — `canManageCustomer`'ın TÜM kurallarını
+    korur, YALNIZ ek olarak "`sales` + `customer.status === "LEAD"`" için
+    de izin verir. BİLİNÇLİ OLARAK genel `canManageCustomer`'ı DEĞİŞTİRMEDİ
+    (adres/özel fiyat/atanmış ürün gibi diğer CRM uçları hâlâ eski, sıkı
+    kuralı kullanıyor) — yalnız 4 ziyaret handler'ı
+    (list/create/update/delete, `ProtectedApi/functions/crm/handlers.ts`)
+    yeni fonksiyona geçirildi. Cari müşteriler (CUSTOMER) için mevcut
+    sahiplik kısıtı AYNEN geçerli — yalnız leadler için gevşetildi.
+  - Yeni `access.test.ts` (6 test): `canManageCustomer` temel davranışı +
+    `canManageCustomerVisit`'in sahiplenilmemiş bir LEAD için `true`,
+    aynı senaryoda `canManageCustomer`'ın hâlâ `false` döndüğünü doğrulayan
+    karşılaştırmalı test (genişletmenin YALNIZ ziyaretlere özel olduğunun
+    kanıtı).
+  - `CreateVisitDialog.tsx`: müşteri seçici artık İKİ ayrı ucu paralel
+    sorguluyor — `useManagedCustomers({status:"CUSTOMER"})` (cari, kendi
+    portföyü) ve `useManagedLeadCustomers` (potansiyel, tüm açık havuz,
+    "Potansiyel Müşteriler" sayfasıyla AYNI uç) — sonuçlar tek bir
+    kaydırmalı listede "Cari Müşteriler"/"Potansiyel Müşteriler" başlıklı
+    iki bölüm halinde gösteriliyor, seçili müşterinin yanında hangisi
+    olduğunu gösteren bir rozet var.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  652/652 ✅ (646 mevcut + 6 yeni) · `test -w @ceyhunlarweb/functions`
+  342/342 ✅ (değişmedi) · `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — satış temsilcisi olarak
+  sahiplenilmemiş bir potansiyel müşteriyi seçip ziyaret oluşturmanın artık
+  403 vermediğini, cari müşteri seçiminin (yalnız kendisine atananlar)
+  değişmediğini.
+
+### `CreateVisitDialog` — müşteri seçicisine sektör/il-ilçe filtresi + performans için "önce filtrele" kuralı (2026-09-16, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Kullanıcı müşteri sayısının çok olabileceğini, bu yüzden
+  müşterilerin DOĞRUDAN listelenmesi yerine önce filtre uygulanıp SONRA
+  listelenmesinin API/frontend performansı açısından daha sağlıklı olacağını
+  belirtti (sektör, ülke/il/ilçe). Ayrıca dialogun mobil tasarımı bozmadan
+  daha geniş/büyük olmasını istedi.
+  - **Backend — `listCustomers`'a il/ilçe filtresi:** Core repository
+    `listCustomers` artık `countryId`/`stateId`/`cityId` alıyor,
+    `addresses: { some: {...} } }` ile en az bir adresi eşleşen müşterileri
+    döndürüyor (`listVisitsForReport`'taki AYNI desen). `/sales/customers`
+    ucunun (`listManagedCustomersHandler`) bu endpoint'e ayrı bir request
+    validator'ı yoktu (yalnız `responseValidator`) — sadece handler'a
+    parse+passthrough eklendi, şema değişikliği gerekmedi. Sektör filtresi
+    zaten vardı, yeni bir şey eklenmedi. `listCustomers.test.ts` (yeni, core,
+    4 test) geo filtresini kapsıyor.
+  - **Frontend — performans kuralı:** `useManagedCustomers`/
+    `useManagedLeadCustomers`'a `enabled` opsiyonu eklendi (ikisi de geriye
+    dönük uyumlu — mevcut çağrı noktaları ikinci parametre vermiyor,
+    varsayılan `true`). `CreateVisitDialog`'daki `hasActiveQuery` (arama
+    metni VEYA sektör VEYA il VEYA ilçe — `countryId` BİLEREK sayılmaz,
+    `GeoAddressFilterFields` yüklenir yüklenmez Türkiye'ye otomatik
+    varsayıyor, aksi halde sorgu her zaman "aktif" sayılırdı — `CustomerMapFilterBar`'daki
+    AYNI gotcha) `false` iken iki sorgu da HİÇ atılmıyor; kullanıcı "Müşteri
+    aramak için yazın veya sektör/il-ilçe filtresi seçin" mesajını görüyor.
+  - **Frontend — filtre UI:** Sektör (`SearchableSelect`, mevcut
+    `useManagedProductAttributesForFilter` — haritada zaten kullanılan
+    ProtectedApi ucu, sıfır yeni backend gerekmedi) + `GeoAddressFilterFields`
+    (ülke/il/ilçe) satırı eklendi, hem cari hem potansiyel müşteri sorgusuna
+    aynı filtreler uygulanıyor.
+  - **Genişlik:** `max-w-2xl` → `max-w-3xl`. Yerleşim yeniden düzenlendi:
+    müşteri seçici artık TAM GENİŞLİK (arama + filtre satırı + sonuç listesi
+    üst üste), tarih/tür `sm:grid-cols-2` ile yan yana, başlık ve not tam
+    genişlik kendi satırlarında — önceki dar `sm:grid-cols-[1.1fr_1fr]`
+    ikili sütun filtrelerle sıkışırdı. Mobilde (`sm:` altı) her şey tek
+    sütuna düşmeye devam ediyor, davranış değişmedi.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  656/656 ✅ (652 mevcut + 4 yeni) · `test -w @ceyhunlarweb/functions`
+  342/342 ✅ (değişmedi) · `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ (bir `exhaustive-deps` uyarısı çıktı, `useMemo`'yu
+  yeniden yapılandırarak giderildi — kalıcı yeni uyarı bırakılmadı) ·
+  `test -w frontend` 384/384 ✅.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — (1) dialog açılır açılmaz
+  liste gelmediği, filtre/arama girilince geldiği; (2) sektör ve il/ilçe
+  filtrelerinin hem cari hem potansiyel müşteri sonuçlarını doğru daralttığı;
+  (3) mobil genişlikte dialogun taşmadığı/düzgün tek sütuna indiği.
+
+## `CreateVisitDialog` filtrelerinde scroll çalışmıyordu — `SearchableSelect`'e ortak fix (2026-09-16) *(kullanıcı bildirimiyle)*
+
+- **Bildirim:** Kullanıcı bir önceki dilimde `CreateVisitDialog`'a eklenen
+  sektör/il/ilçe filtrelerinde (Popover açılınca içindeki liste) scroll
+  yapamadığını bildirdi.
+- **Kök neden:** `SearchableSelect` (Popover + Command, `document.body`'ye
+  portallanıyor) ilk kez bir `Dialog` İÇİNE gömülüyordu (`GeoAddressFilterFields`
+  de dahili olarak `SearchableSelect` kullanıyor). Bu proje daha önce AYNI
+  sınıf sorunu iki farklı dosyada yaşamış ve çözmüştü:
+  `CustomerPortalSpecialPriceRequestDialog.tsx` ve
+  `CustomerSpecialPricesPageClient.tsx`, ikisi de kendi
+  `PopoverContent`/`CommandList`'lerine `onWheelCapture`/`onTouchMoveCapture`
+  ile `event.stopPropagation()` çağıran bir `stopScrollPropagation` handler'ı
+  eklemiş — Radix `Dialog`, portallanmış `Popover` içeriğinden REACT AĞACI
+  üzerinden (DOM ağacından değil) bubble eden wheel/touch event'lerini kendi
+  scroll-lock/dismiss mantığıyla yakalayıp engelliyor. `CreateVisitDialog`'un
+  kullandığı paylaşılan `SearchableSelect` bileşeninde bu workaround yoktu.
+- **Fix:** Workaround'u HER kullanım yerine tekrar tekrar eklemek yerine
+  paylaşılan `components/ui/searchable-select.tsx`'e TEK SEFER eklendi —
+  `PopoverContent` ve `CommandList`'e aynı `stopScrollPropagation` handler'ı
+  (`onWheelCapture`+`onTouchMoveCapture`) kondu. Bu, `SearchableSelect`'in
+  gelecekteki HER dialog-içi kullanımını (ve zaten var olan dialog-dışı
+  kullanımlarını, event davranışı değişmez) otomatik kapsıyor —
+  `GeoAddressFilterFields` (ülke/il/ilçe, `CreateVisitDialog` içinde) ve
+  sektör `SearchableSelect`'i tek değişiklikle düzeldi. `CreateVisitDialog.tsx`
+  dosyasının kendisinde değişiklik gerekmedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ (yeni uyarı yok) · `test -w frontend` 384/384 ✅.
+  Backend'e dokunulmadı, backend DoD adımları atlandı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — `CreateVisitDialog`'da sektör
+  ve il/ilçe filtrelerinin popover listelerinde artık fare tekerleği/dokunmatik
+  ile scroll yapılabildiği (özellikle mobil/trackpad'de).
+
+## `CreateVisitDialog` müşteri seçici — opsiyonel Cari/Potansiyel filtresi + sonsuz kaydırma (2026-09-16) *(kullanıcı talebiyle)*
+
+- **Talep:** Kullanıcı, müşteri seçicide opsiyonel bir Cari/Potansiyel filtresi
+  istedi; ayrıca müşteri sayısı çok olabileceği için TÜMÜNÜ tek seferde
+  çekmek yerine scroll sona gelince otomatik ikinci sayfanın açılmasının
+  ("infinite scroll") doğru ve mümkün bir yöntem olup olmadığını sordu.
+  Cevap: evet — TanStack Query'nin `useInfiniteQuery`'si + bir
+  `IntersectionObserver` sentinel'i kombinasyonu tam bunun için var, projede
+  zaten bir `useInfiniteQuery` örneği vardı (`CustomerPortalUsageAreaCarousel`,
+  orada tıkla-yükle butonuyla); buraya scroll-tetiklemeli hâli eklendi.
+- **Yeni infinite-query hook'ları:** `useManagedCustomersInfinite` ve
+  `useManagedLeadCustomersInfinite` (aynı `/sales/customers` /
+  `/sales/lead-customers` uçlarını sarar, `meta.page < meta.totalPages`
+  ile ilerler). Mevcut `useManagedCustomers`/`useManagedLeadCustomers`
+  (klasik `AdminListPagination` sayfalaması) DEĞİŞTİRİLMEDİ — admin
+  listeleri hâlâ onları kullanıyor, yalnız bu combobox yeni hook'lara geçti.
+- **`components/ui/scroll-area.tsx`:** opsiyonel `viewportRef` prop'u eklendi
+  (Radix `Viewport`'a iletiliyor) — gerçek scroll eden eleman `Root` değil
+  `Viewport`'tur, `IntersectionObserver`'ın doğru `root`'u alması için bu
+  ref gerekli. Diğer tüm mevcut `ScrollArea` kullanımları etkilenmedi (prop
+  opsiyonel, varsayılan davranış aynı).
+- **`CreateVisitDialog.tsx`:**
+  - Arama kutusunun yanına "Müşteri Türü" `Select`'i eklendi: Tümü (varsayılan) /
+    Cari / Potansiyel. Seçime göre `enabled`: Tümü → iki sorgu da, Cari →
+    yalnız `useManagedCustomersInfinite`, Potansiyel → yalnız
+    `useManagedLeadCustomersInfinite` (diğer sorgu hiç atılmıyor).
+    Tek tür seçiliyken bölüm başlığı ("Cari Müşteriler"/"Potansiyel
+    Müşteriler") gizleniyor — tek liste varken tekrar bilgi vermiyor.
+  - Cari ve potansiyel bölümleri BAĞIMSIZ sayfalanıyor (iki ayrı uç, iki
+    ayrı `hasNextPage`) — bu yüzden basit bir "scroll pozisyonu" hesabı
+    yerine her bölümün SONUNA kendi görünmez sentinel'i (`useLoadMoreSentinel`,
+    yerel/dosyaya özel hook) konuldu; `root` olarak `ScrollArea`'nın yeni
+    `viewportRef`'i kullanılıyor. Sentinel görünür olunca (ve o bölümün
+    `isFetchingNextPage`'i false'ken) `fetchNextPage()` tetikleniyor;
+    yüklenirken sentinel'in yerinde küçük bir `Spinner` görünüyor.
+  - Sayfa boyutu (limit 10) ve filtre-öncesi sorgu atmama davranışı
+    (`hasActiveQuery`) değişmedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ (yeni uyarı yok) · `test -w frontend` 384/384 ✅
+  (yeni hook'lar için ayrı birim testi eklenmedi — ikisi de ince sarmalayıcı,
+  `useLoadMoreSentinel` DOM/`IntersectionObserver`'a bağlı, mevcut
+  `useInfiniteQuery` altyapısının doğrudan tekrarı). Backend'e dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — (1) Tümü/Cari/Potansiyel
+  filtresinin doğru listeyi gösterdiği; (2) her bölümde scroll sonuna
+  gelince otomatik yeni kayıtların yüklendiği (özellikle çok sonuçlu bir
+  arama/filtre ile, ör. yaygın bir sektör); (3) mobilde arama+tür filtresi
+  satırının düzgün alt alta indiği.
+
+### GÜNCELLEME — filtre değişince eski tür sonuçları ekranda kalıyordu (2026-09-16)
+
+- **Bildirim:** Kullanıcı, "Tümü"den "Cari"ye geçince "Potansiyel Müşteriler"
+  bölümünün hâlâ göründüğünü bildirdi.
+- **Kök neden:** `leadsQuery`/`customersQuery`'nin `enabled`'ı `false` olunca
+  TanStack Query önceki `data`'yı SIFIRLAMIYOR (cache'te kalıyor) — "Tümü"
+  modunda bir kez lead sonucu geldiyse, filtre "Cari"ye çevrilip
+  `leadsQuery` disable edildiğinde bile `leads` dizisi eski cache'ten
+  türetilmeye devam ediyordu.
+- **Fix:** `customers`/`leads` dizileri artık doğrudan sorgu verisinden değil,
+  `showCustomers`/`showLeads`'e göre GATE'lenerek türetiliyor (filtre o türü
+  dışlıyorsa dizi boş `[]`) — `CreateVisitDialog.tsx`.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type UIEvent } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -39,6 +39,10 @@ type Props = {
     className?: string
     align?: "start" | "center" | "end"
     "aria-label"?: string
+}
+
+function stopScrollPropagation(event: UIEvent) {
+    event.stopPropagation()
 }
 
 /**
@@ -85,10 +89,15 @@ export function SearchableSelect({
                     <ChevronsUpDown className="h-4 w-4 shrink-0 text-neutral-400" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-(--radix-popover-trigger-width) min-w-60 p-0" align={align}>
+            <PopoverContent
+                className="w-(--radix-popover-trigger-width) min-w-60 p-0"
+                align={align}
+                onWheelCapture={stopScrollPropagation}
+                onTouchMoveCapture={stopScrollPropagation}
+            >
                 <Command>
                     <CommandInput placeholder={searchPlaceholder ?? placeholder} />
-                    <CommandList>
+                    <CommandList onWheelCapture={stopScrollPropagation} onTouchMoveCapture={stopScrollPropagation}>
                         <CommandEmpty>{loading ? "Yükleniyor…" : emptyText}</CommandEmpty>
                         <CommandGroup>
                             {allowClear ? (

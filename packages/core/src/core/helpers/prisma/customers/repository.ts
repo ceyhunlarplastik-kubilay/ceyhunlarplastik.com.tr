@@ -406,6 +406,10 @@ export interface IPrismaCustomerRepository {
             usageAreaValueId?: string
             status?: CustomerStatus
             assignedSalesUserId?: string
+            /** Adres filtresi — normalize geo FK'ları (ülke → il → ilçe), en az bir adresi eşleşen müşteriler. */
+            countryId?: number
+            stateId?: number
+            cityId?: number
         }
     ): Promise<{
         data: CustomerWithRelations[]
@@ -615,6 +619,9 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             usageAreaValueId?: string
             status?: CustomerStatus
             assignedSalesUserId?: string
+            countryId?: number
+            stateId?: number
+            cityId?: number
         },
     ) => {
         const { where, orderBy, skip, take, page, limit } = buildPaginationQuery<Customer>(query, {
@@ -635,6 +642,17 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                     usageAreaValues: {
                         some: {
                             id: query.usageAreaValueId,
+                        },
+                    },
+                }
+                : {}),
+            ...((query.countryId || query.stateId || query.cityId)
+                ? {
+                    addresses: {
+                        some: {
+                            ...(query.countryId ? { countryId: query.countryId } : {}),
+                            ...(query.stateId ? { stateId: query.stateId } : {}),
+                            ...(query.cityId ? { cityId: query.cityId } : {}),
                         },
                     },
                 }

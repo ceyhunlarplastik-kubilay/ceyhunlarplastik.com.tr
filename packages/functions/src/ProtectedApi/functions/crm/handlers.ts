@@ -13,6 +13,7 @@ import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery
 import {
     assertCustomerManagementAccess,
     assertCustomerPortalAccess,
+    assertCustomerVisitAccess,
     assertSupplierManagementAccess,
 } from "@/core/helpers/crm/access"
 import { buildCustomerUpdateData } from "@/core/helpers/crm/customerUpdateData"
@@ -220,6 +221,9 @@ export const listManagedCustomersHandler = ({ customerRepository }: IProtectedCr
                 : requester.isOwner || requester.isAdmin || requester.isSalesDirector
                     ? event.queryStringParameters?.assignedSalesUserId
                     : undefined,
+            countryId: parseGeoIdQuery(event.queryStringParameters?.countryId),
+            stateId: parseGeoIdQuery(event.queryStringParameters?.stateId),
+            cityId: parseGeoIdQuery(event.queryStringParameters?.cityId),
         })
 
         return apiResponseDTO({
@@ -717,7 +721,7 @@ export const listManagedCustomerVisitsHandler = ({ customerRepository }: IProtec
         const customer = await customerRepository.getCustomer(event.pathParameters.id)
         if (!customer) throw new createError.NotFound("Customer not found")
 
-        assertCustomerManagementAccess(event.user, customer)
+        assertCustomerVisitAccess(event.user, customer)
 
         const data = await customerRepository.listVisits(customer.id)
 
@@ -736,7 +740,7 @@ export const createManagedCustomerVisitHandler = ({ customerRepository }: IProte
         const customer = await customerRepository.getCustomer(event.pathParameters.id)
         if (!customer) throw new createError.NotFound("Customer not found")
 
-        assertCustomerManagementAccess(requester, customer)
+        assertCustomerVisitAccess(requester, customer)
 
         // Sıradan `sales` yalnız KENDİ adına ziyaret oluşturabilir — istekte
         // başka bir ownerUserId gelse bile göz ardı edilir (rapor uç'undaki
@@ -778,7 +782,7 @@ export const updateManagedCustomerVisitHandler = ({ customerRepository }: IProte
         const customer = await customerRepository.getCustomer(event.pathParameters.id)
         if (!customer) throw new createError.NotFound("Customer not found")
 
-        assertCustomerManagementAccess(event.user, customer)
+        assertCustomerVisitAccess(event.user, customer)
 
         const visits = await customerRepository.listVisits(customer.id)
         const currentVisit = visits.find((visit) => visit.id === event.pathParameters.visitId)
@@ -820,7 +824,7 @@ export const deleteManagedCustomerVisitHandler = ({ customerRepository }: IProte
         const customer = await customerRepository.getCustomer(event.pathParameters.id)
         if (!customer) throw new createError.NotFound("Customer not found")
 
-        assertCustomerManagementAccess(event.user, customer)
+        assertCustomerVisitAccess(event.user, customer)
 
         const visits = await customerRepository.listVisits(customer.id)
         const currentVisit = visits.find((visit) => visit.id === event.pathParameters.visitId)

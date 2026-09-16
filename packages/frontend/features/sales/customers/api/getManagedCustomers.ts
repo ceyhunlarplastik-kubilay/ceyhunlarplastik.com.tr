@@ -6,6 +6,10 @@ type Params = {
     limit: number
     search?: string
     status?: "LEAD" | "CUSTOMER"
+    sectorValueId?: string
+    countryId?: number
+    stateId?: number
+    cityId?: number
 }
 
 export async function getManagedCustomers(params: Params) {
