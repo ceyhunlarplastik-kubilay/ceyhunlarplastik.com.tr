@@ -9,7 +9,7 @@ import { Sparkles, X, ArrowRight, CheckCircle2 } from "lucide-react"
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import type { ProductAttributeFilter } from "@/features/public/productAttributes/types"
 import { useUsageAreaValues } from "@/features/public/productAttributes/hooks/useUsageAreaValues"
@@ -247,10 +247,10 @@ export default function ProductAssistantModal({ attributes }: Props) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent
                     showCloseButton={false}
-                    className="w-[min(1020px,calc(100vw-1.5rem))] h-[min(88vh,760px)] p-0 overflow-hidden rounded-2xl border-neutral-200"
+                    className="flex flex-col w-[min(1020px,calc(100vw-1.5rem))] h-[min(88dvh,760px)] p-0 overflow-hidden rounded-2xl border-neutral-200"
                 >
                     <DialogTitle className="sr-only">{t("title")}</DialogTitle>
-                    <div className="flex h-full flex-col">
+                    <div className="flex h-full min-h-0 flex-col">
                         <div className="bg-linear-to-r from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -290,68 +290,70 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
-                                        className="flex h-full flex-col items-center justify-center text-center space-y-8"
+                                        className="flex h-full flex-col overflow-y-auto"
                                     >
-                                        <motion.div
-                                            animate={{
-                                                y: [0, -8, 0],
-                                                rotate: [0, 5, -5, 0]
-                                            }}
-                                            transition={{
-                                                duration: 6,
-                                                repeat: Infinity,
-                                                ease: "linear"
-                                            }}
-                                            className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-neutral-50 shadow-sm border border-neutral-100"
-                                        >
-                                            <div className="absolute inset-0 bg-brand/5 rounded-3xl blur-xl" />
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                className="w-12 h-12 text-brand relative z-10"
-                                            >
-                                                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-                                                <path d="m3.3 7 8.7 5 8.7-5" />
-                                                <path d="M12 22V12" />
-                                            </svg>
+                                        <div className="m-auto flex flex-col items-center text-center space-y-8 py-2">
                                             <motion.div
-                                                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                                                transition={{ duration: 2, repeat: Infinity }}
-                                                className="absolute -top-2 -inset-e-2 bg-yellow-400 rounded-full p-1.5 shadow-lg shadow-yellow-200"
+                                                animate={{
+                                                    y: [0, -8, 0],
+                                                    rotate: [0, 5, -5, 0]
+                                                }}
+                                                transition={{
+                                                    duration: 6,
+                                                    repeat: Infinity,
+                                                    ease: "linear"
+                                                }}
+                                                className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-neutral-50 shadow-sm border border-neutral-100"
                                             >
-                                                <Sparkles className="w-4 h-4 text-white" />
+                                                <div className="absolute inset-0 bg-brand/5 rounded-3xl blur-xl" />
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="1.5"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    className="w-12 h-12 text-brand relative z-10"
+                                                >
+                                                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                                                    <path d="m3.3 7 8.7 5 8.7-5" />
+                                                    <path d="M12 22V12" />
+                                                </svg>
+                                                <motion.div
+                                                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                                                    transition={{ duration: 2, repeat: Infinity }}
+                                                    className="absolute -top-2 -inset-e-2 bg-yellow-400 rounded-full p-1.5 shadow-lg shadow-yellow-200"
+                                                >
+                                                    <Sparkles className="w-4 h-4 text-white" />
+                                                </motion.div>
                                             </motion.div>
-                                        </motion.div>
 
-                                        <div className="space-y-4 max-w-sm">
-                                            <h2 className="text-4xl font-bold tracking-tight text-foreground leading-tight">
-                                                {t("welcome.greeting")} <span className="inline-block animate-bounce">👋</span>
-                                            </h2>
-                                            <p className="text-base text-muted-foreground leading-relaxed">
-                                                {t("welcome.question")}
-                                            </p>
-                                        </div>
+                                            <div className="space-y-4 max-w-sm">
+                                                <h2 className="text-4xl font-bold tracking-tight text-foreground leading-tight">
+                                                    {t("welcome.greeting")} <span className="inline-block animate-bounce">👋</span>
+                                                </h2>
+                                                <p className="text-base text-muted-foreground leading-relaxed">
+                                                    {t("welcome.question")}
+                                                </p>
+                                            </div>
 
-                                        <div className="flex flex-col w-full gap-3 max-w-sm px-4">
-                                            <Button
-                                                onClick={() => setStep(1)}
-                                                className="h-14 text-lg font-semibold bg-brand text-white shadow-lg shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-95"
-                                            >
-                                                {t("welcome.start")}
-                                                <ArrowRight className="ms-2 h-5 w-5 rtl:-scale-x-100" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                onClick={closeAndReset}
-                                                className="h-12 text-muted-foreground hover:text-foreground hover:bg-neutral-50 px-4"
-                                            >
-                                                {t("welcome.decline")}
-                                            </Button>
+                                            <div className="flex flex-col w-full gap-3 max-w-sm px-4">
+                                                <Button
+                                                    onClick={() => setStep(1)}
+                                                    className="h-14 text-lg font-semibold bg-brand text-white shadow-lg shadow-brand/20 transition-all hover:-translate-y-0.5 active:scale-95"
+                                                >
+                                                    {t("welcome.start")}
+                                                    <ArrowRight className="ms-2 h-5 w-5 rtl:-scale-x-100" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={closeAndReset}
+                                                    className="h-12 text-muted-foreground hover:text-foreground hover:bg-neutral-50 px-4"
+                                                >
+                                                    {t("welcome.decline")}
+                                                </Button>
+                                            </div>
                                         </div>
                                     </motion.div>
                                 )}
@@ -364,11 +366,11 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         exit={{ opacity: 0, y: -10 }}
                                         className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
                                     >
-                                        <div>
+                                        <div className="shrink-0">
                                             <h3 className="text-lg font-semibold">{t("sector.title")}</h3>
                                             <p className="text-sm text-muted-foreground">{t("sector.hint")}</p>
                                         </div>
-                                        <ScrollArea type="always" scrollHideDelay={0} className="h-107.5 rounded-lg border border-neutral-200/70 p-2 pe-3">
+                                        <ScrollArea type="always" scrollHideDelay={0} className="min-h-0 flex-1 rounded-lg border border-neutral-200/70 p-2 pe-3">
                                             <div className="grid grid-cols-2 gap-2 pb-2 md:grid-cols-3 lg:grid-cols-4">
                                                 {sectorValues.map((value) => (
                                                     <button
@@ -415,12 +417,12 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         exit={{ opacity: 0, y: -10 }}
                                         className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
                                     >
-                                        <div>
+                                        <div className="shrink-0">
                                             <h3 className="text-lg font-semibold">{t("usage.title")}</h3>
                                             <p className="text-sm text-muted-foreground">{t("usage.hint")}</p>
                                         </div>
 
-                                        <ScrollArea type="always" scrollHideDelay={0} className="rounded-lg border border-neutral-200/70 px-2 py-2">
+                                        <ScrollArea type="always" scrollHideDelay={0} className="shrink-0 rounded-lg border border-neutral-200/70 px-2 py-2">
                                             <div className="flex min-w-max items-center gap-2 pb-2">
                                                 {visibleProductionGroups.map((value) => (
                                                     <button
@@ -437,9 +439,10 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                     </button>
                                                 ))}
                                             </div>
+                                            <ScrollBar orientation="horizontal" />
                                         </ScrollArea>
 
-                                        <div className="relative">
+                                        <div className="relative shrink-0">
                                             <input
                                                 value={query}
                                                 onChange={(e) => setQuery(e.target.value)}
@@ -450,7 +453,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
 
                                         <div
                                             ref={usageScrollRef}
-                                            className="h-80 overflow-y-auto rounded-xl border border-neutral-200"
+                                            className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-neutral-200"
                                         >
                                             <div className="space-y-5 p-3">
                                                     {visibleProductionGroups.map((group) => {
