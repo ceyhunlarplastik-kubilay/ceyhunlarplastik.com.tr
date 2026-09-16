@@ -8264,6 +8264,138 @@ eşit sayıda eklendi (865/865).
   parametrik model bileşik ölçülü bir varyanta bağlanmak istenirse ayrı bir
   karar gerekir.
 
+### Satış paneli — "Cari Müşteriler" ve "Potansiyel Müşteriler" sayfaları (2026-09-16, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Kullanıcı `contentEntryNav.ts`'deki "Potansiyel Müşteriler"i
+  örnek göstererek satış paneline iki yeni sayfa istedi: "Cari Müşteriler"
+  (kendisine atanmış CUSTOMER-status kayıtlar) ve "Potansiyel Müşteriler"
+  (şimdilik TÜM LEAD havuzu, sahiplik kısıtı yok).
+  - **Cari Müşteriler — SIFIR backend değişikliği:** `/sales/customers` ucu
+    zaten `status` filtresi + `sales` rolü için `assignedSalesUserId`'yi
+    kendine sabitleme (bkz. `listManagedCustomersHandler`) destekliyordu. Yeni
+    `SalesActiveCustomersPageClient.tsx` + `SalesActiveCustomerCard.tsx`
+    (`features/sales/customers/`) — `useCustomerListFilters({ lockedStatus:
+    "CUSTOMER" })` (admin'in zaten genel-amaçlı hazır hook'u, sıfır
+    değişiklik) + mevcut `useManagedCustomers`. Sektör/kullanım
+    alanı/geo filtresi bu dilimde İSTENMEDİ, eklenmedi (yalnız arama +
+    sayfalama) — `useManagedCustomers`'ın zod şeması bu alanları hiç
+    tanımıyordu, eklemek ayrı bir dilim/onay gerektirirdi.
+  - **Potansiyel Müşteriler — yeni, DAR bir backend ucu gerekti:** Mevcut
+    `/lead-customers` (AdminApi) `admin`+`content_editor`'a kilitliydi ve
+    create/update/delete/bulk-delete de içeriyordu — bu izin listesine
+    doğrudan `sales` eklemek istenenden FAZLASINI (tam CRUD) açardı. Bunun
+    yerine AGENTS.md'nin "dar, amaca özel uç" deseniyle yeni
+    `GET /sales/lead-customers` (ProtectedApi) eklendi: AYNI handler
+    (`listLeadCustomersHandler`) ve AYNI validator'lar reuse edildi
+    (`AdminApi/functions/leadCustomers` içinden import, sıfır kod
+    kopyalanmadı), yalnız auth sınırı `["sales","sales_director","admin",
+    "owner"]` ve YAZMA UÇLARI YOK. Sahiplik kısıtı da yok (kullanıcı talebi:
+    "şimdilik hepsini listeleyebilsin").
+  - **Paylaşılan kart bileşeni çıkarıldı:** `LeadCustomersPageClient.tsx`
+    içindeki yerel `LeadCustomerCard` fonksiyonu ayrı bir dosyaya
+    (`features/admin/leadCustomers/components/LeadCustomerCard.tsx`)
+    taşındı, `canEdit`/`showDetailToggle` prop'ları eklendi (ikisi de
+    varsayılan `true` — admin çağrı noktası hiç değişmedi). Yeni
+    `SalesLeadCustomersPageClient.tsx` (`features/sales/leadCustomers/`) bu
+    kartı `canEdit={false} canDelete={false} canSelect={false}
+    showDetailToggle={false}` ile kullanıyor. `showDetailToggle=false`
+    ZORUNLUYDU: "Adresler & Eşleşen Ürünler" genişletmesi `GET
+    /lead-customers/{id}` çağırıyor (admin/content_editor'a özel, `sales`
+    için AÇILMADI) — açık bırakılsaydı satış temsilcisi kartı genişletince
+    403 alırdı.
+  - Filtre/liste altyapısı da tamamen reuse edildi: `useLeadCustomerListFilters`
+    (admin, genel-amaçlı, değişmedi), `useManagedProductAttributesForFilter`
+    (bu oturumun erken bir diliminde harita için eklenen ProtectedApi
+    sürümü — `sales` rolünün admin-only `/product-attributes/with-values`'a
+    hiç değmemesini sağlıyor), `GeoAddressFilterFields`, `SearchableSelect`,
+    `AdminListPagination`, `AdminListRefreshBar`, `AdminSectionLoadingOverlay`.
+  - Nav: `salesNav.ts`'e "Cari Müşteriler" (`building` ikonu, mevcut) ve
+    "Potansiyel Müşteriler" (yeni `user-plus` ikonu, `panelNavIcons.ts`'e
+    eklendi) satırları — "Müşteriler" grubunda, mevcut "Atanmış Müşteriler"
+    dokunulmadan bırakıldı (kullanıcı "da eklemeni istiyorum" dedi, mevcut
+    sayfayı değiştirmedi).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test -w @ceyhunlarweb/functions`
+  342/342 ✅ (değişmedi — yeni action mevcut validator'ları reuse etti, yeni
+  validator derlenmedi) · `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅.
+- **Ne kaldı:** Kullanıcı kubi'de satış kullanıcısıyla doğrulamalı: (1) "Cari
+  Müşteriler"de yalnız kendisine atanmış müşteriler görünüyor mu; (2)
+  "Potansiyel Müşteriler"de TÜM leadler görünüyor mu (sahiplik kısıtı
+  olmadığı doğrulanmalı); (3) potansiyel müşteri kartında "Profili Düzenle"/
+  "Adresler & Eşleşen Ürünler" düğmelerinin HİÇ görünmediği. İleride sektör/
+  kullanım alanı/geo filtresi "Cari Müşteriler"e de eklenmek istenirse ayrı
+  bir dilim (`useManagedCustomers`'ın zod şemasının genişletilmesi gerekir).
+
+### Müşteri ziyaretleri (saha CRM) — Dilim 3: admin + satış müdürü çapraz-temsilci raporu (2026-09-16, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Kullanıcıya rapor sayfasının nereye ekleneceği soruldu
+  ("yalnız admin" vs "hem admin hem satış paneli") — "hem admin hem satış
+  paneli" seçildi, backend (Dilim 1) zaten ikisini de destekliyordu.
+  - `useSalesVisitsFilters` (Dilim 2'den) `ownerUserId` filtresini de
+    kapsayacak şekilde genişletildi — "Ziyaretlerim" bunu hiç set etmiyor
+    (her zaman "kendi ziyaretim"), yeni rapor sayfası bir temsilci
+    seçiciye bağlıyor. **Bulunup düzeltilen bir tuzak:** bu genişletme
+    sırasında `useManagedCustomerVisitsReport`'un zod şemasında `ownerUserId`
+    hiç tanımlı değildi — eklenmeseydi rapor sayfasındaki temsilci filtresi
+    sessizce hiçbir şey yapmazdı (`schema.parse` bilinmeyen alanı sessizce
+    atardı, aynı sınıf hata bu oturumda defalarca görüldü). Eklendi.
+  - Ortak tablo `CustomerVisitsTable.tsx`'e çıkarıldı ("Ziyaretlerim"in
+    inline tablosundan) — `showOwnerColumn` (Temsilci kolonu) ve `onComplete`
+    (yalnız "Ziyaretlerim" verir) prop'larıyla hem Dilim 2 hem Dilim 3
+    paylaşıyor.
+  - `SalesVisitsFilterBar.tsx`'e opsiyonel temsilci `SearchableSelect`'i
+    eklendi (`ownerOptions` verilince görünür, "Ziyaretlerim" vermediği için
+    orada hiç çıkmıyor).
+  - Yeni `features/admin/customers/api/getCustomerVisitsReport.ts` +
+    `hooks/useCustomerVisitsReport.ts` (AdminApi `GET /customer-visits`,
+    Dilim 1'den — yalnız frontend eksikti).
+  - Yeni `CustomerVisitsReportPageClient.tsx` (`features/sales/visits/`) —
+    paylaşılan sunum bileşeni (`CustomerVisitsReportView`) + iki ince
+    dışa-aktarım: `AdminCustomerVisitsReportPageClient` (`useUsers`, admin
+    kullanıcı listesi) ve `SalesCustomerVisitsReportPageClient`
+    (`useProtectedUsers` — harita filtresinde zaten kullanılan ProtectedApi
+    kullanıcı ucu, `["user"]` izniyle herkese açık ama temsilci seçici yalnız
+    `sales_director`/admin/owner oturumunda gösteriliyor). İki bileşene
+    ayrılmasının nedeni: React hook kuralları — `boundary` prop'una göre tek
+    bileşen içinde koşullu hook çağırmak yerine, her boundary kendi tutarlı
+    hook setini çağıran ayrı bileşen oldu.
+  - Rota: `/admin/musteri-ziyaretleri` (admin/owner) ve
+    `/satis/musteri-ziyaretleri` (nav'da yalnız sales_director/admin/owner'a
+    görünür — `salesNav.ts`'teki `canManageCampaigns` `isSalesManager`
+    olarak yeniden adlandırılıp iki nav öğesinde de kullanıldı; uç sıradan
+    `sales`e 403 vermez ama filtresiz/yalnız-kendi'ye düşer, bu yüzden
+    temsilci seçici o rolde zaten gizli).
+  - Rapor **salt-okunur** bırakıldı — "Sonuçlandır" aksiyonu yok (yalnız
+    "Ziyaretlerim"in işi); kullanıcının plan metni yalnız "filtre çubuğu +
+    tablo" diyordu, ek bir yazma aksiyonu istenmedi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
+  dokunulmadı (Dilim 1'in uçları aynen reuse edildi).
+- **Ne kaldı:** Kullanıcı kubi'de admin ve satış müdürü hesaplarıyla
+  doğrulamalı: (1) her iki sayfada da temsilci/durum/tür/sonuç/tarih
+  aralığı/il-ilçe filtrelerinin çalıştığı; (2) sıradan bir `sales`
+  kullanıcısının `/satis/musteri-ziyaretleri` nav öğesini GÖRMEDİĞİ; (3)
+  temsilci filtresinin doğru kullanıcı listesini gösterdiği (yalnız
+  sales/sales_director grupları). Dilim 4 (opsiyonel, harita hızlı aksiyonu +
+  hatırlatma bildirimi) hâlâ açık, kullanıcı istemedi.
+
+  **GÜNCELLEME (2026-09-16, aynı gün) — kapsam daraltıldı:** Kullanıcı
+  `/satis/musteri-ziyaretleri`'nin sıradan temsilciyle PAYLAŞILAN `/satis`
+  panelinde olmasını istemedi — "bu sayfa admin ve ileride satış müdürü
+  sayfalarında olmalıdır" dedi (satış müdürüne özel ayrı bir alan bugün
+  yok). Geri alındı: `app/(panels)/satis/musteri-ziyaretleri/` rotası
+  silindi, `SalesCustomerVisitsReportPageClient` (+ artık kullanılmayan
+  `useSession`/`useProtectedUsers` import'ları)
+  `CustomerVisitsReportPageClient.tsx`'ten kaldırıldı,
+  `salesNav.ts`'teki nav öğesi çıkarıldı (`isSalesManager` değişkeni
+  "Kampanyalar" için hâlâ kullanılıyor, kaldırılmadı). `/admin/musteri-
+  ziyaretleri` (admin/owner) ve paylaşılan sunum bileşeni
+  (`CustomerVisitsReportView`, artık dosya-içi/export edilmeyen) AYNEN
+  kaldı — satış müdürüne özel bir alan açıldığında oradan hızlıca
+  yeniden türetilebilir (bkz. dosya başı yorumu). Doğrulandı:
+  `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159 warning ✅ ·
+  `test -w frontend` 384/384 ✅.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

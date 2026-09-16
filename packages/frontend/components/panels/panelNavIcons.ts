@@ -22,6 +22,7 @@ import {
     Settings,
     ShieldCheck,
     Truck,
+    UserPlus,
     Users,
 } from "lucide-react"
 
@@ -57,4 +58,5 @@ export const panelNavIcons = {
     "package-search": PackageSearch,
     "package-check": PackageCheck,
     "calendar-clock": CalendarClock,
+    "user-plus": UserPlus,
 } as const

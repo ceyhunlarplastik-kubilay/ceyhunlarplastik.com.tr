@@ -1,4 +1,4 @@
-import { protectedApiClient } from "@/lib/http/client"
+import { adminApiClient } from "@/lib/http/client"
 import type {
     CustomerVisitOutcome,
     CustomerVisitsReportResponse,
@@ -6,7 +6,7 @@ import type {
     CustomerVisitType,
 } from "@/features/admin/customers/api/types"
 
-export type GetManagedCustomerVisitsReportParams = {
+export type GetCustomerVisitsReportParams = {
     page: number
     limit: number
     ownerUserId?: string
@@ -20,9 +20,7 @@ export type GetManagedCustomerVisitsReportParams = {
     cityId?: number
 }
 
-export async function getManagedCustomerVisitsReport(params: GetManagedCustomerVisitsReportParams) {
-    const res = await protectedApiClient.get<CustomerVisitsReportResponse>("/sales/customer-visits", {
-        params,
-    })
+export async function getCustomerVisitsReport(params: GetCustomerVisitsReportParams) {
+    const res = await adminApiClient.get<CustomerVisitsReportResponse>("/customer-visits", { params })
     return res.data.payload
 }

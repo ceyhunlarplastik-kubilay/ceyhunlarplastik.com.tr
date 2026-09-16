@@ -48,6 +48,7 @@ export const adminNavGroups: PanelNavGroup[] = [
             { href: "/admin/potansiyel-musteriler", label: "Potansiyel Müşteriler", icon: "users" },
             { href: "/admin/cari-musteriler", label: "Cari Müşteriler", icon: "users" },
             { href: "/admin/musteriler/harita", label: "Müşteri Haritası", icon: "map" },
+            { href: "/admin/musteri-ziyaretleri", label: "Müşteri Ziyaretleri", icon: "calendar-clock" },
             { href: "/admin/company-contacts", label: "Departman İletişimleri", icon: "building" },
             { href: "/admin/web-requests", label: "Web Talepleri", icon: "clipboard" },
         ],

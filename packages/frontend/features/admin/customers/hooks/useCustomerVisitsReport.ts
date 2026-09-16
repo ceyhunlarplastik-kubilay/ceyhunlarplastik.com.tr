@@ -3,9 +3,9 @@
 import { useMemo } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { z } from "zod"
-import { getManagedCustomerVisitsReport } from "@/features/sales/visits/api/getManagedCustomerVisitsReport"
+import { getCustomerVisitsReport } from "@/features/admin/customers/api/getCustomerVisitsReport"
 
-export const MANAGED_CUSTOMER_VISITS_REPORT_QUERY_KEY = "sales-managed-customer-visits-report"
+export const CUSTOMER_VISITS_REPORT_QUERY_KEY = "admin-customer-visits-report"
 
 const schema = z.object({
     page: z.number().int().positive(),
@@ -20,12 +20,12 @@ const schema = z.object({
     cityId: z.number().int().positive().optional(),
 })
 
-export function useManagedCustomerVisitsReport(params: z.input<typeof schema>) {
+export function useCustomerVisitsReport(params: z.input<typeof schema>) {
     const normalized = useMemo(() => schema.parse(params), [params])
 
     return useQuery({
-        queryKey: [MANAGED_CUSTOMER_VISITS_REPORT_QUERY_KEY, normalized],
-        queryFn: () => getManagedCustomerVisitsReport(normalized),
+        queryKey: [CUSTOMER_VISITS_REPORT_QUERY_KEY, normalized],
+        queryFn: () => getCustomerVisitsReport(normalized),
         placeholderData: (prev) => prev,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,

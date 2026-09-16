@@ -13,14 +13,20 @@ import type {
 } from "@/features/admin/customers/api/types"
 
 /**
- * `/satis/ziyaretlerim` filtre/sayfalama durumu — URL'de kalıcı (nuqs), sayfa
+ * Ziyaret filtre/sayfalama durumu — URL'de kalıcı (nuqs), sayfa
  * paylaşılabilir/geri tuşu çalışır. Yalnız backend'in `listVisitsForReport`
- * (Dilim 1) zaten desteklediği alanlar: durum/tür/sonuç/tarih aralığı/il-ilçe.
- * `countryId` yalnız `GeoAddressFilterFields`'in il/ilçe kademesini beslemek
- * için tutulur — ucun kendisi ülke filtresi almaz.
+ * (Dilim 1) zaten desteklediği alanlar: temsilci/durum/tür/sonuç/tarih
+ * aralığı/il-ilçe. `countryId` yalnız `GeoAddressFilterFields`'in il/ilçe
+ * kademesini beslemek için tutulur — ucun kendisi ülke filtresi almaz.
+ *
+ * İKİ yerde kullanılır: `/satis/ziyaretlerim` (yalnız kendi ziyaretleri —
+ * `ownerUserId` hiç set edilmez, sidebar'da temsilci seçici gösterilmez) ve
+ * Dilim 3'ün çapraz-temsilci rapor sayfası (`CustomerVisitsReportPageClient`,
+ * admin + satış müdürü) — orada `setOwnerUserId` bir temsilci seçiciye bağlanır.
  */
 export function useSalesVisitsFilters() {
     const [state, setState] = useQueryStates({
+        ownerUserId: parseAsString,
         status: parseAsString,
         type: parseAsString,
         outcome: parseAsString,
@@ -37,6 +43,7 @@ export function useSalesVisitsFilters() {
         () => ({
             page: state.page,
             limit: state.limit,
+            ...(state.ownerUserId ? { ownerUserId: state.ownerUserId } : {}),
             ...(state.status ? { status: state.status as CustomerVisitStatus } : {}),
             ...(state.type ? { type: state.type as CustomerVisitType } : {}),
             ...(state.outcome ? { outcome: state.outcome as CustomerVisitOutcome } : {}),
@@ -48,6 +55,7 @@ export function useSalesVisitsFilters() {
         [
             state.page,
             state.limit,
+            state.ownerUserId,
             state.status,
             state.type,
             state.outcome,
@@ -59,7 +67,8 @@ export function useSalesVisitsFilters() {
     )
 
     const hasActiveFilters = Boolean(
-        state.status
+        state.ownerUserId
+        || state.status
         || state.type
         || state.outcome
         || state.scheduledFrom
@@ -70,6 +79,7 @@ export function useSalesVisitsFilters() {
 
     return {
         filters: {
+            ownerUserId: state.ownerUserId ?? "",
             status: state.status ?? "",
             type: state.type ?? "",
             outcome: state.outcome ?? "",
@@ -84,6 +94,7 @@ export function useSalesVisitsFilters() {
         },
         params,
         limitOptions: ADMIN_LIST_PAGE_SIZE_OPTIONS,
+        setOwnerUserId: (ownerUserId: string) => setState({ ownerUserId: ownerUserId || null, page: 1 }),
         setStatus: (status: string) => setState({ status: status || null, page: 1 }),
         setType: (type: string) => setState({ type: type || null, page: 1 }),
         setOutcome: (outcome: string) => setState({ outcome: outcome || null, page: 1 }),
@@ -95,6 +106,7 @@ export function useSalesVisitsFilters() {
         setLimit: (limit: number) => setState({ limit, page: 1 }),
         clearAll: () =>
             setState({
+                ownerUserId: null,
                 status: null,
                 type: null,
                 outcome: null,

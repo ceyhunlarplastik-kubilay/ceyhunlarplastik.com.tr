@@ -31,6 +31,13 @@ type Props = {
     onScheduledToChange: (value: string) => void
     onGeoChange: (patch: { countryId?: number | null; stateId?: number | null; cityId?: number | null }) => void
     onClear: () => void
+    /**
+     * Yalnız çapraz-temsilci rapor sayfası (Dilim 3, admin + satış müdürü)
+     * verir — "Ziyaretlerim" (Dilim 2) vermez, orada zaten "kendi ziyaretim".
+     */
+    ownerUserId?: string
+    ownerOptions?: Array<{ id: string; label: string }>
+    onOwnerUserIdChange?: (value: string) => void
 }
 
 const STATUS_OPTIONS = Object.entries(VISIT_STATUS_LABELS).map(([value, label]) => ({ value, label }))
@@ -60,7 +67,12 @@ export function SalesVisitsFilterBar({
     onScheduledToChange,
     onGeoChange,
     onClear,
+    ownerUserId,
+    ownerOptions,
+    onOwnerUserIdChange,
 }: Props) {
+    const showOwnerFilter = Boolean(ownerOptions && onOwnerUserIdChange)
+
     return (
         <section className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex items-center justify-between gap-3">
@@ -75,7 +87,17 @@ export function SalesVisitsFilterBar({
 
             <Separator className="my-4" />
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={showOwnerFilter ? "grid gap-3 sm:grid-cols-2 lg:grid-cols-4" : "grid gap-3 sm:grid-cols-2 lg:grid-cols-3"}>
+                {showOwnerFilter ? (
+                    <SearchableSelect
+                        aria-label="Temsilci"
+                        value={ownerUserId || null}
+                        onValueChange={(value) => onOwnerUserIdChange?.(value ?? "")}
+                        options={(ownerOptions ?? []).map((user) => ({ value: user.id, label: user.label }))}
+                        placeholder="Tüm temsilciler"
+                        searchPlaceholder="Temsilci ara"
+                    />
+                ) : null}
                 <SearchableSelect
                     aria-label="Durum"
                     value={status || null}
