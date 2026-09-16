@@ -11,6 +11,7 @@ const schema = z.object({
     page: z.number().int().positive(),
     limit: z.number().int().positive().max(100),
     ownerUserId: z.uuid().optional(),
+    customerStatus: z.enum(["LEAD", "CUSTOMER"]).optional(),
     status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]).optional(),
     type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
     outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).optional(),

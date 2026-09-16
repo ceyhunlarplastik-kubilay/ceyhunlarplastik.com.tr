@@ -487,6 +487,7 @@ export interface IPrismaCustomerRepository {
     listVisitsForReport(
         query: IPaginationQuery & {
             ownerUserId?: string
+            customerStatus?: CustomerStatus
             status?: CustomerVisitStatus
             type?: CustomerVisitType
             outcome?: CustomerVisitOutcome
@@ -503,6 +504,26 @@ export interface IPrismaCustomerRepository {
             total: number
             totalPages: number
         }
+    }>
+    /**
+     * Rapor sayfasındaki grafikler için özet sayaçlar — `status` ve `outcome`
+     * BİLEREK bu sorgunun kendi filtre alanları DEĞİL: aksi halde "durum
+     * dağılımı" grafiği kullanıcı zaten bir duruma göre filtrelediğinde
+     * anlamsız tek-çubuğa düşerdi. Diğer tüm filtreler (temsilci/müşteri
+     * durumu/tür/tarih aralığı/il-ilçe) aynen uygulanır.
+     */
+    getVisitsReportSummary(query: {
+        ownerUserId?: string
+        customerStatus?: CustomerStatus
+        type?: CustomerVisitType
+        scheduledFrom?: Date
+        scheduledTo?: Date
+        stateId?: number
+        cityId?: number
+    }): Promise<{
+        total: number
+        statusCounts: Record<CustomerVisitStatus, number>
+        outcomeCounts: Record<CustomerVisitOutcome, number>
     }>
 }
 
@@ -1112,9 +1133,45 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             include: customerDetailInclude.visits.include,
         })
 
+    /**
+     * `listVisitsForReport` ve `getVisitsReportSummary` arasında paylaşılan
+     * filtre alanları — özet sorgusu BİLEREK `status`/`outcome` almaz (bkz.
+     * arayüz yorumu), o yüzden bu tip ikisinin KESİŞİMİ.
+     */
+    const buildVisitsReportBaseWhere = (query: {
+        ownerUserId?: string
+        customerStatus?: CustomerStatus
+        type?: CustomerVisitType
+        scheduledFrom?: Date
+        scheduledTo?: Date
+        stateId?: number
+        cityId?: number
+    }): Prisma.CustomerVisitWhereInput => ({
+        ...(query.ownerUserId ? { ownerUserId: query.ownerUserId } : {}),
+        ...(query.customerStatus ? { customer: { status: query.customerStatus } } : {}),
+        ...(query.type ? { type: query.type } : {}),
+        ...((query.scheduledFrom || query.scheduledTo)
+            ? {
+                scheduledAt: {
+                    ...(query.scheduledFrom ? { gte: query.scheduledFrom } : {}),
+                    ...(query.scheduledTo ? { lte: query.scheduledTo } : {}),
+                },
+            }
+            : {}),
+        ...((query.stateId || query.cityId)
+            ? {
+                address: {
+                    ...(query.stateId ? { stateId: query.stateId } : {}),
+                    ...(query.cityId ? { cityId: query.cityId } : {}),
+                },
+            }
+            : {}),
+    })
+
     const listVisitsForReport = async (
         query: IPaginationQuery & {
             ownerUserId?: string
+            customerStatus?: CustomerStatus
             status?: CustomerVisitStatus
             type?: CustomerVisitType
             outcome?: CustomerVisitOutcome
@@ -1127,26 +1184,9 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         const { skip, take, page, limit } = buildPaginationQuery<Prisma.CustomerVisitWhereInput>(query)
 
         const finalWhere: Prisma.CustomerVisitWhereInput = {
-            ...(query.ownerUserId ? { ownerUserId: query.ownerUserId } : {}),
+            ...buildVisitsReportBaseWhere(query),
             ...(query.status ? { status: query.status } : {}),
-            ...(query.type ? { type: query.type } : {}),
             ...(query.outcome ? { outcome: query.outcome } : {}),
-            ...((query.scheduledFrom || query.scheduledTo)
-                ? {
-                    scheduledAt: {
-                        ...(query.scheduledFrom ? { gte: query.scheduledFrom } : {}),
-                        ...(query.scheduledTo ? { lte: query.scheduledTo } : {}),
-                    },
-                }
-                : {}),
-            ...((query.stateId || query.cityId)
-                ? {
-                    address: {
-                        ...(query.stateId ? { stateId: query.stateId } : {}),
-                        ...(query.cityId ? { cityId: query.cityId } : {}),
-                    },
-                }
-                : {}),
         }
 
         const data = await prisma.customerVisit.findMany({
@@ -1167,6 +1207,47 @@ export const customerRepository = (): IPrismaCustomerRepository => {
             total,
             totalPages: Math.ceil(total / limit),
         })
+    }
+
+    const getVisitsReportSummary = async (query: {
+        ownerUserId?: string
+        customerStatus?: CustomerStatus
+        type?: CustomerVisitType
+        scheduledFrom?: Date
+        scheduledTo?: Date
+        stateId?: number
+        cityId?: number
+    }) => {
+        const baseWhere = buildVisitsReportBaseWhere(query)
+
+        const [statusGroups, outcomeGroups] = await Promise.all([
+            prisma.customerVisit.groupBy({
+                by: ["status"],
+                where: baseWhere,
+                _count: { _all: true },
+            }),
+            prisma.customerVisit.groupBy({
+                by: ["outcome"],
+                where: { ...baseWhere, outcome: { not: null } },
+                _count: { _all: true },
+            }),
+        ])
+
+        const statusCounts = Object.fromEntries(
+            Object.values(CustomerVisitStatus).map((status) => [status, 0]),
+        ) as Record<CustomerVisitStatus, number>
+        for (const group of statusGroups) statusCounts[group.status] = group._count._all
+
+        const outcomeCounts = Object.fromEntries(
+            Object.values(CustomerVisitOutcome).map((outcome) => [outcome, 0]),
+        ) as Record<CustomerVisitOutcome, number>
+        for (const group of outcomeGroups) {
+            if (group.outcome) outcomeCounts[group.outcome] = group._count._all
+        }
+
+        const total = statusGroups.reduce((sum, group) => sum + group._count._all, 0)
+
+        return { total, statusCounts, outcomeCounts }
     }
 
     return {
@@ -1192,6 +1273,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
         updateVisit,
         deleteVisit,
         listVisitsForReport,
+        getVisitsReportSummary,
     }
 }
 

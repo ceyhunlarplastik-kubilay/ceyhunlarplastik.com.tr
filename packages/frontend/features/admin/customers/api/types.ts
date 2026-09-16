@@ -313,6 +313,12 @@ export type CustomerVisitReportItem = CustomerVisit & {
     } | null
 }
 
+export type CustomerVisitsReportSummary = {
+    total: number
+    statusCounts: Record<CustomerVisitStatus, number>
+    outcomeCounts: Record<CustomerVisitOutcome, number>
+}
+
 export type CustomerVisitsReportResponse = {
     statusCode: number
     payload: {
@@ -323,6 +329,8 @@ export type CustomerVisitsReportResponse = {
             total: number
             totalPages: number
         }
+        /** Yalnız admin rapor ucu doldurur (grafikler için) — "Ziyaretlerim" bu alanı hiç göndermez. */
+        summary?: CustomerVisitsReportSummary
     }
 }
 

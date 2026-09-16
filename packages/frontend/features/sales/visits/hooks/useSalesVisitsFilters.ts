@@ -7,6 +7,7 @@ import {
     DEFAULT_ADMIN_LIST_PAGE_SIZE,
 } from "@/features/admin/shared/config"
 import type {
+    CustomerStatus,
     CustomerVisitOutcome,
     CustomerVisitStatus,
     CustomerVisitType,
@@ -27,6 +28,7 @@ import type {
 export function useSalesVisitsFilters() {
     const [state, setState] = useQueryStates({
         ownerUserId: parseAsString,
+        customerStatus: parseAsString,
         status: parseAsString,
         type: parseAsString,
         outcome: parseAsString,
@@ -44,6 +46,7 @@ export function useSalesVisitsFilters() {
             page: state.page,
             limit: state.limit,
             ...(state.ownerUserId ? { ownerUserId: state.ownerUserId } : {}),
+            ...(state.customerStatus ? { customerStatus: state.customerStatus as CustomerStatus } : {}),
             ...(state.status ? { status: state.status as CustomerVisitStatus } : {}),
             ...(state.type ? { type: state.type as CustomerVisitType } : {}),
             ...(state.outcome ? { outcome: state.outcome as CustomerVisitOutcome } : {}),
@@ -56,6 +59,7 @@ export function useSalesVisitsFilters() {
             state.page,
             state.limit,
             state.ownerUserId,
+            state.customerStatus,
             state.status,
             state.type,
             state.outcome,
@@ -68,6 +72,7 @@ export function useSalesVisitsFilters() {
 
     const hasActiveFilters = Boolean(
         state.ownerUserId
+        || state.customerStatus
         || state.status
         || state.type
         || state.outcome
@@ -80,6 +85,7 @@ export function useSalesVisitsFilters() {
     return {
         filters: {
             ownerUserId: state.ownerUserId ?? "",
+            customerStatus: state.customerStatus ?? "",
             status: state.status ?? "",
             type: state.type ?? "",
             outcome: state.outcome ?? "",
@@ -95,6 +101,7 @@ export function useSalesVisitsFilters() {
         params,
         limitOptions: ADMIN_LIST_PAGE_SIZE_OPTIONS,
         setOwnerUserId: (ownerUserId: string) => setState({ ownerUserId: ownerUserId || null, page: 1 }),
+        setCustomerStatus: (customerStatus: string) => setState({ customerStatus: customerStatus || null, page: 1 }),
         setStatus: (status: string) => setState({ status: status || null, page: 1 }),
         setType: (type: string) => setState({ type: type || null, page: 1 }),
         setOutcome: (outcome: string) => setState({ outcome: outcome || null, page: 1 }),
@@ -107,6 +114,7 @@ export function useSalesVisitsFilters() {
         clearAll: () =>
             setState({
                 ownerUserId: null,
+                customerStatus: null,
                 status: null,
                 type: null,
                 outcome: null,

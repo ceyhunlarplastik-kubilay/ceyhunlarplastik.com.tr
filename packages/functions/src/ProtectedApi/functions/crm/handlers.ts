@@ -859,6 +859,7 @@ export const listManagedCustomerVisitsReportHandler = ({ customerRepository }: I
             page: query.page ? Number(query.page) : undefined,
             limit: query.limit ? Number(query.limit) : undefined,
             ownerUserId,
+            customerStatus: query.customerStatus,
             status: query.status,
             type: query.type,
             outcome: query.outcome,

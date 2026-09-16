@@ -8396,6 +8396,62 @@ eşit sayıda eklendi (865/865).
   `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159 warning ✅ ·
   `test -w frontend` 384/384 ✅.
 
+### `/admin/musteri-ziyaretleri` — müşteri durumu filtresi + sonuç analiz grafikleri (2026-09-16, kullanıcı talebiyle)
+
+- **Ne yapıldı:** Kullanıcı iki şey istedi: (1) "Potansiyel Müşteriler"/"Cari
+  Müşteriler" filtresi (varsayılan tümü), (2) kullanıcının kendisinin
+  yüklediği `components/ui/chart.tsx` (`recharts` sarmalayıcı) +
+  `components/ui/card.tsx` ile ziyaret SONUCU analiz grafiği.
+  - **Backend — `customerStatus` filtresi:** `listVisitsForReport`
+    (core repository) artık `customerStatus?: CustomerStatus` alıyor,
+    `customer: { status: ... }` ilişki filtresiyle uygulanıyor. Hem AdminApi
+    (`GET /customer-visits`) hem ProtectedApi (`GET /sales/customer-visits`)
+    validator'ı/tipi/handler'ı güncellendi — ikisi de AYNI paylaşılan
+    validator'ı kullandığı için (Dilim 1'den beri) tek yerde eklenip iki
+    boundary'de de çalışır hale geldi; `listManagedCustomerVisitsReportHandler`
+    (satış) parametreyi geçiriyor ama grafik/summary hesaplamıyor — o
+    yalnız admin ucunda (bilinçli, istenen kapsam).
+  - **Backend — grafik verisi (`getVisitsReportSummary`, yeni repository
+    metodu):** Tek sayfadaki 20 kayda göre grafik çizmek yanıltıcı olurdu —
+    bu yüzden yeni bir Prisma `groupBy` sorgusu (durum ve sonuç için ayrı
+    ayrı, iki paralel sorgu) TÜM filtrelenmiş sonucun sayılarını döndürüyor.
+    **Bilinçli tasarım kararı:** bu özet sorgusu `status`/`outcome`'u kendi
+    filtresi olarak ALMAZ — aksi halde kullanıcı zaten "Tamamlandı"ya göre
+    filtrelediğinde durum grafiği anlamsız tek-çubuğa düşerdi; diğer tüm
+    filtreler (temsilci/müşteri durumu/tür/tarih aralığı/il-ilçe) aynen
+    uygulanır. `GET /customer-visits` yanıtına yalnız admin ucu dolduran
+    opsiyonel `summary: {total, statusCounts, outcomeCounts}` alanı eklendi
+    (paylaşılan response validator'da `.optional()` — "Ziyaretlerim" bu
+    alanı hiç göndermeye devam ediyor, şema kırılmadı).
+  - **Frontend:** `useSalesVisitsFilters`'e `customerStatus` eklendi (nuqs);
+    `SalesVisitsFilterBar`'a opsiyonel "Müşteri Durumu" seçici ("Tüm
+    müşteriler"/"Potansiyel Müşteriler"/"Cari Müşteriler") — yalnız
+    `onCustomerStatusChange` verildiğinde görünür, "Ziyaretlerim" vermediği
+    için orada çıkmıyor. Yeni `CustomerVisitsReportCharts.tsx`
+    (`features/admin/customers/components/`) — iki `Card`: durum dağılımı
+    (bar chart) ve sonuç dağılımı (donut/pie chart, yalnız TAMAMLANMIŞ ve
+    sonucu girilmiş ziyaretler — sıfır sayılı dilimler filtrelenir). Renkler
+    projenin zaten var olan `--chart-1..5` CSS değişkenlerinden (tema-duyarlı,
+    light/dark ayrımı otomatik). `CustomerVisitsReportPageClient.tsx`
+    yalnız admin sürümüne `summary`/`showCustomerStatusFilter` bağlandı.
+  - Repository testine (`visitReport.test.ts`) 4 yeni test eklendi:
+    `customerStatus` filtresi + `getVisitsReportSummary`'nin (a) iki ayrı
+    `groupBy` çağrısı yaptığı ve outcome sorgusunun `null`'ları elediği,
+    (b) diğer filtrelerin her iki sorguya da uygulandığı, (c) eksik
+    grupların sıfır, gelenlerin doğru sayıyla doldurulduğu.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  646/646 ✅ (642 mevcut + 4 yeni) · `test -w @ceyhunlarweb/functions`
+  342/342 ✅ (değişmedi — validator'lar zaten paylaşılıyordu) ·
+  `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159 warning ✅ ·
+  `test -w frontend` 384/384 ✅ (grafik bileşeni saf sunum, birim testi
+  eklenmedi — mantık backend'de, orada testli).
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı: (1) "Potansiyel Müşteriler"/
+  "Cari Müşteriler" filtresinin doğru daralttığı; (2) grafiklerin filtrelere
+  göre (özellikle durum/sonuç HARİÇ diğerlerine göre) doğru güncellendiği;
+  (3) sonuç grafiğinin "henüz sonuçlandırılmış ziyaret yok" boş durumunu
+  doğru gösterdiği; (4) tema karanlık modda grafik renklerinin okunaklı
+  kaldığı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

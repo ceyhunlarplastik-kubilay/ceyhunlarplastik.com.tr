@@ -147,6 +147,7 @@ export type IListCustomerVisitsReportEvent = IAPIGatewayProxyEventWithUserGeneri
         page?: string
         limit?: string
         ownerUserId?: string
+        customerStatus?: CustomerStatus
         status?: CustomerVisitStatus
         type?: CustomerVisitType
         outcome?: CustomerVisitOutcome

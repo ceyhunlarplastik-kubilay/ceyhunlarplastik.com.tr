@@ -344,6 +344,7 @@ export type IListManagedCustomerVisitsReportEvent = IAPIGatewayProxyEventWithUse
         page?: string
         limit?: string
         ownerUserId?: string
+        customerStatus?: CustomerStatus
         status?: CustomerVisitStatus
         type?: CustomerVisitType
         outcome?: CustomerVisitOutcome

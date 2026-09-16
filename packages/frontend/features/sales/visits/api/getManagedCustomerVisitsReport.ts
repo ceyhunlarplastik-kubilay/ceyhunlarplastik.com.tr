@@ -1,5 +1,6 @@
 import { protectedApiClient } from "@/lib/http/client"
 import type {
+    CustomerStatus,
     CustomerVisitOutcome,
     CustomerVisitsReportResponse,
     CustomerVisitStatus,
@@ -10,6 +11,7 @@ export type GetManagedCustomerVisitsReportParams = {
     page: number
     limit: number
     ownerUserId?: string
+    customerStatus?: CustomerStatus
     status?: CustomerVisitStatus
     type?: CustomerVisitType
     outcome?: CustomerVisitOutcome

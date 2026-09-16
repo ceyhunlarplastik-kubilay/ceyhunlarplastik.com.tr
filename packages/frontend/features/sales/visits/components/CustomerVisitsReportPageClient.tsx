@@ -8,10 +8,11 @@ import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/A
 import { useCustomerVisitsReport } from "@/features/admin/customers/hooks/useCustomerVisitsReport"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { getUserDisplayName } from "@/lib/users/displayName"
+import { CustomerVisitsReportCharts } from "@/features/admin/customers/components/CustomerVisitsReportCharts"
 import { CustomerVisitsTable } from "@/features/sales/visits/components/CustomerVisitsTable"
 import { SalesVisitsFilterBar } from "@/features/sales/visits/components/SalesVisitsFilterBar"
 import { useSalesVisitsFilters } from "@/features/sales/visits/hooks/useSalesVisitsFilters"
-import type { CustomerVisitReportItem } from "@/features/admin/customers/api/types"
+import type { CustomerVisitReportItem, CustomerVisitsReportSummary } from "@/features/admin/customers/api/types"
 
 type OwnerOption = { id: string; label: string }
 
@@ -25,6 +26,10 @@ type ReportViewProps = {
     isBackgroundRefetch: boolean
     /** `undefined` → temsilci filtresi hiç gösterilmez (yetkisiz görüntüleyici). */
     ownerOptions?: OwnerOption[]
+    /** Yalnız admin ucu doldurur — dolduğunda grafikler gösterilir. */
+    summary?: CustomerVisitsReportSummary
+    /** Kullanıcı talebiyle: "Potansiyel Müşteriler"/"Cari Müşteriler" filtresi. */
+    showCustomerStatusFilter?: boolean
 }
 
 /**
@@ -47,11 +52,14 @@ function CustomerVisitsReportView({
     isInitialLoading,
     isBackgroundRefetch,
     ownerOptions,
+    summary,
+    showCustomerStatusFilter,
 }: ReportViewProps) {
     const {
         filters,
         limitOptions,
         setOwnerUserId,
+        setCustomerStatus,
         setStatus,
         setType,
         setOutcome,
@@ -69,6 +77,8 @@ function CustomerVisitsReportView({
                 <h1 className="text-xl font-semibold text-neutral-950">{title}</h1>
                 <p className="mt-1 text-sm text-neutral-500">{description}</p>
             </div>
+
+            {summary ? <CustomerVisitsReportCharts summary={summary} /> : null}
 
             <SalesVisitsFilterBar
                 status={filters.status}
@@ -90,6 +100,8 @@ function CustomerVisitsReportView({
                 ownerUserId={filters.ownerUserId}
                 ownerOptions={ownerOptions}
                 onOwnerUserIdChange={ownerOptions ? setOwnerUserId : undefined}
+                customerStatus={filters.customerStatus}
+                onCustomerStatusChange={showCustomerStatusFilter ? setCustomerStatus : undefined}
             />
 
             <div className="relative rounded-2xl border border-neutral-200 bg-white shadow-sm">
@@ -146,13 +158,15 @@ export function AdminCustomerVisitsReportPageClient() {
     return (
         <CustomerVisitsReportView
             title="Müşteri Ziyaretleri"
-            description="Tüm temsilcilerin planladığı ve tamamladığı ziyaretler — temsilci, tarih aralığı ve il/ilçeye göre filtreleyin."
+            description="Tüm temsilcilerin planladığı ve tamamladığı ziyaretler — temsilci, müşteri durumu, tarih aralığı ve il/ilçeye göre filtreleyin."
             filtersState={filtersState}
             visits={visitsQuery.data?.data ?? []}
             meta={visitsQuery.data?.meta}
             isInitialLoading={visitsQuery.isLoading}
             isBackgroundRefetch={visitsQuery.isFetching && !visitsQuery.isLoading}
             ownerOptions={ownerOptions}
+            summary={visitsQuery.data?.summary}
+            showCustomerStatusFilter
         />
     )
 }

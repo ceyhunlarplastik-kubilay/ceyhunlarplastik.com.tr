@@ -4,6 +4,7 @@ const prismaMock = vi.hoisted(() => {
     const customerVisit = {
         findMany: vi.fn(),
         count: vi.fn(),
+        groupBy: vi.fn(),
     }
 
     return { customerVisit }
@@ -20,6 +21,14 @@ describe("customerRepository listVisitsForReport filtreleri", () => {
         vi.clearAllMocks()
         prismaMock.customerVisit.findMany.mockResolvedValue([])
         prismaMock.customerVisit.count.mockResolvedValue(0)
+        prismaMock.customerVisit.groupBy.mockResolvedValue([])
+    })
+
+    it("customerStatus filtresi customer ilişkisi üzerinden eklenir", async () => {
+        await customerRepository().listVisitsForReport({ customerStatus: "LEAD" as never })
+
+        const where = prismaMock.customerVisit.findMany.mock.calls[0][0].where
+        expect(where.customer).toEqual({ status: "LEAD" })
     })
 
     it("hiçbir filtre verilmezse where boş kalır", async () => {
@@ -98,5 +107,59 @@ describe("customerRepository listVisitsForReport filtreleri", () => {
             { scheduledAt: "desc" },
             { createdAt: "desc" },
         ])
+    })
+})
+
+describe("customerRepository getVisitsReportSummary", () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        prismaMock.customerVisit.groupBy.mockResolvedValue([])
+    })
+
+    it("status ve outcome için iki ayrı groupBy çağrısı yapar, outcome sorgusu null'ları eler", async () => {
+        await customerRepository().getVisitsReportSummary({ ownerUserId: "user-1" })
+
+        expect(prismaMock.customerVisit.groupBy).toHaveBeenCalledTimes(2)
+
+        const statusCall = prismaMock.customerVisit.groupBy.mock.calls[0][0]
+        expect(statusCall.by).toEqual(["status"])
+        expect(statusCall.where).toEqual({ ownerUserId: "user-1" })
+
+        const outcomeCall = prismaMock.customerVisit.groupBy.mock.calls[1][0]
+        expect(outcomeCall.by).toEqual(["outcome"])
+        expect(outcomeCall.where).toEqual({ ownerUserId: "user-1", outcome: { not: null } })
+    })
+
+    it("il/ilçe ve tür filtresi her iki groupBy'a da uygulanır, status/outcome parametre olarak alınmaz", async () => {
+        await customerRepository().getVisitsReportSummary({
+            stateId: 34,
+            cityId: 1,
+            type: "PHONE" as never,
+        })
+
+        const statusCall = prismaMock.customerVisit.groupBy.mock.calls[0][0]
+        expect(statusCall.where).toEqual({ address: { stateId: 34, cityId: 1 }, type: "PHONE" })
+    })
+
+    it("eksik gruplar sıfır olarak, gelenler sayılarıyla doldurulur", async () => {
+        prismaMock.customerVisit.groupBy
+            .mockResolvedValueOnce([
+                { status: "PLANNED", _count: { _all: 3 } },
+                { status: "COMPLETED", _count: { _all: 5 } },
+            ])
+            .mockResolvedValueOnce([
+                { outcome: "POSITIVE", _count: { _all: 2 } },
+            ])
+
+        const summary = await customerRepository().getVisitsReportSummary({})
+
+        expect(summary.statusCounts).toEqual({ PLANNED: 3, COMPLETED: 5, CANCELED: 0 })
+        expect(summary.outcomeCounts).toEqual({
+            POSITIVE: 2,
+            FOLLOW_UP_NEEDED: 0,
+            NOT_INTERESTED: 0,
+            ORDER_PLACED: 0,
+        })
+        expect(summary.total).toBe(8)
     })
 })

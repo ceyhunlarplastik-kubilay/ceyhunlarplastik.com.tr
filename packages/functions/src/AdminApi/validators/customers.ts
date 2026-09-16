@@ -475,6 +475,7 @@ export const listCustomerVisitsReportValidator = validatorWrapper(
             page: z.coerce.number().int().positive().optional(),
             limit: z.coerce.number().int().positive().optional(),
             ownerUserId: z.uuid().optional(),
+            customerStatus: z.enum(["LEAD", "CUSTOMER"]).optional(),
             status: z.enum(["PLANNED", "COMPLETED", "CANCELED"]).optional(),
             type: z.enum(["IN_PERSON", "PHONE", "VIDEO"]).optional(),
             outcome: z.enum(["POSITIVE", "FOLLOW_UP_NEEDED", "NOT_INTERESTED", "ORDER_PLACED"]).optional(),
@@ -569,6 +570,21 @@ export const customerVisitResponseValidator = z.toJSONSchema(
     }).loose(),
 )
 
+const customerVisitsReportSummarySchema = z.object({
+    total: z.number(),
+    statusCounts: z.object({
+        PLANNED: z.number(),
+        COMPLETED: z.number(),
+        CANCELED: z.number(),
+    }).loose(),
+    outcomeCounts: z.object({
+        POSITIVE: z.number(),
+        FOLLOW_UP_NEEDED: z.number(),
+        NOT_INTERESTED: z.number(),
+        ORDER_PLACED: z.number(),
+    }).loose(),
+})
+
 export const customerVisitsReportResponseValidator = z.toJSONSchema(
     z.object({
         statusCode: z.number(),
@@ -582,6 +598,9 @@ export const customerVisitsReportResponseValidator = z.toJSONSchema(
                     total: z.number(),
                     totalPages: z.number(),
                 }),
+                // Yalnız admin rapor ucu doldurur (grafikler için) — "Ziyaretlerim"
+                // (satış) aynı şemayı kullanır ama bu alanı hiç göndermez.
+                summary: customerVisitsReportSummarySchema.optional(),
             }),
         }),
     }).loose(),
