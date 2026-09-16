@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { formatMeasurementValue } from "@/features/public/products/utils/measurement"
 
 import { EditVariantSupplierDialog } from "@/features/admin/productVariantMatrix/components/EditVariantSupplierDialog"
 import {
@@ -149,7 +150,7 @@ export function VariantMatrixExistingTable({
                         const version = versionById.get(row.versionId)
                         const color = version?.colorId ? colorById.get(version.colorId) : null
                         const valueByRequirement = new Map(
-                            (size?.values ?? []).map((value) => [value.requirementId, value.value]),
+                            (size?.values ?? []).map((value) => [value.requirementId, value]),
                         )
 
                         const isExpanded = expandedId === row.variantId
@@ -181,11 +182,22 @@ export function VariantMatrixExistingTable({
                                 </TableCell>
                                 <TableCell className="font-mono text-sm font-medium">{row.fullCode}</TableCell>
 
-                                {requirements.map((requirement) => (
-                                    <TableCell key={requirement.id} className="tabular-nums">
-                                        {valueByRequirement.get(requirement.id) ?? "—"}
-                                    </TableCell>
-                                ))}
+                                {requirements.map((requirement) => {
+                                    const measurement = valueByRequirement.get(requirement.id)
+                                    return (
+                                        <TableCell key={requirement.id} className="tabular-nums">
+                                            {measurement
+                                                ? formatMeasurementValue({
+                                                    id: requirement.id,
+                                                    label: requirement.label,
+                                                    value: measurement.value,
+                                                    rawValue: measurement.rawValue,
+                                                    measurementType: { code: requirement.measurementCode },
+                                                })
+                                                : "—"}
+                                        </TableCell>
+                                    )
+                                })}
 
                                 <TableCell>
                                     <Badge variant="secondary" className="font-mono">{version?.code ?? "—"}</Badge>
