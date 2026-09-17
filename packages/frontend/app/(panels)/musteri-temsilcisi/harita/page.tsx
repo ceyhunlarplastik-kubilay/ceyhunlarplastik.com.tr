@@ -1,6 +1,9 @@
+import { MapPinned } from "lucide-react"
 import { redirect } from "next/navigation"
 import { CustomerMapPageClient } from "@/features/customerLocations/components/CustomerMapPageClient"
 import { auth } from "@/lib/auth/auth"
+import { PageLoadingGate } from "@/components/feedback/PageLoadingGate"
+import { PageLoadingOverlay } from "@/components/feedback/PageLoadingOverlay"
 
 export default async function SalesMapPage() {
     const session = await auth()
@@ -21,12 +24,22 @@ export default async function SalesMapPage() {
     }
 
     return (
-        <CustomerMapPageClient
-            title="Müşteri Haritası"
-            description="Atanmış müşterileri harita üzerinde izleyin, görünür bölgedeki pinleri filtreleyin ve sahada hızlıca yol tarifi alın."
-            customerDetailBasePath="/musteri-temsilcisi/musteriler"
-            allowSalesFilter={groups.includes("sales_director")}
-        />
+        <PageLoadingGate
+            overlay={(
+                <PageLoadingOverlay
+                    icon={<MapPinned className="size-20" strokeWidth={1.5} />}
+                    title="Harita yükleniyor"
+                    description="Lütfen kısa bir an bekleyin."
+                />
+            )}
+        >
+            <CustomerMapPageClient
+                title="Müşteri Haritası"
+                description="Atanmış müşterileri harita üzerinde izleyin, görünür bölgedeki pinleri filtreleyin ve sahada hızlıca yol tarifi alın."
+                customerDetailBasePath="/musteri-temsilcisi/musteriler"
+                allowSalesFilter={groups.includes("sales_director")}
+            />
+        </PageLoadingGate>
     )
 }
 

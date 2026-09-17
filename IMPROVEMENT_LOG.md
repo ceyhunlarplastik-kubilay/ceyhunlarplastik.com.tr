@@ -8913,12 +8913,39 @@ eşit sayıda eklendi (865/865).
 - **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
   0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
   dokunulmadı.
-- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — her sayfada arama/filtre
-  değiştirirken önceki liste ekranda kalıp üstüne cam-kart overlay'in
-  bindiği, ilk yüklemede ise (liste boşken) normal iskelet/spinner'ın
-  göründüğü. Ayrıca admin/onaylar, admin/siparişler ve müşteri portalı
-  siparişler sayfalarının da aynı overlay'i (paylaşılan bileşen olduğu için)
-  aldığını unutma.
+- **Kubi doğrulaması:** Kullanıcı test etti, tüm sayfalarda çalıştığını
+  onayladı (2026-09-17).
+
+## GÜNCELLEME — asıl istenen `PageLoadingOverlay` (sayfa açılış geçişi) tüm müşteri temsilcisi sayfalarına eklendi (2026-09-17)
+
+- **Yanlış anlama:** Önceki dilim, kullanıcının "panelin tamamına
+  `CustomerPortalProductsLoadingOverlay` ekleyelim" isteğini arka-plan-
+  yenileme overlay'i (`AdminSectionLoadingOverlay`) genişletmek olarak
+  yorumlamıştı. Kullanıcı asıl **sayfa AÇILIŞ geçiş animasyonunu**
+  (`PageLoadingGate` + `PageLoadingOverlay` — `/musteri-temsilcisi/urunler`'e
+  önceki dilimde eklenen, sıvı-dolum ikon animasyonlu overlay) panelin TÜM
+  sayfalarına istiyordu, yalnız ürünler sayfasına değil.
+- **Yapıldı:** `/musteri-temsilcisi/` altındaki 12 sayfanın TAMAMINA
+  (`urunler` zaten vardı) `PageLoadingGate`+`PageLoadingOverlay` eklendi —
+  ana "Atanmış Müşteriler", Kampanyalar, Onaylar, Duyurular, Ziyaretlerim,
+  Potansiyel Müşteriler, Cari Müşteriler, Siparişler, Harita, ve müşteri
+  detay alt sayfaları (Genel Bilgiler, Özel Fiyatlar, Tanımlı Varyantlar).
+  Her sayfada nav'daki ikonla tutarlı bir Lucide ikon kullanıldı
+  (`panelNavIcons.ts` sözlüğüyle eşleşen: Users, Megaphone, ShieldCheck,
+  CalendarClock, UserPlus, Building2, ClipboardList, MapPinned; detay
+  alt sayfalarında BadgePercent/Layers3).
+- **`CustomerWorkspaceShell.tsx`:** İçerik bölümüne (`<section>`, sekme
+  navigasyonunun yanındaki alan) `relative` eklendi — aynı `PanelShell`
+  düzeltmesindeki mantık: overlay yalnız İÇERİK alanını kaplasın, workspace
+  sekme navigasyonu (Genel Bilgiler/Özel Fiyatlar/Tanımlı Varyantlar) her
+  zaman görünür kalsın.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — panel içinde nav'dan her
+  sayfaya tıklandığında ilgili ikonla kısa bir yüklenme animasyonu
+  gösterildiği, sidebar/topbar'ın (ve müşteri detay sayfalarında sekme
+  navigasyonunun) bu sırada görünür kaldığı.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

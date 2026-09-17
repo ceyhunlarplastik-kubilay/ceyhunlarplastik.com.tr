@@ -1,5 +1,8 @@
+import { BadgePercent } from "lucide-react"
 import { CustomerSpecialPricesPageClient } from "@/features/admin/customers/components/CustomerSpecialPricesPageClient"
 import { CustomerWorkspaceShell } from "@/features/admin/customers/components/CustomerWorkspaceShell"
+import { PageLoadingGate } from "@/components/feedback/PageLoadingGate"
+import { PageLoadingOverlay } from "@/components/feedback/PageLoadingOverlay"
 
 export default async function SalesCustomerSpecialPricesPage({
     params,
@@ -10,7 +13,17 @@ export default async function SalesCustomerSpecialPricesPage({
 
     return (
         <CustomerWorkspaceShell customerId={id} scope="sales">
-            <CustomerSpecialPricesPageClient customerId={id} />
+            <PageLoadingGate
+                overlay={(
+                    <PageLoadingOverlay
+                        icon={<BadgePercent className="size-20" strokeWidth={1.5} />}
+                        title="Özel fiyatlar yükleniyor"
+                        description="Lütfen kısa bir an bekleyin."
+                    />
+                )}
+            >
+                <CustomerSpecialPricesPageClient customerId={id} />
+            </PageLoadingGate>
         </CustomerWorkspaceShell>
     )
 }

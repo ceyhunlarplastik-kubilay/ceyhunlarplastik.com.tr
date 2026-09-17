@@ -185,7 +185,7 @@ export function CustomerWorkspaceShell({
                     </nav>
                 </aside>
 
-                <section className="min-w-0">
+                <section className="relative min-w-0">
                     {children}
                 </section>
             </div>
