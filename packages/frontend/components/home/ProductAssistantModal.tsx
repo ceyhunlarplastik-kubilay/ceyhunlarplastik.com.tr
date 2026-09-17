@@ -251,7 +251,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                 >
                     <DialogTitle className="sr-only">{t("title")}</DialogTitle>
                     <div className="flex h-full min-h-0 flex-col">
-                        <div className="bg-linear-to-r from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-6 py-4 text-white">
+                        <div className="bg-linear-to-r from-(--color-brand) to-[color-mix(in_oklch,var(--color-brand),black_15%)] px-4 py-3 text-white sm:px-6 sm:py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/20">
@@ -282,7 +282,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-hidden px-6 py-5">
+                        <div className="flex-1 overflow-hidden px-4 py-3 sm:px-6 sm:py-4">
                             <AnimatePresence mode="wait">
                                 {step === 0 && (
                                     <motion.div
@@ -364,11 +364,11 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
+                                        className="flex h-full min-h-0 flex-col gap-2 overflow-hidden sm:gap-3"
                                     >
                                         <div className="shrink-0">
-                                            <h3 className="text-lg font-semibold">{t("sector.title")}</h3>
-                                            <p className="text-sm text-muted-foreground">{t("sector.hint")}</p>
+                                            <h3 className="text-sm font-semibold sm:text-lg">{t("sector.title")}</h3>
+                                            <p className="text-xs text-muted-foreground sm:text-sm">{t("sector.hint")}</p>
                                         </div>
                                         <ScrollArea type="always" scrollHideDelay={0} className="min-h-0 flex-1 rounded-lg border border-neutral-200/70 p-2 pe-3">
                                             <div className="grid grid-cols-2 gap-2 pb-2 md:grid-cols-3 lg:grid-cols-4">
@@ -399,8 +399,8 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div className="px-3 py-2">
-                                                            <p className="line-clamp-2 text-xs font-medium sm:text-sm">{value.name}</p>
+                                                        <div className="px-2 py-1.5 sm:px-3 sm:py-2">
+                                                            <p className="line-clamp-2 text-[11px] font-medium sm:text-sm">{value.name}</p>
                                                         </div>
                                                     </button>
                                                 ))}
@@ -415,21 +415,21 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"
+                                        className="flex h-full min-h-0 flex-col gap-1.5 overflow-hidden sm:gap-3"
                                     >
                                         <div className="shrink-0">
-                                            <h3 className="text-lg font-semibold">{t("usage.title")}</h3>
-                                            <p className="text-sm text-muted-foreground">{t("usage.hint")}</p>
+                                            <h3 className="text-sm font-semibold sm:text-lg">{t("usage.title")}</h3>
+                                            <p className="text-xs text-muted-foreground sm:text-sm">{t("usage.hint")}</p>
                                         </div>
 
-                                        <ScrollArea type="always" scrollHideDelay={0} className="shrink-0 rounded-lg border border-neutral-200/70 px-2 py-2">
-                                            <div className="flex min-w-max items-center gap-2 pb-2">
+                                        <ScrollArea type="always" scrollHideDelay={0} className="shrink-0 rounded-lg border border-neutral-200/70 px-2 py-1.5 sm:py-2">
+                                            <div className="flex min-w-max items-center gap-1.5 pb-1.5 sm:gap-2 sm:pb-2">
                                                 {visibleProductionGroups.map((value) => (
                                                     <button
                                                         key={value.id}
                                                         onClick={() => handleSelectProductionGroup(value.slug)}
                                                         className={cn(
-                                                            "whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition sm:text-sm",
+                                                            "whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-medium transition sm:px-3 sm:py-1.5 sm:text-sm",
                                                             (activeProductionGroupSlug ?? selectedProductionGroupSlug) === value.slug
                                                                 ? "border-(--color-brand) bg-brand/10 text-(--color-brand)"
                                                                 : "border-neutral-200 hover:border-neutral-300 text-neutral-700"
@@ -447,7 +447,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                 value={query}
                                                 onChange={(e) => setQuery(e.target.value)}
                                                 placeholder={t("usage.searchPlaceholder")}
-                                                className="h-10 w-full rounded-xl border border-neutral-200 px-3 text-sm outline-none focus:border-(--color-brand) focus:ring-2 focus:ring-brand/20"
+                                                className="h-9 w-full rounded-xl border border-neutral-200 px-3 text-sm outline-none focus:border-(--color-brand) focus:ring-2 focus:ring-brand/20 sm:h-10"
                                             />
                                         </div>
 
@@ -455,7 +455,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                             ref={usageScrollRef}
                                             className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-neutral-200"
                                         >
-                                            <div className="space-y-5 p-3">
+                                            <div className="space-y-3 p-2 sm:space-y-5 sm:p-3">
                                                     {visibleProductionGroups.map((group) => {
                                                         const usageValues = usageAreasByProductionGroup.get(group.slug) ?? []
                                                         if (usageValues.length === 0) return null
@@ -466,10 +466,10 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                 ref={(el) => {
                                                                     productionSectionRefs.current[group.slug] = el
                                                                 }}
-                                                                className="space-y-2 scroll-mt-2"
+                                                                className="space-y-1.5 scroll-mt-2 sm:space-y-2"
                                                             >
-                                                                <h4 className="text-sm font-semibold text-neutral-700">{group.name}</h4>
-                                                                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+                                                                <h4 className="text-xs font-semibold text-neutral-700 sm:text-sm">{group.name}</h4>
+                                                                <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 sm:gap-2 md:grid-cols-5 lg:grid-cols-6">
                                                                     {usageValues.map((value) => {
                                                                         const checked = selectedUsageAreaSlugs.includes(value.slug)
                                                                         return (
@@ -500,9 +500,9 @@ export default function ProductAssistantModal({ attributes }: Props) {
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
-                                                                                <div className="flex items-center justify-between px-2 py-1.5">
-                                                                                    <p className="line-clamp-2 text-[11px] font-medium leading-4">{value.name}</p>
-                                                                                    {checked && <CheckCircle2 className="h-4 w-4 shrink-0 text-(--color-brand)" />}
+                                                                                <div className="flex items-center justify-between px-1.5 py-1 sm:px-2 sm:py-1.5">
+                                                                                    <p className="line-clamp-1 text-[10px] font-medium leading-4 sm:line-clamp-2 sm:text-[11px]">{value.name}</p>
+                                                                                    {checked && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-(--color-brand) sm:h-4 sm:w-4" />}
                                                                                 </div>
                                                                             </button>
                                                                         )
@@ -538,7 +538,7 @@ export default function ProductAssistantModal({ attributes }: Props) {
                         </div>
 
                         {step > 0 && (
-                            <div className="flex items-center justify-between border-t px-6 py-4">
+                            <div className="flex items-center justify-between border-t px-4 py-3 sm:px-6 sm:py-4">
                                 <Button variant="outline" onClick={goBack}>
                                     {t("nav.back")}
                                 </Button>

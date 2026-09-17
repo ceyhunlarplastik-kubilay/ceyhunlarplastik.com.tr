@@ -8637,6 +8637,43 @@ eşit sayıda eklendi (865/865).
 - **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
   0 error/159 warning ✅ · `test -w frontend` 384/384 ✅.
 
+## `ProductAssistantModal` — mobilde başlık/açıklama küçültüldü, görsel/seçim alanına daha fazla yer açıldı (2026-09-17) *(kullanıcı talebiyle)*
+
+- **Talep:** Sektör (adım 1) ve kullanım alanı (adım 2) ekranlarındaki `h3`/`p`
+  başlık+açıklama metinleri mobilde çok yer kaplıyordu; `visibleProductionGroups`'u
+  saran asıl görsel/seçim alanı (adım 2'deki `usageScrollRef` flex-1 container'ı)
+  mobilde daha fazla yer kaplamalıydı. Ayrıca büyük ekranlarda da boşluklar/yazı
+  boyutları biraz azaltılıp görsellere/seçim alanlarına daha fazla oran
+  bırakılması istendi.
+- **Yaklaşım:** `visibleProductionGroups`'u saran container zaten `flex-1`
+  (kalan dikey alanı otomatik dolduruyor) — bu yüzden ona daha fazla alan
+  vermek için ÇEVRESİNDEKİ "chrome" öğeleri (üst gradyan başlık, `h3`/`p`
+  başlıkları, üretim grubu pill satırı, arama kutusu, alt navigasyon barı)
+  mobilde küçültüldü; boşalan dikey alan flex-1'e gitti. `sm:` breakpoint'iyle
+  masaüstünde biraz daha ferah bırakıldı ama orada da hafif sıkılaştırıldı.
+- **Değişenler (`components/home/ProductAssistantModal.tsx`):**
+  - Üst gradyan başlık, ana içerik container'ı, alt nav barı: `px-6 py-4/5`
+    → mobilde `px-4 py-3`, `sm:` ile eski değerlere dönüyor.
+  - Adım 1/2 başlık blokları: `h3` `text-lg` → mobilde `text-sm`
+    (`sm:text-lg`), `p` `text-sm` → mobilde `text-xs` (`sm:text-sm`);
+    motion.div `gap-4` → mobilde `gap-1.5`/`gap-2` (`sm:gap-3`/`sm:gap-4`).
+  - Üretim grubu pill satırı ve arama kutusu: dolgu/yükseklik mobilde bir tık
+    azaltıldı (`py-2`→`py-1.5`, `h-10`→`h-9`, `sm:` ile eski değerlere döner).
+  - `visibleProductionGroups`'u saran `space-y-5 p-3` → mobilde `space-y-3 p-2`;
+    grup başlığı `h4` ve grid `gap` da mobilde bir tık küçüldü — flex-1'in
+    KENDİ iç boşluğu da azaltılarak görsellere daha fazla oran bırakıldı.
+  - Sektör ve kullanım-alanı kartlarının alt yazı şeridi (`px-3 py-2` /
+    `px-2 py-1.5`) mobilde daraltıldı, kullanım-alanı adı mobilde
+    `line-clamp-1` (masaüstünde `line-clamp-2`) — görsel oranı büyüdü.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅ (görsel/CSS
+  değişikliği, davranış/test etkisi yok).
+- **Ne kaldı:** Kullanıcı kubi'de hem mobil hem masaüstü genişlikte modalı
+  açıp adım 1 ve adım 2'yi görsel olarak doğrulamalı — özellikle
+  `visibleProductionGroups` görsel/seçim alanının mobilde daha ferah
+  göründüğünü ve hiçbir metnin kırpılıp anlaşılmaz hâle gelmediğini kontrol
+  etmeli.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
