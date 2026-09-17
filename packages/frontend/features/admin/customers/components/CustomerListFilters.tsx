@@ -97,10 +97,10 @@ export function CustomerListFilters({
                     onValueChange={(value) => onAssignedSalesUserIdChange(value === "__all__" ? "" : value)}
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Tüm Satış Temsilcileri" />
+                        <SelectValue placeholder="Tüm Müşteri Temsilcileri" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="__all__">Tüm Satış Temsilcileri</SelectItem>
+                        <SelectItem value="__all__">Tüm Müşteri Temsilcileri</SelectItem>
                         {salesUsers.map((user) => (
                             <SelectItem key={user.id} value={user.id}>
                                 {user.label}

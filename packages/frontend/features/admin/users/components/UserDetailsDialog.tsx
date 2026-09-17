@@ -152,7 +152,7 @@ export function UserDetailsDialog({
                     <DetailSection title="Operasyon Atamaları">
                         <div className="grid gap-3 text-sm text-neutral-700">
                             <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
-                                <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Satış atamaları</div>
+                                <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Müşteri temsilcisi atamaları</div>
                                 <div className="mt-1 font-semibold text-neutral-950">{assignmentSummary.salesCount}</div>
                             </div>
                             <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">

@@ -55,14 +55,14 @@ export function CustomerPortalOverviewPageClient({
         ...(customer.assignedSalesUser ? [{
             id: `sales-${customer.assignedSalesUser.id}`,
             name: assignedSalesDisplayName || customer.assignedSalesUser.email,
-            roleLabel: "Satış Temsilcisi",
+            roleLabel: "Müşteri Temsilcisi",
             subtitle: "Atanmış temsilci",
             /* description: "Ceyhunlar yetkilisi.", */
             email: customer.assignedSalesUser.email,
             phone: customer.assignedSalesUser.phone,
             imageUrl: customer.assignedSalesUser.imageUrl,
             isPrimary: true,
-            badge: <Badge variant="outline">Satış Temsilcisi</Badge>,
+            badge: <Badge variant="outline">Müşteri Temsilcisi</Badge>,
         }] : []),
         ...companyContacts,
     ] : []

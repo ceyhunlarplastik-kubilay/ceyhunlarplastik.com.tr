@@ -20,7 +20,7 @@ import type {
  * aralığı/il-ilçe. `countryId` yalnız `GeoAddressFilterFields`'in il/ilçe
  * kademesini beslemek için tutulur — ucun kendisi ülke filtresi almaz.
  *
- * İKİ yerde kullanılır: `/satis/ziyaretlerim` (yalnız kendi ziyaretleri —
+ * İKİ yerde kullanılır: `/musteri-temsilcisi/ziyaretlerim` (yalnız kendi ziyaretleri —
  * `ownerUserId` hiç set edilmez, sidebar'da temsilci seçici gösterilmez) ve
  * Dilim 3'ün çapraz-temsilci rapor sayfası (`CustomerVisitsReportPageClient`,
  * admin + satış müdürü) — orada `setOwnerUserId` bir temsilci seçiciye bağlanır.

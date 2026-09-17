@@ -663,7 +663,7 @@ export function CustomerPortalRequestComposer({
                         </div>
 
                         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
-                            Atanmış satış temsilcisi:
+                            Atanmış müşteri temsilcisi:
                             <span className="ml-1 font-medium text-neutral-900">{assignedSalesUserLabel}</span>
                         </div>
                     </div>

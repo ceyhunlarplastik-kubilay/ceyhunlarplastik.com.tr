@@ -12,7 +12,7 @@ export default async function SalesLayout({
 }) {
     const session = await auth()
 
-    if (!session) redirect("/auth/signin?callbackUrl=%2Fsatis&error=SessionRequired")
+    if (!session) redirect("/auth/signin?callbackUrl=%2Fmusteri-temsilcisi&error=SessionRequired")
 
     const groups = (session.user as { groups?: string[] } | undefined)?.groups ?? []
     const accessStatus = session.user?.accessStatus ?? "PENDING_REVIEW"
@@ -27,7 +27,7 @@ export default async function SalesLayout({
 
     return (
         <PanelShell
-            title="Satış Paneli"
+            title="Müşteri Temsilcisi Paneli"
             subtitle="Operasyon"
             navGroups={buildSalesNavGroups(groups)}
             user={{
@@ -36,8 +36,8 @@ export default async function SalesLayout({
                 image: session.user?.image,
                 groups,
             }}
-            actionSlot={<NotificationBell viewport="desktop" requestsHref="/satis/onaylar" />}
-            mobileActionSlot={<NotificationBell viewport="mobile" requestsHref="/satis/onaylar" />}
+            actionSlot={<NotificationBell viewport="desktop" requestsHref="/musteri-temsilcisi/onaylar" />}
+            mobileActionSlot={<NotificationBell viewport="mobile" requestsHref="/musteri-temsilcisi/onaylar" />}
         >
             {children}
         </PanelShell>

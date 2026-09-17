@@ -327,7 +327,7 @@ export function UserAccessEditorDialog({
                         </div>
 
                         <div className="space-y-2">
-                            <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">Satış Atamaları</div>
+                            <div className="text-xs font-medium uppercase tracking-[0.16em] text-neutral-500">Müşteri Temsilcisi Atamaları</div>
                             <EntityAssignmentSelect
                                 disabled={!roleConfig.canAssignCustomers || isLoadingCustomers}
                                 value={effective.assignedCustomerIds}

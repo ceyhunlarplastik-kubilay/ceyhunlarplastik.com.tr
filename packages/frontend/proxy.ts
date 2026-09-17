@@ -28,7 +28,7 @@ const AUTH_PROTECTED_PREFIXES = [
     "/supplier",
     "/tedarikci",
     "/satinalma",
-    "/satis",
+    "/musteri-temsilcisi",
     "/veri-girisi",
     "/musteri",
 ]

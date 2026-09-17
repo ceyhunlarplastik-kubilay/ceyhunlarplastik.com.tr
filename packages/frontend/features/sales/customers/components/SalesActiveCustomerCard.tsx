@@ -12,7 +12,7 @@ import type { AdminCustomer } from "@/features/admin/customers/api/types"
  * "Cari Müşteriler" (satış paneli) kartı — `LeadCustomerCard` ile aynı görsel
  * dil, ama farklı veri şekli (`AdminCustomer`) ve farklı aksiyon kümesi: satış
  * temsilcisi burada profil düzenlemez/silmez, yalnız görür ve tanımlı
- * varyantlara gider (mevcut `/satis/musteriler/{id}/defined-products` rotası).
+ * varyantlara gider (mevcut `/musteri-temsilcisi/musteriler/{id}/defined-products` rotası).
  */
 export function SalesActiveCustomerCard({ customer }: { customer: AdminCustomer }) {
     const nameParts = resolveCustomerNameParts(customer)
@@ -58,7 +58,7 @@ export function SalesActiveCustomerCard({ customer }: { customer: AdminCustomer 
 
                 <div className="flex shrink-0 gap-2">
                     <Button asChild size="sm" variant="brand" className="rounded-2xl">
-                        <Link href={`/satis/musteriler/${customer.id}/defined-products`}>
+                        <Link href={`/musteri-temsilcisi/musteriler/${customer.id}/defined-products`}>
                             Tanımlı Varyantlar
                         </Link>
                     </Button>

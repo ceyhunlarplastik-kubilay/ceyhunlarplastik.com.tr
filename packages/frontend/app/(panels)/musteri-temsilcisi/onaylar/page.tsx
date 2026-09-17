@@ -4,8 +4,8 @@ export default function SalesApprovalRequestsPage() {
     return (
         <BusinessRequestInboxPageClient
             scope="sales"
-            title="Satış Onay Talepleri"
-            description="Müşteri portalından ve satış ekibinden gelen talepleri inceleyin. Sales director bu ekranda satış adımlarını override edebilir."
+            title="Müşteri Temsilcisi Onay Talepleri"
+            description="Müşteri portalından ve satış ekibinden gelen talepleri inceleyin. Satış direktörü bu ekranda satış adımlarını override edebilir."
             defaultDomain="SALES"
         />
     )

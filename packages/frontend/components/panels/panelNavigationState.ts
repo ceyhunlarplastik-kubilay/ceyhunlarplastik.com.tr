@@ -30,8 +30,8 @@ export function resolveActivePanelNavLabel(
 
     if (matches.length === 0) return null
 
-    // Birden fazla eşleşmede EN UZUN href kazanır: "/satis" ile
-    // "/satis/urunler" aynı anda eşleşebilir, kullanıcıya derin olan gösterilir.
+    // Birden fazla eşleşmede EN UZUN href kazanır: "/musteri-temsilcisi" ile
+    // "/musteri-temsilcisi/urunler" aynı anda eşleşebilir, kullanıcıya derin olan gösterilir.
     return matches.reduce((deepest, item) =>
         item.href.length > deepest.href.length ? item : deepest,
     ).label

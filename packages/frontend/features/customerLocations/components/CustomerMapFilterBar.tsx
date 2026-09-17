@@ -123,7 +123,7 @@ export function CustomerMapFilterBar({
 
                 {allowSalesFilter ? (
                     <SearchableSelect
-                        aria-label="Satış temsilcisi"
+                        aria-label="Müşteri temsilcisi"
                         value={filters.assignedSalesUserId === "ALL" ? null : filters.assignedSalesUserId}
                         onValueChange={(value) => onChange({ assignedSalesUserId: value ?? "ALL" })}
                         options={salesUsers.map((user) => ({ value: user.id, label: user.label }))}

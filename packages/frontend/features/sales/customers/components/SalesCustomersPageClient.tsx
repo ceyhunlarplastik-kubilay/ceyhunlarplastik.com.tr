@@ -59,7 +59,7 @@ export function SalesCustomersPageClient() {
 
                         <div className="mt-5 flex flex-wrap gap-2">
                             <Button asChild size="sm" variant="brand">
-                                <Link href={`/satis/musteriler/${customer.id}/defined-products`}>
+                                <Link href={`/musteri-temsilcisi/musteriler/${customer.id}/defined-products`}>
                                     Tanımlı Varyantlar
                                 </Link>
                             </Button>

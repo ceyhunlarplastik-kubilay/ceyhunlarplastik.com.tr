@@ -21,7 +21,7 @@ export default async function SalesCustomerDefinedProductsPage({
                 scope="sales"
                 categories={categories}
                 attributes={attributes}
-                basePath={`/satis/musteriler/${id}/defined-products`}
+                basePath={`/musteri-temsilcisi/musteriler/${id}/defined-products`}
             />
         </CustomerWorkspaceShell>
     )

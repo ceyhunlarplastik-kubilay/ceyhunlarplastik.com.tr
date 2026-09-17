@@ -17,7 +17,7 @@ import { useProducts } from "@/features/public/products/hooks/useProducts"
 import { useFilterStore } from "@/features/public/products/store/filterStore"
 import { ProductCategoryFilterRail } from "@/features/admin/products/components/ProductCategoryFilterRail"
 
-const basePath = "/satis/urunler"
+const basePath = "/musteri-temsilcisi/urunler"
 const INDUSTRIAL_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
 
 type Props = {
@@ -30,7 +30,7 @@ type Props = {
 }
 
 /**
- * `/satis/urunler` katalog gövdesi — kullanıcı talebiyle müşteri portalının
+ * `/musteri-temsilcisi/urunler` katalog gövdesi — kullanıcı talebiyle müşteri portalının
  * ürün listesiyle (`CustomerPortalAllProductsPageClient`) AYNI veri kaynağı
  * (public `/products` ucu, `useProducts`) ve AYNI filtre mekanizması
  * (`useFilterStore` + `ProductCategoryFilterRail` + `ProductFilterSidebar`)

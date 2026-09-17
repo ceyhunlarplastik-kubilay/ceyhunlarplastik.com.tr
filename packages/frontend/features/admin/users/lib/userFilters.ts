@@ -29,7 +29,7 @@ export const DEFAULT_USERS_QUICK_FILTERS: UsersQuickFiltersPersisted = {
 export const QUICK_ROLE_OPTIONS: Array<{ value: QuickRoleFilter; label: string }> = [
     { value: "all", label: "Tüm Roller" },
     { value: "purchasing", label: "Satın Alma" },
-    { value: "sales", label: "Satış" },
+    { value: "sales", label: "Müşteri Temsilcisi" },
     { value: "supplier", label: "Tedarikçi" },
     { value: "customer", label: "Müşteri Portalı" },
 ]

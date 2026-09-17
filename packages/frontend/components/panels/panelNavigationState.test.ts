@@ -6,14 +6,14 @@ import type { PanelNavGroup } from "./types"
 const navGroups: PanelNavGroup[] = [
     {
         items: [
-            { href: "/satis", label: "Atanmış Müşteriler", icon: "users", match: "exact" },
+            { href: "/musteri-temsilcisi", label: "Atanmış Müşteriler", icon: "users", match: "exact" },
         ],
     },
     {
         label: "Satış",
         items: [
-            { href: "/satis/urunler", label: "Ürünler", icon: "boxes" },
-            { href: "/satis/siparisler", label: "Siparişler", icon: "clipboard" },
+            { href: "/musteri-temsilcisi/urunler", label: "Ürünler", icon: "boxes" },
+            { href: "/musteri-temsilcisi/siparisler", label: "Siparişler", icon: "clipboard" },
         ],
     },
 ]
@@ -32,24 +32,24 @@ describe("isPanelNavItemActive", () => {
     })
 
     it("exact yalnız tam eşleşmede aktif olur", () => {
-        const root = { href: "/satis", label: "Kök", icon: "users", match: "exact" } as const
+        const root = { href: "/musteri-temsilcisi", label: "Kök", icon: "users", match: "exact" } as const
 
-        expect(isPanelNavItemActive(root, "/satis")).toBe(true)
-        expect(isPanelNavItemActive(root, "/satis/urunler")).toBe(false)
+        expect(isPanelNavItemActive(root, "/musteri-temsilcisi")).toBe(true)
+        expect(isPanelNavItemActive(root, "/musteri-temsilcisi/urunler")).toBe(false)
     })
 })
 
 describe("resolveActivePanelNavLabel", () => {
     it("aktif sayfanın adını döndürür", () => {
-        expect(resolveActivePanelNavLabel(navGroups, "/satis/urunler/12")).toBe("Ürünler")
+        expect(resolveActivePanelNavLabel(navGroups, "/musteri-temsilcisi/urunler/12")).toBe("Ürünler")
     })
 
     it("panel kökünde kök maddeyi döndürür", () => {
-        expect(resolveActivePanelNavLabel(navGroups, "/satis")).toBe("Atanmış Müşteriler")
+        expect(resolveActivePanelNavLabel(navGroups, "/musteri-temsilcisi")).toBe("Atanmış Müşteriler")
     })
 
     it("eşleşme yoksa null döner", () => {
-        expect(resolveActivePanelNavLabel(navGroups, "/satis/harita")).toBeNull()
+        expect(resolveActivePanelNavLabel(navGroups, "/musteri-temsilcisi/harita")).toBeNull()
     })
 
     it("çakışmada en derin eşleşme kazanır", () => {

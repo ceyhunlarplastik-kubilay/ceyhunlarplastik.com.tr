@@ -56,7 +56,7 @@ const CUSTOMER_STATUS_OPTIONS = [
 ]
 
 /**
- * `/satis/ziyaretlerim` filtre çubuğu — `CustomerMapFilterBar` ile aynı
+ * `/musteri-temsilcisi/ziyaretlerim` filtre çubuğu — `CustomerMapFilterBar` ile aynı
  * görsel dil (yuvarlak kart, `SearchableSelect`, `GeoAddressFilterFields`).
  * Buradaki fark: filtreler DEĞİŞTİKÇE otomatik uygulanır (harita gibi pahalı
  * bir mount maliyeti yok, bu yüzden ayrı bir "Uygula" adımına gerek yok).

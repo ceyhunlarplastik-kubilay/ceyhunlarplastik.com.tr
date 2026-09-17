@@ -20,7 +20,7 @@ const quickLinks = [
     {
         href: "/admin/potansiyel-musteriler",
         title: "Potansiyel Müşteriler",
-        description: "Lead havuzunu, satış temsilcisi atamalarını ve dönüşüm sürecini takip edin.",
+        description: "Lead havuzunu, müşteri temsilcisi atamalarını ve dönüşüm sürecini takip edin.",
         icon: Users,
     },
     {

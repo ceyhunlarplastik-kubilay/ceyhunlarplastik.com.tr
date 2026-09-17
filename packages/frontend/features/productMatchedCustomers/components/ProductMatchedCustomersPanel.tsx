@@ -89,7 +89,7 @@ export function ProductMatchedCustomersPanel({
     productName,
     onClose,
     scope = "sales",
-    customerBasePath = scope === "admin" ? "/admin/customers" : "/satis/musteriler",
+    customerBasePath = scope === "admin" ? "/admin/customers" : "/musteri-temsilcisi/musteriler",
 }: Props) {
     const [searchInput, setSearchInput] = useState("")
     const [search, setSearch] = useState("")
@@ -218,7 +218,7 @@ export function ProductMatchedCustomersPanel({
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-1">
                     <h2 className="flex items-center gap-2 text-xl font-semibold tracking-tight text-neutral-950">
-                        <Target className="h-5 w-5 text-[var(--color-brand)]" />
+                        <Target className="h-5 w-5 text-(--color-brand)" />
                         Müşteriler — {productCode}
                     </h2>
                     <p className="text-sm text-neutral-500">

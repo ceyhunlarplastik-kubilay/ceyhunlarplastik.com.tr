@@ -90,7 +90,7 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
 
     if (customerQuery.isLoading) {
         return (
-            <div className="flex min-h-[220px] items-center justify-center rounded-3xl border bg-white shadow-sm">
+            <div className="flex min-h-55 items-center justify-center rounded-3xl border bg-white shadow-sm">
                 <Spinner className="size-5" />
             </div>
         )
@@ -177,7 +177,7 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                         <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Ticari ve Segment Bilgisi</div>
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
                             <div>
-                                <div className="text-xs text-neutral-400">Satış Temsilcisi</div>
+                                <div className="text-xs text-neutral-400">Müşteri Temsilcisi</div>
                                 <div className="mt-1 text-sm font-medium text-neutral-900">
                                     {customer.assignedSalesUser ? (getUserDisplayName(customer.assignedSalesUser) || customer.assignedSalesUser.email) : "Atama yok"}
                                 </div>

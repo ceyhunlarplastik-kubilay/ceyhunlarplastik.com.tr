@@ -5,8 +5,8 @@ export function resolveAuthHome(
     if (accessStatus !== "ACTIVE") return "/hesabim"
     if (groups.includes("owner") || groups.includes("admin")) return "/admin"
     if (groups.includes("purchasing")) return "/satinalma"
-    if (groups.includes("sales_director")) return "/satis"
-    if (groups.includes("sales")) return "/satis"
+    if (groups.includes("sales_director")) return "/musteri-temsilcisi"
+    if (groups.includes("sales")) return "/musteri-temsilcisi"
     if (groups.includes("content_editor")) return "/veri-girisi"
     if (groups.includes("supplier")) return "/tedarikci"
     if (groups.includes("customer")) return "/musteri"
@@ -40,7 +40,7 @@ export function canAccessPath(groups: string[] = [], pathname: string) {
         return groups.includes("purchasing") || groups.includes("admin") || groups.includes("owner")
     }
 
-    if (pathname.startsWith("/satis")) {
+    if (pathname.startsWith("/musteri-temsilcisi")) {
         return groups.includes("sales") || groups.includes("sales_director") || groups.includes("admin") || groups.includes("owner")
     }
 

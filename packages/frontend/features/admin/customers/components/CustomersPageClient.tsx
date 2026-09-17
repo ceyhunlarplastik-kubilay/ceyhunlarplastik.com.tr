@@ -40,7 +40,7 @@ type Props = {
 
 export function CustomersPageClient({
     title = "CRM Müşterileri",
-    description = "Potansiyel müşterileri, cari müşterileri ve satış temsilcisi atamalarını tek yerden yönetin.",
+    description = "Potansiyel müşterileri, cari müşterileri ve müşteri temsilcisi atamalarını tek yerden yönetin.",
     lockedStatus,
     statusLabel = "müşteri",
     hideStatusFilter = false,
@@ -191,13 +191,13 @@ export function CustomersPageClient({
 
             <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
                 <div className="overflow-x-auto">
-                <Table className="min-w-[1320px]">
+                <Table className="min-w-330">
                     <TableHeader>
                         <TableRow>
                             <TableHead>Müşteri</TableHead>
                             <TableHead>Durum</TableHead>
                             <TableHead>Ticari Şartlar</TableHead>
-                            <TableHead>Satış Temsilcisi</TableHead>
+                            <TableHead>Müşteri Temsilcisi</TableHead>
                             <TableHead>İletişim</TableHead>
                             <TableHead>Sektör</TableHead>
                             <TableHead>Üretim Grubu</TableHead>

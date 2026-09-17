@@ -20,12 +20,15 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ### Müşteri ziyaretleri (saha CRM) — Dilim 4 (opsiyonel) *(kullanıcı talebiyle, Dilim 0-3 ✅ 2026-09-16 LOG)*
 - **Yapıldı (LOG):** Şema (Dilim 0) + backend rapor altyapısı (Dilim 1) +
-  satış paneli "Ziyaretlerim" (Dilim 2) + çapraz-temsilci rapor sayfası
-  (Dilim 3). Rapor sayfası önce hem admin hem satış panelinde açılmıştı;
-  kullanıcı satış panelindeki sürümü geri istedi — sıradan temsilciyle
-  paylaşılan `/satis`'te olmamalı, "admin ve ileride satış müdürü
-  sayfalarında olmalı" dedi. Şu an yalnız `/admin/musteri-ziyaretleri`
-  (admin/owner) var; `/satis/musteri-ziyaretleri` ve nav öğesi kaldırıldı.
+  müşteri temsilcisi paneli "Ziyaretlerim" (Dilim 2) + çapraz-temsilci rapor
+  sayfası (Dilim 3). Rapor sayfası önce hem admin hem müşteri temsilcisi
+  panelinde açılmıştı; kullanıcı o panel sürümünü geri istedi — sıradan
+  temsilciyle paylaşılan `/musteri-temsilcisi`'te olmamalı, "admin ve
+  ileride satış müdürü sayfalarında olmalı" dedi. Şu an yalnız
+  `/admin/musteri-ziyaretleri` (admin/owner) var;
+  `/musteri-temsilcisi/musteri-ziyaretleri` ve nav öğesi kaldırıldı.
+  (Not: panel URL'i `/satis` idi, 2026-09-17'de `/musteri-temsilcisi`'ye
+  taşındı — bkz. LOG "Satış rolü... Müşteri Temsilcisi".)
   Detaylar LOG'daki "Müşteri ziyaretleri... Dilim 0/1/2/3" ve "Dilim 3
   GÜNCELLEME" notlarında.
 - **Gelecekte istenirse:** Satış müdürüne özel ayrı bir alan/panel bölümü

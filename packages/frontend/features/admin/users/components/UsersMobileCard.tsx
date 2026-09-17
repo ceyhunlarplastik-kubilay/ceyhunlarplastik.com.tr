@@ -114,7 +114,7 @@ export function UsersMobileCard({
 
                 <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2">
-                        <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Satış</div>
+                        <div className="text-[11px] uppercase tracking-[0.16em] text-neutral-500">Müşteri Temsilcisi</div>
                         <div className="mt-1 font-semibold text-neutral-950">{assignmentSummary.salesCount}</div>
                     </div>
                     <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2">

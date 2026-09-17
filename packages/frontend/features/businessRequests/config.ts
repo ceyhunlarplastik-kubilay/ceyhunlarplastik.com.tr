@@ -75,7 +75,7 @@ export const BUSINESS_REQUEST_PRIORITY_LABELS: Record<(typeof BUSINESS_REQUEST_P
 export const APPROVAL_ROLE_LABELS: Record<(typeof APPROVAL_ROLE_VALUES)[number], string> = {
     CUSTOMER: "Müşteri",
     SUPPLIER: "Tedarikçi",
-    SALES: "Satış",
+    SALES: "Müşteri Temsilcisi",
     SALES_DIRECTOR: "Satış Direktörü",
     PURCHASING: "Satın Alma",
     ADMIN: "Admin",

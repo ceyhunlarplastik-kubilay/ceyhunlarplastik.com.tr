@@ -98,7 +98,7 @@ function buildCustomerProfileSummaryItems(
             icon: UsersRound,
         },
         {
-            label: "Satış Temsilcisi",
+            label: "Müşteri Temsilcisi",
             value: assignedSalesDisplayName || "Atanmadı",
             icon: UserRound,
             accent: "amber",

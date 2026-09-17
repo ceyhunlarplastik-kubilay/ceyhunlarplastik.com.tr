@@ -8674,6 +8674,88 @@ eşit sayıda eklendi (865/865).
   göründüğünü ve hiçbir metnin kırpılıp anlaşılmaz hâle gelmediğini kontrol
   etmeli.
 
+## "Satış" rolü kullanıcıya "Müşteri Temsilcisi" olarak gösterilecek şekilde yeniden adlandırıldı (2026-09-17) *(kullanıcı talebiyle)*
+
+- **Talep:** Satış personeli için kullanılan dilin ileride "satış müdürü"
+  eklenecek olmasıyla birlikte anlam karmaşasına yol açabileceği düşünüldü;
+  satış temsilcisi ifadesinin "Müşteri Temsilcisi" olarak değiştirilmesi
+  istendi. `sales_director`/"Satış Müdürü" konusu BİLİNÇLİ OLARAK bu dilime
+  dahil edilmedi — kullanıcı ileride ayrı ele alacağını belirtti.
+- **Kapsam kararı (kullanıcıyla birlikte netleştirildi):** Cognito grup adı
+  (`sales`/`sales_director`), Prisma şema (`assignedSalesUserId`,
+  `"AssignedSalesUser"` ilişkisi, `ApprovalRole.SALES`/`SALES_DIRECTOR`,
+  `BusinessRequestDomain.SALES`), ~50+ `requiredPermissionGroups: ["sales", ...]`
+  literal'i, `isSales`/`isSalesDirector` helper'ları, `features/sales/`
+  klasörü, `salesNav.ts` dosya adı — HİÇBİRİ DEĞİŞMEDİ. Gerekçe: bunlar canlı
+  bir kimlik sistemine (Cognito grup üyeliği zaten aktif personel hesaplarında
+  var) veya şema migration'ına bağlı iç uygulama detayları; kullanıcıya hiç
+  görünmüyor, değiştirmenin riski (Cognito grup taşıma + DB migration + ~50
+  literal'in tutarlı güncellenmesi) görünür faydaya oranla çok yüksek.
+  **Kural:** "Satış" bir KİŞİYİ/ROLÜ tanımlıyorsa → "Müşteri Temsilcisi";
+  bir İŞ ALANINI/DOMAİNİ tanımlıyorsa (Satış vs Satın Alma, nav bölüm
+  başlığı, kampanya/duyuru sayfalarındaki domain rozeti) → "Satış" olarak
+  KALDI.
+- **URL taşıma:** Kullanıcı panel URL'inin de role uymasını istedi —
+  `app/(panels)/satis/` → `app/(panels)/musteri-temsilcisi/` (`git mv` ile,
+  10 sayfa + layout, tüm alt rotalar dahil). Bağlı ~20 dosyada literal
+  `/satis` referansı (`proxy.ts` auth matcher prefix listesi,
+  `features/auth/lib/navigation.ts` `resolveAuthHome`/`canAccessPath`,
+  `salesNav.ts` href'leri, `CustomerWorkspaceShell.tsx`, `SalesCustomersPageClient.tsx`,
+  `SalesActiveCustomerCard.tsx`, `ProductMatchedCustomersPanel.tsx`,
+  `SalesProductCatalogSection.tsx`, `panelNavigationState.ts`+`.test.ts`,
+  redirect/basePath'ler, URL-encode edilmiş `%2Fsatis` callback'ler dahil)
+  `/musteri-temsilcisi` ile güncellendi. Infra/CDN tarafında bu path'e bağlı
+  hiçbir kaynak yok (kontrol edildi) — değişiklik tamamen frontend App
+  Router + birkaç TS dosyası. Panel başlığı `satis/layout.tsx`: "Satış
+  Paneli" → "Müşteri Temsilcisi Paneli"; `onaylar/page.tsx`: "Satış Onay
+  Talepleri" → "Müşteri Temsilcisi Onay Talepleri". Eski `/satis`'e redirect
+  EKLENMEDİ (proje henüz gerçek müşteriye duyurulmadı, temiz kesim yeterli
+  görüldü) — kubi'deki eski bookmark'lar 404 verecek, yeniden ziyaret edilmeli.
+- **Rol-etiketi metinleri (~24 nokta, ~20 dosya):** "Satış Temsilcisi" →
+  "Müşteri Temsilcisi" (müşteri portalındaki "Atanmış satış temsilcisi:"
+  dahil — en yüksek görünürlüklü olan), `GROUP_LABELS.sales`/rol seçici
+  seçenekleri (`userEditor.ts`, `userFilters.ts`), giriş yapan kullanıcının
+  kendi rozeti (`AdminUserMenu.tsx`), onay adımı rol etiketi
+  (`APPROVAL_ROLE_LABELS.SALES`, `businessRequests/config.ts` — BUSINESS_
+  REQUEST_DOMAIN_LABELS.SALES ayrı ve DOKUNULMADI), "Tüm Satış Temsilcileri"
+  filtre etiketi, kullanıcı yönetimi ekranlarındaki "Satış Atamaları"/"Satış
+  atamaları" (temsilciye atanmış müşteri sayısı — `UserAccessEditorDialog`,
+  `UserComparisonDialog`, `UserDetailsDialog`, `UsersMobileCard`), form/tablo
+  label'ları (`EditCustomerProfileDialog`, `CustomersPageClient`,
+  `CustomerOverviewPageClient`, `CustomerWorkspaceShell`, `SalesCustomerOverviewPageClient`),
+  `CustomerMapFilterBar` aria-label.
+- **Dokunulmayanlar (bilinçli):** Kod yorumlarındaki "satış temsilcisi"
+  ifadeleri (kullanıcı talebiyle — davranışı etkilemiyor, ~7 dosya:
+  `CreateVisitDialog.tsx`, `salesNav.ts` doc comment, `getProductMatchedCustomers.ts`,
+  `getManagedCustomerMatchedProducts.ts`, `leadCustomerForm.ts`,
+  `SalesActiveCustomersPageClient.tsx`); domain etiketleri ("Satış" nav
+  bölüm başlığı `adminNav.ts`/`salesNav.ts`, "Müşteri / Satış" onay grubu,
+  kampanya/duyuru sayfası domain rozeti); ilgisiz "Satış" geçişleri ("Satış
+  yapılan...", "Satış Ürünleri" tedarikçi bağlamı, "Satış Müşterisi Özeti" —
+  müşteri TİPİ referansı, rol değil); `sales_director`/"Satış Direktörü/
+  Müdürü" metinlerinin TAMAMI.
+- **GÜNCELLEME:** `musteri-temsilcisi/onaylar/page.tsx` açıklamasındaki
+  "Sales director bu ekranda..." İngilizce sızıntısı, kullanıcı talebiyle
+  ayrıca düzeltildi → "Satış direktörü bu ekranda...". `sales_director`
+  rolünün adı/etiketi (`"Satış Direktörü"`) değişmedi, yalnızca bu tek
+  cümledeki yanlışlıkla İngilizce bırakılmış kelime öbeği düzeltildi.
+  Doğrulandı: `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159
+  warning ✅ · `test -w frontend` 384/384 ✅.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ (önce `.next/` cache'i
+  eski route'lara ait stale tip hataları veriyordu, `.next/` silinip
+  temiz derlemeyle doğrulandı — `.next/` gitignore'da, kaynak kod etkisi
+  yok) · `lint -w frontend` 0 error/159 warning ✅ (yeni uyarı yok) ·
+  `test -w frontend` 384/384 ✅ (`panelNavigationState.test.ts` yeni URL
+  ile güncellendi). Backend'e dokunulmadı (Cognito/şema değişikliği yok),
+  backend DoD adımları atlandı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — (1) `/musteri-temsilcisi`
+  altındaki tüm sayfaların (ve alt rotaların) doğru render olduğu, eski
+  `/satis` linklerinin artık 404 verdiği (beklenen); (2) satış grubundaki
+  bir kullanıcıyla giriş yapınca doğru panele yönlendirildiği
+  (`resolveAuthHome`); (3) müşteri portalında "Atanmış Müşteri Temsilcisi:"
+  metninin doğru göründüğü; (4) admin kullanıcı yönetimi ekranlarındaki rol
+  seçici/rozet/atama sayaçlarının "Müşteri Temsilcisi" gösterdiği.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

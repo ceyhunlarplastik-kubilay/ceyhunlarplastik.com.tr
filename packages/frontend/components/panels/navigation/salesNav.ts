@@ -8,7 +8,7 @@ import type { PanelNavGroup } from "@/components/panels/types"
  * açık.
  *
  * Çapraz-temsilci ziyaret raporu (`CustomerVisitsReportPageClient`) BİLİNÇLİ
- * OLARAK burada yok: `/satis` sıradan temsilciyle paylaşılan bir panel,
+ * OLARAK burada yok: `/musteri-temsilcisi` sıradan temsilciyle paylaşılan bir panel,
  * kullanıcı talebiyle bu rapor yalnız `/admin/musteri-ziyaretleri`'nde kaldı.
  * Satış müdürüne özel ayrı bir alan açılırsa oraya taşınabilir.
  */
@@ -20,28 +20,28 @@ export function buildSalesNavGroups(groups: string[]): PanelNavGroup[] {
         {
             label: "Müşteriler",
             items: [
-                { href: "/satis", label: "Atanmış Müşteriler", icon: "users", match: "exact" },
-                { href: "/satis/cari-musteriler", label: "Cari Müşteriler", icon: "building" },
-                { href: "/satis/potansiyel-musteriler", label: "Potansiyel Müşteriler", icon: "user-plus" },
-                { href: "/satis/harita", label: "Harita", icon: "map" },
-                { href: "/satis/ziyaretlerim", label: "Ziyaretlerim", icon: "calendar-clock" },
+                { href: "/musteri-temsilcisi", label: "Atanmış Müşteriler", icon: "users", match: "exact" },
+                { href: "/musteri-temsilcisi/cari-musteriler", label: "Cari Müşteriler", icon: "building" },
+                { href: "/musteri-temsilcisi/potansiyel-musteriler", label: "Potansiyel Müşteriler", icon: "user-plus" },
+                { href: "/musteri-temsilcisi/harita", label: "Harita", icon: "map" },
+                { href: "/musteri-temsilcisi/ziyaretlerim", label: "Ziyaretlerim", icon: "calendar-clock" },
             ],
         },
         {
             label: "Satış",
             items: [
-                { href: "/satis/urunler", label: "Ürünler", icon: "boxes" },
-                { href: "/satis/siparisler", label: "Siparişler", icon: "clipboard" },
-                { href: "/satis/duyurular", label: "Kampanya Duyuruları", icon: "megaphone" },
+                { href: "/musteri-temsilcisi/urunler", label: "Ürünler", icon: "boxes" },
+                { href: "/musteri-temsilcisi/siparisler", label: "Siparişler", icon: "clipboard" },
+                { href: "/musteri-temsilcisi/duyurular", label: "Kampanya Duyuruları", icon: "megaphone" },
                 ...(isSalesManager
-                    ? [{ href: "/satis/kampanyalar", label: "Kampanyalar", icon: "megaphone" as const }]
+                    ? [{ href: "/musteri-temsilcisi/kampanyalar", label: "Kampanyalar", icon: "megaphone" as const }]
                     : []),
             ],
         },
         {
             label: "Onaylar",
             items: [
-                { href: "/satis/onaylar", label: "Onay Talepleri", icon: "shield" },
+                { href: "/musteri-temsilcisi/onaylar", label: "Onay Talepleri", icon: "shield" },
             ],
         },
     ]

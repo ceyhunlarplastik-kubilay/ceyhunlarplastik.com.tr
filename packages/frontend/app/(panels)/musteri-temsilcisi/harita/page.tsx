@@ -6,7 +6,7 @@ export default async function SalesMapPage() {
     const session = await auth()
 
     if (!session) {
-        redirect("/auth/signin?callbackUrl=%2Fsatis%2Fharita&error=SessionRequired")
+        redirect("/auth/signin?callbackUrl=%2Fmusteri-temsilcisi%2Fharita&error=SessionRequired")
     }
 
     const groups = session.user?.groups ?? []
@@ -24,7 +24,7 @@ export default async function SalesMapPage() {
         <CustomerMapPageClient
             title="Müşteri Haritası"
             description="Atanmış müşterileri harita üzerinde izleyin, görünür bölgedeki pinleri filtreleyin ve sahada hızlıca yol tarifi alın."
-            customerDetailBasePath="/satis/musteriler"
+            customerDetailBasePath="/musteri-temsilcisi/musteriler"
             allowSalesFilter={groups.includes("sales_director")}
         />
     )

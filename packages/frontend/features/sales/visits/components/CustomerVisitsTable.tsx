@@ -38,7 +38,7 @@ type Props = {
 }
 
 /**
- * Ziyaret tablosu — hem `/satis/ziyaretlerim` (Dilim 2) hem çapraz-temsilci
+ * Ziyaret tablosu — hem `/musteri-temsilcisi/ziyaretlerim` (Dilim 2) hem çapraz-temsilci
  * rapor sayfası (Dilim 3, admin + satış müdürü) tarafından paylaşılır.
  */
 export function CustomerVisitsTable({ visits, showOwnerColumn = false, onComplete }: Props) {

@@ -96,7 +96,7 @@ export function UserComparisonDialog({
 
                                     <div className="rounded-2xl border border-neutral-200 bg-neutral-50/80 p-4">
                                         <div><span className="font-medium text-neutral-950">Satın alma atamaları:</span> {assignmentSummary.purchasingCount}</div>
-                                        <div><span className="font-medium text-neutral-950">Satış atamaları:</span> {assignmentSummary.salesCount}</div>
+                                        <div><span className="font-medium text-neutral-950">Müşteri temsilcisi atamaları:</span> {assignmentSummary.salesCount}</div>
                                         <div><span className="font-medium text-neutral-950">Kayıt tarihi:</span> {formatUserDateTime(user.createdAt)}</div>
                                     </div>
                                 </div>

@@ -319,7 +319,7 @@ export function EditCustomerProfileDialog({
                                             name="assignedSalesUserId"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <FormLabel>Satış Temsilcisi</FormLabel>
+                                                    <FormLabel>Müşteri Temsilcisi</FormLabel>
                                                     <Select
                                                         value={field.value || NONE_VALUE}
                                                         onValueChange={(value) => field.onChange(value === NONE_VALUE ? "" : value)}

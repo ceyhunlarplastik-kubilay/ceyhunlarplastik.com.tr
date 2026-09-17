@@ -162,7 +162,7 @@ export function SalesCustomerOverviewPageClient({ customerId, canListUsers = fal
                             <div className="text-xs uppercase tracking-[0.16em] text-neutral-400">Segment ve Atama</div>
                             <div className="mt-4 grid gap-3 sm:grid-cols-2">
                                 <div>
-                                    <div className="text-xs text-neutral-400">Satış Temsilcisi</div>
+                                    <div className="text-xs text-neutral-400">Müşteri Temsilcisi</div>
                                     <div className="mt-1 text-sm font-medium text-neutral-900">
                                         {customer.assignedSalesUser ? (getUserDisplayName(customer.assignedSalesUser) || customer.assignedSalesUser.email) : "Atama yok"}
                                     </div>

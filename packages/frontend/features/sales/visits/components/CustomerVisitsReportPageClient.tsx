@@ -39,7 +39,7 @@ type ReportViewProps = {
  * olması (tamamlama aksiyonu yok — o "Ziyaretlerim"in işi).
  *
  * Şu an yalnız `/admin/musteri-ziyaretleri` kullanıyor — kullanıcı talebiyle
- * satış panelinden (sıradan temsilciyle paylaşılan `/satis`) kaldırıldı;
+ * satış panelinden (sıradan temsilciyle paylaşılan `/musteri-temsilcisi`) kaldırıldı;
  * satış müdürüne özel ayrı bir alan açıldığında oraya taşınabilir
  * (bkz. IMPROVEMENT_PLAN.md).
  */
