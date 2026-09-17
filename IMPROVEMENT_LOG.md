@@ -8947,6 +8947,41 @@ eşit sayıda eklendi (865/865).
   gösterildiği, sidebar/topbar'ın (ve müşteri detay sayfalarında sekme
   navigasyonunun) bu sırada görünür kaldığı.
 
+## `PageLoadingOverlay` — veri girişi ve admin panellerinin tüm sayfalarına eklendi (2026-09-17) *(kullanıcı talebiyle)*
+
+- **Talep:** Müşteri temsilcisi panelinde beğenilen sayfa açılış geçiş
+  animasyonu (`PageLoadingGate`+`PageLoadingOverlay`) `/veri-girisi/` ve
+  `/admin/` panellerindeki TÜM sayfalara da uygulansın.
+- **Yapıldı:** `/veri-girisi/` altında 11 sayfa (kök `page.tsx` hariç —
+  yalnız `/veri-girisi/categories`'e redirect eden bir dosya, sarılacak
+  içeriği yok) ve `/admin/` altında 28 sayfanın TAMAMI (dashboard,
+  kategoriler, ürünler + varyant matrisi, özellikler + detay, sözlükler
+  (renkler/ham maddeler/ölçü tipleri), potansiyel/cari müşteriler, müşteri
+  detay alt sayfaları (genel bilgiler/özel fiyatlar/tanımlı varyantlar/
+  ziyaretler), müşteri haritası, müşteri ziyaretleri raporu, kampanyalar,
+  duyurular, siparişler, tedarikçiler, onay akışları (müşteri-satış +
+  tedarikçi-satın alma), departman iletişimleri, web talepleri, kullanıcılar,
+  endüstriyel kullanım atamaları/fonksiyon aktarımı) sarıldı. Toplam 39 sayfa.
+  Her sayfada nav sözlüğüyle (`panelNavIcons.ts`, `adminNav.ts`/
+  `contentEntryNav.ts`) tutarlı bir Lucide ikonu kullanıldı (ör. Kategoriler→
+  Folder/Boxes — panele göre farklı, nav'daki gibi; Ham Maddeler→FlaskConical
+  (admin) / Layers3 (veri girişi) — nav'daki mevcut FARKLILIK korundu).
+- **`/admin/page.tsx` (dashboard):** `requireRole` auth kontrolü/redirect
+  mantığı `PageLoadingGate` sarmalamasının DIŞINDA bırakıldı (auth başarısız
+  olursa zaten redirect oluyor, overlay hiç render edilmeden).
+- **Müşteri detay alt sayfaları** (`admin/customers/[id]/*`) — sales tarafıyla
+  AYNI desen: `CustomerWorkspaceShell`'in içerik `<section>`i zaten
+  `relative` (önceki dilimde eklenmişti), `PageLoadingGate` yalnız iç
+  client bileşenini sarıyor — workspace sekme navigasyonu (Genel Bilgiler/
+  Özel Fiyatlar/Tanımlı Varyantlar/Ziyaretler) her zaman görünür kalıyor.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — her iki panelde nav'dan
+  sayfa değiştirirken ilgili ikonla kısa bir yüklenme animasyonu gösterildiği,
+  sidebar/topbar'ın (ve müşteri detay sayfalarında sekme navigasyonunun)
+  bu sırada görünür kaldığı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

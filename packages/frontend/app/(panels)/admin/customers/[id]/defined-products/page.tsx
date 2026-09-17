@@ -1,7 +1,10 @@
+import { Layers3 } from "lucide-react"
 import { CustomerAssignedVariantsPageClient } from "@/features/admin/customers/components/CustomerAssignedVariantsPageClient"
 import { CustomerWorkspaceShell } from "@/features/admin/customers/components/CustomerWorkspaceShell"
 import { getCategories } from "@/features/public/categories/server/getCategories"
 import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
+import { PageLoadingGate } from "@/components/feedback/PageLoadingGate"
+import { PageLoadingOverlay } from "@/components/feedback/PageLoadingOverlay"
 
 export default async function AdminCustomerDefinedProductsPage({
     params,
@@ -16,12 +19,22 @@ export default async function AdminCustomerDefinedProductsPage({
 
     return (
         <CustomerWorkspaceShell customerId={id}>
-            <CustomerAssignedVariantsPageClient
-                customerId={id}
-                categories={categories}
-                attributes={attributes}
-                basePath={`/admin/customers/${id}/defined-products`}
-            />
+            <PageLoadingGate
+                overlay={(
+                    <PageLoadingOverlay
+                        icon={<Layers3 className="size-20" strokeWidth={1.5} />}
+                        title="Tanımlı varyantlar yükleniyor"
+                        description="Lütfen kısa bir an bekleyin."
+                    />
+                )}
+            >
+                <CustomerAssignedVariantsPageClient
+                    customerId={id}
+                    categories={categories}
+                    attributes={attributes}
+                    basePath={`/admin/customers/${id}/defined-products`}
+                />
+            </PageLoadingGate>
         </CustomerWorkspaceShell>
     )
 }

@@ -6,6 +6,7 @@ import {
     ClipboardList,
     ClipboardCheck,
     Folder,
+    LayoutDashboard,
     ShieldCheck,
     Truck,
     UserRoundCog,
@@ -15,6 +16,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { requireRole } from "@/lib/auth/require-role"
+import { PageLoadingGate } from "@/components/feedback/PageLoadingGate"
+import { PageLoadingOverlay } from "@/components/feedback/PageLoadingOverlay"
 
 const quickLinks = [
     {
@@ -84,6 +87,15 @@ export default async function AdminPage() {
     }
 
     return (
+        <PageLoadingGate
+            overlay={(
+                <PageLoadingOverlay
+                    icon={<LayoutDashboard className="size-20" strokeWidth={1.5} />}
+                    title="Yönetim paneli yükleniyor"
+                    description="Lütfen kısa bir an bekleyin."
+                />
+            )}
+        >
         <div className="space-y-8">
             <section className="overflow-hidden rounded-[28px] border border-neutral-200 bg-white shadow-sm">
                 <div className="grid gap-6 p-6 lg:grid-cols-[1.4fr_minmax(0,0.9fr)] lg:p-8">
@@ -204,5 +216,6 @@ export default async function AdminPage() {
                 </div>
             </section>
         </div>
+        </PageLoadingGate>
     )
 }
