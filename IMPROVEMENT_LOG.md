@@ -8825,6 +8825,36 @@ eşit sayıda eklendi (865/865).
   kullanım alanı filtresi eklenmesi — o zaman aynı `viewAllHref` deseni
   admin/veri-girişi `LeadCustomerDetailPanel`'e de bağlanabilir.
 
+### Yukarıdaki dilime küçük görsel iyileştirmeler: brand renk + geçiş animasyonu (2026-09-17) *(kullanıcı talebiyle)*
+
+- **Talep:** (1) "Ürünlerin tamamını gör" ve "Adresler & Eşleşen Ürünler"
+  butonları, `ProductAttributeBadges.tsx`'te (public sayfalar) kullanılan
+  marka rengiyle uyumlu olsun — reusable bir buton var mı diye soruldu.
+  (2) Potansiyel müşteriden "Ürünlerin tamamını gör"e basılıp ürünler
+  sayfasına gidildiğinde, sipariş talebi sayfasındaki
+  (`musteri/talepler/siparis-talebi`) gibi bir yüklenme animasyonu olsun.
+- **Bulgu — reusable buton zaten vardı:** `components/ui/button.tsx`'te
+  `variant="brand"` (`bg-brand text-brand-foreground hover:brightness-90`)
+  tanımlı — `ProductAttributeBadges`'teki özel glow/hover efektli badge'in
+  aksine, bu genel amaçlı, sade marka-renkli buton varyantı. İki buton da
+  (`CustomerProfileMatchedProducts.tsx`, `LeadCustomerCard.tsx`) `variant="outline"`
+  → `variant="brand"` olarak değiştirildi; yeni bir bileşen/stil eklenmedi.
+- **Geçiş animasyonu:** `musteri-temsilcisi/urunler/page.tsx`, `siparis-talebi/page.tsx`
+  ile AYNI reusable ikili (`PageLoadingGate` + `PageLoadingOverlay`) ile
+  sarmalandı — `Boxes` ikonu kullanıldı (nav'daki "Ürünler" öğesiyle aynı
+  ikon, `panelNavIcons.ts`). `PageLoadingGate` sayfanın SSR'da veri
+  bekleyip beklemediğinden bağımsız, HER navigasyonda overlay'i en az
+  ~900ms gösterir (bkz. bileşenin kendi doc yorumu) — bu yüzden hem lead
+  detayından tıklanan filtreli link hem de nav'dan doğrudan gidiş aynı
+  animasyonu görür.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — (1) iki butonun da marka
+  rengiyle (turuncu/marka tonu) göründüğü; (2) "Ürünlerin tamamını gör"e
+  veya doğrudan nav'dan "Ürünler"e tıklayınca kısa bir yüklenme animasyonu
+  gösterildiği.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

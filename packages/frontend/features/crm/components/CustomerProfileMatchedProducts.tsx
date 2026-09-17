@@ -103,7 +103,7 @@ export function CustomerProfileMatchedProducts({
                     </Badge>
                 ) : null}
                 {viewAllHref ? (
-                    <Button asChild type="button" variant="outline" size="sm" className="ms-auto rounded-full">
+                    <Button asChild type="button" variant="brand" size="sm" className="ms-auto rounded-full">
                         <Link href={viewAllHref}>
                             <SquareArrowOutUpRight className="h-3.5 w-3.5" />
                             Ürünlerin tamamını gör

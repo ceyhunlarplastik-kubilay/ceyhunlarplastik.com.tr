@@ -153,7 +153,7 @@ export function LeadCustomerCard({
                     {showDetailToggle ? (
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="brand"
                             className="rounded-2xl"
                             onClick={onToggle}
                         >
