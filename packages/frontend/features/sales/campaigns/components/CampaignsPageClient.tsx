@@ -15,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { CampaignFormDialog } from "@/features/sales/campaigns/components/CampaignFormDialog"
 import { AnnouncementComposerDialog } from "@/features/sales/campaignAnnouncements/components/AnnouncementComposerDialog"
 import { useCampaigns, useDeleteCampaign } from "@/features/sales/campaigns/hooks/useCampaigns"
@@ -79,6 +80,8 @@ export function CampaignsPageClient() {
     const deleteMutation = useDeleteCampaign()
 
     const campaigns = campaignsQuery.data?.data ?? []
+    const isInitialLoading = campaignsQuery.isLoading && campaigns.length === 0
+    const isBackgroundRefetch = campaignsQuery.isFetching && !isInitialLoading
 
     const openCreate = () => {
         setEditing(null)
@@ -147,7 +150,10 @@ export function CampaignsPageClient() {
                 </div>
             </section>
 
-            {campaignsQuery.isLoading ? (
+            <div className="relative">
+            <AdminSectionLoadingOverlay isVisible={isBackgroundRefetch} label="Kampanyalar güncelleniyor…" />
+
+            {isInitialLoading ? (
                 <div className="flex min-h-70 items-center justify-center rounded-3xl border border-neutral-200 bg-white">
                     <Spinner className="size-5" />
                 </div>
@@ -275,6 +281,7 @@ export function CampaignsPageClient() {
                     })}
                 </ul>
             )}
+            </div>
 
             <CampaignFormDialog open={dialogOpen} onOpenChange={setDialogOpen} campaign={editing} />
 

@@ -15,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { useCampaignAnnouncements } from "@/features/sales/campaignAnnouncements/hooks/useCampaignAnnouncements"
 import { AnnouncementRecipientRow } from "@/features/sales/campaignAnnouncements/components/AnnouncementRecipientRow"
 import { AnnouncementComposerDialog } from "@/features/sales/campaignAnnouncements/components/AnnouncementComposerDialog"
@@ -53,6 +54,8 @@ export function AnnouncementsPageClient() {
         status: (status || undefined) as CampaignAnnouncementRecipientStatus | undefined,
     })
     const announcements = announcementsQuery.data?.data ?? []
+    const isInitialLoading = announcementsQuery.isLoading && announcements.length === 0
+    const isBackgroundRefetch = announcementsQuery.isFetching && !isInitialLoading
 
     // Müşteri araması istemcide: liste zaten temsilcinin kendi duyurularıyla
     // sınırlı ve sayfa başına 50 kayıt — sunucuya ek filtre taşımaya değmez.
@@ -141,7 +144,10 @@ export function AnnouncementsPageClient() {
                 </div>
             </section>
 
-            {announcementsQuery.isLoading ? (
+            <div className="relative">
+            <AdminSectionLoadingOverlay isVisible={isBackgroundRefetch} label="Duyurular güncelleniyor…" />
+
+            {isInitialLoading ? (
                 <div className="flex min-h-70 items-center justify-center rounded-3xl border border-neutral-200 bg-white">
                     <Spinner className="size-5" />
                 </div>
@@ -214,6 +220,7 @@ export function AnnouncementsPageClient() {
                     })}
                 </ul>
             )}
+            </div>
 
             <AnnouncementComposerDialog open={composerOpen} onOpenChange={setComposerOpen} />
         </div>

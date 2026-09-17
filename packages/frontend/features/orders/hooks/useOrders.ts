@@ -11,5 +11,6 @@ export function useOrders(input: {
     return useQuery({
         queryKey: ["orders", input.scope, input.params],
         queryFn: () => listOrders(input.scope, input.params),
+        placeholderData: (previous) => previous,
     })
 }

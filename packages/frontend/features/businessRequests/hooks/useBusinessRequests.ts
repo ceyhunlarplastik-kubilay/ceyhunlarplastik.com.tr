@@ -41,6 +41,7 @@ export function useBusinessRequests({ scope, params = {}, autoRefreshIntervalMs 
     return useQuery({
         queryKey: ["business-requests", scope, normalizedParams],
         queryFn: () => listBusinessRequests(scope, normalizedParams),
+        placeholderData: (previous) => previous,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,
         refetchInterval: autoRefreshIntervalMs,

@@ -8877,6 +8877,49 @@ eşit sayıda eklendi (865/865).
   hem `/musteri/talepler/siparis-talebi`'ne giderken sidebar ve topbar'ın
   overlay sırasında görünür kaldığı, yalnız içerik alanının kaplandığı.
 
+## Müşteri temsilcisi panelindeki liste sayfalarına aynı arka-plan-yenileme overlay'i (2026-09-17) *(kullanıcı talebiyle)*
+
+- **Talep:** `CustomerPortalProductsLoadingOverlay` (müşteri portalı ürün
+  ızgarası) beğenildi, `/musteri-temsilcisi/` panelindeki TÜM sayfalara
+  eklenmesi istendi.
+- **Bulgu:** O bileşen ürün-ızgarasına ÖZEL (iskelet kartları var), farklı
+  içerik tipli sayfalara (tablo, kart listesi) doğrudan taşınamaz. Kullanıcıyla
+  netleştirilen yaklaşım: zaten paylaşılan `AdminSectionLoadingOverlay`'i
+  (sade "Yenileniyor…" hapı) `CustomerPortalProductsLoadingOverlay`'in cam-kart
+  + marka renkli ikon dairesi görsel diline YÜKSELT (ürün iskeleti OLMADAN) —
+  tek bileşen, her içerik tipinde çalışır, TÜM mevcut kullanımlar otomatik
+  günceller. Kapsam: yalnız liste sayfaları — harita (kendi özel fetching UX'i)
+  ve müşteri detay alt sayfaları (tekil kayıt) bilinçli olarak DIŞARIDA
+  bırakıldı.
+- **`AdminSectionLoadingOverlay.tsx`:** `isVisible`/`label` aynı, opsiyonel
+  `description` eklendi; görünüm sade haptan `CustomerPortalProductsLoadingOverlay`
+  ile aynı cam-kart + `bg-brand/10` ikon dairesine yükseltildi. Zaten kullanan
+  7 yer (admin lead customers, admin product variant matrix, product-matched-customers
+  panel, customer visits report, satış visits/leads/active-customers) otomatik
+  bu görünüme geçti — davranış (ne zaman görünür) değişmedi, yalnız görsel.
+- **Overlay'i o ana kadar HİÇ olmayan sayfalara eklendi** (`/musteri-temsilcisi/`
+  altında): ana "Atanmış Müşteriler" (`SalesCustomersPageClient`), Kampanyalar
+  (`CampaignsPageClient`), Duyurular (`AnnouncementsPageClient`), Onaylar
+  (`BusinessRequestInboxPageClient` — admin/onaylar'ı da paylaşıyor, oraya da
+  yayıldı), Siparişler (`OrdersPageClient` — admin ve müşteri portalı
+  sipariş sayfalarını da paylaşıyor, oraya da yayıldı).
+- **Ön koşul düzeltmesi:** Bu sayfaların bir kısmının hook'unda (`useManagedCustomers`,
+  `useBusinessRequests`, `useOrders`) `placeholderData` YOKTU — filtre/arama
+  değişince liste anında boşalıp `isLoading` yeniden `true` oluyordu, yani
+  overlay'in üzerine bineceği bir içerik hiç kalmıyordu (arka-plan-yenileme
+  algısı hiç çalışmıyordu). Üçüne de `placeholderData: (prev) => prev` eklendi
+  (`useCampaigns`/`useCampaignAnnouncements` zaten vardı) — artık hepsi
+  `isInitialLoading`/`isBackgroundRefetch` ayrımını doğru yapabiliyor.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — her sayfada arama/filtre
+  değiştirirken önceki liste ekranda kalıp üstüne cam-kart overlay'in
+  bindiği, ilk yüklemede ise (liste boşken) normal iskelet/spinner'ın
+  göründüğü. Ayrıca admin/onaylar, admin/siparişler ve müşteri portalı
+  siparişler sayfalarının da aynı overlay'i (paylaşılan bileşen olduğu için)
+  aldığını unutma.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

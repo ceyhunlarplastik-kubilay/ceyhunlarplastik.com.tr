@@ -11,6 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { CustomerPortalPageHeader } from "@/features/customerPortal/components/CustomerPortalPageHeader"
 import type { OrderListScope } from "@/features/orders/api/types"
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VALUES } from "@/features/orders/config"
@@ -41,6 +42,9 @@ export function OrdersPageClient({
         scope,
         params,
     })
+    const orders = ordersQuery.data?.data ?? []
+    const isInitialLoading = ordersQuery.isLoading && orders.length === 0
+    const isBackgroundRefetch = ordersQuery.isFetching && !isInitialLoading
 
     const lastUpdatedLabel = ordersQuery.dataUpdatedAt
         ? new Intl.DateTimeFormat("tr-TR", {
@@ -148,12 +152,16 @@ export function OrdersPageClient({
                     <span>{ordersQuery.isFetching ? "Sipariş listesi yenileniyor..." : "Sipariş listesi güncel"}</span>
                 </div>
 
-                <OrdersTable
-                    orders={ordersQuery.data?.data ?? []}
-                    isLoading={ordersQuery.isLoading}
-                    emptyMessage="Henüz listelenecek sipariş bulunmuyor."
-                    showCustomer={scope !== "portal"}
-                />
+                <div className="relative">
+                    <AdminSectionLoadingOverlay isVisible={isBackgroundRefetch} label="Sipariş listesi güncelleniyor…" />
+
+                    <OrdersTable
+                        orders={orders}
+                        isLoading={isInitialLoading}
+                        emptyMessage="Henüz listelenecek sipariş bulunmuyor."
+                        showCustomer={scope !== "portal"}
+                    />
+                </div>
             </div>
         </div>
     )

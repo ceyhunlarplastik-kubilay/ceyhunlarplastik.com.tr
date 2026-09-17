@@ -3,6 +3,7 @@
 import { motion } from "motion/react"
 import { RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { BusinessRequestFilters } from "@/features/businessRequests/components/BusinessRequestFilters"
 import { BusinessRequestTable } from "@/features/businessRequests/components/BusinessRequestTable"
 import { useBusinessRequestFilters } from "@/features/businessRequests/hooks/useBusinessRequestFilters"
@@ -53,6 +54,9 @@ export function BusinessRequestInboxPageClient({
             : false,
     })
     const decideMutation = useDecideBusinessRequest()
+    const requests = requestsQuery.data?.data ?? []
+    const isInitialLoading = requestsQuery.isLoading && requests.length === 0
+    const isBackgroundRefetch = requestsQuery.isFetching && !isInitialLoading
 
     const lastUpdatedLabel = requestsQuery.dataUpdatedAt
         ? new Intl.DateTimeFormat("tr-TR", {
@@ -110,18 +114,22 @@ export function BusinessRequestInboxPageClient({
                 showDomainFilter={showDomainFilter}
             />
 
-            <BusinessRequestTable
-                requests={requestsQuery.data?.data ?? []}
-                isLoading={requestsQuery.isLoading}
-                emptyMessage="Filtreye uygun talep bulunamadı."
-                showRequester
-                showDomain={showDomainFilter}
-                decisionScope={scope as BusinessRequestDecisionScope}
-                onDecision={(input) => {
-                    decideMutation.mutate(input)
-                }}
-                isDecisionPending={decideMutation.isPending}
-            />
+            <div className="relative">
+                <AdminSectionLoadingOverlay isVisible={isBackgroundRefetch} label="Liste güncelleniyor…" />
+
+                <BusinessRequestTable
+                    requests={requests}
+                    isLoading={isInitialLoading}
+                    emptyMessage="Filtreye uygun talep bulunamadı."
+                    showRequester
+                    showDomain={showDomainFilter}
+                    decisionScope={scope as BusinessRequestDecisionScope}
+                    onDecision={(input) => {
+                        decideMutation.mutate(input)
+                    }}
+                    isDecisionPending={decideMutation.isPending}
+                />
+            </div>
         </div>
     )
 }

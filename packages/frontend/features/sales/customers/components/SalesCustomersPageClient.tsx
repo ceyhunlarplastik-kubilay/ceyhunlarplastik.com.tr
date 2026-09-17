@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { useManagedCustomers } from "@/features/sales/customers/hooks/useManagedCustomers"
 
 export function SalesCustomersPageClient() {
@@ -17,6 +18,8 @@ export function SalesCustomersPageClient() {
     })
 
     const customers = query.data?.data ?? []
+    const isInitialLoading = query.isLoading && customers.length === 0
+    const isBackgroundRefetch = query.isFetching && !isInitialLoading
 
     return (
         <div className="space-y-6">
@@ -33,44 +36,48 @@ export function SalesCustomersPageClient() {
                 onChange={(e) => setSearch(e.target.value)}
             />
 
-            <div className="grid gap-4 lg:grid-cols-2">
-                {query.isLoading ? (
-                    <div className="flex min-h-45 items-center justify-center rounded-3xl border bg-white shadow-sm lg:col-span-2">
-                        <Spinner className="size-5" />
-                    </div>
-                ) : customers.map((customer) => (
-                    <div key={customer.id} className="rounded-3xl border bg-white p-5 shadow-sm">
-                        <div className="flex items-center justify-between gap-3">
-                            <div>
-                                <div className="text-lg font-semibold text-neutral-950">{customer.companyName || customer.fullName}</div>
-                                <div className="text-sm text-neutral-500">{customer.fullName}</div>
-                            </div>
-                            <Badge variant={customer.status === "CUSTOMER" ? "default" : "secondary"}>
-                                {customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}
-                            </Badge>
-                        </div>
-                        <div className="mt-4 grid gap-2 text-sm text-neutral-600">
-                            <div>{customer.email}</div>
-                            <div>{customer.phone}</div>
-                            <div>Sektör: {customer.sectorValue?.name ?? "-"}</div>
-                            <div>Tanımlı Varyant: {customer.assignedProducts?.length ?? 0}</div>
-                            <div>Ziyaret: {customer.visits?.length ?? 0}</div>
-                        </div>
+            <div className="relative">
+                <AdminSectionLoadingOverlay isVisible={isBackgroundRefetch} label="Liste güncelleniyor…" />
 
-                        <div className="mt-5 flex flex-wrap gap-2">
-                            <Button asChild size="sm" variant="brand">
-                                <Link href={`/musteri-temsilcisi/musteriler/${customer.id}/defined-products`}>
-                                    Tanımlı Varyantlar
-                                </Link>
-                            </Button>
+                <div aria-busy={query.isFetching} className="grid gap-4 lg:grid-cols-2">
+                    {isInitialLoading ? (
+                        <div className="flex min-h-45 items-center justify-center rounded-3xl border bg-white shadow-sm lg:col-span-2">
+                            <Spinner className="size-5" />
                         </div>
-                    </div>
-                ))}
-                {!query.isLoading && customers.length === 0 ? (
-                    <div className="rounded-3xl border border-dashed bg-white p-8 text-sm text-neutral-500 shadow-sm lg:col-span-2">
-                        Size atanmış müşteri bulunmuyor.
-                    </div>
-                ) : null}
+                    ) : customers.map((customer) => (
+                        <div key={customer.id} className="rounded-3xl border bg-white p-5 shadow-sm">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <div className="text-lg font-semibold text-neutral-950">{customer.companyName || customer.fullName}</div>
+                                    <div className="text-sm text-neutral-500">{customer.fullName}</div>
+                                </div>
+                                <Badge variant={customer.status === "CUSTOMER" ? "default" : "secondary"}>
+                                    {customer.status === "CUSTOMER" ? "Müşteri" : "Potansiyel"}
+                                </Badge>
+                            </div>
+                            <div className="mt-4 grid gap-2 text-sm text-neutral-600">
+                                <div>{customer.email}</div>
+                                <div>{customer.phone}</div>
+                                <div>Sektör: {customer.sectorValue?.name ?? "-"}</div>
+                                <div>Tanımlı Varyant: {customer.assignedProducts?.length ?? 0}</div>
+                                <div>Ziyaret: {customer.visits?.length ?? 0}</div>
+                            </div>
+
+                            <div className="mt-5 flex flex-wrap gap-2">
+                                <Button asChild size="sm" variant="brand">
+                                    <Link href={`/musteri-temsilcisi/musteriler/${customer.id}/defined-products`}>
+                                        Tanımlı Varyantlar
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
+                    ))}
+                    {!isInitialLoading && customers.length === 0 ? (
+                        <div className="rounded-3xl border border-dashed bg-white p-8 text-sm text-neutral-500 shadow-sm lg:col-span-2">
+                            Size atanmış müşteri bulunmuyor.
+                        </div>
+                    ) : null}
+                </div>
             </div>
         </div>
     )

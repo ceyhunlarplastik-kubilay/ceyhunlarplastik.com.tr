@@ -23,6 +23,7 @@ export function useManagedCustomers(params: z.input<typeof schema>, options: { e
         queryKey: ["sales-managed-customers", normalized],
         queryFn: () => getManagedCustomers(normalized),
         enabled: options.enabled ?? true,
+        placeholderData: (prev) => prev,
         refetchOnMount: "always",
         refetchOnWindowFocus: true,
     })
