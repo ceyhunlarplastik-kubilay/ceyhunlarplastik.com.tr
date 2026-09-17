@@ -211,7 +211,7 @@ export function PanelShell({
                     actionSlot={actionSlot}
                 />
 
-                <main className={cn("min-w-0 flex-1", contentClassName ?? DEFAULT_CONTENT_CLASS)}>
+                <main className={cn("relative min-w-0 flex-1", contentClassName ?? DEFAULT_CONTENT_CLASS)}>
                     {children}
                 </main>
             </SidebarInset>

@@ -21,8 +21,11 @@ type Props = {
 }
 
 /**
- * Tam ekran, hafif şeffaf, etkileşimi engelleyen (üstte durup altındaki her
- * şeyi doğal olarak bloklayan) yüklenme overlay'i. Verilen ikon iki kez
+ * Panel içerik alanını (`PanelShell`'in `<main>`'i, `relative` konumlu) kaplayan,
+ * hafif şeffaf, etkileşimi engelleyen yüklenme overlay'i — `fixed` DEĞİL `absolute`
+ * konumlanır, bu yüzden sidebar ve üst çubuk (topbar/mobil bar, `<main>`'in
+ * KARDEŞİ, çocuğu değil) her zaman görünür ve etkileşilebilir kalır; kullanıcı
+ * navigasyonda sol menüyü kaybetmez. Verilen ikon iki kez
  * (soluk anahat + marka renkli dolgu için) render edilir; dolgu kopyasının
  * `clip-path` üst inset'i `motion/react` ile %100 (tamamen gizli) ↔ %0
  * (tamamen görünür) arasında animasyonla gidip gelir — gerçek bir SVG mask'e
@@ -45,7 +48,7 @@ export function PageLoadingOverlay({ icon, title, description, className }: Prop
             role="status"
             aria-live="polite"
             className={cn(
-                "fixed inset-0 z-100 flex flex-col items-center justify-center gap-4 bg-white/70 backdrop-blur-sm",
+                "absolute inset-0 z-100 flex flex-col items-center justify-center gap-4 bg-white/70 backdrop-blur-sm",
                 className,
             )}
         >

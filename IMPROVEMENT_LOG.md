@@ -8855,6 +8855,28 @@ eşit sayıda eklendi (865/865).
   veya doğrudan nav'dan "Ürünler"e tıklayınca kısa bir yüklenme animasyonu
   gösterildiği.
 
+### GÜNCELLEME — `PageLoadingOverlay` artık sidebar/topbar'ı kaplamıyor (2026-09-17)
+
+- **Bildirim:** Kullanıcı, müşteri panelinde soldaki sidebar'ın (ve
+  topbar'ın) overlay sırasında kaybolmasını istemedi — "tabların kapanmasına
+  gerek yok" dedi.
+- **Kök neden:** `PageLoadingOverlay` `fixed inset-0` kullanıyordu —
+  `PanelShell`'in `<main>`'i İÇİNDE render edilse de (`page.tsx` orada
+  render ediliyor), `fixed` konumlanma normal akıştan tamamen çıkıp TÜM
+  viewport'u kaplıyordu; sidebar/topbar DOM'da hâlâ mount'luydu ama
+  görsel olarak üstleri örtülüyordu.
+- **Fix:** `PageLoadingOverlay.tsx`: `fixed inset-0` → `absolute inset-0`.
+  `PanelShell.tsx`: `<main>` sınıfına `relative` eklendi (base class'ta,
+  `contentClassName` override'ından BAĞIMSIZ — tüm panellere otomatik
+  yayılıyor). Sonuç: overlay artık yalnızca `<main>` içerik alanını
+  kaplıyor; sidebar VE topbar/mobil bar (`<main>`'in kardeşi, çocuğu değil)
+  her zaman görünür/etkileşilebilir kalıyor.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — hem `/musteri-temsilcisi/urunler`
+  hem `/musteri/talepler/siparis-talebi`'ne giderken sidebar ve topbar'ın
+  overlay sırasında görünür kaldığı, yalnız içerik alanının kaplandığı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
