@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { ChevronDown, Globe, Mail, Phone, Target, Trash2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -32,6 +33,12 @@ export function LeadCustomerCard({
      * (satış listeleme görünümü gibi) bunu `false` vererek gizler.
      */
     showDetailToggle = true,
+    /**
+     * Genişletilince gösterilecek detay paneli — varsayılan admin/veri girişi
+     * paneli (`LeadCustomerDetailPanel`, AdminApi'ye bağlı). Farklı boundary'ler
+     * (ör. satış paneli) kendi hook'larına bağlı bir sürüm geçirir.
+     */
+    renderDetail = (customerId) => <LeadCustomerDetailPanel customerId={customerId} />,
 }: {
     customer: LeadCustomer
     isExpanded: boolean
@@ -46,6 +53,7 @@ export function LeadCustomerCard({
     canSelect: boolean
     canEdit?: boolean
     showDetailToggle?: boolean
+    renderDetail?: (customerId: string) => ReactNode
 }) {
     const usageAreaCount = customer.usageAreaValues.length
     const hasProfile = Boolean(customer.sectorValue) || usageAreaCount > 0
@@ -192,9 +200,7 @@ export function LeadCustomerCard({
 
             {showDetailToggle && isExpanded ? (
                 <div className="border-t border-neutral-100 bg-neutral-50/60 p-4">
-                    <LeadCustomerDetailPanel
-                        customerId={customer.id}
-                    />
+                    {renderDetail(customer.id)}
                 </div>
             ) : null}
         </div>

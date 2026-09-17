@@ -8756,6 +8756,75 @@ eşit sayıda eklendi (865/865).
   metninin doğru göründüğü; (4) admin kullanıcı yönetimi ekranlarındaki rol
   seçici/rozet/atama sayaçlarının "Müşteri Temsilcisi" gösterdiği.
 
+## Müşteri temsilcisi panelinde potansiyel müşteri "Adresler & Eşleşen Ürünler" accordion'u + profil-filtreli ürün linki (2026-09-17) *(kullanıcı talebiyle)*
+
+- **Talep:** (1) Veri girişi panelindeki potansiyel müşteri tablosunda olan
+  "Adresler & Eşleşen Ürünler" accordion'u müşteri temsilcisi panelinde de
+  olsun. (2) Her iki panelde de "Bu profille eşleşen ürünler" önizlemesine
+  bir buton eklenip, tıklanınca kendi panelinin ürünler sayfası seçili
+  müşterinin profiliyle (sektör/üretim grubu/kullanım alanı) filtrelenmiş
+  açılsın.
+- **Kapsam kararı (kullanıcıyla netleştirildi):** (a) Müşteri temsilcisi
+  tarafında adresler SALT OKUNUR — ekleme/düzenleme veri girişi panelinin
+  sorumluluğunda kalıyor. (b) Veri girişi ürünler sayfası (`/veri-girisi/products`)
+  sektör/üretim grubu/kullanım alanına göre HİÇ filtrelenemiyor (yalnız
+  kategori) — bu gerçek bir yeni özellik (backend query param + filtre UI),
+  "buton ekleme" değil; kullanıcı bunu AYRI bir dilime erteledi. Bu yüzden
+  bu dilimde yalnız MÜŞTERİ TEMSİLCİSİ tarafı tamamlandı.
+- **Backend — tek yeni uç, sıfır yeni iş mantığı:** `GET /sales/lead-customers/{id}`
+  (`ProtectedApi/functions/leadCustomers/actions.ts` → `getManagedLeadCustomer`).
+  AdminApi'nin `getLeadCustomerHandler`/`getLeadCustomerValidator`/
+  `leadCustomerDetailResponseValidator`'ını AYNEN reuse eder (liste ucundaki
+  `listManagedLeadCustomers`'la AYNI desen) — `getLeadCustomer` core helper'ı
+  zaten adresleri VE eşleşen ürünleri (`getCustomerProfileMatchedProducts`,
+  LEAD/CUSTOMER'dan bağımsız) TEK payload'da döndürüyordu, ayrı bir
+  matched-products ucu gerekmedi. Yetki: `["sales", "sales_director", "admin",
+  "owner"]` (liste ucuyla aynı — havuz herkese açık, sahiplik kısıtı yok).
+  Yazma (create/update/delete adres) bu boundary'de YOK.
+- **Frontend:**
+  - `LeadCustomerCard.tsx`: opsiyonel `renderDetail?: (customerId) => ReactNode`
+    prop'u eklendi (varsayılan: mevcut `LeadCustomerDetailPanel`, admin/veri
+    girişi davranışı DEĞİŞMEDİ) — genişletilince hangi detay panelinin
+    render edileceğini çağıran taraf belirleyebiliyor.
+  - Yeni `useManagedLeadCustomer`/`getManagedLeadCustomer` (features/sales/leadCustomers) —
+    admin'in `useLeadCustomer`'ıyla aynı desen, yalnız `/sales/lead-customers/{id}`'e gider.
+  - Yeni `SalesLeadCustomerDetailPanel.tsx` — `LeadCustomerDetailPanel`'in
+    satışa özel karşılığı; adresleri SALT OKUNUR (kendi küçük inline liste,
+    `LeadCustomerAddressesSection`'ın CRUD butonları yok) gösterir,
+    `CustomerProfileMatchedProducts`'a `viewAllHref` geçirir.
+  - `SalesLeadCustomersPageClient.tsx`: `expandedId` state eklendi,
+    `LeadCustomerCard`'a artık gerçek `isExpanded`/`onToggle`/
+    `showDetailToggle` + `renderDetail={SalesLeadCustomerDetailPanel}` geçiyor
+    (önceden no-op'larla bilinçli kapalıydı).
+  - `CustomerProfileMatchedProducts.tsx`: opsiyonel `viewAllHref?: string`
+    prop'u eklendi — verilirse (ve eşleşen ürün varsa) başlık satırına
+    "Ürünlerin tamamını gör" linki eklenir. Bileşen hâlâ "dumb" — URL'i
+    KENDİSİ üretmiyor, çağıran taraf kuruyor. Diğer mevcut kullanımları
+    (veri girişi `LeadCustomerDetailPanel`, satış müşteri haritası accordion'u)
+    prop'u vermediği için ETKİLENMEDİ.
+  - URL şeması `ProductAssistantModal.goToFilter`'la AYNI (`sector`,
+    `production_group`, `usage_area` — slug bazlı, çoklu değer virgülle):
+    `/musteri-temsilcisi/urunler?sector=<slug>&production_group=<slug>&usage_area=<s1,s2>`.
+    Hedef sayfa (`SalesProductCatalogSection` → `useFilterStore.setFromUrl`)
+    bu şemayı zaten okuyor — sıfır ek kod, doğrulandı (kod okuma + mevcut
+    `ProductAssistantModal` kullanımıyla aynı mekanizma).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ ·
+  `lint -w frontend` 0 error/159 warning ✅ (yeni uyarı yok) ·
+  `test -w frontend` 384/384 ✅ · `test -w @ceyhunlarweb/functions` 342/342 ✅
+  (değişmedi — yeni validator/core mantık eklenmedi, mevcut şemalar reuse
+  edildi). `packages/core`'a dokunulmadı, `test:ci -w @ceyhunlarweb/core`
+  atlandı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — (1) müşteri temsilcisi
+  panelinde potansiyel müşteri satırında "Adresler & Eşleşen Ürünler"
+  butonunun açıldığı, adreslerin salt okunur göründüğü (ekle/düzenle butonu
+  YOK); (2) eşleşen ürün varken "Ürünlerin tamamını gör" linkinin
+  `/musteri-temsilcisi/urunler`'i doğru sektör/üretim grubu/kullanım alanı
+  filtresiyle açtığı; (3) veri girişi panelindeki mevcut accordion'un
+  (adres CRUD dahil) hiç etkilenmediği. **Ayrı dilim (istenirse):** veri
+  girişi ürünler sayfasına (`/veri-girisi/products`) sektör/üretim grubu/
+  kullanım alanı filtresi eklenmesi — o zaman aynı `viewAllHref` deseni
+  admin/veri-girişi `LeadCustomerDetailPanel`'e de bağlanabilir.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

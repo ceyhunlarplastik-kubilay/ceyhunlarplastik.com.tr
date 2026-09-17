@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Search, UserPlus, X } from "lucide-react"
 import { toast } from "sonner"
 
@@ -15,15 +16,19 @@ import { useLeadCustomerListFilters } from "@/features/admin/leadCustomers/hooks
 import { LeadCustomerCard } from "@/features/admin/leadCustomers/components/LeadCustomerCard"
 import { useManagedProductAttributesForFilter } from "@/features/customerLocations/hooks/useManagedProductAttributesForFilter"
 import { useManagedLeadCustomers } from "@/features/sales/leadCustomers/hooks/useManagedLeadCustomers"
+import { SalesLeadCustomerDetailPanel } from "@/features/sales/leadCustomers/components/SalesLeadCustomerDetailPanel"
 
 /**
  * Satış tarafı, salt-okunur "Potansiyel Müşteriler" listesi —
  * `LeadCustomersPageClient` (admin/veri girişi) örnek alındı, ama yazma
  * (oluştur/düzenle/sil/toplu seçim) buradan hiç yok: kullanıcı talebiyle
  * "şimdilik hepsini listeleyebilsin" — havuz herkese açık, sahiplik kısıtı
- * yok (`GET /sales/lead-customers`, Dilim'de yeni eklendi).
+ * yok (`GET /sales/lead-customers`). "Adresler & Eşleşen Ürünler" accordion'u
+ * (`showDetailToggle`) VAR ama adres CRUD'u YOK — `SalesLeadCustomerDetailPanel`
+ * salt-okunur, `GET /sales/lead-customers/{id}` çağırır.
  */
 export function SalesLeadCustomersPageClient() {
+    const [expandedId, setExpandedId] = useState<string | null>(null)
     const {
         filters,
         params,
@@ -147,8 +152,8 @@ export function SalesLeadCustomersPageClient() {
                             <LeadCustomerCard
                                 key={customer.id}
                                 customer={customer}
-                                isExpanded={false}
-                                onToggle={() => {}}
+                                isExpanded={expandedId === customer.id}
+                                onToggle={() => setExpandedId((prev) => (prev === customer.id ? null : customer.id))}
                                 onEdit={() => {}}
                                 isSelected={false}
                                 onToggleSelect={() => {}}
@@ -157,7 +162,8 @@ export function SalesLeadCustomersPageClient() {
                                 canDelete={false}
                                 canSelect={false}
                                 canEdit={false}
-                                showDetailToggle={false}
+                                showDetailToggle
+                                renderDetail={(id) => <SalesLeadCustomerDetailPanel customerId={id} />}
                             />
                         ))}
 

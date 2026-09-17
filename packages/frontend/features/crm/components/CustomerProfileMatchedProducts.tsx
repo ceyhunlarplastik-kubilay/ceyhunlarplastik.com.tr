@@ -2,9 +2,11 @@
 
 import type { ReactNode } from "react"
 import Image from "next/image"
-import { ImageIcon, Loader2, PackageSearch, Sparkles } from "lucide-react"
+import Link from "next/link"
+import { ImageIcon, Loader2, PackageSearch, Sparkles, SquareArrowOutUpRight } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import type { CustomerProfileMatchedProduct } from "@/features/crm/types"
 
 type Props = {
@@ -16,6 +18,14 @@ type Props = {
     noProfileHint?: ReactNode
     /** "Eşleşme bulunamadı" durumundaki alt açıklama — yüzeye göre değişir. */
     noMatchHint?: ReactNode
+    /**
+     * Verilirse eşleşen ürün varken başlık satırına "Tümünü Gör" linki eklenir —
+     * çağıran taraf, müşterinin sektör/üretim grubu/kullanım alanı slug'larıyla
+     * kendi panelinin ürünler sayfasına giden filtreli URL'i kurar (bkz.
+     * `ProductAssistantModal.goToFilter` ile aynı query şeması: `sector`,
+     * `production_group`, `usage_area`).
+     */
+    viewAllHref?: string
 }
 
 const DEFAULT_NO_PROFILE_HINT = (
@@ -49,6 +59,7 @@ export function CustomerProfileMatchedProducts({
     isLoading = false,
     noProfileHint = DEFAULT_NO_PROFILE_HINT,
     noMatchHint = DEFAULT_NO_MATCH_HINT,
+    viewAllHref,
 }: Props) {
     if (isLoading) {
         return (
@@ -81,7 +92,7 @@ export function CustomerProfileMatchedProducts({
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <Sparkles className="h-4 w-4 text-brand" />
                 <span className="text-sm font-medium text-neutral-800">
                     Bu profille eşleşen {matchedProductCount} ürün
@@ -90,6 +101,14 @@ export function CustomerProfileMatchedProducts({
                     <Badge variant="outline" className="rounded-full text-[11px] font-normal">
                         ilk {matchedProducts.length} gösteriliyor
                     </Badge>
+                ) : null}
+                {viewAllHref ? (
+                    <Button asChild type="button" variant="outline" size="sm" className="ms-auto rounded-full">
+                        <Link href={viewAllHref}>
+                            <SquareArrowOutUpRight className="h-3.5 w-3.5" />
+                            Ürünlerin tamamını gör
+                        </Link>
+                    </Button>
                 ) : null}
             </div>
 

@@ -18,6 +18,24 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
+### Veri girişi ürünler sayfasına sektör/üretim grubu/kullanım alanı filtresi *(kullanıcı talebiyle ertelendi, 2026-09-17 LOG)*
+- **Ne:** `/veri-girisi/products` (`ProductsPageClient`/`useProductListFilters`)
+  şu an yalnız kategoriye göre filtrelenebiliyor; sektör/üretim grubu/kullanım
+  alanı filtresi HİÇ yok. Müşteri temsilcisi tarafındaki `/musteri-temsilcisi/urunler`
+  bunu zaten destekliyor (`SalesProductCatalogSection` + `useFilterStore`,
+  `?sector=&production_group=&usage_area=` slug şeması).
+- **Neden açık:** Potansiyel müşteri detay panelindeki "Bu profille eşleşen
+  ürünler" önizlemesine EKLENEN "Ürünlerin tamamını gör" linki
+  (`CustomerProfileMatchedProducts`'ın yeni `viewAllHref` prop'u, bkz. LOG)
+  şu an yalnız müşteri temsilcisi tarafında bağlı — veri girişi panelinin
+  `LeadCustomerDetailPanel`'ine bağlanabilmesi için önce bu filtre
+  kapasitesinin eklenmesi gerekiyor. Kullanıcı bunu "tek buton ekleme"
+  ölçeğinde olmadığı için ayrı bir dilime erteledi.
+- **Etki:** **functions** (`GET /products` admin/veri-girişi ucuna
+  sector/production_group/usage_area query param'ı), **frontend**
+  (`useProductListFilters` genişletme + filtre UI, muhtemelen
+  `ProductFilterSidebar`/`ProductCategoryFilterRail` deseninin reuse'u).
+
 ### Müşteri ziyaretleri (saha CRM) — Dilim 4 (opsiyonel) *(kullanıcı talebiyle, Dilim 0-3 ✅ 2026-09-16 LOG)*
 - **Yapıldı (LOG):** Şema (Dilim 0) + backend rapor altyapısı (Dilim 1) +
   müşteri temsilcisi paneli "Ziyaretlerim" (Dilim 2) + çapraz-temsilci rapor

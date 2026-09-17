@@ -458,6 +458,11 @@ protectedApi.route('GET /sales/lead-customers', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('GET /sales/lead-customers/{id}', {
+    handler: `${folderPrefix}/leadCustomers/actions.getManagedLeadCustomer`,
+    ...defaultRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/approval-requests', {
     handler: `${folderPrefix}/businessRequests/actions.listSalesBusinessRequests`,
     ...defaultRouteOptions,
