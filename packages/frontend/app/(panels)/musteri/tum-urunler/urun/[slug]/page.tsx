@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { PackageSearch } from "lucide-react"
 
 import ProductDetailOverview from "@/features/public/products/components/ProductDetailOverview"
 import SimilarProductsRow from "@/features/public/products/components/SimilarProductsRow"
@@ -15,6 +16,8 @@ import { getProductsByCategory } from "@/features/public/products/server/getProd
 import { getProductVariantTable } from "@/features/public/products/server/getProductVariantTable"
 import { toSimilarProductItems } from "@/features/public/products/utils/similarProducts"
 import { CustomerPortalProductDetailHeader } from "@/features/customerPortal/components/CustomerPortalProductDetailHeader"
+import { PageLoadingGate } from "@/components/feedback/PageLoadingGate"
+import { PageLoadingOverlay } from "@/components/feedback/PageLoadingOverlay"
 
 export default async function CustomerPortalProductDetailPage({
     params,
@@ -50,6 +53,15 @@ export default async function CustomerPortalProductDetailPage({
     )
 
     return (
+        <PageLoadingGate
+            overlay={(
+                <PageLoadingOverlay
+                    icon={<PackageSearch className="size-20" strokeWidth={1.5} />}
+                    title="Ürün detayı yükleniyor"
+                    description="Lütfen kısa bir an bekleyin."
+                />
+            )}
+        >
         <div className="space-y-6 **:[[id]]:scroll-mt-24">
             <CustomerPortalProductDetailHeader
                 categoryName={product.category?.name}
@@ -110,5 +122,6 @@ export default async function CustomerPortalProductDetailPage({
                 hrefBasePath="/musteri/tum-urunler/urun"
             />
         </div>
+        </PageLoadingGate>
     )
 }

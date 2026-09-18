@@ -1,5 +1,6 @@
 import Image from "next/image"
 import { notFound } from "next/navigation"
+import { Layers3 } from "lucide-react"
 import ProductAssemblyVideoSection from "@/features/public/products/components/ProductAssemblyVideoSection"
 import ProductAttributeBadges from "@/features/public/products/components/ProductAttributeBadges"
 import ProductTechnicalDrawingSection from "@/features/public/products/components/ProductTechnicalDrawingSection"
@@ -9,6 +10,8 @@ import { buildMeasurementKey, formatMeasurementValue } from "@/features/public/p
 import { CustomerPortalVariantPageHeader } from "@/features/customerPortal/components/CustomerPortalVariantPageHeader"
 import { CustomerPortalVariantDetailsTable } from "@/features/customerPortal/components/CustomerPortalVariantDetailsTable"
 import { AnimatedSplitProductTitle } from "@/features/public/products/components/AnimatedSplitProductTitle"
+import { PageLoadingGate } from "@/components/feedback/PageLoadingGate"
+import { PageLoadingOverlay } from "@/components/feedback/PageLoadingOverlay"
 
 type PageProps = {
     params: Promise<{ slug: string }>
@@ -61,6 +64,15 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
         (asset) => asset?.type === "IMAGE" || asset?.type === undefined,
     )
     return (
+        <PageLoadingGate
+            overlay={(
+                <PageLoadingOverlay
+                    icon={<Layers3 className="size-20" strokeWidth={1.5} />}
+                    title="Varyant detayı yükleniyor"
+                    description="Lütfen kısa bir an bekleyin."
+                />
+            )}
+        >
         <div className="space-y-6">
             <CustomerPortalVariantPageHeader
                 productSlug={product.slug}
@@ -172,5 +184,6 @@ export default async function CustomerPortalVariantDetailPage({ params, searchPa
                 productImageUrl={primaryAsset?.url ?? fallbackAsset?.url ?? "/placeholder.webp"}
             />
         </div>
+        </PageLoadingGate>
     )
 }

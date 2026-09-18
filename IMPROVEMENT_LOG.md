@@ -8982,6 +8982,32 @@ eşit sayıda eklendi (865/865).
   sidebar/topbar'ın (ve müşteri detay sayfalarında sekme navigasyonunun)
   bu sırada görünür kaldığı.
 
+## `PageLoadingOverlay` — müşteri portalının (`/musteri/`) tüm sayfalarına eklendi (2026-09-17) *(kullanıcı talebiyle)*
+
+- **Yapıldı:** Aynı sayfa açılış geçiş animasyonu (`PageLoadingGate`+
+  `PageLoadingOverlay`) `/musteri/` panelindeki kalan 14 sayfaya eklendi
+  (`talepler/siparis-talebi` bir önceki dilimde zaten vardı) — profil
+  özeti (kök `page.tsx`), İlgili Ürün Modelleri, Favori Varyantlarım,
+  Kampanyalı Ürünler, Özel Fiyatlı Ürünler, Tüm Ürünler + ürün detay +
+  varyant detay alt sayfaları, Siparişler, Talepler listesi + doküman/
+  fiyat/profil-değişikliği talep formları, Profil ayarları.
+  `musteriye-tanimli-urunler/page.tsx` BİLEREK atlandı — o dosya artık
+  yalnız `permanentRedirect` yapan bir eski-link yönlendirmesi, sarılacak
+  içeriği yok.
+- İkon seçimi müşteri portalı nav sözlüğüyle (`customerPortalNav.ts`)
+  tutarlı: LayoutDashboard (profil), BookMarked (ilgili ürünler), Heart
+  (favoriler), Megaphone (kampanyalar), BadgePercent (özel fiyatlar/fiyat
+  talebi), PackageSearch (tüm ürünler + ürün detayı), Layers3 (varyant
+  detayı), PackageCheck (siparişler), ClipboardList (talepler + doküman
+  talebi), Settings (profil ayarları + profil değişikliği talebi — nav'da
+  yok ama kavramsal olarak en yakın ikon).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
+  dokunulmadı.
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — müşteri portalında nav'dan
+  sayfa değiştirirken ilgili ikonla kısa bir yüklenme animasyonu
+  gösterildiği, sidebar/topbar'ın bu sırada görünür kaldığı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

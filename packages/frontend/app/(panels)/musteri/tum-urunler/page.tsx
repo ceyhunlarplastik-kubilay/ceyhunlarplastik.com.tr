@@ -1,7 +1,10 @@
+import { PackageSearch } from "lucide-react"
 import { CustomerPortalAllProductsPageClient } from "@/features/customerPortal/components/CustomerPortalAllProductsPageClient"
 import { getCategories } from "@/features/public/categories/server/getCategories"
 import { getAttributesForFilter } from "@/features/public/productAttributes/server/getAttributesForFilter"
 import { slimCategoryFilterAttributes } from "@/features/public/productAttributes/utils/slimCategoryFilterAttributes"
+import { PageLoadingGate } from "@/components/feedback/PageLoadingGate"
+import { PageLoadingOverlay } from "@/components/feedback/PageLoadingOverlay"
 
 export default async function CustomerPortalAllProductsPage() {
     const [categories, attributes] = await Promise.all([
@@ -19,5 +22,17 @@ export default async function CustomerPortalAllProductsPage() {
         excludeIndustrial: true,
     })
 
-    return <CustomerPortalAllProductsPageClient categories={categories} attributes={filterAttributes} />
+    return (
+        <PageLoadingGate
+            overlay={(
+                <PageLoadingOverlay
+                    icon={<PackageSearch className="size-20" strokeWidth={1.5} />}
+                    title="Ürünler yükleniyor"
+                    description="Lütfen kısa bir an bekleyin."
+                />
+            )}
+        >
+            <CustomerPortalAllProductsPageClient categories={categories} attributes={filterAttributes} />
+        </PageLoadingGate>
+    )
 }
