@@ -7,6 +7,8 @@ type Params = {
     search?: string
     status?: "LEAD" | "CUSTOMER"
     sectorValueId?: string
+    productionGroupValueId?: string
+    usageAreaValueId?: string
     countryId?: number
     stateId?: number
     cityId?: number

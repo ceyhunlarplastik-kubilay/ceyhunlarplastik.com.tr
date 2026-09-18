@@ -11,6 +11,8 @@ const schema = z.object({
     search: z.string().trim().optional(),
     status: z.enum(["LEAD", "CUSTOMER"]).optional(),
     sectorValueId: z.string().trim().min(1).optional(),
+    productionGroupValueId: z.string().trim().min(1).optional(),
+    usageAreaValueId: z.string().trim().min(1).optional(),
     countryId: z.number().int().positive().optional(),
     stateId: z.number().int().positive().optional(),
     cityId: z.number().int().positive().optional(),

@@ -1,34 +1,61 @@
 "use client"
 
-import { Search, Users } from "lucide-react"
+import { useState } from "react"
+import { Users } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Separator } from "@/components/ui/separator"
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
+import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
 import { useCustomerListFilters } from "@/features/admin/customers/hooks/useCustomerListFilters"
 import { useManagedCustomers } from "@/features/sales/customers/hooks/useManagedCustomers"
 import { SalesActiveCustomerCard } from "@/features/sales/customers/components/SalesActiveCustomerCard"
+import { SalesCustomerFilterBar } from "@/features/sales/shared/components/SalesCustomerFilterBar"
 
 /**
  * "Cari Müşteriler" — satış temsilcisinin KENDİSİNE atanmış, status=CUSTOMER
  * kayıtları (kullanıcı talebiyle: "cari müşterilerden kendisine arananları
- * listeleyebilir"). `useCustomerListFilters({ lockedStatus: "CUSTOMER" })`
- * zaten genel bir hook — burada yalnız arama/sayfalama kullanılır, sektör/
- * kullanım alanı/geo filtreleri bu dilimde istenmedi. Sahiplik kısıtı ayrıca
- * kod yazmayı gerektirmiyor: `/sales/customers` ucu `sales` rolünde zaten
- * `assignedSalesUserId`'yi kendine sabitliyor (bkz. listManagedCustomersHandler).
+ * listeleyebilir"). Sahiplik kısıtı kod yazmayı gerektirmiyor: `/sales/customers`
+ * ucu `sales` rolünde zaten `assignedSalesUserId`'yi kendine sabitliyor (bkz.
+ * listManagedCustomersHandler).
+ *
+ * Kullanıcı talebiyle "Potansiyel Müşteriler" (`SalesLeadCustomersPageClient`)
+ * ile AYNI filtreler (arama + sektör + kullanım alanı + il/ilçe) ve AYNI
+ * "Adresler & Eşleşen Ürünler" accordion deseni — filtre çubuğu
+ * (`SalesCustomerFilterBar`) ve detay paneli parçaları (`ReadOnlyAddressList`,
+ * `CustomerProfileMatchedProducts`) PAYLAŞILIYOR.
  */
 export function SalesActiveCustomersPageClient() {
-    const { filters, params, setSearch, setPage, setLimit } = useCustomerListFilters({
-        lockedStatus: "CUSTOMER",
-    })
+    const [expandedId, setExpandedId] = useState<string | null>(null)
+    const {
+        filters,
+        params,
+        hasFilters,
+        setSearch,
+        setSectorValueId,
+        setUsageAreaValueId,
+        setGeo,
+        setPage,
+        setLimit,
+        setRefreshIntervalSeconds,
+        reset,
+    } = useCustomerListFilters({ lockedStatus: "CUSTOMER" })
 
+    // `useManagedCustomers` otomatik-yenileme aralığı desteklemiyor (LEAD hook'unun
+    // aksine) — refresh bar burada yalnız manuel "Yenile" ve son güncelleme saati
+    // için kullanılıyor, `refreshIntervalSeconds` state'i UI'da tutuluyor ama etkisiz.
     const customersQuery = useManagedCustomers(params)
     const customers = customersQuery.data?.data ?? []
     const meta = customersQuery.data?.meta
     const isInitialLoading = customersQuery.isLoading && customers.length === 0
     const isBackgroundRefetch = customersQuery.isFetching && !isInitialLoading
+
+    async function handleRefresh() {
+        await customersQuery.refetch()
+        toast.success("Liste yenilendi")
+    }
 
     return (
         <div className="space-y-6">
@@ -39,15 +66,31 @@ export function SalesActiveCustomersPageClient() {
                 </p>
             </div>
 
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                <Input
-                    value={filters.search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Firma, kişi veya e-posta ara"
-                    className="h-11 rounded-2xl pl-9"
-                />
-            </div>
+            <SalesCustomerFilterBar
+                search={filters.search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Firma, kişi veya e-posta ara"
+                sectorValueId={filters.sectorValueId}
+                onSectorValueIdChange={setSectorValueId}
+                usageAreaValueId={filters.usageAreaValueId}
+                onUsageAreaValueIdChange={setUsageAreaValueId}
+                countryId={filters.countryId}
+                stateId={filters.stateId}
+                cityId={filters.cityId}
+                onGeoChange={setGeo}
+                hasFilters={hasFilters}
+                onReset={reset}
+            />
+
+            <AdminListRefreshBar
+                dataUpdatedAt={customersQuery.dataUpdatedAt}
+                isFetching={customersQuery.isFetching}
+                onRefresh={handleRefresh}
+                refreshIntervalSeconds={filters.refreshIntervalSeconds}
+                onRefreshIntervalChange={setRefreshIntervalSeconds}
+            />
+
+            <Separator />
 
             <div className="relative">
                 <AdminSectionLoadingOverlay isVisible={isBackgroundRefetch} label="Liste güncelleniyor…" />
@@ -61,7 +104,12 @@ export function SalesActiveCustomersPageClient() {
                             />
                         ))
                         : customers.map((customer) => (
-                            <SalesActiveCustomerCard key={customer.id} customer={customer} />
+                            <SalesActiveCustomerCard
+                                key={customer.id}
+                                customer={customer}
+                                isExpanded={expandedId === customer.id}
+                                onToggle={() => setExpandedId((prev) => (prev === customer.id ? null : customer.id))}
+                            />
                         ))}
 
                     {!isInitialLoading && customers.length === 0 ? (
@@ -70,22 +118,18 @@ export function SalesActiveCustomersPageClient() {
                                 <Users className="h-6 w-6" />
                             </div>
                             <h3 className="mt-4 text-base font-semibold text-neutral-950">
-                                {filters.search ? "Aramaya uyan kayıt yok" : "Size atanmış cari müşteri yok"}
+                                {hasFilters ? "Filtrelere uyan kayıt yok" : "Size atanmış cari müşteri yok"}
                             </h3>
                             <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500">
-                                {filters.search ? (
-                                    <Button
-                                        type="button"
-                                        variant="link"
-                                        className="h-auto p-0"
-                                        onClick={() => setSearch("")}
-                                    >
-                                        Aramayı temizle
-                                    </Button>
-                                ) : (
-                                    "Bir potansiyel müşteri müşteriye dönüştürüldüğünde burada listelenir."
-                                )}
+                                {hasFilters
+                                    ? "Aramayı veya filtreleri temizleyerek tüm kayıtları görebilirsiniz."
+                                    : "Bir potansiyel müşteri müşteriye dönüştürüldüğünde burada listelenir."}
                             </p>
+                            {hasFilters ? (
+                                <Button type="button" className="mt-4 rounded-2xl" onClick={reset}>
+                                    Filtreleri Temizle
+                                </Button>
+                            ) : null}
                         </div>
                     ) : null}
                 </div>

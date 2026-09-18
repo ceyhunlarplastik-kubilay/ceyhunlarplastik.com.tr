@@ -1,22 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import { Search, UserPlus, X } from "lucide-react"
+import { UserPlus } from "lucide-react"
 import { toast } from "sonner"
 
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { SearchableSelect } from "@/components/ui/searchable-select"
 import { Separator } from "@/components/ui/separator"
 import { AdminListPagination } from "@/features/admin/shared/components/AdminListPagination"
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
-import { GeoAddressFilterFields } from "@/features/geo/components/GeoAddressFilterFields"
 import { useLeadCustomerListFilters } from "@/features/admin/leadCustomers/hooks/useLeadCustomerListFilters"
 import { LeadCustomerCard } from "@/features/admin/leadCustomers/components/LeadCustomerCard"
-import { useManagedProductAttributesForFilter } from "@/features/customerLocations/hooks/useManagedProductAttributesForFilter"
 import { useManagedLeadCustomers } from "@/features/sales/leadCustomers/hooks/useManagedLeadCustomers"
 import { SalesLeadCustomerDetailPanel } from "@/features/sales/leadCustomers/components/SalesLeadCustomerDetailPanel"
+import { SalesCustomerFilterBar } from "@/features/sales/shared/components/SalesCustomerFilterBar"
 
 /**
  * Satış tarafı, salt-okunur "Potansiyel Müşteriler" listesi —
@@ -43,7 +40,6 @@ export function SalesLeadCustomersPageClient() {
         reset,
     } = useLeadCustomerListFilters()
 
-    const attributesQuery = useManagedProductAttributesForFilter()
     const leadsQuery = useManagedLeadCustomers(params, {
         autoRefreshIntervalMs:
             filters.refreshIntervalSeconds > 0 ? filters.refreshIntervalSeconds * 1000 : false,
@@ -52,10 +48,6 @@ export function SalesLeadCustomersPageClient() {
     const meta = leadsQuery.data?.meta
     const isInitialLoading = leadsQuery.isLoading && leads.length === 0
     const isBackgroundRefreshing = leadsQuery.isFetching && !isInitialLoading
-
-    const sectorValues = attributesQuery.data?.find((attribute) => attribute.code === "sector")?.values ?? []
-    const usageAreaValues =
-        attributesQuery.data?.find((attribute) => attribute.code === "usage_area")?.values ?? []
 
     async function handleRefresh() {
         await leadsQuery.refetch()
@@ -72,60 +64,20 @@ export function SalesLeadCustomersPageClient() {
                 </p>
             </div>
 
-            <section className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5">
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_240px] lg:items-center">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                        <Input
-                            value={filters.search}
-                            onChange={(event) => setSearch(event.target.value)}
-                            placeholder="Firma, yetkili, e-posta veya telefon ara"
-                            className="h-11 rounded-2xl pl-9"
-                        />
-                    </div>
-
-                    <SearchableSelect
-                        aria-label="Sektör"
-                        value={filters.sectorValueId || null}
-                        onValueChange={(value) => setSectorValueId(value ?? "")}
-                        options={sectorValues.map((value) => ({ value: value.id, label: value.name }))}
-                        placeholder="Tüm sektörler"
-                        searchPlaceholder="Sektör ara"
-                        loading={attributesQuery.isLoading}
-                    />
-
-                    <SearchableSelect
-                        aria-label="Kullanım alanı"
-                        value={filters.usageAreaValueId || null}
-                        onValueChange={(value) => setUsageAreaValueId(value ?? "")}
-                        options={usageAreaValues.map((value) => ({ value: value.id, label: value.name }))}
-                        placeholder="Tüm kullanım alanları"
-                        searchPlaceholder="Kullanım alanı ara"
-                        loading={attributesQuery.isLoading}
-                    />
-                </div>
-
-                <div className="mt-3 grid gap-3 lg:grid-cols-[repeat(3,minmax(0,1fr))_auto] lg:items-center">
-                    <GeoAddressFilterFields
-                        countryId={filters.countryId}
-                        stateId={filters.stateId}
-                        cityId={filters.cityId}
-                        onChange={setGeo}
-                    />
-
-                    {hasFilters ? (
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-11 rounded-2xl"
-                            onClick={reset}
-                        >
-                            <X className="h-4 w-4" />
-                            Temizle
-                        </Button>
-                    ) : null}
-                </div>
-            </section>
+            <SalesCustomerFilterBar
+                search={filters.search}
+                onSearchChange={setSearch}
+                sectorValueId={filters.sectorValueId}
+                onSectorValueIdChange={setSectorValueId}
+                usageAreaValueId={filters.usageAreaValueId}
+                onUsageAreaValueIdChange={setUsageAreaValueId}
+                countryId={filters.countryId}
+                stateId={filters.stateId}
+                cityId={filters.cityId}
+                onGeoChange={setGeo}
+                hasFilters={hasFilters}
+                onReset={reset}
+            />
 
             <AdminListRefreshBar
                 dataUpdatedAt={leadsQuery.dataUpdatedAt}

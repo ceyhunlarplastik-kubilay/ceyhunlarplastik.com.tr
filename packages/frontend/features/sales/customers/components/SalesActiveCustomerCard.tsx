@@ -1,20 +1,31 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Phone } from "lucide-react"
+import { ChevronDown, Mail, Phone, Target } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { resolveCustomerNameParts } from "@core/helpers/crm/customerDisplayName"
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
+import { SalesActiveCustomerDetailPanel } from "@/features/sales/customers/components/SalesActiveCustomerDetailPanel"
 
 /**
  * "Cari Müşteriler" (satış paneli) kartı — `LeadCustomerCard` ile aynı görsel
  * dil, ama farklı veri şekli (`AdminCustomer`) ve farklı aksiyon kümesi: satış
- * temsilcisi burada profil düzenlemez/silmez, yalnız görür ve tanımlı
- * varyantlara gider (mevcut `/musteri-temsilcisi/musteriler/{id}/defined-products` rotası).
+ * temsilcisi burada profil düzenlemez/silmez, yalnız görür, tanımlı
+ * varyantlara gider VE (`LeadCustomerCard`'daki gibi) "Adresler & Eşleşen
+ * Ürünler" accordion'unu açabilir.
  */
-export function SalesActiveCustomerCard({ customer }: { customer: AdminCustomer }) {
+export function SalesActiveCustomerCard({
+    customer,
+    isExpanded,
+    onToggle,
+}: {
+    customer: AdminCustomer
+    isExpanded: boolean
+    onToggle: () => void
+}) {
     const nameParts = resolveCustomerNameParts(customer)
 
     return (
@@ -56,14 +67,27 @@ export function SalesActiveCustomerCard({ customer }: { customer: AdminCustomer 
                     </div>
                 </div>
 
-                <div className="flex shrink-0 gap-2">
-                    <Button asChild size="sm" variant="brand" className="rounded-2xl">
+                <div className="flex shrink-0 flex-wrap gap-2">
+                    <Button type="button" variant="brand" className="rounded-2xl" onClick={onToggle}>
+                        <Target className="h-4 w-4" />
+                        Adresler & Eşleşen Ürünler
+                        <ChevronDown
+                            className={cn("h-3.5 w-3.5 transition-transform", isExpanded && "rotate-180")}
+                        />
+                    </Button>
+                    <Button asChild size="sm" className="rounded-2xl">
                         <Link href={`/musteri-temsilcisi/musteriler/${customer.id}/defined-products`}>
                             Tanımlı Varyantlar
                         </Link>
                     </Button>
                 </div>
             </div>
+
+            {isExpanded ? (
+                <div className="border-t border-neutral-100 bg-neutral-50/60 p-4">
+                    <SalesActiveCustomerDetailPanel customerId={customer.id} />
+                </div>
+            ) : null}
         </div>
     )
 }

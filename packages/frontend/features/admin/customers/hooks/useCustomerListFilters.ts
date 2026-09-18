@@ -23,6 +23,9 @@ export function useCustomerListFilters(options: Options = {}) {
         sectorValueId: parseAsString,
         productionGroupValueId: parseAsString,
         usageAreaValueId: parseAsString,
+        country: parseAsInteger,
+        state: parseAsInteger,
+        city: parseAsInteger,
         page: parseAsInteger.withDefault(1),
         limit: parseAsInteger.withDefault(DEFAULT_ADMIN_LIST_PAGE_SIZE),
         refresh: parseAsInteger.withDefault(DEFAULT_ADMIN_LIST_REFRESH_INTERVAL_SECONDS),
@@ -44,6 +47,9 @@ export function useCustomerListFilters(options: Options = {}) {
             ...(state.sectorValueId ? { sectorValueId: state.sectorValueId } : {}),
             ...(state.productionGroupValueId ? { productionGroupValueId: state.productionGroupValueId } : {}),
             ...(state.usageAreaValueId ? { usageAreaValueId: state.usageAreaValueId } : {}),
+            ...(state.country ? { countryId: state.country } : {}),
+            ...(state.state ? { stateId: state.state } : {}),
+            ...(state.city ? { cityId: state.city } : {}),
         }),
         [
             state.limit,
@@ -54,8 +60,25 @@ export function useCustomerListFilters(options: Options = {}) {
             state.sectorValueId,
             state.status,
             state.usageAreaValueId,
+            state.country,
+            state.state,
+            state.city,
             lockedStatus,
         ]
+    )
+
+    // `countryId` BİLEREK sayılmaz: `GeoAddressFilterFields` yüklenir yüklenmez
+    // Türkiye'ye otomatik varsayıyor (bkz. CustomerMapFilterBar/CreateVisitDialog'daki
+    // aynı gotcha) — sayılırsa "aktif filtre var mı" her zaman true olurdu.
+    const hasFilters = Boolean(
+        state.search.trim() ||
+        (!lockedStatus && state.status) ||
+        state.assignedSalesUserId ||
+        state.sectorValueId ||
+        state.productionGroupValueId ||
+        state.usageAreaValueId ||
+        state.state ||
+        state.city,
     )
 
     return {
@@ -66,11 +89,15 @@ export function useCustomerListFilters(options: Options = {}) {
             sectorValueId: state.sectorValueId ?? "",
             productionGroupValueId: state.productionGroupValueId ?? "",
             usageAreaValueId: state.usageAreaValueId ?? "",
+            countryId: state.country,
+            stateId: state.state,
+            cityId: state.city,
             page: state.page,
             limit: state.limit,
             refreshIntervalSeconds,
         },
         params,
+        hasFilters,
         setSearch: (search: string) => setState({ search, page: 1 }),
         setStatus: (status: string) => {
             if (lockedStatus) return
@@ -93,9 +120,29 @@ export function useCustomerListFilters(options: Options = {}) {
             }),
         setUsageAreaValueId: (usageAreaValueId: string) =>
             setState({ usageAreaValueId: usageAreaValueId || null, page: 1 }),
+        setGeo: (patch: { countryId?: number | null; stateId?: number | null; cityId?: number | null }) =>
+            setState({
+                ...(patch.countryId !== undefined ? { country: patch.countryId } : {}),
+                ...(patch.stateId !== undefined ? { state: patch.stateId } : {}),
+                ...(patch.cityId !== undefined ? { city: patch.cityId } : {}),
+                page: 1,
+            }),
         setPage: (page: number) => setState({ page }),
         setLimit: (limit: number) => setState({ limit, page: 1 }),
         setRefreshIntervalSeconds: (refresh: number) =>
             setState({ refresh: normalizeAdminRefreshInterval(refresh) }),
+        reset: () =>
+            setState({
+                search: "",
+                ...(lockedStatus ? {} : { status: null }),
+                assignedSalesUserId: null,
+                sectorValueId: null,
+                productionGroupValueId: null,
+                usageAreaValueId: null,
+                country: null,
+                state: null,
+                city: null,
+                page: 1,
+            }),
     }
 }

@@ -9008,6 +9008,53 @@ eşit sayıda eklendi (865/865).
   sayfa değiştirirken ilgili ikonla kısa bir yüklenme animasyonu
   gösterildiği, sidebar/topbar'ın bu sırada görünür kaldığı.
 
+## Cari Müşteriler sayfası Potansiyel Müşteriler'e benzetildi — filtreler + "Adresler & Eşleşen Ürünler" reuse edildi (2026-09-18) *(kullanıcı talebiyle)*
+
+- **Talep:** `SalesActiveCustomersPageClient` (Cari Müşteriler) filtreleri
+  `SalesLeadCustomersPageClient` (Potansiyel Müşteriler) ile AYNI olsun,
+  mümkün olduğunca bileşen reuse edilsin; cari müşteri kartına da lead
+  kartındaki "Adresler & Eşleşen Ürünler" butonu eklensin.
+- **Bulgu — sıfır yeni backend:** `GET /sales/customers/{id}` (adresler
+  dahil) ve `GET /sales/customers/{id}/matched-products` uçları ile
+  `useManagedCustomer`/`useManagedCustomerMatchedProducts` hook'ları ZATEN
+  vardı (satış haritası accordion'u için yapılmıştı, `CustomerMapCustomerAccordion`) —
+  yalnız `useManagedCustomers`/`getManagedCustomers`'ın (liste ucu) zod
+  şemasında `productionGroupValueId`/`usageAreaValueId` eksikti (backend
+  handler zaten okuyordu — sessizce düşen parametre gotcha'sı, eklendi).
+- **`useCustomerListFilters.ts`** (paylaşılan hook, admin `CustomersPageClient`
+  de kullanıyor): `useLeadCustomerListFilters` ile aynı şekle getirildi —
+  `countryId/stateId/cityId` (`setGeo`) + `hasFilters` + `reset` eklendi.
+  Geriye dönük uyumlu: yeni alanlar opsiyonel/additive, admin tarafı
+  etkilenmedi (`typecheck` ile doğrulandı).
+- **Yeni paylaşılan bileşenler:**
+  - `features/sales/shared/components/SalesCustomerFilterBar.tsx` — arama +
+    sektör + kullanım alanı + il/ilçe + temizle filtre çubuğu, artık HEM
+    `SalesLeadCustomersPageClient` HEM `SalesActiveCustomersPageClient`
+    tarafından kullanılıyor (tek kaynak, iki ayrı kopya değil).
+  - `features/crm/components/ReadOnlyAddressList.tsx` — salt-okunur adres
+    listesi, `SalesLeadCustomerDetailPanel` VE yeni
+    `SalesActiveCustomerDetailPanel` tarafından paylaşılıyor.
+  - `features/sales/customers/components/SalesActiveCustomerDetailPanel.tsx`
+    (yeni) — `SalesLeadCustomerDetailPanel`in cari müşteri karşılığı, AYNI
+    desen (`ReadOnlyAddressList` + `CustomerProfileMatchedProducts` +
+    "Ürünlerin tamamını gör" linki), mevcut uçları çağırır.
+- **`SalesActiveCustomerCard.tsx`:** `isExpanded`/`onToggle` prop'ları
+  eklendi (artık `LeadCustomerCard` gibi kontrollü), "Tanımlı Varyantlar"ın
+  yanına "Adresler & Eşleşen Ürünler" butonu eklendi (marka renkli, açılınca
+  `SalesActiveCustomerDetailPanel`'i gösterir).
+- **`SalesActiveCustomersPageClient.tsx`:** `expandedId` state + refresh bar
+  + `Separator` eklendi — artık `SalesLeadCustomersPageClient` ile YAPISAL
+  olarak aynı sayfa iskeleti (başlık → filtre çubuğu → refresh bar →
+  ayraç → liste+overlay → sayfalama).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error/159 warning ✅ · `test -w frontend` 384/384 ✅. Backend'e
+  dokunulmadı (mevcut uçlar reuse edildi).
+- **Ne kaldı:** Kullanıcı kubi'de doğrulamalı — (1) Cari Müşteriler'de
+  sektör/kullanım alanı/il-ilçe filtrelerinin Potansiyel Müşteriler'deki
+  gibi çalıştığı; (2) cari müşteri kartında "Adresler & Eşleşen Ürünler"
+  açılınca adreslerin ve eşleşen ürünlerin doğru geldiği; (3) "Tanımlı
+  Varyantlar" butonunun eskisi gibi çalışmaya devam ettiği.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)
