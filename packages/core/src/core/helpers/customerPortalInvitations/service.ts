@@ -59,11 +59,23 @@ type LookupInvitationParams = {
     userInvitationRepository: IUserInvitationRepository
 }
 
+type CustomerConversionRepository = {
+    convertCustomer(id: string, convertedByUserId: string): Promise<unknown>
+}
+
 type AcceptInvitationParams = LookupInvitationParams & {
     password: string
     userPoolId: string
     userRepository: IPrismaUserRepository
     cognitoRepository: ICognitoUserRepository
+    /**
+     * Satış temsilcisinin davet ettiği bir LEAD kabul ettiğinde müşteri
+     * statüsünü otomatik CUSTOMER'a çevirmek için (kullanıcı talebiyle: portal
+     * girişi vermek fiilen "artık bu firmayla ticaret yapıyoruz" demektir).
+     * Müşteri zaten CUSTOMER ise (mevcut portal-içi meslektaş daveti akışı)
+     * bu dal hiç tetiklenmez.
+     */
+    customerRepository: CustomerConversionRepository
 }
 
 type CustomerPortalInvitationSummary = {
@@ -415,6 +427,7 @@ export async function acceptCustomerPortalInvitation({
     userRepository,
     userInvitationRepository,
     cognitoRepository,
+    customerRepository,
 }: AcceptInvitationParams) {
     const invitation = await getUsableInvitation({
         token,
@@ -459,6 +472,10 @@ export async function acceptCustomerPortalInvitation({
         })
 
         await userInvitationRepository.markAccepted(invitation.id, acceptedAt)
+
+        if (invitation.customer.status === "LEAD") {
+            await customerRepository.convertCustomer(invitation.customer.id, invitation.invitedByUserId)
+        }
 
         return {
             user: updatedUser,

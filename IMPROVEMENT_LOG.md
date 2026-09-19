@@ -9055,6 +9055,114 @@ eşit sayıda eklendi (865/865).
   açılınca adreslerin ve eşleşen ürünlerin doğru geldiği; (3) "Tanımlı
   Varyantlar" butonunun eskisi gibi çalışmaya devam ettiği.
 
+## Satış temsilcisi/müdürü potansiyel müşteriyi portale davet edebiliyor + LEAD→CUSTOMER otomatik dönüşüm (2026-09-18) *(kullanıcı talebiyle)*
+
+- **Talep (beyin fırtınası):** Müşteri temsilcisi/müdürü, henüz portal
+  hesabı olmayan bir LEAD'i (potansiyel müşteriyi) e-posta ile portale davet
+  edip şifre oluşturmasını sağlayabilsin — müşteri portalındaki "meslektaşımı
+  davet et" akışının satış temsilcisi karşılığı. Ayrıca Cognito'ya Google ile
+  giriş/e-posta OTP eklenip eklenemeyeceği soruldu (ayrı konu, bkz. aşağıdaki
+  "Ertelenen" notu).
+- **Kritik bulgu — sıfıra yakın yeni mantık:** Çekirdek davet servisi
+  (`createCustomerPortalUserInvitation`/`acceptCustomerPortalInvitation`,
+  `packages/core/src/core/helpers/customerPortalInvitations/service.ts`)
+  ZATEN vardı ve boundary'den bağımsızdı; şu ana kadar yalnız "portal
+  kullanıcısı meslektaşını davet ediyor" (`assertCustomerPortalAccess`)
+  senaryosunda kullanılıyordu. `customerRepository.convertCustomer(id,
+  convertedByUserId)` (LEAD→CUSTOMER) de zaten vardı (admin'in elle
+  dönüştürme ucu, `convertManagedCustomerHandler`). Form/dialog
+  (`CustomerPortalUserInviteDialog` + `customerPortalUserInviteSchema`)
+  bile AYNEN reuse edildi, hiç yeni UI bileşeni yazılmadı.
+- **Karar (kullanıcıyla netleştirildi):** Davet KABUL edildiğinde, eğer
+  müşteri hâlâ LEAD ise otomatik CUSTOMER'a çevrilsin (portal girişi vermek
+  fiilen "artık bu firmayla ticaret yapıyoruz" demektir) — `convertedByUserId`
+  daveti gönderen kişi (`invitation.invitedByUserId`) olarak set edilir.
+  Müşteri zaten CUSTOMER ise (mevcut meslektaş-daveti akışı) bu dal hiç
+  tetiklenmez.
+- **`access.ts`:** Ziyaretlerdeki "LEAD açık havuz + CUSTOMER'da atanmışlık"
+  kuralı (`canManageCustomerVisit`) ortak bir `canManageOpenPoolLead`
+  helper'ına çıkarıldı; aynı kuralı kullanan yeni `canManageCustomerInvitation`/
+  `assertCustomerInvitationAccess` eklendi (davranış AYNI, isim ayrı — hangi
+  işlem için yetki kontrolü yapıldığı koddan okunabilsin diye). `access.test.ts`'e
+  2 yeni test eklendi.
+- **`userInvitations/repository.ts`:** `invitationCustomerSelect`'e `status`
+  eklendi (LEAD/CUSTOMER ayrımı için gerekliydi, önceden seçilmiyordu).
+- **`customerPortalInvitations/service.ts`:** `acceptCustomerPortalInvitation`
+  artık `customerRepository` (yalnız `convertCustomer`) parametresi alıyor;
+  kabul başarılı olup `invitation.customer.status === "LEAD"` ise dönüşümü
+  tetikliyor. `PublicApi/functions/customerInvitations/*` (kabul ucu, herkese
+  açık — davet edilen kişinin henüz hesabı yok) bu bağımlılığı geçiyor.
+- **Yeni ProtectedApi ucu:** `POST /sales/customers/{id}/invite`
+  (`inviteManagedCustomerHandler`, `inviteManagedCustomerValidator`,
+  `IInviteManagedCustomerEvent`) — yetki `sales`/`sales_director`/`admin`/
+  `owner`, `assertCustomerInvitationAccess` ile korunuyor. AYNI
+  `createCustomerPortalUserInvitation` çekirdek servisini çağırıyor,
+  `createPortalCustomerUserHandler`'dan tek farkı müşteri kimliğinin
+  `requester.customerId` değil path param'dan gelmesi.
+- **Frontend:** `inviteManagedCustomer` API fonksiyonu + `useInviteManagedCustomer`
+  hook'u (yeni) — `SalesLeadCustomerDetailPanel.tsx`'e "Portale Davet Et"
+  butonu eklendi, mevcut `CustomerPortalUserInviteDialog`'u açıyor.
+- **Bilinçli olarak dışarıda bırakılan (dilim öncesi belirtilmişti):**
+  `customerPortalInvitations/service.ts`'in hâlâ hiç test dosyası yok —
+  bu dilimde de eklenmedi (mevcut mock altyapısı yok, ayrı bir iş).
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `test:ci -w @ceyhunlarweb/core`
+  658/658 ✅ (656 mevcut + 2 yeni) · `test -w @ceyhunlarweb/functions`
+  343/343 ✅ (298 validator derleme testi dahil, yeni validator sorunsuz
+  derlendi) · `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159
+  warning ✅ · `test -w frontend` 384/384 ✅.
+- **Ertelenen (Konu 2, kullanıcı talebiyle ayrı ele alınacak):** Cognito'ya
+  Google (federated IdP) ve e-posta OTP eklenmesi. Araştırıldı: proje şu an
+  Cognito Hosted UI/OAuth akışını HİÇ kullanmıyor (yalnız doğrudan
+  `USER_PASSWORD_AUTH` + özel `/api/auth/cognito/*` route'ları) —
+  `infra/cognito.ts`'teki OAuth ayarları (`allowedOauthFlows`,
+  `callbackUrls`) fiilen atıl duruyor. SST'nin `userPool.addIdentityProvider()`
+  metodu doğrulandı, Google eklemek mümkün ama gerçek bir OAuth yolu açmak
+  demek (NextAuth'a `next-auth/providers/cognito` eklenmesi + Hosted UI'a
+  yönlendiren bir buton). **Doğrulanamayan gerçek risk:** federe girişte
+  `postConfirmation` trigger'ının ateşlenip ateşlenmeyeceği (dolayısıyla
+  DB `User` kaydının oluşup oluşmayacağı) kodda kesinleştirilemedi — kubi'de
+  izole test şart. E-posta OTP için SST'nin bu sürümünde/kod tabanında hiçbir
+  destek izi bulunamadı, ayrı bir araştırma konusu olarak bırakıldı.
+- **Ne kaldı:** Kullanıcı kubi'de GERÇEK bir e-posta ile uçtan uca test
+  etmeli — (1) bir LEAD'e "Portale Davet Et" ile davet gönderilip Cognito
+  konsolunda kullanıcının oluştuğu; (2) davet e-postasındaki linkle
+  `/auth/accept-invite`'ta şifre belirlenip girişin çalıştığı; (3) kabul
+  sonrası DB'de `Customer.status`'ün `CUSTOMER`'a döndüğü ve `convertedAt`/
+  `convertedByUserId`'nin dolduğu, kaydın Potansiyel Müşteriler'den kalkıp
+  Cari Müşteriler'de göründüğü; (4) zaten CUSTOMER olan (assigned) bir
+  müşteriyi davet etmenin (meslektaş ekleme senaryosu) hâlâ eskisi gibi
+  çalıştığı, statüsünün bozulmadığı.
+
+### Düzeltme: yeni invite route'unda `FRONTEND_BASE_URL` eksikti (2026-09-18)
+
+- **Hata:** Kullanıcı kubi'de "Portale Davet Et" butonunu denedi,
+  `inviteManagedCustomerHandler` `FRONTEND_BASE_URL is not configured`
+  (`InternalServerError`) fırlattı (`crm/handlers.ts:1062`).
+- **Kök neden:** `infra/ProtectedApi.ts`'de yeni eklenen
+  `POST /sales/customers/{id}/invite` route'u `...defaultRouteOptions`
+  kullanıyordu. Oysa `FRONTEND_BASE_URL` (ve gmail secret linkleri) YALNIZ
+  `portalCustomerInviteRouteOptions` içinde tanımlı — bu özel options objesi
+  zaten var olan `createPortalCustomerUser` (meslektaş daveti) route'unda
+  kullanılıyordu (satır ~512), yeni route eklerken bu detay atlandı ve yanlış
+  options'a bağlandı. `deps.frontendBaseUrl = process.env.FRONTEND_BASE_URL ?? ""`
+  bu yüzden Lambda'da boş string olarak geldi.
+- **Düzeltme:** `infra/ProtectedApi.ts`'de `POST /sales/customers/{id}/invite`
+  route'u `...defaultRouteOptions` yerine `...portalCustomerInviteRouteOptions`
+  kullanacak şekilde değiştirildi (tek satır).
+- **Not:** Aynı guard clause `createPortalCustomerUserHandler`'da da (satır
+  ~1002) zaten vardı ve doğru options'a bağlıydı — yani bu, önceden var olan
+  bir altyapı boşluğu değil, bu dilimde yeni route eklenirken yapılan bir
+  kopyalama hatasıydı.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅. Runtime doğrulaması (kubi'de
+  `sst dev --stage kubi`'nin infra değişikliğini alması için yeniden
+  başlatılması + "Portale Davet Et" akışının tekrar denenmesi) kullanıcıda.
+- **Ne kaldı:** Kullanıcı kubi'de tekrar test etmeli — `sst dev` infra
+  değişikliğini otomatik algılayıp Lambda'yı güncelleyecektir, ekstra bir
+  adım gerekmiyor olması beklenir ama süreç yeniden başlamışsa emin olmak
+  için `sst dev --stage kubi`'yi yeniden başlatması önerilir. Ardından bir
+  önceki dilimin 4 maddelik kubi doğrulama listesi (yukarıda) geçerliliğini
+  korur.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

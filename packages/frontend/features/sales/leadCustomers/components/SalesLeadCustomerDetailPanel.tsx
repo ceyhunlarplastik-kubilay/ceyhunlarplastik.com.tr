@@ -1,10 +1,14 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
+import { useState } from "react"
+import { Loader2, UserPlus } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import { useManagedLeadCustomer } from "@/features/sales/leadCustomers/hooks/useManagedLeadCustomer"
+import { useInviteManagedCustomer } from "@/features/sales/customers/hooks/useInviteManagedCustomer"
 import { CustomerProfileMatchedProducts } from "@/features/crm/components/CustomerProfileMatchedProducts"
 import { ReadOnlyAddressList } from "@/features/crm/components/ReadOnlyAddressList"
+import { CustomerPortalUserInviteDialog } from "@/features/customerPortal/components/CustomerPortalUserInviteDialog"
 import type { LeadCustomerDetail } from "@/features/admin/leadCustomers/api/types"
 
 /**
@@ -14,9 +18,18 @@ import type { LeadCustomerDetail } from "@/features/admin/leadCustomers/api/type
  * ekleme/düzenleme veri girişi panelinin sorumluluğunda kalıyor, burada
  * yalnız görüntülenir (`ReadOnlyAddressList` — cari müşteri karşılığıyla
  * `SalesActiveCustomerDetailPanel` paylaşılır).
+ *
+ * "Portale Davet Et": müşteri portalının kendi kullanıcısının meslektaşını
+ * davet ettiği AYNI dialog/form (`CustomerPortalUserInviteDialog`) reuse
+ * edilir — satış temsilcisi burada HENÜZ portal hesabı olmayan bir LEAD'i
+ * davet eder. Davet kabul edildiğinde müşteri otomatik CUSTOMER'a döner
+ * (bkz. `acceptCustomerPortalInvitation`), bu kayıt bir sonraki listelemede
+ * Potansiyel Müşteriler'den kalkıp Cari Müşteriler'de görünür.
  */
 export function SalesLeadCustomerDetailPanel({ customerId }: { customerId: string }) {
+    const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
     const detailQuery = useManagedLeadCustomer(customerId)
+    const inviteMutation = useInviteManagedCustomer(customerId)
     const detail = detailQuery.data
 
     if (detailQuery.isLoading) {
@@ -35,6 +48,19 @@ export function SalesLeadCustomerDetailPanel({ customerId }: { customerId: strin
 
     return (
         <div className="space-y-5">
+            <div className="flex justify-end">
+                <Button
+                    type="button"
+                    variant="brand"
+                    size="sm"
+                    className="rounded-2xl"
+                    onClick={() => setInviteDialogOpen(true)}
+                >
+                    <UserPlus className="h-3.5 w-3.5" />
+                    Portale Davet Et
+                </Button>
+            </div>
+
             <ReadOnlyAddressList addresses={detail.addresses} />
 
             <div className="h-px bg-neutral-200" />
@@ -44,6 +70,16 @@ export function SalesLeadCustomerDetailPanel({ customerId }: { customerId: strin
                 matchedProductCount={detail.matchedProductCount}
                 matchedProducts={detail.matchedProducts}
                 viewAllHref={hasProfile ? buildFilteredProductsHref(detail) : undefined}
+            />
+
+            <CustomerPortalUserInviteDialog
+                open={inviteDialogOpen}
+                onOpenChange={setInviteDialogOpen}
+                isSubmitting={inviteMutation.isPending}
+                onSubmit={async (values) => {
+                    await inviteMutation.mutateAsync(values)
+                    setInviteDialogOpen(false)
+                }}
             />
         </div>
     )

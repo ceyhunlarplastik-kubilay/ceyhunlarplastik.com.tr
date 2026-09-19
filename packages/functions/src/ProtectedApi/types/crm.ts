@@ -65,6 +65,18 @@ export type IManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     { id: string }
 >
 
+export type IInviteManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
+    {
+        firstName: string
+        lastName: string
+        email: string
+        customerContactTitle?: string | null
+        customerContactDepartment?: string | null
+        isPrimaryCustomerContact?: boolean
+    },
+    { id: string }
+>
+
 export type IListManagedCustomerSpecialPricesEvent = IAPIGatewayProxyEventWithUserGeneric<
     {},
     { id: string },

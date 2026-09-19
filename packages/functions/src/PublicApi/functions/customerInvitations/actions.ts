@@ -3,6 +3,7 @@ import { Resource } from "sst"
 import { cognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { userInvitationRepository } from "@/core/helpers/prisma/userInvitations/repository"
 import { userRepository } from "@/core/helpers/prisma/users/repository"
+import { customerRepository } from "@/core/helpers/prisma/customers/repository"
 import {
     acceptCustomerInvitationHandler,
     getCustomerInvitationHandler,
@@ -23,6 +24,7 @@ const deps = {
     userRepository: userRepository(),
     cognitoRepository: cognitoUserRepository(),
     userPoolId: Resource.CeyhunlarUserPool.id,
+    customerRepository: customerRepository(),
 }
 
 export const getCustomerInvitation = lambdaHandler(

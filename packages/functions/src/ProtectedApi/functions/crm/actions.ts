@@ -17,6 +17,7 @@ import {
     createManagedCustomerSpecialPriceHandler,
     createManagedCustomerVisitHandler,
     createPortalCustomerUserHandler,
+    inviteManagedCustomerHandler,
     convertManagedCustomerHandler,
     deactivateManagedCustomerSpecialPriceHandler,
     deleteManagedCustomerAddressHandler,
@@ -58,6 +59,7 @@ import type {
     ICreateManagedCustomerVisitEvent,
     ICreatePortalCustomerAddressEvent,
     ICreatePortalCustomerUserEvent,
+    IInviteManagedCustomerEvent,
     IDeleteManagedCustomerAddressEvent,
     IDeleteManagedCustomerVisitEvent,
     IDeletePortalCustomerAddressEvent,
@@ -103,6 +105,7 @@ import {
     createManagedCustomerAddressValidator,
     createPortalCustomerAddressValidator,
     createPortalCustomerUserValidator,
+    inviteManagedCustomerValidator,
     deleteManagedCustomerAddressValidator,
     deletePortalCustomerAddressValidator,
     customerMapPointsResponseValidator,
@@ -434,6 +437,21 @@ export const createPortalCustomerUser = lambdaHandler(
     {
         auth: { requiredPermissionGroups: ["customer", "admin", "owner"] },
         requestValidator: createPortalCustomerUserValidator,
+        responseValidator: customerResponseValidator,
+    },
+)
+
+/**
+ * Satış temsilcisinin/müdürünün bir müşteriyi (öncelikle LEAD) portale davet
+ * etmesi — bkz. `inviteManagedCustomerHandler` doc yorumu. Yetki kontrolü
+ * (`assertCustomerInvitationAccess`) handler içinde, LEAD açık havuz + CUSTOMER'da
+ * atanmışlık şartı.
+ */
+export const inviteManagedCustomer = lambdaHandler(
+    async (event) => inviteManagedCustomerHandler(deps)(event as IInviteManagedCustomerEvent),
+    {
+        auth: { requiredPermissionGroups: ["sales", "sales_director", "admin", "owner"] },
+        requestValidator: inviteManagedCustomerValidator,
         responseValidator: customerResponseValidator,
     },
 )

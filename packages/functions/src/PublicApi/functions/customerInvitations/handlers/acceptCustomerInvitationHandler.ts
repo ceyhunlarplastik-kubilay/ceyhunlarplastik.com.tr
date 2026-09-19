@@ -7,9 +7,9 @@ import type {
 } from "@/functions/PublicApi/types/customerInvitations"
 
 export const acceptCustomerInvitationHandler =
-    ({ userInvitationRepository, userRepository, cognitoRepository, userPoolId }: ICustomerInvitationDependencies) =>
+    ({ userInvitationRepository, userRepository, cognitoRepository, userPoolId, customerRepository }: ICustomerInvitationDependencies) =>
         async (event: IAcceptCustomerInvitationEvent) => {
-            if (!userRepository || !cognitoRepository || !userPoolId) {
+            if (!userRepository || !cognitoRepository || !userPoolId || !customerRepository) {
                 throw new createError.InternalServerError("Customer invitation accept dependencies are not configured")
             }
 
@@ -20,6 +20,7 @@ export const acceptCustomerInvitationHandler =
                 userRepository,
                 userInvitationRepository,
                 cognitoRepository,
+                customerRepository,
             })
 
             return apiResponseDTO({

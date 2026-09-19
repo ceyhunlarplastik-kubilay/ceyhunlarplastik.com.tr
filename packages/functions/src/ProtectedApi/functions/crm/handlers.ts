@@ -11,6 +11,7 @@ import { getCustomerProfileMatchedProducts } from "@/core/helpers/crm/customerPr
 import { apiResponseDTO } from "@/core/helpers/utils/api/response"
 import { normalizeListQuery } from "@/core/helpers/pagination/normalizeListQuery"
 import {
+    assertCustomerInvitationAccess,
     assertCustomerManagementAccess,
     assertCustomerPortalAccess,
     assertCustomerVisitAccess,
@@ -30,6 +31,7 @@ import {
     ICreatePortalCustomerAddressEvent,
     ICreatePortalCustomerUserEvent,
     ICreateManagedCustomerVisitEvent,
+    IInviteManagedCustomerEvent,
     IDeleteManagedCustomerAddressEvent,
     IDeleteManagedCustomerVisitEvent,
     IDeletePortalCustomerAddressEvent,
@@ -1002,6 +1004,68 @@ export const createPortalCustomerUserHandler = ({
 
         const customer = await customerRepository.getCustomer(customerId)
         if (!customer) throw new createError.NotFound("Customer not found")
+
+        await createCustomerPortalUserInvitation({
+            customerId: customer.id,
+            customerName: resolveCustomerDisplayName(customer),
+            requester,
+            email: event.body.email,
+            firstName: event.body.firstName,
+            lastName: event.body.lastName,
+            customerContactTitle: event.body.customerContactTitle,
+            customerContactDepartment: event.body.customerContactDepartment,
+            isPrimaryCustomerContact: event.body.isPrimaryCustomerContact,
+            frontendBaseUrl,
+            userPoolId,
+            userRepository,
+            userInvitationRepository,
+            cognitoRepository,
+            sendInvitationEmail: sendCustomerPortalInvitationEmail,
+        })
+
+        const updatedCustomer = await customerRepository.getCustomer(customer.id)
+        if (!updatedCustomer) throw new createError.NotFound("Customer not found")
+
+        return apiResponseDTO({
+            statusCode: 200,
+            payload: { customer: mapCustomerForApi(updatedCustomer) },
+        })
+    }
+}
+
+/**
+ * Satış temsilcisinin/müdürünün bir müşteriyi (öncelikle henüz portal
+ * hesabı olmayan bir LEAD'i) portale davet etmesi. AYNI çekirdek servisi
+ * (`createCustomerPortalUserInvitation`) çağırır — `createPortalCustomerUserHandler`
+ * ile farkı yalnız KİM çağırıyor (müşterinin kendisi değil, kendisine
+ * atanmış/açık havuzdaki bir LEAD için satış temsilcisi) ve müşteri kimliğinin
+ * nereden geldiği (path param, `requester.customerId` değil).
+ */
+export const inviteManagedCustomerHandler = ({
+    customerRepository,
+    userRepository,
+    userInvitationRepository,
+    cognitoRepository,
+    userPoolId,
+    frontendBaseUrl,
+    sendCustomerPortalInvitationEmail,
+}: IProtectedCrmDependencies) => {
+    return async (event: IInviteManagedCustomerEvent) => {
+        const requester = event.user
+        if (!requester) throw new createError.Unauthorized("Authentication required")
+
+        if (!userRepository || !userInvitationRepository || !cognitoRepository || !userPoolId || !sendCustomerPortalInvitationEmail) {
+            throw new createError.InternalServerError("Customer portal invitation dependencies are not configured")
+        }
+
+        if (!frontendBaseUrl?.trim()) {
+            throw new createError.InternalServerError("FRONTEND_BASE_URL is not configured")
+        }
+
+        const customer = await customerRepository.getCustomer(event.pathParameters.id)
+        if (!customer) throw new createError.NotFound("Customer not found")
+
+        assertCustomerInvitationAccess(requester, customer)
 
         await createCustomerPortalUserInvitation({
             customerId: customer.id,

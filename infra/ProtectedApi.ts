@@ -319,6 +319,11 @@ protectedApi.route('GET /sales/customers/{id}', {
     ...defaultRouteOptions
 }, { ...defaultAuthOptions });
 
+protectedApi.route('POST /sales/customers/{id}/invite', {
+    handler: `${folderPrefix}/crm/actions.inviteManagedCustomer`,
+    ...portalCustomerInviteRouteOptions
+}, { ...defaultAuthOptions });
+
 protectedApi.route('GET /sales/company-contacts', {
     handler: `${folderPrefix}/crm/actions.listManagedCompanyContacts`,
     ...defaultRouteOptions

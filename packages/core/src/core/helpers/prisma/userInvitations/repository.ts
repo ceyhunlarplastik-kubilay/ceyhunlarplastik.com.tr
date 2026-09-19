@@ -18,6 +18,10 @@ const invitationCustomerSelect = {
     id: true,
     companyName: true,
     fullName: true,
+    /// LEAD→CUSTOMER otomatik dönüşümü için (bkz. acceptCustomerPortalInvitation) —
+    /// satış temsilcisi bir LEAD'i davet edip kabul edildiğinde müşteri statüsü
+    /// otomatik CUSTOMER'a çevrilir.
+    status: true,
 } as const
 
 const invitationInviterSelect = {

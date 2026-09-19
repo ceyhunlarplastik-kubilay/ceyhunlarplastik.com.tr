@@ -30,22 +30,45 @@ export function assertCustomerManagementAccess(user: IAuthenticatedUser | undefi
 }
 
 /**
- * Ziyaretlere ÖZEL, `canManageCustomer`'dan daha gevşek bir kural: potansiyel
- * müşteriler (LEAD) sahiplenilmemiş açık bir havuzdur (bkz. "Potansiyel
- * Müşteriler" sayfası — hiçbir sales rep'e kilitli değil), bu yüzden
- * herhangi bir satış temsilcisi bir lead için saha ziyareti planlayabilir.
- * Cari müşteriler (CUSTOMER) için mevcut `assignedSalesUserId` kısıtı AYNEN
- * geçerli kalır. Yalnız ziyaret handler'ları kullanır — adres/özel fiyat/
- * atanmış ürün gibi diğer CRM uçları hâlâ `canManageCustomer`'a bağlı.
+ * Ziyaretler VE portal daveti için ORTAK, `canManageCustomer`'dan daha gevşek
+ * bir kural: potansiyel müşteriler (LEAD) sahiplenilmemiş açık bir havuzdur
+ * (bkz. "Potansiyel Müşteriler" sayfası — hiçbir sales rep'e kilitli değil),
+ * bu yüzden herhangi bir satış temsilcisi bir lead için saha ziyareti
+ * planlayabilir VEYA portal daveti gönderebilir. Cari müşteriler (CUSTOMER)
+ * için mevcut `assignedSalesUserId` kısıtı AYNEN geçerli kalır.
  */
-export function canManageCustomerVisit(user: IAuthenticatedUser, customer: CustomerVisitAccessLike) {
+function canManageOpenPoolLead(user: IAuthenticatedUser, customer: CustomerVisitAccessLike) {
     if (canManageCustomer(user, customer)) return true
     return user.isSales && customer.status === "LEAD"
+}
+
+/**
+ * Yalnız ziyaret handler'ları kullanır — adres/özel fiyat/atanmış ürün gibi
+ * diğer CRM uçları hâlâ `canManageCustomer`'a bağlı.
+ */
+export function canManageCustomerVisit(user: IAuthenticatedUser, customer: CustomerVisitAccessLike) {
+    return canManageOpenPoolLead(user, customer)
 }
 
 export function assertCustomerVisitAccess(user: IAuthenticatedUser | undefined, customer: CustomerVisitAccessLike) {
     if (!user || !canManageCustomerVisit(user, customer)) {
         throw new createError.Forbidden("Customer visit access denied")
+    }
+}
+
+/**
+ * Yalnız satış panelinin "potansiyel müşteriyi portale davet et" ucu kullanır
+ * — kural `canManageCustomerVisit` ile AYNI (LEAD açık havuz + CUSTOMER'da
+ * atanmışlık şartı), ayrı fonksiyon olarak tutulur ki çağıran taraf hangi
+ * işlem için yetki kontrolü yaptığını isimden okuyabilsin.
+ */
+export function canManageCustomerInvitation(user: IAuthenticatedUser, customer: CustomerVisitAccessLike) {
+    return canManageOpenPoolLead(user, customer)
+}
+
+export function assertCustomerInvitationAccess(user: IAuthenticatedUser | undefined, customer: CustomerVisitAccessLike) {
+    if (!user || !canManageCustomerInvitation(user, customer)) {
+        throw new createError.Forbidden("Customer invitation access denied")
     }
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { canManageCustomer, canManageCustomerVisit } from "./access"
+import { canManageCustomer, canManageCustomerInvitation, canManageCustomerVisit } from "./access"
 import type { IAuthenticatedUser } from "@/core/helpers/utils/api/types"
 
 function user(overrides: Partial<IAuthenticatedUser> = {}): IAuthenticatedUser {
@@ -55,5 +55,21 @@ describe("canManageCustomerVisit", () => {
     it("sales olmayan (customer/supplier/purchasing) rol LEAD bypass'ından yararlanamaz", () => {
         const requester = user({ isPurchasing: true, id: "rep-1" })
         expect(canManageCustomerVisit(requester, { id: "c1", status: "LEAD" })).toBe(false)
+    })
+})
+
+describe("canManageCustomerInvitation", () => {
+    it("canManageCustomerVisit ile AYNI kuralı uygular (LEAD açık havuz + CUSTOMER'da atanmışlık)", () => {
+        const requester = user({ isSales: true, id: "rep-1" })
+
+        expect(canManageCustomerInvitation(requester, { id: "c1", status: "LEAD", assignedSalesUserId: null })).toBe(true)
+        expect(canManageCustomerInvitation(requester, { id: "c1", status: "LEAD", assignedSalesUserId: "rep-2" })).toBe(true)
+        expect(canManageCustomerInvitation(requester, { id: "c1", status: "CUSTOMER", assignedSalesUserId: "rep-1" })).toBe(true)
+        expect(canManageCustomerInvitation(requester, { id: "c1", status: "CUSTOMER", assignedSalesUserId: "rep-2" })).toBe(false)
+    })
+
+    it("owner/admin/sales_director her müşteriyi davet edebilir", () => {
+        expect(canManageCustomerInvitation(user({ isOwner: true }), { id: "c1", status: "CUSTOMER" })).toBe(true)
+        expect(canManageCustomerInvitation(user({ isSalesDirector: true }), { id: "c1", status: "LEAD" })).toBe(true)
     })
 })

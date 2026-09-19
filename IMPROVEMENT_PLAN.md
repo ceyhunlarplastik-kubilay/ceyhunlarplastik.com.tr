@@ -18,6 +18,27 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
+### Cognito Google federasyonu (+ e-posta OTP araştırması) · kapsam: orta-büyük, riskli *(kullanıcı talebiyle ertelendi, 2026-09-18 LOG)*
+- **Ne:** Google Cloud OAuth ile "Google ile giriş yap" seçeneği (kullanıcının
+  zaten Google Maps API için var olan GCP erişimiyle GOOGLE_CLIENT_ID/SECRET
+  alınacak). E-posta OTP (parolasız giriş) ayrıca soruldu.
+- **Bulgu (LOG'da detaylı):** Proje şu an Cognito Hosted UI/OAuth akışını HİÇ
+  kullanmıyor (yalnız doğrudan `USER_PASSWORD_AUTH` + özel `/api/auth/cognito/*`
+  route'ları) — `infra/cognito.ts`'teki `allowedOauthFlows`/`callbackUrls`
+  fiilen atıl. SST'nin `userPool.addIdentityProvider()` metodu doğrulandı,
+  mümkün ama gerçek bir OAuth yolu açmak demek: NextAuth'a
+  `next-auth/providers/cognito` eklenmesi + Hosted UI'a yönlendiren buton +
+  `supportedIdentityProviders`'a `'Google'` eklenmesi.
+- **Doğrulanamayan gerçek risk:** Federe (Google) girişte `postConfirmation`
+  trigger'ının ateşlenip ateşlenmeyeceği (dolayısıyla DB `User` kaydının
+  otomatik oluşup oluşmayacağı) kodda kesinleştirilemedi — **kubi'de izole
+  test şart**, geniş uygulamaya geçmeden önce.
+- E-posta OTP: SST'nin bu sürümünde/kod tabanında hiçbir destek izi
+  bulunamadı — ayrı, daha sonraki bir araştırma konusu.
+- Etki: **infra** (`cognito.ts` — yeni identity provider, `sst.Secret`
+  GOOGLE_CLIENT_ID/SECRET), **frontend** (`lib/auth/auth.ts`'e ikinci
+  provider, "Google ile giriş yap" butonu).
+
 ### Veri girişi ürünler sayfasına sektör/üretim grubu/kullanım alanı filtresi *(kullanıcı talebiyle ertelendi, 2026-09-17 LOG)*
 - **Ne:** `/veri-girisi/products` (`ProductsPageClient`/`useProductListFilters`)
   şu an yalnız kategoriye göre filtrelenebiliyor; sektör/üretim grubu/kullanım

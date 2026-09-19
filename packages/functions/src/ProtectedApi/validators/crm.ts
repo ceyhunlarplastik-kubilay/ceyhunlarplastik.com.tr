@@ -94,6 +94,19 @@ export const createPortalCustomerUserValidator = validatorWrapper(
     },
 )
 
+export const inviteManagedCustomerValidator = validatorWrapper(
+    z.object({
+        pathParameters: z.object({
+            id: z.uuid(),
+        }),
+        body: portalCustomerUserInviteSchema,
+    }),
+    {
+        requiredRootFields: ["pathParameters", "body"],
+        requiredBodyFields: ["firstName", "lastName", "email"],
+    },
+)
+
 export const createPortalCustomerAddressValidator = validatorWrapper(
     z.object({
         body: customerAddressLocationSchema,
