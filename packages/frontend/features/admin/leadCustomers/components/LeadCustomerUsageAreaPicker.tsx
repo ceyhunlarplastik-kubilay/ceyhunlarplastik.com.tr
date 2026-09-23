@@ -186,7 +186,11 @@ export function LeadCustomerUsageAreaPicker({
     )
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        // `overflow-clip`, `overflow-hidden` DEĞİL: hidden kendi scroll bağlamını
+        // kurar ve aşağıdaki sticky araç çubuğu dialog'un scroll'una değil bu
+        // (hiç kaymayan) kutuya yapışırdı — yani hiç sabit kalmazdı. clip köşeleri
+        // yine kırpar ama scroll bağlamı oluşturmaz.
+        <div className="overflow-clip rounded-2xl border border-neutral-200 bg-white">
             {/* Araç çubuğu: dialog scroll'unda yukarıda sabit kalır. */}
             <div className="sticky top-0 z-10 space-y-3 border-b border-neutral-100 bg-white/95 p-3 backdrop-blur">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

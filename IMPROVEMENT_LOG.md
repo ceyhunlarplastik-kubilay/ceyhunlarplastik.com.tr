@@ -9427,6 +9427,62 @@ eşit sayıda eklendi (865/865).
   client'ı, `.env` swap, secret set, deploy) geçilebilir — bunlar kullanıcı tarafından
   yürütülüyor, ben yalnız yönlendiriyorum.
 
+## Müşteri düzenleme dialogu yeniden tasarımı + opsiyonel yetkili/e-posta — çoklu telefon Dilim 1 (2026-09-23) *(kullanıcı talebiyle)*
+
+- **Talep:** "Potansiyel ve cari müşterilere birden fazla telefon eklenebilsin/listelensin"
+  + "`EditCustomerProfileDialog` sayfaya sığmıyor, responsive olsun". İnceleme sonrası 3
+  dilimlik plan onaylandı; veri modeli kararı (ayrı `CustomerPhone` tablosu + etiket) ve
+  Dilim 2-3 PLAN'da. **Bu dilim yalnız dialog** — telefon alanına henüz dokunulmadı.
+- **Tespit — neden sığmıyordu:**
+  1. `DialogContent`'te yükseklik sınırı/scroll yoktu → form ekrandan uzun; başlık ve
+     Kaydet/Vazgeç ekran dışına taşıyordu (asıl neden).
+  2. Öneksiz `max-w-4xl`, primitive'in `max-w-[calc(100%-2rem)]`'sini tailwind-merge ile
+     siliyordu (twMerge ile doğrulandı) → telefonda dialog ekran kenarına yapışıyordu.
+  3. 4 `SelectTrigger`'da `w-full` yoktu (shadcn varsayılanı `w-fit`).
+  4. Kullanım alanları yarım sütunda uzun bir buton listesiydi. Ayrıca sektör/üretim grubu
+     değişince TÜM kullanım alanları sessizce siliniyor, farklı sektörden seçilenler listede
+     görünmüyordu — AGENTS.md kuralına ve 2026-08-11 ürün sahibi kararına aykırı (backend'de
+     bu kısıt zaten yok, bkz. `customerAttributes.ts`).
+  5. **Yan bulgu:** form yetkili adını (min 2) ve e-postayı zorunlu tutuyor, backend de
+     `email: z.email()` ile `""`'yi reddediyordu. Veri girişi ikisini de boş kaydedebildiği
+     için (fullName `null`, email `""`) o potansiyel müşteriler bu dialogda HİÇ kaydedilemiyordu.
+- **Yapılan:**
+  - `EditCustomerProfileDialog.tsx` yeniden yazıldı: sabit başlık (müşteri adı + durum
+    rozeti), kayan gövde (`min-h-0 flex-1 overflow-y-auto`), sabit footer. Boyut
+    `max-h-[min(60rem,calc(100dvh-2rem))]` + `sm:max-w-[min(64rem,calc(100vw-3rem))]`
+    (mobil kenar boşluğu primitive'den gelir). Bölümler iç içe renkli kart yerine düz blok
+    (renk dili başlık ikonunda): Genel Bilgiler / Endüstriyel Profil / Profil Eşleşme
+    Alanları / Ceyhunlar İletişimleri / Ticari Şartlar; ızgaralar mobilde tek sütun.
+  - Kullanım alanı seçimi veri girişiyle AYNI `LeadCustomerUsageAreaPicker` (arama, sektör
+    chip filtresi, her zaman görünen seçilenler çubuğu). Sektör değişince yalnız üretim
+    grubu sıfırlanır; kullanım alanları korunur.
+  - `SelectTrigger`'lara `w-full`; toggle butonlarına `aria-pressed`; `NumericInputField`
+    artık `name`/`ref`/`onBlur` iletiyor (RHF geçersiz kayıtta alana odaklanıp kaydırabilsin)
+    + `inputMode`; geçersiz kayıtta toast. Kayıt hatasında dialog açık kalıyor ve RHF'nin
+    yeniden fırlattığı hata yakalanıyor (önceden konsola "Uncaught (in promise)" düşüyordu).
+    Durum etiketi "Müşteri" → "Cari Müşteri" (panel nav'ıyla tutarlı).
+  - `LeadCustomerUsageAreaPicker` kökü `overflow-hidden` → `overflow-clip`: hidden kendi
+    scroll bağlamını kurduğu için "dialog scroll'unda sabit kalır" denen sticky araç çubuğu
+    hiç yapışmıyordu. Veri girişi dialogunda da düzelir.
+  - Yetkili/e-posta opsiyonel (kullanıcı onayı): `customerEditor.ts` (boş yetkili → `null`,
+    boş e-posta → `""`; doluysa yetkili ≥ 2 karakter, e-posta biçimi), `updateCustomerValidator`
+    (`fullName` nullable; `email: z.union([z.literal(""), z.email().max(320)])` — `.refine()`
+    JSON Schema'ya çevrilmediği için union; `null` değil `""` çünkü `Customer.email` NOT NULL),
+    `IUpdateCustomerBody` / `IUpdateManagedCustomerEvent` / `buildCustomerUpdateData` tipleri.
+    Admin ve temsilci ucu aynı validator'ı kullandığı için ikisi birden kapsandı.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · `lint -w frontend`
+  0 error / 159 warning (baseline aynı; dokunulan dosyalarda 0 uyarı) ✅ · core 686/686 ✅ ·
+  functions 346/346 ✅ (yeni: `AdminApi/functions/customers/updateCustomerValidator.test.ts`,
+  3 test — `validators/` dışında, glob tuzağı yüzünden) · frontend 394/394 ✅ (yeni:
+  `customerEditor.test.ts`, 4 test) · `next build` "Compiled successfully" ✅.
+- **Kullanıcıda kalan (kubi, `sst dev --stage kubi`):** dialogu 1440 / 768 / 375 px'te aç
+  (başlık ve Kaydet her zaman görünür, gövde kayar, telefonda kenar boşluğu var); farklı
+  sektörden kullanım alanı seçip kaydet → yeniden açınca hepsi seçilenler çubuğunda; sektörü
+  değiştir → kullanım alanları korunur; veri girişinden yetkilisiz + e-postasız gelen bir
+  potansiyel müşteriyi admin ve temsilci panelinde kaydet. **Deploy notu:** frontend artık
+  `fullName: null` / `email: ""` gönderebildiği için backend (validator) ile BİRLİKTE deploy
+  edilmeli — yalnız frontend giderse bu kayıtlar eski validator'da 400 alır.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

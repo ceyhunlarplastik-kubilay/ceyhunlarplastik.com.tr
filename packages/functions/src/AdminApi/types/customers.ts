@@ -38,7 +38,7 @@ export type IGetCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
 
 export type IUpdateCustomerBody = {
     companyName?: string | null
-    fullName?: string
+    fullName?: string | null
     phone?: string
     email?: string
     note?: string | null

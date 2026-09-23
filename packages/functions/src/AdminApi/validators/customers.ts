@@ -348,9 +348,14 @@ export const updateCustomerValidator = validatorWrapper(
         }),
         body: z.object({
             companyName: z.string().trim().max(255).nullable().optional(),
-            fullName: z.string().trim().min(2).max(255).optional(),
+            // Yetkili adı ve e-posta boş olabilir: veri girişi potansiyel müşteriyi
+            // bunlar olmadan kaydediyor (fullName null, email ""); bu uç o kayıtları
+            // da güncelleyebilmeli. `.refine()` JSON Schema'ya çevrilmediği için boş
+            // e-posta union ile yazılır (bkz. leadCustomers.ts). null DEĞİL "":
+            // `Customer.email` NOT NULL.
+            fullName: z.string().trim().min(2).max(255).nullable().optional(),
             phone: z.string().trim().min(5).max(50).optional(),
-            email: z.email().optional(),
+            email: z.union([z.literal(""), z.email().max(320)]).optional(),
             note: z.string().trim().max(5000).nullable().optional(),
             status: z.enum(["LEAD", "CUSTOMER"]).optional(),
             generalDiscountPercent: z.number().min(0).max(100).nullable().optional(),

@@ -165,6 +165,13 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   çalıştırma: varsayılan 2 boşluğa çevirip küçük bir değişikliği yüzlerce satırlık diff'e dönüştürür.
 - shadcn `SelectTrigger` varsayılanı `w-fit`'tir; ızgara/flex sütununu doldurması gerektiğinde
   `className="w-full"` vermeyi unutma, yoksa alan içeriğe göre daralır.
+- `DialogContent`'e öneksiz `max-w-*` VERME: tailwind-merge primitive'in
+  `max-w-[calc(100%-2rem)]`'sini siler, dialog telefonda ekran kenarına yapışır — `sm:max-w-*`
+  kullan. Uzun formlu dialogda yükseklik sınırı + kayan gövde şart, yoksa başlık ve Kaydet butonu
+  ekran dışına taşar (desen: `EditCustomerProfileDialog` — içerik `flex max-h-[…100dvh…] flex-col
+  p-0`, gövde `min-h-0 flex-1 overflow-y-auto`, sabit footer). İçinde `sticky` öğe olan kutuda
+  `overflow-hidden` değil `overflow-clip` kullan: hidden kendi scroll bağlamını kurar ve sticky
+  öğe dış scroll'a yapışmaz.
 - Client component'e ham API objesi / büyük DTO'yu prop olarak geçme — RSC flight
   payload'una serialize olup tarayıcıya iner (6MB/performans sınıfının kök nedeni).
   Server'da daralt/grupla, client'a görüntülenecek kadarını ver.

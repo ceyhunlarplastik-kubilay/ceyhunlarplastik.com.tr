@@ -260,7 +260,7 @@ export type IOptimizeManagedCustomerRouteEvent = IAPIGatewayProxyEventWithUserGe
 export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
     {
         companyName?: string | null
-        fullName?: string
+        fullName?: string | null
         phone?: string
         email?: string
         note?: string | null

@@ -51,6 +51,56 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   (Lambda: deprecated 2026-04-30, güncelleme engeli **2027-03-03**) → `nodejs24.x`'e
   taşınmalı; VPC + Prisma bağımlılığı yüzünden ayrı, kısa bir dilim.
 
+### Müşteri çoklu telefon — Dilim 2 (altyapı + migration) + Dilim 3 (arayüz) *(kullanıcı talebiyle, Dilim 1 ✅ 2026-09-23 LOG)*
+- **Ne:** Potansiyel ve cari müşterilere birden fazla telefon eklenebilsin ve
+  listelensin. Bugün yalnız `Customer.phone String` var; şema, API, form ve
+  listelerin hiçbiri çoklu numara taşımıyor.
+- **Karar (kullanıcı, 2026-09-23):** ayrı `CustomerPhone` tablosu + opsiyonel
+  etiket (`number`, `label?`, `displayOrder`, `onDelete: Cascade`,
+  `@@index([customerId, displayOrder])`), ilişki adı `Customer.additionalPhones`.
+  `Customer.phone` BİRİNCİL numara olarak aynen kalır — arama, harita, iş talebi
+  snapshot'ı, public form, ürün→müşteri tablosu gibi mevcut okuyucular değişmez.
+  Etiketsiz `String[]` alternatifi reddedildi (etiket yok; ek numarayla `contains`
+  araması Prisma'da yapılamıyor).
+- **Dilim 2 — altyapı:** migration yalnız `CREATE TABLE` + index + FK, geri
+  doldurma YOK (SQL `prisma migrate diff` ile üretilecek, kubi'ye uygulama
+  kullanıcıda). Saf `core/helpers/crm/customerPhones.ts` (trim, boşları at,
+  birincille ve kendi aralarında `normalizePhoneNumberToE164` anahtarıyla
+  tekilleştir, en fazla 10) + test. Yazma: `updateCustomerValidator` +
+  `buildCustomerUpdateData` (admin `PUT /customers/{id}` ve temsilci
+  `PUT /sales/customers/{id}` ORTAK; adreslerdeki gibi `deleteMany` + `create`),
+  `/lead-customers` create/update. Okuma: `customerBaseInclude` /
+  `customerDetailInclude`, `leadCustomerSelect` + `mapLeadCustomer`. Arama:
+  `listCustomers`, lead `buildSearchWhere`, `listCustomersForMap` ek numaraları da tarar.
+- **⚠️ Tuzak:** `leadCustomerSummarySchema` (`AdminApi/validators/leadCustomers.ts`)
+  `.loose()` DEĞİL — `additionalPhones` şemaya eklenmezse `/lead-customers` VE
+  `/sales/lead-customers` 500 verir. Helper'ın dönüş tipiyle yazılmış bir
+  response-shape testi eklenmeli (`validators/` klasörünün DIŞINDA).
+- **Dilim 3 — arayüz:** ortak `CustomerPhonesField` (RHF `useFieldArray`; birincil
+  numara + "Telefon ekle" ile numara/etiket satırları) → `EditCustomerProfileDialog`
+  (Dilim 1'de yeniden tasarlandı; "Genel Bilgiler"deki Telefon alanının yerine) ve
+  `LeadCustomerProfileDialog`. Ortak `CustomerPhoneList` (`tel:` linkleri + etiket)
+  → `CustomersPageClient` (admin tablo), `CustomerOverviewPageClient`,
+  `SalesCustomerOverviewPageClient`, `SalesActiveCustomerCard`,
+  `SalesCustomersPageClient`, `LeadCustomerCard` (veri girişi + temsilci
+  Potansiyel Müşteriler). Tekrarlı numara kontrolü form şemasında da olsun
+  (istemcide `superRefine` serbest; sunucuda kural helper'da).
+- **Kapsam dışı (birincil numarayla kalır):** müşteri portalı profil talebi
+  (`CUSTOMER_PROFILE_CHANGE`), public web formu, harita popup'ı, ürün→müşteri
+  tablosu, kampanya duyuruları.
+
+### Dialog'larda mobil kenar boşluğu — öneksiz `max-w-*` · kapsam: küçük-orta, opsiyonel *(2026-09-23 gözlemi, denetlenmedi)*
+- `DialogContent`'e öneksiz `max-w-*` verilince primitive'in
+  `max-w-[calc(100%-2rem)]`'si tailwind-merge ile SİLİNİYOR (twMerge ile
+  doğrulandı) → dialog telefonda ekran kenarına yapışıyor. `EditCustomerProfileDialog`
+  düzeltildi (`sm:max-w-*`); aynı desen tek satırlık `className`'lerde **en az 36
+  dialogda** daha var (`grep -rn '<DialogContent className="[^"]*"' packages/frontend
+  | grep -v 'sm:max-w'`; çok satırlı `DialogContent`'ler bu sayıma girmiyor).
+  Bir kısmında (`CompanyContactsPageClient`, `SupplierFormDialog`,
+  `EditVariantSupplierDialog`…) yükseklik sınırı da yok. Mekanik düzeltme:
+  `max-w-X` → `sm:max-w-X`; uzun formlarda `EditCustomerProfileDialog` deseni
+  (sabit başlık/footer + kayan gövde). Görsel QA gerektirir.
+
 ### Veri girişi ürünler sayfasına sektör/üretim grubu/kullanım alanı filtresi *(kullanıcı talebiyle ertelendi, 2026-09-17 LOG)*
 - **Ne:** `/veri-girisi/products` (`ProductsPageClient`/`useProductListFilters`)
   şu an yalnız kategoriye göre filtrelenebiliyor; sektör/üretim grubu/kullanım

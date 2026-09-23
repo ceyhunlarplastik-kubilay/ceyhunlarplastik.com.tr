@@ -31,9 +31,21 @@ function optionalNullableNumber(
 
 export const customerEditorSchema = z.object({
     companyName: optionalText(255),
-    fullName: z.string().trim().min(2, "Yetkili adı en az 2 karakter olmalıdır").max(255, "Yetkili adı çok uzun"),
+    // Yetkili adı ve e-posta OPSİYONEL: veri girişi paneli potansiyel müşteriyi
+    // bunlar olmadan kaydedebiliyor (fullName null, email ""). Burada zorunlu
+    // tutmak o kayıtları bu dialogda hiç kaydedilemez hâle getiriyordu.
+    fullName: z.string()
+        .trim()
+        .max(255, "Yetkili adı çok uzun")
+        .refine((value) => !value || value.length >= 2, "Yetkili adı en az 2 karakter olmalıdır"),
     phone: z.string().trim().min(5, "Telefon çok kısa").max(50, "Telefon çok uzun"),
-    email: z.email("Geçerli bir e-posta adresi girin"),
+    email: z.string()
+        .trim()
+        .max(320, "E-posta çok uzun")
+        .refine(
+            (value) => !value || z.email().safeParse(value).success,
+            "Geçerli bir e-posta adresi girin",
+        ),
     note: optionalText(5000),
     status: z.enum(["LEAD", "CUSTOMER"]),
     assignedSalesUserId: z.string().trim().optional().transform((value) => value || ""),
@@ -108,7 +120,9 @@ export function buildCustomerUpdatePayload(customerId: string, values: CustomerE
     return {
         id: customerId,
         companyName: values.companyName || null,
-        fullName: values.fullName,
+        // Boş yetkili null yazılır (şema nullable). Boş e-posta ise "" kalır:
+        // `Customer.email` NOT NULL, veri girişi yüzeyi de boşu "" ile temsil ediyor.
+        fullName: values.fullName || null,
         phone: values.phone,
         email: values.email,
         note: values.note || null,

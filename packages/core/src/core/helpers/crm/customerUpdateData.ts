@@ -5,7 +5,7 @@ import { prepareCustomerAddressInput } from "@/core/helpers/crm/customerAddressI
 
 type Input = {
     companyName?: string | null
-    fullName?: string
+    fullName?: string | null
     phone?: string
     email?: string
     note?: string | null

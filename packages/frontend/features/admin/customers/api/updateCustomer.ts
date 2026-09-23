@@ -4,7 +4,7 @@ import type { CustomerResponse, CustomerStatus } from "@/features/admin/customer
 export type UpdateCustomerInput = {
     id: string
     companyName?: string | null
-    fullName?: string
+    fullName?: string | null
     phone?: string
     email?: string
     note?: string | null
