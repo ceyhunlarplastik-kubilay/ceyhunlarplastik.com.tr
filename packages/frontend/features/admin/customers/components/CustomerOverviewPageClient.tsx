@@ -14,6 +14,7 @@ import { useCompanyContacts } from "@/features/admin/companyContacts/hooks/useCo
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
 import { useUsers } from "@/features/admin/users/hooks/useUsers"
 import { ManagedCustomerAddressesSection } from "@/features/customerLocations/components/ManagedCustomerAddressesSection"
+import { CustomerPhoneList } from "@/features/customerPhones/components/CustomerPhoneList"
 import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
 import { formatDiscountBadge, formatMoney, formatPaymentTermLabel } from "@/lib/customers/pricing"
 import { getUserDisplayName } from "@/lib/users/displayName"
@@ -142,7 +143,12 @@ export function CustomerOverviewPageClient({ customerId }: Props) {
                                 İletişim
                             </div>
                             <div className="mt-2 text-sm font-medium text-neutral-900">{customer.email}</div>
-                            <div className="mt-1 text-xs text-neutral-500">{customer.phone}</div>
+                            <CustomerPhoneList
+                                phone={customer.phone}
+                                additionalPhones={customer.additionalPhones}
+                                layout="stacked"
+                                className="mt-1 text-xs text-neutral-500"
+                            />
                         </div>
                         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">

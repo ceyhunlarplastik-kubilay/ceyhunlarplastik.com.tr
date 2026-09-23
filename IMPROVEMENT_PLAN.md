@@ -51,43 +51,15 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   (Lambda: deprecated 2026-04-30, güncelleme engeli **2027-03-03**) → `nodejs24.x`'e
   taşınmalı; VPC + Prisma bağımlılığı yüzünden ayrı, kısa bir dilim.
 
-### Müşteri çoklu telefon — Dilim 2 (altyapı + migration) + Dilim 3 (arayüz) *(kullanıcı talebiyle, Dilim 1 ✅ 2026-09-23 LOG)*
-- **Ne:** Potansiyel ve cari müşterilere birden fazla telefon eklenebilsin ve
-  listelensin. Bugün yalnız `Customer.phone String` var; şema, API, form ve
-  listelerin hiçbiri çoklu numara taşımıyor.
-- **Karar (kullanıcı, 2026-09-23):** ayrı `CustomerPhone` tablosu + opsiyonel
-  etiket (`number`, `label?`, `displayOrder`, `onDelete: Cascade`,
-  `@@index([customerId, displayOrder])`), ilişki adı `Customer.additionalPhones`.
-  `Customer.phone` BİRİNCİL numara olarak aynen kalır — arama, harita, iş talebi
-  snapshot'ı, public form, ürün→müşteri tablosu gibi mevcut okuyucular değişmez.
-  Etiketsiz `String[]` alternatifi reddedildi (etiket yok; ek numarayla `contains`
-  araması Prisma'da yapılamıyor).
-- **Dilim 2 — altyapı:** migration yalnız `CREATE TABLE` + index + FK, geri
-  doldurma YOK (SQL `prisma migrate diff` ile üretilecek, kubi'ye uygulama
-  kullanıcıda). Saf `core/helpers/crm/customerPhones.ts` (trim, boşları at,
-  birincille ve kendi aralarında `normalizePhoneNumberToE164` anahtarıyla
-  tekilleştir, en fazla 10) + test. Yazma: `updateCustomerValidator` +
-  `buildCustomerUpdateData` (admin `PUT /customers/{id}` ve temsilci
-  `PUT /sales/customers/{id}` ORTAK; adreslerdeki gibi `deleteMany` + `create`),
-  `/lead-customers` create/update. Okuma: `customerBaseInclude` /
-  `customerDetailInclude`, `leadCustomerSelect` + `mapLeadCustomer`. Arama:
-  `listCustomers`, lead `buildSearchWhere`, `listCustomersForMap` ek numaraları da tarar.
-- **⚠️ Tuzak:** `leadCustomerSummarySchema` (`AdminApi/validators/leadCustomers.ts`)
-  `.loose()` DEĞİL — `additionalPhones` şemaya eklenmezse `/lead-customers` VE
-  `/sales/lead-customers` 500 verir. Helper'ın dönüş tipiyle yazılmış bir
-  response-shape testi eklenmeli (`validators/` klasörünün DIŞINDA).
-- **Dilim 3 — arayüz:** ortak `CustomerPhonesField` (RHF `useFieldArray`; birincil
-  numara + "Telefon ekle" ile numara/etiket satırları) → `EditCustomerProfileDialog`
-  (Dilim 1'de yeniden tasarlandı; "Genel Bilgiler"deki Telefon alanının yerine) ve
-  `LeadCustomerProfileDialog`. Ortak `CustomerPhoneList` (`tel:` linkleri + etiket)
-  → `CustomersPageClient` (admin tablo), `CustomerOverviewPageClient`,
-  `SalesCustomerOverviewPageClient`, `SalesActiveCustomerCard`,
-  `SalesCustomersPageClient`, `LeadCustomerCard` (veri girişi + temsilci
-  Potansiyel Müşteriler). Tekrarlı numara kontrolü form şemasında da olsun
-  (istemcide `superRefine` serbest; sunucuda kural helper'da).
-- **Kapsam dışı (birincil numarayla kalır):** müşteri portalı profil talebi
-  (`CUSTOMER_PROFILE_CHANGE`), public web formu, harita popup'ı, ürün→müşteri
-  tablosu, kampanya duyuruları.
+### Çoklu telefon — kapsam dışı kalan yüzeyler · kapsam: küçük, opsiyonel *(talep gelirse; özellik Dilim 1-3 ✅ 2026-09-23 LOG)*
+- Ek telefonlar admin/temsilci/veri girişi formlarında ve 6 CRM liste/kart yüzeyinde
+  var. Bilinçli olarak YALNIZ birincil numarayla kalanlar: müşteri portalı (profil
+  görünümü + `CUSTOMER_PROFILE_CHANGE` talebi — onay akışı ve snapshot'ı etkiler),
+  public web formu, harita popup'ı/akordeonu (`listCustomersForMap` yalnız `phone`
+  seçiyor), ürün→müşteri tablosu (`getProductMatchedCustomers`), kampanya duyuruları.
+- Genişletirken: gösterim `features/customerPhones/components/CustomerPhoneList`, veri
+  için ilgili select'e `customerPhoneSelect` ekle; select KATI bir yanıt şemasına
+  gidiyorsa şemayı da güncelle (bkz. AGENTS.md "When touching customer phone numbers").
 
 ### Dialog'larda mobil kenar boşluğu — öneksiz `max-w-*` · kapsam: küçük-orta, opsiyonel *(2026-09-23 gözlemi, denetlenmedi)*
 - `DialogContent`'e öneksiz `max-w-*` verilince primitive'in
@@ -284,6 +256,7 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
+- **`CustomerPhone` migration'ı — prod (2026-09-23, LOG)** — kubi'ye uygulandı ✅ (kullanıcı, 2026-09-23). Prod: kod deploy'undan ÖNCE `prisma migrate deploy` (README "Production RDS"). Yalnız yeni tablo ekler, mevcut veriye dokunmaz; ama migration uygulanmadan backend deploy edilirse müşteri uçlarının HEPSİ 500 verir (include her müşteri sorgusunda `CustomerPhone`'u okuyor).
 - **⚠️ PageHero banner'ı yorumda (2026-09-08, LOG)** — `components/sections/PageHero.tsx`'teki `<PageHeroBanner .../>` çağrısı kullanıcının isteğiyle geçici olarak yorumda; 13 public sayfada görsel/başlık banner'ı şu an görünmüyor, yalnız breadcrumb var. **Bu haliyle prod'a deploy EDİLMEMELİ.** Banner geri istenince tek satırlık yorum kaldırma.
 - **Tedarikçi sözlüğü teknik resmi CDN 404 düzeltmesi deploy edilmeli** (2026-09-08, LOG) — `infra/router.ts`'e `/product-supplier-codes` bucket route'u eklendi (kod hazır, commit edilmedi). `sst deploy --stage prod` sonrası `https://cdn.ceyhunlarplastik.xyz/product-supplier-codes/...` URL'lerinin açıldığını doğrula.
 - **SNS e-posta aboneliği onayı** — `kubilayuysal.ceyhunlarplastik@gmail.com` adresine gelen AWS "Subscription Confirmation" linkine tıklanmalı. Tıklanana kadar 6MB payload alarmı + concurrency/throttle alarmları tetiklense de **bildirim gönderilmez** (istek 3 günde düşer). Teyit: `aws sns list-subscriptions-by-topic` → `SubscriptionArn` "PendingConfirmation" değil.

@@ -298,6 +298,14 @@ Customer portal contact data is split into three intentionally different groups:
 
 `CompanyContact` records are display/contact records only. They do not create login accounts, panel roles, or authorization state. Admin/owner users manage the contact master data; sales users can manage assignments only for customers they are allowed to access. Customer portal reads should include only active contacts with active assignments, ordered by assignment display order, company contact display order, and creation time. Admin and sales detail surfaces may show inactive records for maintenance, but the portal must keep them hidden.
 
+Customer phone numbers follow the same "primary + additional" split:
+- `Customer.phone` stays the **primary** number; search, the map, business-request snapshots, the public lead form and the product→customer table read it
+- additional lines (accounting, purchasing, mobile…) live in `CustomerPhone` (`Customer.additionalPhones`) with an optional `label` and a `displayOrder`
+- writes are full replacements (`deleteMany` + `createMany`) and always go through `core/helpers/crm/customerPhones.ts`, which trims, drops empty rows, caps the list at 10 and de-duplicates by phone line (E.164 key via `normalizePhoneNumberToE164`), including against the primary number; uniqueness is an application rule, not a DB constraint, because the same line can be typed in different formats
+- admin/sales `PUT /customers/{id}` · `PUT /sales/customers/{id}` and the content-entry `POST/PUT /lead-customers` accept `additionalPhones`; omitting the field leaves existing rows untouched
+- customer list, map and lead-list searches also match additional numbers
+- frontend: the shared `features/customerPhones` feature owns the UI — `CustomerPhonesField` (primary + labelled additional rows, used by both the admin/sales editor and the content-entry lead dialog) and `CustomerPhoneList` (click-to-call `tel:` list used by the CRM tables, cards and overview pages). Display order comes from `listCustomerPhones`, and the form's duplicate check uses the server's `customerPhoneKey`, so client and server agree on what counts as the same line. The customer portal, the public form, the map popup, the product→customer table and campaign announcements intentionally still show only the primary number
+
 Customer records also support professional multi-address data through `CustomerAddress`.
 Address records are ordered and can be marked as primary, billing, and shipping so the portal and CRM can present operational contact points without flattening them into a single text field.
 Address normalization is intentionally progressive:

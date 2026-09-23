@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ChevronDown, Mail, Phone, Target } from "lucide-react"
+import { ChevronDown, Mail, Target } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { resolveCustomerNameParts } from "@core/helpers/crm/customerDisplayName"
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
 import { SalesActiveCustomerDetailPanel } from "@/features/sales/customers/components/SalesActiveCustomerDetailPanel"
+import { CustomerPhoneList } from "@/features/customerPhones/components/CustomerPhoneList"
 
 /**
  * "Cari Müşteriler" (satış paneli) kartı — `LeadCustomerCard` ile aynı görsel
@@ -46,10 +47,11 @@ export function SalesActiveCustomerCard({
                                 {customer.email}
                             </span>
                         ) : null}
-                        <span className="inline-flex items-center gap-1">
-                            <Phone className="h-3.5 w-3.5" />
-                            {customer.phone}
-                        </span>
+                        <CustomerPhoneList
+                            phone={customer.phone}
+                            additionalPhones={customer.additionalPhones}
+                            maxVisible={3}
+                        />
                     </div>
 
                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5">

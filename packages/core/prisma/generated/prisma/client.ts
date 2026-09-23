@@ -117,6 +117,18 @@ export type ProductIndustrialUsageTranslation = Prisma.ProductIndustrialUsageTra
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model CustomerPhone
+ * Müşterinin EK telefon numaraları ("Muhasebe", "Satın Alma", "Cep"...).
+ * Birincil numara `Customer.phone`'da kalır — mevcut okuyucular (arama, harita,
+ * iş talebi snapshot'ı, public form) ona bağlı olduğu için tek tabloya taşınmadı.
+ * 
+ * Yazma TAM DEĞİŞİMDİR (deleteMany + createMany) ve her zaman
+ * `core/helpers/crm/customerPhones.ts`'ten geçer: boşlar atılır, birincille ya da
+ * birbiriyle AYNI HAT olan numaralar tekilleştirilir ("0532 000 00 00" ile
+ * "+905320000000" aynıdır). Tekillik DB kısıtı DEĞİL, çünkü biçimler farklı olabilir.
+ */
+export type CustomerPhone = Prisma.CustomerPhoneModel
+/**
  * Model UserInvitation
  * 
  */

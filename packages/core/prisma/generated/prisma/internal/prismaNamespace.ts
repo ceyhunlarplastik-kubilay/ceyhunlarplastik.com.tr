@@ -412,6 +412,7 @@ export const ModelName = {
   ProductIndustrialUsage: 'ProductIndustrialUsage',
   ProductIndustrialUsageTranslation: 'ProductIndustrialUsageTranslation',
   Customer: 'Customer',
+  CustomerPhone: 'CustomerPhone',
   UserInvitation: 'UserInvitation',
   CustomerAttributeValueAssignment: 'CustomerAttributeValueAssignment',
   CompanyContact: 'CompanyContact',
@@ -464,7 +465,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "variantVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
+    modelProps: "user" | "userNotification" | "color" | "colorTranslation" | "category" | "categoryTranslation" | "product" | "productTranslation" | "productAttribute" | "productAttributeTranslation" | "productAttributeValue" | "productAttributeValueTranslation" | "productIndustrialUsage" | "productIndustrialUsageTranslation" | "customer" | "customerPhone" | "userInvitation" | "customerAttributeValueAssignment" | "companyContact" | "customerCompanyContactAssignment" | "geoCountry" | "geoState" | "geoCity" | "webRequest" | "productVariant" | "productMeasurementRequirement" | "productMeasurementRequirementTranslation" | "productSize" | "productSizeValue" | "variantVersion" | "productSupplierCode" | "measurementType" | "measurementTypeTranslation" | "supplier" | "customerAssignedProduct" | "customerAddress" | "geocodingCache" | "customerVisit" | "productVariantSupplier" | "productVariantCampaign" | "productVariantCampaignItem" | "campaignAnnouncement" | "campaignAnnouncementRecipient" | "customerVariantSpecialPrice" | "businessRequest" | "order" | "orderItem" | "businessRequestItem" | "businessRequestApprovalStep" | "activityLog" | "material" | "materialTranslation" | "asset"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1575,6 +1576,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CustomerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CustomerCountAggregateOutputType> | number
+        }
+      }
+    }
+    CustomerPhone: {
+      payload: Prisma.$CustomerPhonePayload<ExtArgs>
+      fields: Prisma.CustomerPhoneFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerPhoneFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerPhoneFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerPhoneFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerPhoneFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerPhoneFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerPhoneCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerPhoneCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerPhoneCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerPhoneDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>
+        }
+        update: {
+          args: Prisma.CustomerPhoneUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerPhoneDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerPhoneUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerPhoneUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerPhoneUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPhonePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerPhoneAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerPhone>
+        }
+        groupBy: {
+          args: Prisma.CustomerPhoneGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPhoneGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerPhoneCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPhoneCountAggregateOutputType> | number
         }
       }
     }
@@ -4590,6 +4665,19 @@ export const CustomerScalarFieldEnum = {
 export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
+export const CustomerPhoneScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  number: 'number',
+  label: 'label',
+  displayOrder: 'displayOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerPhoneScalarFieldEnum = (typeof CustomerPhoneScalarFieldEnum)[keyof typeof CustomerPhoneScalarFieldEnum]
+
+
 export const UserInvitationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -5983,6 +6071,7 @@ export type GlobalOmitConfig = {
   productIndustrialUsage?: Prisma.ProductIndustrialUsageOmit
   productIndustrialUsageTranslation?: Prisma.ProductIndustrialUsageTranslationOmit
   customer?: Prisma.CustomerOmit
+  customerPhone?: Prisma.CustomerPhoneOmit
   userInvitation?: Prisma.UserInvitationOmit
   customerAttributeValueAssignment?: Prisma.CustomerAttributeValueAssignmentOmit
   companyContact?: Prisma.CompanyContactOmit

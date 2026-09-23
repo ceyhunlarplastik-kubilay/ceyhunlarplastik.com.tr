@@ -61,3 +61,50 @@ describe("buildCustomerUpdatePayload", () => {
         expect(payload.productionGroupValueId).toBe("group-1")
     })
 })
+
+describe("ek telefonlar", () => {
+    const customer = {
+        id: CUSTOMER_ID,
+        fullName: null,
+        phone: "0232 000 00 00",
+        additionalPhones: [
+            { id: "7c9d2e1f-3b4a-4c5d-8e6f-0a1b2c3d4e5f", number: "0532 444 55 66", label: null, displayOrder: 1 },
+            { id: "2a4e1c0e-5a0b-4f0a-9f7e-6e1f1d2c3b4a", number: "0232 111 22 33", label: "Muhasebe", displayOrder: 0 },
+        ],
+        email: "",
+        status: "LEAD" as const,
+        createdAt: "2026-09-23T00:00:00.000Z",
+        updatedAt: "2026-09-23T00:00:00.000Z",
+    }
+
+    it("mevcut ek numaraları forma yükler ve kayıtta TAMAMINI geri gönderir", () => {
+        const result = customerEditorSchema.safeParse(createCustomerEditorDefaults(customer))
+
+        expect(result.success).toBe(true)
+        if (!result.success) return
+
+        // API sırasıyla (displayOrder) gelir; form aynı sırayı korur.
+        expect(buildCustomerUpdatePayload(CUSTOMER_ID, result.data).additionalPhones).toEqual([
+            { number: "0532 444 55 66", label: null },
+            { number: "0232 111 22 33", label: "Muhasebe" },
+        ])
+    })
+
+    it("tüm satırlar silinirse boş liste gönderir (sunucuda da silinsin)", () => {
+        const result = parse({ additionalPhones: [] })
+
+        expect(result.success).toBe(true)
+        if (!result.success) return
+
+        expect(buildCustomerUpdatePayload(CUSTOMER_ID, result.data).additionalPhones).toEqual([])
+    })
+
+    it("birincil numaranın tekrarını ek satırda işaretler", () => {
+        const result = parse({ additionalPhones: [{ number: "+90 232 000 00 00", label: "" }] })
+
+        expect(result.success).toBe(false)
+        if (result.success) return
+
+        expect(result.error.issues.map((issue) => issue.path)).toEqual([["additionalPhones", 0, "number"]])
+    })
+})

@@ -45,6 +45,7 @@ import {
     useUpdateLeadCustomer,
 } from "@/features/admin/leadCustomers/hooks/useLeadCustomers"
 import { LeadCustomerUsageAreaPicker } from "./LeadCustomerUsageAreaPicker"
+import { CustomerPhonesField } from "@/features/customerPhones/components/CustomerPhonesField"
 import {
     buildLeadCustomerPayload,
     createLeadCustomerFormDefaults,
@@ -224,19 +225,6 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                     />
                                     <FormField
                                         control={form.control}
-                                        name="phone"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Telefon *</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="0532 000 00 00" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
                                         name="email"
                                         render={({ field }) => (
                                             <FormItem>
@@ -260,6 +248,9 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                         )}
                                     />
                                 </div>
+
+                                {/* Admin/temsilci dialoguyla ORTAK: birincil + etiketli ek numaralar. */}
+                                <CustomerPhonesField />
 
                                 <FormField
                                     control={form.control}

@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { ChevronDown, Globe, Mail, Phone, Target, Trash2 } from "lucide-react"
+import { ChevronDown, Globe, Mail, Target, Trash2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,7 @@ import { resolveCustomerNameParts } from "@core/helpers/crm/customerDisplayName"
 import { formatWebsiteLabel } from "@core/helpers/crm/customerWebsite"
 import { ConfirmDeleteDialog } from "@/features/admin/shared/components/ConfirmDeleteDialog"
 import type { LeadCustomer } from "@/features/admin/leadCustomers/api/types"
+import { CustomerPhoneList } from "@/features/customerPhones/components/CustomerPhoneList"
 import { LeadCustomerDetailPanel } from "./LeadCustomerDetailPanel"
 
 const DELETE_CONFIRMATION = "KALICI OLARAK SİL"
@@ -102,10 +103,11 @@ export function LeadCustomerCard({
                                 {customer.email}
                             </span>
                         ) : null}
-                        <span className="inline-flex items-center gap-1">
-                            <Phone className="h-3.5 w-3.5" />
-                            {customer.phone}
-                        </span>
+                        <CustomerPhoneList
+                            phone={customer.phone}
+                            additionalPhones={customer.additionalPhones}
+                            maxVisible={3}
+                        />
                         {websiteLabel ? (
                             <a
                                 href={customer.websiteUrl ?? undefined}

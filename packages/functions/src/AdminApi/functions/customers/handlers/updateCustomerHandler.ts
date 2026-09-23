@@ -24,7 +24,9 @@ export const updateCustomerHandler = ({
             throw new createError.NotFound("Customer not found")
         }
 
-        const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {})
+        const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {}, {
+            currentPhone: existing.phone,
+        })
         const updated = await customerRepository.updateCustomer(existing.id, data)
         const customer = event.body?.companyContactAssignments !== undefined
             ? await customerRepository.replaceCompanyContactAssignments(

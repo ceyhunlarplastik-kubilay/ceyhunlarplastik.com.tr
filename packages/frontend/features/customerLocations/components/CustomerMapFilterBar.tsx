@@ -102,7 +102,7 @@ export function CustomerMapFilterBar({
                                 onApply()
                             }
                         }}
-                        placeholder="Firma, kişi veya e-posta ara"
+                        placeholder="Firma, kişi, e-posta veya telefon ara"
                         className="h-11 rounded-2xl pl-9"
                     />
                 </div>

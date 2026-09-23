@@ -12,6 +12,7 @@ import {
     CreditCard,
     Headset,
     Loader2,
+    Phone,
     ReceiptText,
     Save,
     Shapes,
@@ -37,6 +38,7 @@ import { resolveCustomerDisplayName } from "@core/helpers/crm/customerDisplayNam
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
 import type { CompanyContact } from "@/features/admin/companyContacts/api/types"
 import { LeadCustomerUsageAreaPicker } from "@/features/admin/leadCustomers/components/LeadCustomerUsageAreaPicker"
+import { CustomerPhonesField } from "@/features/customerPhones/components/CustomerPhonesField"
 import {
     createCustomerEditorDefaults,
     customerEditorSchema,
@@ -321,7 +323,7 @@ export function EditCustomerProfileDialog({
                                 {" · "}
                             </span>
                         ) : null}
-                        Temel bilgiler, endüstriyel profil ve ticari şartlar.
+                        Temel bilgiler, iletişim, endüstriyel profil ve ticari şartlar.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -338,7 +340,7 @@ export function EditCustomerProfileDialog({
                                 <FormSection
                                     icon={<Building2 />}
                                     title="Genel Bilgiler"
-                                    description="Firma kimliği, iletişim bilgileri ve müşteri temsilcisi ataması."
+                                    description="Firma kimliği, durum ve müşteri temsilcisi ataması."
                                 >
                                     <div className="grid gap-4 sm:grid-cols-2">
                                         <FormField
@@ -365,47 +367,6 @@ export function EditCustomerProfileDialog({
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input {...field} placeholder="Ad Soyad" autoComplete="off" />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="phone"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Telefon *</FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            {...field}
-                                                            type="tel"
-                                                            inputMode="tel"
-                                                            autoComplete="off"
-                                                            placeholder="0532 000 00 00"
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>
-                                                        E-posta
-                                                        <OptionalHint />
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            {...field}
-                                                            type="email"
-                                                            inputMode="email"
-                                                            autoComplete="off"
-                                                            placeholder="ornek@firma.com"
-                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -475,6 +436,38 @@ export function EditCustomerProfileDialog({
                                             )}
                                         />
                                     </div>
+                                </FormSection>
+
+                                <FormSection
+                                    icon={<Phone />}
+                                    title="İletişim"
+                                    description="Birincil numara aramada, haritada ve iş taleplerinde kullanılır; muhasebe, satın alma gibi ek hatları etiketiyle ekleyin."
+                                >
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        E-posta
+                                                        <OptionalHint />
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            type="email"
+                                                            inputMode="email"
+                                                            autoComplete="off"
+                                                            placeholder="ornek@firma.com"
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <CustomerPhonesField />
                                 </FormSection>
 
                                 <FormSection

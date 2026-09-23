@@ -1,4 +1,5 @@
 import type { Product } from "@/features/public/products/types"
+import type { CustomerPhone } from "@/features/customerPhones/types"
 
 export type UserSummary = {
     id: string
@@ -338,7 +339,9 @@ export type AdminCustomer = {
     id: string
     companyName?: string | null
     fullName: string | null
+    /** Birincil numara; ek hatlar `additionalPhones`'ta. */
     phone: string
+    additionalPhones?: CustomerPhone[]
     email: string
     note?: string | null
     status: CustomerStatus

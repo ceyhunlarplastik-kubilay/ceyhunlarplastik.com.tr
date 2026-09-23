@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
-import { BadgePercent, CalendarClock, CreditCard, Mail, Phone, UserRound } from "lucide-react"
+import { BadgePercent, CalendarClock, CreditCard, Mail, UserRound } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { EditCustomerProfileDialog } from "@/features/admin/customers/components/EditCustomerProfileDialog"
 import { ManagedCustomerAddressesSection } from "@/features/customerLocations/components/ManagedCustomerAddressesSection"
+import { CustomerPhoneList } from "@/features/customerPhones/components/CustomerPhoneList"
 import { useProtectedUsers } from "@/features/customerLocations/hooks/useProtectedUsers"
 import { buildCustomerUpdatePayload, type CustomerEditorFormValues } from "@/features/admin/customers/schema/customerEditor"
 import { useCustomerProfileAttributes } from "@/features/sales/customers/hooks/useCustomerProfileAttributes"
@@ -126,10 +127,12 @@ export function SalesCustomerOverviewPageClient({ customerId, canListUsers = fal
                                 İletişim
                             </div>
                             <div className="mt-2 text-sm font-medium text-neutral-900">{customer.email}</div>
-                            <div className="mt-1 inline-flex items-center gap-1 text-xs text-neutral-500">
-                                <Phone className="h-3.5 w-3.5" />
-                                {customer.phone}
-                            </div>
+                            <CustomerPhoneList
+                                phone={customer.phone}
+                                additionalPhones={customer.additionalPhones}
+                                layout="stacked"
+                                className="mt-1 text-xs text-neutral-500"
+                            />
                         </div>
                         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
                             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-neutral-400">

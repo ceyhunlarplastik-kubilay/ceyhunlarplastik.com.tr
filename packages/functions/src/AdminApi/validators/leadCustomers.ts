@@ -1,6 +1,10 @@
 import { z } from "zod"
 
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import {
+    customerAdditionalPhonesInputSchema,
+    customerPhoneResponseSchema,
+} from "@/functions/AdminApi/validators/customers"
 
 /**
  * Bu yüzey BİLİNÇLİ olarak dardır: iskonto, kredi limiti, vade, satış temsilcisi
@@ -14,6 +18,8 @@ const profileBodySchema = z.object({
     companyName: z.string().trim().min(2).max(255),
     fullName: z.string().trim().max(255).nullable().optional(),
     phone: z.string().trim().min(5).max(50),
+    // Verilirse TAM DEĞİŞİM; verilmezse ek numaralara dokunulmaz (eski istemciler).
+    additionalPhones: customerAdditionalPhonesInputSchema.optional(),
     // `.refine()` JSON Schema'ya çevrilmez; validatorWrapper yalnız şemayı üretir.
     // Boş dize + e-posta birleşimi union ile yazılmalı ki `format`/`pattern` korunsun.
     email: z.union([z.literal(""), z.email().max(320)])
@@ -174,6 +180,9 @@ const leadCustomerSummarySchema = z.object({
     companyName: z.string(),
     fullName: z.string().nullable(),
     phone: z.string(),
+    // Bu şema KATI (`.loose()` yok): alan burada olmazsa uç 500 verirdi.
+    // Koruma: AdminApi/functions/leadCustomers/leadCustomerContract.test.ts
+    additionalPhones: z.array(customerPhoneResponseSchema),
     email: z.string(),
     note: z.string().nullable(),
     sectorValue: attributeValueSchema.nullable(),

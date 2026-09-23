@@ -392,6 +392,8 @@ model Customer {
   /// public web formunda ise ZORUNLUDUR (orada kişi kendini kaydeder). Kısıt bu
   /// yüzden şemada değil, yüzeye özel validator'larda.
   fullName               String?
+  /// BİRİNCİL telefon. Arama, harita, iş talebi snapshot'ı, public form ve
+  /// ürün→müşteri tablosu bunu okur. Ek numaralar `additionalPhones`'ta.
   phone                  String
   email                  String
   /// Firma web sitesi. Normalize edilerek saklanır ("acme.com" → "https://acme.com");
@@ -424,6 +426,7 @@ model Customer {
   userInvitations           UserInvitation[]
   assignedProducts          CustomerAssignedProduct[]
   addresses                 CustomerAddress[]
+  additionalPhones          CustomerPhone[]
   visits                    CustomerVisit[]
   businessRequests          BusinessRequest[]
   orders                    Order[]
@@ -438,6 +441,31 @@ model Customer {
   @@index([assignedSalesUserId, status, createdAt])
   @@index([sectorValueId])
   @@index([productionGroupValueId])
+}
+
+/// Müşterinin EK telefon numaraları ("Muhasebe", "Satın Alma", "Cep"...).
+/// Birincil numara `Customer.phone`'da kalır — mevcut okuyucular (arama, harita,
+/// iş talebi snapshot'ı, public form) ona bağlı olduğu için tek tabloya taşınmadı.
+///
+/// Yazma TAM DEĞİŞİMDİR (deleteMany + createMany) ve her zaman
+/// `core/helpers/crm/customerPhones.ts`'ten geçer: boşlar atılır, birincille ya da
+/// birbiriyle AYNI HAT olan numaralar tekilleştirilir ("0532 000 00 00" ile
+/// "+905320000000" aynıdır). Tekillik DB kısıtı DEĞİL, çünkü biçimler farklı olabilir.
+model CustomerPhone {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  /// Kullanıcının yazdığı biçimde saklanır (birincil `phone` ile aynı kural).
+  number       String
+  label        String?
+  displayOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId, displayOrder])
 }
 
 model UserInvitation {

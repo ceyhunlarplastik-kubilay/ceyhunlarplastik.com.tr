@@ -4,6 +4,7 @@ import { IPrismaProductRepository } from "@/core/helpers/prisma/products/reposit
 import { IPrismaProductVariantRepository } from "@/core/helpers/prisma/productVariants/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
+import type { CustomerAdditionalPhoneInput } from "@/core/helpers/crm/customerPhones"
 import type { CustomerStatus, CustomerVisitStatus, CustomerVisitType, CustomerVisitOutcome } from "@/prisma/generated/prisma/enums"
 
 export interface ICustomerDependencies {
@@ -52,6 +53,8 @@ export type IUpdateCustomerBody = {
     sectorValueId?: string | null
     productionGroupValueId?: string | null
     usageAreaValueIds?: string[]
+    /** Verilirse TAM DEĞİŞİM (bkz. `core/helpers/crm/customerPhones.ts`). */
+    additionalPhones?: CustomerAdditionalPhoneInput[]
     companyContactAssignments?: CustomerCompanyContactAssignmentInput[]
     addresses?: Array<{
         label: string

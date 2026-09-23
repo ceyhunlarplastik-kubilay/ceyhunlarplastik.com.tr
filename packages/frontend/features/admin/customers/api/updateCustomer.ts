@@ -1,4 +1,5 @@
 import { adminApiClient } from "@/lib/http/client"
+import type { CustomerAdditionalPhoneInput } from "@core/helpers/crm/customerPhones"
 import type { CustomerResponse, CustomerStatus } from "@/features/admin/customers/api/types"
 
 export type UpdateCustomerInput = {
@@ -6,6 +7,8 @@ export type UpdateCustomerInput = {
     companyName?: string | null
     fullName?: string | null
     phone?: string
+    /** Verilirse TAM DEĞİŞİM (listede olmayan ek numaralar silinir); verilmezse dokunulmaz. */
+    additionalPhones?: CustomerAdditionalPhoneInput[]
     email?: string
     note?: string | null
     status?: CustomerStatus

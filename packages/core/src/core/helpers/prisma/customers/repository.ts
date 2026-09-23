@@ -47,7 +47,43 @@ const customerUserSummarySelect = {
     },
 } as any
 
+/**
+ * Ek telefonların API'ye çıkan şekli. Veri girişi yüzeyi (`leadCustomers.ts`)
+ * de bunu kullanır; oradaki yanıt şeması KATI olduğu için alan listesi
+ * `leadCustomerSummarySchema` ile birebir aynı kalmalı.
+ */
+export const customerPhoneSelect = {
+    id: true,
+    number: true,
+    label: true,
+    displayOrder: true,
+} satisfies Prisma.CustomerPhoneSelect
+
+export const customerPhoneOrderBy = [
+    { displayOrder: "asc" },
+    { createdAt: "asc" },
+] satisfies Prisma.CustomerPhoneOrderByWithRelationInput[]
+
+/**
+ * Birincil `phone`'a ek olarak EK numaralarda da arar — satış temsilcisi
+ * muhasebeden arayan numarayla da müşteriyi bulabilmeli.
+ */
+export function buildCustomerAdditionalPhoneSearchWhere(search: string): Prisma.CustomerWhereInput {
+    return {
+        additionalPhones: {
+            some: {
+                number: { contains: search, mode: "insensitive" },
+            },
+        },
+    }
+}
+
 const customerBaseInclude = {
+    // Birincil numara `Customer.phone` skaler alanında; bunlar EK numaralar.
+    additionalPhones: {
+        select: customerPhoneSelect,
+        orderBy: customerPhoneOrderBy,
+    },
     sectorValue: {
         include: {
             attribute: true,
@@ -631,6 +667,10 @@ export const customerRepository = (): IPrismaCustomerRepository => {
 
         const finalWhere: Prisma.CustomerWhereInput = {
             ...where,
+            // Genel arama skaler alanlara bakıyor; ek numaralar ilişki üzerinden eklenir.
+            ...(query.search && Array.isArray(where.OR)
+                ? { OR: [...where.OR, buildCustomerAdditionalPhoneSearchWhere(query.search)] }
+                : {}),
             ...(query.status ? { status: query.status } : {}),
             ...(query.assignedSalesUserId ? { assignedSalesUserId: query.assignedSalesUserId } : {}),
             ...(query.sectorValueId ? { sectorValueId: query.sectorValueId } : {}),
@@ -735,6 +775,7 @@ export const customerRepository = (): IPrismaCustomerRepository => {
                             { companyName: { contains: search, mode: "insensitive" } },
                             { email: { contains: search, mode: "insensitive" } },
                             { phone: { contains: search, mode: "insensitive" } },
+                            buildCustomerAdditionalPhoneSearchWhere(search),
                         ],
                     }
                     : {}),

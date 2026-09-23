@@ -418,7 +418,9 @@ export const updateManagedCustomerHandler = ({
 
         assertCustomerManagementAccess(requester, existing)
 
-        const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {})
+        const data = await buildCustomerUpdateData(productAttributeValueRepository, event.body ?? {}, {
+            currentPhone: existing.phone,
+        })
         const updated = await customerRepository.updateCustomer(existing.id, data)
         const customer = event.body?.companyContactAssignments !== undefined
             ? await customerRepository.replaceCompanyContactAssignments(

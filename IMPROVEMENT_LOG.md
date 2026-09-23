@@ -9483,6 +9483,111 @@ eşit sayıda eklendi (865/865).
   `fullName: null` / `email: ""` gönderebildiği için backend (validator) ile BİRLİKTE deploy
   edilmeli — yalnız frontend giderse bu kayıtlar eski validator'da 400 alır.
 
+## Müşteri çoklu telefon — Dilim 2: `CustomerPhone` tablosu + migration + backend (2026-09-23) *(kullanıcı talebiyle)*
+
+- **Karar (kullanıcı):** ayrı tablo + opsiyonel etiket. `Customer.phone` BİRİNCİL numara
+  olarak aynen kaldı; ek numaralar `CustomerPhone` (`Customer.additionalPhones`: `number`,
+  `label?`, `displayOrder`, `onDelete: Cascade`, `@@index([customerId, displayOrder])`).
+  Primary'yi de tabloya taşımak ~20 okuma noktasını (arama, harita, iş talebi snapshot'ı,
+  public form, ürün→müşteri, duyurular) değiştirmeyi gerektirirdi — gereksiz risk.
+- **Migration `20260923120000_add_customer_phones`:** yalnız `CREATE TABLE` + index + FK,
+  geri doldurma YOK. SQL, HEAD şeması ile yeni şemanın farkından `prisma migrate diff
+  --from-schema … --to-schema … --script` ile üretildi (DB bağlantısı yok). Prisma client
+  yeniden üretildi (`generated/` git'te izleniyor; fark yalnız bu model).
+- **Kural tek yerde — `core/helpers/crm/customerPhones.ts` (saf):** trim, boş numarayı at,
+  boş etiketi `null` yap; birincille ya da listede önce geçenle AYNI HAT olanı at
+  (`customerPhoneKey` = `normalizePhoneNumberToE164`, olmazsa yalnız rakamlar —
+  "0532 000 00 00" = "+905320000000"); `displayOrder` yeniden üret; en fazla 10.
+  Tekrarı sessizce atmak bilinçli (400 kullanıcıya bir şey kazandırmıyor). Frontend'den
+  de import edilebilsin diye göreli import'la yazıldı (Dilim 3'te form aynı anahtarı kullanacak).
+- **Yazma:** tam değişim `deleteMany` + TEK `createMany` (`buildAdditionalPhonesReplaceWrite`,
+  satır başına `create` değil — Neon'da transaction round-trip'i düşük kalsın).
+  `additionalPhones` GÖNDERİLMEZSE ilişkiye dokunulmaz (eski istemciler / mevcut frontend
+  bozulmasın), `[]` hepsini siler. Yollar: `buildCustomerUpdateData` (admin
+  `PUT /customers/{id}` + temsilci `PUT /sales/customers/{id}`; handler'lar tekrar
+  kontrolü için kayıttaki `phone`'u `currentPhone` olarak geçiyor), `createLeadCustomer` /
+  `updateLeadCustomer` (normalize transaction DIŞINDA).
+- **Okuma:** `customerBaseInclude`'a eklendi (detay ve portal overview include'ları onu
+  yayıyor), `leadCustomerSelect` + `mapLeadCustomer`. Etkilenen tüm yanıt doğrulayıcıları
+  denetlendi: AdminApi `customerSchema` ve Public `customerResponseSchema` `.loose()`
+  (ProtectedApi'nin tüm müşteri uçları AdminApi şemasını kullanıyor) → kırılma yok;
+  `additionalPhones` belgesel olarak `customerSchema`'ya eklendi. **Katı olan**
+  `leadCustomerSummarySchema`'ya eklendi — eklenmeseydi `/lead-customers` ve
+  `/sales/lead-customers` 500 verirdi.
+- **Arama:** `listCustomers` (admin + temsilci listeleri), lead `buildSearchWhere` (veri
+  girişi + temsilci Potansiyel Müşteriler) ve `listCustomersForMap` ek numaraları da
+  tarıyor (`buildCustomerAdditionalPhoneSearchWhere`).
+- **Doğrulama:**
+  - `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error ✅ · core 697/697 ✅
+    (+11: `customerPhones.test.ts` 7, `customerUpdateData.test.ts` 4) · functions 354/354 ✅
+    (+8: `leadCustomerContract.test.ts` 4 — fixture'lar helper'ın dönüş TİPİYLE;
+    `updateCustomerValidator.test.ts` +4) · frontend 394/394 ✅.
+  - **Mutasyon testi:** `leadCustomerSummarySchema`'dan `additionalPhones` geçici olarak
+    silinince sözleşme testi "must NOT have additional properties" ile düştü (koruma gerçek);
+    dosya geri yüklendi.
+  - **Yerel PostgreSQL 17 (atılabilir cluster, scratchpad):** 86 migration temiz uygulandı;
+    `migrate diff --from-config-datasource --to-schema` → "empty migration" (şema ↔
+    migration sapması yok). Gerçek kodla (`normalizeCustomerAdditionalPhones` +
+    `buildCustomerUpdateData`, Prisma 7 + adapter-pg) 6 senaryo: iç içe `createMany` ile
+    oluşturma + tekilleştirme, tam değişim, alan yokken dokunmama, ek numarayla arama,
+    `[]` ile silme, müşteri silinince cascade — hepsi ✅. Cluster sonra silindi.
+- **⚠️ Deploy sırası:** include her müşteri sorgusunda `CustomerPhone`'u okuyor → migration
+  uygulanmadan yeni backend çalışırsa müşteri uçlarının HEPSİ 500 verir. kubi'de de
+  `sst dev` açıkken önce migration. Prod'da migration kod deploy'undan ÖNCE.
+- **Kullanıcıda kalan:** kubi migration'ı (komut PLAN "Kullanıcıda Bekleyen Adımlar"da),
+  sonra uçları dene. Dilim 3 (arayüz) PLAN'da.
+- **Güncelleme (kullanıcı, 2026-09-23):** migration kubi'ye uygulandı; admin panelinde
+  potansiyel ve cari müşteriler listelenip düzenlenebiliyor (regresyon yok).
+
+## Müşteri çoklu telefon — Dilim 3: arayüz (form + listeleme) (2026-09-23) *(kullanıcı talebiyle)*
+
+- **Paylaşılan özellik `features/customerPhones`** (`customerLocations` örneği gibi, üç
+  feature'ın ortak kullandığı CRM parçası):
+  - `CustomerPhonesField` — form bağlamından `phone` + `additionalPhones` okur (RHF
+    `useFieldArray`): "Birincil Telefon *" + etiketli ek satırlar (numara, etiket,
+    kaldır), "Telefon ekle" (en fazla 10, sayaç), etikette tarayıcı önerileri
+    (`<datalist>`: Merkez, Muhasebe, Satın Alma, Fabrika, Cep, WhatsApp). Mobilde
+    numara tam genişlik + altında etiket/sil; `sm+` tek satır. Ek satırlarda görünür
+    başlık yerine `sr-only` label'lar.
+  - `CustomerPhoneList` — birincil önce, ek numaralar etiketiyle; her numara `tel:`
+    bağlantısı; `inline` (kart) / `stacked` (tablo, özet) düzeni; `maxVisible` üstü
+    "+N numara" düğmesiyle açılır. Kart tıklamasını tetiklememek için `stopPropagation`.
+  - `schema/customerPhonesForm.ts` — satır şeması (numarası BOŞ satır geçerli ve
+    payload'da atılır: "Telefon ekle"ye basıp boş bırakmak kaydı engellemesin; indeksler
+    kaymasın diye şemada süzülmez), "etiketli satıra numara girin", "telefon çok kısa",
+    ve kök şemaya bağlanan `addDuplicatePhoneIssues` — sunucuyla AYNI anahtar
+    (`customerPhoneKey`), birincille ya da önceki satırla aynı hattı işaretler.
+- **Core'a iki saf yardımcı (`customerPhones.ts`):** `listCustomerPhones` (gösterim
+  sırası: birincil önce, sonra `displayOrder`) ve `customerPhoneHref` (E.164 `tel:`,
+  tanınmayan biçimde yalnız rakamlar). Sıralama kuralı yüzeyler arasında ayrışmasın.
+- **Formlar:** `EditCustomerProfileDialog`'da e-posta + telefonlar yeni "İletişim"
+  bölümüne taşındı ("Genel Bilgiler" = firma, yetkili, durum, temsilci, not).
+  `LeadCustomerProfileDialog`'da tek telefon alanı yerine aynı bileşen. Her iki şema
+  `additionalPhones` + tekrar kontrolü aldı; kayıt formdaki TÜM ek numaraları gönderir
+  (tam değişim — silinen satır sunucuda da silinir).
+- **Listeleme (6 yüzey):** admin tablo (`CustomersPageClient`, `stacked`, 2 + "+N"),
+  admin ve temsilci özet kartı (`CustomerOverviewPageClient`,
+  `SalesCustomerOverviewPageClient`), temsilci Cari Müşteriler kartı
+  (`SalesActiveCustomerCard`), Atanmış Müşteriler (`SalesCustomersPageClient`),
+  `LeadCustomerCard` (veri girişi + temsilci Potansiyel Müşteriler). Atanmış
+  Müşteriler ve harita arama kutusu metnine "telefon" eklendi (arama zaten numarayı tarıyordu).
+- **Tipler:** `CustomerPhone` (`features/customerPhones/types.ts`); `AdminCustomer.additionalPhones?`,
+  `LeadCustomer.additionalPhones`; istek tipleri core'un `CustomerAdditionalPhoneInput`'unu kullanıyor.
+- **Kapsam dışı (bilinçli):** portal, public form, harita popup'ı, ürün→müşteri tablosu,
+  kampanya duyuruları — PLAN'da opsiyonel madde.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · lint 0 error /
+  159 warning (baseline aynı; dokunulan dosyalarda 0 uyarı) ✅ · core 700/700 ✅ (+3:
+  `listCustomerPhones`, `customerPhoneHref`) · functions 354/354 ✅ · frontend 405/405 ✅
+  (+11: `customerPhonesForm.test.ts` 6, `customerEditor.test.ts` +3,
+  `leadCustomerForm.test.ts` +2) · `next build` "Compiled successfully" + 470/470 sayfa ✅.
+  Görsel/çalışma zamanı kontrolü kubi'de kullanıcıda.
+- **Kullanıcıda kalan (kubi):** admin düzenleme dialogunda 2 ek numara (biri etiketli) ekle
+  → kaydet → tabloda, özet kartında ve temsilci kartlarında görünüp `tel:` ile aranabildiğini
+  gör; bir satırı silip kaydet → sunucuda da silindi mi; birincil numarayı ek satıra farklı
+  yazımla gir → "Bu numara zaten ekli"; ek numarayla arama; aynısını veri girişi potansiyel
+  müşteri dialogunda (oluşturma + düzenleme); 375 px'te satır düzeni. Prod deploy'unda
+  migration koddan ÖNCE (PLAN "Kullanıcıda Bekleyen Adımlar").
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

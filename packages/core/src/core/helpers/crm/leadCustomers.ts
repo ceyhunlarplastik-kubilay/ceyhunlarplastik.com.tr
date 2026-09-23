@@ -12,7 +12,17 @@ import {
     type CustomerProfileMatchedProduct,
 } from "@/core/helpers/crm/customerProfileMatchedProducts"
 import { mapCustomerAddressForApi } from "@/core/helpers/crm/mapCustomerForApi"
-import type { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repository"
+import {
+    normalizeCustomerAdditionalPhones,
+    type CustomerAdditionalPhoneInput,
+} from "@/core/helpers/crm/customerPhones"
+import { buildAdditionalPhonesReplaceWrite } from "@/core/helpers/crm/customerUpdateData"
+import {
+    buildCustomerAdditionalPhoneSearchWhere,
+    customerPhoneOrderBy,
+    customerPhoneSelect,
+    type IPrismaCustomerRepository,
+} from "@/core/helpers/prisma/customers/repository"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { Prisma } from "@/prisma/generated/prisma/client"
 import {
@@ -41,13 +51,23 @@ export type LeadCustomerAttributeValue = {
     parentValueId: string | null
 }
 
+/** Ek telefon — alanlar `customerPhoneSelect` ile birebir aynı. */
+export type LeadCustomerPhone = {
+    id: string
+    number: string
+    label: string | null
+    displayOrder: number
+}
+
 export type LeadCustomerSummary = {
     id: string
     companyName: string | null
     websiteUrl: string | null
     /** Yetkili adı opsiyonel: veri girişinde firma kaydedilir, kişi sonra öğrenilir. */
     fullName: string | null
+    /** Birincil numara; ek numaralar `additionalPhones`'ta. */
     phone: string
+    additionalPhones: LeadCustomerPhone[]
     email: string
     note: string | null
     sectorValue: LeadCustomerAttributeValue | null
@@ -74,6 +94,11 @@ export type LeadCustomerProfileInput = {
     /** Yetkili adı sonradan öğrenilebilir. */
     fullName?: string | null
     phone: string
+    /**
+     * Verilmezse ek numaralara DOKUNULMAZ (eski istemciler bozulmasın); verilirse
+     * TAM DEĞİŞİM — `[]` hepsini siler. Kural `customerPhones.ts`'te.
+     */
+    additionalPhones?: CustomerAdditionalPhoneInput[]
     email?: string | null
     note?: string | null
     sectorValueId?: string | null
@@ -150,6 +175,11 @@ const leadCustomerSelect = {
     websiteUrl: true,
     fullName: true,
     phone: true,
+    // Alan listesi yanıt şemasıyla (`leadCustomerSummarySchema`, KATI) aynı olmalı.
+    additionalPhones: {
+        select: customerPhoneSelect,
+        orderBy: customerPhoneOrderBy,
+    },
     email: true,
     note: true,
     status: true,
@@ -172,6 +202,7 @@ function mapLeadCustomer(customer: LeadCustomerRow): LeadCustomerSummary {
         websiteUrl: customer.websiteUrl,
         fullName: customer.fullName,
         phone: customer.phone,
+        additionalPhones: customer.additionalPhones,
         email: customer.email,
         note: customer.note,
         sectorValue: customer.sectorValue,
@@ -192,6 +223,7 @@ function buildSearchWhere(search?: string): Prisma.CustomerWhereInput {
             { fullName: { contains: normalized, mode: "insensitive" } },
             { email: { contains: normalized, mode: "insensitive" } },
             { phone: { contains: normalized, mode: "insensitive" } },
+            buildCustomerAdditionalPhoneSearchWhere(normalized),
         ],
     }
 }
@@ -388,6 +420,9 @@ export async function createLeadCustomer({
             allowVerification: true,
         })
         : null
+    const additionalPhones = normalizeCustomerAdditionalPhones(input.additionalPhones ?? [], {
+        primaryPhone: input.phone,
+    })
 
     const customer = await prisma.customer.create({
         data: {
@@ -402,6 +437,9 @@ export async function createLeadCustomer({
             // Bu yüzey yalnız potansiyel müşteri üretir; dönüşüm ticari bir karar
             // ve /admin · /satis panellerinde kalır.
             status: "LEAD",
+            ...(additionalPhones.length > 0 && {
+                additionalPhones: { createMany: { data: additionalPhones } },
+            }),
             ...(resolved?.sectorValueId && {
                 sectorValue: { connect: { id: resolved.sectorValueId } },
             }),
@@ -447,6 +485,10 @@ export async function updateLeadCustomer({
     await getLeadCustomerRowOrThrow(id)
 
     const resolved = await resolveProfileAssignments(productAttributeValueRepository, input)
+    // Saf hazırlık transaction DIŞINDA; içeride yalnız yazma kalır.
+    const additionalPhones = input.additionalPhones !== undefined
+        ? normalizeCustomerAdditionalPhones(input.additionalPhones, { primaryPhone: input.phone })
+        : undefined
 
     // Hiyerarşi atamaları TAM DEĞİŞİM: eski sector/production_group/usage_area
     // satırları silinip yenileri yazılır. Hiyerarşi dışındaki müşteri
@@ -474,6 +516,9 @@ export async function updateLeadCustomer({
                 websiteUrl: normalizeWebsiteUrl(input.websiteUrl),
                 fullName: normalizeText(input.fullName),
                 phone: input.phone.trim(),
+                ...(additionalPhones && {
+                    additionalPhones: buildAdditionalPhonesReplaceWrite(additionalPhones),
+                }),
                 email: input.email?.trim() ?? "",
                 note: normalizeText(input.note),
                 sectorValue: resolved?.sectorValueId

@@ -4,6 +4,12 @@ import type {
     LeadCustomer,
     LeadCustomerProfileInput,
 } from "@/features/admin/leadCustomers/api/types"
+import {
+    addDuplicatePhoneIssues,
+    additionalPhonesFormSchema,
+    toAdditionalPhoneFormValues,
+    toAdditionalPhonesPayload,
+} from "@/features/customerPhones/schema/customerPhonesForm"
 
 /**
  * Veri girişi panelinin potansiyel müşteri formu.
@@ -22,6 +28,7 @@ export const leadCustomerFormSchema = z.object({
     // burada yalnız uzunluk sınırı var ki kural iki yerde ayrışmasın.
     websiteUrl: z.string().trim().max(500).optional().transform((value) => value || ""),
     phone: z.string().trim().min(5, "Telefon çok kısa").max(50),
+    additionalPhones: additionalPhonesFormSchema,
     email: z.string()
         .trim()
         .max(320)
@@ -33,7 +40,7 @@ export const leadCustomerFormSchema = z.object({
     sectorValueId: z.string().trim().optional().transform((value) => value || ""),
     productionGroupValueId: z.string().trim().optional().transform((value) => value || ""),
     usageAreaValueIds: z.array(z.string().trim()).default([]),
-})
+}).superRefine((values, ctx) => addDuplicatePhoneIssues(values, ctx))
 
 export type LeadCustomerFormInput = z.input<typeof leadCustomerFormSchema>
 export type LeadCustomerFormValues = z.output<typeof leadCustomerFormSchema>
@@ -46,6 +53,7 @@ export function createLeadCustomerFormDefaults(
         fullName: customer?.fullName ?? "",
         websiteUrl: customer?.websiteUrl ?? "",
         phone: customer?.phone ?? "",
+        additionalPhones: toAdditionalPhoneFormValues(customer?.additionalPhones),
         email: customer?.email ?? "",
         note: customer?.note ?? "",
         sectorValueId: customer?.sectorValue?.id ?? "",
@@ -63,6 +71,8 @@ export function buildLeadCustomerPayload(
         fullName: values.fullName || null,
         websiteUrl: values.websiteUrl || null,
         phone: values.phone,
+        // Formdaki TÜM ek numaralar gönderilir (tam değişim): silinen satır sunucuda da silinir.
+        additionalPhones: toAdditionalPhonesPayload(values.additionalPhones),
         email: values.email || null,
         note: values.note || null,
         sectorValueId: values.sectorValueId || null,

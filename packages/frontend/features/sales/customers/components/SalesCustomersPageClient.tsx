@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { AdminSectionLoadingOverlay } from "@/features/admin/shared/components/AdminSectionLoadingOverlay"
+import { CustomerPhoneList } from "@/features/customerPhones/components/CustomerPhoneList"
 import { useManagedCustomers } from "@/features/sales/customers/hooks/useManagedCustomers"
 
 export function SalesCustomersPageClient() {
@@ -31,7 +32,7 @@ export function SalesCustomersPageClient() {
             </div>
 
             <Input
-                placeholder="Firma, kişi veya e-posta ara"
+                placeholder="Firma, kişi, e-posta veya telefon ara"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
@@ -57,7 +58,11 @@ export function SalesCustomersPageClient() {
                             </div>
                             <div className="mt-4 grid gap-2 text-sm text-neutral-600">
                                 <div>{customer.email}</div>
-                                <div>{customer.phone}</div>
+                                <CustomerPhoneList
+                                    phone={customer.phone}
+                                    additionalPhones={customer.additionalPhones}
+                                    layout="stacked"
+                                />
                                 <div>Sektör: {customer.sectorValue?.name ?? "-"}</div>
                                 <div>Tanımlı Varyant: {customer.assignedProducts?.length ?? 0}</div>
                                 <div>Ziyaret: {customer.visits?.length ?? 0}</div>

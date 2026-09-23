@@ -20,6 +20,7 @@ import { AdminListPagination } from "@/features/admin/shared/components/AdminLis
 import { AdminListRefreshBar } from "@/features/admin/shared/components/AdminListRefreshBar"
 import { EditCustomerProfileDialog } from "@/features/admin/customers/components/EditCustomerProfileDialog"
 import { CustomerListFilters } from "@/features/admin/customers/components/CustomerListFilters"
+import { CustomerPhoneList } from "@/features/customerPhones/components/CustomerPhoneList"
 import { useCustomers } from "@/features/admin/customers/hooks/useCustomers"
 import { useCustomerListFilters } from "@/features/admin/customers/hooks/useCustomerListFilters"
 import { useUpdateCustomer } from "@/features/admin/customers/hooks/useUpdateCustomer"
@@ -253,7 +254,13 @@ export function CustomersPageClient({
                                 </TableCell>
                                 <TableCell>
                                     <div className="text-sm">{customer.email}</div>
-                                    <div className="text-xs text-neutral-500">{customer.phone}</div>
+                                    <CustomerPhoneList
+                                        phone={customer.phone}
+                                        additionalPhones={customer.additionalPhones}
+                                        layout="stacked"
+                                        maxVisible={2}
+                                        className="text-xs text-neutral-500"
+                                    />
                                 </TableCell>
                                 <TableCell>{customer.sectorValue?.name ?? "-"}</TableCell>
                                 <TableCell>{customer.productionGroupValue?.name ?? "-"}</TableCell>

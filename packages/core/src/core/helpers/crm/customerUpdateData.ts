@@ -2,6 +2,25 @@ import { Prisma } from "@/prisma/generated/prisma/client"
 import type { IPrismaProductAttributeValueRepository } from "@/core/helpers/prisma/productAttributeValues/repository"
 import { resolveCustomerAttributeAssignments } from "@/core/helpers/crm/customerAttributes"
 import { prepareCustomerAddressInput } from "@/core/helpers/crm/customerAddressInput"
+import {
+    normalizeCustomerAdditionalPhones,
+    type CustomerAdditionalPhoneInput,
+    type NormalizedCustomerAdditionalPhone,
+} from "@/core/helpers/crm/customerPhones"
+
+/**
+ * Ek numaralar için TAM DEĞİŞİM yazımı: eskiler silinir, yeniler TEK INSERT ile
+ * yazılır (`createMany`, satır başına `create` değil) — Neon'da transaction
+ * içindeki gidiş-dönüş sayısı düşük kalsın. Boş liste yalnız siler.
+ */
+export function buildAdditionalPhonesReplaceWrite(
+    phones: NormalizedCustomerAdditionalPhone[],
+): Prisma.CustomerPhoneUpdateManyWithoutCustomerNestedInput {
+    return {
+        deleteMany: {},
+        ...(phones.length > 0 ? { createMany: { data: phones } } : {}),
+    }
+}
 
 type Input = {
     companyName?: string | null
@@ -19,6 +38,8 @@ type Input = {
     sectorValueId?: string | null
     productionGroupValueId?: string | null
     usageAreaValueIds?: string[]
+    /** Verilirse TAM DEĞİŞİM: listede olmayan ek numaralar silinir; `[]` hepsini siler. */
+    additionalPhones?: CustomerAdditionalPhoneInput[]
     addresses?: Array<{
         label: string
         contactName?: string | null
@@ -56,6 +77,13 @@ type Input = {
 export async function buildCustomerUpdateData(
     productAttributeValueRepository: IPrismaProductAttributeValueRepository,
     input: Input,
+    options: {
+        /**
+         * Kayıttaki birincil numara. İstek `phone` taşımıyorsa ek numaralar bununla
+         * karşılaştırılır — birincil numara ek numara olarak ikinci kez yazılmasın.
+         */
+        currentPhone?: string | null
+    } = {},
 ): Promise<Prisma.CustomerUpdateInput> {
     const resolvedAttributes = await resolveCustomerAttributeAssignments(productAttributeValueRepository, {
         attributeValueIds: input.attributeValueIds,
@@ -74,6 +102,11 @@ export async function buildCustomerUpdateData(
             defaultLocationSource: "MANUAL_PIN",
             allowVerification: false,
         })))
+        : undefined
+    const normalizedAdditionalPhones = input.additionalPhones !== undefined
+        ? normalizeCustomerAdditionalPhones(input.additionalPhones, {
+            primaryPhone: input.phone ?? options.currentPhone,
+        })
         : undefined
 
     const data: Prisma.CustomerUpdateInput = {
@@ -131,6 +164,9 @@ export async function buildCustomerUpdateData(
                         set: [],
                     },
                 }
+            : {}),
+        ...(normalizedAdditionalPhones
+            ? { additionalPhones: buildAdditionalPhonesReplaceWrite(normalizedAdditionalPhones) }
             : {}),
         ...(input.addresses !== undefined
             ? {

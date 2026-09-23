@@ -412,6 +412,12 @@ When extending customer portal contact surfaces:
 - preserve `assignedSalesUser` as the primary sales representative and render company contacts as additional department contact points
 - portal responses should hide inactive company contacts or inactive assignments, while admin/sales management surfaces may show them for maintenance
 
+When touching customer phone numbers:
+- `Customer.phone` is the PRIMARY number and stays a scalar (search, map, business-request snapshots and the public form read it); additional lines live in `CustomerPhone` (`Customer.additionalPhones`, optional `label`) — do not move the primary into the table
+- every write of additional phones goes through `core/helpers/crm/customerPhones.ts` (trim, de-duplicate by line with `customerPhoneKey`, max 10) as a full replacement (`buildAdditionalPhonesReplaceWrite`); a request that omits `additionalPhones` must leave existing rows untouched
+- `leadCustomerSummarySchema` is strict (not `.loose()`): a new phone field must be added there too, or `/lead-customers` and `/sales/lead-customers` return 500 — guarded by `AdminApi/functions/leadCustomers/leadCustomerContract.test.ts`
+- in the frontend, reuse `features/customerPhones` (`CustomerPhonesField` for forms, `CustomerPhoneList` for display) instead of rendering `customer.phone` alone or building another phone editor; a form that edits phones must send the FULL `additionalPhones` list, because the API treats it as a replacement
+
 When extending customer-specific special prices:
 - store customer-specific variant prices separately from `ProductVariantSupplier` supplier/list pricing
 - special prices may include minimum/maximum order quantity, payment term, validity period, tax information, delivery terms, contract reference, and customer/internal notes

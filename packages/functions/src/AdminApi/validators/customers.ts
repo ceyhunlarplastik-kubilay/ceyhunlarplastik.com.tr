@@ -1,5 +1,32 @@
 import { z } from "zod"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
+import {
+    CUSTOMER_ADDITIONAL_PHONE_LIMIT,
+    CUSTOMER_PHONE_LABEL_MAX_LENGTH,
+} from "@/core/helpers/crm/customerPhones"
+
+/**
+ * Ek telefon İSTEK şekli — admin/temsilci güncellemesi ve veri girişi
+ * (`leadCustomers.ts`) ortak kullanır. Birincil `phone` ile aynı uzunluk kuralı.
+ * Tekrar/boşluk temizliği şemada DEĞİL `normalizeCustomerAdditionalPhones`'ta:
+ * `.refine()` JSON Schema'ya çevrilmez, istek yolunda hiç çalışmazdı.
+ */
+export const customerAdditionalPhoneInputSchema = z.object({
+    number: z.string().trim().min(5).max(50),
+    label: z.string().trim().max(CUSTOMER_PHONE_LABEL_MAX_LENGTH).nullable().optional(),
+})
+
+export const customerAdditionalPhonesInputSchema = z
+    .array(customerAdditionalPhoneInputSchema)
+    .max(CUSTOMER_ADDITIONAL_PHONE_LIMIT)
+
+/** Ek telefon YANIT şekli — alanlar `customerPhoneSelect` ile birebir aynı. */
+export const customerPhoneResponseSchema = z.object({
+    id: z.uuid(),
+    number: z.string(),
+    label: z.string().nullable(),
+    displayOrder: z.number(),
+})
 
 const userSummarySchema = z.object({
     id: z.uuid(),
@@ -291,6 +318,7 @@ const customerSchema = z.object({
     companyName: z.string().nullable().optional(),
     fullName: z.string(),
     phone: z.string(),
+    additionalPhones: z.array(customerPhoneResponseSchema.loose()).optional(),
     email: z.string(),
     note: z.string().nullable().optional(),
     status: z.enum(["LEAD", "CUSTOMER"]),
@@ -355,6 +383,8 @@ export const updateCustomerValidator = validatorWrapper(
             // `Customer.email` NOT NULL.
             fullName: z.string().trim().min(2).max(255).nullable().optional(),
             phone: z.string().trim().min(5).max(50).optional(),
+            // Verilirse TAM DEĞİŞİM; verilmezse ek numaralara dokunulmaz.
+            additionalPhones: customerAdditionalPhonesInputSchema.optional(),
             email: z.union([z.literal(""), z.email().max(320)]).optional(),
             note: z.string().trim().max(5000).nullable().optional(),
             status: z.enum(["LEAD", "CUSTOMER"]).optional(),

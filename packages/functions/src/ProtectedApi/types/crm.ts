@@ -12,6 +12,7 @@ import { IPrismaUserRepository } from "@/core/helpers/prisma/users/repository"
 import { IUserInvitationRepository } from "@/core/helpers/prisma/userInvitations/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { CustomerCompanyContactAssignmentInput } from "@/core/helpers/crm/companyContactAssignments"
+import type { CustomerAdditionalPhoneInput } from "@/core/helpers/crm/customerPhones"
 import type { Prisma } from "@/prisma/generated/prisma/client"
 import type { CustomerStatus, CustomerVisitStatus, CustomerVisitType, CustomerVisitOutcome } from "@/prisma/generated/prisma/enums"
 
@@ -274,6 +275,8 @@ export type IUpdateManagedCustomerEvent = IAPIGatewayProxyEventWithUserGeneric<
         sectorValueId?: string | null
         productionGroupValueId?: string | null
         usageAreaValueIds?: string[]
+        /** Verilirse TAM DEĞİŞİM (bkz. `core/helpers/crm/customerPhones.ts`). */
+        additionalPhones?: CustomerAdditionalPhoneInput[]
         companyContactAssignments?: CustomerCompanyContactAssignmentInput[]
         addresses?: Array<{
             label: string

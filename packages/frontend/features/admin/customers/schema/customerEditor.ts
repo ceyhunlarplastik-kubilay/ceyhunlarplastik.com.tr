@@ -1,6 +1,12 @@
 import { z } from "zod"
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
 import type { UpdateCustomerInput } from "@/features/admin/customers/api/updateCustomer"
+import {
+    addDuplicatePhoneIssues,
+    additionalPhonesFormSchema,
+    toAdditionalPhoneFormValues,
+    toAdditionalPhonesPayload,
+} from "@/features/customerPhones/schema/customerPhonesForm"
 
 const HIERARCHY_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_area"])
 
@@ -39,6 +45,7 @@ export const customerEditorSchema = z.object({
         .max(255, "Yetkili adı çok uzun")
         .refine((value) => !value || value.length >= 2, "Yetkili adı en az 2 karakter olmalıdır"),
     phone: z.string().trim().min(5, "Telefon çok kısa").max(50, "Telefon çok uzun"),
+    additionalPhones: additionalPhonesFormSchema,
     email: z.string()
         .trim()
         .max(320, "E-posta çok uzun")
@@ -74,7 +81,7 @@ export const customerEditorSchema = z.object({
         message: "Kredi limiti 0 veya pozitif olmalıdır",
     }),
     paymentTermNote: optionalText(5000),
-})
+}).superRefine((values, ctx) => addDuplicatePhoneIssues(values, ctx))
 
 export type CustomerEditorFormInput = z.input<typeof customerEditorSchema>
 export type CustomerEditorFormValues = z.output<typeof customerEditorSchema>
@@ -88,6 +95,7 @@ export function createCustomerEditorDefaults(customer?: AdminCustomer | null): C
         companyName: customer?.companyName ?? "",
         fullName: customer?.fullName ?? "",
         phone: customer?.phone ?? "",
+        additionalPhones: toAdditionalPhoneFormValues(customer?.additionalPhones),
         email: customer?.email ?? "",
         note: customer?.note ?? "",
         status: customer?.status ?? "LEAD",
@@ -124,6 +132,8 @@ export function buildCustomerUpdatePayload(customerId: string, values: CustomerE
         // `Customer.email` NOT NULL, veri girişi yüzeyi de boşu "" ile temsil ediyor.
         fullName: values.fullName || null,
         phone: values.phone,
+        // Formdaki TÜM ek numaralar gönderilir (tam değişim): silinen satır sunucuda da silinir.
+        additionalPhones: toAdditionalPhonesPayload(values.additionalPhones),
         email: values.email,
         note: values.note || null,
         status: values.status,

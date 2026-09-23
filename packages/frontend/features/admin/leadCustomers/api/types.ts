@@ -1,6 +1,8 @@
 import type { CustomerAddress } from "@/features/admin/customers/api/types"
 import type { ApiEnvelope } from "@/lib/http/types"
 import type { CustomerProfileMatchedProduct } from "@/features/crm/types"
+import type { CustomerPhone } from "@/features/customerPhones/types"
+import type { CustomerAdditionalPhoneInput } from "@core/helpers/crm/customerPhones"
 
 export type LeadCustomerAttributeValue = {
     id: string
@@ -14,7 +16,9 @@ export type LeadCustomer = {
     companyName: string | null
     websiteUrl: string | null
     fullName: string | null
+    /** Birincil numara; ek hatlar `additionalPhones`'ta. */
     phone: string
+    additionalPhones: CustomerPhone[]
     email: string
     note: string | null
     sectorValue: LeadCustomerAttributeValue | null
@@ -72,6 +76,8 @@ export type LeadCustomerProfileInput = {
     websiteUrl?: string | null
     fullName: string | null
     phone: string
+    /** Verilirse TAM DEĞİŞİM; verilmezse sunucu ek numaralara dokunmaz. */
+    additionalPhones?: CustomerAdditionalPhoneInput[]
     email?: string | null
     note?: string | null
     sectorValueId?: string | null
