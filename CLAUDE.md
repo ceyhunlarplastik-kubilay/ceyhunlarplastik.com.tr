@@ -168,10 +168,21 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
 - `DialogContent`'e öneksiz `max-w-*` VERME: tailwind-merge primitive'in
   `max-w-[calc(100%-2rem)]`'sini siler, dialog telefonda ekran kenarına yapışır — `sm:max-w-*`
   kullan. Uzun formlu dialogda yükseklik sınırı + kayan gövde şart, yoksa başlık ve Kaydet butonu
-  ekran dışına taşar (desen: `EditCustomerProfileDialog` — içerik `flex max-h-[…100dvh…] flex-col
-  p-0`, gövde `min-h-0 flex-1 overflow-y-auto`, sabit footer). İçinde `sticky` öğe olan kutuda
-  `overflow-hidden` değil `overflow-clip` kullan: hidden kendi scroll bağlamını kurar ve sticky
-  öğe dış scroll'a yapışmaz.
+  ekran dışına taşar (desen: `EditCustomerProfileDialog` / `LeadCustomerProfileDialog` — içerik
+  `flex max-h-[…100dvh…] flex-col p-0`, gövde `min-h-0 flex-1 overflow-y-auto`, sabit footer,
+  bölümler ortak `features/admin/shared/components/DialogFormSection`). İçinde `sticky` öğe olan
+  kutuda `overflow-hidden` değil `overflow-clip` kullan: hidden kendi scroll bağlamını kurar ve
+  sticky öğe dış scroll'a yapışmaz.
+- Görsel kart ızgarasında sütun sayısını EKRAN kırılımına (`sm/lg/2xl:grid-cols-*`) bağlayıp
+  `aspect-square` görsel KULLANMA: dialog/panel gibi sabit genişlikli kapta kart = kap / sütun
+  olur ve görseller devleşir (kullanım alanı seçicisi, 1120px dialogda ~257px kare). Kabın
+  genişliğine göre `grid-cols-[repeat(auto-fill,minmax(Xrem,1fr))]` + sabit yükseklikli görsel
+  alanı kullan; `next/image` `sizes`'ını da kartın gerçek genişliğine göre ver.
+- Görsel doğrulama için başsız Chrome kullanılabilir (`--headless=new --screenshot`, ayrı
+  `--user-data-dir`, kendi CSS'i için build çıktısı `.next/static/chunks/*.css`). macOS'ta
+  pencere ~500px'in altına İNMEZ: `--window-size=390,…` sayfayı daha geniş dizip görüntüyü
+  kırpar. Telefon genişliği için sayfayı 390px genişliğinde bir `<iframe>` içinde aç. Süreç
+  bazen kapanmaz — bir bekçi süresiyle çalıştır.
 - Client component'e ham API objesi / büyük DTO'yu prop olarak geçme — RSC flight
   payload'una serialize olup tarayıcıya iner (6MB/performans sınıfının kök nedeni).
   Server'da daralt/grupla, client'a görüntülenecek kadarını ver.

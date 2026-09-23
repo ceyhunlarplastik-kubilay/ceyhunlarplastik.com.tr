@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2, MapPin, Pencil, Save, Trash2 } from "lucide-react"
+import { motion, useReducedMotion } from "motion/react"
+import { Building2, Loader2, MapPin, Pencil, Phone, Save, Shapes, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -25,10 +26,6 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { CustomerAddressFormDialog } from "@/features/customerLocations/components/CustomerAddressFormDialog"
-import { normalizeAddressPayload } from "@/features/customerLocations/lib/addressPayload"
-import type { AddressDraftFormValues } from "@/features/customerPortal/components/requestComposer/schema"
 import {
     Select,
     SelectContent,
@@ -36,9 +33,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
+import { resolveCustomerDisplayName } from "@core/helpers/crm/customerDisplayName"
+import { CustomerAddressFormDialog } from "@/features/customerLocations/components/CustomerAddressFormDialog"
+import { normalizeAddressPayload } from "@/features/customerLocations/lib/addressPayload"
+import type { AddressDraftFormValues } from "@/features/customerPortal/components/requestComposer/schema"
 import { useAttributesForFilter } from "@/features/admin/productAttributes/hooks/useAttributesForFilter"
+import { DialogFormSection, OptionalFieldHint } from "@/features/admin/shared/components/DialogFormSection"
 import type { LeadCustomer } from "@/features/admin/leadCustomers/api/types"
 import {
     useCreateLeadCustomer,
@@ -72,8 +73,15 @@ type Props = {
     onCreated?: (customerId: string) => void
 }
 
+/**
+ * Veri girişi panelinin potansiyel müşteri formu (oluşturma + düzenleme).
+ * Yerleşim admin/temsilci dialoguyla (`EditCustomerProfileDialog`) AYNI kalıpta:
+ * sabit başlık, ekran yüksekliğini kullanan kayan gövde, sabit eylem çubuğu ve
+ * `DialogFormSection` bölümleri. Ticari alanlar bu yüzeyde bilinçli olarak yok.
+ */
 export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCreated }: Props) {
     const isEditing = Boolean(customer)
+    const shouldReduceMotion = useReducedMotion()
     // Oluşturmada adres AYNI dialogda toplanır ve kayıtla birlikte gider.
     // Düzenlemede gösterilmez: mevcut adresler detay panelinden yönetiliyor.
     const [addressDraft, setAddressDraft] = useState<AddressDraftFormValues | null>(null)
@@ -166,128 +174,155 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
 
     return (
         <Dialog open={open} onOpenChange={handleProfileOpenChange}>
-            <DialogContent className="max-h-[min(860px,calc(100vh-2rem))] w-[calc(100vw-2rem)] sm:max-w-[min(1120px,calc(100vw-3rem))] overflow-hidden rounded-3xl p-0">
-                <DialogHeader className="border-b border-neutral-100 bg-linear-to-br from-neutral-950 via-neutral-900 to-brand px-5 py-5 text-white sm:px-6">
-                    <Badge variant="outline" className="w-fit border-white/15 bg-white/10 text-white">
-                        Potansiyel Müşteri
-                    </Badge>
-                    <DialogTitle className="text-xl font-semibold tracking-tight text-white">
-                        {isEditing ? "Profili Düzenle" : "Yeni Potansiyel Müşteri"}
-                    </DialogTitle>
-                    <DialogDescription className="text-white/70">
-                        Kullanım alanı ataması, müşterinin portalda göreceği &quot;İlgili Ürünler&quot; listesini belirler.
+            {/*
+              Admin dialoguyla aynı ölçüler: yükseklik ekrana sınırlı (`dvh`, mobil
+              tarayıcı çubuklarını hesaba katar), yalnız gövde kayar. Eski gövde
+              ekran ne olursa olsun 560px'e sabitti ve dialog 1120px genişlikteydi.
+            */}
+            <DialogContent className="flex max-h-[min(60rem,calc(100dvh-2rem))] flex-col gap-0 overflow-hidden rounded-3xl p-0 sm:max-w-[min(64rem,calc(100vw-3rem))]">
+                <DialogHeader className="shrink-0 gap-1.5 border-b border-neutral-100 px-5 py-4 pe-12 text-start sm:px-6 sm:pe-12">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <DialogTitle className="text-lg font-semibold tracking-tight">
+                            {isEditing ? "Potansiyel Müşteriyi Düzenle" : "Yeni Potansiyel Müşteri"}
+                        </DialogTitle>
+                        <Badge variant="secondary" className="rounded-full">
+                            Potansiyel Müşteri
+                        </Badge>
+                    </div>
+                    <DialogDescription className="line-clamp-2">
+                        {customer ? (
+                            <span className="font-medium text-neutral-700">
+                                {resolveCustomerDisplayName(customer)}
+                                {" · "}
+                            </span>
+                        ) : null}
+                        Firma bilgileri, iletişim ve endüstriyel profil.
                     </DialogDescription>
                 </DialogHeader>
 
                 <Form {...form}>
                     <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-                        <ScrollArea className="max-h-[min(560px,calc(100vh-16rem))] px-5 py-4 sm:px-6">
-                            <div className="space-y-5">
-                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="companyName"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Firma Adı *</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Örn. Akdeniz Makine" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="websiteUrl"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Web Sitesi</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="acme.com" inputMode="url" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="fullName"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Yetkili Adı</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Ad Soyad" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="email"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>
-                                                    E-posta
-                                                    <span className="ml-1 font-normal text-neutral-400">
-                                                        (opsiyonel)
-                                                    </span>
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="email"
-                                                        inputMode="email"
-                                                        autoComplete="email"
-                                                        placeholder="ornek@firma.com"
-                                                        {...field}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                {/* Admin/temsilci dialoguyla ORTAK: birincil + etiketli ek numaralar. */}
-                                <CustomerPhonesField />
-
-                                <FormField
-                                    control={form.control}
-                                    name="note"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Not</FormLabel>
-                                            <FormControl>
-                                                <Textarea
-                                                    rows={3}
-                                                    placeholder="Görüşme notu, ilgilendiği ürünler, kaynak..."
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <Separator />
-
-                                <div>
-                                    <div className="flex items-baseline gap-2">
-                                        <h3 className="text-sm font-semibold text-neutral-950">
-                                            Endüstriyel Profil
-                                        </h3>
-                                        <span className="text-xs text-neutral-400">
-                                            ürün eşleşmesini belirler
-                                        </span>
+                        {/* Düz `overflow-y-auto` gövde: seçicinin yapışkan araç çubuğu bu
+                            scroll'a tutunur (bkz. LeadCustomerUsageAreaPicker `overflow-clip`). */}
+                        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                            <motion.div
+                                key={customer?.id ?? "lead-customer-new"}
+                                initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.18 }}
+                                className="divide-y divide-neutral-100 px-4 sm:px-6"
+                            >
+                                <DialogFormSection
+                                    icon={<Building2 />}
+                                    title="Firma Bilgileri"
+                                    description="Firma adı zorunlu; yetkili kişi sonradan da eklenebilir."
+                                >
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="companyName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Firma Adı *</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Örn. Akdeniz Makine" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="fullName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        Yetkili Adı
+                                                        <OptionalFieldHint />
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Ad Soyad" autoComplete="off" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="note"
+                                            render={({ field }) => (
+                                                <FormItem className="sm:col-span-2">
+                                                    <FormLabel>Not</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea
+                                                            rows={3}
+                                                            placeholder="Görüşme notu, ilgilendiği ürünler, kaynak..."
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
                                     </div>
+                                </DialogFormSection>
 
-                                    <div className="mt-3 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-3">
-                                        <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
-                                            Birincil Sınıflandırma
-                                        </p>
+                                <DialogFormSection
+                                    icon={<Phone />}
+                                    title="İletişim"
+                                    description="Birincil numara aramada ve listelerde kullanılır; muhasebe, satın alma gibi ek hatları etiketiyle ekleyin."
+                                >
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        E-posta
+                                                        <OptionalFieldHint />
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            type="email"
+                                                            inputMode="email"
+                                                            autoComplete="off"
+                                                            placeholder="ornek@firma.com"
+                                                            {...field}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="websiteUrl"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        Web Sitesi
+                                                        <OptionalFieldHint />
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="acme.com" inputMode="url" autoComplete="off" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    {/* Admin/temsilci dialoguyla ORTAK: birincil + etiketli ek numaralar. */}
+                                    <CustomerPhonesField />
+                                </DialogFormSection>
 
-                                        <div className="grid gap-3 sm:grid-cols-2">
+                                <DialogFormSection
+                                    icon={<Shapes />}
+                                    tone="brand"
+                                    title="Endüstriyel Profil"
+                                    description="Sektör ve üretim grubu birincil sınıflandırmadır. Kullanım alanları farklı sektörlerden seçilebilir ve müşterinin portalda göreceği ilgili ürünleri belirler."
+                                >
+                                    <div className="grid gap-4 sm:grid-cols-2">
                                         <FormField
                                             control={form.control}
                                             name="sectorValueId"
@@ -307,9 +342,8 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                         disabled={attributesQuery.isLoading}
                                                     >
                                                         <FormControl>
-                                                            {/* shadcn SelectTrigger varsayılanı `w-fit`;
-                                                                ızgara sütununu doldurması için w-full. */}
-                                                            <SelectTrigger className="h-10 w-full rounded-xl bg-white">
+                                                            {/* shadcn SelectTrigger varsayılanı `w-fit`. */}
+                                                            <SelectTrigger className="w-full">
                                                                 <SelectValue placeholder="Sektör seçin" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -342,7 +376,7 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                         disabled={attributesQuery.isLoading}
                                                     >
                                                         <FormControl>
-                                                            <SelectTrigger className="h-10 w-full rounded-xl bg-white">
+                                                            <SelectTrigger className="w-full">
                                                                 <SelectValue placeholder="Üretim grubu seçin" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -359,27 +393,14 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                 </FormItem>
                                             )}
                                         />
-                                        </div>
-
-                                        <p className="mt-2.5 text-[11px] leading-4 text-neutral-500">
-                                            Üretim grubu, seçili sektörün altında olmalıdır. Kullanım alanları ise
-                                            bundan bağımsızdır — farklı sektörlerden seçilebilir.
-                                        </p>
                                     </div>
 
                                     <FormField
                                         control={form.control}
                                         name="usageAreaValueIds"
                                         render={({ field }) => (
-                                            <FormItem className="mt-4">
-                                                <div className="flex items-baseline justify-between gap-2">
-                                                    <FormLabel className="text-sm font-semibold text-neutral-950">
-                                                        Kullanım Alanları
-                                                    </FormLabel>
-                                                    <span className="text-xs text-neutral-400">
-                                                        müşterinin ilgilendiği alanlar
-                                                    </span>
-                                                </div>
+                                            <FormItem>
+                                                <FormLabel>Kullanım Alanları</FormLabel>
                                                 <FormControl>
                                                     <LeadCustomerUsageAreaPicker
                                                         usageAreaValues={valuesByCode.usageArea}
@@ -401,40 +422,21 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                             </FormItem>
                                         )}
                                     />
-                                </div>
+                                </DialogFormSection>
 
                                 {!isEditing ? (
-                                    <div className="rounded-2xl border border-neutral-200 p-4">
-                                        <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <div>
-                                                <div className="flex items-center gap-2 text-sm font-medium text-neutral-900">
-                                                    <MapPin className="h-4 w-4 text-neutral-500" />
-                                                    Adres
-                                                    <Badge variant="outline" className="rounded-full font-normal">
-                                                        Opsiyonel
-                                                    </Badge>
-                                                </div>
-                                                <p className="mt-1 text-xs text-neutral-500">
-                                                    Haritadan konum seçerek şimdi ekleyebilir ya da kayıttan
-                                                    sonra düzenleyebilirsiniz.
-                                                </p>
-                                            </div>
-
-                                            {!addressDraft ? (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    className="rounded-2xl"
-                                                    onClick={() => setAddressDialogOpen(true)}
-                                                >
-                                                    <MapPin className="h-4 w-4" />
-                                                    Adres Ekle
-                                                </Button>
-                                            ) : null}
-                                        </div>
-
+                                    <DialogFormSection
+                                        icon={<MapPin />}
+                                        title="Adres"
+                                        description="Haritadan konum seçerek şimdi ekleyebilir ya da kayıttan sonra müşteri kartından ekleyebilirsiniz."
+                                        aside={
+                                            <Badge variant="outline" className="rounded-full font-normal">
+                                                Opsiyonel
+                                            </Badge>
+                                        }
+                                    >
                                         {addressDraft ? (
-                                            <div className="mt-3 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+                                            <div className="flex items-start justify-between gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-2.5">
                                                 <div className="min-w-0 text-xs text-neutral-700">
                                                     <div className="font-medium text-neutral-900">
                                                         {addressDraft.label}
@@ -445,7 +447,7 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                             .join(" · ")}
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-1">
+                                                <div className="flex shrink-0 items-center gap-1">
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
@@ -466,13 +468,23 @@ export function LeadCustomerProfileDialog({ open, onOpenChange, customer, onCrea
                                                     </Button>
                                                 </div>
                                             </div>
-                                        ) : null}
-                                    </div>
+                                        ) : (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="rounded-2xl"
+                                                onClick={() => setAddressDialogOpen(true)}
+                                            >
+                                                <MapPin className="h-4 w-4" />
+                                                Adres Ekle
+                                            </Button>
+                                        )}
+                                    </DialogFormSection>
                                 ) : null}
-                            </div>
-                        </ScrollArea>
+                            </motion.div>
+                        </div>
 
-                        <DialogFooter className="border-t border-neutral-100 bg-white px-5 py-4 sm:px-6">
+                        <DialogFooter className="shrink-0 border-t border-neutral-100 bg-white px-4 py-3 sm:px-6">
                             <Button
                                 type="button"
                                 variant="outline"

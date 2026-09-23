@@ -70,8 +70,9 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   | grep -v 'sm:max-w'`; çok satırlı `DialogContent`'ler bu sayıma girmiyor).
   Bir kısmında (`CompanyContactsPageClient`, `SupplierFormDialog`,
   `EditVariantSupplierDialog`…) yükseklik sınırı da yok. Mekanik düzeltme:
-  `max-w-X` → `sm:max-w-X`; uzun formlarda `EditCustomerProfileDialog` deseni
-  (sabit başlık/footer + kayan gövde). Görsel QA gerektirir.
+  `max-w-X` → `sm:max-w-X`; uzun formlarda `EditCustomerProfileDialog` /
+  `LeadCustomerProfileDialog` deseni (sabit başlık/footer + kayan gövde + ortak
+  `features/admin/shared/components/DialogFormSection`). Görsel QA gerektirir.
 
 ### Veri girişi ürünler sayfasına sektör/üretim grubu/kullanım alanı filtresi *(kullanıcı talebiyle ertelendi, 2026-09-17 LOG)*
 - **Ne:** `/veri-girisi/products` (`ProductsPageClient`/`useProductListFilters`)
@@ -256,7 +257,6 @@ Detaylı ilerleme LOG'da. Per-sayfa reçete: [.claude/skills/i18n-migrate](.clau
 
 ## Kullanıcıda Bekleyen Adımlar
 
-- **`CustomerPhone` migration'ı — prod (2026-09-23, LOG)** — kubi'ye uygulandı ✅ (kullanıcı, 2026-09-23). Prod: kod deploy'undan ÖNCE `prisma migrate deploy` (README "Production RDS"). Yalnız yeni tablo ekler, mevcut veriye dokunmaz; ama migration uygulanmadan backend deploy edilirse müşteri uçlarının HEPSİ 500 verir (include her müşteri sorgusunda `CustomerPhone`'u okuyor).
 - **⚠️ PageHero banner'ı yorumda (2026-09-08, LOG)** — `components/sections/PageHero.tsx`'teki `<PageHeroBanner .../>` çağrısı kullanıcının isteğiyle geçici olarak yorumda; 13 public sayfada görsel/başlık banner'ı şu an görünmüyor, yalnız breadcrumb var. **Bu haliyle prod'a deploy EDİLMEMELİ.** Banner geri istenince tek satırlık yorum kaldırma.
 - **Tedarikçi sözlüğü teknik resmi CDN 404 düzeltmesi deploy edilmeli** (2026-09-08, LOG) — `infra/router.ts`'e `/product-supplier-codes` bucket route'u eklendi (kod hazır, commit edilmedi). `sst deploy --stage prod` sonrası `https://cdn.ceyhunlarplastik.xyz/product-supplier-codes/...` URL'lerinin açıldığını doğrula.
 - **SNS e-posta aboneliği onayı** — `kubilayuysal.ceyhunlarplastik@gmail.com` adresine gelen AWS "Subscription Confirmation" linkine tıklanmalı. Tıklanana kadar 6MB payload alarmı + concurrency/throttle alarmları tetiklense de **bildirim gönderilmez** (istek 3 günde düşer). Teyit: `aws sns list-subscriptions-by-topic` → `SubscriptionArn` "PendingConfirmation" değil.

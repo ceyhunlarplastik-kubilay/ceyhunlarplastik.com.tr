@@ -158,6 +158,12 @@ Validation rules should be centralized in a schema, not duplicated across inputs
 
 Do not introduce custom visual primitives if an equivalent shadcn/ui component already exists.
 
+Long form dialogs (customer editors and similar) share one layout: a fixed header, a body that
+scrolls on its own and uses the available screen height, a fixed action bar, and sections built
+with `features/admin/shared/components/DialogFormSection`. Reference implementations:
+`EditCustomerProfileDialog` and `LeadCustomerProfileDialog`. Size image grids by their container
+(`repeat(auto-fill, minmax(…))` + fixed-height thumbnails), not by screen breakpoints.
+
 ### Accessibility
 - Prefer accessible Radix/shadcn primitives.
 - Preserve keyboard navigation and focus states.

@@ -9587,6 +9587,57 @@ eşit sayıda eklendi (865/865).
   yazımla gir → "Bu numara zaten ekli"; ek numarayla arama; aynısını veri girişi potansiyel
   müşteri dialogunda (oluşturma + düzenleme); 375 px'te satır düzeni. Prod deploy'unda
   migration koddan ÖNCE (PLAN "Kullanıcıda Bekleyen Adımlar").
+- **Güncelleme (kullanıcı, 2026-09-23):** kubi'de doğrulandı ("istediğim gibi çalışıyor");
+  prod migration + deploy kullanıcı tarafından yapıldı. Çoklu telefon özelliği CANLIDA.
+
+## Veri girişi potansiyel müşteri dialogu + kullanım alanı seçicisi yeniden tasarımı (2026-09-23) *(kullanıcı talebiyle)*
+
+- **Talep:** `/veri-girisi/potansiyel-musteriler`'deki oluşturma/düzenleme dialogu büyük
+  ekranda bile sığmıyor, "Endüstriyel Profil" alanı çok geniş, görseller "dengesiz büyük";
+  admin dialogunun (`EditCustomerProfileDialog`, Dilim 1) yeni düzeni beğenildi.
+- **Kullanım yeri tespiti:** `LeadCustomerProfileDialog` + `LeadCustomersPageClient` YALNIZ
+  veri girişinde (admin'in Potansiyel Müşteriler sayfası `CustomersPageClient` +
+  `EditCustomerProfileDialog` kullanıyor). `LeadCustomerUsageAreaPicker` İKİ dialogda ortak
+  → görsel sorunu admin dialogunda da vardı.
+- **Teşhis:**
+  1. Seçici ızgarası sütun sayısını EKRAN kırılımıyla seçiyordu (`grid-cols-2 sm:3 lg:4
+     2xl:5`) ve görsel `aspect-square` idi → kart = kap genişliği / sütun. 1440px ekranda
+     1120px'lik veri girişi dialogunda 4 sütun → her görsel ~257px kare; admin dialogunda
+     ~230px. Ayrıca `sizes="…20vw"` kart başına ~288px (retina'da ~576px) görsel indiriyordu.
+  2. Dialog gövdesi ekrandan bağımsız en fazla 560px, üstte uzun koyu gradyan başlık,
+     dialog 1120px geniş; yükseklik `100vh` + sabit paylarla hesaplanıyordu.
+  3. İlk şüphe (yalnız `max-h`'li shadcn `ScrollArea`'nın kaymaması) başsız Chrome'da
+     ÖLÇÜLDÜ ve ÇÜRÜTÜLDÜ: bu dialogun yapısında (grid dialog → flex form → kök) Radix
+     viewport'un %100 yüksekliği çözülüyor, kaydırma çalışıyor. Aynı `ScrollArea + max-h`
+     deseni 5 yerde daha var (`CustomerPortalProductsPageClient`, `UsageFunctionImportPreview`
+     ×2, `IndustrialUsageAssignmentsPageClient`, `ProductUsageAreasTable`); üst yapıları farklı,
+     ÖLÇÜLMEDİ, sorun bildirilmedi.
+- **Yapılan:**
+  - `LeadCustomerProfileDialog` admin dialoguyla aynı kalıba taşındı: sade sabit başlık
+    ("Potansiyel Müşteri" rozeti, düzenlemede firma adı), `flex` içerik +
+    `max-h-[min(60rem,calc(100dvh-2rem))]` + `sm:max-w-[min(64rem,calc(100vw-3rem))]`,
+    `ScrollArea` yerine düz `min-h-0 flex-1 overflow-y-auto` gövde (seçicinin yapışkan araç
+    çubuğu buna tutunur), sabit eylem çubuğu. Bölümler: Firma Bilgileri (firma*, yetkili,
+    not) → İletişim (e-posta, web sitesi, telefonlar) → Endüstriyel Profil → Adres (yalnız
+    oluştururken, "Opsiyonel" rozetli). Form mantığı / kayıt akışı / adres taslağı AYNEN.
+  - Bölüm başlığı ortak bileşene çıkarıldı: `features/admin/shared/components/DialogFormSection.tsx`
+    (+ `OptionalFieldHint`); `EditCustomerProfileDialog` yerel kopyası silinip buna bağlandı
+    (görünüm birebir aynı).
+  - `LeadCustomerUsageAreaPicker` (iki dialog): ızgara `grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))]`
+    (sütun sayısı kabın genişliğine göre), görsel alanı sabit `h-20` (80px, `object-contain`),
+    küçük onay rozeti, `sizes="160px"`. Kullanıcı "kompakt görselli kart"ı seçti (liste
+    görünümüne karşı).
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · lint 0 error / 159 warning (baseline;
+  dokunulan dosyalarda 0) ✅ · frontend 405/405 ✅ · `next build` "Compiled successfully" +
+  470/470 sayfa ✅ (backend'e dokunulmadı). **Görsel:** build'in ürettiği CSS
+  (`.next/static/chunks/*.css`) ile aynı sınıfları kullanan örnek sayfa başsız Chrome'da
+  çekildi — 1440×900'de dialog 1024px, ekrana sığıyor, seçici 7 sütun (~128px kart, 80px
+  görsel); 390px'te (iframe ile, bkz. CLAUDE.md notu) 16px kenar boşluğu, tek sütun alanlar,
+  seçici 2 sütun (~145px), alt alta tam genişlik butonlar.
+- **Kullanıcıda kalan (kubi):** veri girişinde yeni kayıt + düzenleme dialogu (1440 / 768 /
+  375 px): başlık ve Kaydet her zaman görünür, gövde kayar; kullanım alanı kartları küçük ve
+  dengeli; seçicide kaydırırken arama/sektör çubuğu üstte kalır; adres ekle/düzenle/kaldır
+  (oluşturmada); admin/temsilci dialogunda da seçici kartları aynı küçük boyutta.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

@@ -308,7 +308,13 @@ export function LeadCustomerUsageAreaPicker({
                             <span className="h-px flex-1 bg-neutral-100" />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+                        {/*
+                          Sütun sayısı EKRANA değil bu kabın genişliğine göre (`auto-fill`,
+                          kart en az 7.5rem). Eski `sm/lg/2xl:grid-cols-*` kırılımları + kare
+                          görsel, geniş dialogda her kartı ~250px'lik kareye büyütüyordu.
+                          Görsel alanı sabit yükseklikte: kart genişlese de görsel büyümez.
+                        */}
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-2">
                             {values.map((value) => {
                                 const isSelected = selectedSet.has(value.id)
                                 const thumb = pickThumb(value)
@@ -320,20 +326,21 @@ export function LeadCustomerUsageAreaPicker({
                                         onClick={() => onToggle(value.id)}
                                         aria-pressed={isSelected}
                                         className={cn(
-                                            "group relative overflow-hidden rounded-xl border text-start transition",
+                                            "group relative flex flex-col overflow-hidden rounded-xl border text-start transition",
                                             isSelected
                                                 ? "border-brand ring-2 ring-brand/20"
                                                 : "border-neutral-200 hover:border-neutral-300 hover:shadow-sm",
                                         )}
                                     >
-                                        <div className="relative aspect-square w-full bg-neutral-50">
+                                        <div className="relative h-20 w-full shrink-0 bg-neutral-50">
                                             {thumb ? (
                                                 <Image
                                                     src={thumb}
                                                     alt={value.name}
                                                     fill
-                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                                                    className="object-contain p-2 transition duration-200 group-hover:scale-[1.04]"
+                                                    // Kart ~120-160px, görsel en çok 80px yüksek.
+                                                    sizes="160px"
+                                                    className="object-contain p-1.5 transition duration-200 group-hover:scale-[1.04]"
                                                 />
                                             ) : (
                                                 <div className="grid h-full place-items-center text-neutral-300">
@@ -343,19 +350,19 @@ export function LeadCustomerUsageAreaPicker({
 
                                             <span
                                                 className={cn(
-                                                    "absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full border transition",
+                                                    "absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full border transition",
                                                     isSelected
                                                         ? "border-brand bg-brand text-white"
                                                         : "border-neutral-200 bg-white/80 text-transparent group-hover:text-neutral-300",
                                                 )}
                                             >
-                                                <Check className="h-3.5 w-3.5" />
+                                                <Check className="h-3 w-3" />
                                             </span>
                                         </div>
 
                                         <div
                                             className={cn(
-                                                "border-t px-2 py-1.5 text-[11px] font-medium leading-4",
+                                                "flex min-h-9 flex-1 items-center border-t px-2 py-1 text-[11px] font-medium leading-4",
                                                 isSelected
                                                     ? "border-brand/20 bg-brand/5 text-neutral-950"
                                                     : "border-neutral-100 text-neutral-600",

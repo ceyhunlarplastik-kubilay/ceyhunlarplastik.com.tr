@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useId, useMemo, type ComponentProps, type ReactNode } from "react"
+import { useEffect, useMemo, type ComponentProps } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm, useWatch } from "react-hook-form"
 import { motion, useReducedMotion } from "motion/react"
@@ -38,6 +38,7 @@ import { resolveCustomerDisplayName } from "@core/helpers/crm/customerDisplayNam
 import type { AdminCustomer } from "@/features/admin/customers/api/types"
 import type { CompanyContact } from "@/features/admin/companyContacts/api/types"
 import { LeadCustomerUsageAreaPicker } from "@/features/admin/leadCustomers/components/LeadCustomerUsageAreaPicker"
+import { DialogFormSection, OptionalFieldHint } from "@/features/admin/shared/components/DialogFormSection"
 import { CustomerPhonesField } from "@/features/customerPhones/components/CustomerPhonesField"
 import {
     createCustomerEditorDefaults,
@@ -86,66 +87,6 @@ const HIERARCHY_ATTRIBUTE_CODES = new Set(["sector", "production_group", "usage_
 const STATUS_LABELS: Record<AdminCustomer["status"], string> = {
     LEAD: "Potansiyel Müşteri",
     CUSTOMER: "Cari Müşteri",
-}
-
-const SECTION_TONES = {
-    neutral: "bg-neutral-100 text-neutral-600",
-    brand: "bg-brand/10 text-brand",
-    sky: "bg-sky-50 text-sky-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    amber: "bg-amber-50 text-amber-600",
-} as const
-
-/**
- * Bölümler iç içe kart DEĞİL, düz bloklar: dialog gövdesi zaten kendi dolgusuna
- * sahip; eski renkli kutular mobilde iki kat yatay dolgu harcıyordu. Renk dili
- * başlık ikonunda korunuyor.
- */
-function FormSection({
-    icon,
-    title,
-    description,
-    tone = "neutral",
-    aside,
-    children,
-}: {
-    icon: ReactNode
-    title: string
-    description?: string
-    tone?: keyof typeof SECTION_TONES
-    aside?: ReactNode
-    children: ReactNode
-}) {
-    const headingId = useId()
-
-    return (
-        <section aria-labelledby={headingId} className="space-y-4 py-5 sm:py-6">
-            <div className="flex items-start gap-3">
-                <span
-                    className={cn(
-                        "grid size-8 shrink-0 place-items-center rounded-xl [&_svg]:size-4",
-                        SECTION_TONES[tone],
-                    )}
-                >
-                    {icon}
-                </span>
-                <div className="min-w-0 flex-1">
-                    <h3 id={headingId} className="text-sm font-semibold text-neutral-950">
-                        {title}
-                    </h3>
-                    {description ? (
-                        <p className="mt-0.5 text-xs leading-5 text-neutral-500">{description}</p>
-                    ) : null}
-                </div>
-                {aside ? <div className="shrink-0 pt-1.5">{aside}</div> : null}
-            </div>
-            {children}
-        </section>
-    )
-}
-
-function OptionalHint() {
-    return <span className="font-normal text-neutral-400">(opsiyonel)</span>
 }
 
 function SelectedCount({ count }: { count: number }) {
@@ -337,7 +278,7 @@ export function EditCustomerProfileDialog({
                                 transition={{ duration: 0.18 }}
                                 className="divide-y divide-neutral-100 px-4 sm:px-6"
                             >
-                                <FormSection
+                                <DialogFormSection
                                     icon={<Building2 />}
                                     title="Genel Bilgiler"
                                     description="Firma kimliği, durum ve müşteri temsilcisi ataması."
@@ -363,7 +304,7 @@ export function EditCustomerProfileDialog({
                                                 <FormItem>
                                                     <FormLabel>
                                                         Yetkili Kişi
-                                                        <OptionalHint />
+                                                        <OptionalFieldHint />
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input {...field} placeholder="Ad Soyad" autoComplete="off" />
@@ -436,9 +377,9 @@ export function EditCustomerProfileDialog({
                                             )}
                                         />
                                     </div>
-                                </FormSection>
+                                </DialogFormSection>
 
-                                <FormSection
+                                <DialogFormSection
                                     icon={<Phone />}
                                     title="İletişim"
                                     description="Birincil numara aramada, haritada ve iş taleplerinde kullanılır; muhasebe, satın alma gibi ek hatları etiketiyle ekleyin."
@@ -451,7 +392,7 @@ export function EditCustomerProfileDialog({
                                                 <FormItem>
                                                     <FormLabel>
                                                         E-posta
-                                                        <OptionalHint />
+                                                        <OptionalFieldHint />
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
@@ -468,9 +409,9 @@ export function EditCustomerProfileDialog({
                                         />
                                     </div>
                                     <CustomerPhonesField />
-                                </FormSection>
+                                </DialogFormSection>
 
-                                <FormSection
+                                <DialogFormSection
                                     icon={<Shapes />}
                                     tone="brand"
                                     title="Endüstriyel Profil"
@@ -572,10 +513,10 @@ export function EditCustomerProfileDialog({
                                             </FormItem>
                                         )}
                                     />
-                                </FormSection>
+                                </DialogFormSection>
 
                                 {genericCustomerAttributes.length > 0 ? (
-                                    <FormSection
+                                    <DialogFormSection
                                         icon={<SlidersHorizontal />}
                                         tone="sky"
                                         title="Profil Eşleşme Alanları"
@@ -611,10 +552,10 @@ export function EditCustomerProfileDialog({
                                                 </div>
                                             ))}
                                         </div>
-                                    </FormSection>
+                                    </DialogFormSection>
                                 ) : null}
 
-                                <FormSection
+                                <DialogFormSection
                                     icon={<Headset />}
                                     tone="emerald"
                                     title="Ceyhunlar İletişimleri"
@@ -670,9 +611,9 @@ export function EditCustomerProfileDialog({
                                             Henüz Ceyhunlar iletişim kaydı yok. Önce admin panelinden departman iletişimi oluşturun.
                                         </div>
                                     )}
-                                </FormSection>
+                                </DialogFormSection>
 
-                                <FormSection
+                                <DialogFormSection
                                     icon={<BadgePercent />}
                                     tone="amber"
                                     title="Ticari Şartlar"
@@ -778,7 +719,7 @@ export function EditCustomerProfileDialog({
                                             )}
                                         />
                                     </div>
-                                </FormSection>
+                                </DialogFormSection>
                             </motion.div>
                         </div>
 
