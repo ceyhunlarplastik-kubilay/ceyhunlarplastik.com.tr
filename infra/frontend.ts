@@ -81,6 +81,9 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
       : $app.stage === "dev"
         ? `auth-dev.${config.DOMAIN}`
         : `ceyhunlar-${$app.stage}.auth.${config.AWS_REGION}.amazoncognito.com`,
+    // "Google ile devam et" butonu ve NextAuth'un Cognito (OAuth) sağlayıcısı yalnız bu
+    // bayrak açıkken devreye girer (bkz. infra/cognito.ts — aynı bayrak IdP'yi kurar).
+    GOOGLE_LOGIN_ENABLED: config.GOOGLE_LOGIN_ENABLED ? "true" : "false",
     NEXT_PUBLIC_API_URL: publicApi.url,
     NEXT_PUBLIC_ADMIN_API_URL: adminApi.url,
     NEXT_PUBLIC_PROTECTED_API_URL: protectedApi.url,

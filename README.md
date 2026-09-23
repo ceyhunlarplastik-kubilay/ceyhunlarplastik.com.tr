@@ -59,6 +59,7 @@ DOMAIN_CERTIFICATE_ARN="arn:aws:acm:..."
 DOMAIN="yourdomain.com"
 DIRECT_RDS_HOST="10.0.x.x"   # prod DIRECT_URL host (migrations bypass the RDS Proxy) — instance endpoint hostname OR its private IP; use the IP to avoid a macOS DNS issue, see "Production RDS" below
 DEEPL_GLOSSARY_ID="optional-glossary-id"
+GOOGLE_LOGIN_ENABLED="true"  # optional, per stage — adds "Sign in with Google" (Cognito Google IdP + PreSignUp linking trigger). Off unless exactly "true"; leave it unset on stages that have no Google OAuth client/secrets
 ```
 
 > The `packages/core/.env` file is reserved for local database utilities such as Prisma CLI and the translation script. Runtime database access is provided through SST links: prod receives RDS connection fields, non-prod receives the Neon pooled URL. DeepL setup is documented at the end of this file.
@@ -80,6 +81,13 @@ npx sst secret set GmailSmtpAppPassword --stage kubi
 # DeepL — used only by the packages/core/prisma/translate-*.ts CLIs,
 # which run under `sst shell --target Prisma`
 npx sst secret set DeeplApiKey --stage kubi
+
+# Google sign-in — ONLY on stages with GOOGLE_LOGIN_ENABLED="true" (declared conditionally,
+# so other stages don't need them). Use ONE Google OAuth client per stage; the client's
+# redirect URI is https://<cognito-domain>/oauth2/idpresponse (kubi:
+# https://ceyhunlar-kubi.auth.eu-west-1.amazoncognito.com/oauth2/idpresponse)
+npx sst secret set GoogleOAuthClientId --stage kubi
+npx sst secret set GoogleOAuthClientSecret --stage kubi
 
 # Production only — RDS master password (non-prod stages use Neon)
 npx sst secret set RdsPassword --stage prod

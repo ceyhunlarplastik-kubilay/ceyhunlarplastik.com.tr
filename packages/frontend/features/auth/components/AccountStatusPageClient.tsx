@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import { Bell, RefreshCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
@@ -21,6 +22,7 @@ export function AccountStatusPageClient({
     const accessQuery = useMyAccess()
     const notificationsQuery = useMyNotifications()
     const markReadMutation = useMarkMyNotificationRead()
+    const { update: updateSession } = useSession()
 
     const access = accessQuery.data?.user
     const groups = access?.groups ?? fallbackGroups
@@ -29,6 +31,18 @@ export function AccountStatusPageClient({
         () => resolveAuthHome(groups, accessStatus),
         [accessStatus, groups]
     )
+
+    // Bu sayfanın kendisi CANLI durumu gösteriyor (`useMyAccess`, 5 sn'de bir), ama NextAuth
+    // oturumu (panellerin `layout.tsx`'lerinin baktığı şey) yalnız 5 DAKİKADA bir tazeleniyor
+    // (bkz. auth.ts `ACCESS_STATE_MAX_AGE_MS`). Onay bu pencerede gelmişse "Uygun panele git"
+    // doğru hedefi gösterir ama panel eski oturuma bakıp kullanıcıyı buraya geri yollar. Erişim
+    // ACTIVE'e döner dönmez oturumu ZORLA tazeleyip bu yarışı önden kapatıyoruz.
+    const hasForcedRefresh = useRef(false)
+    useEffect(() => {
+        if (accessStatus !== "ACTIVE" || hasForcedRefresh.current) return
+        hasForcedRefresh.current = true
+        void updateSession()
+    }, [accessStatus, updateSession])
 
     return (
         <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6">

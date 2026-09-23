@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server"
 import { auth } from "@/lib/auth/auth"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { SignUpPageClient } from "@/features/auth/components/SignUpPageClient"
+import { isGoogleLoginEnabled } from "@/features/auth/lib/google-login"
 import { resolveAuthHome } from "@/features/auth/lib/navigation"
 
 export default async function SignUpPage({
@@ -30,7 +31,11 @@ export default async function SignUpPage({
             sideTitle={t("sideTitle")}
             sideDescription=""
         >
-            <SignUpPageClient callbackUrl={callbackUrl} initialEmail={query.email} />
+            <SignUpPageClient
+                callbackUrl={callbackUrl}
+                initialEmail={query.email}
+                googleLoginEnabled={isGoogleLoginEnabled()}
+            />
         </AuthShell>
     )
 }

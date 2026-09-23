@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server"
 import { auth } from "@/lib/auth/auth"
 import { AuthShell } from "@/features/auth/components/AuthShell"
 import { SignInPageClient } from "@/features/auth/components/SignInPageClient"
+import { isGoogleLoginEnabled } from "@/features/auth/lib/google-login"
 import { canAccessPath, getCallbackPathname, resolveAuthHome } from "@/features/auth/lib/navigation"
 
 export default async function SignInPage({
@@ -47,6 +48,7 @@ export default async function SignInPage({
                 error={query.error}
                 initialEmail={query.email}
                 notice={query.notice}
+                googleLoginEnabled={isGoogleLoginEnabled()}
             />
         </AuthShell>
     )

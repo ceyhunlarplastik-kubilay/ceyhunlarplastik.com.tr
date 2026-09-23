@@ -61,7 +61,42 @@ export async function signInWithCognito(email: string, password: string): Promis
         throw new CognitoAuthError("UNKNOWN_AUTH_ERROR", "Cognito beklenen tokenları döndürmedi.", 500)
     }
 
+    return buildSignInResult(
+        {
+            idToken,
+            accessToken,
+            refreshToken: response.AuthenticationResult?.RefreshToken,
+            expiresAt: Math.floor(Date.now() / 1000) + (response.AuthenticationResult?.ExpiresIn ?? 3600),
+        },
+        email,
+    )
+}
+
+export type CognitoTokenSet = {
+    idToken: string
+    accessToken: string
+    refreshToken?: string
+    /** Epoch saniyesi. */
+    expiresAt: number
+}
+
+/**
+ * Cognito token'ları elde edildikten SONRAKİ ortak adım: kimliği ve DB erişim durumunu okuyup
+ * oturumun ihtiyaç duyduğu kullanıcıyı üretir. E-posta+şifre girişi de OAuth (Google) girişi de
+ * buradan geçer — ikisi de aynı kapıyı aynı şekilde uygular (erişim durumu okunamazsa giriş yok).
+ *
+ * `fallbackEmail` yalnız ID token'da e-posta yoksa kullanılır (şifre girişinde kullanıcının
+ * yazdığı adres); OAuth yolunda verilmez.
+ */
+export async function buildSignInResult(tokens: CognitoTokenSet, fallbackEmail?: string): Promise<SignInResult> {
+    const { idToken, accessToken } = tokens
     const profile = getCognitoProfileFromIdToken(idToken)
+    const email = profile.email || fallbackEmail
+
+    if (!email) {
+        throw new CognitoAuthError("UNKNOWN_AUTH_ERROR", "Kimlik jetonunda e-posta bulunamadı.", 500)
+    }
+
     let accessState = null
 
     try {
@@ -81,10 +116,10 @@ export async function signInWithCognito(email: string, password: string): Promis
     return {
         id: profile.sub ?? email,
         dbUserId: accessState.dbUserId,
-        email: profile.email ?? email,
+        email,
         firstName: accessState.firstName,
         lastName: accessState.lastName,
-        name: accessState.displayName || profile.name || profile.email || email,
+        name: accessState.displayName || profile.name || email,
         image: accessState.imageUrl ?? profile.picture,
         identifier: accessState.identifier,
         groups: accessState.groups,
@@ -93,7 +128,7 @@ export async function signInWithCognito(email: string, password: string): Promis
         supplierId: accessState.supplierId,
         idToken,
         accessToken,
-        refreshToken: response.AuthenticationResult?.RefreshToken,
-        expiresAt: Math.floor(Date.now() / 1000) + (response.AuthenticationResult?.ExpiresIn ?? 3600),
+        refreshToken: tokens.refreshToken,
+        expiresAt: tokens.expiresAt,
     }
 }

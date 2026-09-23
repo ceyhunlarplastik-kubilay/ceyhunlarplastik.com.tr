@@ -9163,6 +9163,237 @@ eşit sayıda eklendi (865/865).
   önceki dilimin 4 maddelik kubi doğrulama listesi (yukarıda) geçerliliğini
   korur.
 
+## Google ile giriş — G1 (altyapı + PreSignUp hesap bağlama) ve G2a (NextAuth sağlayıcısı + buton) (2026-09-19) *(kullanıcı talebiyle, branch `feat/google-identity-provider`)*
+
+- **Ne:** Cognito'ya Google kimlik sağlayıcısı + federe girişte kimliği YEREL profile
+  bağlayan `PreSignUp` trigger'ı + NextAuth'a ikinci (Cognito/OAuth) sağlayıcı +
+  giriş/kayıt sayfalarında "Google ile devam et" butonu. Hepsi `GOOGLE_LOGIN_ENABLED`
+  bayrağının arkasında (kubi `.env`'inde `"true"`; kapalıyken hiçbir kaynak/env değişmez).
+- **Araştırmada bulunanlar (kod + AWS/Google dokümanı + kubi havuzu salt-okunur):**
+  - **Önceki "postConfirmation federe girişte ateşlenir mi?" riski YOK:**
+    `authMiddleware.ts` (105-122) DB kullanıcısını ilk `/me/auth-state` çağrısında
+    `PENDING_REVIEW` ile kendisi oluşturuyor; `postConfirmation` Google için gerekmiyor.
+  - **Asıl tehlike hesap bağlama:** `User.email` ve `cognitoSub` UNIQUE. Bağlama olmadan
+    Google ile giren, DB'de kaydı olan biri Cognito'da yeni bir federe kullanıcı (yeni sub)
+    olur ve `user.create` unique hatası verir (o kişinin her API çağrısı 500). Ek olarak
+    yönetim işlemleri `cognitoSub`'ı Cognito `Username` diye gönderiyor
+    (`userAccess/service.ts:89,98`, `deleteUser.ts:85`) ve AWS federe-yalnız profilde `sub`'ı
+    kabul etmiyor (IdP kullanıcı adı `Google_…` şart) → onay/grup atama bozulurdu. Çözüm
+    (AWS'nin kendi önerisi): her zaman YEREL profil + Google kimliği ona `AdminLinkProviderForUser`.
+  - Google'ın önerdiği `cognito.ts` parçası kullanılmadı: placeholder secret'lar hardcoded,
+    her stage'e (prod dahil) deploy olurdu, redirect URI biçimi bozuk, `email_verified`
+    map'lenmemiş, bağlama yok.
+  - kubi havuzu (`eu-west-1_WYVn591AT`): domain `ceyhunlar-kubi`, tier ESSENTIALS, client
+    zaten `code` akışı + secret + `http://localhost:3000/api/auth/callback/cognito`
+    callback'i ile hazırdı (Hosted UI/OAuth yolu şimdiye dek atıldı). OIDC discovery kubi
+    domain'ini doğru döndürüyor. Google redirect URI: `https://ceyhunlar-kubi.auth.eu-west-1.amazoncognito.com/oauth2/idpresponse`.
+  - AWS'nin Ocak 2026'da çıkardığı "inbound federation" trigger'ı SST'nin sabit Pulumi AWS
+    7.20.0 sürümünde YOK (`lambdaConfig.inboundFederation` tipi yok) → `PreSignUp` kullanıldı.
+    Topluluk kaynaklarına göre `PreSignUp`'ta `AdminLinkProviderForUser` çağırınca kullanıcının
+    İLK denemesi "Already found an entry for username Google_…" ile düşer, ikinci deneme
+    geçer (bağ kalıcı). Bu, AWS dokümanından değil topluluktan (Amplify issue #1716, re:Post);
+    **kubi'de doğrulanacak.**
+- **G1 — altyapı + backend:**
+  - `config.ts`: `GOOGLE_LOGIN_ENABLED` (yalnız `"true"` ise açık).
+  - `infra/cognito.ts`: bayrak açıkken `sst.Secret` (`GoogleOAuthClientId`/`GoogleOAuthClientSecret`,
+    koşullu — eksik secret o stage'in deploy'unu düşürür) + `userPool.addIdentityProvider("Google", …)`
+    (SST'de ad = Cognito sağlayıcı adı, tam "Google" olmalı; `email_verified` map'li) +
+    client `providers: ['COGNITO', googleProvider.providerName]` (sağlayıcıdan sonra oluşur;
+    eski `transform.supportedIdentityProviders` KALDIRILDI çünkü `providers`'ı eziyordu —
+    bayrak kapalıyken SST varsayılanı `["COGNITO"]` ile aynı) +
+    VPC'siz `preSignUp` Lambda'sı (`nodejs24.x`; yalnız Cognito API'sini çağırır; IAM kaynağı
+    `userpool/*` — havuz ARN'si döngüsel bağımlılık yaratır).
+  - **Düzeltme (kubi ilk deploy'u, 2026-09-19):** ilk sürümde client `writeAttributes`'ına
+    `email_verified` da eklenmişti (varsayım: "map'li öznitelik client'a yazılabilir olmalı");
+    Cognito `UpdateUserPoolClient`'ı `InvalidParameterException: Invalid write attributes
+    specified while updating a client` ile reddetti. `email_verified` HİÇBİR app client'ın yazabileceği
+    bir öznitelik değil (API referansı: `ReadAttributes` varsayılanı `email_verified`'ı açıkça
+    sayar, `WriteAttributes` saymaz); federe girişte değeri Cognito kendisi yazar, IdP eşlemesi
+    (`email_verified: 'email_verified'`) yeterli. **Ders: `sst diff` Cognito API kısıtlarını
+    YAKALAMAZ** — yalnız kaynak grafiğini gösterir; bu hata ancak gerçek deploy'da çıktı. Deploy
+    kısmen uygulanmıştı (IdP + trigger + havuz `lambdaConfig` yaratıldı; yalnız client güncellemesi
+    düştü) — kod düzeltilince aynı komut kaldığı yerden tamamlar, elle temizlik gerekmez.
+    **Açık soru (kubi'de gözlenecek):** map'lenen `email_verified`in federe `PreSignUp` olayına
+    gerçekten gelip gelmediği doküman/kaynaktan kesinleştirilemedi; gelmezse tüm Google girişleri
+    `FED_DENY_EMAIL_NOT_VERIFIED` ile reddedilir (kapalı başarısız = güvenli). Reddi loglayan satır
+    artık `attributeKeys` (yalnız adlar) + `emailVerified` değerini içerir → tek denemeyle teşhis.
+  - `packages/core/.../cognito/federation/`: `errors.ts` (saf, `FED_DENY_*` kodları — Cognito
+    mesajı OAuth dönüşünde `error_description` olarak taşır), `decideFederatedSignUp.ts` (saf karar),
+    `handlePreSignUp.ts` (orkestratör), `repository.ts` (SDK adaptörü), `packages/functions/.../triggers/preSignUp.ts`.
+  - **Karar tablosu:** Google `email_verified` ≠ true → reddet · yerel profil yok → aç + bağla ·
+    `CONFIRMED` → bağla · `FORCE_CHANGE_PASSWORD` (davet kabul edilmemiş) → reddet (davet akışı
+    yetkili kalsın: `acceptedAt` + LEAD→CUSTOMER dönüşümü atlanmasın) · `UNCONFIRMED` → reddet
+    (ön-ele-geçirme) · başka sağlayıcı → dokunma. Yerel profil rastgele kalıcı parolayla
+    CONFIRMED yapılır (kullanıcı sonra "Şifremi unuttum" ile kendi parolasını belirleyebilir).
+  - Bilinçli olarak YAPILMAYAN: `AliasExistsException` yutulmuyor (kapalı başarısız); gerçek
+    hata adları kubi'de gözlenince gerekirse eklenecek.
+- **G2a — frontend:** `infra/frontend.ts` `GOOGLE_LOGIN_ENABLED` env; `features/auth/lib/google-login.ts`;
+  `sign-in.ts`'ten ortak `buildSignInResult` çıkarıldı (şifre girişi davranışı aynı — token'lar
+  elde edildikten sonraki adım; artık OAuth de aynı kapıdan geçiyor); `lib/auth/auth.ts`: bayrak
+  açıkken `CognitoProvider` (`identity_provider=Google` → Hosted UI giriş sayfası atlanır, doğrudan
+  Google hesap seçici) + `jwt` callback'inde OAuth dalı. Kullanıcı `profile()` içinde DEĞİL `jwt`
+  içinde üretilir: NextAuth `profile()` hatasını yutup sessizce /signin'e atıyor (kaynaktan
+  doğrulandı), `jwt` hatası ise `?error=Callback` olarak görünür. `GoogleSignInButton`/
+  `GoogleSignInSection` (giriş + kayıt), i18n `auth.signIn|signUp.{google,orDivider}` (tr/en; diğer
+  diller fallback zinciriyle). Refresh/logout DEĞİŞMEDİ: `GetTokensFromRefreshToken` OAuth
+  token'larıyla da çalışıyor (AWS dokümanı: managed login kullanıcıları için de geçerli).
+- **Düzeltme 2 — kubi'de ilk gerçek Google girişi (2026-09-21):** deploy tamamlandı; Google →
+  Cognito → NextAuth zinciri çalıştı, kullanıcı DB'de `PENDING_REVIEW` olarak oluştu ve admin
+  onayından sonra Google ile giriş yapabildi (planlanan davranış: e-posta kaydıyla aynı onay
+  akışı). Ama bir denemede NextAuth `OAUTH_CALLBACK_ERROR: nonce mismatch, expected undefined,
+  got: <uzun değer>` verdi (kullanıcıya "Giriş yanıtı işlenemedi"). Sebep: NextAuth v4'ün varsayılanı
+  `checks: ["state"]`; Cognito federe girişte ID token'a KENDİ `nonce`'unu koyuyor, NextAuth nonce
+  göndermediği için openid-client reddediyor (bilinen NextAuth+Cognito sorunu, next-auth #3544/#3403).
+  Düzeltme: `CognitoProvider`'a `checks: ["state", "nonce"]` — NextAuth kendi nonce'unu yollar
+  (`checks.js` `nonce.create`), Cognito onu ID token'a yansıtır (AWS `/oauth2/authorize` `nonce`
+  parametresi: "sağladığınız nonce ID token'a konur"). **Kubi'de doğrulanmadı;** hatanın ara sıra
+  görünmesi Cognito Hosted UI oturum çerezinin (1 saat) upstream Google adımını atlamasıyla
+  açıklanıyor (çıkarım) — yeniden üretmek için GİZLİ pencere / çerez temizliği gerekir.
+  Bu denemede beklenen "ilk deneme düşer" (PreSignUp bağlama huyu) ile ilgisi netleşmedi.
+- **Nasıl doğrulandı:** `typecheck:backend` ✅ · `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159
+  warning ✅ (baseline aynı) · `test:ci -w core` 685/685 ✅ (658 + 27 yeni: karar fonksiyonu 13 +
+  orkestratör 14) · `test -w functions` 343/343 ✅ · `test -w frontend` 390/390 ✅ (384 + 6 yeni:
+  `buildSignInResult`) · `messages` tr/en anahtar sayısı eşit (874) · root `tsc` çıktısı dokunulan
+  infra dosyalarında temiz · **`sst diff --stage kubi` (salt-okunur, bayrak AÇIK):** grafik derleniyor;
+  yeni `Google` IdP + iki secret + `preSignUp` Function/Role/LogGroup/Permission, havuzda yalnız
+  `lambdaConfig.preSignUp`, client güncellemesi görünüyor · **bayrak KAPALI diff:** Google/preSignUp/
+  havuz/client/IdP satırı YOK → bayraksız stage'lerde (prod/dev) bu dilimden hiçbir Cognito değişikliği çıkmaz.
+- **Ne kaldı (kullanıcıda):** kubi `.env`'ine `GOOGLE_LOGIN_ENABLED="true"` + `sst dev --stage kubi`
+  yeniden başlatma; senaryolar: (A) hiç hesabı olmayan Google e-postası — ilk deneme büyük ihtimalle
+  `/auth/error` (OAuthCallback) ile düşer, ikincisi girer, `/hesabim`'e düşer; (B) e-posta+şifre
+  hesabı olan kişi Google ile girer — aynı `dbUserId`/roller, DB'de ikinci kullanıcı YOK; (C) davet edilmiş
+  ama kabul etmemiş kişi — reddedilir (server log `FED_DENY_INVITATION_PENDING`); (D) çıkış yapıp tekrar
+  Google — ilk denemede girmeli. `sst dev` terminalindeki `OAUTH_CALLBACK_HANDLER_ERROR` satırındaki
+  `error_description` metinleri G2b'nin (hata eşleme + otomatik yeniden deneme) girdisi.
+  **prod/dev'e dokunulmadı; commit/deploy kullanıcıda.**
+
+### Düzeltme 3 — Google girişi 7-8 sn sürüyordu, discovery önbelleksizliği (2026-09-22)
+
+- **Belirti:** kullanıcı kubi'de Google girişini art arda 4-5 kez denedi, her seferinde
+  7-8 sn sürdü (cold start değil — ısınma olsaydı 2. denemede düşerdi). Aynı hesapla
+  e-posta+şifre girişi 2-3 sn. İki yol da AYNI `/me/auth-state` çağrısını paylaşıyor
+  (`buildSignInResult`), yani fark o çağrıda değil, yalnız OAuth'a özgü bir yerde.
+- **Kök neden:** `next-auth/providers/cognito` fabrikası (`node_modules/next-auth/providers/cognito.js`)
+  daima `wellKnown: \`${issuer}/.well-known/openid-configuration\`` üretiyor, ve NextAuth v4'ün
+  `openidClient()` fonksiyonu (`core/lib/oauth/client.js`) bu discovery'yi **hiçbir yerde
+  önbelleğe almadan** her çağrıda `Issuer.discover()` ile yeniden çekiyor. Bu fonksiyon Google
+  girişinin İKİ AYRI adımında da çalışıyor: (1) "Google ile devam et"e tıklanan an
+  (`/api/auth/signin/cognito` → `getAuthorizationUrl`), (2) Google'dan dönüşte
+  (`/api/auth/callback/cognito` → `oAuthCallback`, ki bu adım ayrıca JWKS'i de taze çekiyor).
+  Yani tek girişte en az 4 AWS ağ turu (discovery ×2 + token + JWKS), hiçbiri önbelleklenmeden,
+  her denemede yeniden — art arda denemenin hızlanmamasının sebebi tam bu.
+- **Düzeltme:** `packages/frontend/lib/auth/auth.ts`'te `CognitoProvider(...)` fabrikası
+  TERK EDİLDİ; yerine `wellKnown` VERMEYEN, uç noktaları (`authorization`, `token`, `userinfo`,
+  `jwks_endpoint`) `COGNITO_DOMAIN`/`COGNITO_ISSUER`'dan doğrudan türeten elle yazılmış bir
+  `OAuthConfig` nesnesi kondu (next-auth v4 + Cognito için bilinen bir hızlandırma deseni —
+  `client.js`'in `if (provider.wellKnown) discover() else new Issuer({...sabit uç noktalar})`
+  dallanmasına dayanıyor). Discovery isteği tamamen kalkıyor; token+JWKS zaten gerekli olduğu
+  için kalıyor. `idToken: true` korundu (userinfo uç noktası hâlâ tanımlı ama hiç çağrılmıyor).
+  `checks: ["state","nonce"]` (Düzeltme 1) aynen taşındı. `profile()` claim tipini artık dar
+  `next-auth` `Profile` (`sub/name/email/image`) değil, ham Cognito ID token claim'lerini
+  (`picture` dahil) yansıtan yerel `CognitoIdTokenClaims` tipiyle alıyor.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159 warning ✅ ·
+  `test -w frontend` 390/390 ✅ (değişmedi — bu katman testsiz, sinyal typecheck+manuel kubi testi).
+  **Kubi'de gerçek süre farkı henüz ölçülmedi** — kullanıcı `sst dev`'i yeniden başlatıp
+  Google girişini tekrar denemeli. Beklenti: 4 turdan 2'ye düşüş, gözle görülür hızlanma
+  (muhtemelen 7-8 sn → 3-5 sn bandı; tam kaç saniye olacağı kubi'de ölçülmeden bilinemez —
+  Cognito↔Google yönlendirme turları ve Google'ın kendi hesap seçici ekranı hâlâ var, bunlar
+  bizim kodumuzun dışında).
+- **Ne kaldı:** kullanıcı kubi'de tekrar test edip yeni süreyi bildirmeli. İyileşme yetersizse
+  bir sonraki şüpheli, paylaşılan `/me/auth-state` çağrısının kendisi (SST Live Lambda relay +
+  Neon) olur — bunu izole etmek için ayrı bir zamanlama denemesi gerekir.
+
+### Düzeltme 4 — KRİTİK: G1'den beri hiçbir Google girişi asla bağlanmamış (case-insensitive havuz) (2026-09-22)
+
+- **Belirti:** `kubilayuysal.ceyhunlarplastik@gmail.com` (önceden e-posta+şifreyle kayıtlı)
+  "Oturumu Kapat" sonrası Google ile girişte `authMiddleware.ts:111`'de
+  `prisma.user.create()` → `P2002 Unique constraint failed on the fields: (email)` ile 500 verdi.
+- **Teşhis (AWS konsolu/API'den salt-okunur doğrulandı):**
+  - `ListUsers(Filter: email=...)` kubi havuzunda AYNI e-posta için İKİ kayıt gösterdi: yerel
+    `02c57424-…` (CONFIRMED, e-posta+şifre) ve gölge `google_109513230223934905367`
+    (EXTERNAL_PROVIDER, **`sub: a255a4e4-3051-7014-6f4e-efd39e77b152`** — yerelinkinden FARKLI).
+  - `AdminGetUser("02c57424-…")` → öznitelik listesinde **`identities` YOK**, `UserLastModifiedDate:
+    2026-06-12` (bu özelliğin hiç yazılmadığı bir tarih). Yani `AdminLinkProviderForUser` bu
+    kullanıcıya HİÇ uygulanmamış — Google girişleri ayrı, bağsız bir profil olarak yürüyormuş.
+  - `DescribeUserPool` → **`UsernameConfiguration.CaseSensitive: false`**. AWS dokümantasyonu
+    (bu oturumda daha önce okundu): "case-insensitive havuzlarda Cognito federe kullanıcının
+    TÜM kullanıcı adını küçük harfe çevirir, IdP ön eki DAHİL" — yani PreSignUp olayına
+    `event.userName = "google_…"` geliyordu (`Google_…` DEĞİL).
+  - `decideFederatedSignUp.ts`'teki `assessFederatedIdentity`, sağlayıcı adını `!==` (duyarlı)
+    ile `"Google"`e karşılaştırıyordu → `"google" !== "Google"` → **her seferinde sessizce
+    `PASSTHROUGH`**. Hiç hata fırlatmadı, hiç log basmadı (tasarım gereği "desteklenmeyen
+    sağlayıcı" varsayıldı) — trigger 200 OK döndü, Cognito kendi VARSAYILAN davranışına
+    (bağsız gölge profil oluşturma) düştü. **G1'den (2026-09-19) bu düzeltmeye kadar HİÇBİR
+    Google girişi gerçekten bağlanmadı** — önceki oturumdaki "bağlama çalıştı" doğrulaması
+    yanlıştı (o an aktif olan e-posta+şifre session'ının DB satırını görmüştüm, taze bir federe
+    token'ı değil).
+  - Yan not: SST Live Lambda dev modunda Cognito trigger'larının `console.log` çıktısı
+    CloudWatch'a HİÇ düşmüyor (yalnız relay/bağlantı satırları düşüyor) — teşhis bu yüzden
+    tamamen AWS API'den (ListUsers/AdminGetUser/DescribeUserPool) yapıldı, uygulama logundan
+    değil. `sst dev`'in KENDİ terminali (kullanıcının makinesi) gerçek çıktının tek yeri.
+- **Düzeltme:** `assessFederatedIdentity` artık `identity.providerName.toLowerCase() !==
+  SUPPORTED_PROVIDER.toLowerCase()` ile karşılaştırıyor; eşleşince döndürdüğü `identity`, HAM
+  (küçük harfli olabilen) değeri değil kanonik `"Google"`yı taşıyor — çünkü
+  `AdminLinkProviderForUser`'ın `SourceUser.ProviderName`'i havuza KAYITLI ada ihtiyaç duyuyor,
+  kullanıcı adının harf durumuna değil. Regresyon testi eklendi (`decideFederatedSignUp.test.ts`:
+  "case-insensitive havuzda küçük harfli 'google_…' kullanıcı adını da tanır").
+- **Nasıl doğrulandı:** `test:ci -w core` 686/686 ✅ (685 + 1 yeni regresyon testi) ·
+  `typecheck:backend` ✅.
+- **Ne kaldı (kullanıcıda, İKİ ayrı adım):**
+  1. **Kod:** `sst dev`'i yeniden başlat (Cognito trigger kod değişikliği, restart şart).
+  2. **Bozulmuş kaydın temizliği (AYRI onay gerekir — kalıcı silme):** bu kullanıcı ZATEN bir
+     kez (bağsız) federe olarak giriş yaptığı için AWS'nin kendi kuralı gereği
+     (`AdminLinkProviderForUser`'ı BAŞARIYLA uygulayabilmek için) önce Cognito'daki YETİM
+     `google_109513230223934905367` kaydının `AdminDeleteUser` ile SİLİNMESİ gerekiyor — silinmezse
+     kod düzelmiş olsa da PreSignUp bu kimlik için muhtemelen tekrar tetiklenmez (Cognito "ilk
+     giriş" saymaz) ve çökme sürer. Bu ben tarafımdan YAPILMADI — kalıcı/tersinemez bir AWS
+     silme işlemi olduğu için kullanıcı onayı bekleniyor. Onaylanırsa: sil → kullanıcı Google ile
+     TEKRAR dener → bu kez gerçekten `02c57424-…`e bağlanır (kalıcı) → bir daha asla bu hatayı
+     almaz. **Aynı kalıp, henüz test edilmemiş her Google kullanıcısı için de geçerliydi** —
+     kubi'de G1'den beri denenen TÜM Google girişleri muhtemelen aynı şekilde yetim kaldı;
+     kullanıcı hangi hesaplarla denediğini hatırlıyorsa hepsi için aynı temizlik gerekir.
+- **Kubi'de doğrulandı (2026-09-22, kullanıcı):** her iki yetim Cognito kaydı da (kullanıcı
+  tarafından `AdminDeleteUser` ile) silindikten sonra Google ile yeniden denendi. İkisi de
+  BEKLENEN sonucu verdi: `kubilayuysal.ceyhunlarplastik@gmail.com` için yerel `02c57424-…`
+  profilinin `identities` özniteliğinde artık gerçek bir Google bağı var (AWS'nin linking
+  doküman örneğiyle birebir aynı şekil) — yeni gölge kayıt oluşmadı, doğrudan yerel profile
+  bağlandı; `kubilayuysall@gmail.com` (Google-yalnız kayıt, aynı bozukluk penceresinden) için de
+  silme+yeniden kayıt sonrası sorun kalmadı. Düzeltme 4 kapandı.
+
+### Düzeltme 5 — onaydan sonra doğru panele "gitmiyor" (NextAuth oturumu 5 dk'ya kadar bayat) (2026-09-22)
+
+- **Belirti (kullanıcı):** hem Google hem e-posta+şifre ile kayıtta, admin/owner rol atasa bile
+  `/hesabim`'deki "Uygun panele git" bazen doğru panele GÖTÜRMÜYOR gibi görünüyordu.
+- **Ayrı konu, karışıklığı gidermek için netleştirildi:** Google ve e-posta+şifre kaydının
+  FARKLI ilk bekleme sayfasına (`/hesabim` vs `/auth/awaiting-approval`) düşmesi BİLİNÇLİ ve
+  doğru — Google e-postayı kendisi doğruladığı için akış doğrudan gerçek bir OTURUMLA biter ve
+  PENDING_REVIEW iken `/hesabim`'e düşer; e-posta+şifre akışında ise `ConfirmSignUp` (kod
+  doğrulama) HENÜZ oturum açmaz — `/auth/awaiting-approval` oturumsuz, statik bir "doğrulandı,
+  şimdi giriş yap" ekranıdır (`AwaitingApprovalPageContent.tsx`, session gerektirmiyor).
+  Kullanıcı oradan "Giriş ekranına dön"e tıklayıp GERÇEKTEN giriş yaptığında (hâlâ PENDING_REVIEW
+  olsa bile) o da `/hesabim`'e düşer — yani ikisi de SONUNDA aynı yere çıkıyor, yalnız e-posta+
+  şifre akışında bir manuel tıklama fazla var (kod doğrulama oturum açmadığı için).
+- **Asıl hata (bu oturumda daha önce teşhis edilmiş, şimdi uygulandı):** `/hesabim`'in butonu
+  `useMyAccess()` ile CANLI veri gösteriyor (5 sn'de bir `/me/access`), ama tıklanınca gidilen
+  panelin `layout.tsx`'i NextAuth OTURUMUNA (`auth()`) bakıyor — bu da yalnız
+  `ACCESS_STATE_MAX_AGE_MS` (5 DAKİKA) dolunca tazeleniyor. Onay bu pencerede gelmişse buton
+  doğru hedefi gösterir ama hedef panel eski `accessStatus`/`groups`'a bakıp kullanıcıyı
+  `/hesabim`'e geri yollar — "hiçbir zaman doğru panele gitmiyor" hissi böyle oluşuyordu.
+- **Düzeltme:**
+  - `lib/auth/auth.ts`: `refreshAccessStateIfStale`'e `force` parametresi eklendi; `jwt()`
+    callback'i artık `trigger` alıyor ve `trigger === "update"` olduğunda 5 dakikalık eşiği
+    atlayıp DOĞRUDAN taze erişim durumunu çekiyor.
+  - `AccountStatusPageClient.tsx`: `useSession()`'dan `update` alınıyor; `useMyAccess()`'in
+    canlı verisi `ACTIVE`'e döner dönmez (tek seferlik, `useRef` ile korunan bir `useEffect`)
+    `update()` çağrılıyor — yani kullanıcı butona TIKLAMADAN önce, arka planda oturum zaten
+    tazeleniyor. Kullanıcı tıkladığında hedef panelin `layout.tsx`'i artık GÜNCEL veriyi görür.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159 warning ✅ ·
+  `test -w frontend` 390/390 ✅ (bu katman testsiz — NextAuth callback'i mock'lamadan test etmek
+  ağır altyapı gerektirir, sinyal typecheck + manuel kubi testi).
+- **Ne kaldı:** kullanıcı kubi'de tekrar test etmeli — bir hesabı `PENDING_REVIEW` bırakıp admin
+  panelinden onaylamalı, `/hesabim` sekmesi açıkken (yenilemeden) "Uygun panele git"e basıp artık
+  doğru panele düştüğünü doğrulamalı.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

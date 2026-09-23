@@ -284,6 +284,8 @@
             "verifyAccount": "Verify My Account",
             "createAccount": "Create a new account",
             "goHome": "Go to homepage",
+            "google": "Continue with Google",
+            "orDivider": "or",
             "notices": {
                 "confirmed": {
                     "title": "Your account has been verified",
@@ -313,7 +315,9 @@
             "submitting": "Creating Account...",
             "codeSentToast": "A verification code has been sent to your email address.",
             "signInLink": "Sign in",
-            "goHome": "Go to homepage"
+            "goHome": "Go to homepage",
+            "google": "Sign up with Google",
+            "orDivider": "or"
         },
         "forgotPassword": {
             "eyebrow": "Ceyhunlar Plastik",

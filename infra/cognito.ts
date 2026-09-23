@@ -4,6 +4,11 @@ import { appRouter } from "./router";
 
 const isPermanentStage = ['prod', 'dev'].includes($app.stage);
 
+// Google ile giriş stage-özel bir BAYRAKtır (`.env` → GOOGLE_LOGIN_ENABLED=true). Kapalıyken
+// havuza/client'a hiçbir şey eklenmez; yani prod/dev diff'i boş kalır ve o stage'de Google
+// secret'ı tanımlı olmak zorunda değildir (`sst.Secret` eksikse deploy düşer).
+const googleLoginEnabled = config.GOOGLE_LOGIN_ENABLED;
+
 // Helper functions
 const getFrontendDomain = () => {
     if ($app.stage === 'prod') return config.DOMAIN
@@ -37,7 +42,34 @@ const userPool = new sst.aws.CognitoUserPool('CeyhunlarUserPool', {
             runtime: 'nodejs20.x',
             vpc: vpc,
             link: [rds],
-        }
+        },
+        // Federe (Google) ilk girişi yerel profile bağlar — bkz. cognito/federation/*.
+        // VPC YOK: yalnız Cognito API'sini çağırır, DB'ye dokunmaz (Cognito trigger'ı 5 sn
+        // içinde dönmek zorunda; VPC/NAT gecikmesi eklemeyelim).
+        ...(googleLoginEnabled
+            ? {
+                preSignUp: {
+                    handler: `${folderPrefix}/triggers/preSignUp.handler`,
+                    runtime: 'nodejs24.x' as const,
+                    // Kaynak, havuz ARN'si DEĞİL: havuz bu Lambda'ya, Lambda'nın rolü havuza
+                    // bağlanırsa döngüsel bağımlılık oluşur. Bu yüzden hesap+bölge içindeki
+                    // tüm havuzlar (`userpool/*`) ile sınırlı tutulur.
+                    permissions: [
+                        {
+                            actions: [
+                                'cognito-idp:ListUsers',
+                                'cognito-idp:AdminCreateUser',
+                                'cognito-idp:AdminSetUserPassword',
+                                'cognito-idp:AdminLinkProviderForUser',
+                            ],
+                            resources: [
+                                $interpolate`arn:aws:cognito-idp:${aws.getRegionOutput().name}:${aws.getCallerIdentityOutput().accountId}:userpool/*`,
+                            ],
+                        },
+                    ],
+                },
+            }
+            : {}),
     }
 })
 
@@ -156,8 +188,40 @@ if (isPermanentStage) {
     });
 }
 
+// Google kimlik sağlayıcısı (yalnız GOOGLE_LOGIN_ENABLED=true stage'lerinde).
+// - Sağlayıcı ADI Cognito'da rezerve: sosyal sağlayıcı için tam olarak "Google" olmalı.
+// - Secret'lar `sst.Secret` (PascalCase) — `npx sst secret set GoogleOAuthClientId --stage <stage>`.
+//   Bayrak kapalıyken TANIMLANMAZ: tanımlı ama değersiz secret o stage'in deploy'unu düşürür.
+// - `email_verified` map'lenmezse Cognito Google'dan gelen e-postayı doğrulanmamış sayar.
+//   Bu eşleme client'ın `writeAttributes`'ına YAZILMAZ: `email_verified` hiçbir app client
+//   tarafından yazılabilir bir öznitelik değildir (Cognito `UpdateUserPoolClient`'ı
+//   "Invalid write attributes specified" ile reddeder — kubi deploy'unda yaşandı); federe
+//   girişte değeri Cognito kendisi yazar. `sst diff` bu kısıtı YAKALAMAZ (yalnız API görür).
+const googleProvider = googleLoginEnabled
+    ? userPool.addIdentityProvider('Google', {
+        type: 'google',
+        details: {
+            authorize_scopes: 'openid email profile',
+            client_id: new sst.Secret('GoogleOAuthClientId').value,
+            client_secret: new sst.Secret('GoogleOAuthClientSecret').value,
+        },
+        attributes: {
+            email: 'email',
+            email_verified: 'email_verified',
+            given_name: 'given_name',
+            family_name: 'family_name',
+            name: 'name',
+            username: 'sub',
+        },
+    })
+    : undefined;
+
 // User Pool Client
 const userPoolClient = userPool.addClient('CeyhunlarClient', {
+    // Sağlayıcı ADI output olarak verilir: client, sağlayıcıdan SONRA oluşur/güncellenir
+    // (Cognito olmayan bir sağlayıcıyı client'a bağlamayı reddeder). Bayrak kapalıyken
+    // undefined → SST varsayılanı ["COGNITO"] (önceki değerle aynı, diff yok).
+    providers: googleProvider ? ['COGNITO', googleProvider.providerName] : undefined,
     transform: {
         client: {
             allowedOauthFlows: ['code'],
@@ -174,7 +238,8 @@ const userPoolClient = userPool.addClient('CeyhunlarClient', {
             logoutUrls: getLogoutUrls(),
             // generateSecret: false,
             generateSecret: true,
-            supportedIdentityProviders: ['COGNITO'],
+            // `supportedIdentityProviders` BİLİNÇLİ olarak burada yok: yukarıdaki `providers`
+            // belirler (transform onu ezerdi ve sağlayıcıdan sonra oluşma sırası bozulurdu).
             readAttributes: [
                 'email',
                 'phone_number',
@@ -188,6 +253,7 @@ const userPoolClient = userPool.addClient('CeyhunlarClient', {
                 'given_name',
                 'family_name',
                 'name',
+                // `email_verified` BİLİNÇLİ olarak yok (bkz. yukarıdaki Google IdP notu).
             ],
             explicitAuthFlows: [
                 'ALLOW_USER_SRP_AUTH', // Secure Remote Password

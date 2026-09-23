@@ -18,26 +18,35 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
-### Cognito Google federasyonu (+ e-posta OTP araştırması) · kapsam: orta-büyük, riskli *(kullanıcı talebiyle ertelendi, 2026-09-18 LOG)*
-- **Ne:** Google Cloud OAuth ile "Google ile giriş yap" seçeneği (kullanıcının
-  zaten Google Maps API için var olan GCP erişimiyle GOOGLE_CLIENT_ID/SECRET
-  alınacak). E-posta OTP (parolasız giriş) ayrıca soruldu.
-- **Bulgu (LOG'da detaylı):** Proje şu an Cognito Hosted UI/OAuth akışını HİÇ
-  kullanmıyor (yalnız doğrudan `USER_PASSWORD_AUTH` + özel `/api/auth/cognito/*`
-  route'ları) — `infra/cognito.ts`'teki `allowedOauthFlows`/`callbackUrls`
-  fiilen atıl. SST'nin `userPool.addIdentityProvider()` metodu doğrulandı,
-  mümkün ama gerçek bir OAuth yolu açmak demek: NextAuth'a
-  `next-auth/providers/cognito` eklenmesi + Hosted UI'a yönlendiren buton +
-  `supportedIdentityProviders`'a `'Google'` eklenmesi.
-- **Doğrulanamayan gerçek risk:** Federe (Google) girişte `postConfirmation`
-  trigger'ının ateşlenip ateşlenmeyeceği (dolayısıyla DB `User` kaydının
-  otomatik oluşup oluşmayacağı) kodda kesinleştirilemedi — **kubi'de izole
-  test şart**, geniş uygulamaya geçmeden önce.
-- E-posta OTP: SST'nin bu sürümünde/kod tabanında hiçbir destek izi
-  bulunamadı — ayrı, daha sonraki bir araştırma konusu.
-- Etki: **infra** (`cognito.ts` — yeni identity provider, `sst.Secret`
-  GOOGLE_CLIENT_ID/SECRET), **frontend** (`lib/auth/auth.ts`'e ikinci
-  provider, "Google ile giriş yap" butonu).
+### Google ile giriş — G2b + G3 (kubi testinden sonra) · kapsam: orta *(kullanıcı talebiyle, branch `feat/google-identity-provider`)*
+- **Durum:** G1 (altyapı + PreSignUp bağlama) ve G2a (NextAuth sağlayıcısı + buton) ✅ kod
+  hazır, 2026-09-19 LOG'da; **kubi'de gerçek Google girişi kullanıcıda bekliyor**
+  (kubi `.env`'ine `GOOGLE_LOGIN_ENABLED="true"` + `sst dev --stage kubi`).
+- **G2b — OAuth hata eşleme + otomatik yeniden deneme:** Cognito hata metnini
+  (`error_description`) kullanıcıya anlamlı mesaja çevir: `FED_DENY_*` kodları
+  (`core/.../cognito/federation/errors.ts`) için ayrı i18n mesajları (davet bekliyor,
+  e-posta doğrulanmamış, ...) + PreSignUp bağlaması sonrası ilk denemenin
+  "Already found an entry for username" ile düşmesine karşı TEK seferlik otomatik
+  yeniden deneme. NextAuth v4 `error_description`'ı tarayıcıya iletmiyor (yalnız
+  sunucu logunda) → `[...nextauth]/route.ts` sarmalayıcısıyla yakalanmalı. **Gerçek
+  mesaj metinleri kubi'de gözlenmeden yazılmaz** (topluluk kaynaklı varsayım).
+- **G3 — prod/dev'e açma (ayrı onay, kubi doğrulaması sonrası):** stage başına AYRI
+  Google OAuth client'ı (redirect `https://auth.<DOMAIN>/oauth2/idpresponse`, dev:
+  `https://auth-dev.<DOMAIN>/oauth2/idpresponse`); Google'da "In production" için
+  ana sayfa/gizlilik politikası/kullanım koşulları sayfaları GEREKİR (uygulamada
+  yok) + `.env`'de `GOOGLE_LOGIN_ENABLED`; deploy öncesi `npx sst diff --stage prod`
+  ile yalnız beklenen değişikliğin çıktığı gösterilmeli; prod discovery
+  `authorization_endpoint`'i (özel domain) doğrulanmalı. Opsiyonel: Cognito `/logout`
+  ile tam çıkış (Hosted UI oturum çerezi 1 saat kalıyor).
+- **Sonradan iyileştirme:** AWS "inbound federation" trigger'ına geçiş (ilk-deneme
+  hatasını kaldırır) — SST/Pulumi AWS güncellemesi gerekir (7.20.0'da yok).
+- **E-posta OTP (2. fikir, ayrı araştırma):** kubi havuzu ESSENTIALS'ta
+  (`AllowedFirstAuthFactors` şu an yalnız `PASSWORD`); e-posta gönderimi
+  `COGNITO_DEFAULT` — OTP için SES gerekip gerekmediği araştırılmadı. Google için
+  kurulan "yerel profil çapası" tasarımı bunun zeminini de hazırlıyor.
+- **Yan bulgu:** `infra/cognito.ts`'te `postConfirmation` hâlâ `runtime: 'nodejs20.x'`
+  (Lambda: deprecated 2026-04-30, güncelleme engeli **2027-03-03**) → `nodejs24.x`'e
+  taşınmalı; VPC + Prisma bağımlılığı yüzünden ayrı, kısa bir dilim.
 
 ### Veri girişi ürünler sayfasına sektör/üretim grubu/kullanım alanı filtresi *(kullanıcı talebiyle ertelendi, 2026-09-17 LOG)*
 - **Ne:** `/veri-girisi/products` (`ProductsPageClient`/`useProductListFilters`)

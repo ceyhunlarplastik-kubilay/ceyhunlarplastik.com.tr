@@ -4,6 +4,7 @@ interface ENV {
     DOMAIN: string | undefined;
     DOMAIN_CERTIFICATE_ARN: string | undefined;
     DIRECT_RDS_HOST: string | undefined;
+    GOOGLE_LOGIN_ENABLED: string | undefined;
 }
 
 interface Config {
@@ -12,6 +13,8 @@ interface Config {
     DOMAIN: string;
     DOMAIN_CERTIFICATE_ARN: string;
     DIRECT_RDS_HOST: string;
+    /** Stage-özel bayrak: yalnız `.env`'de açıkça "true" ise Google girişi altyapıya eklenir. */
+    GOOGLE_LOGIN_ENABLED: boolean;
 }
 
 const getConfig = (): ENV => {
@@ -21,6 +24,7 @@ const getConfig = (): ENV => {
         DOMAIN: process.env.DOMAIN,
         DOMAIN_CERTIFICATE_ARN: process.env.DOMAIN_CERTIFICATE_ARN,
         DIRECT_RDS_HOST: process.env.DIRECT_RDS_HOST,
+        GOOGLE_LOGIN_ENABLED: process.env.GOOGLE_LOGIN_ENABLED,
     };
 };
 
@@ -35,6 +39,7 @@ const getSanitizedConfig = (config: ENV): Config => {
         DOMAIN: config.DOMAIN ?? "",
         DOMAIN_CERTIFICATE_ARN: config.DOMAIN_CERTIFICATE_ARN ?? "",
         DIRECT_RDS_HOST: config.DIRECT_RDS_HOST ?? "",
+        GOOGLE_LOGIN_ENABLED: config.GOOGLE_LOGIN_ENABLED === "true",
     } as Config;
 };
 

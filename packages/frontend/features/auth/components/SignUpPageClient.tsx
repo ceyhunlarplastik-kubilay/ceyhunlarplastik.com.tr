@@ -13,6 +13,7 @@ import { PasswordField } from "@/components/ui/password-field"
 import { AuthApiClientError } from "@/features/auth/api/types"
 import { AuthField } from "@/features/auth/components/AuthField"
 import { AuthFeedbackMessage } from "@/features/auth/components/AuthFeedbackMessage"
+import { GoogleSignInSection } from "@/features/auth/components/GoogleSignInButton"
 import { useAuthSignUp } from "@/features/auth/hooks/useAuthSignUp"
 import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
 import { buildSignUpSchema, type SignUpFormValues } from "@/features/auth/schema/signUp"
@@ -20,9 +21,11 @@ import { buildSignUpSchema, type SignUpFormValues } from "@/features/auth/schema
 type Props = {
     callbackUrl: string
     initialEmail?: string
+    /** Sunucudan gelir (`GOOGLE_LOGIN_ENABLED`); kapalıyken buton hiç çizilmez. */
+    googleLoginEnabled?: boolean
 }
 
-export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
+export function SignUpPageClient({ callbackUrl, initialEmail, googleLoginEnabled = false }: Props) {
     const t = useTranslations("auth.signUp")
     const te = useTranslations("auth.errors")
     const tv = useTranslations("auth.validation.signUp")
@@ -105,6 +108,10 @@ export function SignUpPageClient({ callbackUrl, initialEmail }: Props) {
                     </Button>
                 </form>
             </Form>
+
+            {googleLoginEnabled ? (
+                <GoogleSignInSection callbackUrl={callbackUrl} label={t("google")} dividerLabel={t("orDivider")} />
+            ) : null}
 
             <div className="flex flex-wrap items-center gap-3">
                 <Button asChild variant="outline" size="lg" className="h-11 rounded-xl px-5">

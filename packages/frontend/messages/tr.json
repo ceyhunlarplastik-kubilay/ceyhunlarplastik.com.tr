@@ -284,6 +284,8 @@
             "verifyAccount": "Hesabımı Doğrula",
             "createAccount": "Yeni hesap oluştur",
             "goHome": "Ana sayfaya git",
+            "google": "Google ile devam et",
+            "orDivider": "veya",
             "notices": {
                 "confirmed": {
                     "title": "Hesabınız doğrulandı",
@@ -313,7 +315,9 @@
             "submitting": "Kayıt Oluşturuluyor...",
             "codeSentToast": "Doğrulama kodu e-posta adresinize gönderildi.",
             "signInLink": "Giriş yapın",
-            "goHome": "Ana sayfaya git"
+            "goHome": "Ana sayfaya git",
+            "google": "Google ile kaydol",
+            "orDivider": "veya"
         },
         "forgotPassword": {
             "eyebrow": "Ceyhunlar Plastik",

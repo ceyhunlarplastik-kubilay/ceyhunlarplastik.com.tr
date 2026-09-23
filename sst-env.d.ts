@@ -76,6 +76,14 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "GoogleOAuthClientId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "GoogleOAuthClientSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MyPostgres": {
       "type": "sst.sst.Linkable"
       "url": string

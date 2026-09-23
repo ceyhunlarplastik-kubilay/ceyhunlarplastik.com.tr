@@ -14,6 +14,7 @@ import { PasswordField } from "@/components/ui/password-field"
 import { AuthApiClientError } from "@/features/auth/api/types"
 import { AuthField } from "@/features/auth/components/AuthField"
 import { AuthFeedbackMessage } from "@/features/auth/components/AuthFeedbackMessage"
+import { GoogleSignInSection } from "@/features/auth/components/GoogleSignInButton"
 import { useAuthSignIn } from "@/features/auth/hooks/useAuthSignIn"
 import { resolveAuthErrorKey } from "@/features/auth/lib/errors"
 import { buildSignInSchema, type SignInFormValues } from "@/features/auth/schema/signIn"
@@ -23,6 +24,8 @@ type Props = {
     error?: string
     initialEmail?: string
     notice?: string
+    /** Sunucudan gelir (`GOOGLE_LOGIN_ENABLED`); kapalıyken buton hiç çizilmez. */
+    googleLoginEnabled?: boolean
 }
 
 const NOTICE_KEYS: Record<string, "confirmed" | "passwordReset"> = {
@@ -30,7 +33,7 @@ const NOTICE_KEYS: Record<string, "confirmed" | "passwordReset"> = {
     "password-reset": "passwordReset",
 }
 
-export function SignInPageClient({ callbackUrl, error, initialEmail, notice }: Props) {
+export function SignInPageClient({ callbackUrl, error, initialEmail, notice, googleLoginEnabled = false }: Props) {
     const t = useTranslations("auth.signIn")
     const te = useTranslations("auth.errors")
     const tv = useTranslations("auth.validation.signIn")
@@ -133,6 +136,10 @@ export function SignInPageClient({ callbackUrl, error, initialEmail, notice }: P
                             ) : null}
                         </form>
                     </Form>
+
+                    {googleLoginEnabled ? (
+                        <GoogleSignInSection callbackUrl={callbackUrl} label={t("google")} dividerLabel={t("orDivider")} />
+                    ) : null}
                 </div>
             </div>
 
