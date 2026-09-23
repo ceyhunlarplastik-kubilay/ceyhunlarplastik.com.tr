@@ -30,14 +30,17 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
   yeniden deneme. NextAuth v4 `error_description`'ı tarayıcıya iletmiyor (yalnız
   sunucu logunda) → `[...nextauth]/route.ts` sarmalayıcısıyla yakalanmalı. **Gerçek
   mesaj metinleri kubi'de gözlenmeden yazılmaz** (topluluk kaynaklı varsayım).
-- **G3 — prod/dev'e açma (ayrı onay, kubi doğrulaması sonrası):** stage başına AYRI
-  Google OAuth client'ı (redirect `https://auth.<DOMAIN>/oauth2/idpresponse`, dev:
-  `https://auth-dev.<DOMAIN>/oauth2/idpresponse`); Google'da "In production" için
-  ana sayfa/gizlilik politikası/kullanım koşulları sayfaları GEREKİR (uygulamada
-  yok) + `.env`'de `GOOGLE_LOGIN_ENABLED`; deploy öncesi `npx sst diff --stage prod`
-  ile yalnız beklenen değişikliğin çıktığı gösterilmeli; prod discovery
-  `authorization_endpoint`'i (özel domain) doğrulanmalı. Opsiyonel: Cognito `/logout`
-  ile tam çıkış (Hosted UI oturum çerezi 1 saat kalıyor).
+- **G3 — prod'a açma (kullanıcı sürüyor, ben dokunmuyorum):** kubi'de doğrulandı
+  (Düzeltme 1-5, LOG 2026-09-19 – 2026-09-22). Gizlilik politikası (`/gizlilik-politikasi`)
+  ve kullanım koşulları (`/kullanim-kosullari`) sayfaları eklendi (2026-09-23 LOG) —
+  Google'ın "In production" yayın şartı için gereken Branding alanları artık dolduruluyor.
+  Kalan adımlar kullanıcıda: prod için AYRI Google OAuth client'ı
+  (redirect `https://auth.<DOMAIN>/oauth2/idpresponse`, Audience: Production), `.env`'i
+  prod bloğuna çevirip `GOOGLE_LOGIN_ENABLED="true"` ekleme, iki secret'ı
+  `npx sst secret set --stage prod` ile girme, `npx sst diff --stage prod` ile yalnız
+  beklenen değişikliğin çıktığını görme, sonra deploy. Prod discovery
+  `authorization_endpoint`'i (özel domain, `auth.<DOMAIN>`) deploy sonrası doğrulanmalı.
+  Opsiyonel: Cognito `/logout` ile tam çıkış (Hosted UI oturum çerezi 1 saat kalıyor).
 - **Sonradan iyileştirme:** AWS "inbound federation" trigger'ına geçiş (ilk-deneme
   hatasını kaldırır) — SST/Pulumi AWS güncellemesi gerekir (7.20.0'da yok).
 - **E-posta OTP (2. fikir, ayrı araştırma):** kubi havuzu ESSENTIALS'ta

@@ -26,6 +26,8 @@ const staticPublicPaths = [
     "/surdurulebilirlik",
     "/ik",
     "/oneri-sikayet",
+    "/gizlilik-politikasi",
+    "/kullanim-kosullari",
 ];
 
 function absoluteUrl(locale: string, internalPath: string) {

@@ -139,7 +139,9 @@
             "massProductionLink": "Mass Production",
             "sectoralProductsLink": "Sectoral Products",
             "address": "Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir",
-            "copyright": "Copyright © 2026 Ceyhunlar – All rights reserved."
+            "copyright": "Copyright © 2026 Ceyhunlar – All rights reserved.",
+            "privacyLink": "Privacy Policy",
+            "termsLink": "Terms of Use"
         },
         "navigationProgress": {
             "label": "Loading page"
@@ -1311,6 +1313,90 @@
                 "mottoBody1": "The heart and soul of a company is creativity and innovation. But without determination and passion for the work, success is not possible.",
                 "mottoBody2": "At Ceyhunlar Plastik, we have been crowning our passion for our work with determination since day one."
             }
+        },
+        "privacy": {
+            "meta": {
+                "title": "Privacy Policy",
+                "description": "Ceyhunlar Plastik's privacy policy and information notice on the processing of personal data.",
+                "ogDescription": "Learn how your personal data is processed."
+            },
+            "title": "Privacy Policy",
+            "updatedAt": "Last updated: September 2026",
+            "intro": "As Ceyhunlar Plastik (\"Company\", \"we\"), acting as data controller under Turkey's Law No. 6698 on the Protection of Personal Data (\"KVKK\"), we would like to inform you about how we process personal data obtained through our website and customer portal.",
+            "sections": [
+                {
+                    "title": "1. Data Controller",
+                    "body": "Your personal data may be processed, as data controller, by Ceyhunlar Plastik within the scope described below. Address: Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir, Türkiye."
+                },
+                {
+                    "title": "2. Personal Data Processed",
+                    "body": "When creating an account and using the portal, we process your full name, email address, phone number, company/address details, and order/request history. If you choose to sign in with Google, we receive the email address and profile information (name, profile picture) that Google shares with your consent; your Google account password is never seen or stored by us."
+                },
+                {
+                    "title": "3. Purposes and Legal Basis",
+                    "body": "Your personal data is processed to create and authorize your portal account, to carry out order/quote/request processes, to manage customer relationships, to fulfil legal obligations, and to improve service quality, based on the legal grounds of \"performance of a contract\", \"compliance with a legal obligation\" and \"legitimate interest\" under KVKK Art. 5(2)."
+                },
+                {
+                    "title": "4. Data Transfers",
+                    "body": "Your personal data may be shared with service providers such as Amazon Web Services (AWS) for hosting and infrastructure, Amazon Cognito for authentication, and Google if you choose to use it — only to the extent necessary to provide the service, and in accordance with KVKK Art. 8-9. Your data may be transferred to servers located outside Turkey solely for technical service delivery, with appropriate security measures in place."
+                },
+                {
+                    "title": "5. Retention Period",
+                    "body": "Your personal data is retained for as long as required by the purpose of processing and any applicable statutory limitation periods, after which it is deleted, destroyed, or anonymized."
+                },
+                {
+                    "title": "6. Your Rights",
+                    "body": "Under KVKK Art. 11, you have the right to learn whether your personal data is processed, to request information about such processing, to learn the purpose of processing and whether it is used accordingly, to know the third parties to whom it is transferred domestically or abroad, to request correction of incomplete or inaccurate data, to request its deletion or destruction under the conditions set out in the law, to request that these corrections be notified to third parties to whom the data was transferred, to object to a result that is to your detriment arising from analysis exclusively through automated systems, and to request compensation for damages arising from unlawful processing."
+                },
+                {
+                    "title": "7. How to Exercise Your Rights",
+                    "body": "You may submit your requests through the channels listed on our Contact page or in writing to our company address."
+                },
+                {
+                    "title": "8. Cookies",
+                    "body": "Our website uses strictly necessary cookies for session management and core functionality. These cookies are not used for marketing purposes."
+                }
+            ]
+        },
+        "terms": {
+            "meta": {
+                "title": "Terms of Use",
+                "description": "Terms of use for the Ceyhunlar Plastik website and customer portal.",
+                "ogDescription": "Learn the terms that apply when using our website and customer portal."
+            },
+            "title": "Terms of Use",
+            "updatedAt": "Last updated: September 2026",
+            "intro": "These Terms of Use govern the use of the Ceyhunlar Plastik website and customer portal. By using the site or the portal, you are deemed to have accepted these terms.",
+            "sections": [
+                {
+                    "title": "1. Scope of Service",
+                    "body": "Ceyhunlar Plastik provides its product catalog, quote/order request, and customer portal services through this website. The Company reserves the right to change the scope, content, and operation of the service without prior notice."
+                },
+                {
+                    "title": "2. Account Creation and Approval",
+                    "body": "You may register for the customer portal using email/password or a Google account. Newly created accounts have limited access until reviewed and approved by Ceyhunlar Plastik staff for security purposes. The Company reserves the right to suspend or terminate access to any account, with or without stated reason."
+                },
+                {
+                    "title": "3. User Responsibilities",
+                    "body": "Users are responsible for the accuracy of their account information, for the security of their account (including the confidentiality of passwords/access credentials), and for all activity carried out through their account. The Company must be notified immediately if unauthorized use of an account is suspected."
+                },
+                {
+                    "title": "4. Intellectual Property",
+                    "body": "All trademarks, logos, images, text, and technical documentation on this website belong to Ceyhunlar Plastik or its licensors and may not be reproduced, distributed, or used commercially without prior written permission."
+                },
+                {
+                    "title": "5. Limitation of Liability",
+                    "body": "The Company does not guarantee that the site will operate uninterrupted or error-free. To the maximum extent permitted by applicable law, the Company shall not be liable for any direct or indirect damages arising from the use of the site."
+                },
+                {
+                    "title": "6. Changes",
+                    "body": "The Company may update these Terms of Use at any time. The updated text becomes effective as soon as it is published on this page."
+                },
+                {
+                    "title": "7. Governing Law",
+                    "body": "These Terms of Use are governed by the laws of the Republic of Türkiye; the courts and enforcement offices of İzmir (Merkez) have jurisdiction over any disputes."
+                }
+            ]
         }
     }
 }

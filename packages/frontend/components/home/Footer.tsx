@@ -214,7 +214,17 @@ export function Footer({ categories }: { categories: Category[] }) {
                     {t("address")}
                 </div>
 
-                <div>{t("copyright")}</div>
+                <div className="flex flex-col items-center gap-2 md:flex-row md:items-center md:gap-4">
+                    <div className="flex items-center gap-4">
+                        <Link href="/gizlilik-politikasi" className="hover:text-white">
+                            {t("privacyLink")}
+                        </Link>
+                        <Link href="/kullanim-kosullari" className="hover:text-white">
+                            {t("termsLink")}
+                        </Link>
+                    </div>
+                    <div>{t("copyright")}</div>
+                </div>
             </div>
         </footer>
     );

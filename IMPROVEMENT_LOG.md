@@ -9393,6 +9393,39 @@ eşit sayıda eklendi (865/865).
 - **Ne kaldı:** kullanıcı kubi'de tekrar test etmeli — bir hesabı `PENDING_REVIEW` bırakıp admin
   panelinden onaylamalı, `/hesabim` sekmesi açıkken (yenilemeden) "Uygun panele git"e basıp artık
   doğru panele düştüğünü doğrulamalı.
+- **Commit/push tamamlandı (kullanıcı, 2026-09-23):** tüm G1-G5 değişiklikleri tek commit'te
+  `feat/google-identity-provider` branch'ine gitti, `main`'e fast-forward merge yapıldı ve
+  push edildi. Bundan sonraki iş (prod'a açma) doğrudan `main` üzerinden ilerliyor.
+
+## Gizlilik Politikası + Kullanım Koşulları sayfaları eklendi (2026-09-23) *(kullanıcı talebiyle — Google prod yayını için ön koşul)*
+
+- **Ne:** `/gizlilik-politikasi` ve `/kullanim-kosullari` — mevcut statik içerik sayfalarıyla
+  (Hakkımızda, İletişim) birebir aynı kalıp: `page.tsx` (SSR, `generateMetadata` +
+  `buildStaticAlternates`) + `features/public/{privacy,terms}/components/` altında içerik
+  bileşeni, metin `t.raw("sections")` dizisiyle (3D/Ar-Ge/Talaşlı İmalat sayfalarında zaten
+  kullanılan kalıp — `{title, body}` dizisi map'leniyor).
+- **İçerik:** TR asıl/bağlayıcı metin (KVKK m.5/8/9/11 çerçevesi: veri sorumlusu, işlenen
+  veriler — Google ile girişte alınan e-posta/profil bilgisi dahil, işleme amacı/hukuki sebep,
+  AWS/Cognito/Google'a aktarım, saklama süresi, ilgili kişi hakları, başvuru yolu, çerezler)
+  + kullanım koşulları (hizmet kapsamı, hesap oluşturma + admin onay süreci, kullanıcı
+  yükümlülükleri, fikri mülkiyet, sorumluluk sınırı, değişiklik hakkı, İzmir yetkili mahkeme).
+  EN nezaket çevirisi eklendi; diğer 12 dil mevcut düşme zinciriyle EN/TR'ye düşüyor.
+  **Bilinçli eksik bırakılan:** şirketin tam ticari unvanı, vergi no, MERSİS no ve ayrı bir
+  KVKK başvuru e-postası — bunlar elimde yoktu, metne icat edilmedi. Adres ve telefonlar
+  mevcut footer içeriğinden (`chrome.footer`) alındı.
+- **UYARI (kullanıcıya iletildi):** bu metin makul bir taslak, hukuki inceleme YERİNE geçmez —
+  gerçek yayın öncesi bir hukuk danışmanının (özellikle KVKK aydınlatma metni formatı için)
+  gözden geçirmesi önerilir.
+- Footer'ın alt bar'ına (`Footer.tsx`) iki link eklendi (`chrome.footer.privacyLink`/`termsLink`).
+  `sitemap.ts`'in `staticPublicPaths` listesine iki yol eklendi.
+- **Nasıl doğrulandı:** `typecheck -w frontend` ✅ · `lint -w frontend` 0 error/159 warning ✅
+  (baseline aynı) · `test -w frontend` 390/390 ✅ (i18n kapıları dahil: `sourceLanguageLeakage`,
+  `scriptLeakage`, `messageCatalogs` — 97/97 ayrı çalıştırıldı, hepsi geçti) · tr/en anahtar
+  sayısı eşit (916).
+- **Ne kaldı:** kullanıcı prod'a açmadan önce bu iki sayfayı gözden geçirip onaylamalı
+  (özellikle KVKK metni); ardından IMPROVEMENT_PLAN.md'deki G3 adımlarına (prod Google OAuth
+  client'ı, `.env` swap, secret set, deploy) geçilebilir — bunlar kullanıcı tarafından
+  yürütülüyor, ben yalnız yönlendiriyorum.
 
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 

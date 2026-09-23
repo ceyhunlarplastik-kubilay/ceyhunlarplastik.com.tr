@@ -139,7 +139,9 @@
             "massProductionLink": "Seri Üretim",
             "sectoralProductsLink": "Sektörel Ürünler",
             "address": "Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir",
-            "copyright": "Copyright © 2026 Ceyhunlar – Tüm hakları saklıdır."
+            "copyright": "Copyright © 2026 Ceyhunlar – Tüm hakları saklıdır.",
+            "privacyLink": "Gizlilik Politikası",
+            "termsLink": "Kullanım Koşulları"
         },
         "navigationProgress": {
             "label": "Sayfa yükleniyor"
@@ -1311,6 +1313,90 @@
                 "mottoBody1": "Bir şirketin kalbi ve ruhu, yaratıcılık ve yeniliktir. Ancak azim ve işe duyulan sevgi olmadan başarıya ulaşmak mümkün değildir.",
                 "mottoBody2": "Ceyhunlar Plastik olarak yola çıktığımız ilk günden beri işimize olan tutkumuzu azimle taçlandırıyoruz."
             }
+        },
+        "privacy": {
+            "meta": {
+                "title": "Gizlilik Politikası",
+                "description": "Ceyhunlar Plastik kişisel verilerin işlenmesine ilişkin aydınlatma metni ve gizlilik politikası.",
+                "ogDescription": "Kişisel verilerinizin nasıl işlendiğini öğrenin."
+            },
+            "title": "Gizlilik Politikası",
+            "updatedAt": "Son güncelleme: Eylül 2026",
+            "intro": "Ceyhunlar Plastik (\"Şirket\", \"biz\") olarak, 6698 sayılı Kişisel Verilerin Korunması Kanunu (\"KVKK\") kapsamında veri sorumlusu sıfatıyla, web sitemiz ve müşteri portalımız üzerinden elde ettiğimiz kişisel verilerinizin işlenmesine ilişkin sizleri bilgilendirmek isteriz.",
+            "sections": [
+                {
+                    "title": "1. Veri Sorumlusu",
+                    "body": "Kişisel verileriniz, veri sorumlusu sıfatıyla Ceyhunlar Plastik tarafından, aşağıda açıklanan kapsamda işlenebilecektir. Adres: Aydın Mah. 4308 Sk. No:4, 35130 Karabağlar / İzmir."
+                },
+                {
+                    "title": "2. İşlenen Kişisel Veriler",
+                    "body": "Hesap oluşturma ve portal kullanımı sırasında; ad-soyad, e-posta adresi, telefon numarası, şirket/adres bilgileri, sipariş ve talep geçmişi işlenmektedir. Google ile giriş yapmayı tercih etmeniz hâlinde, Google hesabınızın size ait e-posta adresi ve profil bilgileri (ad, profil görseli) Google'ın onayınızla paylaştığı ölçüde alınır; Google hesap şifreniz tarafımızca hiçbir şekilde görülmez veya saklanmaz."
+                },
+                {
+                    "title": "3. İşleme Amaçları ve Hukuki Sebep",
+                    "body": "Kişisel verileriniz; portal hesabınızın oluşturulması ve yetkilendirilmesi, sipariş/teklif/talep süreçlerinin yürütülmesi, müşteri ilişkilerinin yönetimi, yasal yükümlülüklerin yerine getirilmesi ve hizmet kalitesinin artırılması amacıyla, KVKK m.5/2 kapsamındaki \"sözleşmenin kurulması veya ifası\", \"hukuki yükümlülüğün yerine getirilmesi\" ve \"meşru menfaat\" hukuki sebeplerine dayanılarak işlenir."
+                },
+                {
+                    "title": "4. Aktarım",
+                    "body": "Kişisel verileriniz; barındırma ve altyapı hizmeti aldığımız Amazon Web Services (AWS), kimlik doğrulama için Amazon Cognito ve tercih etmeniz hâlinde Google gibi hizmet sağlayıcılarla, yalnızca hizmetin sunulabilmesi için gerekli ölçüde ve KVKK m.8-9 kapsamında paylaşılabilir. Verileriniz yurt dışı sunuculara aktarılabilir; bu aktarım yalnızca hizmetin teknik olarak sağlanabilmesi amacıyla, gerekli güvenlik tedbirleri alınarak yapılır."
+                },
+                {
+                    "title": "5. Saklama Süresi",
+                    "body": "Kişisel verileriniz, işleme amacının gerektirdiği süre boyunca ve ilgili mevzuatta öngörülen zamanaşımı süreleri saklı kalmak kaydıyla saklanır; bu sürelerin sonunda silinir, yok edilir veya anonim hâle getirilir."
+                },
+                {
+                    "title": "6. Haklarınız",
+                    "body": "KVKK m.11 uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme, yurt içinde/dışında aktarıldığı üçüncü kişileri bilme, eksik/yanlış işlenmişse düzeltilmesini isteme, KVKK'da öngörülen şartlarda silinmesini/yok edilmesini isteme, düzeltme/silme işlemlerinin aktarıldığı üçüncü kişilere bildirilmesini isteme, münhasıran otomatik sistemlerle analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme ve kanuna aykırı işlenme nedeniyle zarara uğramanız hâlinde zararın giderilmesini talep etme haklarına sahipsiniz."
+                },
+                {
+                    "title": "7. Başvuru Yolu",
+                    "body": "Haklarınızı kullanmak için taleplerinizi İletişim sayfamızda yer alan kanallar üzerinden veya şirket adresimize yazılı olarak iletebilirsiniz."
+                },
+                {
+                    "title": "8. Çerezler",
+                    "body": "Web sitemiz, oturum yönetimi ve temel işlevsellik için zorunlu çerezler kullanır. Bu çerezler pazarlama amacıyla kullanılmaz."
+                }
+            ]
+        },
+        "terms": {
+            "meta": {
+                "title": "Kullanım Koşulları",
+                "description": "Ceyhunlar Plastik web sitesi ve müşteri portalı kullanım koşulları.",
+                "ogDescription": "Web sitemizi ve müşteri portalımızı kullanırken geçerli koşulları öğrenin."
+            },
+            "title": "Kullanım Koşulları",
+            "updatedAt": "Son güncelleme: Eylül 2026",
+            "intro": "Bu Kullanım Koşulları, Ceyhunlar Plastik'e ait web sitesinin ve müşteri portalının kullanımına ilişkin şartları düzenler. Siteyi veya portalı kullanarak bu koşulları kabul etmiş sayılırsınız.",
+            "sections": [
+                {
+                    "title": "1. Hizmetin Kapsamı",
+                    "body": "Ceyhunlar Plastik, ürün kataloğu, teklif/sipariş talebi ve müşteri portalı hizmetlerini bu web sitesi üzerinden sunar. Şirket, hizmetin kapsamını, içeriğini ve işleyişini önceden bildirmeksizin değiştirme hakkını saklı tutar."
+                },
+                {
+                    "title": "2. Hesap Oluşturma ve Onay Süreci",
+                    "body": "Müşteri portalına e-posta/şifre veya Google hesabı ile kayıt olunabilir. Yeni oluşturulan hesaplar, güvenlik amacıyla Ceyhunlar Plastik yetkilileri tarafından incelenip onaylanana kadar sınırlı erişime sahiptir. Şirket, herhangi bir hesabın erişimini gerekçe belirterek veya belirtmeksizin askıya alma veya sonlandırma hakkını saklı tutar."
+                },
+                {
+                    "title": "3. Kullanıcı Yükümlülükleri",
+                    "body": "Kullanıcılar; hesap bilgilerinin doğruluğundan, hesap güvenliğinden (şifre/erişim bilgilerinin gizliliği dahil) ve hesap üzerinden yapılan tüm işlemlerden sorumludur. Hesabın yetkisiz kullanıldığından şüphelenilmesi durumunda derhal Şirkete bilgi verilmelidir."
+                },
+                {
+                    "title": "4. Fikri Mülkiyet",
+                    "body": "Web sitesinde yer alan tüm marka, logo, görsel, metin ve teknik doküman Ceyhunlar Plastik'e veya lisans verenlerine aittir; önceden yazılı izin alınmaksızın çoğaltılamaz, dağıtılamaz veya ticari amaçla kullanılamaz."
+                },
+                {
+                    "title": "5. Sorumluluğun Sınırlandırılması",
+                    "body": "Şirket, sitenin kesintisiz veya hatasız çalışacağını garanti etmez. Şirket, sitenin kullanımından doğrudan veya dolaylı olarak doğabilecek zararlardan, yürürlükteki mevzuatın izin verdiği azami ölçüde sorumlu tutulamaz."
+                },
+                {
+                    "title": "6. Değişiklikler",
+                    "body": "Şirket, bu Kullanım Koşullarını dilediği zaman güncelleyebilir. Güncel metin bu sayfada yayımlandığı andan itibaren geçerli olur."
+                },
+                {
+                    "title": "7. Uygulanacak Hukuk",
+                    "body": "Bu Kullanım Koşulları Türkiye Cumhuriyeti kanunlarına tabidir; doğabilecek uyuşmazlıklarda İzmir (Merkez) mahkemeleri ve icra daireleri yetkilidir."
+                }
+            ]
         }
     }
 }
