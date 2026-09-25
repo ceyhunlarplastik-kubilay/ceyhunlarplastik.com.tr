@@ -18,6 +18,21 @@ onay; kod değişikliğini ajan yapar, commit/push/deploy kullanıcıda (bkz.
 
 ## Açık İşler
 
+### Üretim Planlama (APS + MES-lite) — Faz 1-6 · kapsam: büyük *(kullanıcı talebiyle, branch `feature/production-planning`)*
+- **Tasarım + yol haritası:** [docs/production-planning.md](docs/production-planning.md) —
+  veri modeli (makine / kalıp → `ProductSize` / vardiya düzeni / üretim emri → iş → vardiya
+  lotu `1000-1`…), saf planlama motoru (core, frontend'le `@core/*` üzerinden paylaşılır),
+  ProtectedApi `/production/*`, planlama tahtası + kanban UX'i, kütüphane kararı (kendi
+  tahtamız: `@dnd-kit/core` + date-fns + shadcn), açık sorular (§13).
+- **Durum:** Faz 0 (plan) hazır, 2026-09-25; kod değişikliği yok.
+- **Sıradaki:** §13 açık sorularının cevabı + **Dilim 1.1** onayı — `production_planner`
+  ("Üretim Planlama") rolü uçtan uca + `/uretim` panel iskeleti. Cognito grubu additive bir
+  infra değişikliği; prod'a ancak kullanıcı deploy ederse gider.
+- **Test disiplini:** yalnız bu branch + kubi stage.
+- Etki: **infra** (Cognito grubu; Faz 4'te opsiyonel Realtime topic), **core** (şema +
+  `helpers/production/` motoru), **functions** (ProtectedApi `/production/*`, ~40 route),
+  **frontend** (`/uretim`, `/operator`, `features/production/**`).
+
 ### Google ile giriş — G2b + G3 (kubi testinden sonra) · kapsam: orta *(kullanıcı talebiyle, branch `feat/google-identity-provider`)*
 - **Durum:** G1 (altyapı + PreSignUp bağlama) ve G2a (NextAuth sağlayıcısı + buton) ✅ kod
   hazır, 2026-09-19 LOG'da; **kubi'de gerçek Google girişi kullanıcıda bekliyor**
