@@ -1,6 +1,7 @@
 import { userRepository } from "@/core/helpers/prisma/users/repository"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { realtime } from "sst/aws/realtime"
+import { realtimeSessionSeconds, realtimeSubscriptions } from "./realtimeAccess"
 
 let verifier: ReturnType<typeof CognitoJwtVerifier.create> | null = null
 
@@ -47,16 +48,13 @@ export const handler = realtime.authorizer(async (token) => {
             return emptyAuthResult()
         }
 
-        const accessTopicPrefix = process.env.USER_ACCESS_REALTIME_TOPIC_PREFIX
-        const notificationTopicPrefix = process.env.USER_NOTIFICATION_REALTIME_TOPIC_PREFIX
-        const subscribe = [
-            ...(accessTopicPrefix ? [`${accessTopicPrefix}/${sub}/access`] : []),
-            ...(notificationTopicPrefix ? [`${notificationTopicPrefix}/${user.id}`] : []),
-        ]
-
+        // Konu kuralları (kendi erişim / bildirim konuları + rolüne göre üretim konusu) `realtimeAccess.ts`'te.
+        // Tarayıcı hiçbir konuya yayın yapamaz. Bağlantı jetonun süresi dolunca kesilir; istemci yeni
+        // jetonla yeniden bağlanır.
         return {
-            subscribe,
+            subscribe: realtimeSubscriptions({ sub, user, env: process.env }),
             publish: [],
+            disconnectAfterInSeconds: realtimeSessionSeconds(payload.exp, Math.floor(Date.now() / 1000)),
         }
     } catch (error) {
         console.error("Realtime authorizer rejected token", error)

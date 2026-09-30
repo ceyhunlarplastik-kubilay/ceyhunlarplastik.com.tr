@@ -1,5 +1,6 @@
 import { IoTDataPlaneClient, PublishCommand } from "@aws-sdk/client-iot-data-plane"
 import { Resource } from "sst"
+import { iotDataEndpointUrl } from "@/functions/shared/realtime/iotDataEndpoint"
 import type { BusinessWorkflowEvent } from "./types"
 import {
     buildBusinessWorkflowNotificationCopy,
@@ -7,7 +8,7 @@ import {
 } from "./notificationFanout"
 
 const data = new IoTDataPlaneClient({
-    endpoint: Resource.UserAccessRealtime.endpoint,
+    endpoint: iotDataEndpointUrl(Resource.UserAccessRealtime.endpoint),
 })
 
 export async function handler(event: BusinessWorkflowEvent) {

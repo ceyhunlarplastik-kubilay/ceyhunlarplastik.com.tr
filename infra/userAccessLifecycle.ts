@@ -11,6 +11,16 @@ const userAccessEventPattern = {
 
 export const userAccessBus = new sst.aws.Bus("UserAccessBus")
 
+/**
+ * Üretim canlı güncellemesi (4.4): `/uretim` ekranlarına "şu alan değişti" ipucu konusu. Yalnız
+ * üretim yazma uçları yayınlar (ProtectedApi), yalnız üretim yetkili ACTIVE kullanıcılar abone
+ * olur (yetkilendirici, `realtimeAccess.ts`). Konu adının tek kaynağı burası.
+ */
+export const productionRealtimeTopic = `${$app.name}/${$app.stage}/production/changes`
+
+/** Kullanıcı bildirim konusunun öneki: `${önek}/${dbUserId}` (bildirim zili dinler). */
+export const userNotificationTopicPrefix = `${$app.name}/${$app.stage}/notifications/users`
+
 export const userAccessRealtime = new sst.aws.Realtime("UserAccessRealtime", {
     authorizer: {
         handler: `${folderPrefix}/userAccessRealtimeAuthorizer.handler`,
@@ -21,7 +31,8 @@ export const userAccessRealtime = new sst.aws.Realtime("UserAccessRealtime", {
             COGNITO_CLIENT_ID: userPoolClient.id,
             COGNITO_USER_POOL_ID: userPool.id,
             USER_ACCESS_REALTIME_TOPIC_PREFIX: `${$app.name}/${$app.stage}/users`,
-            USER_NOTIFICATION_REALTIME_TOPIC_PREFIX: `${$app.name}/${$app.stage}/notifications/users`,
+            USER_NOTIFICATION_REALTIME_TOPIC_PREFIX: userNotificationTopicPrefix,
+            PRODUCTION_REALTIME_TOPIC: productionRealtimeTopic,
         },
     },
 })

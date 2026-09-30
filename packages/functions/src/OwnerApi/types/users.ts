@@ -16,6 +16,7 @@ enum UserGroups {
     SALES_DIRECTOR = "sales_director",
     CUSTOMER = "customer",
     CONTENT_EDITOR = "content_editor",
+    PRODUCTION_PLANNER = "production_planner",
 }
 
 export interface IAddUserToGroupBody {

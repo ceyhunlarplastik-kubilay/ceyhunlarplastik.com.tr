@@ -7,6 +7,16 @@ export const deleteProductHandler = ({ productRepository }: Pick<IProductDepende
     return async (event: IDeleteProductEvent) => {
         const { id } = event.pathParameters;
 
+        // Kalıba bağlı ölçüsü olan ürün silinemez (`MoldOutput` → `ProductSize` Restrict).
+        // Kontrol edilmezse silme FK hatasıyla aşağıdaki genel 500'e düşer ve kullanıcı
+        // sebebini göremez.
+        const moldOutputs = await productRepository.countMoldOutputs(id);
+        if (moldOutputs > 0) {
+            throw new createError.Conflict(
+                `Bu ürün modelinin ölçüleri ${moldOutputs} kalıp gözüne bağlı. Önce Üretim Planlama panelinde kalıp tanımlarından çıkarın.`,
+            );
+        }
+
         try {
             const deleted = await productRepository.deleteProduct(id);
 

@@ -1,10 +1,11 @@
 import { z } from "zod"
+import { ALL_USER_GROUPS } from "@/core/helpers/userAccess/groups"
 import { validatorWrapper } from "@/core/helpers/validation/validatorWrapper"
 
 export const addUserToGroupValidator = validatorWrapper(
     z.object({
         body: z.object({
-            group: z.enum(["owner", "admin", "user", "supplier", "purchasing", "sales", "sales_director", "customer", "content_editor"]),
+            group: z.enum(ALL_USER_GROUPS),
             accessStatus: z.enum(["PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]).optional(),
             supplierId: z.uuid().nullable().optional(),
             customerId: z.uuid().nullable().optional(),

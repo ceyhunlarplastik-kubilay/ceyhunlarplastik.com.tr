@@ -132,11 +132,20 @@ const contentEditorGroup = new aws.cognito.UserGroup('CeyhunlarContentEditors', 
     description: 'Content and data entry users',
     precedence: 9,
 });
+// Üretim planlama paneli (/uretim). Ad listesi core `helpers/userAccess/groups.ts`
+// ile aynı kalmalı — orada olmayan grup token'dan sessizce düşer.
+const productionPlannerGroup = new aws.cognito.UserGroup('CeyhunlarProductionPlanners', {
+    userPoolId: userPool.id,
+    name: 'production_planner',
+    description: 'Production planning users',
+    precedence: 10,
+});
 void purchasingGroup;
 void salesGroup;
 void salesDirectorGroup;
 void customerGroup;
 void contentEditorGroup;
+void productionPlannerGroup;
 
 if (isPermanentStage) {
     const hostedZoneId = config.HOSTED_ZONE_ID

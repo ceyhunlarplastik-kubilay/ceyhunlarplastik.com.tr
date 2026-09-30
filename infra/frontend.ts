@@ -5,7 +5,7 @@ import { appRouter } from "./router";
 import { publicApi } from "./PublicApi";
 import { adminApi } from "./AdminApi";
 import { protectedApi } from "./ProtectedApi";
-import { userAccessRealtime } from "./userAccessLifecycle";
+import { productionRealtimeTopic, userAccessRealtime } from "./userAccessLifecycle";
 import { vpc } from "./db";
 import { googleMapsBrowserApiKey, googleMapsMapId } from "./googleMaps";
 
@@ -90,6 +90,7 @@ export const frontend = new sst.aws.Nextjs("Ceyhunlar-Frontend", {
     NEXT_PUBLIC_REALTIME_ENDPOINT: userAccessRealtime.endpoint,
     NEXT_PUBLIC_REALTIME_AUTHORIZER: userAccessRealtime.authorizer,
     NEXT_PUBLIC_REALTIME_NOTIFICATION_TOPIC_PREFIX: `${$app.name}/${$app.stage}/notifications/users`,
+    NEXT_PUBLIC_REALTIME_PRODUCTION_TOPIC: productionRealtimeTopic,
     NEXT_PUBLIC_USER_ACCESS_REALTIME_ENDPOINT: userAccessRealtime.endpoint,
     NEXT_PUBLIC_USER_ACCESS_REALTIME_AUTHORIZER: userAccessRealtime.authorizer,
     NEXT_PUBLIC_BUCKET_NAME: publicBucket.name,

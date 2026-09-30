@@ -7,6 +7,7 @@ import { apiCors } from "./cors";
 import { apiRouteLambdaNamer } from "./lambdaNaming";
 import { googleMapsServerApiKey } from "./googleMaps";
 import { protectedApiThrottle } from "./apiLimits";
+import { productionRealtimeTopic, userAccessRealtime } from "./userAccessLifecycle";
 
 const folderPrefix = 'packages/functions/src/ProtectedApi/functions';
 
@@ -124,6 +125,30 @@ const businessWorkflowRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
         {
             actions: ["states:SendTaskSuccess", "states:SendTaskFailure", "states:SendTaskHeartbeat"],
             resources: ["*"],
+        },
+    ],
+}
+
+/**
+ * Üretim yazma uçları (4.4): başarılı yazmadan sonra `/uretim` ekranlarına "şu alan değişti" ipucu
+ * yayınlar (`functions/shared/production/realtime.ts`). Realtime bileşeni bilinçli olarak `link`
+ * EDİLMEZ: link tüm konulara `iot:Publish` verir. Uç nokta ortam değişkeniyle gelir, izin yalnız
+ * üretim konusuna. Yeni bir üretim YAZMA route'u bu ayarı kullanmalı (ve `actions.ts`'te
+ * `withProductionChange` ile sarılmalı) — `realtimeCoverage.test.ts` ikisini de denetler.
+ */
+const productionMutationRouteOptions: Omit<sst.aws.FunctionArgs, "handler"> = {
+    ...defaultRouteOptions,
+    environment: {
+        ...defaultRouteOptions.environment,
+        PRODUCTION_REALTIME_ENDPOINT: userAccessRealtime.endpoint,
+        PRODUCTION_REALTIME_TOPIC: productionRealtimeTopic,
+    },
+    permissions: [
+        {
+            actions: ["iot:Publish"],
+            resources: [
+                $interpolate`arn:aws:iot:${aws.getRegionOutput().name}:${aws.getCallerIdentityOutput().accountId}:topic/${productionRealtimeTopic}`,
+            ],
         },
     ],
 }
@@ -623,4 +648,358 @@ protectedApi.route('GET /purchasing/approval-requests', {
 protectedApi.route('POST /purchasing/approval-requests/{id}/decision', {
     handler: `${folderPrefix}/businessRequests/actions.decideBusinessRequest`,
     ...businessWorkflowRouteOptions,
+}, { ...defaultAuthOptions });
+
+/*----------------------- ÜRETİM PLANLAMA — TANIMLAR -----------------------*/
+// production_planner + admin/owner (yetki handler'larda). docs/production-planning.md §7.
+
+protectedApi.route('GET /production/areas', {
+    handler: `${folderPrefix}/productionAreas/actions.listProductionAreas`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/areas', {
+    handler: `${folderPrefix}/productionAreas/actions.createProductionArea`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/areas/{id}', {
+    handler: `${folderPrefix}/productionAreas/actions.updateProductionArea`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/areas/{id}', {
+    handler: `${folderPrefix}/productionAreas/actions.deleteProductionArea`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/shift-patterns', {
+    handler: `${folderPrefix}/productionShiftPatterns/actions.listShiftPatterns`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/shift-patterns', {
+    handler: `${folderPrefix}/productionShiftPatterns/actions.createShiftPattern`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /production/shift-patterns/{id}', {
+    handler: `${folderPrefix}/productionShiftPatterns/actions.replaceShiftPattern`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/shift-patterns/{id}', {
+    handler: `${folderPrefix}/productionShiftPatterns/actions.deleteShiftPattern`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/machines', {
+    handler: `${folderPrefix}/productionMachines/actions.listProductionMachines`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/machines/{id}', {
+    handler: `${folderPrefix}/productionMachines/actions.getProductionMachine`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/machines', {
+    handler: `${folderPrefix}/productionMachines/actions.createProductionMachine`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/machines/{id}', {
+    handler: `${folderPrefix}/productionMachines/actions.updateProductionMachine`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/machines/{id}', {
+    handler: `${folderPrefix}/productionMachines/actions.deleteProductionMachine`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/references/products', {
+    handler: `${folderPrefix}/productionReferences/actions.listReferenceProducts`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/references/products/{id}/sizes', {
+    handler: `${folderPrefix}/productionReferences/actions.getReferenceProductSizes`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/references/products/{id}/variants', {
+    handler: `${folderPrefix}/productionReferences/actions.getReferenceProductVariants`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/references/customers', {
+    handler: `${folderPrefix}/productionReferences/actions.searchReferenceCustomers`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/molds', {
+    handler: `${folderPrefix}/productionMolds/actions.listMolds`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/molds/{id}', {
+    handler: `${folderPrefix}/productionMolds/actions.getMold`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/molds', {
+    handler: `${folderPrefix}/productionMolds/actions.createMold`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/molds/{id}', {
+    handler: `${folderPrefix}/productionMolds/actions.updateMold`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/molds/{id}', {
+    handler: `${folderPrefix}/productionMolds/actions.deleteMold`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// "Bakım yapıldı": son bakım sayacı = güncel baskı sayacı.
+protectedApi.route('POST /production/molds/{id}/maintenance', {
+    handler: `${folderPrefix}/productionMolds/actions.recordMoldMaintenance`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Gerçekleşen çevrim önerisini makine kartına yaz (5.3; kart yoksa oluşur).
+protectedApi.route('PATCH /production/molds/{id}/machine-profiles/{machineId}', {
+    handler: `${folderPrefix}/productionMolds/actions.setMoldMachineCycle`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/material-profiles', {
+    handler: `${folderPrefix}/productionMaterialProfiles/actions.listMaterialProfiles`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /production/material-profiles/{materialId}', {
+    handler: `${folderPrefix}/productionMaterialProfiles/actions.upsertMaterialProfile`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/operators', {
+    handler: `${folderPrefix}/productionOperators/actions.listProductionOperators`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/operators', {
+    handler: `${folderPrefix}/productionOperators/actions.createProductionOperator`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/operators/{id}', {
+    handler: `${folderPrefix}/productionOperators/actions.updateProductionOperator`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/operators/{id}', {
+    handler: `${folderPrefix}/productionOperators/actions.deleteProductionOperator`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Takvim kaydı gün başına saklanır; POST bir aralığı günlere açar (`replaceIds` → düzenleme).
+protectedApi.route('GET /production/calendar-exceptions', {
+    handler: `${folderPrefix}/productionCalendarExceptions/actions.listCalendarExceptions`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/calendar-exceptions', {
+    handler: `${folderPrefix}/productionCalendarExceptions/actions.saveCalendarExceptionEntry`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/calendar-exceptions/bulk-delete', {
+    handler: `${folderPrefix}/productionCalendarExceptions/actions.bulkDeleteCalendarExceptions`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/machine-downtimes', {
+    handler: `${folderPrefix}/productionMachineDowntimes/actions.listMachineDowntimes`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/machine-downtimes', {
+    handler: `${folderPrefix}/productionMachineDowntimes/actions.createMachineDowntime`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/machine-downtimes/{id}', {
+    handler: `${folderPrefix}/productionMachineDowntimes/actions.updateMachineDowntime`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/machine-downtimes/{id}', {
+    handler: `${folderPrefix}/productionMachineDowntimes/actions.deleteMachineDowntime`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+/*----------------------- ÜRETİM PLANLAMA — EMİRLER (Faz 2) -----------------------*/
+
+protectedApi.route('GET /production/orders', {
+    handler: `${folderPrefix}/productionOrders/actions.listProductionOrders`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/orders', {
+    handler: `${folderPrefix}/productionOrders/actions.createProductionOrder`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/orders/{id}', {
+    handler: `${folderPrefix}/productionOrders/actions.updateProductionOrder`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/orders/{id}', {
+    handler: `${folderPrefix}/productionOrders/actions.deleteProductionOrder`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// "Öner": emrin kalıp × makine plan önizlemesi (hiçbir şey yazmaz; saf motor core'da).
+protectedApi.route('GET /production/orders/{id}/candidates', {
+    handler: `${folderPrefix}/productionOrders/actions.getProductionOrderCandidates`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+// "Planla": adayı işe + vardiya lotlarına çevirir; planlı işi iptal.
+protectedApi.route('POST /production/orders/{id}/jobs', {
+    handler: `${folderPrefix}/productionOrders/actions.planProductionOrder`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/jobs/{id}', {
+    handler: `${folderPrefix}/productionOrders/actions.deleteProductionJob`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// İstatistik (Faz 5): ürün geçmişi, makine kullanımı ve OEE, kalıp istatistikleri — salt okunur.
+protectedApi.route('GET /production/stats/products', {
+    handler: `${folderPrefix}/productionStats/actions.getProductHistory`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/stats/machines', {
+    handler: `${folderPrefix}/productionStats/actions.getMachineStats`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/stats/molds', {
+    handler: `${folderPrefix}/productionStats/actions.getMoldStats`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Tahtada taşıma: makine + zaman; iyimser kilit (expectedVersion).
+protectedApi.route('PATCH /production/jobs/{id}/schedule', {
+    handler: `${folderPrefix}/productionOrders/actions.rescheduleProductionJob`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Gecikme önerisi: geciken işin tahmini bitişine göre makinedeki planlı işleri kaydır.
+protectedApi.route('POST /production/jobs/{id}/push-followers', {
+    handler: `${folderPrefix}/productionOrders/actions.pushJobFollowers`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Vardiya ekibi: günlük ekip (makine × vardiya), hücre değiştirme, günden günlere kopyalama.
+protectedApi.route('GET /production/shift-assignments', {
+    handler: `${folderPrefix}/productionShiftAssignments/actions.getShiftAssignments`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /production/shift-assignments', {
+    handler: `${folderPrefix}/productionShiftAssignments/actions.replaceShiftAssignment`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/shift-assignments/copy', {
+    handler: `${folderPrefix}/productionShiftAssignments/actions.copyShiftAssignments`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Duruş / fire nedeni sözlüğü (vardiya raporu).
+protectedApi.route('GET /production/reasons', {
+    handler: `${folderPrefix}/productionReasons/actions.listProductionReasons`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/reasons', {
+    handler: `${folderPrefix}/productionReasons/actions.createProductionReason`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/reasons/defaults', {
+    handler: `${folderPrefix}/productionReasons/actions.createDefaultProductionReasons`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/reasons/{id}', {
+    handler: `${folderPrefix}/productionReasons/actions.updateProductionReason`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/reasons/{id}', {
+    handler: `${folderPrefix}/productionReasons/actions.deleteProductionReason`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Vardiya raporu: lot başlatma ve rapor (lotu kapatır, sıradaki lotu başlatır).
+protectedApi.route('POST /production/lots/{lotNumber}/start', {
+    handler: `${folderPrefix}/productionLots/actions.startProductionLot`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /production/lots/{lotNumber}/report', {
+    handler: `${folderPrefix}/productionLots/actions.reportProductionLot`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Lotlar: liste, ayrıntı (lot no ile — "1000-2"), lota özel ekip, notlar.
+protectedApi.route('GET /production/lots', {
+    handler: `${folderPrefix}/productionLots/actions.listProductionLots`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('GET /production/lots/{lotNumber}', {
+    handler: `${folderPrefix}/productionLots/actions.getProductionLot`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PUT /production/lots/{lotNumber}/operators', {
+    handler: `${folderPrefix}/productionLots/actions.replaceProductionLotOperators`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('POST /production/lots/{lotNumber}/notes', {
+    handler: `${folderPrefix}/productionLots/actions.createProductionLotNote`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('DELETE /production/lot-notes/{id}', {
+    handler: `${folderPrefix}/productionLots/actions.deleteProductionLotNote`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Durum panosu (kanban): aktif işler + son günlerde tamamlananlar; durum geçişi.
+protectedApi.route('GET /production/kanban', {
+    handler: `${folderPrefix}/productionJobs/actions.getProductionKanban`,
+    ...defaultRouteOptions,
+}, { ...defaultAuthOptions });
+
+protectedApi.route('PATCH /production/jobs/{id}/status', {
+    handler: `${folderPrefix}/productionJobs/actions.transitionProductionJob`,
+    ...productionMutationRouteOptions,
+}, { ...defaultAuthOptions });
+
+// Planlama tahtası: makine satırları × tarih penceresi.
+protectedApi.route('GET /production/board', {
+    handler: `${folderPrefix}/productionBoard/actions.getProductionBoard`,
+    ...defaultRouteOptions,
 }, { ...defaultAuthOptions });

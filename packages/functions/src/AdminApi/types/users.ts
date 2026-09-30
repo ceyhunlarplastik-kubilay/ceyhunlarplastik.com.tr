@@ -4,6 +4,7 @@ import { IPrismaCustomerRepository } from "@/core/helpers/prisma/customers/repos
 import { ICognitoUserRepository } from "@/core/helpers/cognito/users/repository"
 import { IAPIGatewayProxyEventWithUserGeneric } from "@/core/helpers/utils/api/types"
 import type { UserAccessStatus } from "@/core/helpers/prisma/users/repository"
+import type { UserGroup } from "@/core/helpers/userAccess/groups"
 import type { UserAccessUpdateEventDetail } from "@/core/helpers/userAccess/types"
 
 export interface IUsersDependencies {
@@ -28,7 +29,7 @@ export type IUpdateUserSupplierEvent =
     IAPIGatewayProxyEventWithUserGeneric<IUpdateUserSupplierBody, { id: string }>
 
 export type IUpdateUserRoleBody = {
-    group: "owner" | "admin" | "user" | "supplier" | "purchasing" | "sales" | "sales_director" | "customer" | "content_editor"
+    group: UserGroup
     accessStatus?: UserAccessStatus
     supplierId?: string | null
     customerId?: string | null
