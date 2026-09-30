@@ -56,6 +56,7 @@ async function main() {
     let mergedSizes = 0
     let movedVariants = 0
     let movedSupplierLinks = 0
+    let movedMoldOutputs = 0
     let skippedSizes = 0
     let rewrittenCodes = 0
     const failures: Array<{ code: string; error: string }> = []
@@ -74,6 +75,7 @@ async function main() {
             mergedSizes += summary.merge.mergedSizes
             movedVariants += summary.merge.movedVariants
             movedSupplierLinks += summary.merge.movedSupplierLinks
+            movedMoldOutputs += summary.merge.movedMoldOutputs
             skippedSizes += summary.merge.skippedSizes
             rewrittenCodes += summary.recalc.rewrittenCodes
 
@@ -87,6 +89,7 @@ async function main() {
                         `birleşen ölçü ${summary.merge.mergedSizes}, ` +
                         `taşınan varyant ${summary.merge.movedVariants}, ` +
                         `taşınan tedarikçi linki ${summary.merge.movedSupplierLinks}, ` +
+                        `taşınan kalıp gözü ${summary.merge.movedMoldOutputs}, ` +
                         `atlanan ölçü ${summary.merge.skippedSizes}, ` +
                         `yeniden yazılan kod ${summary.recalc.rewrittenCodes}`,
                 )
@@ -103,6 +106,7 @@ async function main() {
         mergedSizes,
         movedVariants,
         movedSupplierLinks,
+        movedMoldOutputs,
         skippedSizes,
         rewrittenCodes,
         failures: failures.length,

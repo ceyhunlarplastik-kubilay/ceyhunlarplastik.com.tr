@@ -58,6 +58,13 @@ model User {
   verifiedCustomerAddresses       CustomerAddress[]             @relation("CustomerAddressVerifiedByUser")
   customerInvitations             UserInvitation[]              @relation("CustomerPortalInvitationUser")
   sentCustomerInvitations         UserInvitation[]              @relation("CustomerPortalInvitationInvitedByUser")
+  createdMachineDowntimes         MachineDowntime[]             @relation("MachineDowntimeCreatedBy")
+  createdProductionOrders         ProductionOrder[]             @relation("ProductionOrderCreatedBy")
+  createdProductionJobs           ProductionJob[]               @relation("ProductionJobCreatedBy")
+  productionLotNotes              ProductionLotNote[]           @relation("ProductionLotNoteAuthor")
+  reportedProductionLots          ProductionLot[]               @relation("ProductionLotReportedBy")
+  createdProductionStops          ProductionStop[]              @relation("ProductionStopCreatedBy")
+  productionJobStatusChanges      ProductionJobStatusChange[]   @relation("ProductionJobStatusChangeUser")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -96,6 +103,9 @@ enum UserNotificationType {
   REQUEST_CREATED
   APPROVAL_REQUIRED
   REQUEST_DECIDED
+  /// Üretim uyarısı (4.5): gecikme, termin riski, kalıp bakımı — alt tür `data.kind`'da
+  /// (yeni uyarı türü migration istemesin). Tekrar önleme anahtarı `data.alertKey`.
+  PRODUCTION_ALERT
 }
 
 ///////////////////////////////////////////////////////
@@ -432,6 +442,9 @@ model Customer {
   orders                    Order[]
   specialVariantPrices      CustomerVariantSpecialPrice[]
   campaignAnnouncements     CampaignAnnouncementRecipient[]
+  /// Müşteriye ait kalıplar (üretim planlama).
+  ownedMolds                Mold[]                             @relation("CustomerOwnedMolds")
+  productionOrders          ProductionOrder[]                  @relation("CustomerProductionOrders")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -731,6 +744,7 @@ model ProductVariant {
   orderItems            OrderItem[]
   customerSpecialPrices CustomerVariantSpecialPrice[]
   campaignItems         ProductVariantCampaignItem[]
+  productionOrders      ProductionOrder[]
 
   @@unique([productId, productSizeId, variantVersionId])
   @@index([productId])
@@ -811,6 +825,9 @@ model ProductSize {
 
   values   ProductSizeValue[]
   variants ProductVariant[]
+  /// Bu ölçüyü basan kalıp gözleri (üretim planlama). Kalıbı olan ölçü `Restrict`
+  /// ile korunur: varyantı kalmasa bile silinmez (bkz. `removeOrphanSizes`).
+  moldOutputs MoldOutput[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1725,6 +1742,8 @@ model Material {
   versions     VariantVersion[]
   assets       Asset[]
   translations MaterialTranslation[]
+  /// Üretim bilgisi (yoğunluk, kurutma, çevrim katsayısı) — ayrı 1:1 tablo.
+  processProfile MaterialProcessProfile?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1819,4 +1838,757 @@ model Asset {
   @@index([materialId])
   @@index([productSupplierCodeId])
   @@index([uploadStatus, createdAt])
+}
+
+///////////////////////////////////////////////////////
+// ÜRETİM PLANLAMA — TANIMLAR
+// docs/production-planning.md §5.1. Tipler: mm / ton / dakika / adet `Int`;
+// çevrim süresi, ağırlık gibi mühendislik değerleri `Float` (ProductSizeValue.value
+// gibi); para `Decimal`. Boş bırakılan teknik alan planı KİLİTLEMEZ — uygunluk
+// motoru "doğrulanamadı" uyarısı üretir.
+///////////////////////////////////////////////////////
+
+/// Makinelerin durduğu parkur / hol — planlama tahtasında satır grubu.
+model ProductionArea {
+  id        String  @id @default(uuid())
+  code      String  @unique
+  name      String
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+  notes     String? @db.Text
+
+  /// Alandaki makinelerin varsayılan vardiya düzeni; makine kendi düzeniyle ezebilir.
+  shiftPatternId String?
+  shiftPattern   ShiftPattern? @relation(fields: [shiftPatternId], references: [id], onDelete: SetNull)
+
+  machines           ProductionMachine[]
+  calendarExceptions ProductionCalendarException[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+enum ProductionMachineStatus {
+  ACTIVE
+  MAINTENANCE
+  BREAKDOWN
+  INACTIVE
+}
+
+/// Plastik enjeksiyon makinesi. Kalıp uygunluğu (kapama kuvveti, kolonlar arası,
+/// kalıp kalınlığı aralığı, strok, baskı kapasitesi) bu alanlardan hesaplanır.
+/// Ayrı `isActive` YOK: `status = INACTIVE` tek kaynaktır.
+model ProductionMachine {
+  id              String  @id @default(uuid())
+  code            String  @unique
+  name            String
+  brand           String?
+  model           String?
+  serialNumber    String?
+  manufactureYear Int?
+
+  areaId String
+  area   ProductionArea @relation(fields: [areaId], references: [id], onDelete: Restrict)
+
+  status ProductionMachineStatus @default(ACTIVE)
+
+  /// Kapama kuvveti (ton).
+  clampForceTon          Int
+  /// Kolonlar arası mesafe (mm): kalıbın genişliği/yüksekliği buradan geçmeli.
+  tieBarHorizontalMm     Int?
+  tieBarVerticalMm       Int?
+  /// Plakalar arasına sığan kalıp kalınlığı aralığı (mm).
+  minMoldHeightMm        Int?
+  maxMoldHeightMm        Int?
+  /// Açılma stroku (mm).
+  maxOpeningStrokeMm     Int?
+  /// Plakalar arası maksimum açıklık (mm) — hidrolik kapamada (ör. Arburg C) açılma
+  /// kalıp kalınlığıyla azalır: kullanılabilir açılma = min(strok, açıklık − kalınlık).
+  /// Dizlili makinede boş kalır (strok kalınlıktan bağımsız).
+  maxDaylightMm          Int?
+  /// Maksimum baskı ağırlığı (g) — föydeki PS değeri; hafif hammaddede (PP) daha düşük.
+  shotCapacityG          Float?
+  screwDiameterMm        Int?
+  /// Merkezleme bileziği çapı (mm).
+  locatingRingDiameterMm Int?
+  hotRunnerZones         Int     @default(0)
+  /// Maça çekme (hidrolik) devre sayısı.
+  coreCircuits           Int     @default(0)
+  hasRobot               Boolean @default(false)
+
+  /// Planlama verimi (%) — süre hesabında kullanılır, planlanan işe kopyalanır.
+  plannedEfficiencyPercent Int      @default(85)
+  /// Makine saat maliyeti — "en ekonomik" öneri sıralaması için.
+  hourlyCost               Decimal? @db.Decimal(10, 2)
+  currency                 String   @default("TRY")
+
+  /// Boşsa alanın, o da boşsa varsayılan (`isDefault`) vardiya düzeni geçerlidir.
+  shiftPatternId String?
+  shiftPattern   ShiftPattern? @relation(fields: [shiftPatternId], references: [id], onDelete: SetNull)
+
+  sortOrder Int     @default(0)
+  notes     String? @db.Text
+
+  moldProfiles       MoldMachineProfile[]
+  productionJobs     ProductionJob[]
+  downtimes          MachineDowntime[]
+  calendarExceptions ProductionCalendarException[]
+  shiftAssignments   MachineShiftAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([areaId, sortOrder])
+}
+
+enum MoldStatus {
+  ACTIVE
+  IN_MAINTENANCE
+  BROKEN
+  RETIRED
+}
+
+enum MoldOwnership {
+  COMPANY
+  CUSTOMER
+}
+
+/// Kalıp. Hangi ölçüleri kaç gözle bastığı `MoldOutput`'ta: aile kalıbında aynı
+/// ürün modelinin farklı ölçüleri de, FARKLI ürün modellerinin ölçüleri de olabilir.
+/// Tek baskı tüm gözleri aynı anda ve aynı renk + hammaddeyle doldurur.
+/// Ayrı `isActive` YOK: `status = RETIRED` tek kaynaktır.
+model Mold {
+  id        String        @id @default(uuid())
+  code      String        @unique
+  name      String
+  status    MoldStatus    @default(ACTIVE)
+  ownership MoldOwnership @default(COMPANY)
+
+  /// Müşteriye ait kalıbın sahibi.
+  ownerCustomerId String?
+  ownerCustomer   Customer? @relation("CustomerOwnedMolds", fields: [ownerCustomerId], references: [id], onDelete: SetNull)
+
+  requiredClampForceTon   Int?
+  /// Dış ölçüler (mm): genişlik/yükseklik kolonlar arasından geçmeli, kalınlık
+  /// makinenin kalıp kalınlığı aralığında olmalı.
+  widthMm                 Int?
+  heightMm                Int?
+  thicknessMm             Int?
+  weightKg                Float?
+  requiredOpeningStrokeMm Int?
+  locatingRingDiameterMm  Int?
+  hotRunnerZones          Int     @default(0)
+  coreCircuitsRequired    Int     @default(0)
+  requiresRobot           Boolean @default(false)
+
+  /// Referans çevrim süresi (sn). Hammadde katsayısı ve kalıp-makine kartı ezebilir.
+  standardCycleTimeSec Float
+  /// Yolluk ağırlığı (g) — baskı ağırlığı = Σ(göz × parça ağırlığı) + yolluk.
+  runnerWeightG        Float?
+  expectedScrapPercent Float  @default(0)
+  /// Söküm + bağlama + ısınma (dk).
+  setupMinutes         Int    @default(60)
+
+  /// Baskı sayacı; `maintenanceIntervalShots` doluysa her N baskıda bakım.
+  totalShots               Int       @default(0)
+  maintenanceIntervalShots Int?
+  shotsAtLastMaintenance   Int       @default(0)
+  lastMaintenanceAt        DateTime?
+
+  storageLocation String?
+  notes           String? @db.Text
+
+  outputs         MoldOutput[]
+  productionJobs  ProductionJob[]
+  machineProfiles MoldMachineProfile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([ownerCustomerId])
+}
+
+/// Kalıbın bir göz grubu: hangi ÖLÇÜDEN (ürün modeli + ölçü, ör. `10.5.8`) kaç göz.
+/// Kalıp varyanta değil ölçüye bağlanır: aynı kalıp o ölçünün tüm renk/hammadde
+/// versiyonlarını basar. Ölçü `Restrict` ile korunur — ölçü silen her akış kalıbı
+/// olan ölçüyü atlamalı ya da anlaşılır bir hatayla durmalı (FK hatası 500 döner).
+model MoldOutput {
+  id String @id @default(uuid())
+
+  moldId String
+  mold   Mold   @relation(fields: [moldId], references: [id], onDelete: Cascade)
+
+  productSizeId String
+  productSize   ProductSize @relation(fields: [productSizeId], references: [id], onDelete: Restrict)
+
+  /// Bu ölçüden aktif göz sayısı.
+  cavities    Int
+  /// Net parça ağırlığı (g).
+  partWeightG Float?
+
+  /// İşlerin bu göz grubundan çıktısı — `Restrict`: işe bağlı göz grubu silinemez.
+  jobOutputs ProductionJobOutput[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([moldId, productSizeId])
+  @@index([productSizeId])
+}
+
+/// Kalıp + makine kartı (opsiyonel): o makinede kanıtlanmış çevrim/setup süresi,
+/// tercih ya da bilinçli engel ("fiziksel kontroller geçse de bu makinede çalışmaz").
+model MoldMachineProfile {
+  id String @id @default(uuid())
+
+  moldId String
+  mold   Mold   @relation(fields: [moldId], references: [id], onDelete: Cascade)
+
+  machineId String
+  machine   ProductionMachine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  cycleTimeSec Float?
+  setupMinutes Int?
+  isPreferred  Boolean @default(false)
+  isBlocked    Boolean @default(false)
+  notes        String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([moldId, machineId])
+  @@index([machineId])
+}
+
+/// Hammaddenin üretim bilgisi — katalog `Material`'ın 1:1 yan tablosu. Ayrı tutulur
+/// çünkü `Material` public/portal yanıtlarında dönüyor; üretim alanları oraya
+/// eklenseydi ya yanıtlara sızardı ya da her select ayrıca daraltılmak zorunda kalırdı.
+model MaterialProcessProfile {
+  id String @id @default(uuid())
+
+  materialId String   @unique
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  /// Makinede işlenen hammadde mi — metal burç/civata gibi insert'ler `false`.
+  isMoldResin     Boolean @default(true)
+  /// Hammadde ailesi: PP, PE, ABS, PA6, POM…
+  family          String?
+  densityGCm3     Float?
+  requiresDrying  Boolean @default(false)
+  dryingTempC     Int?
+  dryingHours     Float?
+  /// Kalıbın referans çevrimine çarpan (1 = etkisiz).
+  cycleTimeFactor Float   @default(1)
+  purgeNote       String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Vardiya düzeni: makinenin günde kaç saat çalıştığını tanımlar (12 / 16 / 24 saat).
+/// Günlük çalışma süresi, düzenin vardiyalarının toplamıdır.
+model ShiftPattern {
+  id        String  @id @default(uuid())
+  name      String  @unique
+  /// Makinede ve alanında düzen seçilmemişse geçerli olan. En fazla bir tane —
+  /// kural uygulama katmanında.
+  isDefault Boolean @default(false)
+  timezone  String  @default("Europe/Istanbul")
+  notes     String? @db.Text
+
+  shifts   ShiftDefinition[]
+  areas    ProductionArea[]
+  machines ProductionMachine[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Düzen içindeki bir vardiya. VARDİYA GÜNÜ, düzenin ilk vardiyasının (en küçük
+/// `sortOrder`) başladığı gündür: saati ilk vardiyadan ÖNCE olan vardiya ertesi takvim
+/// gününe düşer ama o vardiya gününe aittir (A 08:00, B 16:00, C 00:00 → C gece
+/// devamı); `daysOfWeek` da vardiya gününe göredir. Vardiya gece yarısını geçebilir
+/// (20:00 + 720 dk). Kurallar tek yerde: core/helpers/production/shiftPatterns.ts.
+model ShiftDefinition {
+  id String @id @default(uuid())
+
+  patternId String
+  pattern   ShiftPattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+
+  /// Lot ve raporlarda görünen kısa kod ("A", "B", "C").
+  code            String
+  name            String
+  /// Gün başından dakika (480 = 08:00).
+  startMinute     Int
+  durationMinutes Int
+  /// Çalışılan günler: 1 = Pazartesi … 7 = Pazar.
+  daysOfWeek      Int[]
+  sortOrder       Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([patternId, code])
+  @@index([patternId, sortOrder])
+}
+
+enum ProductionCalendarExceptionKind {
+  HOLIDAY
+  SHUTDOWN
+  EXTRA_WORKDAY
+}
+
+/// Takvim istisnası: bayram / toplu izin (çalışılmaz) ya da ek mesai günü.
+/// Alan ve makine boşsa tüm fabrika için geçerlidir.
+model ProductionCalendarException {
+  id   String                          @id @default(uuid())
+  date DateTime                        @db.Date
+  kind ProductionCalendarExceptionKind
+  note String?
+
+  areaId String?
+  area   ProductionArea? @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  machineId String?
+  machine   ProductionMachine? @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+}
+
+enum MachineDowntimeKind {
+  PLANNED_MAINTENANCE
+  BREAKDOWN
+  OTHER
+}
+
+/// Makinenin kullanılamadığı pencere (planlı bakım, arıza). Planlama motoru bu
+/// aralıkları makinenin çalışma pencerelerinden düşer.
+model MachineDowntime {
+  id String @id @default(uuid())
+
+  machineId String
+  machine   ProductionMachine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  startAt DateTime
+  endAt   DateTime
+  kind    MachineDowntimeKind
+  reason  String?             @db.Text
+
+  createdByUserId String?
+  createdByUser   User?   @relation("MachineDowntimeCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([machineId, startAt])
+}
+
+/// Makine başında çalışan personel. Giriş hesabı DEĞİL — bu aşamada operatörler
+/// sisteme girmiyor, notları üretim planlayıcısı yazıyor (`CompanyContact`'ın
+/// `User`'dan ayrı tutulmasıyla aynı desen). Hesap bağlama ayrı kararla eklenir.
+model ProductionOperator {
+  id         String  @id @default(uuid())
+  firstName  String
+  lastName   String
+  employeeNo String? @unique
+  phone      String?
+  isActive   Boolean @default(true)
+  notes      String? @db.Text
+
+  /// Bağlı kaydı olan operatör silinmez (Restrict) — pasife alınır; silme ucu 409 döner.
+  shiftAssignments MachineShiftAssignment[]
+  lotOperators     ProductionLotOperator[]
+  lotNotes         ProductionLotNote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, lastName])
+}
+
+///////////////////////////////////////////////////////
+// ÜRETİM PLANLAMA — EMİRLER (Faz 2)
+// docs/production-planning.md §5.2. İş (ProductionJob) ve lotlar Dilim 2.3'te.
+///////////////////////////////////////////////////////
+
+enum ProductionOrderStatus {
+  DRAFT
+  PLANNED
+  RELEASED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum ProductionPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum ProductionOrderSource {
+  MANUAL
+  STOCK
+  CUSTOMER_ORDER
+}
+
+/// Üretim emri: hangi varyanttan kaç SAĞLAM adet, hangi termine kadar. Yalnız kalıbı olan
+/// ölçülerin varyantı için açılır (kural uygulama katmanında).
+model ProductionOrder {
+  id          String @id @default(uuid())
+  /// Otomatik artan emir numarası — ekranda "UE-1001" (başlangıç migration'da 1001).
+  orderNumber Int    @unique @default(autoincrement())
+
+  /// Katalog varyantı. SetNull (müşteri siparişi kalemi gibi): varyant silinse de emir kaydı
+  /// kalır; kod aşağıda kopyalı. Varyantı olmayan emir planlanmaz.
+  productVariantId String?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: SetNull)
+  /// Oluşturma anındaki varyant kodu ("10.5.8.V1").
+  variantCode      String
+
+  /// Hedef SAĞLAM adet.
+  quantity Int
+  /// Termin günü (fabrika takvimi).
+  dueDate  DateTime?             @db.Date
+  priority ProductionPriority    @default(NORMAL)
+  source   ProductionOrderSource @default(MANUAL)
+
+  customerId String?
+  customer   Customer? @relation("CustomerProductionOrders", fields: [customerId], references: [id], onDelete: SetNull)
+
+  /// Elle çevrim (sn) — kalıp/makine kartı ve hammadde katsayısının önüne geçer (§6 zincir 1).
+  cycleTimeOverrideSec Float?
+
+  status ProductionOrderStatus @default(DRAFT)
+  notes  String?               @db.Text
+
+  createdByUserId String?
+  createdByUser   User?   @relation("ProductionOrderCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  jobOutputs ProductionJobOutput[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, dueDate])
+  @@index([productVariantId])
+  @@index([customerId])
+}
+
+///////////////////////////////////////////////////////
+// ÜRETİM PLANLAMA — İŞLER VE LOTLAR (Faz 2, Dilim 2.3)
+// docs/production-planning.md §5.2. İş = bir makine + bir kalıp + kesintisiz üretim
+// (tahtadaki çubuk); lot = işin bir vardiyaya düşen dilimi ("1000-2").
+///////////////////////////////////////////////////////
+
+enum ProductionJobStatus {
+  PLANNED
+  RELEASED
+  SETUP
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum ProductionLotStatus {
+  PLANNED
+  RUNNING
+  COMPLETED
+  CANCELLED
+}
+
+model ProductionJob {
+  id            String @id @default(uuid())
+  /// Lot kökü — id gibi otomatik artan (başlangıç migration'da 1000); lot no = "kök-sıra".
+  lotBaseNumber Int    @unique @default(autoincrement())
+
+  machineId String
+  machine   ProductionMachine @relation(fields: [machineId], references: [id], onDelete: Restrict)
+  moldId    String
+  mold      Mold              @relation(fields: [moldId], references: [id], onDelete: Restrict)
+
+  /// Baskının ayarı: tüm gözler aynı renk + hammaddeyle dolar (VariantVersion.signature biçimi).
+  versionSignature String
+
+  plannedShots      Int
+  setupStartAt      DateTime
+  productionStartAt DateTime
+  plannedEndAt      DateTime
+
+  /// Planlama anı kopyaları — sözlük sonradan değişse de plan açıklanabilir kalır.
+  cycleTimeSec      Float
+  efficiencyPercent Int
+  setupMinutes      Int
+
+  status ProductionJobStatus @default(PLANNED)
+  /// İyimser eşzamanlılık (tahtada iki planlayıcı) — Faz 3.
+  version Int     @default(0)
+  notes   String? @db.Text
+
+  createdByUserId String?
+  createdByUser   User?   @relation("ProductionJobCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  outputs       ProductionJobOutput[]
+  lots          ProductionLot[]
+  /// Durum geçmişi (Dilim 4.2) — pano geçişleri, planlama ve lot başlatma yazar.
+  statusChanges ProductionJobStatusChange[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([machineId, setupStartAt])
+  @@index([moldId, setupStartAt])
+  @@index([status])
+}
+
+/// İşin bir göz grubundan çıktısı. Aile kalıbında emri olmayan çıktı yan üründür (stok).
+model ProductionJobOutput {
+  id String @id @default(uuid())
+
+  jobId String
+  job   ProductionJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  moldOutputId String
+  moldOutput   MoldOutput @relation(fields: [moldOutputId], references: [id], onDelete: Restrict)
+
+  /// Kopya — istatistik sorguları join'siz; ölçü silinse de kayıt okunur.
+  productSizeId     String
+  productionOrderId String?
+  productionOrder   ProductionOrder? @relation(fields: [productionOrderId], references: [id], onDelete: SetNull)
+
+  cavities        Int
+  plannedQuantity Int
+  goodQuantity    Int @default(0)
+  scrapQuantity   Int @default(0)
+
+  lotOutputs ProductionLotOutput[]
+
+  @@unique([jobId, moldOutputId])
+  @@index([productionOrderId])
+  @@index([productSizeId])
+}
+
+/// İşin vardiyaya düşen dilimi. Numara saklanmaz: "kök-sıra" (`lotBaseNumber`-`sequence`).
+model ProductionLot {
+  id String @id @default(uuid())
+
+  jobId    String
+  job      ProductionJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  sequence Int
+
+  /// Vardiya GÜNÜ (ilk vardiyanın günü; gece vardiyası ona ait).
+  shiftDate DateTime @db.Date
+  shiftCode String
+
+  plannedStartAt DateTime
+  plannedEndAt   DateTime
+  plannedShots   Int
+  actualStartAt  DateTime?
+  actualEndAt    DateTime?
+
+  status ProductionLotStatus @default(PLANNED)
+
+  /// Vardiya raporu (Dilim 4.2): baskı (sayaç farkı ya da adetlerden), raporu kim / ne zaman girdi.
+  /// Lot tamamlanmış ama `reportedAt` boşsa iş tamamlanırken raporsuz kapanmıştır (izlenmemiş).
+  actualShots      Int?
+  reportedAt       DateTime?
+  reportedByUserId String?
+  reportedByUser   User?     @relation("ProductionLotReportedBy", fields: [reportedByUserId], references: [id], onDelete: SetNull)
+
+  outputs   ProductionLotOutput[]
+  stops     ProductionStop[]
+  /// Lota özel ekip ya da iş tamamlanırken vardiya ekibinden dondurulan kopya. Satır yoksa
+  /// lotun ekibi vardiya ekibinden (makine × gün × vardiya) türetilir.
+  operators ProductionLotOperator[]
+  notes     ProductionLotNote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([jobId, sequence])
+  @@index([shiftDate, shiftCode])
+}
+
+model ProductionLotOutput {
+  id String @id @default(uuid())
+
+  lotId       String
+  lot         ProductionLot       @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  jobOutputId String
+  jobOutput   ProductionJobOutput @relation(fields: [jobOutputId], references: [id], onDelete: Cascade)
+
+  plannedQuantity Int
+  goodQuantity    Int @default(0)
+  scrapQuantity   Int @default(0)
+
+  /// Fire kırılımı (neden başına); toplamı `scrapQuantity`'yi aşamaz, kalan "belirtilmemiş".
+  scraps ProductionLotScrap[]
+
+  @@unique([lotId, jobOutputId])
+}
+
+/// Vardiya ekibi: hangi operatör hangi gün, hangi vardiyada, hangi makinede. Atama işe değil
+/// makine × vardiya hücresine yapılır; o vardiyada o makinede üretilen lot ekibini buradan alır
+/// (iş taşınınca atama kendiliğinden doğru kalır). Bir operatör aynı vardiyada birden çok
+/// makineye bakabilir.
+model MachineShiftAssignment {
+  id String @id @default(uuid())
+
+  machineId String
+  machine   ProductionMachine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  /// Vardiya GÜNÜ (ilk vardiyanın günü; gece vardiyası ona ait) — lotla aynı anlam.
+  shiftDate DateTime @db.Date
+  shiftCode String
+
+  operatorId String
+  operator   ProductionOperator @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@unique([machineId, shiftDate, shiftCode, operatorId])
+  @@index([shiftDate, shiftCode])
+  @@index([operatorId, shiftDate])
+}
+
+/// Lotu üreten operatörler (istatistik için kopya ya da lota özel düzeltme).
+model ProductionLotOperator {
+  id String @id @default(uuid())
+
+  lotId      String
+  lot        ProductionLot      @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  operatorId String
+  operator   ProductionOperator @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  @@unique([lotId, operatorId])
+  @@index([operatorId])
+}
+
+enum ProductionLotNoteCategory {
+  GENERAL
+  QUALITY
+  MAINTENANCE
+  MATERIAL
+  HANDOVER
+}
+
+/// Lot notu — planlayıcı yazar; operatör hesabı olmadığı için not bir operatör adına
+/// girilebilir (`operatorId`).
+model ProductionLotNote {
+  id String @id @default(uuid())
+
+  lotId    String
+  lot      ProductionLot             @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  category ProductionLotNoteCategory @default(GENERAL)
+  body     String                    @db.Text
+
+  authorUserId String?
+  authorUser   User?               @relation("ProductionLotNoteAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
+  operatorId   String?
+  operator     ProductionOperator? @relation(fields: [operatorId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([lotId, createdAt])
+  @@index([operatorId])
+}
+
+enum ProductionReasonKind {
+  STOP
+  SCRAP
+}
+
+enum ProductionStopCategory {
+  PLANNED
+  BREAKDOWN
+  MATERIAL
+  QUALITY
+  PERSONNEL
+  OTHER
+}
+
+/// Duruş ve fire nedeni sözlüğü (Dilim 4.2). Kullanılan neden silinmez (Restrict), pasife alınır.
+model ProductionReason {
+  id           String                  @id @default(uuid())
+  kind         ProductionReasonKind
+  code         String
+  name         String
+  /// Yalnız duruş nedenlerinde (planlı / arıza / malzeme …) — kural uygulama katmanında.
+  stopCategory ProductionStopCategory?
+  isActive     Boolean                 @default(true)
+  sortOrder    Int                     @default(0)
+
+  stops  ProductionStop[]
+  scraps ProductionLotScrap[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([kind, code])
+  @@index([kind, isActive, sortOrder])
+}
+
+/// Lotta gerçekleşen duruş (vardiya raporu). Planlama pencereleri `MachineDowntime`'dadır.
+model ProductionStop {
+  id String @id @default(uuid())
+
+  lotId           String
+  lot             ProductionLot    @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  reasonId        String
+  reason          ProductionReason @relation(fields: [reasonId], references: [id], onDelete: Restrict)
+  durationMinutes Int
+  /// Biliniyorsa duruşun başladığı an (UTC; fabrika saatiyle girilir).
+  startAt         DateTime?
+  note            String?          @db.Text
+
+  createdByUserId String?
+  createdByUser   User?   @relation("ProductionStopCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([lotId])
+  @@index([reasonId])
+}
+
+/// Lot çıktısının fire kırılımı — neden başına adet.
+model ProductionLotScrap {
+  id String @id @default(uuid())
+
+  lotOutputId String
+  lotOutput   ProductionLotOutput @relation(fields: [lotOutputId], references: [id], onDelete: Cascade)
+  reasonId    String
+  reason      ProductionReason    @relation(fields: [reasonId], references: [id], onDelete: Restrict)
+  quantity    Int
+
+  @@unique([lotOutputId, reasonId])
+  @@index([reasonId])
+}
+
+/// İş durum geçmişi: kim, ne zaman, hangi durumdan hangisine (`fromStatus` boş = iş oluştu).
+model ProductionJobStatusChange {
+  id String @id @default(uuid())
+
+  jobId      String
+  job        ProductionJob        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  fromStatus ProductionJobStatus?
+  toStatus   ProductionJobStatus
+  occurredAt DateTime             @default(now())
+
+  userId String?
+  user   User?   @relation("ProductionJobStatusChangeUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([jobId, occurredAt])
+  @@index([toStatus, occurredAt])
 }

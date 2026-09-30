@@ -103,7 +103,30 @@ export const ModelName = {
   ActivityLog: 'ActivityLog',
   Material: 'Material',
   MaterialTranslation: 'MaterialTranslation',
-  Asset: 'Asset'
+  Asset: 'Asset',
+  ProductionArea: 'ProductionArea',
+  ProductionMachine: 'ProductionMachine',
+  Mold: 'Mold',
+  MoldOutput: 'MoldOutput',
+  MoldMachineProfile: 'MoldMachineProfile',
+  MaterialProcessProfile: 'MaterialProcessProfile',
+  ShiftPattern: 'ShiftPattern',
+  ShiftDefinition: 'ShiftDefinition',
+  ProductionCalendarException: 'ProductionCalendarException',
+  MachineDowntime: 'MachineDowntime',
+  ProductionOperator: 'ProductionOperator',
+  ProductionOrder: 'ProductionOrder',
+  ProductionJob: 'ProductionJob',
+  ProductionJobOutput: 'ProductionJobOutput',
+  ProductionLot: 'ProductionLot',
+  ProductionLotOutput: 'ProductionLotOutput',
+  MachineShiftAssignment: 'MachineShiftAssignment',
+  ProductionLotOperator: 'ProductionLotOperator',
+  ProductionLotNote: 'ProductionLotNote',
+  ProductionReason: 'ProductionReason',
+  ProductionStop: 'ProductionStop',
+  ProductionLotScrap: 'ProductionLotScrap',
+  ProductionJobStatusChange: 'ProductionJobStatusChange'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1045,6 +1068,393 @@ export const AssetScalarFieldEnum = {
 } as const
 
 export type AssetScalarFieldEnum = (typeof AssetScalarFieldEnum)[keyof typeof AssetScalarFieldEnum]
+
+
+export const ProductionAreaScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  notes: 'notes',
+  shiftPatternId: 'shiftPatternId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionAreaScalarFieldEnum = (typeof ProductionAreaScalarFieldEnum)[keyof typeof ProductionAreaScalarFieldEnum]
+
+
+export const ProductionMachineScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  brand: 'brand',
+  model: 'model',
+  serialNumber: 'serialNumber',
+  manufactureYear: 'manufactureYear',
+  areaId: 'areaId',
+  status: 'status',
+  clampForceTon: 'clampForceTon',
+  tieBarHorizontalMm: 'tieBarHorizontalMm',
+  tieBarVerticalMm: 'tieBarVerticalMm',
+  minMoldHeightMm: 'minMoldHeightMm',
+  maxMoldHeightMm: 'maxMoldHeightMm',
+  maxOpeningStrokeMm: 'maxOpeningStrokeMm',
+  maxDaylightMm: 'maxDaylightMm',
+  shotCapacityG: 'shotCapacityG',
+  screwDiameterMm: 'screwDiameterMm',
+  locatingRingDiameterMm: 'locatingRingDiameterMm',
+  hotRunnerZones: 'hotRunnerZones',
+  coreCircuits: 'coreCircuits',
+  hasRobot: 'hasRobot',
+  plannedEfficiencyPercent: 'plannedEfficiencyPercent',
+  hourlyCost: 'hourlyCost',
+  currency: 'currency',
+  shiftPatternId: 'shiftPatternId',
+  sortOrder: 'sortOrder',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionMachineScalarFieldEnum = (typeof ProductionMachineScalarFieldEnum)[keyof typeof ProductionMachineScalarFieldEnum]
+
+
+export const MoldScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  status: 'status',
+  ownership: 'ownership',
+  ownerCustomerId: 'ownerCustomerId',
+  requiredClampForceTon: 'requiredClampForceTon',
+  widthMm: 'widthMm',
+  heightMm: 'heightMm',
+  thicknessMm: 'thicknessMm',
+  weightKg: 'weightKg',
+  requiredOpeningStrokeMm: 'requiredOpeningStrokeMm',
+  locatingRingDiameterMm: 'locatingRingDiameterMm',
+  hotRunnerZones: 'hotRunnerZones',
+  coreCircuitsRequired: 'coreCircuitsRequired',
+  requiresRobot: 'requiresRobot',
+  standardCycleTimeSec: 'standardCycleTimeSec',
+  runnerWeightG: 'runnerWeightG',
+  expectedScrapPercent: 'expectedScrapPercent',
+  setupMinutes: 'setupMinutes',
+  totalShots: 'totalShots',
+  maintenanceIntervalShots: 'maintenanceIntervalShots',
+  shotsAtLastMaintenance: 'shotsAtLastMaintenance',
+  lastMaintenanceAt: 'lastMaintenanceAt',
+  storageLocation: 'storageLocation',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MoldScalarFieldEnum = (typeof MoldScalarFieldEnum)[keyof typeof MoldScalarFieldEnum]
+
+
+export const MoldOutputScalarFieldEnum = {
+  id: 'id',
+  moldId: 'moldId',
+  productSizeId: 'productSizeId',
+  cavities: 'cavities',
+  partWeightG: 'partWeightG',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MoldOutputScalarFieldEnum = (typeof MoldOutputScalarFieldEnum)[keyof typeof MoldOutputScalarFieldEnum]
+
+
+export const MoldMachineProfileScalarFieldEnum = {
+  id: 'id',
+  moldId: 'moldId',
+  machineId: 'machineId',
+  cycleTimeSec: 'cycleTimeSec',
+  setupMinutes: 'setupMinutes',
+  isPreferred: 'isPreferred',
+  isBlocked: 'isBlocked',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MoldMachineProfileScalarFieldEnum = (typeof MoldMachineProfileScalarFieldEnum)[keyof typeof MoldMachineProfileScalarFieldEnum]
+
+
+export const MaterialProcessProfileScalarFieldEnum = {
+  id: 'id',
+  materialId: 'materialId',
+  isMoldResin: 'isMoldResin',
+  family: 'family',
+  densityGCm3: 'densityGCm3',
+  requiresDrying: 'requiresDrying',
+  dryingTempC: 'dryingTempC',
+  dryingHours: 'dryingHours',
+  cycleTimeFactor: 'cycleTimeFactor',
+  purgeNote: 'purgeNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MaterialProcessProfileScalarFieldEnum = (typeof MaterialProcessProfileScalarFieldEnum)[keyof typeof MaterialProcessProfileScalarFieldEnum]
+
+
+export const ShiftPatternScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  isDefault: 'isDefault',
+  timezone: 'timezone',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShiftPatternScalarFieldEnum = (typeof ShiftPatternScalarFieldEnum)[keyof typeof ShiftPatternScalarFieldEnum]
+
+
+export const ShiftDefinitionScalarFieldEnum = {
+  id: 'id',
+  patternId: 'patternId',
+  code: 'code',
+  name: 'name',
+  startMinute: 'startMinute',
+  durationMinutes: 'durationMinutes',
+  daysOfWeek: 'daysOfWeek',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ShiftDefinitionScalarFieldEnum = (typeof ShiftDefinitionScalarFieldEnum)[keyof typeof ShiftDefinitionScalarFieldEnum]
+
+
+export const ProductionCalendarExceptionScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  kind: 'kind',
+  note: 'note',
+  areaId: 'areaId',
+  machineId: 'machineId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionCalendarExceptionScalarFieldEnum = (typeof ProductionCalendarExceptionScalarFieldEnum)[keyof typeof ProductionCalendarExceptionScalarFieldEnum]
+
+
+export const MachineDowntimeScalarFieldEnum = {
+  id: 'id',
+  machineId: 'machineId',
+  startAt: 'startAt',
+  endAt: 'endAt',
+  kind: 'kind',
+  reason: 'reason',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MachineDowntimeScalarFieldEnum = (typeof MachineDowntimeScalarFieldEnum)[keyof typeof MachineDowntimeScalarFieldEnum]
+
+
+export const ProductionOperatorScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  employeeNo: 'employeeNo',
+  phone: 'phone',
+  isActive: 'isActive',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionOperatorScalarFieldEnum = (typeof ProductionOperatorScalarFieldEnum)[keyof typeof ProductionOperatorScalarFieldEnum]
+
+
+export const ProductionOrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  productVariantId: 'productVariantId',
+  variantCode: 'variantCode',
+  quantity: 'quantity',
+  dueDate: 'dueDate',
+  priority: 'priority',
+  source: 'source',
+  customerId: 'customerId',
+  cycleTimeOverrideSec: 'cycleTimeOverrideSec',
+  status: 'status',
+  notes: 'notes',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionOrderScalarFieldEnum = (typeof ProductionOrderScalarFieldEnum)[keyof typeof ProductionOrderScalarFieldEnum]
+
+
+export const ProductionJobScalarFieldEnum = {
+  id: 'id',
+  lotBaseNumber: 'lotBaseNumber',
+  machineId: 'machineId',
+  moldId: 'moldId',
+  versionSignature: 'versionSignature',
+  plannedShots: 'plannedShots',
+  setupStartAt: 'setupStartAt',
+  productionStartAt: 'productionStartAt',
+  plannedEndAt: 'plannedEndAt',
+  cycleTimeSec: 'cycleTimeSec',
+  efficiencyPercent: 'efficiencyPercent',
+  setupMinutes: 'setupMinutes',
+  status: 'status',
+  version: 'version',
+  notes: 'notes',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionJobScalarFieldEnum = (typeof ProductionJobScalarFieldEnum)[keyof typeof ProductionJobScalarFieldEnum]
+
+
+export const ProductionJobOutputScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  moldOutputId: 'moldOutputId',
+  productSizeId: 'productSizeId',
+  productionOrderId: 'productionOrderId',
+  cavities: 'cavities',
+  plannedQuantity: 'plannedQuantity',
+  goodQuantity: 'goodQuantity',
+  scrapQuantity: 'scrapQuantity'
+} as const
+
+export type ProductionJobOutputScalarFieldEnum = (typeof ProductionJobOutputScalarFieldEnum)[keyof typeof ProductionJobOutputScalarFieldEnum]
+
+
+export const ProductionLotScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  sequence: 'sequence',
+  shiftDate: 'shiftDate',
+  shiftCode: 'shiftCode',
+  plannedStartAt: 'plannedStartAt',
+  plannedEndAt: 'plannedEndAt',
+  plannedShots: 'plannedShots',
+  actualStartAt: 'actualStartAt',
+  actualEndAt: 'actualEndAt',
+  status: 'status',
+  actualShots: 'actualShots',
+  reportedAt: 'reportedAt',
+  reportedByUserId: 'reportedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionLotScalarFieldEnum = (typeof ProductionLotScalarFieldEnum)[keyof typeof ProductionLotScalarFieldEnum]
+
+
+export const ProductionLotOutputScalarFieldEnum = {
+  id: 'id',
+  lotId: 'lotId',
+  jobOutputId: 'jobOutputId',
+  plannedQuantity: 'plannedQuantity',
+  goodQuantity: 'goodQuantity',
+  scrapQuantity: 'scrapQuantity'
+} as const
+
+export type ProductionLotOutputScalarFieldEnum = (typeof ProductionLotOutputScalarFieldEnum)[keyof typeof ProductionLotOutputScalarFieldEnum]
+
+
+export const MachineShiftAssignmentScalarFieldEnum = {
+  id: 'id',
+  machineId: 'machineId',
+  shiftDate: 'shiftDate',
+  shiftCode: 'shiftCode',
+  operatorId: 'operatorId',
+  createdAt: 'createdAt'
+} as const
+
+export type MachineShiftAssignmentScalarFieldEnum = (typeof MachineShiftAssignmentScalarFieldEnum)[keyof typeof MachineShiftAssignmentScalarFieldEnum]
+
+
+export const ProductionLotOperatorScalarFieldEnum = {
+  id: 'id',
+  lotId: 'lotId',
+  operatorId: 'operatorId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProductionLotOperatorScalarFieldEnum = (typeof ProductionLotOperatorScalarFieldEnum)[keyof typeof ProductionLotOperatorScalarFieldEnum]
+
+
+export const ProductionLotNoteScalarFieldEnum = {
+  id: 'id',
+  lotId: 'lotId',
+  category: 'category',
+  body: 'body',
+  authorUserId: 'authorUserId',
+  operatorId: 'operatorId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionLotNoteScalarFieldEnum = (typeof ProductionLotNoteScalarFieldEnum)[keyof typeof ProductionLotNoteScalarFieldEnum]
+
+
+export const ProductionReasonScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  code: 'code',
+  name: 'name',
+  stopCategory: 'stopCategory',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionReasonScalarFieldEnum = (typeof ProductionReasonScalarFieldEnum)[keyof typeof ProductionReasonScalarFieldEnum]
+
+
+export const ProductionStopScalarFieldEnum = {
+  id: 'id',
+  lotId: 'lotId',
+  reasonId: 'reasonId',
+  durationMinutes: 'durationMinutes',
+  startAt: 'startAt',
+  note: 'note',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductionStopScalarFieldEnum = (typeof ProductionStopScalarFieldEnum)[keyof typeof ProductionStopScalarFieldEnum]
+
+
+export const ProductionLotScrapScalarFieldEnum = {
+  id: 'id',
+  lotOutputId: 'lotOutputId',
+  reasonId: 'reasonId',
+  quantity: 'quantity'
+} as const
+
+export type ProductionLotScrapScalarFieldEnum = (typeof ProductionLotScrapScalarFieldEnum)[keyof typeof ProductionLotScrapScalarFieldEnum]
+
+
+export const ProductionJobStatusChangeScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  occurredAt: 'occurredAt',
+  userId: 'userId'
+} as const
+
+export type ProductionJobStatusChangeScalarFieldEnum = (typeof ProductionJobStatusChangeScalarFieldEnum)[keyof typeof ProductionJobStatusChangeScalarFieldEnum]
 
 
 export const SortOrder = {

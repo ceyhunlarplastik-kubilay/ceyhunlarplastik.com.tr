@@ -25,7 +25,8 @@ export const UserNotificationType = {
   ASSIGNMENT_CHANGED: 'ASSIGNMENT_CHANGED',
   REQUEST_CREATED: 'REQUEST_CREATED',
   APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
-  REQUEST_DECIDED: 'REQUEST_DECIDED'
+  REQUEST_DECIDED: 'REQUEST_DECIDED',
+  PRODUCTION_ALERT: 'PRODUCTION_ALERT'
 } as const
 
 export type UserNotificationType = (typeof UserNotificationType)[keyof typeof UserNotificationType]
@@ -319,3 +320,135 @@ export const AssetUploadStatus = {
 } as const
 
 export type AssetUploadStatus = (typeof AssetUploadStatus)[keyof typeof AssetUploadStatus]
+
+
+export const ProductionMachineStatus = {
+  ACTIVE: 'ACTIVE',
+  MAINTENANCE: 'MAINTENANCE',
+  BREAKDOWN: 'BREAKDOWN',
+  INACTIVE: 'INACTIVE'
+} as const
+
+export type ProductionMachineStatus = (typeof ProductionMachineStatus)[keyof typeof ProductionMachineStatus]
+
+
+export const MoldStatus = {
+  ACTIVE: 'ACTIVE',
+  IN_MAINTENANCE: 'IN_MAINTENANCE',
+  BROKEN: 'BROKEN',
+  RETIRED: 'RETIRED'
+} as const
+
+export type MoldStatus = (typeof MoldStatus)[keyof typeof MoldStatus]
+
+
+export const MoldOwnership = {
+  COMPANY: 'COMPANY',
+  CUSTOMER: 'CUSTOMER'
+} as const
+
+export type MoldOwnership = (typeof MoldOwnership)[keyof typeof MoldOwnership]
+
+
+export const ProductionCalendarExceptionKind = {
+  HOLIDAY: 'HOLIDAY',
+  SHUTDOWN: 'SHUTDOWN',
+  EXTRA_WORKDAY: 'EXTRA_WORKDAY'
+} as const
+
+export type ProductionCalendarExceptionKind = (typeof ProductionCalendarExceptionKind)[keyof typeof ProductionCalendarExceptionKind]
+
+
+export const MachineDowntimeKind = {
+  PLANNED_MAINTENANCE: 'PLANNED_MAINTENANCE',
+  BREAKDOWN: 'BREAKDOWN',
+  OTHER: 'OTHER'
+} as const
+
+export type MachineDowntimeKind = (typeof MachineDowntimeKind)[keyof typeof MachineDowntimeKind]
+
+
+export const ProductionOrderStatus = {
+  DRAFT: 'DRAFT',
+  PLANNED: 'PLANNED',
+  RELEASED: 'RELEASED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  ON_HOLD: 'ON_HOLD'
+} as const
+
+export type ProductionOrderStatus = (typeof ProductionOrderStatus)[keyof typeof ProductionOrderStatus]
+
+
+export const ProductionPriority = {
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+
+export type ProductionPriority = (typeof ProductionPriority)[keyof typeof ProductionPriority]
+
+
+export const ProductionOrderSource = {
+  MANUAL: 'MANUAL',
+  STOCK: 'STOCK',
+  CUSTOMER_ORDER: 'CUSTOMER_ORDER'
+} as const
+
+export type ProductionOrderSource = (typeof ProductionOrderSource)[keyof typeof ProductionOrderSource]
+
+
+export const ProductionJobStatus = {
+  PLANNED: 'PLANNED',
+  RELEASED: 'RELEASED',
+  SETUP: 'SETUP',
+  RUNNING: 'RUNNING',
+  PAUSED: 'PAUSED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ProductionJobStatus = (typeof ProductionJobStatus)[keyof typeof ProductionJobStatus]
+
+
+export const ProductionLotStatus = {
+  PLANNED: 'PLANNED',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ProductionLotStatus = (typeof ProductionLotStatus)[keyof typeof ProductionLotStatus]
+
+
+export const ProductionLotNoteCategory = {
+  GENERAL: 'GENERAL',
+  QUALITY: 'QUALITY',
+  MAINTENANCE: 'MAINTENANCE',
+  MATERIAL: 'MATERIAL',
+  HANDOVER: 'HANDOVER'
+} as const
+
+export type ProductionLotNoteCategory = (typeof ProductionLotNoteCategory)[keyof typeof ProductionLotNoteCategory]
+
+
+export const ProductionReasonKind = {
+  STOP: 'STOP',
+  SCRAP: 'SCRAP'
+} as const
+
+export type ProductionReasonKind = (typeof ProductionReasonKind)[keyof typeof ProductionReasonKind]
+
+
+export const ProductionStopCategory = {
+  PLANNED: 'PLANNED',
+  BREAKDOWN: 'BREAKDOWN',
+  MATERIAL: 'MATERIAL',
+  QUALITY: 'QUALITY',
+  PERSONNEL: 'PERSONNEL',
+  OTHER: 'OTHER'
+} as const
+
+export type ProductionStopCategory = (typeof ProductionStopCategory)[keyof typeof ProductionStopCategory]

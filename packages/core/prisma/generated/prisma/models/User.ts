@@ -327,6 +327,13 @@ export type UserWhereInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressListRelationFilter
   customerInvitations?: Prisma.UserInvitationListRelationFilter
   sentCustomerInvitations?: Prisma.UserInvitationListRelationFilter
+  createdMachineDowntimes?: Prisma.MachineDowntimeListRelationFilter
+  createdProductionOrders?: Prisma.ProductionOrderListRelationFilter
+  createdProductionJobs?: Prisma.ProductionJobListRelationFilter
+  productionLotNotes?: Prisma.ProductionLotNoteListRelationFilter
+  reportedProductionLots?: Prisma.ProductionLotListRelationFilter
+  createdProductionStops?: Prisma.ProductionStopListRelationFilter
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -372,6 +379,13 @@ export type UserOrderByWithRelationInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressOrderByRelationAggregateInput
   customerInvitations?: Prisma.UserInvitationOrderByRelationAggregateInput
   sentCustomerInvitations?: Prisma.UserInvitationOrderByRelationAggregateInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeOrderByRelationAggregateInput
+  createdProductionOrders?: Prisma.ProductionOrderOrderByRelationAggregateInput
+  createdProductionJobs?: Prisma.ProductionJobOrderByRelationAggregateInput
+  productionLotNotes?: Prisma.ProductionLotNoteOrderByRelationAggregateInput
+  reportedProductionLots?: Prisma.ProductionLotOrderByRelationAggregateInput
+  createdProductionStops?: Prisma.ProductionStopOrderByRelationAggregateInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -420,6 +434,13 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   verifiedCustomerAddresses?: Prisma.CustomerAddressListRelationFilter
   customerInvitations?: Prisma.UserInvitationListRelationFilter
   sentCustomerInvitations?: Prisma.UserInvitationListRelationFilter
+  createdMachineDowntimes?: Prisma.MachineDowntimeListRelationFilter
+  createdProductionOrders?: Prisma.ProductionOrderListRelationFilter
+  createdProductionJobs?: Prisma.ProductionJobListRelationFilter
+  productionLotNotes?: Prisma.ProductionLotNoteListRelationFilter
+  reportedProductionLots?: Prisma.ProductionLotListRelationFilter
+  createdProductionStops?: Prisma.ProductionStopListRelationFilter
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeListRelationFilter
 }, "id" | "cognitoSub" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -517,6 +538,13 @@ export type UserCreateInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -560,6 +588,13 @@ export type UserUncheckedCreateInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -603,6 +638,13 @@ export type UserUpdateInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -646,6 +688,13 @@ export type UserUncheckedUpdateInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1239,6 +1288,118 @@ export type UserUpdateOneWithoutActivityLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutActivityLogsInput, Prisma.UserUpdateWithoutActivityLogsInput>, Prisma.UserUncheckedUpdateWithoutActivityLogsInput>
 }
 
+export type UserCreateNestedOneWithoutCreatedMachineDowntimesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedMachineDowntimesInput, Prisma.UserUncheckedCreateWithoutCreatedMachineDowntimesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedMachineDowntimesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedMachineDowntimesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedMachineDowntimesInput, Prisma.UserUncheckedCreateWithoutCreatedMachineDowntimesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedMachineDowntimesInput
+  upsert?: Prisma.UserUpsertWithoutCreatedMachineDowntimesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedMachineDowntimesInput, Prisma.UserUpdateWithoutCreatedMachineDowntimesInput>, Prisma.UserUncheckedUpdateWithoutCreatedMachineDowntimesInput>
+}
+
+export type UserCreateNestedOneWithoutCreatedProductionOrdersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedProductionOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedProductionOrdersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedProductionOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedProductionOrdersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedProductionOrdersInput
+  upsert?: Prisma.UserUpsertWithoutCreatedProductionOrdersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedProductionOrdersInput, Prisma.UserUpdateWithoutCreatedProductionOrdersInput>, Prisma.UserUncheckedUpdateWithoutCreatedProductionOrdersInput>
+}
+
+export type UserCreateNestedOneWithoutCreatedProductionJobsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionJobsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionJobsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedProductionJobsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedProductionJobsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionJobsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionJobsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedProductionJobsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedProductionJobsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedProductionJobsInput, Prisma.UserUpdateWithoutCreatedProductionJobsInput>, Prisma.UserUncheckedUpdateWithoutCreatedProductionJobsInput>
+}
+
+export type UserCreateNestedOneWithoutReportedProductionLotsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReportedProductionLotsInput, Prisma.UserUncheckedCreateWithoutReportedProductionLotsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReportedProductionLotsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutReportedProductionLotsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReportedProductionLotsInput, Prisma.UserUncheckedCreateWithoutReportedProductionLotsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReportedProductionLotsInput
+  upsert?: Prisma.UserUpsertWithoutReportedProductionLotsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReportedProductionLotsInput, Prisma.UserUpdateWithoutReportedProductionLotsInput>, Prisma.UserUncheckedUpdateWithoutReportedProductionLotsInput>
+}
+
+export type UserCreateNestedOneWithoutProductionLotNotesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProductionLotNotesInput, Prisma.UserUncheckedCreateWithoutProductionLotNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductionLotNotesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutProductionLotNotesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProductionLotNotesInput, Prisma.UserUncheckedCreateWithoutProductionLotNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductionLotNotesInput
+  upsert?: Prisma.UserUpsertWithoutProductionLotNotesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProductionLotNotesInput, Prisma.UserUpdateWithoutProductionLotNotesInput>, Prisma.UserUncheckedUpdateWithoutProductionLotNotesInput>
+}
+
+export type UserCreateNestedOneWithoutCreatedProductionStopsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionStopsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionStopsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedProductionStopsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedProductionStopsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionStopsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionStopsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedProductionStopsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedProductionStopsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedProductionStopsInput, Prisma.UserUpdateWithoutCreatedProductionStopsInput>, Prisma.UserUncheckedUpdateWithoutCreatedProductionStopsInput>
+}
+
+export type UserCreateNestedOneWithoutProductionJobStatusChangesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProductionJobStatusChangesInput, Prisma.UserUncheckedCreateWithoutProductionJobStatusChangesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductionJobStatusChangesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutProductionJobStatusChangesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutProductionJobStatusChangesInput, Prisma.UserUncheckedCreateWithoutProductionJobStatusChangesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutProductionJobStatusChangesInput
+  upsert?: Prisma.UserUpsertWithoutProductionJobStatusChangesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutProductionJobStatusChangesInput, Prisma.UserUpdateWithoutProductionJobStatusChangesInput>, Prisma.UserUncheckedUpdateWithoutProductionJobStatusChangesInput>
+}
+
 export type UserCreateWithoutNotificationsInput = {
   id?: string
   cognitoSub: string
@@ -1279,6 +1440,13 @@ export type UserCreateWithoutNotificationsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1321,6 +1489,13 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -1379,6 +1554,13 @@ export type UserUpdateWithoutNotificationsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -1421,6 +1603,13 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssignedSalesCustomersInput = {
@@ -1463,6 +1652,13 @@ export type UserCreateWithoutAssignedSalesCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedSalesCustomersInput = {
@@ -1505,6 +1701,13 @@ export type UserUncheckedCreateWithoutAssignedSalesCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedSalesCustomersInput = {
@@ -1552,6 +1755,13 @@ export type UserCreateWithoutConvertedCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutConvertedCustomersInput = {
@@ -1594,6 +1804,13 @@ export type UserUncheckedCreateWithoutConvertedCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutConvertedCustomersInput = {
@@ -1641,6 +1858,13 @@ export type UserCreateWithoutCustomerInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCustomerInput = {
@@ -1683,6 +1907,13 @@ export type UserUncheckedCreateWithoutCustomerInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCustomerInput = {
@@ -1746,6 +1977,13 @@ export type UserUpdateWithoutAssignedSalesCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedSalesCustomersInput = {
@@ -1788,6 +2026,13 @@ export type UserUncheckedUpdateWithoutAssignedSalesCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutConvertedCustomersInput = {
@@ -1841,6 +2086,13 @@ export type UserUpdateWithoutConvertedCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConvertedCustomersInput = {
@@ -1883,6 +2135,13 @@ export type UserUncheckedUpdateWithoutConvertedCustomersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutCustomerInput = {
@@ -1968,6 +2227,13 @@ export type UserCreateWithoutCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCustomerInvitationsInput = {
@@ -2010,6 +2276,13 @@ export type UserUncheckedCreateWithoutCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCustomerInvitationsInput = {
@@ -2057,6 +2330,13 @@ export type UserCreateWithoutSentCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentCustomerInvitationsInput = {
@@ -2099,6 +2379,13 @@ export type UserUncheckedCreateWithoutSentCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentCustomerInvitationsInput = {
@@ -2157,6 +2444,13 @@ export type UserUpdateWithoutCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerInvitationsInput = {
@@ -2199,6 +2493,13 @@ export type UserUncheckedUpdateWithoutCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutSentCustomerInvitationsInput = {
@@ -2252,6 +2553,13 @@ export type UserUpdateWithoutSentCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentCustomerInvitationsInput = {
@@ -2294,6 +2602,13 @@ export type UserUncheckedUpdateWithoutSentCustomerInvitationsInput = {
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssignedPurchasingSuppliersInput = {
@@ -2336,6 +2651,13 @@ export type UserCreateWithoutAssignedPurchasingSuppliersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
@@ -2378,6 +2700,13 @@ export type UserUncheckedCreateWithoutAssignedPurchasingSuppliersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedPurchasingSuppliersInput = {
@@ -2425,6 +2754,13 @@ export type UserCreateWithoutSupplierInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSupplierInput = {
@@ -2467,6 +2803,13 @@ export type UserUncheckedCreateWithoutSupplierInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSupplierInput = {
@@ -2551,6 +2894,13 @@ export type UserCreateWithoutCreatedCustomerAssignedProductsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCustomerAssignedProductsInput = {
@@ -2593,6 +2943,13 @@ export type UserUncheckedCreateWithoutCreatedCustomerAssignedProductsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCustomerAssignedProductsInput = {
@@ -2651,6 +3008,13 @@ export type UserUpdateWithoutCreatedCustomerAssignedProductsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCustomerAssignedProductsInput = {
@@ -2693,6 +3057,13 @@ export type UserUncheckedUpdateWithoutCreatedCustomerAssignedProductsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutVerifiedCustomerAddressesInput = {
@@ -2735,6 +3106,13 @@ export type UserCreateWithoutVerifiedCustomerAddressesInput = {
   notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVerifiedCustomerAddressesInput = {
@@ -2777,6 +3155,13 @@ export type UserUncheckedCreateWithoutVerifiedCustomerAddressesInput = {
   notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVerifiedCustomerAddressesInput = {
@@ -2835,6 +3220,13 @@ export type UserUpdateWithoutVerifiedCustomerAddressesInput = {
   notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerifiedCustomerAddressesInput = {
@@ -2877,6 +3269,13 @@ export type UserUncheckedUpdateWithoutVerifiedCustomerAddressesInput = {
   notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutOwnedCustomerVisitsInput = {
@@ -2919,6 +3318,13 @@ export type UserCreateWithoutOwnedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOwnedCustomerVisitsInput = {
@@ -2961,6 +3367,13 @@ export type UserUncheckedCreateWithoutOwnedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOwnedCustomerVisitsInput = {
@@ -3008,6 +3421,13 @@ export type UserCreateWithoutCreatedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCustomerVisitsInput = {
@@ -3050,6 +3470,13 @@ export type UserUncheckedCreateWithoutCreatedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCustomerVisitsInput = {
@@ -3108,6 +3535,13 @@ export type UserUpdateWithoutOwnedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnedCustomerVisitsInput = {
@@ -3150,6 +3584,13 @@ export type UserUncheckedUpdateWithoutOwnedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutCreatedCustomerVisitsInput = {
@@ -3203,6 +3644,13 @@ export type UserUpdateWithoutCreatedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCustomerVisitsInput = {
@@ -3245,6 +3693,13 @@ export type UserUncheckedUpdateWithoutCreatedCustomerVisitsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedProductVariantCampaignsInput = {
@@ -3287,6 +3742,13 @@ export type UserCreateWithoutCreatedProductVariantCampaignsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedProductVariantCampaignsInput = {
@@ -3329,6 +3791,13 @@ export type UserUncheckedCreateWithoutCreatedProductVariantCampaignsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedProductVariantCampaignsInput = {
@@ -3387,6 +3856,13 @@ export type UserUpdateWithoutCreatedProductVariantCampaignsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedProductVariantCampaignsInput = {
@@ -3429,6 +3905,13 @@ export type UserUncheckedUpdateWithoutCreatedProductVariantCampaignsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedCampaignAnnouncementsInput = {
@@ -3471,6 +3954,13 @@ export type UserCreateWithoutCreatedCampaignAnnouncementsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCampaignAnnouncementsInput = {
@@ -3513,6 +4003,13 @@ export type UserUncheckedCreateWithoutCreatedCampaignAnnouncementsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCampaignAnnouncementsInput = {
@@ -3571,6 +4068,13 @@ export type UserUpdateWithoutCreatedCampaignAnnouncementsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCampaignAnnouncementsInput = {
@@ -3613,6 +4117,13 @@ export type UserUncheckedUpdateWithoutCreatedCampaignAnnouncementsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedCustomerSpecialPricesInput = {
@@ -3655,6 +4166,13 @@ export type UserCreateWithoutCreatedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCustomerSpecialPricesInput = {
@@ -3697,6 +4215,13 @@ export type UserUncheckedCreateWithoutCreatedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCustomerSpecialPricesInput = {
@@ -3744,6 +4269,13 @@ export type UserCreateWithoutApprovedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovedCustomerSpecialPricesInput = {
@@ -3786,6 +4318,13 @@ export type UserUncheckedCreateWithoutApprovedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovedCustomerSpecialPricesInput = {
@@ -3844,6 +4383,13 @@ export type UserUpdateWithoutCreatedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCustomerSpecialPricesInput = {
@@ -3886,6 +4432,13 @@ export type UserUncheckedUpdateWithoutCreatedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutApprovedCustomerSpecialPricesInput = {
@@ -3939,6 +4492,13 @@ export type UserUpdateWithoutApprovedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovedCustomerSpecialPricesInput = {
@@ -3981,6 +4541,13 @@ export type UserUncheckedUpdateWithoutApprovedCustomerSpecialPricesInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRequestedBusinessRequestsInput = {
@@ -4023,6 +4590,13 @@ export type UserCreateWithoutRequestedBusinessRequestsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRequestedBusinessRequestsInput = {
@@ -4065,6 +4639,13 @@ export type UserUncheckedCreateWithoutRequestedBusinessRequestsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRequestedBusinessRequestsInput = {
@@ -4123,6 +4704,13 @@ export type UserUpdateWithoutRequestedBusinessRequestsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRequestedBusinessRequestsInput = {
@@ -4165,6 +4753,13 @@ export type UserUncheckedUpdateWithoutRequestedBusinessRequestsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRequestedOrdersInput = {
@@ -4207,6 +4802,13 @@ export type UserCreateWithoutRequestedOrdersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRequestedOrdersInput = {
@@ -4249,6 +4851,13 @@ export type UserUncheckedCreateWithoutRequestedOrdersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRequestedOrdersInput = {
@@ -4307,6 +4916,13 @@ export type UserUpdateWithoutRequestedOrdersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRequestedOrdersInput = {
@@ -4349,6 +4965,13 @@ export type UserUncheckedUpdateWithoutRequestedOrdersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssignedBusinessRequestStepsInput = {
@@ -4391,6 +5014,13 @@ export type UserCreateWithoutAssignedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedBusinessRequestStepsInput = {
@@ -4433,6 +5063,13 @@ export type UserUncheckedCreateWithoutAssignedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedBusinessRequestStepsInput = {
@@ -4480,6 +5117,13 @@ export type UserCreateWithoutDecidedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDecidedBusinessRequestStepsInput = {
@@ -4522,6 +5166,13 @@ export type UserUncheckedCreateWithoutDecidedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDecidedBusinessRequestStepsInput = {
@@ -4580,6 +5231,13 @@ export type UserUpdateWithoutAssignedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedBusinessRequestStepsInput = {
@@ -4622,6 +5280,13 @@ export type UserUncheckedUpdateWithoutAssignedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutDecidedBusinessRequestStepsInput = {
@@ -4675,6 +5340,13 @@ export type UserUpdateWithoutDecidedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDecidedBusinessRequestStepsInput = {
@@ -4717,6 +5389,13 @@ export type UserUncheckedUpdateWithoutDecidedBusinessRequestStepsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActivityLogsInput = {
@@ -4759,6 +5438,13 @@ export type UserCreateWithoutActivityLogsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -4801,6 +5487,13 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
   customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -4859,6 +5552,13 @@ export type UserUpdateWithoutActivityLogsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -4901,6 +5601,1497 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCreatedMachineDowntimesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedMachineDowntimesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedMachineDowntimesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedMachineDowntimesInput, Prisma.UserUncheckedCreateWithoutCreatedMachineDowntimesInput>
+}
+
+export type UserUpsertWithoutCreatedMachineDowntimesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedMachineDowntimesInput, Prisma.UserUncheckedUpdateWithoutCreatedMachineDowntimesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedMachineDowntimesInput, Prisma.UserUncheckedCreateWithoutCreatedMachineDowntimesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedMachineDowntimesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedMachineDowntimesInput, Prisma.UserUncheckedUpdateWithoutCreatedMachineDowntimesInput>
+}
+
+export type UserUpdateWithoutCreatedMachineDowntimesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedMachineDowntimesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCreatedProductionOrdersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedProductionOrdersInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedProductionOrdersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedProductionOrdersInput>
+}
+
+export type UserUpsertWithoutCreatedProductionOrdersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedProductionOrdersInput, Prisma.UserUncheckedUpdateWithoutCreatedProductionOrdersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionOrdersInput, Prisma.UserUncheckedCreateWithoutCreatedProductionOrdersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedProductionOrdersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedProductionOrdersInput, Prisma.UserUncheckedUpdateWithoutCreatedProductionOrdersInput>
+}
+
+export type UserUpdateWithoutCreatedProductionOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedProductionOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCreatedProductionJobsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedProductionJobsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedProductionJobsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionJobsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionJobsInput>
+}
+
+export type UserUpsertWithoutCreatedProductionJobsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedProductionJobsInput, Prisma.UserUncheckedUpdateWithoutCreatedProductionJobsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionJobsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionJobsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedProductionJobsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedProductionJobsInput, Prisma.UserUncheckedUpdateWithoutCreatedProductionJobsInput>
+}
+
+export type UserUpdateWithoutCreatedProductionJobsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedProductionJobsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutReportedProductionLotsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutReportedProductionLotsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutReportedProductionLotsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReportedProductionLotsInput, Prisma.UserUncheckedCreateWithoutReportedProductionLotsInput>
+}
+
+export type UserUpsertWithoutReportedProductionLotsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReportedProductionLotsInput, Prisma.UserUncheckedUpdateWithoutReportedProductionLotsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReportedProductionLotsInput, Prisma.UserUncheckedCreateWithoutReportedProductionLotsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReportedProductionLotsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReportedProductionLotsInput, Prisma.UserUncheckedUpdateWithoutReportedProductionLotsInput>
+}
+
+export type UserUpdateWithoutReportedProductionLotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReportedProductionLotsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutProductionLotNotesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutProductionLotNotesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutProductionLotNotesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutProductionLotNotesInput, Prisma.UserUncheckedCreateWithoutProductionLotNotesInput>
+}
+
+export type UserUpsertWithoutProductionLotNotesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutProductionLotNotesInput, Prisma.UserUncheckedUpdateWithoutProductionLotNotesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutProductionLotNotesInput, Prisma.UserUncheckedCreateWithoutProductionLotNotesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutProductionLotNotesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutProductionLotNotesInput, Prisma.UserUncheckedUpdateWithoutProductionLotNotesInput>
+}
+
+export type UserUpdateWithoutProductionLotNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutProductionLotNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCreatedProductionStopsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedProductionStopsInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedProductionStopsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionStopsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionStopsInput>
+}
+
+export type UserUpsertWithoutCreatedProductionStopsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedProductionStopsInput, Prisma.UserUncheckedUpdateWithoutCreatedProductionStopsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedProductionStopsInput, Prisma.UserUncheckedCreateWithoutCreatedProductionStopsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedProductionStopsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedProductionStopsInput, Prisma.UserUncheckedUpdateWithoutCreatedProductionStopsInput>
+}
+
+export type UserUpdateWithoutCreatedProductionStopsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedProductionStopsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutProductionJobStatusChangesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier?: Prisma.SupplierCreateNestedOneWithoutUsersInput
+  customer?: Prisma.CustomerCreateNestedOneWithoutPortalUsersInput
+  assignedSalesCustomers?: Prisma.CustomerCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutProductionJobStatusChangesInput = {
+  id?: string
+  cognitoSub: string
+  email: string
+  identifier: string
+  firstName?: string | null
+  lastName?: string | null
+  imageKey?: string | null
+  phone?: string | null
+  groups?: Prisma.UserCreategroupsInput | string[]
+  accessStatus?: $Enums.UserAccessStatus
+  accessStatusChangedAt?: Date | string | null
+  accessStatusChangedByUserId?: string | null
+  accessStatusReason?: string | null
+  supplierId?: string | null
+  customerId?: string | null
+  customerContactTitle?: string | null
+  customerContactDepartment?: string | null
+  isPrimaryCustomerContact?: boolean
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutAssignedSalesUserInput
+  convertedCustomers?: Prisma.CustomerUncheckedCreateNestedManyWithoutConvertedByUserInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutAssignedPurchasingSuppliersInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedCreateNestedManyWithoutRequestedByUserInput
+  requestedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutRequestedByUserInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutAssignedUserInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedCreateNestedManyWithoutDecidedByUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutActorUserInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedCreateNestedManyWithoutCreatedByUserInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutOwnerUserInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedCreateNestedManyWithoutApprovedByUserInput
+  notifications?: Prisma.UserNotificationUncheckedCreateNestedManyWithoutUserInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedCreateNestedManyWithoutLocationVerifiedByUserInput
+  customerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutUserInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedCreateNestedManyWithoutInvitedByUserInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutCreatedByUserInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedCreateNestedManyWithoutCreatedByUserInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedCreateNestedManyWithoutReportedByUserInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedCreateNestedManyWithoutCreatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutProductionJobStatusChangesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutProductionJobStatusChangesInput, Prisma.UserUncheckedCreateWithoutProductionJobStatusChangesInput>
+}
+
+export type UserUpsertWithoutProductionJobStatusChangesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutProductionJobStatusChangesInput, Prisma.UserUncheckedUpdateWithoutProductionJobStatusChangesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutProductionJobStatusChangesInput, Prisma.UserUncheckedCreateWithoutProductionJobStatusChangesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutProductionJobStatusChangesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutProductionJobStatusChangesInput, Prisma.UserUncheckedUpdateWithoutProductionJobStatusChangesInput>
+}
+
+export type UserUpdateWithoutProductionJobStatusChangesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneWithoutUsersNestedInput
+  customer?: Prisma.CustomerUpdateOneWithoutPortalUsersNestedInput
+  assignedSalesCustomers?: Prisma.CustomerUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutProductionJobStatusChangesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cognitoSub?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  identifier?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groups?: Prisma.UserUpdategroupsInput | string[]
+  accessStatus?: Prisma.EnumUserAccessStatusFieldUpdateOperationsInput | $Enums.UserAccessStatus
+  accessStatusChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accessStatusChangedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessStatusReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  supplierId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerContactDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPrimaryCustomerContact?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedSalesCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutAssignedSalesUserNestedInput
+  convertedCustomers?: Prisma.CustomerUncheckedUpdateManyWithoutConvertedByUserNestedInput
+  assignedPurchasingSuppliers?: Prisma.SupplierUncheckedUpdateManyWithoutAssignedPurchasingSuppliersNestedInput
+  requestedBusinessRequests?: Prisma.BusinessRequestUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  requestedOrders?: Prisma.OrderUncheckedUpdateManyWithoutRequestedByUserNestedInput
+  assignedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutAssignedUserNestedInput
+  decidedBusinessRequestSteps?: Prisma.BusinessRequestApprovalStepUncheckedUpdateManyWithoutDecidedByUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutActorUserNestedInput
+  createdCustomerAssignedProducts?: Prisma.CustomerAssignedProductUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductVariantCampaigns?: Prisma.ProductVariantCampaignUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCampaignAnnouncements?: Prisma.CampaignAnnouncementUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  ownedCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutOwnerUserNestedInput
+  createdCustomerVisits?: Prisma.CustomerVisitUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedCustomerSpecialPrices?: Prisma.CustomerVariantSpecialPriceUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  notifications?: Prisma.UserNotificationUncheckedUpdateManyWithoutUserNestedInput
+  verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
+  customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
+  sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
 }
 
 export type UserCreateManyCustomerInput = {
@@ -4966,6 +7157,13 @@ export type UserUpdateWithoutCustomerInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCustomerInput = {
@@ -5008,6 +7206,13 @@ export type UserUncheckedUpdateWithoutCustomerInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCustomerInput = {
@@ -5096,6 +7301,13 @@ export type UserUpdateWithoutAssignedPurchasingSuppliersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
@@ -5138,6 +7350,13 @@ export type UserUncheckedUpdateWithoutAssignedPurchasingSuppliersInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutAssignedPurchasingSuppliersInput = {
@@ -5204,6 +7423,13 @@ export type UserUpdateWithoutSupplierInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupplierInput = {
@@ -5246,6 +7472,13 @@ export type UserUncheckedUpdateWithoutSupplierInput = {
   verifiedCustomerAddresses?: Prisma.CustomerAddressUncheckedUpdateManyWithoutLocationVerifiedByUserNestedInput
   customerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutUserNestedInput
   sentCustomerInvitations?: Prisma.UserInvitationUncheckedUpdateManyWithoutInvitedByUserNestedInput
+  createdMachineDowntimes?: Prisma.MachineDowntimeUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  createdProductionJobs?: Prisma.ProductionJobUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionLotNotes?: Prisma.ProductionLotNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  reportedProductionLots?: Prisma.ProductionLotUncheckedUpdateManyWithoutReportedByUserNestedInput
+  createdProductionStops?: Prisma.ProductionStopUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  productionJobStatusChanges?: Prisma.ProductionJobStatusChangeUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutSupplierInput = {
@@ -5296,6 +7529,13 @@ export type UserCountOutputType = {
   verifiedCustomerAddresses: number
   customerInvitations: number
   sentCustomerInvitations: number
+  createdMachineDowntimes: number
+  createdProductionOrders: number
+  createdProductionJobs: number
+  productionLotNotes: number
+  reportedProductionLots: number
+  createdProductionStops: number
+  productionJobStatusChanges: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5318,6 +7558,13 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   verifiedCustomerAddresses?: boolean | UserCountOutputTypeCountVerifiedCustomerAddressesArgs
   customerInvitations?: boolean | UserCountOutputTypeCountCustomerInvitationsArgs
   sentCustomerInvitations?: boolean | UserCountOutputTypeCountSentCustomerInvitationsArgs
+  createdMachineDowntimes?: boolean | UserCountOutputTypeCountCreatedMachineDowntimesArgs
+  createdProductionOrders?: boolean | UserCountOutputTypeCountCreatedProductionOrdersArgs
+  createdProductionJobs?: boolean | UserCountOutputTypeCountCreatedProductionJobsArgs
+  productionLotNotes?: boolean | UserCountOutputTypeCountProductionLotNotesArgs
+  reportedProductionLots?: boolean | UserCountOutputTypeCountReportedProductionLotsArgs
+  createdProductionStops?: boolean | UserCountOutputTypeCountCreatedProductionStopsArgs
+  productionJobStatusChanges?: boolean | UserCountOutputTypeCountProductionJobStatusChangesArgs
 }
 
 /**
@@ -5463,6 +7710,55 @@ export type UserCountOutputTypeCountSentCustomerInvitationsArgs<ExtArgs extends 
   where?: Prisma.UserInvitationWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedMachineDowntimesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MachineDowntimeWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedProductionOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionOrderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedProductionJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionJobWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountProductionLotNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionLotNoteWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReportedProductionLotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionLotWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedProductionStopsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionStopWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountProductionJobStatusChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionJobStatusChangeWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -5507,6 +7803,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   verifiedCustomerAddresses?: boolean | Prisma.User$verifiedCustomerAddressesArgs<ExtArgs>
   customerInvitations?: boolean | Prisma.User$customerInvitationsArgs<ExtArgs>
   sentCustomerInvitations?: boolean | Prisma.User$sentCustomerInvitationsArgs<ExtArgs>
+  createdMachineDowntimes?: boolean | Prisma.User$createdMachineDowntimesArgs<ExtArgs>
+  createdProductionOrders?: boolean | Prisma.User$createdProductionOrdersArgs<ExtArgs>
+  createdProductionJobs?: boolean | Prisma.User$createdProductionJobsArgs<ExtArgs>
+  productionLotNotes?: boolean | Prisma.User$productionLotNotesArgs<ExtArgs>
+  reportedProductionLots?: boolean | Prisma.User$reportedProductionLotsArgs<ExtArgs>
+  createdProductionStops?: boolean | Prisma.User$createdProductionStopsArgs<ExtArgs>
+  productionJobStatusChanges?: boolean | Prisma.User$productionJobStatusChangesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -5609,6 +7912,13 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   verifiedCustomerAddresses?: boolean | Prisma.User$verifiedCustomerAddressesArgs<ExtArgs>
   customerInvitations?: boolean | Prisma.User$customerInvitationsArgs<ExtArgs>
   sentCustomerInvitations?: boolean | Prisma.User$sentCustomerInvitationsArgs<ExtArgs>
+  createdMachineDowntimes?: boolean | Prisma.User$createdMachineDowntimesArgs<ExtArgs>
+  createdProductionOrders?: boolean | Prisma.User$createdProductionOrdersArgs<ExtArgs>
+  createdProductionJobs?: boolean | Prisma.User$createdProductionJobsArgs<ExtArgs>
+  productionLotNotes?: boolean | Prisma.User$productionLotNotesArgs<ExtArgs>
+  reportedProductionLots?: boolean | Prisma.User$reportedProductionLotsArgs<ExtArgs>
+  createdProductionStops?: boolean | Prisma.User$createdProductionStopsArgs<ExtArgs>
+  productionJobStatusChanges?: boolean | Prisma.User$productionJobStatusChangesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5644,6 +7954,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     verifiedCustomerAddresses: Prisma.$CustomerAddressPayload<ExtArgs>[]
     customerInvitations: Prisma.$UserInvitationPayload<ExtArgs>[]
     sentCustomerInvitations: Prisma.$UserInvitationPayload<ExtArgs>[]
+    createdMachineDowntimes: Prisma.$MachineDowntimePayload<ExtArgs>[]
+    createdProductionOrders: Prisma.$ProductionOrderPayload<ExtArgs>[]
+    createdProductionJobs: Prisma.$ProductionJobPayload<ExtArgs>[]
+    productionLotNotes: Prisma.$ProductionLotNotePayload<ExtArgs>[]
+    reportedProductionLots: Prisma.$ProductionLotPayload<ExtArgs>[]
+    createdProductionStops: Prisma.$ProductionStopPayload<ExtArgs>[]
+    productionJobStatusChanges: Prisma.$ProductionJobStatusChangePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -6082,6 +8399,13 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   verifiedCustomerAddresses<T extends Prisma.User$verifiedCustomerAddressesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$verifiedCustomerAddressesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerAddressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   customerInvitations<T extends Prisma.User$customerInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$customerInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sentCustomerInvitations<T extends Prisma.User$sentCustomerInvitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentCustomerInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdMachineDowntimes<T extends Prisma.User$createdMachineDowntimesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdMachineDowntimesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MachineDowntimePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdProductionOrders<T extends Prisma.User$createdProductionOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdProductionOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdProductionJobs<T extends Prisma.User$createdProductionJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdProductionJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productionLotNotes<T extends Prisma.User$productionLotNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productionLotNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionLotNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reportedProductionLots<T extends Prisma.User$reportedProductionLotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reportedProductionLotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionLotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdProductionStops<T extends Prisma.User$createdProductionStopsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdProductionStopsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionStopPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productionJobStatusChanges<T extends Prisma.User$productionJobStatusChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$productionJobStatusChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionJobStatusChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7024,6 +9348,174 @@ export type User$sentCustomerInvitationsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.UserInvitationScalarFieldEnum | Prisma.UserInvitationScalarFieldEnum[]
+}
+
+/**
+ * User.createdMachineDowntimes
+ */
+export type User$createdMachineDowntimesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MachineDowntime
+   */
+  select?: Prisma.MachineDowntimeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MachineDowntime
+   */
+  omit?: Prisma.MachineDowntimeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MachineDowntimeInclude<ExtArgs> | null
+  where?: Prisma.MachineDowntimeWhereInput
+  orderBy?: Prisma.MachineDowntimeOrderByWithRelationInput | Prisma.MachineDowntimeOrderByWithRelationInput[]
+  cursor?: Prisma.MachineDowntimeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MachineDowntimeScalarFieldEnum | Prisma.MachineDowntimeScalarFieldEnum[]
+}
+
+/**
+ * User.createdProductionOrders
+ */
+export type User$createdProductionOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionOrder
+   */
+  select?: Prisma.ProductionOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionOrder
+   */
+  omit?: Prisma.ProductionOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionOrderInclude<ExtArgs> | null
+  where?: Prisma.ProductionOrderWhereInput
+  orderBy?: Prisma.ProductionOrderOrderByWithRelationInput | Prisma.ProductionOrderOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionOrderScalarFieldEnum | Prisma.ProductionOrderScalarFieldEnum[]
+}
+
+/**
+ * User.createdProductionJobs
+ */
+export type User$createdProductionJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionJob
+   */
+  select?: Prisma.ProductionJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionJob
+   */
+  omit?: Prisma.ProductionJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionJobInclude<ExtArgs> | null
+  where?: Prisma.ProductionJobWhereInput
+  orderBy?: Prisma.ProductionJobOrderByWithRelationInput | Prisma.ProductionJobOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionJobWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionJobScalarFieldEnum | Prisma.ProductionJobScalarFieldEnum[]
+}
+
+/**
+ * User.productionLotNotes
+ */
+export type User$productionLotNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionLotNote
+   */
+  select?: Prisma.ProductionLotNoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionLotNote
+   */
+  omit?: Prisma.ProductionLotNoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionLotNoteInclude<ExtArgs> | null
+  where?: Prisma.ProductionLotNoteWhereInput
+  orderBy?: Prisma.ProductionLotNoteOrderByWithRelationInput | Prisma.ProductionLotNoteOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionLotNoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionLotNoteScalarFieldEnum | Prisma.ProductionLotNoteScalarFieldEnum[]
+}
+
+/**
+ * User.reportedProductionLots
+ */
+export type User$reportedProductionLotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionLot
+   */
+  select?: Prisma.ProductionLotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionLot
+   */
+  omit?: Prisma.ProductionLotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionLotInclude<ExtArgs> | null
+  where?: Prisma.ProductionLotWhereInput
+  orderBy?: Prisma.ProductionLotOrderByWithRelationInput | Prisma.ProductionLotOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionLotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionLotScalarFieldEnum | Prisma.ProductionLotScalarFieldEnum[]
+}
+
+/**
+ * User.createdProductionStops
+ */
+export type User$createdProductionStopsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionStop
+   */
+  select?: Prisma.ProductionStopSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionStop
+   */
+  omit?: Prisma.ProductionStopOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionStopInclude<ExtArgs> | null
+  where?: Prisma.ProductionStopWhereInput
+  orderBy?: Prisma.ProductionStopOrderByWithRelationInput | Prisma.ProductionStopOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionStopWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionStopScalarFieldEnum | Prisma.ProductionStopScalarFieldEnum[]
+}
+
+/**
+ * User.productionJobStatusChanges
+ */
+export type User$productionJobStatusChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionJobStatusChange
+   */
+  select?: Prisma.ProductionJobStatusChangeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionJobStatusChange
+   */
+  omit?: Prisma.ProductionJobStatusChangeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionJobStatusChangeInclude<ExtArgs> | null
+  where?: Prisma.ProductionJobStatusChangeWhereInput
+  orderBy?: Prisma.ProductionJobStatusChangeOrderByWithRelationInput | Prisma.ProductionJobStatusChangeOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionJobStatusChangeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionJobStatusChangeScalarFieldEnum | Prisma.ProductionJobStatusChangeScalarFieldEnum[]
 }
 
 /**

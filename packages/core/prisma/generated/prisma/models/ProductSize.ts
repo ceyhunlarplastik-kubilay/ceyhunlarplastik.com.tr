@@ -243,6 +243,7 @@ export type ProductSizeWhereInput = {
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   values?: Prisma.ProductSizeValueListRelationFilter
   variants?: Prisma.ProductVariantListRelationFilter
+  moldOutputs?: Prisma.MoldOutputListRelationFilter
 }
 
 export type ProductSizeOrderByWithRelationInput = {
@@ -256,6 +257,7 @@ export type ProductSizeOrderByWithRelationInput = {
   product?: Prisma.ProductOrderByWithRelationInput
   values?: Prisma.ProductSizeValueOrderByRelationAggregateInput
   variants?: Prisma.ProductVariantOrderByRelationAggregateInput
+  moldOutputs?: Prisma.MoldOutputOrderByRelationAggregateInput
 }
 
 export type ProductSizeWhereUniqueInput = Prisma.AtLeast<{
@@ -273,6 +275,7 @@ export type ProductSizeWhereUniqueInput = Prisma.AtLeast<{
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
   values?: Prisma.ProductSizeValueListRelationFilter
   variants?: Prisma.ProductVariantListRelationFilter
+  moldOutputs?: Prisma.MoldOutputListRelationFilter
 }, "id" | "productId_code">
 
 export type ProductSizeOrderByWithAggregationInput = {
@@ -313,6 +316,7 @@ export type ProductSizeCreateInput = {
   product: Prisma.ProductCreateNestedOneWithoutSizesInput
   values?: Prisma.ProductSizeValueCreateNestedManyWithoutProductSizeInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutSizeInput
+  moldOutputs?: Prisma.MoldOutputCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeUncheckedCreateInput = {
@@ -325,6 +329,7 @@ export type ProductSizeUncheckedCreateInput = {
   updatedAt?: Date | string
   values?: Prisma.ProductSizeValueUncheckedCreateNestedManyWithoutProductSizeInput
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutSizeInput
+  moldOutputs?: Prisma.MoldOutputUncheckedCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeUpdateInput = {
@@ -337,6 +342,7 @@ export type ProductSizeUpdateInput = {
   product?: Prisma.ProductUpdateOneRequiredWithoutSizesNestedInput
   values?: Prisma.ProductSizeValueUpdateManyWithoutProductSizeNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUpdateManyWithoutProductSizeNestedInput
 }
 
 export type ProductSizeUncheckedUpdateInput = {
@@ -349,6 +355,7 @@ export type ProductSizeUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductSizeValueUncheckedUpdateManyWithoutProductSizeNestedInput
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUncheckedUpdateManyWithoutProductSizeNestedInput
 }
 
 export type ProductSizeCreateManyInput = {
@@ -508,6 +515,20 @@ export type ProductSizeUpdateOneRequiredWithoutValuesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductSizeUpdateToOneWithWhereWithoutValuesInput, Prisma.ProductSizeUpdateWithoutValuesInput>, Prisma.ProductSizeUncheckedUpdateWithoutValuesInput>
 }
 
+export type ProductSizeCreateNestedOneWithoutMoldOutputsInput = {
+  create?: Prisma.XOR<Prisma.ProductSizeCreateWithoutMoldOutputsInput, Prisma.ProductSizeUncheckedCreateWithoutMoldOutputsInput>
+  connectOrCreate?: Prisma.ProductSizeCreateOrConnectWithoutMoldOutputsInput
+  connect?: Prisma.ProductSizeWhereUniqueInput
+}
+
+export type ProductSizeUpdateOneRequiredWithoutMoldOutputsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductSizeCreateWithoutMoldOutputsInput, Prisma.ProductSizeUncheckedCreateWithoutMoldOutputsInput>
+  connectOrCreate?: Prisma.ProductSizeCreateOrConnectWithoutMoldOutputsInput
+  upsert?: Prisma.ProductSizeUpsertWithoutMoldOutputsInput
+  connect?: Prisma.ProductSizeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductSizeUpdateToOneWithWhereWithoutMoldOutputsInput, Prisma.ProductSizeUpdateWithoutMoldOutputsInput>, Prisma.ProductSizeUncheckedUpdateWithoutMoldOutputsInput>
+}
+
 export type ProductSizeCreateWithoutProductInput = {
   id?: string
   code: number
@@ -517,6 +538,7 @@ export type ProductSizeCreateWithoutProductInput = {
   updatedAt?: Date | string
   values?: Prisma.ProductSizeValueCreateNestedManyWithoutProductSizeInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutSizeInput
+  moldOutputs?: Prisma.MoldOutputCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeUncheckedCreateWithoutProductInput = {
@@ -528,6 +550,7 @@ export type ProductSizeUncheckedCreateWithoutProductInput = {
   updatedAt?: Date | string
   values?: Prisma.ProductSizeValueUncheckedCreateNestedManyWithoutProductSizeInput
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutSizeInput
+  moldOutputs?: Prisma.MoldOutputUncheckedCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeCreateOrConnectWithoutProductInput = {
@@ -578,6 +601,7 @@ export type ProductSizeCreateWithoutVariantsInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutSizesInput
   values?: Prisma.ProductSizeValueCreateNestedManyWithoutProductSizeInput
+  moldOutputs?: Prisma.MoldOutputCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeUncheckedCreateWithoutVariantsInput = {
@@ -589,6 +613,7 @@ export type ProductSizeUncheckedCreateWithoutVariantsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   values?: Prisma.ProductSizeValueUncheckedCreateNestedManyWithoutProductSizeInput
+  moldOutputs?: Prisma.MoldOutputUncheckedCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeCreateOrConnectWithoutVariantsInput = {
@@ -616,6 +641,7 @@ export type ProductSizeUpdateWithoutVariantsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutSizesNestedInput
   values?: Prisma.ProductSizeValueUpdateManyWithoutProductSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUpdateManyWithoutProductSizeNestedInput
 }
 
 export type ProductSizeUncheckedUpdateWithoutVariantsInput = {
@@ -627,6 +653,7 @@ export type ProductSizeUncheckedUpdateWithoutVariantsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductSizeValueUncheckedUpdateManyWithoutProductSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUncheckedUpdateManyWithoutProductSizeNestedInput
 }
 
 export type ProductSizeCreateWithoutValuesInput = {
@@ -638,6 +665,7 @@ export type ProductSizeCreateWithoutValuesInput = {
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutSizesInput
   variants?: Prisma.ProductVariantCreateNestedManyWithoutSizeInput
+  moldOutputs?: Prisma.MoldOutputCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeUncheckedCreateWithoutValuesInput = {
@@ -649,6 +677,7 @@ export type ProductSizeUncheckedCreateWithoutValuesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutSizeInput
+  moldOutputs?: Prisma.MoldOutputUncheckedCreateNestedManyWithoutProductSizeInput
 }
 
 export type ProductSizeCreateOrConnectWithoutValuesInput = {
@@ -676,6 +705,7 @@ export type ProductSizeUpdateWithoutValuesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutSizesNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUpdateManyWithoutProductSizeNestedInput
 }
 
 export type ProductSizeUncheckedUpdateWithoutValuesInput = {
@@ -686,6 +716,71 @@ export type ProductSizeUncheckedUpdateWithoutValuesInput = {
   sortKey?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUncheckedUpdateManyWithoutProductSizeNestedInput
+}
+
+export type ProductSizeCreateWithoutMoldOutputsInput = {
+  id?: string
+  code: number
+  signature: string
+  sortKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product: Prisma.ProductCreateNestedOneWithoutSizesInput
+  values?: Prisma.ProductSizeValueCreateNestedManyWithoutProductSizeInput
+  variants?: Prisma.ProductVariantCreateNestedManyWithoutSizeInput
+}
+
+export type ProductSizeUncheckedCreateWithoutMoldOutputsInput = {
+  id?: string
+  productId: string
+  code: number
+  signature: string
+  sortKey: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  values?: Prisma.ProductSizeValueUncheckedCreateNestedManyWithoutProductSizeInput
+  variants?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutSizeInput
+}
+
+export type ProductSizeCreateOrConnectWithoutMoldOutputsInput = {
+  where: Prisma.ProductSizeWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductSizeCreateWithoutMoldOutputsInput, Prisma.ProductSizeUncheckedCreateWithoutMoldOutputsInput>
+}
+
+export type ProductSizeUpsertWithoutMoldOutputsInput = {
+  update: Prisma.XOR<Prisma.ProductSizeUpdateWithoutMoldOutputsInput, Prisma.ProductSizeUncheckedUpdateWithoutMoldOutputsInput>
+  create: Prisma.XOR<Prisma.ProductSizeCreateWithoutMoldOutputsInput, Prisma.ProductSizeUncheckedCreateWithoutMoldOutputsInput>
+  where?: Prisma.ProductSizeWhereInput
+}
+
+export type ProductSizeUpdateToOneWithWhereWithoutMoldOutputsInput = {
+  where?: Prisma.ProductSizeWhereInput
+  data: Prisma.XOR<Prisma.ProductSizeUpdateWithoutMoldOutputsInput, Prisma.ProductSizeUncheckedUpdateWithoutMoldOutputsInput>
+}
+
+export type ProductSizeUpdateWithoutMoldOutputsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.IntFieldUpdateOperationsInput | number
+  signature?: Prisma.StringFieldUpdateOperationsInput | string
+  sortKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneRequiredWithoutSizesNestedInput
+  values?: Prisma.ProductSizeValueUpdateManyWithoutProductSizeNestedInput
+  variants?: Prisma.ProductVariantUpdateManyWithoutSizeNestedInput
+}
+
+export type ProductSizeUncheckedUpdateWithoutMoldOutputsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.IntFieldUpdateOperationsInput | number
+  signature?: Prisma.StringFieldUpdateOperationsInput | string
+  sortKey?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  values?: Prisma.ProductSizeValueUncheckedUpdateManyWithoutProductSizeNestedInput
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutSizeNestedInput
 }
 
@@ -707,6 +802,7 @@ export type ProductSizeUpdateWithoutProductInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductSizeValueUpdateManyWithoutProductSizeNestedInput
   variants?: Prisma.ProductVariantUpdateManyWithoutSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUpdateManyWithoutProductSizeNestedInput
 }
 
 export type ProductSizeUncheckedUpdateWithoutProductInput = {
@@ -718,6 +814,7 @@ export type ProductSizeUncheckedUpdateWithoutProductInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   values?: Prisma.ProductSizeValueUncheckedUpdateManyWithoutProductSizeNestedInput
   variants?: Prisma.ProductVariantUncheckedUpdateManyWithoutSizeNestedInput
+  moldOutputs?: Prisma.MoldOutputUncheckedUpdateManyWithoutProductSizeNestedInput
 }
 
 export type ProductSizeUncheckedUpdateManyWithoutProductInput = {
@@ -737,11 +834,13 @@ export type ProductSizeUncheckedUpdateManyWithoutProductInput = {
 export type ProductSizeCountOutputType = {
   values: number
   variants: number
+  moldOutputs: number
 }
 
 export type ProductSizeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   values?: boolean | ProductSizeCountOutputTypeCountValuesArgs
   variants?: boolean | ProductSizeCountOutputTypeCountVariantsArgs
+  moldOutputs?: boolean | ProductSizeCountOutputTypeCountMoldOutputsArgs
 }
 
 /**
@@ -768,6 +867,13 @@ export type ProductSizeCountOutputTypeCountVariantsArgs<ExtArgs extends runtime.
   where?: Prisma.ProductVariantWhereInput
 }
 
+/**
+ * ProductSizeCountOutputType without action
+ */
+export type ProductSizeCountOutputTypeCountMoldOutputsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MoldOutputWhereInput
+}
+
 
 export type ProductSizeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -780,6 +886,7 @@ export type ProductSizeSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   values?: boolean | Prisma.ProductSize$valuesArgs<ExtArgs>
   variants?: boolean | Prisma.ProductSize$variantsArgs<ExtArgs>
+  moldOutputs?: boolean | Prisma.ProductSize$moldOutputsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductSizeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productSize"]>
 
@@ -820,6 +927,7 @@ export type ProductSizeInclude<ExtArgs extends runtime.Types.Extensions.Internal
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
   values?: boolean | Prisma.ProductSize$valuesArgs<ExtArgs>
   variants?: boolean | Prisma.ProductSize$variantsArgs<ExtArgs>
+  moldOutputs?: boolean | Prisma.ProductSize$moldOutputsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductSizeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductSizeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -835,6 +943,11 @@ export type $ProductSizePayload<ExtArgs extends runtime.Types.Extensions.Interna
     product: Prisma.$ProductPayload<ExtArgs>
     values: Prisma.$ProductSizeValuePayload<ExtArgs>[]
     variants: Prisma.$ProductVariantPayload<ExtArgs>[]
+    /**
+     * Bu ölçüyü basan kalıp gözleri (üretim planlama). Kalıbı olan ölçü `Restrict`
+     * ile korunur: varyantı kalmasa bile silinmez (bkz. `removeOrphanSizes`).
+     */
+    moldOutputs: Prisma.$MoldOutputPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1244,6 +1357,7 @@ export interface Prisma__ProductSizeClient<T, Null = never, ExtArgs extends runt
   product<T extends Prisma.ProductDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   values<T extends Prisma.ProductSize$valuesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductSize$valuesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductSizeValuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   variants<T extends Prisma.ProductSize$variantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductSize$variantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  moldOutputs<T extends Prisma.ProductSize$moldOutputsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductSize$moldOutputsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MoldOutputPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1726,6 +1840,30 @@ export type ProductSize$variantsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ProductVariantScalarFieldEnum | Prisma.ProductVariantScalarFieldEnum[]
+}
+
+/**
+ * ProductSize.moldOutputs
+ */
+export type ProductSize$moldOutputsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MoldOutput
+   */
+  select?: Prisma.MoldOutputSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MoldOutput
+   */
+  omit?: Prisma.MoldOutputOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MoldOutputInclude<ExtArgs> | null
+  where?: Prisma.MoldOutputWhereInput
+  orderBy?: Prisma.MoldOutputOrderByWithRelationInput | Prisma.MoldOutputOrderByWithRelationInput[]
+  cursor?: Prisma.MoldOutputWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MoldOutputScalarFieldEnum | Prisma.MoldOutputScalarFieldEnum[]
 }
 
 /**

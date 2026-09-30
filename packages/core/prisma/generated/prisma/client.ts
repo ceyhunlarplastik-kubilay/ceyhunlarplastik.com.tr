@@ -355,3 +355,143 @@ export type MaterialTranslation = Prisma.MaterialTranslationModel
  * 
  */
 export type Asset = Prisma.AssetModel
+/**
+ * Model ProductionArea
+ * Makinelerin durduğu parkur / hol — planlama tahtasında satır grubu.
+ */
+export type ProductionArea = Prisma.ProductionAreaModel
+/**
+ * Model ProductionMachine
+ * Plastik enjeksiyon makinesi. Kalıp uygunluğu (kapama kuvveti, kolonlar arası,
+ * kalıp kalınlığı aralığı, strok, baskı kapasitesi) bu alanlardan hesaplanır.
+ * Ayrı `isActive` YOK: `status = INACTIVE` tek kaynaktır.
+ */
+export type ProductionMachine = Prisma.ProductionMachineModel
+/**
+ * Model Mold
+ * Kalıp. Hangi ölçüleri kaç gözle bastığı `MoldOutput`'ta: aile kalıbında aynı
+ * ürün modelinin farklı ölçüleri de, FARKLI ürün modellerinin ölçüleri de olabilir.
+ * Tek baskı tüm gözleri aynı anda ve aynı renk + hammaddeyle doldurur.
+ * Ayrı `isActive` YOK: `status = RETIRED` tek kaynaktır.
+ */
+export type Mold = Prisma.MoldModel
+/**
+ * Model MoldOutput
+ * Kalıbın bir göz grubu: hangi ÖLÇÜDEN (ürün modeli + ölçü, ör. `10.5.8`) kaç göz.
+ * Kalıp varyanta değil ölçüye bağlanır: aynı kalıp o ölçünün tüm renk/hammadde
+ * versiyonlarını basar. Ölçü `Restrict` ile korunur — ölçü silen her akış kalıbı
+ * olan ölçüyü atlamalı ya da anlaşılır bir hatayla durmalı (FK hatası 500 döner).
+ */
+export type MoldOutput = Prisma.MoldOutputModel
+/**
+ * Model MoldMachineProfile
+ * Kalıp + makine kartı (opsiyonel): o makinede kanıtlanmış çevrim/setup süresi,
+ * tercih ya da bilinçli engel ("fiziksel kontroller geçse de bu makinede çalışmaz").
+ */
+export type MoldMachineProfile = Prisma.MoldMachineProfileModel
+/**
+ * Model MaterialProcessProfile
+ * Hammaddenin üretim bilgisi — katalog `Material`'ın 1:1 yan tablosu. Ayrı tutulur
+ * çünkü `Material` public/portal yanıtlarında dönüyor; üretim alanları oraya
+ * eklenseydi ya yanıtlara sızardı ya da her select ayrıca daraltılmak zorunda kalırdı.
+ */
+export type MaterialProcessProfile = Prisma.MaterialProcessProfileModel
+/**
+ * Model ShiftPattern
+ * Vardiya düzeni: makinenin günde kaç saat çalıştığını tanımlar (12 / 16 / 24 saat).
+ * Günlük çalışma süresi, düzenin vardiyalarının toplamıdır.
+ */
+export type ShiftPattern = Prisma.ShiftPatternModel
+/**
+ * Model ShiftDefinition
+ * Düzen içindeki bir vardiya. VARDİYA GÜNÜ, düzenin ilk vardiyasının (en küçük
+ * `sortOrder`) başladığı gündür: saati ilk vardiyadan ÖNCE olan vardiya ertesi takvim
+ * gününe düşer ama o vardiya gününe aittir (A 08:00, B 16:00, C 00:00 → C gece
+ * devamı); `daysOfWeek` da vardiya gününe göredir. Vardiya gece yarısını geçebilir
+ * (20:00 + 720 dk). Kurallar tek yerde: core/helpers/production/shiftPatterns.ts.
+ */
+export type ShiftDefinition = Prisma.ShiftDefinitionModel
+/**
+ * Model ProductionCalendarException
+ * Takvim istisnası: bayram / toplu izin (çalışılmaz) ya da ek mesai günü.
+ * Alan ve makine boşsa tüm fabrika için geçerlidir.
+ */
+export type ProductionCalendarException = Prisma.ProductionCalendarExceptionModel
+/**
+ * Model MachineDowntime
+ * Makinenin kullanılamadığı pencere (planlı bakım, arıza). Planlama motoru bu
+ * aralıkları makinenin çalışma pencerelerinden düşer.
+ */
+export type MachineDowntime = Prisma.MachineDowntimeModel
+/**
+ * Model ProductionOperator
+ * Makine başında çalışan personel. Giriş hesabı DEĞİL — bu aşamada operatörler
+ * sisteme girmiyor, notları üretim planlayıcısı yazıyor (`CompanyContact`'ın
+ * `User`'dan ayrı tutulmasıyla aynı desen). Hesap bağlama ayrı kararla eklenir.
+ */
+export type ProductionOperator = Prisma.ProductionOperatorModel
+/**
+ * Model ProductionOrder
+ * Üretim emri: hangi varyanttan kaç SAĞLAM adet, hangi termine kadar. Yalnız kalıbı olan
+ * ölçülerin varyantı için açılır (kural uygulama katmanında).
+ */
+export type ProductionOrder = Prisma.ProductionOrderModel
+/**
+ * Model ProductionJob
+ * 
+ */
+export type ProductionJob = Prisma.ProductionJobModel
+/**
+ * Model ProductionJobOutput
+ * İşin bir göz grubundan çıktısı. Aile kalıbında emri olmayan çıktı yan üründür (stok).
+ */
+export type ProductionJobOutput = Prisma.ProductionJobOutputModel
+/**
+ * Model ProductionLot
+ * İşin vardiyaya düşen dilimi. Numara saklanmaz: "kök-sıra" (`lotBaseNumber`-`sequence`).
+ */
+export type ProductionLot = Prisma.ProductionLotModel
+/**
+ * Model ProductionLotOutput
+ * 
+ */
+export type ProductionLotOutput = Prisma.ProductionLotOutputModel
+/**
+ * Model MachineShiftAssignment
+ * Vardiya ekibi: hangi operatör hangi gün, hangi vardiyada, hangi makinede. Atama işe değil
+ * makine × vardiya hücresine yapılır; o vardiyada o makinede üretilen lot ekibini buradan alır
+ * (iş taşınınca atama kendiliğinden doğru kalır). Bir operatör aynı vardiyada birden çok
+ * makineye bakabilir.
+ */
+export type MachineShiftAssignment = Prisma.MachineShiftAssignmentModel
+/**
+ * Model ProductionLotOperator
+ * Lotu üreten operatörler (istatistik için kopya ya da lota özel düzeltme).
+ */
+export type ProductionLotOperator = Prisma.ProductionLotOperatorModel
+/**
+ * Model ProductionLotNote
+ * Lot notu — planlayıcı yazar; operatör hesabı olmadığı için not bir operatör adına
+ * girilebilir (`operatorId`).
+ */
+export type ProductionLotNote = Prisma.ProductionLotNoteModel
+/**
+ * Model ProductionReason
+ * Duruş ve fire nedeni sözlüğü (Dilim 4.2). Kullanılan neden silinmez (Restrict), pasife alınır.
+ */
+export type ProductionReason = Prisma.ProductionReasonModel
+/**
+ * Model ProductionStop
+ * Lotta gerçekleşen duruş (vardiya raporu). Planlama pencereleri `MachineDowntime`'dadır.
+ */
+export type ProductionStop = Prisma.ProductionStopModel
+/**
+ * Model ProductionLotScrap
+ * Lot çıktısının fire kırılımı — neden başına adet.
+ */
+export type ProductionLotScrap = Prisma.ProductionLotScrapModel
+/**
+ * Model ProductionJobStatusChange
+ * İş durum geçmişi: kim, ne zaman, hangi durumdan hangisine (`fromStatus` boş = iş oluştu).
+ */
+export type ProductionJobStatusChange = Prisma.ProductionJobStatusChangeModel
