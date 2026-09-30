@@ -1,4 +1,6 @@
-const KNOWN_GROUPS = ["owner", "admin", "purchasing", "sales", "sales_director", "supplier", "customer", "content_editor", "user"] as const
+// Grup adları backend'le TEK KAYNAKTAN gelir: burada eksik kalan grup token'dan
+// sessizce düşer ve kullanıcı rolü olduğu hâlde paneline giremez.
+import { isKnownUserGroup } from "@core/helpers/userAccess/groups"
 
 export type CognitoIdTokenProfile = {
     sub?: string
@@ -22,7 +24,7 @@ export function parseCognitoGroups(rawGroups: unknown): string[] {
             .filter((group): group is string => typeof group === "string")
             .flatMap((group) => group.replace(/[\[\]"]/g, "").split(/[,\s]+/))
             .map((group) => group.trim().toLowerCase())
-            .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])))
+            .filter(isKnownUserGroup))
     }
 
     if (typeof rawGroups !== "string") return []
@@ -37,7 +39,7 @@ export function parseCognitoGroups(rawGroups: unknown): string[] {
     return normalizeGroups(normalized
         .split(/[,\s]+/)
         .map((group) => group.trim().toLowerCase())
-        .filter((group) => KNOWN_GROUPS.includes(group as typeof KNOWN_GROUPS[number])))
+        .filter(isKnownUserGroup))
 }
 
 export function decodeJwtPayload(token: string): Record<string, unknown> | null {

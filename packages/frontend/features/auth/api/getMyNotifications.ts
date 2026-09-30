@@ -7,6 +7,8 @@ export type UserNotificationType =
     | "REQUEST_CREATED"
     | "APPROVAL_REQUIRED"
     | "REQUEST_DECIDED"
+    /** Üretim uyarısı (4.5): `data.kind`, `data.href` (tıklayınca gidilen panel adresi). */
+    | "PRODUCTION_ALERT"
 
 export type MyNotificationsResponse = {
     statusCode: number

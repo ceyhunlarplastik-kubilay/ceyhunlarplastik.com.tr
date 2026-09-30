@@ -39,6 +39,13 @@ type Props = {
     className?: string
     align?: "start" | "center" | "end"
     "aria-label"?: string
+    /**
+     * Sunucu araması: verilirse bileşen kendi filtrelemesini yapmaz, yazılanı buraya iletir;
+     * `options` o aramanın sonucudur. Verilmezse (varsayılan) seçenekler istemcide süzülür.
+     */
+    onSearchChange?: (search: string) => void
+    /** Seçili değer güncel sonuçlarda yoksa tetikleyicide gösterilecek etiket (sunucu araması). */
+    selectedLabel?: string
 }
 
 function stopScrollPropagation(event: UIEvent) {
@@ -64,9 +71,12 @@ export function SearchableSelect({
     className,
     align = "start",
     "aria-label": ariaLabel,
+    onSearchChange,
+    selectedLabel,
 }: Props) {
     const [open, setOpen] = useState(false)
-    const selected = options.find((option) => option.value === value) ?? null
+    const selected = options.find((option) => option.value === value)
+        ?? (value && selectedLabel ? { value, label: selectedLabel } : null)
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -95,8 +105,8 @@ export function SearchableSelect({
                 onWheelCapture={stopScrollPropagation}
                 onTouchMoveCapture={stopScrollPropagation}
             >
-                <Command>
-                    <CommandInput placeholder={searchPlaceholder ?? placeholder} />
+                <Command shouldFilter={!onSearchChange}>
+                    <CommandInput placeholder={searchPlaceholder ?? placeholder} onValueChange={onSearchChange} />
                     <CommandList onWheelCapture={stopScrollPropagation} onTouchMoveCapture={stopScrollPropagation}>
                         <CommandEmpty>{loading ? "Yükleniyor…" : emptyText}</CommandEmpty>
                         <CommandGroup>

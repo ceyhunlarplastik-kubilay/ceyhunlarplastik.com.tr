@@ -38,6 +38,7 @@ function getRoleBadge(groups: string[]) {
     if (groups.includes("sales_director")) return { label: "Satış Direktörü" }
     if (groups.includes("sales")) return { label: "Müşteri Temsilcisi" }
     if (groups.includes("content_editor")) return { label: "Veri Girişi" }
+    if (groups.includes("production_planner")) return { label: "Üretim Planlama" }
     if (groups.includes("supplier")) return { label: "Tedarikçi" }
     if (groups.includes("customer")) return { label: "Müşteri" }
     return { label: "User" }

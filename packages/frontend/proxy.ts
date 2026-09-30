@@ -30,6 +30,7 @@ const AUTH_PROTECTED_PREFIXES = [
     "/satinalma",
     "/musteri-temsilcisi",
     "/veri-girisi",
+    "/uretim",
     "/musteri",
 ]
 

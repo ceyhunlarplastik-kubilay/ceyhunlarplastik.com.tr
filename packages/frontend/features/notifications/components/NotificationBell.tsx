@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState, useSyncExternalStore } from "react"
-import { Bell, Check, RefreshCcw } from "lucide-react"
+import { Bell, Check, ChevronRight, RefreshCcw } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,6 +17,7 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 import { useMarkMyNotificationRead, useMyNotifications } from "@/features/auth/hooks/useMyNotifications"
 import { useRealtimeNotifications } from "@/features/notifications/hooks/useRealtimeNotifications"
+import { notificationHref } from "@/features/notifications/utils/notificationHref"
 import { cn } from "@/lib/utils"
 
 type Props = {
@@ -68,6 +70,7 @@ function formatDate(value: string) {
 
 export function NotificationBell({ className, viewport = "all", requestsHref }: Props) {
     const [open, setOpen] = useState(false)
+    const router = useRouter()
     const { status } = useSession()
     const viewportMatches = useViewportMatch(viewport)
     const active = viewportMatches && status === "authenticated"
@@ -140,12 +143,17 @@ export function NotificationBell({ className, viewport = "all", requestsHref }: 
                     <div className="max-h-[22rem] overflow-y-auto p-1.5">
                         {notifications.map((notification) => {
                             const unread = !notification.readAt
+                            // Bağlantılı bildirim (ör. üretim uyarısı) tıklanınca ilgili sayfayı açar.
+                            const href = notificationHref(notification.data)
 
                             return (
                                 <DropdownMenuItem
                                     key={notification.id}
                                     className="items-start gap-3 rounded-lg px-3 py-3"
-                                    onSelect={() => markReadMutation.mutate(notification.id)}
+                                    onSelect={() => {
+                                        markReadMutation.mutate(notification.id)
+                                        if (href) router.push(href)
+                                    }}
                                 >
                                     <span
                                         className={cn(
@@ -165,6 +173,7 @@ export function NotificationBell({ className, viewport = "all", requestsHref }: 
                                         </span>
                                     </span>
                                     {unread ? <Check className="mt-0.5 h-4 w-4 text-slate-400" /> : null}
+                                    {href ? <ChevronRight className="mt-0.5 h-4 w-4 text-slate-400" aria-hidden /> : null}
                                 </DropdownMenuItem>
                             )
                         })}

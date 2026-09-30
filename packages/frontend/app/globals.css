@@ -371,3 +371,22 @@
     @apply bg-background text-foreground;
   }
 } */
+
+/*
+ * Yazdırma: sayfada `.print-root` varsa (lot etiketi) YALNIZ o basılır; panel kabuğu, dialog ve
+ * bildirimler gizlenir. `.print-root` yoksa kural devreye girmez (diğer sayfalar normal basılır).
+ */
+.print-root {
+    display: none;
+}
+
+@media print {
+    body:has(> .print-root) > :not(.print-root) {
+        display: none !important;
+    }
+
+    .print-root {
+        display: block !important;
+    }
+}
+

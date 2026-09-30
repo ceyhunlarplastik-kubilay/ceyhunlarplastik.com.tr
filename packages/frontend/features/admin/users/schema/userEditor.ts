@@ -11,6 +11,7 @@ export const USER_GROUP_VALUES = [
     "sales_director",
     "customer",
     "content_editor",
+    "production_planner",
     "admin",
     "owner",
 ] as const
@@ -45,6 +46,7 @@ const BUSINESS_GROUP_OPTIONS: RoleOption[] = [
     { value: "sales_director", label: "Satış direktörü" },
     { value: "customer", label: "Müşteri portalı" },
     { value: "content_editor", label: "Veri girişi" },
+    { value: "production_planner", label: "Üretim planlama" },
 ]
 
 const PRIVILEGED_GROUP_OPTIONS: RoleOption[] = [
@@ -67,6 +69,7 @@ export const GROUP_LABELS: Record<UserGroup, string> = {
     sales_director: "Satış direktörü",
     customer: "Müşteri portalı",
     content_editor: "Veri girişi",
+    production_planner: "Üretim planlama",
     admin: "Admin",
     owner: "Owner",
 }
@@ -79,6 +82,7 @@ export const ROLE_ASSIGNMENT_CONFIG: Record<UserGroup, RoleAssignmentConfig> = {
     sales_director: {},
     customer: { requiresPortalCustomer: true },
     content_editor: {},
+    production_planner: {},
     admin: {},
     owner: {},
 }

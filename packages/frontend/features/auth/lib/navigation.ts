@@ -8,6 +8,7 @@ export function resolveAuthHome(
     if (groups.includes("sales_director")) return "/musteri-temsilcisi"
     if (groups.includes("sales")) return "/musteri-temsilcisi"
     if (groups.includes("content_editor")) return "/veri-girisi"
+    if (groups.includes("production_planner")) return "/uretim"
     if (groups.includes("supplier")) return "/tedarikci"
     if (groups.includes("customer")) return "/musteri"
     return "/hesabim"
@@ -46,6 +47,10 @@ export function canAccessPath(groups: string[] = [], pathname: string) {
 
     if (pathname.startsWith("/veri-girisi")) {
         return groups.includes("content_editor") || groups.includes("admin") || groups.includes("owner")
+    }
+
+    if (pathname.startsWith("/uretim")) {
+        return groups.includes("production_planner") || groups.includes("admin") || groups.includes("owner")
     }
 
     if (pathname.startsWith("/musteri")) {

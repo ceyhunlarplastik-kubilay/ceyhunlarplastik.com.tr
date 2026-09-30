@@ -1,9 +1,10 @@
 import { adminApiClient } from "@/lib/http/client"
 import type { UserResponse } from "@/features/admin/users/api/types"
+import type { UserGroup } from "@core/helpers/userAccess/groups"
 
 type Params = {
     id: string
-    group: "owner" | "admin" | "user" | "supplier" | "purchasing" | "sales" | "sales_director" | "customer" | "content_editor"
+    group: UserGroup
     accessStatus?: "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED"
     supplierId?: string | null
     customerId?: string | null
