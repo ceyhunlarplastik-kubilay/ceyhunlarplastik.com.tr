@@ -14,11 +14,14 @@ const isProd = $app.stage === "prod"
  * uyur; sürekli tarama onu gün boyu uyandırıp işlem saati harcardı, `sst dev` kapalıyken de hata
  * veren çağrılar bırakırdı.
  *
+ * `CronV2` (EventBridge Scheduler): eski `Cron` bileşeni SST 4'te kullanımdan kaldırıldı. Başarısız
+ * çağrı yeniden denenmez (varsayılan `retries: 0`) — bir sonraki tarama zaten birkaç dakika sonra.
+ *
  * Canlı yayın izni yalnız kullanıcı bildirim konularına (`…/notifications/users/*`); Realtime
  * bileşeni bilinçli olarak `link` edilmez (link `iot:Publish`'i `*`'a açar).
  */
 export const productionAlertsCron = isProd || config.PRODUCTION_ALERTS_ENABLED
-    ? new sst.aws.Cron("ProductionAlerts", {
+    ? new sst.aws.CronV2("ProductionAlerts", {
         schedule: isProd ? "rate(15 minutes)" : "rate(5 minutes)",
         function: {
             handler: "packages/functions/src/ProductionAlerts/actions.handler",

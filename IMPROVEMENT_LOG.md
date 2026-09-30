@@ -11157,6 +11157,19 @@ plandan farkı; kalıp × makinede gerçek çevrim karttakinden belirgin farklı
   3. O varyant için emir → Öner: makine kartı olmayan makinede çevrim "varyanttan", kartı olanda "makine kartından".
   4. Çevrimi boş kaydet → Öner yeniden "kalıptan".
 
+## Prod `sst diff` hatası — `MyPostgresSubnetGroup … subnet_ids is required` (2026-09-30) *(teşhis; kod değişikliği yok)*
+
+- **Belirti:** main'e merge sonrası `npx sst diff --stage prod` 80 satırda duruyor: `Missing required argument … subnet_ids`.
+- **Eleme:** canlı alt ağ grubu sağlam (AWS: "Complete", iki özel alt ağ); prod state doğru; `infra/db.ts` dalda
+  değişmemiş; yeni `productionAlerts` olmadan da, merge öncesi `infra/` ile de aynı hata → koddan bağımsız.
+- **Kök neden:** Dilim B'de `--noEmit`'siz çalışan kök `tsc`, git'te yok sayılan `.sst/platform/src`'ye de 192 `.js`
+  yazmıştı (o günkü temizlik yalnız `git status`'ta görünenleri silmişti). SST iki ayrı `Vpc` sınıfı yükledi;
+  `postgres.ts`'teki `args.vpc instanceof Vpc` tutmadı, bileşen VPC'yi düz nesne sandı ve `subnets` tanımsız kaldı.
+  Pulumi olay günlüğü doğruladı: alt ağ grubu, alt ağlar kaydedilmeden ÖNCE hazırlanıyordu; değer "bilinen + undefined".
+- **Düzeltme:** 192 dosya silindi (`.ts` kardeşi olanlar). `sst diff --stage prod` artık tamamlanıyor: 12.294 satır,
+  hata yok, **`Replaced` 0**; RDS / VPC / S3 kovası / CloudFront / kullanıcı havuzu diff'te yok.
+- **Ders:** CLAUDE.md'deki `--noEmit` tuzağına `.sst/platform` kontrolü eklendi.
+
 ## Doğrulanamayan / Onay Bekleyen Noktalar
 
 - `images.unoptimized: true` bilinçli mi? (OpenNext image optimization maliyet kararı olabilir)

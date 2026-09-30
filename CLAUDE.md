@@ -81,7 +81,10 @@ Sırayla çalıştır (CI'daki bloklayıcı adımların lokal karşılığı):
   doğrulaması için yeterli sinyaldir. Tam build yalnız `sst shell` içinde çalışır.
 - Root `tsc`'yi HER ZAMAN `--noEmit` ile çalıştır (`npx tsc --noEmit -p tsconfig.json`): bayraksız çalışınca kaynak
   klasörlerine binlerce `.js` yazar (yaşandı, 2026-09-30: 2.337 dosya; vitest testleri iki kez koşturdu ve bayat `.js`
-  yanlış kırmızı verdi). Temizlik: `.ts`/`.tsx` kardeşi olan izlenmeyen `.js`'leri sil.
+  yanlış kırmızı verdi). Temizlik: `.ts`/`.tsx` kardeşi olan izlenmeyen `.js`'leri sil. `.sst/platform/src` git'te YOK SAYILDIĞI
+  için `git status`'ta görünmez ama oraya da yazılır: SST o zaman `Vpc` sınıfının iki kopyasını yükler, `instanceof`
+  tutmaz ve `sst diff/deploy --stage prod` şu hatayla düşer: `MyPostgresSubnetGroup … "subnet_ids" is required`.
+  Kontrol: `find .sst/platform/src -name "*.js"` yalnız `shim/run.js` göstermeli.
 - Root `npx tsc -p tsconfig.json` ~12k hata üretir — tamamı `.sst/platform`
   @types/node kaskadıdır. Infra dosyası değişikliğinde çıktıyı dokunduğun dosyalara
   grep'le filtrele; infra `typecheck:backend` kapsamında DEĞİLDİR.
